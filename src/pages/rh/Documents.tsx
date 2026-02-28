@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Eye, Pencil, Trash2, Printer, Download, Mail, ArrowLeft, MoreHorizontal } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Search, Eye, Pencil, Trash2, Printer, Download, Mail, ArrowLeft, MoreHorizontal, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDocumentsRH, DocumentRH } from "@/hooks/useDocumentsRH";
 import { useIntervenants } from "@/hooks/useIntervenants";
@@ -279,78 +280,95 @@ export default function Documents() {
           </Button>
         </div>
 
-        {/* Table */}
-        <div className="rounded-lg border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">N°</TableHead>
-                <TableHead>Nom de l'employé</TableHead>
-                <TableHead>Type de document</TableHead>
-                <TableHead>Date de création</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-8" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
-                  </TableRow>
-                ))
-              ) : filteredDocuments.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    Aucun document trouvé
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredDocuments.map((doc, index) => (
-                  <TableRow key={doc.id}>
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell>
-                      {doc.intervenant?.prenom} {doc.intervenant?.nom}
-                    </TableCell>
-                    <TableCell>{doc.type_document}</TableCell>
-                    <TableCell>
-                      {format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleOpenViewDialog(doc)}>
-                            <Eye className="w-4 h-4 mr-2" />
-                            Aperçu
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleOpenEditDialog(doc)}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleOpenDeleteDialog(doc)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        {/* Documents Grid */}
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="border-border/50">
+                <CardContent className="p-6">
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-4 w-48 mb-4" />
+                  <Skeleton className="h-4 w-24" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : filteredDocuments.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <FileText className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+              <p className="text-muted-foreground">Aucun document trouvé</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredDocuments.map((doc) => (
+              <Card
+                key={doc.id}
+                className="border-border/50 hover:border-primary/50 transition-colors group"
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <FileText className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{doc.type_document}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {doc.intervenant?.prenom} {doc.intervenant?.nom}
+                        </p>
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleOpenViewDialog(doc)}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          Aperçu
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleOpenEditDialog(doc)}>
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleOpenDeleteDialog(doc)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {doc.nom_fichier && (
+                    <p className="text-xs text-muted-foreground mb-2 truncate">
+                      📎 {doc.nom_fichier}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
+                    <span>{format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs hover:text-primary"
+                      onClick={() => handleOpenViewDialog(doc)}
+                    >
+                      <Eye className="h-3.5 w-3.5 mr-1" />
+                      Aperçu
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Create/Edit Dialog */}
