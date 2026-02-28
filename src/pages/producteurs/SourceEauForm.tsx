@@ -94,9 +94,9 @@ const SourceEauForm = () => {
         { label: "Sources d'eau", path: "/intervenant/producteurs/eau" },
         { label: isEditing ? "Modifier" : "Nouvelle source" }
       ]} />
-    <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-           <div className="flex items-center gap-3">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-2">
             <Button variant="outline" size="icon" onClick={() => navigate("/intervenant/producteurs/eau")} className="shrink-0">
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -104,7 +104,7 @@ const SourceEauForm = () => {
               <Droplet className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-display font-bold text-foreground">
+              <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
                 {isEditing ? "Modifier la" : "Nouvelle"}{" "}
                 <span className="text-primary text-glow">Source d'eau</span>
               </h1>
@@ -113,15 +113,13 @@ const SourceEauForm = () => {
               </p>
             </div>
           </div>
-        </div>
+      </div>
 
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">Informations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
+      <div className="max-w-4xl">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-card border border-border rounded-xl p-6 animate-fade-in [animation-delay:100ms]">
+            <h3 className="text-lg font-medium text-foreground mb-6">Informations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="nom">Nom <span className="text-red-700">*</span></Label>
                   <Input
@@ -211,7 +209,7 @@ const SourceEauForm = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-4 pt-4 border-t border-border mt-6">
+            <div className="flex items-center justify-end gap-4 pt-4 border-t border-border mt-6">
                 <Button
                   type="button"
                   variant="outline"
@@ -230,10 +228,9 @@ const SourceEauForm = () => {
                   Enregistrer
                 </Button>
               </div>
-            </form>
-          </CardContent>
-      </Card>
-    </div>
+          </div>
+        </form>
+      </div>
     </>
   );
 };
