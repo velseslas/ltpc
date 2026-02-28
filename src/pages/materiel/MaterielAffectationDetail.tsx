@@ -72,7 +72,7 @@ export default function MaterielAffectationDetail() {
         { label: affectation.materiel_laboratoire?.nom || "Détails" },
       ]} />
 
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => navigate("/materiel/affectation")}>
             <ArrowLeft className="h-5 w-5" />
@@ -92,12 +92,13 @@ export default function MaterielAffectationDetail() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg">Informations</CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" onClick={() => navigate(`/materiel/affectation/${id}/modifier`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
-                <Pencil className="w-4 h-4" />
+              <Button variant="outline" onClick={() => navigate(`/materiel/affectation/${id}/modifier`)}>
+                <Pencil className="w-4 h-4 mr-2" />
+                Modifier
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"><Trash2 className="w-4 h-4" /></Button>
+                  <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive/10"><Trash2 className="w-4 h-4 mr-2" />Supprimer</Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
