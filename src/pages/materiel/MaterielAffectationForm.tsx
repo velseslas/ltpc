@@ -105,7 +105,7 @@ export default function MaterielAffectationForm() {
             <div className="grid gap-2"><Label>Date fin</Label><Input type="date" value={form.date_fin} onChange={e => setForm(p => ({ ...p, date_fin: e.target.value }))} /></div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 justify-end">
             <Button onClick={handleSubmit} disabled={createMutation.isPending}>Enregistrer</Button>
             <Button variant="outline" onClick={() => navigate("/materiel/affectation")}>Annuler</Button>
           </div>

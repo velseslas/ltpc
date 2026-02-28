@@ -86,7 +86,7 @@ export default function MaterielMaintenanceForm() {
           </div>
           <div className="grid gap-2"><Label>Description</Label><Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} /></div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 justify-end">
             <Button onClick={handleSubmit} disabled={createMutation.isPending}>Enregistrer</Button>
             <Button variant="outline" onClick={() => navigate("/materiel/maintenance")}>Annuler</Button>
           </div>
