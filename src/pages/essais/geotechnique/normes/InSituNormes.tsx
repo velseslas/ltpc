@@ -1,0 +1,122 @@
+import { ArrowLeft, Printer, Download, ChevronDown, FileText, Target, Settings, ListOrdered, Calculator } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
+import jsPDF from "jspdf";
+
+interface NormeData {
+  id: string; title: string; normeNumber: string; domaine: string; principe: string; appareillage: string[]; modeOperatoire: string[]; expression: string;
+}
+
+const normesData: NormeData[] = [
+  {
+    id: "penetrometre",
+    title: "Pénétromètre Dynamique",
+    normeNumber: "NF P 94-115",
+    domaine: "Cette norme définit l'essai de pénétration dynamique type A (pénétromètre dynamique lourd). Il permet la reconnaissance des sols en mesurant leur résistance à l'enfoncement d'une pointe normalisée.",
+    principe: "Une pointe conique est enfoncée dans le sol par battage d'un mouton de masse et hauteur de chute normalisées. On mesure le nombre de coups nécessaires pour enfoncer la pointe d'une longueur donnée (20 cm).",
+    appareillage: ["Pointe conique perdue ou récupérable", "Train de tiges (Ø 42 mm)", "Mouton de 64 kg, hauteur de chute 75 cm", "Enclume et tête de battage", "Dispositif de guidage", "Règle de mesure d'enfoncement"],
+    modeOperatoire: ["Mettre en place le pénétromètre verticalement", "Visser la première tige avec la pointe", "Battre et compter le nombre de coups par 20 cm d'enfoncement", "Ajouter les tiges au fur et à mesure de l'avancement", "Enregistrer le nombre de coups Nd pour chaque intervalle", "Poursuivre jusqu'à la profondeur souhaitée ou au refus", "Tracer le pénétrogramme Nd = f(profondeur)"],
+    expression: "Rd = M²×g×H / [A×e×(M+M')] (résistance de pointe dynamique, formule des Hollandais). M = masse du mouton, H = hauteur de chute, A = section de la pointe, e = enfoncement par coup, M' = masse des tiges + enclume. Corrélation empirique avec qc (CPT)."
+  },
+  {
+    id: "pressiometre",
+    title: "Essai Pressiométrique",
+    normeNumber: "NF P 94-110-1",
+    domaine: "Cette norme définit l'essai pressiométrique Ménard. Il permet de mesurer in situ les caractéristiques de déformabilité et de résistance des sols : module pressiométrique EM et pression limite pl.",
+    principe: "Une sonde cylindrique dilatable est introduite dans un forage. On applique des paliers de pression croissants et on mesure les variations de volume de la sonde. La courbe pression-volume permet de déterminer les paramètres pressiométriques.",
+    appareillage: ["Sonde pressiométrique (Ø 58 ou 44 mm)", "Contrôleur pression-volume (CPV)", "Tubulure de liaison", "Équipement de forage préalable", "Manomètre étalon", "Chronomètre"],
+    modeOperatoire: ["Réaliser un forage soigné (Ø adapté à la sonde)", "Descendre la sonde à la profondeur d'essai", "Appliquer des paliers de pression croissants (10 paliers minimum)", "Maintenir chaque palier 60 secondes", "Lire les volumes à 15, 30 et 60 secondes", "Poursuivre jusqu'à la pression limite (volume doublé)", "Appliquer les corrections (résistance de la sonde, pression hydrostatique)"],
+    expression: "EM = 2(1+ν) × V0 × Δp/ΔV (module pressiométrique). pl = pression limite (quand V = 2V0). pf = pression de fluage. α = coefficient rhéologique. Catégorie de sol selon EM/pl : argile (EM/pl = 5-15), sable (EM/pl = 7-12), roche altérée (EM/pl = 8-15)."
+  },
+  {
+    id: "plaque",
+    title: "Essai de Plaque",
+    normeNumber: "NF P 94-117-1",
+    domaine: "Cette norme définit l'essai de chargement à la plaque. Il permet de déterminer le module de déformation d'un sol en surface ou dans une excavation, pour le contrôle de compactage des plateformes.",
+    principe: "Une plaque circulaire rigide est chargée sur le sol par paliers successifs. On mesure l'enfoncement de la plaque sous chaque palier de charge. Le module est calculé à partir de la relation charge-enfoncement.",
+    appareillage: ["Plaque circulaire rigide (Ø 600 mm ou 750 mm)", "Vérin hydraulique avec manomètre", "Véhicule ou massif de réaction", "Comparateurs de déplacement (2 ou 3)", "Poutre de référence indéformable", "Pompe hydraulique"],
+    modeOperatoire: ["Niveler la surface d'essai et mettre du sable fin si nécessaire", "Placer la plaque centrée sur la zone d'essai", "Installer les comparateurs sur la poutre de référence", "Appliquer une précharge de 0,01 MPa puis décharger", "Premier cycle : charger par paliers jusqu'à 0,25 MPa", "Décharger complètement et attendre la stabilisation", "Deuxième cycle : recharger par paliers jusqu'à 0,25 MPa"],
+    expression: "EV2 = (π/4) × Δσ × Ø / Δz (module au 2ème cycle). EV1 = module au 1er cycle. k = EV2/EV1 (rapport des modules). Objectifs : EV2 ≥ 50 MPa et k ≤ 2 pour couche de forme. EV2 ≥ 30 MPa pour fond de forme."
+  },
+  {
+    id: "sondage",
+    title: "Sondage Carotté",
+    normeNumber: "NF P 94-500 / NF EN ISO 22475-1",
+    domaine: "Ces normes définissent les méthodes de sondage carotté pour la reconnaissance géotechnique. Le sondage permet de prélever des échantillons intacts pour identification et essais en laboratoire.",
+    principe: "Un carottier est enfoncé dans le sol par rotation ou battage pour extraire des échantillons cylindriques (carottes). La qualité de l'échantillon dépend du type de carottier et de la technique de prélèvement.",
+    appareillage: ["Sondeuse rotative ou à percussion", "Carottiers simples, doubles ou triples", "Tubes de prélèvement en acier ou PVC", "Fluide de forage (eau, boue bentonitique)", "Caisse à carottes pour stockage", "Appareil photo pour documentation"],
+    modeOperatoire: ["Implanter le sondage selon le plan de reconnaissance", "Forer jusqu'à la profondeur de prélèvement", "Introduire le carottier adapté au type de sol", "Enfoncer par rotation lente et pression contrôlée", "Extraire la carotte avec précaution", "Conditionner les échantillons (paraffinage, tube étanche)", "Documenter la coupe géologique et les observations", "Transporter vers le laboratoire en conditions adaptées"],
+    expression: "Taux de récupération = (longueur carotte récupérée / longueur forée) × 100. RQD (Rock Quality Designation) = (Σ morceaux > 10 cm / longueur forée) × 100 (pour roches). Classes de qualité : 1 (très bon, intact) à 5 (très pauvre, remanié)."
+  }
+];
+
+const InSituNormes = () => {
+  const navigate = useNavigate();
+  const [openItems, setOpenItems] = useState<string[]>([]);
+  const toggleItem = (id: string) => setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+
+  const handlePrint = (norme: NormeData) => {
+    const printContent = `<!DOCTYPE html><html><head><title>${norme.title} - ${norme.normeNumber}</title><style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.6}h1{color:#1a365d;border-bottom:2px solid #0284c7;padding-bottom:10px}.section{margin:20px 0;padding:15px;background:#f0f9ff;border-radius:8px}.section-title{font-weight:bold;color:#2d3748;margin-bottom:10px;display:flex;align-items:center;gap:8px}.section-number{background:#0284c7;color:white;padding:2px 8px;border-radius:4px;font-size:12px}ul,ol{margin:10px 0;padding-left:25px}li{margin:8px 0}.header{display:flex;justify-content:space-between;margin-bottom:30px}.norme-badge{background:#f0f9ff;color:#0369a1;padding:5px 15px;border-radius:20px;font-weight:bold}</style></head><body><div class="header"><h1>${norme.title}</h1><span class="norme-badge">${norme.normeNumber}</span></div><div class="section"><div class="section-title"><span class="section-number">1</span> Domaine d'application</div><p>${norme.domaine}</p></div><div class="section"><div class="section-title"><span class="section-number">2</span> Principe</div><p>${norme.principe}</p></div><div class="section"><div class="section-title"><span class="section-number">3</span> Appareillage</div><ul>${norme.appareillage.map(i=>`<li>${i}</li>`).join('')}</ul></div><div class="section"><div class="section-title"><span class="section-number">4</span> Mode opératoire</div><ol>${norme.modeOperatoire.map(s=>`<li>${s}</li>`).join('')}</ol></div><div class="section"><div class="section-title"><span class="section-number">5</span> Expression des résultats</div><p>${norme.expression}</p></div></body></html>`;
+    const w = window.open('','_blank'); if(w){w.document.write(printContent);w.document.close();w.print();}
+  };
+
+  const handleDownloadPDF = (norme: NormeData) => {
+    const pdf = new jsPDF(); const margin = 20; const maxWidth = pdf.internal.pageSize.getWidth()-2*margin; let y = 20;
+    pdf.setFontSize(18);pdf.setTextColor(2,132,199);pdf.text(norme.title,margin,y);y+=10;
+    pdf.setFontSize(12);pdf.setTextColor(3,105,161);pdf.text(norme.normeNumber,margin,y);y+=15;
+    const addSection = (num:string,title:string,content:string|string[],isList=false) => {
+      if(y>250){pdf.addPage();y=20;}pdf.setFontSize(12);pdf.setTextColor(45,55,72);pdf.setFont("helvetica","bold");pdf.text(`${num}. ${title}`,margin,y);y+=8;pdf.setFont("helvetica","normal");pdf.setFontSize(10);pdf.setTextColor(74,85,104);
+      if(isList&&Array.isArray(content)){content.forEach((item,i)=>{if(y>270){pdf.addPage();y=20;}const lines=pdf.splitTextToSize(`${i+1}. ${item}`,maxWidth-10);pdf.text(lines,margin+5,y);y+=lines.length*5+3;});}else{const lines=pdf.splitTextToSize(content as string,maxWidth);lines.forEach((line:string)=>{if(y>270){pdf.addPage();y=20;}pdf.text(line,margin,y);y+=6;});}y+=8;
+    };
+    addSection("1","Domaine d'application",norme.domaine);addSection("2","Principe",norme.principe);addSection("3","Appareillage",norme.appareillage,true);addSection("4","Mode opératoire",norme.modeOperatoire,true);addSection("5","Expression des résultats",norme.expression);
+    pdf.save(`${norme.normeNumber.replace(/\s/g,'_')}_${norme.id}.pdf`);
+  };
+
+  return (
+    <>
+      <EssaiBreadcrumb items={[{label:"Géotechnique",path:"/essais/geotechnique"},{label:"In-Situ",path:"/essais/geotechnique/in-situ"},{label:"Normes"}]} />
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-2">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/essais/geotechnique/in-situ")} className="h-10 w-10"><ArrowLeft className="h-5 w-5" /></Button>
+          <h1 className="text-3xl font-display font-bold text-foreground">Normes <span className="text-primary text-glow">Essais In-Situ</span></h1>
+        </div>
+        <p className="text-muted-foreground mt-2 ml-14">Références normatives et modes opératoires des essais in-situ</p>
+      </div>
+      <div className="space-y-4">
+        {normesData.map((norme) => (
+          <Collapsible key={norme.id} open={openItems.includes(norme.id)} onOpenChange={() => toggleItem(norme.id)}>
+            <div className="border border-border/50 rounded-xl bg-card overflow-hidden">
+              <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500/20 to-blue-500/10 flex items-center justify-center"><FileText className="h-6 w-6 text-sky-500" /></div>
+                  <div className="text-left"><h3 className="font-semibold text-lg">{norme.title}</h3><span className="text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{norme.normeNumber}</span></div>
+                </div>
+                <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${openItems.includes(norme.id)?'rotate-180':''}`} />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="px-6 pb-6 space-y-6 border-t border-border/50 pt-6">
+                  <div className="flex gap-3 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => handlePrint(norme)}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(norme)}><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-muted/30 rounded-lg"><div className="flex items-center gap-2 mb-2"><span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">1</span><Target className="h-4 w-4 text-primary" /><span className="font-semibold">Domaine d'application</span></div><p className="text-sm text-muted-foreground">{norme.domaine}</p></div>
+                    <div className="p-4 bg-muted/30 rounded-lg"><div className="flex items-center gap-2 mb-2"><span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">2</span><FileText className="h-4 w-4 text-primary" /><span className="font-semibold">Principe de l'essai</span></div><p className="text-sm text-muted-foreground">{norme.principe}</p></div>
+                    <div className="p-4 bg-muted/30 rounded-lg"><div className="flex items-center gap-2 mb-2"><span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">3</span><Settings className="h-4 w-4 text-primary" /><span className="font-semibold">Appareillage</span></div><ul className="text-sm text-muted-foreground space-y-1 ml-4">{norme.appareillage.map((item,idx)=><li key={idx} className="list-disc">{item}</li>)}</ul></div>
+                    <div className="p-4 bg-muted/30 rounded-lg"><div className="flex items-center gap-2 mb-2"><span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">4</span><ListOrdered className="h-4 w-4 text-primary" /><span className="font-semibold">Mode opératoire</span></div><ol className="text-sm text-muted-foreground space-y-2 ml-4">{norme.modeOperatoire.map((step,idx)=><li key={idx} className="list-decimal">{step}</li>)}</ol></div>
+                    <div className="p-4 bg-muted/30 rounded-lg"><div className="flex items-center gap-2 mb-2"><span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">5</span><Calculator className="h-4 w-4 text-primary" /><span className="font-semibold">Expression des résultats</span></div><p className="text-sm text-muted-foreground">{norme.expression}</p></div>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default InSituNormes;

@@ -1,0 +1,281 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
+import { useEchantillonsModuleElasticite, useDeleteEchantillonModuleElasticite } from "@/hooks/useEchantillonsModuleElasticite";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { toast } from "sonner";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
+import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
+import { useTableFilters } from "@/hooks/useTableFilters";
+
+const getStatutBadge = (statut: string) => {
+  switch (statut) {
+    case "en-cours":
+      return (
+        <Badge variant="outline" className="border-yellow-500/50 text-yellow-500 bg-yellow-500/10">
+          En cours
+        </Badge>
+      );
+    case "termine":
+      return (
+        <Badge variant="outline" className="border-emerald-500/50 text-emerald-500 bg-emerald-500/10">
+          Terminé
+        </Badge>
+      );
+    case "a-faire":
+      return (
+        <Badge variant="outline" className="border-sky-500/50 text-sky-500 bg-sky-500/10">
+          À faire
+        </Badge>
+      );
+    default:
+      return (
+        <Badge variant="outline" className="border-muted-foreground/50 text-muted-foreground">
+          {statut}
+        </Badge>
+      );
+  }
+};
+
+interface EchantillonWithRelations {
+  id: string;
+  numero: number;
+  statut: string;
+  date_coulage: string | null;
+  ouvrage: string | null;
+  destination_beton: string | null;
+  clients?: { nom: string } | null;
+  chantiers?: { nom: string } | null;
+}
+
+const ModuleElasticiteTest = () => {
+  const navigate = useNavigate();
+  const { data: echantillons, isLoading } = useEchantillonsModuleElasticite();
+  const deleteEchantillon = useDeleteEchantillonModuleElasticite();
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    currentPage,
+    setCurrentPage,
+    paginatedData,
+    totalPages,
+    totalItems,
+    startIndex,
+    endIndex,
+  } = useTableFilters<EchantillonWithRelations>({
+    data: echantillons as EchantillonWithRelations[] | undefined,
+    searchFields: [
+      (e) => e.clients?.nom,
+      (e) => e.chantiers?.nom,
+      (e) => e.ouvrage ?? undefined,
+      (e) => e.destination_beton ?? undefined,
+    ],
+    itemsPerPage: 10,
+  });
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteEchantillon.mutateAsync(id);
+      toast.success("Échantillon supprimé avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <EssaiBreadcrumb 
+        items={[
+          { label: "Béton", path: "/essais/beton" },
+          { label: "Béton Durci", path: "/essais/beton/beton-durci" },
+          { label: "Module d'Élasticité" }
+        ]} 
+      />
+      
+      {/* Header avec bouton retour */}
+      <div className="flex items-start gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/essais/beton/beton-durci")}
+          className="h-10 w-10"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            Essai du Module d'<span className="text-primary text-glow">Élasticité</span>
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            NF EN 12390-13 - Détermination du module d'élasticité en compression
+          </p>
+        </div>
+      </div>
+
+      {/* Barre de recherche, filtres et actions */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <div className="flex-1 min-w-0 w-full">
+          <EchantillonFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+          />
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Générer état
+          </Button>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => navigate("/essais/beton/beton-durci/module-elasticite/nouveau")}
+          >
+            <Plus className="h-4 w-4" />
+            Nouveau échantillon
+          </Button>
+        </div>
+      </div>
+
+      {/* Tableau des échantillons */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground font-medium">N°</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Client</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Chantier</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Partie de l'ouvrage</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Date de coulage</TableHead>
+              <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
+              <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                </TableCell>
+              </TableRow>
+            ) : paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  Aucun échantillon trouvé
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedData.map((echantillon) => (
+                <TableRow key={echantillon.id} className="border-border">
+                  <TableCell className="font-medium text-foreground">
+                    <span className="text-primary">ME</span>-{String(echantillon.numero).padStart(3, "0")}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.clients?.nom ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.chantiers?.nom ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.ouvrage ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.destination_beton ?? "-"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.date_coulage 
+                      ? format(new Date(echantillon.date_coulage), "dd/MM/yyyy", { locale: fr })
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {getStatutBadge(echantillon.statut)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2"
+                          onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${echantillon.id}`)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          Voir détails
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2"
+                          onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${echantillon.id}/saisie`)}
+                        >
+                          <ClipboardEdit className="h-4 w-4" />
+                          Saisie de données
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2"
+                          onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${echantillon.id}/rapport`)}
+                        >
+                          <FileBarChart className="h-4 w-4" />
+                          Afficher rapport
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2"
+                          onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${echantillon.id}/modifier`)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          Modifier
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 text-destructive"
+                          onClick={() => handleDelete(echantillon.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        
+        {/* Pagination */}
+        <EchantillonPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          startIndex={startIndex}
+          endIndex={endIndex}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default ModuleElasticiteTest;

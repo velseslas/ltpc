@@ -1,0 +1,129 @@
+import { useNavigate, useParams } from "react-router-dom";
+import { 
+  ArrowLeft, 
+  HardHat, 
+  MapPin, 
+  Building2, 
+  Calendar,
+  FlaskConical
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useChantier } from "@/hooks/useChantiers";
+import { useClient } from "@/hooks/useClients";
+import { ChantierEchantillonsList } from "@/components/laboratoires-mobiles/ChantierEchantillonsList";
+
+export default function LaboratoireMobileChantier() {
+  const navigate = useNavigate();
+  const { chantierId } = useParams();
+  const { data: chantier, isLoading: chantierLoading } = useChantier(chantierId || "");
+  const { data: client, isLoading: clientLoading } = useClient(chantier?.client_id || "");
+
+  if (chantierLoading || clientLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!chantier) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Chantier non trouvé</p>
+        <Button className="mt-4" onClick={() => navigate("/laboratoires-mobiles")}>
+          Retour aux laboratoires
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">{chantier.nom}</h1>
+          <p className="text-muted-foreground">Essais de résistance à la compression</p>
+        </div>
+      </div>
+
+      {/* Chantier Info */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/10">
+                <HardHat className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Chantier</p>
+                <p className="font-medium">{chantier.nom}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <Building2 className="h-5 w-5 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Client</p>
+                <p className="font-medium">{client?.nom || "Non renseigné"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <MapPin className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Localisation</p>
+                <p className="font-medium">{chantier.ville || "Non renseignée"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-purple-500/10">
+                <Calendar className="h-5 w-5 text-purple-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Statut</p>
+                <Badge variant="outline">{chantier.statut}</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Samples List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FlaskConical className="h-5 w-5" />
+            Échantillons de Compression
+          </CardTitle>
+          <CardDescription>Liste des échantillons pour ce chantier</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChantierEchantillonsList chantierId={chantierId || ""} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

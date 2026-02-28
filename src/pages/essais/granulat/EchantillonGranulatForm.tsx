@@ -1,0 +1,323 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { useCarrieres } from "@/hooks/useCarrieres";
+import { useProduits } from "@/hooks/useProduits";
+import { 
+  useEchantillonGranulatById,
+  useCreateEchantillonGranulatByType, 
+  useUpdateEchantillonGranulatByType 
+} from "@/hooks/useEchantillonsGranulatFactory";
+import { toast } from "sonner";
+import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+
+const formSchema = z.object({
+  carriere_id: z.string().min(1, "Sélectionnez une carrière"),
+  produit: z.string().min(1, "Sélectionnez un produit"),
+  date_reception: z.string().min(1, "La date de réception est requise"),
+  observations: z.string().max(500, "Maximum 500 caractères").optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+interface EchantillonGranulatFormProps {
+  essaiType: string;
+  essaiTitle: string;
+  basePath: string;
+}
+
+export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePath }: EchantillonGranulatFormProps) {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = !!id;
+
+  const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
+  const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGranulatById(essaiType, id);
+  
+  const createEchantillon = useCreateEchantillonGranulatByType(essaiType);
+  const updateEchantillon = useUpdateEchantillonGranulatByType(essaiType);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      carriere_id: "",
+      produit: "",
+      date_reception: new Date().toISOString().split("T")[0],
+      observations: "",
+    },
+  });
+
+  const selectedCarriereId = form.watch("carriere_id");
+  const { data: produits, isLoading: produitsLoading } = useProduits(selectedCarriereId, "carriere");
+  
+  // Track if form has been initialized with edit data
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
+  const [lastCarriereId, setLastCarriereId] = useState("");
+  const [isPreFilling, setIsPreFilling] = useState(false);
+  const [initStep, setInitStep] = useState(0);
+  const [pendingProduit, setPendingProduit] = useState<string | null>(null);
+
+  // Reset produit when carriere changes (only after form is initialized and carriere actually changed)
+  useEffect(() => {
+    if (isFormInitialized && selectedCarriereId && selectedCarriereId !== lastCarriereId && initStep === 0) {
+      form.setValue("produit", "");
+      setLastCarriereId(selectedCarriereId);
+    }
+  }, [selectedCarriereId, form, isFormInitialized, lastCarriereId, initStep]);
+
+  // Multi-step initialization for edit mode
+  useEffect(() => {
+    if (echantillon && isEditing && !isFormInitialized) {
+      setIsPreFilling(true);
+      
+      // Step 1: Set the carriere_id first
+      if (initStep === 0) {
+        form.setValue("carriere_id", echantillon.carriere_id || "");
+        setLastCarriereId(echantillon.carriere_id || "");
+        setPendingProduit(echantillon.produit);
+        setInitStep(1);
+      }
+    }
+  }, [echantillon, isEditing, form, isFormInitialized, initStep]);
+
+  // Step 2: Wait for products to load, then set the produit
+  useEffect(() => {
+    if (initStep === 1 && pendingProduit && !produitsLoading && produits) {
+      // Small delay to ensure the select is ready
+      const timer = setTimeout(() => {
+        form.setValue("produit", pendingProduit);
+        
+        // Set remaining fields
+        if (echantillon) {
+          form.setValue("date_reception", echantillon.date_reception);
+          form.setValue("observations", echantillon.observations || "");
+        }
+        
+        setIsFormInitialized(true);
+        setIsPreFilling(false);
+        setPendingProduit(null);
+        setInitStep(0);
+      }, 150);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [initStep, pendingProduit, produitsLoading, produits, form, echantillon]);
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const data = {
+        carriere_id: values.carriere_id,
+        produit: values.produit,
+        date_reception: values.date_reception,
+        observations: values.observations || null,
+      };
+
+      if (isEditing && id) {
+        await updateEchantillon.mutateAsync({ id, ...data });
+        toast.success("Échantillon modifié avec succès");
+      } else {
+        await createEchantillon.mutateAsync(data);
+        toast.success("Échantillon créé avec succès");
+      }
+      navigate(basePath);
+    } catch (error) {
+      toast.error("Une erreur est survenue");
+    }
+  };
+
+  const isLoading = carrieresLoading || (isEditing && echantillonLoading);
+  const isPending = createEchantillon.isPending || updateEchantillon.isPending;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(basePath)}
+          className="rounded-full"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            {isEditing ? "Modifier" : "Nouvel"}{" "}
+            <span className="text-primary text-glow">échantillon</span>
+          </h1>
+          <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+        </div>
+      </div>
+
+      {/* Form */}
+      <Card className="border-border bg-card relative">
+        <FormLoadingOverlay 
+          isLoading={isEditing && (echantillonLoading || isPreFilling)} 
+          message="Chargement des données de l'échantillon..." 
+        />
+        <CardHeader>
+          <CardTitle>Informations de l'échantillon</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="carriere_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Carrière *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border">
+                            <SelectValue placeholder="Sélectionnez une carrière" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-popover border-border">
+                          {carrieres?.map((carriere) => (
+                            <SelectItem key={carriere.id} value={carriere.id}>
+                              {carriere.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="produit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Produit *</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                        disabled={!selectedCarriereId}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border">
+                            <SelectValue placeholder={
+                              !selectedCarriereId 
+                                ? "Sélectionnez d'abord une carrière" 
+                                : produitsLoading 
+                                  ? "Chargement..." 
+                                  : "Sélectionnez un produit"
+                            } />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-popover border-border">
+                          {produits?.length === 0 ? (
+                            <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                              Aucun produit pour cette carrière
+                            </div>
+                          ) : (
+                            produits?.map((produit) => (
+                              <SelectItem key={produit.id} value={produit.nom}>
+                                {produit.nom}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date_reception"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date de réception *</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="date"
+                          className="bg-background border-border"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="observations"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Observations</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Observations sur l'échantillon..."
+                        className="bg-background border-border min-h-[100px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate(basePath)}
+                  className="border-border"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  className="gradient-primary text-primary-foreground"
+                >
+                  {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <Save className="w-4 h-4 mr-2" />
+                  {isEditing ? "Modifier" : "Créer"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
