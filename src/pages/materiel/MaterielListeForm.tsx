@@ -111,7 +111,7 @@ export default function MaterielListeForm() {
             <div className="grid gap-2"><Label>Localisation</Label><Input value={form.localisation} onChange={e => setForm(p => ({ ...p, localisation: e.target.value }))} /></div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 justify-end">
             <Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>
               {isEdit ? "Mettre à jour" : "Enregistrer"}
             </Button>
