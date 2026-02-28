@@ -125,7 +125,7 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
       <AppBreadcrumb items={[{ label: "Documents", path: "/documents" }, { label: title }]} />
 
       <div className="mb-6 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/documents")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/documents")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-3xl font-display font-bold text-foreground">
