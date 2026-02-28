@@ -233,7 +233,7 @@ export default function Documents() {
 
   return (
     <>
-      <div className="space-y-6">
+      {!isViewDialogOpen && <div className="space-y-6">
         <AppBreadcrumb 
           items={[
             { label: "Ressources Humaines", path: "/rh" },
@@ -369,7 +369,7 @@ export default function Documents() {
             ))}
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -437,85 +437,97 @@ export default function Documents() {
         </DialogContent>
       </Dialog>
 
-      {/* View Dialog with Document Preview */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Aperçu du document</span>
-              {selectedDocument && isDocumentPreviewable(selectedDocument.type_document) && (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
-                    <Printer className="h-4 w-4" />
-                    Imprimer
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleDownload} className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Télécharger
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleOpenEmailDialog} className="gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </Button>
-                </div>
-              )}
-            </DialogTitle>
-          </DialogHeader>
-          
-          {selectedDocument && isDocumentPreviewable(selectedDocument.type_document) && selectedIntervenant && entreprise ? (
-            <div className="overflow-auto bg-muted/30 p-4 rounded-lg">
-              <div className="transform scale-[0.6] origin-top">
-                <DocumentPreview
-                  ref={documentRef}
-                  type={getDocumentType(selectedDocument.type_document)}
-                  employe={{
-                    nom: selectedIntervenant.nom,
-                    prenom: selectedIntervenant.prenom,
-                    date_naissance: selectedIntervenant.date_naissance,
-                    date_embauche: selectedIntervenant.date_embauche,
-                    poste: selectedPoste?.nom,
-                    cin: selectedIntervenant.cin,
-                    adresse: selectedIntervenant.adresse,
-                  }}
-                  entreprise={{
-                    nom: entreprise.nom,
-                    siege_social: entreprise.siege_social,
-                    telephone: entreprise.telephone,
-                    email: entreprise.email,
-                    logo_url: entreprise.logo_url,
-                    numero_autorisation: entreprise.numero_autorisation,
-                  }}
-                />
-              </div>
+      {/* Inline Document Preview */}
+      {isViewDialogOpen && selectedDocument && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="icon"
+                className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+                onClick={() => setIsViewDialogOpen(false)}
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h2 className="text-xl font-semibold">Aperçu du document</h2>
             </div>
-          ) : selectedDocument ? (
-            <div className="space-y-4 py-4">
-              <div className="text-center py-8 text-muted-foreground">
-                <p>L'aperçu n'est pas disponible pour ce type de document.</p>
-                <p className="text-sm mt-2">Types supportés: Attestation de travail, Certificat de travail</p>
+            {isDocumentPreviewable(selectedDocument.type_document) && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
+                  <Printer className="h-4 w-4" />
+                  Imprimer
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleDownload} className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Télécharger
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleOpenEmailDialog} className="gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </Button>
               </div>
-              <div className="border-t pt-4 space-y-3">
-                <div>
-                  <span className="text-sm text-muted-foreground">Employé</span>
-                  <p className="font-medium">
-                    {selectedDocument.intervenant?.prenom} {selectedDocument.intervenant?.nom}
-                  </p>
+            )}
+          </div>
+
+          {isDocumentPreviewable(selectedDocument.type_document) && selectedIntervenant && entreprise ? (
+            <Card>
+              <CardContent className="p-6 overflow-auto bg-muted/30 rounded-lg">
+                <div className="transform scale-[0.6] origin-top">
+                  <DocumentPreview
+                    ref={documentRef}
+                    type={getDocumentType(selectedDocument.type_document)}
+                    employe={{
+                      nom: selectedIntervenant.nom,
+                      prenom: selectedIntervenant.prenom,
+                      date_naissance: selectedIntervenant.date_naissance,
+                      date_embauche: selectedIntervenant.date_embauche,
+                      poste: selectedPoste?.nom,
+                      cin: selectedIntervenant.cin,
+                      adresse: selectedIntervenant.adresse,
+                    }}
+                    entreprise={{
+                      nom: entreprise.nom,
+                      siege_social: entreprise.siege_social,
+                      telephone: entreprise.telephone,
+                      email: entreprise.email,
+                      logo_url: entreprise.logo_url,
+                      numero_autorisation: entreprise.numero_autorisation,
+                    }}
+                  />
                 </div>
-                <div>
-                  <span className="text-sm text-muted-foreground">Type de document</span>
-                  <p className="font-medium">{selectedDocument.type_document}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>L'aperçu n'est pas disponible pour ce type de document.</p>
+                  <p className="text-sm mt-2">Types supportés: Attestation de travail, Certificat de travail</p>
                 </div>
-                <div>
-                  <span className="text-sm text-muted-foreground">Date de création</span>
-                  <p className="font-medium">
-                    {format(new Date(selectedDocument.created_at), "dd MMMM yyyy à HH:mm", { locale: fr })}
-                  </p>
+                <div className="border-t pt-4 grid grid-cols-3 gap-4">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Employé</span>
+                    <p className="font-medium">
+                      {selectedDocument.intervenant?.prenom} {selectedDocument.intervenant?.nom}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Type de document</span>
+                    <p className="font-medium">{selectedDocument.type_document}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Date de création</span>
+                    <p className="font-medium">
+                      {format(new Date(selectedDocument.created_at), "dd MMMM yyyy à HH:mm", { locale: fr })}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* Email Dialog */}
       <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
