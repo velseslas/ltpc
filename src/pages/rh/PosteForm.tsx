@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCreatePoste, useUpdatePoste, usePoste } from "@/hooks/usePostes";
 import { useToast } from "@/hooks/use-toast";
@@ -145,9 +145,19 @@ export default function PosteForm() {
           { label: isEditing ? "Modifier" : "Nouveau" }
         ]} />
 
-        <h1 className="text-2xl font-bold tracking-tight">
-          {isEditing ? "Modifier le Poste" : "Créer un Nouveau Poste"}
-        </h1>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate("/rh/postes")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {isEditing ? "Modifier le Poste" : "Créer un Nouveau Poste"}
+          </h1>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <Card className="border-border/50">

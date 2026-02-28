@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Users, Building2, Calendar, MapPin } from "lucide-react";
+import { Users, Building2, Calendar, MapPin, ArrowLeft, Pencil } from "lucide-react";
 import { useIntervenant } from "@/hooks/useIntervenants";
 import { useAffectationsByIntervenant } from "@/hooks/useAffectations";
 import { format } from "date-fns";
@@ -72,9 +72,29 @@ export default function TechnicienDetail() {
           { label: `${intervenant.prenom} ${intervenant.nom}` }
         ]} />
 
-        <h1 className="text-2xl font-semibold text-foreground">
-          Détails du technicien
-        </h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              onClick={() => navigate("/rh/affectations")}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Détails du technicien
+            </h1>
+          </div>
+          <Button
+            variant="outline"
+            className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate(`/rh/employes/${id}/modifier`)}
+          >
+            <Pencil className="h-4 w-4" />
+            Modifier
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Personal Information */}

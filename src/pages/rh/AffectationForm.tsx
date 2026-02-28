@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
@@ -125,9 +125,19 @@ export default function AffectationForm() {
           { label: isEditing ? "Modifier" : "Nouvelle" }
         ]} />
 
-        <h1 className="text-2xl font-semibold text-foreground">
-          {isEditing ? "Modifier l'Affectation" : "Nouvelle Affectation"}
-        </h1>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate("/rh/affectations")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="text-2xl font-semibold text-foreground">
+            {isEditing ? "Modifier l'Affectation" : "Nouvelle Affectation"}
+          </h1>
+        </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>

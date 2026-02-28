@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Save, X, Loader2, AlertCircle } from "lucide-react";
+import { Save, X, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   useIntervenant,
@@ -169,15 +169,25 @@ const EmployeForm = () => {
           { label: isEditing ? "Modifier" : "Nouveau" }
         ]} />
 
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {isEditing ? "Modifier l'employé" : "Nouvel employé"}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditing
-              ? "Modifiez les informations de l'employé"
-              : "Ajoutez un nouvel employé à l'équipe"}
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate("/rh/employes")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isEditing ? "Modifier l'employé" : "Nouvel employé"}
+            </h1>
+            <p className="text-muted-foreground">
+              {isEditing
+                ? "Modifiez les informations de l'employé"
+                : "Ajoutez un nouvel employé à l'équipe"}
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
