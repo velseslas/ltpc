@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Database, Download, Upload, Trash2, RefreshCw, HardDrive, Clock, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -53,6 +54,11 @@ const DatabaseSettings = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Base de données" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

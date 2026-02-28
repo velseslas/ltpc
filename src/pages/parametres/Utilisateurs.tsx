@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Users, Plus, Search, MoreHorizontal, Shield, Clock, Loader2 } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -208,6 +209,11 @@ const Utilisateurs = () => {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Utilisateurs" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

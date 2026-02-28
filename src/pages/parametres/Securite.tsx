@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Shield, Save, Loader2, Lock, Key, Eye, Clock, AlertTriangle } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useParametresSecurite, useUpsertParametresSecurite } from "@/hooks/useParametres";
 
 const Securite = () => {
@@ -69,6 +70,11 @@ const Securite = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Sécurité" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

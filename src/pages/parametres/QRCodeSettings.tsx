@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, QrCode, Save, Loader2, FileText, Link2, Eye } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { QRCodeSVG } from "qrcode.react";
 import { useParametresQRCode, useUpsertParametresQRCode } from "@/hooks/useParametres";
 
@@ -77,6 +78,11 @@ const QRCodeSettings = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "QR Code" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

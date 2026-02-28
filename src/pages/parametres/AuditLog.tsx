@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, FileText, Search, Download, Filter, User, Clock, Activity, Loader2 } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useJournalAudit } from "@/hooks/useParametres";
@@ -66,6 +67,11 @@ const AuditLog = () => {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Journal d'Audit" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

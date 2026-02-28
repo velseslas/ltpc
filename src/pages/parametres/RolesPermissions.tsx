@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Shield, Users, Lock, Plus, Trash2, Check, X, Info, Search } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -114,6 +115,11 @@ const RolesPermissions = () => {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Rôles & Permissions" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
