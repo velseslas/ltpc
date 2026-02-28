@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { ArrowLeft, Plus, Search, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, MoreHorizontal, Pencil, Trash2, FileText, Calendar, Building2, MapPin, Loader2 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { toast } from "sonner";
@@ -39,14 +38,14 @@ interface DocumentListPageProps {
 }
 
 const statusBadge = (statut: string) => {
-  const map: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-    brouillon: { label: "Brouillon", variant: "secondary" },
-    envoyé: { label: "Envoyé", variant: "default" },
-    accepté: { label: "Accepté", variant: "outline" },
-    refusé: { label: "Refusé", variant: "destructive" },
+  const map: Record<string, { label: string; className: string }> = {
+    brouillon: { label: "Brouillon", className: "bg-muted text-muted-foreground" },
+    envoyé: { label: "Envoyé", className: "bg-primary/20 text-primary border-primary/30" },
+    accepté: { label: "Accepté", className: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" },
+    refusé: { label: "Refusé", className: "bg-destructive/20 text-destructive border-destructive/30" },
   };
-  const s = map[statut] || { label: statut, variant: "secondary" as const };
-  return <Badge variant={s.variant}>{s.label}</Badge>;
+  const s = map[statut] || { label: statut, className: "bg-muted text-muted-foreground" };
+  return <Badge className={s.className}>{s.label}</Badge>;
 };
 
 const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, extraColumns }: DocumentListPageProps) => {
@@ -69,7 +68,7 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
   } = useTableFilters({
     data: query.data,
     searchFields: ["titre", "numero", (item: any) => item.clients?.nom, (item: any) => item.chantiers?.nom],
-    itemsPerPage: 10,
+    itemsPerPage: 9,
   });
 
   const handleSubmit = async (data: DocumentFormData) => {
@@ -124,143 +123,181 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
     <>
       <AppBreadcrumb items={[{ label: "Documents", path: "/documents" }, { label: title }]} />
 
-      <div className="mb-6 flex items-center gap-3">
-        <Button variant="outline" size="icon" onClick={() => navigate("/documents")}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-3xl font-display font-bold text-foreground">
-          {title.split(" ").map((word, i) => (
-            <span key={i} className={i % 2 === 0 ? "text-primary text-glow" : ""}>
-              {word}{" "}
-            </span>
-          ))}
-        </h1>
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate("/documents")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">
+              {title.split(" ").map((word, i) => (
+                <span key={i} className={i % 2 === 0 ? "text-primary text-glow" : ""}>
+                  {word}{" "}
+                </span>
+              ))}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Gestion et suivi des documents
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-6">
+      {/* Actions Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher un document..."
+            className="pl-10 bg-card border-border"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <Button
+          className="gap-2 gradient-primary text-primary-foreground"
+          onClick={() => { setEditItem(null); setFormOpen(true); }}
+        >
+          <Plus className="w-4 h-4" />
+          Nouveau
+        </Button>
+      </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+      {/* Cards Grid */}
+      <div>
+        {query.isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
-          <Button onClick={() => { setEditItem(null); setFormOpen(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouveau
-          </Button>
-        </div>
+        ) : paginatedData.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <Icon className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>Aucun document trouvé</p>
+            <p className="text-sm mt-1">Cliquez sur "Nouveau" pour ajouter un document</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedData.map((item: any) => (
+              <div
+                key={item.id}
+                className="rounded-xl bg-card border border-border p-6 hover:border-primary/50 transition-all duration-300 group"
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className={`w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-5 h-5 ${iconColor}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                        {item.titre}
+                      </h3>
+                      {item.numero && (
+                        <p className="text-xs text-muted-foreground font-mono">N° {item.numero}</p>
+                      )}
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setEditItem(item); setFormOpen(true); }}>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Modifier
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(item.id)}>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Supprimer
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
 
-        <div className="rounded-lg border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Titre</TableHead>
-                <TableHead>N°</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Chantier</TableHead>
-                {extraColumns?.map((col) => (
-                  <TableHead key={col.header}>{col.header}</TableHead>
-                ))}
-                <TableHead>Statut</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {query.isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7 + (extraColumns?.length || 0)} className="text-center py-8 text-muted-foreground">
-                    Chargement...
-                  </TableCell>
-                </TableRow>
-              ) : paginatedData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7 + (extraColumns?.length || 0)} className="text-center py-8 text-muted-foreground">
-                    Aucun document trouvé
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedData.map((item: any) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.titre}</TableCell>
-                    <TableCell>{item.numero || "—"}</TableCell>
-                    <TableCell>
+                {/* Details */}
+                <div className="space-y-2.5 text-sm mb-4">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    <span>
                       {item.date_document
-                        ? format(new Date(item.date_document), "dd/MM/yyyy", { locale: fr })
-                        : "—"}
-                    </TableCell>
-                    <TableCell>{item.clients?.nom || "—"}</TableCell>
-                    <TableCell>{item.chantiers?.nom || "—"}</TableCell>
-                    {extraColumns?.map((col) => (
-                      <TableCell key={col.header}>{col.render(item)}</TableCell>
-                    ))}
-                    <TableCell>{statusBadge(item.statut)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setEditItem(item); setFormOpen(true); }}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Modifier
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(item.id)}>
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Supprimer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                        ? format(new Date(item.date_document), "dd MMM yyyy", { locale: fr })
+                        : "Non renseigné"}
+                    </span>
+                  </div>
 
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {startIndex}–{endIndex} sur {totalItems}
-            </p>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      isActive={page === currentPage}
-                      onClick={() => setCurrentPage(page)}
-                      className="cursor-pointer"
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Building2 className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.clients?.nom || "Aucun client"}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.chantiers?.nom || "Aucun chantier"}</span>
+                  </div>
+
+                  {/* Extra columns rendered as additional details */}
+                  {extraColumns?.map((col) => (
+                    <div key={col.header} className="flex items-center gap-2 text-muted-foreground">
+                      <FileText className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">
+                        {col.header}: <span className="text-foreground">{col.render(item)}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer */}
+                <div className="pt-3 border-t border-border/50">
+                  {statusBadge(item.statut)}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6">
+          <p className="text-sm text-muted-foreground">
+            {startIndex}–{endIndex} sur {totalItems}
+          </p>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       <DocumentFormDialog
         open={formOpen}
