@@ -180,7 +180,7 @@ const ClientForm = () => {
       </div>
 
       {/* Form */}
-      <div className="max-w-4xl">
+      <div>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="bg-card border border-border rounded-xl p-6 animate-fade-in [animation-delay:100ms]">
             <h3 className="text-lg font-medium text-foreground mb-6">Informations générales</h3>
