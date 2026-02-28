@@ -42,6 +42,8 @@ const Authentification = () => {
 
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurRow[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -149,8 +151,13 @@ const Authentification = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/parametres")}>
-          <ArrowLeft className="h-5 w-5" />
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/parametres")}
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-3">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-500">
@@ -207,7 +214,13 @@ const Authentification = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {utilisateurs.map((user) => (
+                {(() => {
+                  const totalPages = Math.ceil(utilisateurs.length / ITEMS_PER_PAGE);
+                  const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+                  const paginatedUsers = utilisateurs.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+                  const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, utilisateurs.length);
+                  return paginatedUsers;
+                })().map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -247,6 +260,20 @@ const Authentification = () => {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {utilisateurs.length > ITEMS_PER_PAGE && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t border-border mt-4">
+              <div className="text-sm text-muted-foreground">
+                Affichage de {(currentPage - 1) * ITEMS_PER_PAGE + 1} à {Math.min(currentPage * ITEMS_PER_PAGE, utilisateurs.length)} sur {utilisateurs.length} utilisateurs
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
+                {Array.from({ length: Math.ceil(utilisateurs.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map(page => (
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">{page}</Button>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(Math.ceil(utilisateurs.length / ITEMS_PER_PAGE), p + 1))} disabled={currentPage === Math.ceil(utilisateurs.length / ITEMS_PER_PAGE)}>Suivant</Button>
+              </div>
+           </div>
           )}
         </CardContent>
       </Card>

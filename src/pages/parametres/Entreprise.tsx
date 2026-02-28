@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Upload, Save, Loader2, Stamp } from "lucide-react";
+import { ArrowLeft, Building2, Upload, Save, Loader2, Stamp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useEntreprise, useUpdateEntreprise, uploadLogo, uploadCachet } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 const Entreprise = () => {
+  const navigate = useNavigate();
   const { data: entreprise, isLoading } = useEntreprise();
   const updateEntreprise = useUpdateEntreprise();
   
@@ -127,7 +129,15 @@ const Entreprise = () => {
       />
 
       <div className="mb-8">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/parametres")}
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
             <Building2 className="w-6 h-6 text-white" />
           </div>

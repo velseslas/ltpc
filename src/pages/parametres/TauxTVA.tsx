@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,8 @@ const TauxTVAPage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: tauxList = [], isLoading } = useTauxTVA();
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
   const createTaux = useCreateTauxTVA();
   const updateTaux = useUpdateTauxTVA();
   const deleteTaux = useDeleteTauxTVA();
@@ -99,17 +101,23 @@ const TauxTVAPage = () => {
 
   const isSaving = createTaux.isPending || updateTaux.isPending;
 
+  const totalPages = Math.ceil(tauxList.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedList = tauxList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, tauxList.length);
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={() => navigate("/parametres")}
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500">
@@ -158,7 +166,7 @@ const TauxTVAPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tauxList.map((taux) => (
+                {paginatedList.map((taux) => (
                   <TableRow key={taux.id}>
                     <TableCell className="font-medium">{taux.nom}</TableCell>
                     <TableCell>
@@ -199,6 +207,20 @@ const TauxTVAPage = () => {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {tauxList.length > ITEMS_PER_PAGE && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t border-border mt-4">
+              <div className="text-sm text-muted-foreground">
+                Affichage de {startIndex + 1} à {endIndex} sur {tauxList.length} éléments
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">{page}</Button>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Suivant</Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

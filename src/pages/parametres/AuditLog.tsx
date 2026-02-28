@@ -28,6 +28,8 @@ const AuditLog = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: auditEntries = [], isLoading } = useJournalAudit({ type: typeFilter, search: searchQuery });
 
@@ -39,6 +41,11 @@ const AuditLog = () => {
       entry.cible?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
+
+  const totalPages = Math.ceil(filteredEntries.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedEntries = filteredEntries.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredEntries.length);
 
   const getTypeBadge = (type: string) => {
     switch (type) {
@@ -62,8 +69,13 @@ const AuditLog = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/parametres")}>
-            <ArrowLeft className="h-5 w-5" />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/parametres")}
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+          >
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500">
@@ -185,7 +197,7 @@ const AuditLog = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredEntries.map((entry) => (
+                {paginatedEntries.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell className="text-muted-foreground">
                       {format(new Date(entry.created_at), "dd/MM/yyyy HH:mm:ss", { locale: fr })}
@@ -212,6 +224,24 @@ const AuditLog = () => {
               <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>Aucune entrée correspondante</p>
             </div>
+          )}
+
+          {filteredEntries.length > ITEMS_PER_PAGE && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t border-border mt-4">
+              <div className="text-sm text-muted-foreground">
+                Affichage de {startIndex + 1} à {endIndex} sur {filteredEntries.length} entrées
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                  return startPage + i;
+                }).filter(p => p <= totalPages).map(page => (
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">{page}</Button>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Suivant</Button>
+              </div>
+           </div>
           )}
         </CardContent>
       </Card>

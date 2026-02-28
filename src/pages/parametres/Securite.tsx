@@ -72,11 +72,12 @@ const Securite = () => {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate("/parametres")}
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-3">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-red-500">
