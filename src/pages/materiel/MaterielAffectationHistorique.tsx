@@ -141,7 +141,6 @@ export default function MaterielAffectationHistorique() {
                     <TableHead>Date fin</TableHead>
                     <TableHead>Durée</TableHead>
                     <TableHead>Statut</TableHead>
-                    <TableHead>Observations</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -159,7 +158,6 @@ export default function MaterielAffectationHistorique() {
                         <TableCell>{a.date_fin ? format(new Date(a.date_fin), "dd/MM/yyyy", { locale: fr }) : "—"}</TableCell>
                         <TableCell>{duree}j</TableCell>
                         <TableCell>{statutBadge(a.statut)}</TableCell>
-                        <TableCell className="max-w-[200px] truncate">{a.observations || "—"}</TableCell>
                       </TableRow>
                     );
                   })}

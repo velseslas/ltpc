@@ -148,21 +148,19 @@ export default function MaterielEtalonnageHistorique() {
                     <TableHead>N° Certificat</TableHead>
                     <TableHead>Résultat</TableHead>
                     <TableHead>Échéance</TableHead>
-                    <TableHead>Observations</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.map((e: any) => (
-                    <TableRow key={e.id}>
-                      <TableCell className="font-medium">{e.materiel_laboratoire?.nom || "—"}</TableCell>
-                      <TableCell>{e.materiel_laboratoire?.reference || "—"}</TableCell>
-                      <TableCell>{format(new Date(e.date_etalonnage), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell>{e.organisme || "—"}</TableCell>
-                      <TableCell>{e.numero_certificat || "—"}</TableCell>
-                      <TableCell>{resultatBadge(e.resultat)}</TableCell>
-                      <TableCell>{echeanceBadge(e.date_prochain_etalonnage)}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">{e.observations || "—"}</TableCell>
-                    </TableRow>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {data.map((e: any) => (
+                     <TableRow key={e.id}>
+                       <TableCell className="font-medium">{e.materiel_laboratoire?.nom || "—"}</TableCell>
+                       <TableCell>{e.materiel_laboratoire?.reference || "—"}</TableCell>
+                       <TableCell>{format(new Date(e.date_etalonnage), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                       <TableCell>{e.organisme || "—"}</TableCell>
+                       <TableCell>{e.numero_certificat || "—"}</TableCell>
+                       <TableCell>{resultatBadge(e.resultat)}</TableCell>
+                       <TableCell>{echeanceBadge(e.date_prochain_etalonnage)}</TableCell>
+                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
