@@ -72,51 +72,45 @@ export default function MaterielAffectationDetail() {
         { label: affectation.materiel_laboratoire?.nom || "Détails" },
       ]} />
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => navigate("/materiel/affectation")}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <ArrowLeftRight className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-display font-bold text-foreground">Détails de l'affectation</h1>
-                <p className="text-muted-foreground text-sm">{affectation.materiel_laboratoire?.nom}</p>
-              </div>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => navigate("/materiel/affectation")}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+              <ArrowLeftRight className="w-6 h-6 text-primary" />
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate(`/materiel/affectation/${id}/modifier`)}>
-              <Pencil className="w-4 h-4 mr-2" />
-              Modifier
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive/10">
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Supprimer
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                  <AlertDialogDescription>Êtes-vous sûr de vouloir supprimer cette affectation ? Cette action est irréversible.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <div>
+              <h1 className="text-2xl font-display font-bold text-foreground">Détails de l'affectation</h1>
+              <p className="text-muted-foreground text-sm">{affectation.materiel_laboratoire?.nom}</p>
+            </div>
           </div>
         </div>
 
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-lg">Informations</CardTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" onClick={() => navigate(`/materiel/affectation/${id}/modifier`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50"><Trash2 className="w-4 h-4" /></Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                    <AlertDialogDescription>Êtes-vous sûr de vouloir supprimer cette affectation ? Cette action est irréversible.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-3">

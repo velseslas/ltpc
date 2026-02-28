@@ -82,21 +82,29 @@ export default function MaterielDetail() {
 
       <div>
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" onClick={() => navigate("/materiel/liste")}>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Microscope className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-display font-bold text-foreground">{materiel.nom}</h1>
-                <p className="text-muted-foreground text-sm">Détails du matériel</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="icon" onClick={() => navigate("/materiel/liste")}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Microscope className="w-6 h-6 text-primary" />
             </div>
+            <div>
+              <h1 className="text-2xl font-display font-bold text-foreground">{materiel.nom}</h1>
+              <p className="text-muted-foreground text-sm">Détails du matériel</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Identification */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-lg">Identification</CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate(`/materiel/liste/${id}/modifier`)}>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/materiel/liste/${id}/modifier`)}
+              >
                 <Pencil className="w-4 h-4 mr-2" />
                 Modifier
               </Button>
@@ -116,20 +124,16 @@ export default function MaterielDetail() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
                       Supprimer
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-          </div>
-        </div>
-
-        {/* Identification */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">Identification</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-3">
