@@ -176,6 +176,18 @@ export function useCreateEtalonnageMateriel() {
   });
 }
 
+export function useUpdateEtalonnageMateriel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: any) => {
+      const { data, error } = await supabase.from("etalonnage_materiel").update(updates).eq("id", id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["etalonnage-materiel"] }),
+  });
+}
+
 export function useDeleteEtalonnageMateriel() {
   const qc = useQueryClient();
   return useMutation({
@@ -223,6 +235,18 @@ export function useCreateMaintenanceMateriel() {
   return useMutation({
     mutationFn: async (item: any) => {
       const { data, error } = await supabase.from("maintenance_materiel").insert(item).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["maintenance-materiel"] }),
+  });
+}
+
+export function useUpdateMaintenanceMateriel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: any) => {
+      const { data, error } = await supabase.from("maintenance_materiel").update(updates).eq("id", id).select().single();
       if (error) throw error;
       return data;
     },
