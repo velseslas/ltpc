@@ -20,7 +20,8 @@ import {
   MapPin, 
   Users, 
   Eye,
-  Calendar
+  Calendar,
+  ArrowLeft
 } from "lucide-react";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useAffectations } from "@/hooks/useAffectations";
@@ -110,9 +111,19 @@ export default function Affectations() {
 
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-foreground">
-            Affectations des Techniciens
-          </h1>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              onClick={() => navigate("/rh")}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Affectations des Techniciens
+            </h1>
+          </div>
           <Button onClick={() => navigate("/rh/affectations/nouveau")}>
             <Plus className="h-4 w-4 mr-2" />
             Nouvelle Affectation

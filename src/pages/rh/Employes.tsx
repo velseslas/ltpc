@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -155,13 +156,23 @@ const Employes = () => {
         />
 
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Gestion du Personnel
-            </h1>
-            <p className="text-muted-foreground">
-              Gérez les informations et affectations du personnel
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              onClick={() => navigate("/rh")}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                Gestion du Personnel
+              </h1>
+              <p className="text-muted-foreground">
+                Gérez les informations et affectations du personnel
+              </p>
+            </div>
           </div>
           <Button
             onClick={() => navigate("/rh/employes/nouveau")}

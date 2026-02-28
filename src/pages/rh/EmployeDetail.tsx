@@ -191,16 +191,26 @@ export default function EmployeDetail() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-foreground">
-              {employe.prenom} <span className="uppercase">{employe.nom}</span>
-            </h1>
-            {getStatusBadge(employe.statut)}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate("/rh/employes")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-foreground">
+                {employe.prenom} <span className="uppercase">{employe.nom}</span>
+              </h1>
+              {getStatusBadge(employe.statut)}
+            </div>
+            <p className="text-muted-foreground">
+              {poste?.nom || employe.role} {employe.departement && `• ${employe.departement}`}
+            </p>
           </div>
-          <p className="text-muted-foreground">
-            {poste?.nom || employe.role} {employe.departement && `• ${employe.departement}`}
-          </p>
         </div>
         <Button onClick={() => navigate(`/rh/employes/${id}/modifier`)} className="gap-2">
           <Pencil className="h-4 w-4" />

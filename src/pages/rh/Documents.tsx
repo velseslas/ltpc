@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Eye, Pencil, Trash2, Printer, Download, Mail } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash2, Printer, Download, Mail, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDocumentsRH, DocumentRH } from "@/hooks/useDocumentsRH";
 import { useIntervenants } from "@/hooks/useIntervenants";
@@ -236,13 +236,23 @@ export default function Documents() {
 
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Documents <span className="text-primary">RH</span>
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gestion des documents du personnel
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              onClick={() => navigate("/rh")}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Documents <span className="text-primary">RH</span>
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Gestion des documents du personnel
+              </p>
+            </div>
           </div>
           <Button onClick={handleOpenNewDialog} className="gap-2">
             <Plus className="h-4 w-4" />

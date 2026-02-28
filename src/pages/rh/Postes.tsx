@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Users, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Users, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePostes, useDeletePoste } from "@/hooks/usePostes";
 import { useToast } from "@/hooks/use-toast";
@@ -63,13 +63,23 @@ export default function Postes() {
           ]} 
         />
 
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Postes de <span className="text-primary">Travail</span>
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Gestion des postes et fonctions
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={() => navigate("/rh")}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Postes de <span className="text-primary">Travail</span>
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Gestion des postes et fonctions
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-4">
