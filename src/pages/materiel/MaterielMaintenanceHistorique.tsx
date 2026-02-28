@@ -150,21 +150,19 @@ export default function MaterielMaintenanceHistorique() {
                     <TableHead>Prestataire</TableHead>
                     <TableHead>Coût</TableHead>
                     <TableHead>Statut</TableHead>
-                    <TableHead>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.map((m: any) => (
-                    <TableRow key={m.id}>
-                      <TableCell className="font-medium">{m.materiel_laboratoire?.nom || "—"}</TableCell>
-                      <TableCell>{m.materiel_laboratoire?.reference || "—"}</TableCell>
-                      <TableCell>{typeBadge(m.type_maintenance)}</TableCell>
-                      <TableCell>{format(new Date(m.date_maintenance), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell>{m.prestataire || "—"}</TableCell>
-                      <TableCell>{m.cout ? `${m.cout.toLocaleString()} DA` : "—"}</TableCell>
-                      <TableCell>{statutBadge(m.statut)}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">{m.description || "—"}</TableCell>
-                    </TableRow>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {data.map((m: any) => (
+                     <TableRow key={m.id}>
+                       <TableCell className="font-medium">{m.materiel_laboratoire?.nom || "—"}</TableCell>
+                       <TableCell>{m.materiel_laboratoire?.reference || "—"}</TableCell>
+                       <TableCell>{typeBadge(m.type_maintenance)}</TableCell>
+                       <TableCell>{format(new Date(m.date_maintenance), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                       <TableCell>{m.prestataire || "—"}</TableCell>
+                       <TableCell>{m.cout ? `${m.cout.toLocaleString()} DA` : "—"}</TableCell>
+                       <TableCell>{statutBadge(m.statut)}</TableCell>
+                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
