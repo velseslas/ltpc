@@ -72,11 +72,19 @@ const Utilisateurs = () => {
     return intervenants.filter((i) => i.poste_id === formData.poste_id);
   }, [intervenants, formData.poste_id]);
 
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
   const filteredUsers = utilisateurs.filter(
     (user) =>
       user.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredUsers.length);
 
   const handleOpenDialog = (user?: Utilisateur) => {
     if (user) {
@@ -204,11 +212,12 @@ const Utilisateurs = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={() => navigate("/parametres")}
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500">
@@ -305,7 +314,7 @@ const Utilisateurs = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
+                {paginatedUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -351,6 +360,20 @@ const Utilisateurs = () => {
                 ))}
               </TableBody>
             </Table>
+          )}
+          {filteredUsers.length > ITEMS_PER_PAGE && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t border-border mt-4">
+              <div className="text-sm text-muted-foreground">
+                Affichage de {startIndex + 1} à {endIndex} sur {filteredUsers.length} utilisateurs
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">{page}</Button>
+                ))}
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Suivant</Button>
+              </div>
+           </div>
           )}
         </CardContent>
       </Card>
