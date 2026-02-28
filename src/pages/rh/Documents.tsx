@@ -260,21 +260,23 @@ export default function Documents() {
               </p>
             </div>
           </div>
-          <Button onClick={handleOpenNewDialog} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nouveau document
-          </Button>
         </div>
 
-        {/* Search bar */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher par employé, type..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+        {/* Search + New */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un document..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button onClick={handleOpenNewDialog} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nouveau
+          </Button>
         </div>
 
         {/* Table */}

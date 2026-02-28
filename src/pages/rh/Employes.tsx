@@ -174,58 +174,57 @@ const Employes = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Search + New */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un employé..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           <Button
             onClick={() => navigate("/rh/employes/nouveau")}
             className="gap-2"
           >
             <Plus className="h-4 w-4" />
-            Nouvel Employé
+            Nouveau
           </Button>
         </div>
 
         {/* Filters */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Filtres</h3>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="relative flex-1 min-w-[250px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher un employé..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-background/50"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px] bg-background/50">
-                  <SelectValue placeholder="Tous les statuts" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="active">Actif</SelectItem>
-                  <SelectItem value="mission">En mission</SelectItem>
-                  <SelectItem value="conge">En congé</SelectItem>
-                  <SelectItem value="inactive">Inactif</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Printer className="h-4 w-4" />
-                  Imprimer
-                </Button>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Download className="h-4 w-4" />
-                  Export PDF
-                </Button>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Send className="h-4 w-4" />
-                  Courrier
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-wrap items-center gap-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Tous les statuts" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les statuts</SelectItem>
+              <SelectItem value="active">Actif</SelectItem>
+              <SelectItem value="mission">En mission</SelectItem>
+              <SelectItem value="conge">En congé</SelectItem>
+              <SelectItem value="inactive">Inactif</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Printer className="h-4 w-4" />
+              Imprimer
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export PDF
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Send className="h-4 w-4" />
+              Courrier
+            </Button>
+          </div>
+        </div>
 
         {/* Loading State */}
         {isLoading && (

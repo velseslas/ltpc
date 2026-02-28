@@ -82,19 +82,19 @@ export default function Postes() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher un poste..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-card border-border"
+              className="pl-10"
             />
           </div>
           <Button onClick={() => navigate("/rh/postes/nouveau")} className="gap-2">
             <Plus className="h-4 w-4" />
-            Nouveau Poste
+            Nouveau
           </Button>
         </div>
 

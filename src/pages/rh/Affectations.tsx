@@ -21,7 +21,8 @@ import {
   Users, 
   Eye,
   Calendar,
-  ArrowLeft
+  ArrowLeft,
+  Search
 } from "lucide-react";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useAffectations } from "@/hooks/useAffectations";
@@ -120,64 +121,71 @@ export default function Affectations() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-2xl font-semibold text-foreground">
-              Affectations des Techniciens
-            </h1>
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground">
+                Affectations des <span className="text-primary">Techniciens</span>
+              </h1>
+              <p className="text-muted-foreground">Gestion des affectations du personnel</p>
+            </div>
           </div>
-          <Button onClick={() => navigate("/rh/affectations/nouveau")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nouvelle Affectation
+        </div>
+
+        {/* Search + New */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une affectation..."
+              className="pl-10"
+            />
+          </div>
+          <Button onClick={() => navigate("/rh/affectations/nouveau")} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nouveau
           </Button>
         </div>
 
         {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Filtres</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap items-center gap-4">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Tous les statuts" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="active">Actif</SelectItem>
-                  <SelectItem value="mission">En mission</SelectItem>
-                  <SelectItem value="inactive">Inactif</SelectItem>
-                </SelectContent>
-              </Select>
+        <div className="flex flex-wrap items-center gap-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Tous les statuts" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les statuts</SelectItem>
+              <SelectItem value="active">Actif</SelectItem>
+              <SelectItem value="mission">En mission</SelectItem>
+              <SelectItem value="inactive">Inactif</SelectItem>
+            </SelectContent>
+          </Select>
 
-              <Select value={specialiteFilter} onValueChange={setSpecialiteFilter}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Toutes les spécialités" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les spécialités</SelectItem>
-                  {specialites.map(spec => (
-                    <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <Select value={specialiteFilter} onValueChange={setSpecialiteFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Toutes les spécialités" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les spécialités</SelectItem>
+              {specialites.map(spec => (
+                <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-              <div className="flex-1" />
+          <div className="flex-1" />
 
-              <Button variant="outline" size="sm">
-                <Printer className="h-4 w-4 mr-2" />
-                Imprimer
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export PDF
-              </Button>
-              <Button variant="outline" size="sm">
-                <Mail className="h-4 w-4 mr-2" />
-                Courrier
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          <Button variant="outline" size="sm">
+            <Printer className="h-4 w-4 mr-2" />
+            Imprimer
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export PDF
+          </Button>
+          <Button variant="outline" size="sm">
+            <Mail className="h-4 w-4 mr-2" />
+            Courrier
+          </Button>
+        </div>
 
         {/* Technicians Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
