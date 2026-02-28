@@ -531,6 +531,7 @@ const AppRoutes = () => (
       <Route path="/materiel/affectation/nouveau" element={<MaterielAffectationForm />} />
       <Route path="/materiel/affectation/historique" element={<MaterielAffectationHistorique />} />
       <Route path="/materiel/affectation/:id" element={<MaterielAffectationDetail />} />
+      <Route path="/materiel/affectation/:id/modifier" element={<MaterielAffectationForm />} />
       <Route path="/materiel/etalonnage" element={<MaterielEtalonnage />} />
       <Route path="/materiel/etalonnage/nouveau" element={<MaterielEtalonnageForm />} />
       <Route path="/materiel/etalonnage/historique" element={<MaterielEtalonnageHistorique />} />
