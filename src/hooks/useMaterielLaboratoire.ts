@@ -110,6 +110,18 @@ export function useCreateAffectationMateriel() {
   });
 }
 
+export function useUpdateAffectationMateriel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: any) => {
+      const { data, error } = await supabase.from("affectation_materiel").update(updates).eq("id", id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["affectation-materiel"] }),
+  });
+}
+
 export function useDeleteAffectationMateriel() {
   const qc = useQueryClient();
   return useMutation({

@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,25 +7,56 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
-import { useCreateAffectationMateriel, useMaterielList } from "@/hooks/useMaterielLaboratoire";
+import { useCreateAffectationMateriel, useUpdateAffectationMateriel, useAffectationMaterielItem, useMaterielList } from "@/hooks/useMaterielLaboratoire";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { wilayas } from "@/data/wilayas";
 import { toast } from "sonner";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 
 export default function MaterielAffectationForm() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = !!id;
+
   const { data: materiels } = useMaterielList();
   const { data: allChantiers } = useChantiers();
   const { data: allClients } = useClients();
   const { data: intervenants } = useIntervenants();
+  const { data: existingAffectation, isLoading: affectationLoading } = useAffectationMaterielItem(id || "");
   const createMutation = useCreateAffectationMateriel();
+  const updateMutation = useUpdateAffectationMateriel();
+
+  const [isInitialized, setIsInitialized] = useState(false);
   const [form, setForm] = useState({
     materiel_id: "", wilaya: "", client_id: "", chantier_id: "",
     intervenant_id: "", date_debut: new Date().toISOString().split("T")[0],
     date_fin: "", statut: "en_cours", observations: ""
   });
+
+  // Load existing data when editing
+  useEffect(() => {
+    if (existingAffectation && !isInitialized && allChantiers && allClients) {
+      // Find the chantier to get client_id and wilaya
+      const chantier = allChantiers.find(c => c.id === existingAffectation.chantier_id);
+      const client = chantier ? allClients.find(c => c.id === chantier.client_id) : null;
+
+      setForm({
+        materiel_id: existingAffectation.materiel_id || "",
+        wilaya: client?.ville || "",
+        client_id: chantier?.client_id || "",
+        chantier_id: existingAffectation.chantier_id || "",
+        intervenant_id: existingAffectation.intervenant_id || "",
+        date_debut: existingAffectation.date_debut || "",
+        date_fin: existingAffectation.date_fin || "",
+        statut: existingAffectation.statut || "en_cours",
+        observations: existingAffectation.observations || "",
+      });
+      setIsInitialized(true);
+    }
+  }, [existingAffectation, isInitialized, allChantiers, allClients]);
 
   const filteredClients = useMemo(() => {
     if (!allClients || !form.wilaya) return allClients || [];
@@ -39,32 +70,55 @@ export default function MaterielAffectationForm() {
 
   const handleSubmit = async () => {
     if (!form.materiel_id) { toast.error("Sélectionnez un matériel"); return; }
+    const payload = {
+      materiel_id: form.materiel_id,
+      chantier_id: form.chantier_id || null,
+      intervenant_id: form.intervenant_id || null,
+      date_debut: form.date_debut,
+      date_fin: form.date_fin || null,
+      statut: form.statut,
+      observations: form.observations,
+    };
     try {
-      await createMutation.mutateAsync({
-        materiel_id: form.materiel_id,
-        chantier_id: form.chantier_id || null,
-        intervenant_id: form.intervenant_id || null,
-        date_debut: form.date_debut,
-        date_fin: form.date_fin || null,
-        statut: form.statut,
-        observations: form.observations,
-      });
-      toast.success("Affectation créée");
+      if (isEditing && id) {
+        await updateMutation.mutateAsync({ id, ...payload });
+        toast.success("Affectation mise à jour");
+      } else {
+        await createMutation.mutateAsync(payload);
+        toast.success("Affectation créée");
+      }
       navigate("/materiel/affectation");
     } catch { toast.error("Erreur"); }
   };
+
+  const isFormLoading = isEditing && (affectationLoading || !isInitialized);
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Matériel Laboratoire", path: "/materiel" },
         { label: "Affectation Matériel", path: "/materiel/affectation" },
-        { label: "Nouvelle Affectation" },
+        { label: isEditing ? "Modifier l'Affectation" : "Nouvelle Affectation" },
       ]} />
 
-      <Card>
-        <CardHeader><CardTitle>Nouvelle Affectation</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+          onClick={() => navigate("/materiel/affectation")}
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-2xl font-semibold text-foreground">
+          {isEditing ? "Modifier l'Affectation" : "Nouvelle Affectation"}
+        </h1>
+      </div>
+
+      <Card className="relative">
+        <FormLoadingOverlay isLoading={isFormLoading} message="Chargement des données..." />
+        <CardContent className="pt-6 space-y-4">
           <div className="grid gap-2">
             <Label>Matériel *</Label>
             <Select value={form.materiel_id} onValueChange={v => setForm(p => ({ ...p, materiel_id: v }))}>
@@ -106,8 +160,11 @@ export default function MaterielAffectationForm() {
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4 justify-end">
-            <Button onClick={handleSubmit} disabled={createMutation.isPending}>Enregistrer</Button>
             <Button variant="outline" onClick={() => navigate("/materiel/affectation")}>Annuler</Button>
+            <Button onClick={handleSubmit} disabled={isPending}>
+              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isEditing ? "Enregistrer" : "Créer l'affectation"}
+            </Button>
           </div>
         </CardContent>
       </Card>
