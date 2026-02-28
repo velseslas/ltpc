@@ -115,7 +115,7 @@ const CimenterieForm = () => {
           </div>
       </div>
 
-      <div className="max-w-4xl">
+      <div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-card border border-border rounded-xl p-6 animate-fade-in [animation-delay:100ms]">
             <h3 className="text-lg font-medium text-foreground mb-6">Informations</h3>
