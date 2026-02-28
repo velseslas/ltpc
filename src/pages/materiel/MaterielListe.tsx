@@ -85,24 +85,23 @@ export default function MaterielListe() {
             <p className="text-muted-foreground">Inventaire complet</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => setInventaireOpen(true)}>
-            <ClipboardList className="h-4 w-4" />
-            Inventaire
-          </Button>
-          <Button className="gap-2" onClick={() => navigate("/materiel/liste/nouveau")}><Plus className="h-4 w-4" />Ajouter</Button>
+        <Button variant="outline" className="gap-2" onClick={() => setInventaireOpen(true)}>
+          <ClipboardList className="h-4 w-4" />
+          Inventaire
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Rechercher un matériel..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <Button className="gap-2" onClick={() => navigate("/materiel/liste/nouveau")}><Plus className="h-4 w-4" />Nouveau</Button>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2"><Microscope className="h-5 w-5" />Matériel ({filtered.length})</CardTitle>
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2"><Microscope className="h-5 w-5" />Matériel ({filtered.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
