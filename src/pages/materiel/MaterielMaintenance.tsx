@@ -89,23 +89,22 @@ export default function MaterielMaintenance() {
             <p className="text-muted-foreground">Planification et suivi</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button className="gap-2" onClick={() => navigate("/materiel/maintenance/nouveau")}>
-            <Plus className="h-4 w-4" />
-            Nouvelle maintenance
-          </Button>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Rechercher une maintenance..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <Button className="gap-2" onClick={() => navigate("/materiel/maintenance/nouveau")}>
+          <Plus className="h-4 w-4" />
+          Nouveau
+        </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2"><Wrench className="h-5 w-5" />Maintenances ({filtered.length})</CardTitle>
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
-            </div>
-          </div>
+          <CardTitle className="flex items-center gap-2"><Wrench className="h-5 w-5" />Maintenances ({filtered.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
