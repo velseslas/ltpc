@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Eye, Pencil, Trash2, Printer, Download, Mail, ArrowLeft } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash2, Printer, Download, Mail, ArrowLeft, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDocumentsRH, DocumentRH } from "@/hooks/useDocumentsRH";
 import { useIntervenants } from "@/hooks/useIntervenants";
@@ -41,6 +41,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -312,32 +318,30 @@ export default function Documents() {
                       {format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenViewDialog(doc)}
-                          className="h-8 w-8"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenEditDialog(doc)}
-                          className="h-8 w-8"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleOpenDeleteDialog(doc)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleOpenViewDialog(doc)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Aperçu
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpenEditDialog(doc)}>
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleOpenDeleteDialog(doc)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
