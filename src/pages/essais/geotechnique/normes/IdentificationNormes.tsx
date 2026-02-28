@@ -179,7 +179,7 @@ const IdentificationNormes = () => {
       ]} />
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/essais/geotechnique/identification")} className="h-10 w-10">
+          <Button variant="outline" size="icon" onClick={() => navigate("/essais/geotechnique/identification")} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-3xl font-display font-bold text-foreground">

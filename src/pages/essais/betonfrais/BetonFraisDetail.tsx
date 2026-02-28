@@ -101,7 +101,7 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => navigate(basePath)}
               className="h-10 w-10"

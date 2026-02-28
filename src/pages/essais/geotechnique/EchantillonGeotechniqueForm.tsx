@@ -131,7 +131,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(basePath)} className="rounded-full">
+        <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
