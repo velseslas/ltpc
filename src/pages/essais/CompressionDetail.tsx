@@ -197,10 +197,10 @@ const CompressionDetail = () => {
       <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => navigate("/essais/beton/beton-durci/compression")}
-              className="h-10 w-10"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>

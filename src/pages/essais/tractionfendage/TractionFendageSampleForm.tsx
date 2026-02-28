@@ -270,10 +270,10 @@ const TractionFendageSampleForm = () => {
       {/* Header */}
       <div className="flex items-center gap-4 mb-2">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate("/essais/beton/beton-durci/traction-fendage")}
-          className="h-10 w-10"
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>

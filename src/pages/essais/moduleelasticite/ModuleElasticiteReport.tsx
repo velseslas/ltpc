@@ -82,7 +82,7 @@ const ModuleElasticiteReport = () => {
 
       <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${id}`)}><ArrowLeft className="h-5 w-5" /></Button>
+          <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${id}`)}><ArrowLeft className="h-5 w-5" /></Button>
           <div>
             <h1 className="text-3xl font-display font-bold">Rapport - <span className="text-primary">ME-{String(echantillon.numero).padStart(3, "0")}</span></h1>
             <p className="text-muted-foreground mt-1">Module d'Élasticité</p>
