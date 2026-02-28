@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Microscope, Calendar, MapPin, Tag, Hash, Building2, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Microscope, Calendar, MapPin, Tag, Hash, Building2, Loader2 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useMaterielItem, useDeleteMateriel } from "@/hooks/useMaterielLaboratoire";
 import { format } from "date-fns";
@@ -80,9 +80,12 @@ export default function MaterielDetail() {
         { label: materiel.nom },
       ]} />
 
-      <div className="max-w-4xl mx-auto">
+      <div>
         <div className="mb-8">
           <div className="flex items-center gap-3">
+            <Button variant="outline" size="icon" onClick={() => navigate("/materiel/liste")}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
               <Microscope className="w-6 h-6 text-primary" />
             </div>
@@ -100,16 +103,16 @@ export default function MaterielDetail() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                size="icon"
                 onClick={() => navigate(`/materiel/liste/${id}/modifier`)}
-                className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
               >
-                <Pencil className="w-4 h-4" />
+                <Pencil className="w-4 h-4 mr-2" />
+                Modifier
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="icon" className="border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50">
-                    <Trash2 className="w-4 h-4" />
+                  <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Supprimer
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
