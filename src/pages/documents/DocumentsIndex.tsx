@@ -63,7 +63,7 @@ const DocumentsIndex = () => {
 
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+          <Button variant="outline" size="icon" onClick={() => navigate("/")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
