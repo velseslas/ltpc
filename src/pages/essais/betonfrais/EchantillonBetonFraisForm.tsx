@@ -289,7 +289,7 @@ export default function EchantillonBetonFraisForm({
       <div className="mb-6">
         <div className="flex items-center gap-4 mb-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={() => navigate(basePath)}
             className="h-10 w-10"

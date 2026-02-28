@@ -135,10 +135,10 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => navigate(basePath)}
-              className="rounded-full"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>

@@ -80,7 +80,7 @@ const MecaniqueNormes = () => {
       <EssaiBreadcrumb items={[{label:"Géotechnique",path:"/essais/geotechnique"},{label:"Mécaniques",path:"/essais/geotechnique/mecanique"},{label:"Normes"}]} />
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/essais/geotechnique/mecanique")} className="h-10 w-10"><ArrowLeft className="h-5 w-5" /></Button>
+          <Button variant="outline" size="icon" onClick={() => navigate("/essais/geotechnique/mecanique")} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"><ArrowLeft className="h-5 w-5" /></Button>
           <h1 className="text-3xl font-display font-bold text-foreground">Normes <span className="text-primary text-glow">Essais Mécaniques des Sols</span></h1>
         </div>
         <p className="text-muted-foreground mt-2 ml-14">Références normatives et modes opératoires des essais mécaniques</p>

@@ -163,10 +163,10 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate(basePath)}
-          className="rounded-full"
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
