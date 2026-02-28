@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Settings, Save, Loader2, Globe, Moon, Sun, Palette, Clock, Monitor } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useParametresSysteme, useUpsertParametresSysteme } from "@/hooks/useParametres";
 
 const SystemeSettings = () => {
@@ -67,6 +68,11 @@ const SystemeSettings = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Système" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

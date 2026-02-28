@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Bell, Save, Loader2, Mail, Smartphone } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useParametresNotifications, useUpsertParametresNotifications } from "@/hooks/useParametres";
 
 const NotificationsSettings = () => {
@@ -60,6 +61,11 @@ const NotificationsSettings = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Notifications" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

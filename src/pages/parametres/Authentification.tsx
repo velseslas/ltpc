@@ -18,6 +18,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ArrowLeft, KeyRound, Plus, MoreHorizontal, Users, Loader2 } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { usePostes } from "@/hooks/usePostes";
@@ -149,6 +150,11 @@ const Authentification = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Authentification" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

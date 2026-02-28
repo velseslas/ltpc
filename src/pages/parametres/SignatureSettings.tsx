@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, PenTool, Save, Loader2, Upload, Stamp, FileSignature, Users } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useParametresSignature, useUpsertParametresSignature } from "@/hooks/useParametres";
 
@@ -63,6 +64,11 @@ const SignatureSettings = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Signature" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

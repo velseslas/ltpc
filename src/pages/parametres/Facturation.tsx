@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Receipt, Save, Loader2 } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useParametresFacturation, useUpsertParametresFacturation } from "@/hooks/useParametres";
 
 const Facturation = () => {
@@ -72,6 +73,11 @@ const Facturation = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Facturation" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

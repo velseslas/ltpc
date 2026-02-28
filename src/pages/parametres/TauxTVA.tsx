@@ -23,6 +23,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ArrowLeft, Percent, Plus, Pencil, Trash2, Save, Loader2 } from "lucide-react";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { 
   useTauxTVA, 
   useCreateTauxTVA, 
@@ -108,6 +109,11 @@ const TauxTVAPage = () => {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={[
+        { label: "Paramètres", path: "/parametres" },
+        { label: "Taux TVA" },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
