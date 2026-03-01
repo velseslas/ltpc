@@ -78,7 +78,7 @@ export default function MaterielListeForm() {
       </div>
 
       <Card>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           <div className="grid gap-2"><Label>Nom *</Label><Input value={form.nom} onChange={e => setForm(p => ({ ...p, nom: e.target.value }))} /></div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Référence</Label><Input value={form.reference} onChange={e => setForm(p => ({ ...p, reference: e.target.value }))} /></div>
