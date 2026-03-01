@@ -110,11 +110,11 @@ const Auth = () => {
             <img
               src={entreprise.logo_url}
               alt={entreprise.nom || "Logo"}
-              className="w-12 h-12 rounded-xl object-contain"
+              className="w-16 h-16 rounded-xl object-contain bg-white/10 p-1"
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center box-glow">
-              <Building2 className="w-7 h-7 text-primary-foreground" />
+            <div className="w-16 h-16 rounded-xl gradient-primary flex items-center justify-center box-glow">
+              <Building2 className="w-9 h-9 text-primary-foreground" />
             </div>
           )}
           <span className="font-display font-bold text-2xl">

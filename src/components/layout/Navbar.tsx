@@ -46,10 +46,10 @@ export function Navbar() {
         {/* Logo + entreprise name */}
         <div className="flex items-center gap-2 flex-shrink-0">
           {entreprise?.logo_url ? (
-            <img src={entreprise.logo_url} alt={entreprise.nom || "Logo"} className="w-7 h-7 rounded-lg object-contain" />
+            <img src={entreprise.logo_url} alt={entreprise.nom || "Logo"} className="w-9 h-9 rounded-lg object-contain bg-white/10 p-0.5" />
           ) : (
-            <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-primary-foreground" />
             </div>
           )}
           <span className="font-display font-bold text-xs tracking-wider hidden sm:inline">
