@@ -94,6 +94,14 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Upsert user_roles
+      await supabaseAdmin
+        .from("user_roles")
+        .upsert(
+          { user_id: authUserId, role: role || "technicien" },
+          { onConflict: "user_id,role" }
+        );
+
       return new Response(
         JSON.stringify({ success: true, utilisateur }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -123,6 +131,15 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: utilError.message }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Insert into user_roles
+    const { error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: authUserId, role: role || "technicien" });
+
+    if (roleError) {
+      console.error("Error inserting user_role:", roleError.message);
     }
 
     return new Response(

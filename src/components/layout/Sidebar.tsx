@@ -13,17 +13,18 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePermissionContext } from "@/hooks/usePermissionContext";
 
 const menuItems = [
-  { title: "Tableau de bord", path: "/", icon: LayoutDashboard },
-  { title: "Intervenant", path: "/intervenant", icon: Users },
-  { title: "RH", path: "/rh", icon: UserCog },
-  { title: "Essais", path: "/essais", icon: FlaskConical },
-  { title: "Laboratoires Chantier", path: "/laboratoires-mobiles", icon: Truck },
-  { title: "Matériel Laboratoire", path: "/materiel", icon: Microscope },
-  { title: "Facturation", path: "/facturation", icon: Receipt },
-  { title: "Documents", path: "/documents", icon: FileText },
-  { title: "Paramètres", path: "/parametres", icon: Settings },
+  { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
+  { title: "Intervenant", path: "/intervenant", icon: Users, permission: "chantiers.voir" },
+  { title: "RH", path: "/rh", icon: UserCog, permission: "rh.voir" },
+  { title: "Essais", path: "/essais", icon: FlaskConical, permission: "essais.voir" },
+  { title: "Laboratoires Chantier", path: "/laboratoires-mobiles", icon: Truck, permission: "labos_mobiles.voir" },
+  { title: "Matériel Laboratoire", path: "/materiel", icon: Microscope, permission: "materiel.voir" },
+  { title: "Facturation", path: "/facturation", icon: Receipt, permission: "facturation.voir" },
+  { title: "Documents", path: "/documents", icon: FileText, permission: "documents.voir" },
+  { title: "Paramètres", path: "/parametres", icon: Settings, permission: "parametres.voir" },
 ];
 
 interface SidebarProps {
@@ -33,6 +34,14 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
+  const { hasPermission, role } = usePermissionContext();
+
+  const visibleItems = menuItems.filter((item) => {
+    // Dashboard always visible
+    if (item.permission === "dashboard.voir") return true;
+    // Check permission
+    return hasPermission(item.permission);
+  });
 
   return (
     <aside
@@ -45,7 +54,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 mt-10 px-2 overflow-y-auto">
         <ul className="space-y-1.5">
-          {menuItems.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <li key={item.path}>
