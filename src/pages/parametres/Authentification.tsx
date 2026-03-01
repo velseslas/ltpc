@@ -17,7 +17,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, KeyRound, Plus, MoreHorizontal, Users, Loader2 } from "lucide-react";
+import { ArrowLeft, KeyRound, Plus, MoreHorizontal, Users, Loader2, Eye, EyeOff } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -63,6 +63,8 @@ const Authentification = () => {
     role: "technicien",
     poste_id: "",
   });
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -393,12 +395,22 @@ const Authentification = () => {
 
             <div className="space-y-2">
               <Label>Mot de passe</Label>
-              <Input
-                type="password"
-                placeholder="Minimum 6 caractères"
-                value={formData.mot_de_passe}
-                onChange={(e) => setFormData({ ...formData, mot_de_passe: e.target.value })}
-              />
+              <div className="relative">
+                <Input
+                  type={showCreatePassword ? "text" : "password"}
+                  placeholder="Minimum 6 caractères"
+                  value={formData.mot_de_passe}
+                  onChange={(e) => setFormData({ ...formData, mot_de_passe: e.target.value })}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCreatePassword(!showCreatePassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showCreatePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -492,12 +504,22 @@ const Authentification = () => {
 
               <div className="space-y-2">
                 <Label>Mot de passe</Label>
-                <Input
-                  type="password"
-                  placeholder="Laisser vide pour ne pas changer"
-                  value={editFormData.mot_de_passe}
-                  onChange={(e) => setEditFormData({ ...editFormData, mot_de_passe: e.target.value })}
-                />
+                <div className="relative">
+                  <Input
+                    type={showEditPassword ? "text" : "password"}
+                    placeholder="Laisser vide pour ne pas changer"
+                    value={editFormData.mot_de_passe}
+                    onChange={(e) => setEditFormData({ ...editFormData, mot_de_passe: e.target.value })}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEditPassword(!showEditPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
