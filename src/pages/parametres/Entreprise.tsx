@@ -59,8 +59,14 @@ const Entreprise = () => {
       setIsUploadingLogo(true);
       const url = await uploadLogo(file);
       setFormData(prev => ({ ...prev, logo_url: url }));
-      toast.success("Logo téléchargé avec succès");
+      // Auto-save logo to database
+      await updateEntreprise.mutateAsync({
+        id: entreprise?.id,
+        updates: { logo_url: url },
+      });
+      toast.success("Logo téléchargé et enregistré avec succès");
     } catch (error) {
+      console.error("Error uploading logo:", error);
       toast.error("Erreur lors du téléchargement du logo");
     } finally {
       setIsUploadingLogo(false);
@@ -75,8 +81,14 @@ const Entreprise = () => {
       setIsUploadingCachet(true);
       const url = await uploadCachet(file);
       setFormData(prev => ({ ...prev, cachet_url: url }));
-      toast.success("Cachet téléchargé avec succès");
+      // Auto-save cachet to database
+      await updateEntreprise.mutateAsync({
+        id: entreprise?.id,
+        updates: { cachet_url: url },
+      });
+      toast.success("Cachet téléchargé et enregistré avec succès");
     } catch (error) {
+      console.error("Error uploading cachet:", error);
       toast.error("Erreur lors du téléchargement du cachet");
     } finally {
       setIsUploadingCachet(false);
