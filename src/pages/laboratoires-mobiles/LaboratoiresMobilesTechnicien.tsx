@@ -208,13 +208,9 @@ export default function LaboratoiresMobilesTechnicien() {
             <p className="text-muted-foreground">
               Vue technicien des laboratoires chantier par wilaya
             </p>
-          </div>
         </div>
-        <Button onClick={() => navigate("/laboratoires-mobiles/nouveau")} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nouveau chantier
-        </Button>
       </div>
+        </div>
 
       {/* Stats Cards */}
       <AdminStatsCards
