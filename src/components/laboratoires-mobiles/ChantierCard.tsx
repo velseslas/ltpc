@@ -1,6 +1,13 @@
-import { HardHat } from "lucide-react";
+import { HardHat, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 interface ChantierCardProps {
@@ -9,6 +16,9 @@ interface ChantierCardProps {
   statut: string;
   colorIndex: number;
   onClick: () => void;
+  showActions?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const colorVariants = [
@@ -33,7 +43,7 @@ const getStatusBadge = (statut: string) => {
   }
 };
 
-export function ChantierCard({ nom, adresse, statut, colorIndex, onClick }: ChantierCardProps) {
+export function ChantierCard({ nom, adresse, statut, colorIndex, onClick, showActions, onEdit, onDelete }: ChantierCardProps) {
   const colors = colorVariants[colorIndex % colorVariants.length];
 
   return (
@@ -42,8 +52,29 @@ export function ChantierCard({ nom, adresse, statut, colorIndex, onClick }: Chan
       onClick={onClick}
     >
       <CardContent className="p-5">
-        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110", colors.bg)}>
-          <HardHat className={cn("h-7 w-7", colors.icon)} />
+        <div className="flex items-start justify-between mb-4">
+          <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", colors.bg)}>
+            <HardHat className={cn("h-7 w-7", colors.icon)} />
+          </div>
+          {showActions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem className="flex items-center gap-2" onClick={onEdit}>
+                  <Pencil className="h-4 w-4" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2 text-destructive" onClick={onDelete}>
+                  <Trash2 className="h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         
         <h3 className="font-semibold text-lg text-foreground mb-2">{nom}</h3>
