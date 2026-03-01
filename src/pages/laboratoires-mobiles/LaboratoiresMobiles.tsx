@@ -1,36 +1,22 @@
-import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Shield, User } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 import LaboratoiresMobilesAdmin from "./LaboratoiresMobilesAdmin";
 import LaboratoiresMobilesTechnicien from "./LaboratoiresMobilesTechnicien";
 
 export default function LaboratoiresMobiles() {
-  const [activeView, setActiveView] = useState<"admin" | "technicien">("admin");
+  const { data: role, isLoading } = useCurrentUserRole();
 
-  return (
-    <div className="space-y-6">
-      {/* View Selector */}
-      <div className="flex justify-center">
-        <Tabs value={activeView} onValueChange={(v) => setActiveView(v as "admin" | "technicien")}>
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="admin" className="gap-2">
-              <Shield className="h-4 w-4" />
-              Vue Admin
-            </TabsTrigger>
-            <TabsTrigger value="technicien" className="gap-2">
-              <User className="h-4 w-4" />
-              Vue Technicien
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
 
-      {/* Content based on selected view */}
-      {activeView === "admin" ? (
-        <LaboratoiresMobilesAdmin />
-      ) : (
-        <LaboratoiresMobilesTechnicien />
-      )}
-    </div>
-  );
+  // Admin roles: super_admin, admin, manager see admin view
+  // Technicien, operateur, lecteur see technicien view
+  const isAdmin = role === "super_admin" || role === "admin" || role === "manager";
+
+  return isAdmin ? <LaboratoiresMobilesAdmin /> : <LaboratoiresMobilesTechnicien />;
 }
