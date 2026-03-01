@@ -172,8 +172,8 @@ export default function LaboratoireMobileForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/laboratoires-mobiles")}>
-          <ArrowLeft className="h-5 w-5" />
+        <Button variant="outline" size="icon" onClick={() => navigate("/laboratoires-mobiles")} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-3xl font-bold">

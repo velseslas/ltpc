@@ -6,13 +6,15 @@ import {
   MapPin, 
   Building2, 
   Calendar,
-  FlaskConical
+  FlaskConical,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useChantier } from "@/hooks/useChantiers";
 import { useClient } from "@/hooks/useClients";
+import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useChantierEchantillons } from "@/hooks/useChantierEchantillons";
 import { ChantierEchantillonsList } from "@/components/laboratoires-mobiles/ChantierEchantillonsList";
 import { EchantillonsStatsCards } from "@/components/laboratoires-mobiles/EchantillonsStatsCards";
@@ -23,6 +25,16 @@ export default function LaboratoireMobileChantier() {
   const { data: chantier, isLoading: chantierLoading } = useChantier(chantierId || "");
   const { data: client, isLoading: clientLoading } = useClient(chantier?.client_id || "");
   const { data: echantillons } = useChantierEchantillons(chantierId || "");
+  const { data: labos } = useLaboratoiresMobiles();
+
+  const technicienNom = useMemo(() => {
+    if (!labos || !chantierId) return null;
+    const labo = labos.find(l => l.chantier_id === chantierId);
+    if (labo?.intervenants) {
+      return `${labo.intervenants.prenom} ${labo.intervenants.nom}`;
+    }
+    return null;
+  }, [labos, chantierId]);
 
   const echantillonStats = useMemo(() => {
     if (!echantillons) return { total: 0, enCours: 0, termines: 0, aFaire: 0 };
@@ -57,9 +69,8 @@ export default function LaboratoireMobileChantier() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+        <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="h-4 w-4" />
-          Retour
         </Button>
         <div>
           <h1 className="text-3xl font-bold">{chantier.nom}</h1>
@@ -68,7 +79,7 @@ export default function LaboratoireMobileChantier() {
       </div>
 
       {/* Chantier Info */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -106,6 +117,20 @@ export default function LaboratoireMobileChantier() {
               <div>
                 <p className="text-sm text-muted-foreground">Localisation</p>
                 <p className="font-medium">{chantier.ville || "Non renseignée"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Technicien</p>
+                <p className="font-medium">{technicienNom || "Non affecté"}</p>
               </div>
             </div>
           </CardContent>
