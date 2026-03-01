@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 
 interface EchantillonFiltersProps {
   searchTerm: string;
@@ -25,17 +25,16 @@ export function EchantillonFilters({
 }: EchantillonFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3">
-      <div className="relative flex-1">
+      <div className="relative flex-1 min-w-[300px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder={searchPlaceholder}
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 bg-card border-border"
+          className="pl-10 h-11 bg-card border-border"
         />
       </div>
       <div className="flex items-center gap-2">
-        <Filter className="h-4 w-4 text-muted-foreground" />
         <Select value={statusFilter} onValueChange={onStatusChange}>
           <SelectTrigger className="w-[160px] bg-card border-border">
             <SelectValue placeholder="Filtrer par statut" />
