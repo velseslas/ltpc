@@ -71,7 +71,7 @@ export default function MaterielEtalonnageForm() {
       ]} />
 
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/materiel/etalonnage")}>
+        <Button variant="outline" size="icon" className="border-border hover:bg-primary hover:text-primary-foreground hover:border-primary" onClick={() => navigate("/materiel/etalonnage")}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <h1 className="text-2xl font-semibold text-foreground">
