@@ -97,7 +97,7 @@ const CentraleBetonForm = () => {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-2">
-            <Button variant="outline" size="icon" onClick={() => navigate("/intervenant/producteurs/centrale")} className="shrink-0">
+            <Button variant="outline" size="icon" onClick={() => navigate("/intervenant/producteurs/centrale")} className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
