@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useCreateMateriel, useUpdateMateriel, useMaterielItem } from "@/hooks/useMaterielLaboratoire";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function MaterielListeForm() {
   const navigate = useNavigate();
@@ -68,8 +68,16 @@ export default function MaterielListeForm() {
         { label: isEdit ? "Modifier" : "Nouveau Matériel" },
       ]} />
 
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/materiel/liste")}>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-2xl font-semibold text-foreground">
+          {isEdit ? "Modifier le Matériel" : "Nouveau Matériel"}
+        </h1>
+      </div>
+
       <Card>
-        <CardHeader><CardTitle>{isEdit ? "Modifier le Matériel" : "Nouveau Matériel"}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2"><Label>Nom *</Label><Input value={form.nom} onChange={e => setForm(p => ({ ...p, nom: e.target.value }))} /></div>
           <div className="grid grid-cols-2 gap-4">
