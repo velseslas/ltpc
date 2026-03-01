@@ -17,7 +17,7 @@ import { usePermissionContext } from "@/hooks/usePermissionContext";
 
 const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
-  { title: "Intervenant", path: "/intervenant", icon: Users, permission: "chantiers.voir" },
+  { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
   { title: "RH", path: "/rh", icon: UserCog, permission: "rh.voir" },
   { title: "Essais", path: "/essais", icon: FlaskConical, permission: "essais.voir" },
   { title: "Laboratoires Chantier", path: "/laboratoires-mobiles", icon: Truck, permission: "labos_mobiles.voir" },
