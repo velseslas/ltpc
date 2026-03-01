@@ -46,13 +46,22 @@ const Authentification = () => {
   const ITEMS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingUser, setEditingUser] = useState<UtilisateurRow | null>(null);
   const [formData, setFormData] = useState({
     poste_id: "",
     intervenant_id: "",
     mot_de_passe: "",
     statut: "actif",
     role: "technicien",
+  });
+  const [editFormData, setEditFormData] = useState({
+    mot_de_passe: "",
+    statut: "actif",
+    role: "technicien",
+    poste_id: "",
   });
 
   useEffect(() => {
@@ -108,6 +117,45 @@ const Authentification = () => {
       toast.error(err.message || "Erreur lors de la création");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleEditUser = (user: UtilisateurRow) => {
+    setEditingUser(user);
+    setEditFormData({
+      mot_de_passe: user.mot_de_passe || "",
+      statut: user.statut,
+      role: user.role,
+      poste_id: user.poste_id || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser) return;
+    setIsSaving(true);
+    try {
+      const updateData: any = {
+        role: editFormData.role,
+        statut: editFormData.statut,
+        poste_id: editFormData.poste_id || null,
+      };
+      if (editFormData.mot_de_passe && editFormData.mot_de_passe !== editingUser.mot_de_passe) {
+        updateData.mot_de_passe = editFormData.mot_de_passe;
+      }
+      const { error } = await supabase
+        .from("utilisateurs")
+        .update(updateData)
+        .eq("id", editingUser.id);
+      if (error) throw error;
+      toast.success("Utilisateur modifié avec succès");
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+      fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la modification");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -253,6 +301,9 @@ const Authentification = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                            Modifier
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => handleDeleteUser(user.id)}
@@ -396,6 +447,103 @@ const Authentification = () => {
             >
               {isCreating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Créer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Edit User Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier l'utilisateur</DialogTitle>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Avatar>
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {getInitials(editingUser.nom)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">{editingUser.nom}</p>
+                  <p className="text-sm text-muted-foreground">{editingUser.email}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Poste de travail</Label>
+                <Select
+                  value={editFormData.poste_id}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, poste_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un poste" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {postes.map((poste) => (
+                      <SelectItem key={poste.id} value={poste.id}>
+                        {poste.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Mot de passe</Label>
+                <Input
+                  type="password"
+                  placeholder="Laisser vide pour ne pas changer"
+                  value={editFormData.mot_de_passe}
+                  onChange={(e) => setEditFormData({ ...editFormData, mot_de_passe: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Rôle</Label>
+                <Select
+                  value={editFormData.role}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="manager">Manager</SelectItem>
+                    <SelectItem value="technicien">Technicien</SelectItem>
+                    <SelectItem value="operateur">Opérateur</SelectItem>
+                    <SelectItem value="lecteur">Lecteur</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Statut</Label>
+                <Select
+                  value={editFormData.statut}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, statut: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="actif">Actif</SelectItem>
+                    <SelectItem value="inactif">Inactif</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Enregistrer
             </Button>
           </DialogFooter>
         </DialogContent>
