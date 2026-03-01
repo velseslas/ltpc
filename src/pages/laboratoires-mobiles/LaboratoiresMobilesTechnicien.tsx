@@ -196,7 +196,7 @@ export default function LaboratoiresMobilesTechnicien() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {navState.level !== "wilayas" && (
-            <Button variant="outline" size="sm" onClick={handleBack} className="gap-2">
+            <Button variant="outline" size="sm" onClick={handleBack} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
               <ArrowLeft className="h-4 w-4" />
               Retour
             </Button>

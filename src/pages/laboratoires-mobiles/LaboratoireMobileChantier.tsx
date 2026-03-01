@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -12,13 +13,26 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useChantier } from "@/hooks/useChantiers";
 import { useClient } from "@/hooks/useClients";
+import { useChantierEchantillons } from "@/hooks/useChantierEchantillons";
 import { ChantierEchantillonsList } from "@/components/laboratoires-mobiles/ChantierEchantillonsList";
+import { EchantillonsStatsCards } from "@/components/laboratoires-mobiles/EchantillonsStatsCards";
 
 export default function LaboratoireMobileChantier() {
   const navigate = useNavigate();
   const { chantierId } = useParams();
   const { data: chantier, isLoading: chantierLoading } = useChantier(chantierId || "");
   const { data: client, isLoading: clientLoading } = useClient(chantier?.client_id || "");
+  const { data: echantillons } = useChantierEchantillons(chantierId || "");
+
+  const echantillonStats = useMemo(() => {
+    if (!echantillons) return { total: 0, enCours: 0, termines: 0, aFaire: 0 };
+    return {
+      total: echantillons.length,
+      enCours: echantillons.filter(e => e.statut === "en-cours").length,
+      termines: echantillons.filter(e => e.statut === "termine").length,
+      aFaire: echantillons.filter(e => e.statut === "a-faire").length,
+    };
+  }, [echantillons]);
 
   if (chantierLoading || clientLoading) {
     return (
@@ -43,8 +57,9 @@ export default function LaboratoireMobileChantier() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-5 w-5" />
+        <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+          <ArrowLeft className="h-4 w-4" />
+          Retour
         </Button>
         <div>
           <h1 className="text-3xl font-bold">{chantier.nom}</h1>
@@ -110,6 +125,14 @@ export default function LaboratoireMobileChantier() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Échantillons Stats */}
+      <EchantillonsStatsCards
+        total={echantillonStats.total}
+        enCours={echantillonStats.enCours}
+        termines={echantillonStats.termines}
+        aFaire={echantillonStats.aFaire}
+      />
 
       {/* Samples List */}
       <Card>

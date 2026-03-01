@@ -1,6 +1,18 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, MapPin, Building2, HardHat } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useDeleteLaboratoireMobile } from "@/hooks/useLaboratoiresMobiles";
 import { Button } from "@/components/ui/button";
 import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useChantiers } from "@/hooks/useChantiers";
@@ -41,6 +53,8 @@ export default function LaboratoiresMobilesAdmin() {
 
   const [navState, setNavState] = useState<NavigationState>({ level: "wilayas" });
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteChangierId, setDeleteChantierId] = useState<string | null>(null);
+  const deleteLabo = useDeleteLaboratoireMobile();
 
   // Get chantiers that have laboratoires mobiles assigned
   const chantiersWithLaboMobile = useMemo(() => {
@@ -196,7 +210,7 @@ export default function LaboratoiresMobilesAdmin() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {navState.level !== "wilayas" && (
-            <Button variant="outline" size="sm" onClick={handleBack} className="gap-2">
+            <Button variant="outline" size="sm" onClick={handleBack} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
               <ArrowLeft className="h-4 w-4" />
               Retour
             </Button>
@@ -262,7 +276,10 @@ export default function LaboratoiresMobilesAdmin() {
             adresse={chantier.adresse}
             statut={chantier.statut}
             colorIndex={index}
+            showActions
             onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantier.id}`)}
+            onEdit={() => navigate(`/laboratoires-mobiles/${chantier.id}/modifier`)}
+            onDelete={() => setDeleteChantierId(chantier.id)}
           />
         ))}
       </div>
@@ -331,6 +348,40 @@ export default function LaboratoiresMobilesAdmin() {
           )}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteChangierId} onOpenChange={() => setDeleteChantierId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce chantier ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!deleteChangierId) return;
+                try {
+                  // Find the labo mobile associated with this chantier
+                  const labo = labos?.find(l => l.chantier_id === deleteChangierId);
+                  if (labo) {
+                    await deleteLabo.mutateAsync(labo.id);
+                  }
+                  toast.success("Chantier supprimé avec succès");
+                  setDeleteChantierId(null);
+                } catch {
+                  toast.error("Erreur lors de la suppression");
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
