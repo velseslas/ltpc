@@ -336,12 +336,12 @@ export default function ChantierEchantillonForm() {
       {/* Header avec bouton retour */}
       <div className="flex items-start gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}`)}
-          className="h-10 w-10"
+          className="h-10 w-10 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground">
