@@ -125,6 +125,7 @@ import PermeabiliteDetail from "./pages/essais/permeabilite/PermeabiliteDetail";
 import PermeabiliteDataEntry from "./pages/essais/permeabilite/PermeabiliteDataEntry";
 import PermeabiliteReport from "./pages/essais/permeabilite/PermeabiliteReport";
 
+import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
 // Normes imports
@@ -450,6 +451,7 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/in-situ/sondage/:id/saisie" element={<GeotechniqueDataEntry essaiType="sondage" essaiTitle="Sondage" basePath="/essais/geotechnique/in-situ/sondage" categoryPath="/essais/geotechnique/in-situ" categoryLabel="In-Situ" />} />
       <Route path="/essais/geotechnique/in-situ/sondage/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="sondage" essaiTitle="Sondage" basePath="/essais/geotechnique/in-situ/sondage" />} />
       <Route path="/essais/beton" element={<EssaiBeton />} />
+      <Route path="/essais/beton/formulation" element={<FormulationBeton />} />
       <Route path="/essais/beton/beton-frais" element={<BetonFrais />} />
       <Route path="/essais/beton/beton-frais/normes" element={<BetonFraisNormes />} />
       {/* Affaissement routes */}
