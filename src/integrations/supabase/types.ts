@@ -4988,6 +4988,7 @@ export type Database = {
       prix_essais: {
         Row: {
           categorie: string
+          code_essai: string | null
           created_at: string
           id: string
           nom_essai: string
@@ -4997,6 +4998,7 @@ export type Database = {
         }
         Insert: {
           categorie?: string
+          code_essai?: string | null
           created_at?: string
           id?: string
           nom_essai: string
@@ -5006,6 +5008,7 @@ export type Database = {
         }
         Update: {
           categorie?: string
+          code_essai?: string | null
           created_at?: string
           id?: string
           nom_essai?: string

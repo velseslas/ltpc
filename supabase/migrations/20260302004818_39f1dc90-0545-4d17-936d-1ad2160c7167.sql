@@ -1,0 +1,1 @@
+ALTER TABLE public.prix_essais ADD COLUMN code_essai TEXT;

@@ -22,7 +22,7 @@ const categories = [
   { value: "autre", label: "Autre" },
 ];
 
-const emptyForm = { nom_essai: "", categorie: "beton_frais", prix_unitaire: "", unite: "essai" };
+const emptyForm = { nom_essai: "", code_essai: "", categorie: "beton_frais", prix_unitaire: "", unite: "essai" };
 
 export default function PrixEssaiListe() {
   const { data, isLoading } = usePrixEssais();
@@ -36,7 +36,7 @@ export default function PrixEssaiListe() {
   const handleOpen = (item?: any) => {
     if (item) {
       setEditId(item.id);
-      setForm({ nom_essai: item.nom_essai, categorie: item.categorie, prix_unitaire: String(item.prix_unitaire), unite: item.unite || "essai" });
+      setForm({ nom_essai: item.nom_essai, code_essai: item.code_essai || "", categorie: item.categorie, prix_unitaire: String(item.prix_unitaire), unite: item.unite || "essai" });
     } else {
       setEditId(null);
       setForm(emptyForm);
@@ -84,7 +84,10 @@ export default function PrixEssaiListe() {
           <DialogContent>
             <DialogHeader><DialogTitle>{editId ? "Modifier le prix" : "Nouveau prix essai"}</DialogTitle></DialogHeader>
             <div className="space-y-4">
-              <div className="grid gap-2"><Label>Nom de l'essai *</Label><Input value={form.nom_essai} onChange={e => setForm(p => ({ ...p, nom_essai: e.target.value }))} /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2"><Label>Nom de l'essai *</Label><Input value={form.nom_essai} onChange={e => setForm(p => ({ ...p, nom_essai: e.target.value }))} /></div>
+                <div className="grid gap-2"><Label>Code essai</Label><Input value={form.code_essai} onChange={e => setForm(p => ({ ...p, code_essai: e.target.value }))} placeholder="Ex: ES, BM, LA..." /></div>
+              </div>
               <div className="grid gap-2">
                 <Label>Catégorie</Label>
                 <Select value={form.categorie} onValueChange={v => setForm(p => ({ ...p, categorie: v }))}>
@@ -126,7 +129,8 @@ export default function PrixEssaiListe() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Essai</TableHead>
+                 <TableHead>Essai</TableHead>
+                  <TableHead>Code</TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Prix unitaire</TableHead>
                   <TableHead>Unité</TableHead>
@@ -137,6 +141,7 @@ export default function PrixEssaiListe() {
                 {data.map((p: any) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-medium">{p.nom_essai}</TableCell>
+                    <TableCell className="text-muted-foreground">{p.code_essai || "-"}</TableCell>
                     <TableCell>{getCategorieLabel(p.categorie)}</TableCell>
                     <TableCell>{Number(p.prix_unitaire).toLocaleString()} DA</TableCell>
                     <TableCell className="capitalize">{p.unite}</TableCell>
