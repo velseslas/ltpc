@@ -180,10 +180,17 @@ import ChantierEchantillonReport from "./pages/laboratoires-mobiles/ChantierEcha
 import ChantierEchantillonBulletin from "./pages/laboratoires-mobiles/ChantierEchantillonBulletin";
 import { UserCog, Truck, Microscope, Receipt, FileText } from "lucide-react";
 import FacturationDashboard from "./pages/facturation/FacturationDashboard";
-import ChequeListe from "./pages/facturation/ChequeListe";
-import ChequeForm from "./pages/facturation/ChequeForm";
+import FactureListe from "./pages/facturation/FactureListe";
+import FactureForm from "./pages/facturation/FactureForm";
+import DevisListe from "./pages/facturation/DevisListe";
+import DevisForm from "./pages/facturation/DevisForm";
+import BonCommandeListe from "./pages/facturation/BonCommandeListe";
+import BonCommandeForm from "./pages/facturation/BonCommandeForm";
 import EspeceListe from "./pages/facturation/EspeceListe";
 import EspeceForm from "./pages/facturation/EspeceForm";
+import VirementListe from "./pages/facturation/VirementListe";
+import VirementForm from "./pages/facturation/VirementForm";
+import RecapitulatifPaiements from "./pages/facturation/RecapitulatifPaiements";
 import MaterielDashboard from "./pages/materiel/MaterielDashboard";
 import MaterielListe from "./pages/materiel/MaterielListe";
 import MaterielDetail from "./pages/materiel/MaterielDetail";
@@ -548,10 +555,17 @@ const AppRoutes = () => (
       <Route path="/materiel/maintenance/:id" element={<MaterielMaintenanceDetail />} />
       <Route path="/materiel/maintenance/:id/modifier" element={<MaterielMaintenanceForm />} />
       <Route path="/facturation" element={<FacturationDashboard />} />
-      <Route path="/facturation/cheque" element={<ChequeListe />} />
-      <Route path="/facturation/cheque/nouveau" element={<ChequeForm />} />
+      <Route path="/facturation/factures" element={<FactureListe />} />
+      <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
+      <Route path="/facturation/devis" element={<DevisListe />} />
+      <Route path="/facturation/devis/nouveau" element={<DevisForm />} />
+      <Route path="/facturation/bons-commande" element={<BonCommandeListe />} />
+      <Route path="/facturation/bons-commande/nouveau" element={<BonCommandeForm />} />
       <Route path="/facturation/espece" element={<EspeceListe />} />
       <Route path="/facturation/espece/nouveau" element={<EspeceForm />} />
+      <Route path="/facturation/virements" element={<VirementListe />} />
+      <Route path="/facturation/virements/nouveau" element={<VirementForm />} />
+      <Route path="/facturation/recapitulatif" element={<RecapitulatifPaiements />} />
       <Route path="/documents" element={<DocumentsIndex />} />
       <Route path="/documents/lettres-engagement" element={<LettresEngagement />} />
       <Route path="/documents/offres-service" element={<OffresService />} />
