@@ -241,6 +241,69 @@ export type Database = {
           },
         ]
       }
+      bons_commande: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          created_at: string
+          date_commande: string
+          id: string
+          montant_ht: number
+          montant_ttc: number
+          montant_tva: number
+          numero: string
+          observations: string | null
+          statut: string
+          taux_tva: number
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_commande?: string
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero: string
+          observations?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_commande?: string
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero?: string
+          observations?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bons_commande_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bons_commande_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carrieres: {
         Row: {
           adresse: string | null
@@ -561,6 +624,72 @@ export type Database = {
           },
           {
             foreignKeyName: "contrats_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devis: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          created_at: string
+          date_emission: string
+          date_validite: string | null
+          id: string
+          montant_ht: number
+          montant_ttc: number
+          montant_tva: number
+          numero: string
+          observations: string | null
+          statut: string
+          taux_tva: number
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_emission?: string
+          date_validite?: string | null
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero: string
+          observations?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_emission?: string
+          date_validite?: string | null
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero?: string
+          observations?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devis_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devis_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
@@ -3504,6 +3633,75 @@ export type Database = {
           },
         ]
       }
+      factures: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          created_at: string
+          date_echeance: string | null
+          date_emission: string
+          id: string
+          montant_ht: number
+          montant_paye: number
+          montant_ttc: number
+          montant_tva: number
+          numero: string
+          observations: string | null
+          statut: string
+          taux_tva: number
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_echeance?: string | null
+          date_emission?: string
+          id?: string
+          montant_ht?: number
+          montant_paye?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero: string
+          observations?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_echeance?: string | null
+          date_emission?: string
+          id?: string
+          montant_ht?: number
+          montant_paye?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero?: string
+          observations?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "factures_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "factures_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       formulations: {
         Row: {
           adjuvant_producteur_id: string | null
@@ -3886,6 +4084,129 @@ export type Database = {
           },
         ]
       }
+      lignes_bon_commande: {
+        Row: {
+          bon_commande_id: string
+          created_at: string
+          description: string
+          id: string
+          montant: number
+          ordre: number
+          prix_unitaire: number
+          quantite: number
+        }
+        Insert: {
+          bon_commande_id: string
+          created_at?: string
+          description: string
+          id?: string
+          montant?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+        }
+        Update: {
+          bon_commande_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          montant?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_bon_commande_bon_commande_id_fkey"
+            columns: ["bon_commande_id"]
+            isOneToOne: false
+            referencedRelation: "bons_commande"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lignes_devis: {
+        Row: {
+          created_at: string
+          description: string
+          devis_id: string
+          id: string
+          montant: number
+          ordre: number
+          prix_unitaire: number
+          quantite: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          devis_id: string
+          id?: string
+          montant?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          devis_id?: string
+          id?: string
+          montant?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_devis_devis_id_fkey"
+            columns: ["devis_id"]
+            isOneToOne: false
+            referencedRelation: "devis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lignes_facture: {
+        Row: {
+          created_at: string
+          description: string
+          facture_id: string
+          id: string
+          montant: number
+          ordre: number
+          prix_unitaire: number
+          quantite: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          facture_id: string
+          id?: string
+          montant?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          facture_id?: string
+          id?: string
+          montant?: number
+          ordre?: number
+          prix_unitaire?: number
+          quantite?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lignes_facture_facture_id_fkey"
+            columns: ["facture_id"]
+            isOneToOne: false
+            referencedRelation: "factures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_materiel: {
         Row: {
           cout: number | null
@@ -4222,6 +4543,7 @@ export type Database = {
           client_id: string | null
           created_at: string
           date_paiement: string
+          facture_id: string | null
           id: string
           montant: number
           numero_recu: string | null
@@ -4233,6 +4555,7 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date_paiement?: string
+          facture_id?: string | null
           id?: string
           montant?: number
           numero_recu?: string | null
@@ -4244,6 +4567,7 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date_paiement?: string
+          facture_id?: string | null
           id?: string
           montant?: number
           numero_recu?: string | null
@@ -4257,6 +4581,70 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paiements_espece_facture_id_fkey"
+            columns: ["facture_id"]
+            isOneToOne: false
+            referencedRelation: "factures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      paiements_virement: {
+        Row: {
+          banque: string | null
+          client_id: string | null
+          created_at: string
+          date_virement: string
+          facture_id: string | null
+          id: string
+          montant: number
+          observations: string | null
+          reference_virement: string | null
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          banque?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_virement?: string
+          facture_id?: string | null
+          id?: string
+          montant: number
+          observations?: string | null
+          reference_virement?: string | null
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          banque?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_virement?: string
+          facture_id?: string | null
+          id?: string
+          montant?: number
+          observations?: string | null
+          reference_virement?: string | null
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paiements_virement_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paiements_virement_facture_id_fkey"
+            columns: ["facture_id"]
+            isOneToOne: false
+            referencedRelation: "factures"
             referencedColumns: ["id"]
           },
         ]
