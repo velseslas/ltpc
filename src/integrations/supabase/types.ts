@@ -4985,6 +4985,36 @@ export type Database = {
         }
         Relationships: []
       }
+      prix_essais: {
+        Row: {
+          categorie: string
+          created_at: string
+          id: string
+          nom_essai: string
+          prix_unitaire: number
+          unite: string
+          updated_at: string
+        }
+        Insert: {
+          categorie?: string
+          created_at?: string
+          id?: string
+          nom_essai: string
+          prix_unitaire?: number
+          unite?: string
+          updated_at?: string
+        }
+        Update: {
+          categorie?: string
+          created_at?: string
+          id?: string
+          nom_essai?: string
+          prix_unitaire?: number
+          unite?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       produits: {
         Row: {
           created_at: string

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -36,9 +37,12 @@ export default function DevisListe() {
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Devis" }]} />
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Devis</h1>
-          <p className="text-muted-foreground">Génération et gestion des devis</p>
+        <div className="flex items-center gap-3">
+          <BackButton to="/facturation" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Devis</h1>
+            <p className="text-muted-foreground">Génération et gestion des devis</p>
+          </div>
         </div>
         <Button className="gap-2" onClick={() => navigate("/facturation/devis/nouveau")}><Plus className="h-4 w-4" />Nouveau devis</Button>
       </div>

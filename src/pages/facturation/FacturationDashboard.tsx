@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FileText, Receipt, ShoppingCart, Banknote, ArrowUpRight, Wallet, TrendingUp, AlertTriangle, BarChart3 } from "lucide-react";
+import { FileText, Receipt, ShoppingCart, Banknote, ArrowUpRight, Wallet, TrendingUp, AlertTriangle, BarChart3, FlaskConical } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
@@ -48,6 +48,13 @@ const widgets = [
     icon: BarChart3,
     path: "/facturation/recapitulatif",
     color: { bg: "bg-rose-500/10", icon: "text-rose-500" },
+  },
+  {
+    title: "Prix des essais",
+    description: "Barème des prix unitaires par essai",
+    icon: FlaskConical,
+    path: "/facturation/prix-essais",
+    color: { bg: "bg-orange-500/10", icon: "text-orange-500" },
   },
 ];
 

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -36,9 +37,12 @@ export default function EspeceListe() {
       ]} />
 
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Paiements en Espèce</h1>
-          <p className="text-muted-foreground">Suivi des paiements en espèce</p>
+        <div className="flex items-center gap-3">
+          <BackButton to="/facturation" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Paiements en Espèce</h1>
+            <p className="text-muted-foreground">Suivi des paiements en espèce</p>
+          </div>
         </div>
         <Button className="gap-2" onClick={() => navigate("/facturation/espece/nouveau")}><Plus className="h-4 w-4" />Nouveau paiement</Button>
       </div>

@@ -191,6 +191,7 @@ import EspeceForm from "./pages/facturation/EspeceForm";
 import VirementListe from "./pages/facturation/VirementListe";
 import VirementForm from "./pages/facturation/VirementForm";
 import RecapitulatifPaiements from "./pages/facturation/RecapitulatifPaiements";
+import PrixEssaiListe from "./pages/facturation/PrixEssaiListe";
 import MaterielDashboard from "./pages/materiel/MaterielDashboard";
 import MaterielListe from "./pages/materiel/MaterielListe";
 import MaterielDetail from "./pages/materiel/MaterielDetail";
@@ -566,6 +567,7 @@ const AppRoutes = () => (
       <Route path="/facturation/virements" element={<VirementListe />} />
       <Route path="/facturation/virements/nouveau" element={<VirementForm />} />
       <Route path="/facturation/recapitulatif" element={<RecapitulatifPaiements />} />
+      <Route path="/facturation/prix-essais" element={<PrixEssaiListe />} />
       <Route path="/documents" element={<DocumentsIndex />} />
       <Route path="/documents/lettres-engagement" element={<LettresEngagement />} />
       <Route path="/documents/offres-service" element={<OffresService />} />
