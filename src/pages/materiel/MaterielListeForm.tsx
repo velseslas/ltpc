@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useCreateMateriel, useUpdateMateriel, useMaterielItem } from "@/hooks/useMaterielLaboratoire";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 export default function MaterielListeForm() {
   const navigate = useNavigate();
@@ -69,9 +70,7 @@ export default function MaterielListeForm() {
       ]} />
 
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/materiel/liste")}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
+        <BackButton to="/materiel/liste" />
         <h1 className="text-2xl font-semibold text-foreground">
           {isEdit ? "Modifier le Matériel" : "Nouveau Matériel"}
         </h1>

@@ -2,7 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, ArrowLeftRight, ArrowLeft, Calendar, MapPin, User, Loader2, Wrench, Tag, Factory, Box, Hash } from "lucide-react";
+import { Pencil, Trash2, ArrowLeftRight, Calendar, MapPin, User, Loader2, Wrench, Tag, Factory, Box, Hash } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useAffectationMaterielItem, useDeleteAffectationMateriel } from "@/hooks/useMaterielLaboratoire";
 import { format } from "date-fns";
@@ -74,9 +75,7 @@ export default function MaterielAffectationDetail() {
 
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => navigate("/materiel/affectation")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <BackButton to="/materiel/affectation" />
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
               <ArrowLeftRight className="w-6 h-6 text-primary" />

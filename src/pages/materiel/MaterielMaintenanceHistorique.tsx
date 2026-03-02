@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Wrench, Printer, Download } from "lucide-react";
+import { Wrench, Printer, Download } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,9 +62,7 @@ export default function MaterielMaintenanceHistorique() {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon" onClick={() => navigate("/materiel/maintenance")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <BackButton to="/materiel/maintenance" />
           <div>
             <h1 className="text-2xl font-bold">Historique des Maintenances</h1>
             <p className="text-muted-foreground">Suivi complet des maintenances matériel</p>

@@ -13,7 +13,8 @@ import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { wilayas } from "@/data/wilayas";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 
 export default function MaterielAffectationForm() {
@@ -103,14 +104,7 @@ export default function MaterielAffectationForm() {
       ]} />
 
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-          onClick={() => navigate("/materiel/affectation")}
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
+        <BackButton to="/materiel/affectation" />
         <h1 className="text-2xl font-semibold text-foreground">
           {isEditing ? "Modifier l'Affectation" : "Nouvelle Affectation"}
         </h1>
