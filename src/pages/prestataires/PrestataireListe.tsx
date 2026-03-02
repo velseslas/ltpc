@@ -45,22 +45,22 @@ export default function PrestataireListe() {
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Intervenants", path: "/intervenant" }, { label: "Prestataires" }]} />
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <BackButton to="/intervenant" />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Prestataires</h1>
-            <p className="text-muted-foreground">Gestion des prestataires et sous-traitants</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <BackButton to="/intervenant" />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Prestataires</h1>
+          <p className="text-muted-foreground">Gestion des prestataires et sous-traitants</p>
         </div>
-        <Button className="gap-2" onClick={() => navigate("/intervenant/prestataires/nouveau")}>
-          <Plus className="h-4 w-4" />Nouveau prestataire
-        </Button>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Rechercher un prestataire..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Rechercher un prestataire..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 h-11" />
+        </div>
+        <Button className="gap-2 h-11" onClick={() => navigate("/intervenant/prestataires/nouveau")}>
+          <Plus className="h-4 w-4" />Nouveau prestataire
+        </Button>
       </div>
 
       {isLoading && (

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { wilayas } from "@/data/wilayas";
 import { usePrestataire, useCreatePrestataire, useUpdatePrestataire } from "@/hooks/usePrestataires";
 import { toast } from "sonner";
 
@@ -21,7 +22,7 @@ export default function PrestataireForm() {
 
   const [form, setForm] = useState({
     nom: "", contact: "", telephone: "", email: "",
-    adresse: "", ville: "", specialite: "", statut: "actif", observations: "",
+    adresse: "", wilaya: "", specialite: "", statut: "actif", observations: "",
   });
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function PrestataireForm() {
         telephone: existing.telephone || "",
         email: existing.email || "",
         adresse: existing.adresse || "",
-        ville: existing.ville || "",
+        wilaya: existing.wilaya || existing.ville || "",
         specialite: existing.specialite || "",
         statut: existing.statut || "actif",
         observations: existing.observations || "",
@@ -81,7 +82,17 @@ export default function PrestataireForm() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Adresse</Label><Input value={form.adresse} onChange={e => setForm(p => ({ ...p, adresse: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Ville</Label><Input value={form.ville} onChange={e => setForm(p => ({ ...p, ville: e.target.value }))} /></div>
+            <div className="grid gap-2">
+              <Label>Wilaya</Label>
+              <Select value={form.wilaya} onValueChange={v => setForm(p => ({ ...p, wilaya: v }))}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya" /></SelectTrigger>
+                <SelectContent>
+                  {wilayas.map(w => (
+                    <SelectItem key={w.code} value={w.nom}>{w.code} - {w.nom}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Spécialité</Label><Input value={form.specialite} onChange={e => setForm(p => ({ ...p, specialite: e.target.value }))} placeholder="Ex: Géotechnique, Transport..." /></div>
