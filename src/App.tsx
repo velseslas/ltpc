@@ -192,6 +192,10 @@ import VirementListe from "./pages/facturation/VirementListe";
 import VirementForm from "./pages/facturation/VirementForm";
 import RecapitulatifPaiements from "./pages/facturation/RecapitulatifPaiements";
 import PrixEssaiListe from "./pages/facturation/PrixEssaiListe";
+import PrestataireListe from "./pages/prestataires/PrestataireListe";
+import PrestataireForm from "./pages/prestataires/PrestataireForm";
+import PrestataireDetail from "./pages/prestataires/PrestataireDetail";
+import BonCommandePrestataireForm from "./pages/prestataires/BonCommandePrestataireForm";
 import MaterielDashboard from "./pages/materiel/MaterielDashboard";
 import MaterielListe from "./pages/materiel/MaterielListe";
 import MaterielDetail from "./pages/materiel/MaterielDetail";
@@ -276,6 +280,11 @@ const AppRoutes = () => (
       <Route path="/intervenant/producteurs/centrale/:id/modifier" element={<CentraleBetonForm />} />
       <Route path="/intervenant/producteurs/centrale/:id/formulation/nouveau" element={<FormulationForm />} />
       <Route path="/intervenant/producteurs/centrale/:id/formulation/:formulationId/modifier" element={<FormulationForm />} />
+      <Route path="/intervenant/prestataires" element={<PrestataireListe />} />
+      <Route path="/intervenant/prestataires/nouveau" element={<PrestataireForm />} />
+      <Route path="/intervenant/prestataires/:id" element={<PrestataireDetail />} />
+      <Route path="/intervenant/prestataires/:id/modifier" element={<PrestataireForm />} />
+      <Route path="/intervenant/prestataires/:id/bon-commande/nouveau" element={<BonCommandePrestataireForm />} />
       <Route path="/rh" element={<RH />} />
       <Route path="/rh/postes" element={<Postes />} />
       <Route path="/rh/postes/nouveau" element={<PosteForm />} />

@@ -304,6 +304,62 @@ export type Database = {
           },
         ]
       }
+      bons_commande_prestataire: {
+        Row: {
+          created_at: string
+          date_commande: string
+          id: string
+          montant_ht: number
+          montant_ttc: number
+          montant_tva: number
+          numero: string
+          objet: string | null
+          observations: string | null
+          prestataire_id: string | null
+          statut: string
+          taux_tva: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_commande?: string
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero: string
+          objet?: string | null
+          observations?: string | null
+          prestataire_id?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_commande?: string
+          id?: string
+          montant_ht?: number
+          montant_ttc?: number
+          montant_tva?: number
+          numero?: string
+          objet?: string | null
+          observations?: string | null
+          prestataire_id?: string | null
+          statut?: string
+          taux_tva?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bons_commande_prestataire_prestataire_id_fkey"
+            columns: ["prestataire_id"]
+            isOneToOne: false
+            referencedRelation: "prestataires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       carrieres: {
         Row: {
           adresse: string | null
@@ -4982,6 +5038,51 @@ export type Database = {
           salaire_moyen?: number | null
           type_contrat?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      prestataires: {
+        Row: {
+          adresse: string | null
+          contact: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nom: string
+          observations: string | null
+          specialite: string | null
+          statut: string
+          telephone: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          adresse?: string | null
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom: string
+          observations?: string | null
+          specialite?: string | null
+          statut?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          adresse?: string | null
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom?: string
+          observations?: string | null
+          specialite?: string | null
+          statut?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
         }
         Relationships: []
       }
