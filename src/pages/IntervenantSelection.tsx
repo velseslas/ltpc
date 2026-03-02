@@ -1,4 +1,4 @@
-import { Users, Factory } from "lucide-react";
+import { Users, Factory, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
@@ -22,6 +22,14 @@ const IntervenantSelection = () => {
       gradient: "from-amber-500/20 to-orange-500/10",
       iconColor: "text-amber-500",
     },
+    {
+      title: "Prestataires",
+      description: "Gérez vos prestataires et bons de commande",
+      icon: Briefcase,
+      path: "/intervenant/prestataires",
+      gradient: "from-violet-500/20 to-purple-500/10",
+      iconColor: "text-violet-500",
+    },
   ];
 
   return (
@@ -37,7 +45,7 @@ const IntervenantSelection = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {widgets.map((widget) => (
           <div
             key={widget.path}
