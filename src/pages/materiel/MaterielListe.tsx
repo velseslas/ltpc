@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Microscope, Eye, Pencil, MoreHorizontal, Search, ArrowLeft, ClipboardList } from "lucide-react";
+import { Plus, Trash2, Microscope, Eye, Pencil, MoreHorizontal, Search, ClipboardList } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -77,9 +78,7 @@ export default function MaterielListe() {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => navigate("/materiel")}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+          <BackButton to="/materiel" />
           <div>
             <h1 className="text-2xl font-bold">Liste du Matériel</h1>
             <p className="text-muted-foreground">Inventaire complet</p>

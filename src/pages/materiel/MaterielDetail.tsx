@@ -2,7 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Pencil, Trash2, Microscope, Calendar, MapPin, Tag, Hash, Building2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Microscope, Calendar, MapPin, Tag, Hash, Building2, Loader2 } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useMaterielItem, useDeleteMateriel } from "@/hooks/useMaterielLaboratoire";
 import { format } from "date-fns";
@@ -83,9 +84,7 @@ export default function MaterielDetail() {
       <div>
         <div className="mb-8">
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon" onClick={() => navigate("/materiel/liste")}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
+            <BackButton to="/materiel/liste" />
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
               <Microscope className="w-6 h-6 text-primary" />
             </div>

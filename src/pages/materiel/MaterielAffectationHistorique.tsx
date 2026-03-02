@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowLeftRight, Printer, Download } from "lucide-react";
+import { ArrowLeftRight, Printer, Download } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,9 +52,7 @@ export default function MaterielAffectationHistorique() {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon" onClick={() => navigate("/materiel/affectation")}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <BackButton to="/materiel/affectation" />
           <div>
             <h1 className="text-2xl font-bold">Historique des Affectations</h1>
             <p className="text-muted-foreground">Suivi complet des affectations matériel</p>
