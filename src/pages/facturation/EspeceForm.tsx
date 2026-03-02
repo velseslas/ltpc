@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,8 +42,8 @@ export default function EspeceForm() {
         { label: "Nouveau Paiement" },
       ]} />
 
-      <Card>
-        <CardHeader><CardTitle>Nouveau Paiement en Espèce</CardTitle></CardHeader>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardHeader><CardTitle className="flex items-center gap-3"><BackButton to="/facturation/espece" />Nouveau Paiement en Espèce</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
             <Label>Client</Label>

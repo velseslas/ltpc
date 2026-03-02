@@ -1,4 +1,5 @@
 import { Banknote, ArrowUpRight, BarChart3 } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -20,9 +21,12 @@ export default function RecapitulatifPaiements() {
   return (
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Récapitulatif" }]} />
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Récapitulatif des paiements</h1>
-        <p className="text-muted-foreground">Vue d'ensemble de tous les encaissements</p>
+      <div className="flex items-center gap-3">
+        <BackButton to="/facturation" />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Récapitulatif des paiements</h1>
+          <p className="text-muted-foreground">Vue d'ensemble de tous les encaissements</p>
+        </div>
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
