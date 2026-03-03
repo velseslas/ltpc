@@ -229,7 +229,14 @@ export default function LaboratoiresMobilesAdmin() {
   const breadcrumbItems = useMemo((): BreadcrumbItemType[] => {
     const items: BreadcrumbItemType[] = [{ label: "Laboratoires Chantier", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
     if (navState.level === "clients" || navState.level === "chantiers") {
-      items.push({ label: navState.selectedWilaya! });
+      const wilayaParams = new URLSearchParams({
+        level: "clients",
+        wilaya: navState.selectedWilaya!,
+      });
+      items.push({
+        label: navState.selectedWilaya!,
+        path: navState.level === "chantiers" ? `/laboratoires-mobiles?${wilayaParams.toString()}` : undefined,
+      });
     }
     if (navState.level === "chantiers") {
       items.push({ label: navState.selectedClient!.nom });
