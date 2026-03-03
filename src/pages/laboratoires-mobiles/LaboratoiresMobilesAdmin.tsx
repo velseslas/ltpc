@@ -80,6 +80,12 @@ export default function LaboratoiresMobilesAdmin() {
   const [deleteChangierId, setDeleteChantierId] = useState<string | null>(null);
   const deleteLabo = useDeleteLaboratoireMobile();
 
+  useEffect(() => {
+    if (!location.search) return;
+    setCurrentPage(1);
+    setNavState(getNavigationStateFromSearch(location.search));
+  }, [location.search]);
+
   // Get chantiers that have laboratoires mobiles assigned
   const chantiersWithLaboMobile = useMemo(() => {
     if (!labos || !chantiers) return [];
