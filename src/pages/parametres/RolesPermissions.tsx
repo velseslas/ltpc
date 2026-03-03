@@ -32,6 +32,15 @@ import {
 
 const ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'technicien', 'operateur', 'lecteur'];
 
+const ROLE_SHORT_LABELS: Record<AppRole, string> = {
+  super_admin: 'SA',
+  admin: 'AD',
+  manager: 'MG',
+  technicien: 'TE',
+  operateur: 'OP',
+  lecteur: 'LE',
+};
+
 const MODULE_ICONS: Record<string, string> = {
   'Clients': '👥',
   'Chantiers': '🏗️',
