@@ -404,7 +404,7 @@ const RolesPermissions = () => {
                                 {ROLES.map(role => {
                                   const hasPermission = rolePermissions?.[role]?.includes(perm.id) || false;
                                   return (
-                                    <TableCell key={role} className="text-center">
+                                    <TableCell key={role} className="text-center px-1">
                                       <div className="flex justify-center">
                                         <Checkbox
                                           checked={hasPermission}
