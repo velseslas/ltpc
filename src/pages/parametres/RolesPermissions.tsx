@@ -298,15 +298,15 @@ const RolesPermissions = () => {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto border rounded-lg">
+                <div className="border rounded-lg">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/30">
-                        <TableHead className="w-[60px] text-center sticky left-0 bg-muted/30 z-10">#</TableHead>
-                        <TableHead className="min-w-[200px] sticky left-[60px] bg-muted/30 z-10">Permission</TableHead>
-                        <TableHead className="min-w-[120px]">Module</TableHead>
+                        <TableHead className="w-[40px] text-center">#</TableHead>
+                        <TableHead className="">Permission</TableHead>
+                        <TableHead className="">Module</TableHead>
                         {ROLES.map(role => (
-                          <TableHead key={role} className="text-center min-w-[110px]">
+                          <TableHead key={role} className="text-center">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -327,7 +327,7 @@ const RolesPermissions = () => {
                       {filteredModulesForMatrix.map(module => (
                         <>
                           <TableRow key={`module-${module}`} className="bg-muted/50 hover:bg-muted/60">
-                            <TableCell colSpan={ROLES.length + 3} className="font-semibold py-2 sticky left-0">
+                            <TableCell colSpan={ROLES.length + 3} className="font-semibold py-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <span className="text-lg">{MODULE_ICONS[module] || '📁'}</span>
@@ -376,10 +376,10 @@ const RolesPermissions = () => {
                             )
                             .map((perm, idx) => (
                               <TableRow key={perm.id} className="group">
-                                <TableCell className="text-center text-xs text-muted-foreground sticky left-0 bg-background z-10">
+                                <TableCell className="text-center text-xs text-muted-foreground">
                                   {idx + 1}
                                 </TableCell>
-                                <TableCell className="sticky left-[60px] bg-background z-10">
+                                <TableCell className="">
                                   <div className="space-y-0.5">
                                     <p className="font-medium text-sm">{perm.nom}</p>
                                     <code className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded">
