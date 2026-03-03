@@ -68,13 +68,14 @@ const getNavigationStateFromSearch = (search: string): NavigationState => {
 
 export default function LaboratoiresMobilesAdmin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: labos, isLoading: labosLoading } = useLaboratoiresMobiles();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: intervenants } = useIntervenants();
   const { data: echantillonsCompression } = useEchantillonsCompression();
 
-  const [navState, setNavState] = useState<NavigationState>({ level: "wilayas" });
+  const [navState, setNavState] = useState<NavigationState>(() => getNavigationStateFromSearch(location.search));
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteChangierId, setDeleteChantierId] = useState<string | null>(null);
   const deleteLabo = useDeleteLaboratoireMobile();
