@@ -376,10 +376,10 @@ const RolesPermissions = () => {
                             )
                             .map((perm, idx) => (
                               <TableRow key={perm.id} className="group">
-                                <TableCell className="text-center text-xs text-muted-foreground sticky left-0 bg-background z-10">
+                                <TableCell className="text-center text-xs text-muted-foreground">
                                   {idx + 1}
                                 </TableCell>
-                                <TableCell className="sticky left-[60px] bg-background z-10">
+                                <TableCell className="">
                                   <div className="space-y-0.5">
                                     <p className="font-medium text-sm">{perm.nom}</p>
                                     <code className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded">
