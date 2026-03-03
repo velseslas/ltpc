@@ -7,6 +7,7 @@ import { useChantiers } from "@/hooks/useChantiers";
 import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
+import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { wilayas } from "@/data/wilayas";
 import { AdminStatsCards } from "@/components/laboratoires-mobiles/AdminStatsCards";
 import { WilayaCard } from "@/components/laboratoires-mobiles/WilayaCard";
@@ -38,11 +39,12 @@ export default function LaboratoiresMobilesTechnicien() {
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: intervenants } = useIntervenants();
   const { data: echantillonsCompression } = useEchantillonsCompression();
+  const { data: userChantiers } = useCurrentUserChantiers();
 
   const [navState, setNavState] = useState<NavigationState>({ level: "wilayas" });
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Get chantiers that have laboratoires mobiles assigned
+  // Get chantiers that have laboratoires mobiles assigned AND are assigned to this technician
   const chantiersWithLaboMobile = useMemo(() => {
     if (!labos || !chantiers) return [];
     const laboChantierIds = new Set(
@@ -50,8 +52,9 @@ export default function LaboratoiresMobilesTechnicien() {
         .filter(l => l.chantier_id)
         .map(l => l.chantier_id as string)
     );
-    return chantiers.filter(c => laboChantierIds.has(c.id));
-  }, [labos, chantiers]);
+    const assignedIds = new Set(userChantiers?.chantierIds || []);
+    return chantiers.filter(c => laboChantierIds.has(c.id) && assignedIds.has(c.id));
+  }, [labos, chantiers, userChantiers]);
 
   // Get unique wilayas that have laboratoires mobiles
   const wilayasWithLaboMobile = useMemo(() => {
