@@ -7,7 +7,8 @@ import {
   Building2, 
   Calendar,
   FlaskConical,
-  User
+  User,
+  ShieldAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,10 +19,14 @@ import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useChantierEchantillons } from "@/hooks/useChantierEchantillons";
 import { ChantierEchantillonsList } from "@/components/laboratoires-mobiles/ChantierEchantillonsList";
 import { EchantillonsStatsCards } from "@/components/laboratoires-mobiles/EchantillonsStatsCards";
+import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
+import { usePermissionContext } from "@/hooks/usePermissionContext";
 
 export default function LaboratoireMobileChantier() {
   const navigate = useNavigate();
   const { chantierId } = useParams();
+  const { isTechnicien } = usePermissionContext();
+  const { data: userChantiers, isLoading: chantiersAccessLoading } = useCurrentUserChantiers();
   const { data: chantier, isLoading: chantierLoading } = useChantier(chantierId || "");
   const { data: client, isLoading: clientLoading } = useClient(chantier?.client_id || "");
   const { data: echantillons } = useChantierEchantillons(chantierId || "");
@@ -46,10 +51,24 @@ export default function LaboratoireMobileChantier() {
     };
   }, [echantillons]);
 
-  if (chantierLoading || clientLoading) {
+  if (chantierLoading || clientLoading || chantiersAccessLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Technicians can only access their assigned chantiers
+  if (isTechnicien && chantierId && userChantiers && !userChantiers.chantierIds.includes(chantierId)) {
+    return (
+      <div className="text-center py-12">
+        <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-destructive opacity-60" />
+        <p className="text-muted-foreground font-medium">Accès non autorisé</p>
+        <p className="text-sm text-muted-foreground mt-1">Vous n'êtes pas affecté à ce chantier</p>
+        <Button className="mt-4" onClick={() => navigate("/laboratoires-mobiles")}>
+          Retour aux laboratoires
+        </Button>
       </div>
     );
   }

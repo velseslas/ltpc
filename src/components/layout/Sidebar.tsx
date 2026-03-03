@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
+import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 
 const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
@@ -34,11 +35,22 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
-  const { hasPermission, role } = usePermissionContext();
+  const { hasPermission, role, isTechnicien } = usePermissionContext();
+  const { data: userChantiers } = useCurrentUserChantiers();
 
   const visibleItems = menuItems.filter((item) => {
     // Dashboard always visible
     if (item.permission === "dashboard.voir") return true;
+    
+    // Techniciens: only show Essais + Laboratoires Chantier (if assigned)
+    if (isTechnicien) {
+      if (item.permission === "essais.voir") return hasPermission(item.permission);
+      if (item.permission === "labos_mobiles.voir") {
+        return hasPermission(item.permission) && (userChantiers?.chantierIds?.length ?? 0) > 0;
+      }
+      return false;
+    }
+    
     // Check permission
     return hasPermission(item.permission);
   });
