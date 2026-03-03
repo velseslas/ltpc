@@ -21,6 +21,7 @@ import { ChantierEchantillonsList } from "@/components/laboratoires-mobiles/Chan
 import { EchantillonsStatsCards } from "@/components/laboratoires-mobiles/EchantillonsStatsCards";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 export default function LaboratoireMobileChantier() {
   const navigate = useNavigate();
@@ -86,6 +87,10 @@ export default function LaboratoireMobileChantier() {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={[
+        { label: "Laboratoires Chantier", path: "/laboratoires-mobiles" },
+        { label: chantier.nom },
+      ]} />
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">

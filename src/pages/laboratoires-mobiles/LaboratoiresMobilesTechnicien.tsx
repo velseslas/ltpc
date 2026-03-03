@@ -10,6 +10,7 @@ import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { wilayas } from "@/data/wilayas";
 import { AdminStatsCards } from "@/components/laboratoires-mobiles/AdminStatsCards";
+import { AppBreadcrumb, BreadcrumbItemType } from "@/components/layout/AppBreadcrumb";
 import { WilayaCard } from "@/components/laboratoires-mobiles/WilayaCard";
 import { ClientCard } from "@/components/laboratoires-mobiles/ClientCard";
 import { ChantierCard } from "@/components/laboratoires-mobiles/ChantierCard";
@@ -185,6 +186,17 @@ export default function LaboratoiresMobilesTechnicien() {
     }
   };
 
+  const breadcrumbItems = useMemo((): BreadcrumbItemType[] => {
+    const items: BreadcrumbItemType[] = [{ label: "Laboratoires Chantier", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
+    if (navState.level === "clients" || navState.level === "chantiers") {
+      items.push({ label: navState.selectedWilaya! });
+    }
+    if (navState.level === "chantiers") {
+      items.push({ label: navState.selectedClient!.nom });
+    }
+    return items;
+  }, [navState]);
+
   if (labosLoading || chantiersLoading || clientsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -195,6 +207,7 @@ export default function LaboratoiresMobilesTechnicien() {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
