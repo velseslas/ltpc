@@ -89,6 +89,8 @@ export default function LaboratoireMobileChantier() {
     <div className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Laboratoires Chantier", path: "/laboratoires-mobiles" },
+        ...(chantier.ville ? [{ label: chantier.ville }] : []),
+        ...(client?.nom ? [{ label: client.nom }] : []),
         { label: chantier.nom },
       ]} />
       {/* Header */}
