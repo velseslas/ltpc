@@ -69,7 +69,6 @@ export default function LaboratoiresMobilesTechnicien() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    if (!location.search) return;
     setCurrentPage(1);
     setNavState(getNavigationStateFromSearch(location.search));
   }, [location.search]);

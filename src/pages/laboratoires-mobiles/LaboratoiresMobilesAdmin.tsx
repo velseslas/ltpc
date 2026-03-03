@@ -81,7 +81,6 @@ export default function LaboratoiresMobilesAdmin() {
   const deleteLabo = useDeleteLaboratoireMobile();
 
   useEffect(() => {
-    if (!location.search) return;
     setCurrentPage(1);
     setNavState(getNavigationStateFromSearch(location.search));
   }, [location.search]);
