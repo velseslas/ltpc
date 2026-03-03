@@ -32,6 +32,15 @@ import {
 
 const ROLES: AppRole[] = ['super_admin', 'admin', 'manager', 'technicien', 'operateur', 'lecteur'];
 
+const ROLE_SHORT_LABELS: Record<AppRole, string> = {
+  super_admin: 'SA',
+  admin: 'AD',
+  manager: 'MG',
+  technicien: 'TE',
+  operateur: 'OP',
+  lecteur: 'LE',
+};
+
 const MODULE_ICONS: Record<string, string> = {
   'Clients': '👥',
   'Chantiers': '🏗️',
@@ -299,23 +308,23 @@ const RolesPermissions = () => {
                 </div>
               ) : (
                 <div className="border rounded-lg">
-                  <Table>
+                  <Table className="w-full table-fixed [&_th]:px-2 [&_td]:px-2 [&_th]:py-2 [&_td]:py-2">
                     <TableHeader>
                       <TableRow className="bg-muted/30">
-                        <TableHead className="w-[40px] text-center">#</TableHead>
-                        <TableHead className="">Permission</TableHead>
-                        <TableHead className="">Module</TableHead>
+                        <TableHead className="w-8 text-center">#</TableHead>
+                        <TableHead className="w-[44%]">Permission</TableHead>
+                        <TableHead className="w-[14%]">Module</TableHead>
                         {ROLES.map(role => (
-                          <TableHead key={role} className="text-center">
+                          <TableHead key={role} className="text-center w-[7%]">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Badge className={`${ROLE_COLORS[role]} border text-xs cursor-help`}>
-                                    {ROLE_LABELS[role]}
-                                  </Badge>
+                                  <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-border bg-muted px-1.5 text-[10px] font-semibold text-foreground cursor-help">
+                                    {ROLE_SHORT_LABELS[role]}
+                                  </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="max-w-[200px] text-sm">{ROLE_DESCRIPTIONS[role]}</p>
+                                  <p className="max-w-[200px] text-sm">{ROLE_LABELS[role]}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -328,7 +337,7 @@ const RolesPermissions = () => {
                         <>
                           <TableRow key={`module-${module}`} className="bg-muted/50 hover:bg-muted/60">
                             <TableCell colSpan={ROLES.length + 3} className="font-semibold py-2">
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-lg">{MODULE_ICONS[module] || '📁'}</span>
                                   <span>{module}</span>
@@ -379,23 +388,23 @@ const RolesPermissions = () => {
                                 <TableCell className="text-center text-xs text-muted-foreground">
                                   {idx + 1}
                                 </TableCell>
-                                <TableCell className="">
-                                  <div className="space-y-0.5">
-                                    <p className="font-medium text-sm">{perm.nom}</p>
-                                    <code className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded">
+                                <TableCell className="align-top">
+                                  <div className="space-y-0.5 break-words">
+                                    <p className="font-medium text-sm leading-tight">{perm.nom}</p>
+                                    <code className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded break-all">
                                       {perm.code}
                                     </code>
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <Badge variant="outline" className="text-xs">
+                                  <span className="text-xs text-muted-foreground leading-tight break-words">
                                     {MODULE_ICONS[perm.module]} {perm.module}
-                                  </Badge>
+                                  </span>
                                 </TableCell>
                                 {ROLES.map(role => {
                                   const hasPermission = rolePermissions?.[role]?.includes(perm.id) || false;
                                   return (
-                                    <TableCell key={role} className="text-center">
+                                    <TableCell key={role} className="text-center px-1">
                                       <div className="flex justify-center">
                                         <Checkbox
                                           checked={hasPermission}
@@ -424,7 +433,7 @@ const RolesPermissions = () => {
               )}
 
               {/* Legend */}
-              <div className="flex items-center gap-6 mt-4 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-6 mt-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Checkbox checked className="h-3.5 w-3.5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" disabled />
                   <span>Autorisé</span>
