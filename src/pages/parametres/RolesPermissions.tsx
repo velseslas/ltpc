@@ -433,7 +433,7 @@ const RolesPermissions = () => {
               )}
 
               {/* Legend */}
-              <div className="flex items-center gap-6 mt-4 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-6 mt-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <Checkbox checked className="h-3.5 w-3.5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" disabled />
                   <span>Autorisé</span>
