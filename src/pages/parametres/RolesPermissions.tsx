@@ -298,15 +298,15 @@ const RolesPermissions = () => {
                   ))}
                 </div>
               ) : (
-                <div className="overflow-x-auto border rounded-lg">
+                <div className="border rounded-lg">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/30">
-                        <TableHead className="w-[60px] text-center sticky left-0 bg-muted/30 z-10">#</TableHead>
-                        <TableHead className="min-w-[200px] sticky left-[60px] bg-muted/30 z-10">Permission</TableHead>
-                        <TableHead className="min-w-[120px]">Module</TableHead>
+                        <TableHead className="w-[40px] text-center">#</TableHead>
+                        <TableHead className="">Permission</TableHead>
+                        <TableHead className="">Module</TableHead>
                         {ROLES.map(role => (
-                          <TableHead key={role} className="text-center min-w-[110px]">
+                          <TableHead key={role} className="text-center">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
