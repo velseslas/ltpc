@@ -57,6 +57,7 @@ const getNavigationStateFromSearch = (search: string): NavigationState => {
 
 export default function LaboratoiresMobilesTechnicien() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: labos, isLoading: labosLoading } = useLaboratoiresMobiles();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
@@ -64,7 +65,7 @@ export default function LaboratoiresMobilesTechnicien() {
   const { data: echantillonsCompression } = useEchantillonsCompression();
   const { data: userChantiers } = useCurrentUserChantiers();
 
-  const [navState, setNavState] = useState<NavigationState>({ level: "wilayas" });
+  const [navState, setNavState] = useState<NavigationState>(() => getNavigationStateFromSearch(location.search));
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get chantiers that have laboratoires mobiles assigned AND are assigned to this technician
