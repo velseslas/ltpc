@@ -327,7 +327,7 @@ const RolesPermissions = () => {
                       {filteredModulesForMatrix.map(module => (
                         <>
                           <TableRow key={`module-${module}`} className="bg-muted/50 hover:bg-muted/60">
-                            <TableCell colSpan={ROLES.length + 3} className="font-semibold py-2 sticky left-0">
+                            <TableCell colSpan={ROLES.length + 3} className="font-semibold py-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <span className="text-lg">{MODULE_ICONS[module] || '📁'}</span>
