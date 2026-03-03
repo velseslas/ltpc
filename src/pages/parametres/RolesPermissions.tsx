@@ -308,14 +308,14 @@ const RolesPermissions = () => {
                 </div>
               ) : (
                 <div className="border rounded-lg">
-                  <Table className="w-full table-fixed">
+                  <Table className="w-full table-fixed [&_th]:px-2 [&_td]:px-2 [&_th]:py-2 [&_td]:py-2">
                     <TableHeader>
                       <TableRow className="bg-muted/30">
-                        <TableHead className="w-10 text-center">#</TableHead>
-                        <TableHead className="w-[36%]">Permission</TableHead>
+                        <TableHead className="w-8 text-center">#</TableHead>
+                        <TableHead className="w-[44%]">Permission</TableHead>
                         <TableHead className="w-[14%]">Module</TableHead>
                         {ROLES.map(role => (
-                          <TableHead key={role} className="text-center w-[8%]">
+                          <TableHead key={role} className="text-center w-[7%]">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
