@@ -388,18 +388,18 @@ const RolesPermissions = () => {
                                 <TableCell className="text-center text-xs text-muted-foreground">
                                   {idx + 1}
                                 </TableCell>
-                                <TableCell className="">
-                                  <div className="space-y-0.5">
-                                    <p className="font-medium text-sm">{perm.nom}</p>
-                                    <code className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded">
+                                <TableCell className="align-top">
+                                  <div className="space-y-0.5 break-words">
+                                    <p className="font-medium text-sm leading-tight">{perm.nom}</p>
+                                    <code className="text-[10px] text-muted-foreground bg-muted px-1 py-0.5 rounded break-all">
                                       {perm.code}
                                     </code>
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <Badge variant="outline" className="text-xs">
+                                  <span className="text-xs text-muted-foreground leading-tight break-words">
                                     {MODULE_ICONS[perm.module]} {perm.module}
-                                  </Badge>
+                                  </span>
                                 </TableCell>
                                 {ROLES.map(role => {
                                   const hasPermission = rolePermissions?.[role]?.includes(perm.id) || false;
