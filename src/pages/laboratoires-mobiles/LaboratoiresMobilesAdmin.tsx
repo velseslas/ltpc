@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Plus, MapPin, Building2, HardHat } from "lucide-react";
 import { toast } from "sonner";
 import {
