@@ -33,6 +33,28 @@ interface NavigationState {
 
 const ITEMS_PER_PAGE = 8;
 
+const getNavigationStateFromSearch = (search: string): NavigationState => {
+  const params = new URLSearchParams(search);
+  const level = params.get("level");
+  const selectedWilaya = params.get("wilaya") || undefined;
+  const selectedClientId = params.get("clientId") || undefined;
+  const selectedClientNom = params.get("clientNom") || undefined;
+
+  if (level === "chantiers" && selectedWilaya && selectedClientId) {
+    return {
+      level: "chantiers",
+      selectedWilaya,
+      selectedClient: { id: selectedClientId, nom: selectedClientNom || "Client" },
+    };
+  }
+
+  if (level === "clients" && selectedWilaya) {
+    return { level: "clients", selectedWilaya };
+  }
+
+  return { level: "wilayas" };
+};
+
 export default function LaboratoiresMobilesTechnicien() {
   const navigate = useNavigate();
   const { data: labos, isLoading: labosLoading } = useLaboratoiresMobiles();
