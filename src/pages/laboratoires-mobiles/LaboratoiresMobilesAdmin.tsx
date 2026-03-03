@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Plus, MapPin, Building2, HardHat } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -44,18 +44,46 @@ interface NavigationState {
 
 const ITEMS_PER_PAGE = 8;
 
+const getNavigationStateFromSearch = (search: string): NavigationState => {
+  const params = new URLSearchParams(search);
+  const level = params.get("level");
+  const selectedWilaya = params.get("wilaya") || undefined;
+  const selectedClientId = params.get("clientId") || undefined;
+  const selectedClientNom = params.get("clientNom") || undefined;
+
+  if (level === "chantiers" && selectedWilaya && selectedClientId) {
+    return {
+      level: "chantiers",
+      selectedWilaya,
+      selectedClient: { id: selectedClientId, nom: selectedClientNom || "Client" },
+    };
+  }
+
+  if (level === "clients" && selectedWilaya) {
+    return { level: "clients", selectedWilaya };
+  }
+
+  return { level: "wilayas" };
+};
+
 export default function LaboratoiresMobilesAdmin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: labos, isLoading: labosLoading } = useLaboratoiresMobiles();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: intervenants } = useIntervenants();
   const { data: echantillonsCompression } = useEchantillonsCompression();
 
-  const [navState, setNavState] = useState<NavigationState>({ level: "wilayas" });
+  const [navState, setNavState] = useState<NavigationState>(() => getNavigationStateFromSearch(location.search));
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteChangierId, setDeleteChantierId] = useState<string | null>(null);
   const deleteLabo = useDeleteLaboratoireMobile();
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setNavState(getNavigationStateFromSearch(location.search));
+  }, [location.search]);
 
   // Get chantiers that have laboratoires mobiles assigned
   const chantiersWithLaboMobile = useMemo(() => {
@@ -200,7 +228,14 @@ export default function LaboratoiresMobilesAdmin() {
   const breadcrumbItems = useMemo((): BreadcrumbItemType[] => {
     const items: BreadcrumbItemType[] = [{ label: "Laboratoires Chantier", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
     if (navState.level === "clients" || navState.level === "chantiers") {
-      items.push({ label: navState.selectedWilaya! });
+      const wilayaParams = new URLSearchParams({
+        level: "clients",
+        wilaya: navState.selectedWilaya!,
+      });
+      items.push({
+        label: navState.selectedWilaya!,
+        path: navState.level === "chantiers" ? `/laboratoires-mobiles?${wilayaParams.toString()}` : undefined,
+      });
     }
     if (navState.level === "chantiers") {
       items.push({ label: navState.selectedClient!.nom });

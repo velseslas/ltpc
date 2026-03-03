@@ -42,6 +42,23 @@ export default function LaboratoireMobileChantier() {
     return null;
   }, [labos, chantierId]);
 
+  const wilayaPath = useMemo(() => {
+    if (!chantier?.ville) return undefined;
+    const params = new URLSearchParams({ level: "clients", wilaya: chantier.ville });
+    return `/laboratoires-mobiles?${params.toString()}`;
+  }, [chantier?.ville]);
+
+  const clientPath = useMemo(() => {
+    if (!chantier?.ville || !client?.id || !client?.nom) return undefined;
+    const params = new URLSearchParams({
+      level: "chantiers",
+      wilaya: chantier.ville,
+      clientId: client.id,
+      clientNom: client.nom,
+    });
+    return `/laboratoires-mobiles?${params.toString()}`;
+  }, [chantier?.ville, client?.id, client?.nom]);
+
   const echantillonStats = useMemo(() => {
     if (!echantillons) return { total: 0, enCours: 0, termines: 0, aFaire: 0 };
     return {
@@ -89,8 +106,8 @@ export default function LaboratoireMobileChantier() {
     <div className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Laboratoires Chantier", path: "/laboratoires-mobiles" },
-        ...(chantier.ville ? [{ label: chantier.ville }] : []),
-        ...(client?.nom ? [{ label: client.nom }] : []),
+        ...(chantier.ville ? [{ label: chantier.ville, path: wilayaPath }] : []),
+        ...(client?.nom ? [{ label: client.nom, path: clientPath }] : []),
         { label: chantier.nom },
       ]} />
       {/* Header */}
