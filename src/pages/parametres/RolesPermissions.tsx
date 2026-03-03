@@ -308,23 +308,23 @@ const RolesPermissions = () => {
                 </div>
               ) : (
                 <div className="border rounded-lg">
-                  <Table>
+                  <Table className="w-full table-fixed">
                     <TableHeader>
                       <TableRow className="bg-muted/30">
-                        <TableHead className="w-[40px] text-center">#</TableHead>
-                        <TableHead className="">Permission</TableHead>
-                        <TableHead className="">Module</TableHead>
+                        <TableHead className="w-10 text-center">#</TableHead>
+                        <TableHead className="w-[36%]">Permission</TableHead>
+                        <TableHead className="w-[14%]">Module</TableHead>
                         {ROLES.map(role => (
-                          <TableHead key={role} className="text-center">
+                          <TableHead key={role} className="text-center w-[8%]">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Badge className={`${ROLE_COLORS[role]} border text-xs cursor-help`}>
-                                    {ROLE_LABELS[role]}
-                                  </Badge>
+                                  <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-border bg-muted px-1.5 text-[10px] font-semibold text-foreground cursor-help">
+                                    {ROLE_SHORT_LABELS[role]}
+                                  </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="max-w-[200px] text-sm">{ROLE_DESCRIPTIONS[role]}</p>
+                                  <p className="max-w-[200px] text-sm">{ROLE_LABELS[role]}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
