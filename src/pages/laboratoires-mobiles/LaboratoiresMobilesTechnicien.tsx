@@ -68,6 +68,12 @@ export default function LaboratoiresMobilesTechnicien() {
   const [navState, setNavState] = useState<NavigationState>(() => getNavigationStateFromSearch(location.search));
   const [currentPage, setCurrentPage] = useState(1);
 
+  useEffect(() => {
+    if (!location.search) return;
+    setCurrentPage(1);
+    setNavState(getNavigationStateFromSearch(location.search));
+  }, [location.search]);
+
   // Get chantiers that have laboratoires mobiles assigned AND are assigned to this technician
   const chantiersWithLaboMobile = useMemo(() => {
     if (!labos || !chantiers) return [];
