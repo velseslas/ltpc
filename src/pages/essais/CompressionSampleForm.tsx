@@ -380,6 +380,8 @@ const CompressionSampleForm = () => {
       mode_coulage: modeCoulage || null,
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
+      mention_info_client: mentionInfoClient,
+      mention_eprouvette_client: mentionEprouvetteClient,
     };
 
     try {
