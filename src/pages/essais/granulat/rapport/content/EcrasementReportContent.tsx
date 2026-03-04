@@ -62,6 +62,21 @@ export default function EcrasementReportContent({ resultats }: EcrasementReportC
         <p>CE = (masse passant / masse initiale) × 100</p>
         <p className="mt-1 text-xs">Plus le coefficient est faible, meilleure est la résistance à l'écrasement.</p>
       </div>
+
+      {/* Mentions */}
+      {(resultats.mention_info_client || resultats.mention_eprouvette_client) && (
+        <div className="border-t border-gray-300 pt-3 mt-4">
+          <p className="font-bold text-sm mb-2 underline">Remarques</p>
+          <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
+            {resultats.mention_info_client && (
+              <li>Informations fournies par le client</li>
+            )}
+            {resultats.mention_eprouvette_client && (
+              <li>Éprouvette confectionnée par le client</li>
+            )}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

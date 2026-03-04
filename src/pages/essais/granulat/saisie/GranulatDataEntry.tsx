@@ -173,6 +173,31 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
               </div>
             )}
           </div>
+          {essaiType === "ecrasement" && (
+            <div className="mt-4 pt-4 border-t border-border space-y-3">
+              <p className="text-sm font-medium text-foreground">Mentions à afficher sur le rapport :</p>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="info_client"
+                  checked={!!resultats.mention_info_client}
+                  onCheckedChange={(checked) => setResultats(prev => ({ ...prev, mention_info_client: !!checked }))}
+                />
+                <label htmlFor="info_client" className="text-sm text-foreground cursor-pointer">
+                  Informations fournies par le client
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="eprouvette_client"
+                  checked={!!resultats.mention_eprouvette_client}
+                  onCheckedChange={(checked) => setResultats(prev => ({ ...prev, mention_eprouvette_client: !!checked }))}
+                />
+                <label htmlFor="eprouvette_client" className="text-sm text-foreground cursor-pointer">
+                  Éprouvette confectionnée par le client
+                </label>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
