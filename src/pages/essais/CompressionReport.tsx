@@ -220,6 +220,8 @@ const CompressionReport = () => {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          mention_info_client: (data as any).mention_info_client || false,
+          mention_eprouvette_client: (data as any).mention_eprouvette_client || false,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
