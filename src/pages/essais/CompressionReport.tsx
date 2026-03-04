@@ -64,6 +64,8 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  mention_info_client: boolean;
+  mention_eprouvette_client: boolean;
 }
 
 const CompressionReport = () => {
