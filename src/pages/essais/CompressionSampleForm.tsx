@@ -166,6 +166,8 @@ const CompressionSampleForm = () => {
   const [modeCoulage, setModeCoulage] = useState("");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
+  const [mentionInfoClient, setMentionInfoClient] = useState(false);
+  const [mentionEprouvetteClient, setMentionEprouvetteClient] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   // Initialize clientId and centraleId first for dependent hooks
