@@ -518,29 +518,6 @@ const CompressionSampleForm = () => {
                 <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
               </div>
 
-              {/* Essai de convenance */}
-              <div className="space-y-2 md:col-span-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="essai_convenance" 
-                    checked={essaiConvenance}
-                    onCheckedChange={(checked) => setEssaiConvenance(checked === true)}
-                  />
-                  <Label htmlFor="essai_convenance" className="cursor-pointer">
-                    Essai de convenance
-                  </Label>
-                </div>
-                {essaiConvenance && (
-                  <Input
-                    id="essai_convenance_details"
-                    value={essaiConvenanceDetails}
-                    onChange={(e) => setEssaiConvenanceDetails(e.target.value)}
-                    placeholder="Détails de l'essai de convenance..."
-                    className="bg-background mt-2"
-                  />
-                )}
-              </div>
-
               {/* Mentions rapport */}
               <div className="space-y-3 md:col-span-2">
                 <p className="text-sm font-medium text-foreground">Mentions à afficher sur le rapport :</p>
@@ -564,6 +541,29 @@ const CompressionSampleForm = () => {
                     Éprouvette confectionnée par le client
                   </Label>
                 </div>
+              </div>
+
+              {/* Essai de convenance */}
+              <div className="space-y-2 md:col-span-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="essai_convenance" 
+                    checked={essaiConvenance}
+                    onCheckedChange={(checked) => setEssaiConvenance(checked === true)}
+                  />
+                  <Label htmlFor="essai_convenance" className="cursor-pointer">
+                    Essai de convenance
+                  </Label>
+                </div>
+                {essaiConvenance && (
+                  <Input
+                    id="essai_convenance_details"
+                    value={essaiConvenanceDetails}
+                    onChange={(e) => setEssaiConvenanceDetails(e.target.value)}
+                    placeholder="Détails de l'essai de convenance..."
+                    className="bg-background mt-2"
+                  />
+                )}
               </div>
 
               {/* Chantier */}
