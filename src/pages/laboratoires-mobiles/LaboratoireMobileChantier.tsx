@@ -112,7 +112,7 @@ export default function LaboratoireMobileChantier() {
       ]} />
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+        <Button variant="outline" size="icon" onClick={() => navigate(clientPath || wilayaPath || "/laboratoires-mobiles")} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
