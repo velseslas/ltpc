@@ -518,6 +518,31 @@ const CompressionSampleForm = () => {
                 <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
               </div>
 
+              {/* Mentions rapport */}
+              <div className="space-y-3 md:col-span-2">
+                <p className="text-sm font-medium text-foreground">Mentions à afficher sur le rapport :</p>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="mention_info_client"
+                    checked={mentionInfoClient}
+                    onCheckedChange={(checked) => setMentionInfoClient(checked === true)}
+                  />
+                  <Label htmlFor="mention_info_client" className="cursor-pointer text-sm">
+                    Informations fournies par le client
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="mention_eprouvette_client"
+                    checked={mentionEprouvetteClient}
+                    onCheckedChange={(checked) => setMentionEprouvetteClient(checked === true)}
+                  />
+                  <Label htmlFor="mention_eprouvette_client" className="cursor-pointer text-sm">
+                    Éprouvette confectionnée par le client
+                  </Label>
+                </div>
+              </div>
+
               {/* Essai de convenance */}
               <div className="space-y-2 md:col-span-2">
                 <div className="flex items-center space-x-2">
