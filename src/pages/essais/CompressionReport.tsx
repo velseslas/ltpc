@@ -64,6 +64,8 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  mention_info_client: boolean;
+  mention_eprouvette_client: boolean;
 }
 
 const CompressionReport = () => {
@@ -218,6 +220,8 @@ const CompressionReport = () => {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          mention_info_client: (data as any).mention_info_client || false,
+          mention_eprouvette_client: (data as any).mention_eprouvette_client || false,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
@@ -620,6 +624,21 @@ const CompressionReport = () => {
             </table>
           </div>
 
+
+          {/* Remarques / Mentions */}
+          {(echantillon.mention_info_client || echantillon.mention_eprouvette_client) && (
+            <div className="mt-4 pt-3 border-t border-gray-300">
+              <p className="font-bold text-sm underline text-black mb-2">Remarques</p>
+              <ul className="list-disc list-inside text-sm text-black space-y-1">
+                {echantillon.mention_info_client && (
+                  <li>Informations fournies par le client</li>
+                )}
+                {echantillon.mention_eprouvette_client && (
+                  <li>Éprouvette confectionnée par le client</li>
+                )}
+              </ul>
+            </div>
+          )}
 
           {/* Pied de page */}
           <div className="mt-8 pt-4 border-t border-gray-300">

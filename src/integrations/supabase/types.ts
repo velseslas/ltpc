@@ -1224,6 +1224,8 @@ export type Database = {
           formulation_id: string | null
           id: string
           jours_essai: Json | null
+          mention_eprouvette_client: boolean
+          mention_info_client: boolean
           mode_coulage: string | null
           nombre_eprouvettes: number | null
           numero: number
@@ -1255,6 +1257,8 @@ export type Database = {
           formulation_id?: string | null
           id?: string
           jours_essai?: Json | null
+          mention_eprouvette_client?: boolean
+          mention_info_client?: boolean
           mode_coulage?: string | null
           nombre_eprouvettes?: number | null
           numero?: number
@@ -1286,6 +1290,8 @@ export type Database = {
           formulation_id?: string | null
           id?: string
           jours_essai?: Json | null
+          mention_eprouvette_client?: boolean
+          mention_info_client?: boolean
           mode_coulage?: string | null
           nombre_eprouvettes?: number | null
           numero?: number

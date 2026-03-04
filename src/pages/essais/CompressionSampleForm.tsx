@@ -166,6 +166,8 @@ const CompressionSampleForm = () => {
   const [modeCoulage, setModeCoulage] = useState("");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
+  const [mentionInfoClient, setMentionInfoClient] = useState(false);
+  const [mentionEprouvetteClient, setMentionEprouvetteClient] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   // Initialize clientId and centraleId first for dependent hooks
@@ -201,6 +203,8 @@ const CompressionSampleForm = () => {
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
+      setMentionInfoClient((existingEchantillon as { mention_info_client?: boolean }).mention_info_client || false);
+      setMentionEprouvetteClient((existingEchantillon as { mention_eprouvette_client?: boolean }).mention_eprouvette_client || false);
       
       // Parse jours_essai
       const savedJours = existingEchantillon.jours_essai as Array<{ jour: number; nombre: number }> | null;
@@ -376,6 +380,8 @@ const CompressionSampleForm = () => {
       mode_coulage: modeCoulage || null,
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
+      mention_info_client: mentionInfoClient,
+      mention_eprouvette_client: mentionEprouvetteClient,
     };
 
     try {
@@ -533,6 +539,31 @@ const CompressionSampleForm = () => {
                     className="bg-background mt-2"
                   />
                 )}
+              </div>
+
+              {/* Mentions rapport */}
+              <div className="space-y-3 md:col-span-2">
+                <p className="text-sm font-medium text-foreground">Mentions à afficher sur le rapport :</p>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="mention_info_client"
+                    checked={mentionInfoClient}
+                    onCheckedChange={(checked) => setMentionInfoClient(checked === true)}
+                  />
+                  <Label htmlFor="mention_info_client" className="cursor-pointer text-sm">
+                    Informations fournies par le client
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="mention_eprouvette_client"
+                    checked={mentionEprouvetteClient}
+                    onCheckedChange={(checked) => setMentionEprouvetteClient(checked === true)}
+                  />
+                  <Label htmlFor="mention_eprouvette_client" className="cursor-pointer text-sm">
+                    Éprouvette confectionnée par le client
+                  </Label>
+                </div>
               </div>
 
               {/* Chantier */}
