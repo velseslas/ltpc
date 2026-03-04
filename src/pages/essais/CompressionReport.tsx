@@ -625,6 +625,21 @@ const CompressionReport = () => {
           </div>
 
 
+          {/* Remarques / Mentions */}
+          {(echantillon.mention_info_client || echantillon.mention_eprouvette_client) && (
+            <div className="mt-4 pt-3 border-t border-gray-300">
+              <p className="font-bold text-sm underline text-black mb-2">Remarques</p>
+              <ul className="list-disc list-inside text-sm text-black space-y-1">
+                {echantillon.mention_info_client && (
+                  <li>Informations fournies par le client</li>
+                )}
+                {echantillon.mention_eprouvette_client && (
+                  <li>Éprouvette confectionnée par le client</li>
+                )}
+              </ul>
+            </div>
+          )}
+
           {/* Pied de page */}
           <div className="mt-8 pt-4 border-t border-gray-300">
             <div className="flex justify-between items-end">
