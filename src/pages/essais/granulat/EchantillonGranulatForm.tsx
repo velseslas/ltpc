@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useCarrieres } from "@/hooks/useCarrieres";
 import { useProduits } from "@/hooks/useProduits";
+import { useIntervenants } from "@/hooks/useIntervenants";
 import { 
   useEchantillonGranulatById,
   useCreateEchantillonGranulatByType, 
@@ -36,6 +37,7 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 const formSchema = z.object({
   carriere_id: z.string().min(1, "Sélectionnez une carrière"),
   produit: z.string().min(1, "Sélectionnez un produit"),
+  operateur_id: z.string().optional(),
   date_reception: z.string().min(1, "La date de réception est requise"),
   observations: z.string().max(500, "Maximum 500 caractères").optional(),
 });
@@ -54,6 +56,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const isEditing = !!id;
 
   const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
+  const { data: intervenants } = useIntervenants();
   const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGranulatById(essaiType, id);
   
   const createEchantillon = useCreateEchantillonGranulatByType(essaiType);
@@ -64,6 +67,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
     defaultValues: {
       carriere_id: "",
       produit: "",
+      operateur_id: "",
       date_reception: new Date().toISOString().split("T")[0],
       observations: "",
     },
@@ -113,6 +117,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         if (echantillon) {
           form.setValue("date_reception", echantillon.date_reception);
           form.setValue("observations", echantillon.observations || "");
+          form.setValue("operateur_id", echantillon.operateur_id || "");
         }
         
         setIsFormInitialized(true);
@@ -130,6 +135,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
       const data = {
         carriere_id: values.carriere_id,
         produit: values.produit,
+        operateur_id: values.operateur_id || null,
         date_reception: values.date_reception,
         observations: values.observations || null,
       };
@@ -251,6 +257,31 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                               </SelectItem>
                             ))
                           )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="operateur_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Technicien</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border">
+                            <SelectValue placeholder="Sélectionnez un technicien" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-popover border-border">
+                          {intervenants?.map((intervenant) => (
+                            <SelectItem key={intervenant.id} value={intervenant.id}>
+                              {intervenant.prenom} {intervenant.nom}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />

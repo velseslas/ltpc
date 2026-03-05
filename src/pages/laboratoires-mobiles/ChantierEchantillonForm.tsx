@@ -28,6 +28,7 @@ import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateChantierEchantillon } from "@/hooks/useChantierEchantillons";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useIntervenants } from "@/hooks/useIntervenants";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -135,10 +136,12 @@ export default function ChantierEchantillonForm() {
   const [modeCoulage, setModeCoulage] = useState("");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
+  const [operateurId, setOperateurId] = useState("");
 
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
+  const { data: intervenants = [] } = useIntervenants();
 
   // Fetch existing echantillon for edit mode
   const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
@@ -174,6 +177,7 @@ export default function ChantierEchantillonForm() {
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
+      setOperateurId(existingEchantillon.operateur_id || "");
       
       // Parse jours_essai
       const savedJours = existingEchantillon.jours_essai as Array<{ jour: number; nombre: number }> | null;
@@ -265,7 +269,7 @@ export default function ChantierEchantillonForm() {
       client_id: chantier?.client_id || null,
       centrale_id: centraleId || null,
       formulation_id: formulationId || null,
-      operateur_id: null,
+      operateur_id: operateurId || null,
       ouvrage: essaiConvenance ? null : (ouvrage || null),
       destination_beton: essaiConvenance ? null : (destinationBeton || null),
       condition_cure: conditionCure,
@@ -291,6 +295,7 @@ export default function ChantierEchantillonForm() {
           .update({
             centrale_id: data.centrale_id,
             formulation_id: data.formulation_id,
+            operateur_id: data.operateur_id,
             ouvrage: data.ouvrage,
             destination_beton: data.destination_beton,
             condition_cure: data.condition_cure,
@@ -448,6 +453,23 @@ export default function ChantierEchantillonForm() {
                   {formulations.map((form) => (
                     <SelectItem key={form.id} value={form.id}>
                       {form.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Technicien */}
+            <div className="space-y-2">
+              <Label htmlFor="operateur">Technicien</Label>
+              <Select value={operateurId} onValueChange={setOperateurId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez un technicien" />
+                </SelectTrigger>
+                <SelectContent>
+                  {intervenants.map((intervenant) => (
+                    <SelectItem key={intervenant.id} value={intervenant.id}>
+                      {intervenant.prenom} {intervenant.nom}
                     </SelectItem>
                   ))}
                 </SelectContent>
