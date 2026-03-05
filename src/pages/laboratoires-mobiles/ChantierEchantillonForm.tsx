@@ -177,6 +177,7 @@ export default function ChantierEchantillonForm() {
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
+      setOperateurId(existingEchantillon.operateur_id || "");
       
       // Parse jours_essai
       const savedJours = existingEchantillon.jours_essai as Array<{ jour: number; nombre: number }> | null;
