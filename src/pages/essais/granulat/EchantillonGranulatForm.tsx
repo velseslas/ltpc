@@ -56,6 +56,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const isEditing = !!id;
 
   const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
+  const { data: intervenants } = useIntervenants();
   const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGranulatById(essaiType, id);
   
   const createEchantillon = useCreateEchantillonGranulatByType(essaiType);
