@@ -295,6 +295,7 @@ export default function ChantierEchantillonForm() {
           .update({
             centrale_id: data.centrale_id,
             formulation_id: data.formulation_id,
+            operateur_id: data.operateur_id,
             ouvrage: data.ouvrage,
             destination_beton: data.destination_beton,
             condition_cure: data.condition_cure,
