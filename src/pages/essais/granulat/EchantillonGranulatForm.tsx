@@ -117,6 +117,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         if (echantillon) {
           form.setValue("date_reception", echantillon.date_reception);
           form.setValue("observations", echantillon.observations || "");
+          form.setValue("operateur_id", echantillon.operateur_id || "");
         }
         
         setIsFormInitialized(true);
