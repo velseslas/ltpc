@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useCarrieres } from "@/hooks/useCarrieres";
 import { useProduits } from "@/hooks/useProduits";
+import { useIntervenants } from "@/hooks/useIntervenants";
 import { 
   useEchantillonGranulatById,
   useCreateEchantillonGranulatByType, 
