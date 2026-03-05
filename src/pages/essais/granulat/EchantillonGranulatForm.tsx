@@ -134,6 +134,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
       const data = {
         carriere_id: values.carriere_id,
         produit: values.produit,
+        operateur_id: values.operateur_id || null,
         date_reception: values.date_reception,
         observations: values.observations || null,
       };
