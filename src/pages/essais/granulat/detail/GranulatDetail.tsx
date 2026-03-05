@@ -169,15 +169,13 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
               <ClipboardEdit className="h-4 w-4 mr-2" />
               Saisie de données
             </Button>
-            {hasResults && (
-              <Button
-                onClick={() => navigate(`${basePath}/${id}/rapport`)}
-                className="gradient-primary text-primary-foreground"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Rapport
-              </Button>
-            )}
+            <Button
+              onClick={() => navigate(`${basePath}/${id}/rapport`)}
+              className="gradient-primary text-primary-foreground"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Rapport
+            </Button>
           </div>
         </div>
 

@@ -175,6 +175,14 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <td className="border border-black px-3 py-1.5 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
               </tr>
               <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Type d'essai</td>
+                <td className="border border-black px-3 py-1.5 text-black font-semibold">{essaiTitle}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Norme de référence</td>
+                <td className="border border-black px-3 py-1.5 text-black">{normRef}</td>
+              </tr>
+              <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Carrière / Fournisseur</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.carrieres?.nom || "-"}</td>
               </tr>
