@@ -136,6 +136,7 @@ export default function ChantierEchantillonForm() {
   const [modeCoulage, setModeCoulage] = useState("");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
+  const [operateurId, setOperateurId] = useState("");
 
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
