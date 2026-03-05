@@ -458,6 +458,23 @@ export default function ChantierEchantillonForm() {
               </Select>
             </div>
 
+            {/* Technicien */}
+            <div className="space-y-2">
+              <Label htmlFor="operateur">Technicien</Label>
+              <Select value={operateurId} onValueChange={setOperateurId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez un technicien" />
+                </SelectTrigger>
+                <SelectContent>
+                  {intervenants.map((intervenant) => (
+                    <SelectItem key={intervenant.id} value={intervenant.id}>
+                      {intervenant.prenom} {intervenant.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Date de coulage */}
             <div className="space-y-2">
               <Label>Date de coulage</Label>
