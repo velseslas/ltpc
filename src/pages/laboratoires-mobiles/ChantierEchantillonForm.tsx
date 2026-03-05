@@ -28,6 +28,7 @@ import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateChantierEchantillon } from "@/hooks/useChantierEchantillons";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useIntervenants } from "@/hooks/useIntervenants";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
