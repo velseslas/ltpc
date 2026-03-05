@@ -37,6 +37,7 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 const formSchema = z.object({
   carriere_id: z.string().min(1, "Sélectionnez une carrière"),
   produit: z.string().min(1, "Sélectionnez un produit"),
+  operateur_id: z.string().optional(),
   date_reception: z.string().min(1, "La date de réception est requise"),
   observations: z.string().max(500, "Maximum 500 caractères").optional(),
 });
