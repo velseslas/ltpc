@@ -264,6 +264,31 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
 
                 <FormField
                   control={form.control}
+                  name="operateur_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Technicien</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border">
+                            <SelectValue placeholder="Sélectionnez un technicien" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-popover border-border">
+                          {intervenants?.map((intervenant) => (
+                            <SelectItem key={intervenant.id} value={intervenant.id}>
+                              {intervenant.prenom} {intervenant.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="date_reception"
                   render={({ field }) => (
                     <FormItem>
