@@ -141,6 +141,7 @@ export default function ChantierEchantillonForm() {
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
+  const { data: intervenants = [] } = useIntervenants();
 
   // Fetch existing echantillon for edit mode
   const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
