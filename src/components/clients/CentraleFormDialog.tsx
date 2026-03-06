@@ -163,11 +163,11 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
           />
           
           <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Wilaya Select */}
+          {/* Wilaya Chantier Select */}
           <div className="space-y-2">
-            <Label htmlFor="wilaya">Wilaya <span className="text-red-700">*</span></Label>
-            <Select value={selectedWilaya} onValueChange={handleWilayaChange}>
-              <SelectTrigger id="wilaya" className={submitted && !selectedWilaya ? "border-red-700" : ""}>
+            <Label htmlFor="wilayaChantier">Wilaya Chantier <span className="text-red-700">*</span></Label>
+            <Select value={selectedWilayaChantier} onValueChange={handleWilayaChantierChange}>
+              <SelectTrigger id="wilayaChantier" className={submitted && !selectedWilayaChantier ? "border-red-700" : ""}>
                 <SelectValue placeholder="Sélectionner une wilaya" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px] z-[9999] bg-popover">
@@ -178,7 +178,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
                 ))}
               </SelectContent>
             </Select>
-            {submitted && !selectedWilaya && (
+            {submitted && !selectedWilayaChantier && (
               <p className="text-red-700 text-sm flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
                 La wilaya est requise
