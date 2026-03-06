@@ -46,14 +46,14 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
 
   const isEditing = !!editingCentrale;
 
-  // Filter centrales by selected wilaya
+  // Filter centrales by selected wilaya centrale
   const filteredCentrales = centrales?.filter(
-    (centrale) => centrale.ville === selectedWilaya
+    (centrale) => centrale.ville === selectedWilayaCentrale
   ) || [];
 
-  // Filter chantiers by selected wilaya
+  // Filter chantiers by selected wilaya chantier
   const filteredChantiers = chantiers?.filter(
-    (chantier) => chantier.ville === selectedWilaya && chantier.client_id === clientId
+    (chantier) => chantier.ville === selectedWilayaChantier && chantier.client_id === clientId
   ) || [];
 
   // Reset state when dialog closes
