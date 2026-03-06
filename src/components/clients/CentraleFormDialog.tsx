@@ -30,7 +30,8 @@ interface CentraleFormDialogProps {
 }
 
 export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentrale }: CentraleFormDialogProps) {
-  const [selectedWilaya, setSelectedWilaya] = useState<string>("");
+  const [selectedWilayaChantier, setSelectedWilayaChantier] = useState<string>("");
+  const [selectedWilayaCentrale, setSelectedWilayaCentrale] = useState<string>("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("");
   const [selectedChantier, setSelectedChantier] = useState<string>("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -45,20 +46,21 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
 
   const isEditing = !!editingCentrale;
 
-  // Filter centrales by selected wilaya
+  // Filter centrales by selected wilaya centrale
   const filteredCentrales = centrales?.filter(
-    (centrale) => centrale.ville === selectedWilaya
+    (centrale) => centrale.ville === selectedWilayaCentrale
   ) || [];
 
-  // Filter chantiers by selected wilaya
+  // Filter chantiers by selected wilaya chantier
   const filteredChantiers = chantiers?.filter(
-    (chantier) => chantier.ville === selectedWilaya && chantier.client_id === clientId
+    (chantier) => chantier.ville === selectedWilayaChantier && chantier.client_id === clientId
   ) || [];
 
   // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
-      setSelectedWilaya("");
+      setSelectedWilayaChantier("");
+      setSelectedWilayaCentrale("");
       setSelectedCentrale("");
       setSelectedChantier("");
       setIsInitialized(false);
@@ -67,20 +69,23 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
     }
   }, [open]);
 
-  // Step 1: Set wilaya first when editing
+  // Step 1: Set wilayas first when editing
   useEffect(() => {
     if (open && editingCentrale && !centralesLoading && !chantiersLoading && centrales && chantiers && initStep === "idle") {
       setIsPreFilling(true);
       const centraleWilaya = editingCentrale.centrales_beton?.ville || "";
-      setSelectedWilaya(centraleWilaya);
+      // Find chantier wilaya from the linked chantier
+      const chantier = chantiers.find(c => c.id === editingCentrale.chantier_id);
+      const chantierWilaya = chantier?.ville || "";
+      setSelectedWilayaCentrale(centraleWilaya);
+      setSelectedWilayaChantier(chantierWilaya);
       setInitStep("wilaya");
     }
   }, [open, editingCentrale, centralesLoading, chantiersLoading, centrales, chantiers, initStep]);
 
   // Step 2: Once wilaya is set and filtered lists are updated, set the dependent fields
   useEffect(() => {
-    if (initStep === "wilaya" && selectedWilaya && editingCentrale) {
-      // Wait for next render cycle so filtered lists are updated
+    if (initStep === "wilaya" && (selectedWilayaCentrale || selectedWilayaChantier) && editingCentrale) {
       const timer = setTimeout(() => {
         setSelectedCentrale(editingCentrale.centrale_id);
         setSelectedChantier(editingCentrale.chantier_id || "");
@@ -90,15 +95,19 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [initStep, selectedWilaya, editingCentrale]);
+  }, [initStep, selectedWilayaCentrale, selectedWilayaChantier, editingCentrale]);
 
-  // Reset centrale and chantier when wilaya changes (only if not initial load from editing)
-  const handleWilayaChange = (value: string) => {
-    setSelectedWilaya(value);
-    // Only reset if form is initialized and wilaya actually changed
-    if (isInitialized && value !== editingCentrale?.centrales_beton?.ville) {
-      setSelectedCentrale("");
+  const handleWilayaChantierChange = (value: string) => {
+    setSelectedWilayaChantier(value);
+    if (isInitialized) {
       setSelectedChantier("");
+    }
+  };
+
+  const handleWilayaCentraleChange = (value: string) => {
+    setSelectedWilayaCentrale(value);
+    if (isInitialized) {
+      setSelectedCentrale("");
     }
   };
 
@@ -106,7 +115,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
     e.preventDefault();
     setSubmitted(true);
     
-    if (!selectedWilaya || !selectedCentrale || !selectedChantier) {
+    if (!selectedWilayaChantier || !selectedWilayaCentrale || !selectedCentrale || !selectedChantier) {
       return;
     }
 
@@ -154,11 +163,11 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
           />
           
           <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Wilaya Select */}
+          {/* Wilaya Chantier Select */}
           <div className="space-y-2">
-            <Label htmlFor="wilaya">Wilaya <span className="text-red-700">*</span></Label>
-            <Select value={selectedWilaya} onValueChange={handleWilayaChange}>
-              <SelectTrigger id="wilaya" className={submitted && !selectedWilaya ? "border-red-700" : ""}>
+            <Label htmlFor="wilayaChantier">Wilaya Chantier <span className="text-red-700">*</span></Label>
+            <Select value={selectedWilayaChantier} onValueChange={handleWilayaChantierChange}>
+              <SelectTrigger id="wilayaChantier" className={submitted && !selectedWilayaChantier ? "border-red-700" : ""}>
                 <SelectValue placeholder="Sélectionner une wilaya" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px] z-[9999] bg-popover">
@@ -169,7 +178,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
                 ))}
               </SelectContent>
             </Select>
-            {submitted && !selectedWilaya && (
+            {submitted && !selectedWilayaChantier && (
               <p className="text-red-700 text-sm flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
                 La wilaya est requise
@@ -183,12 +192,12 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
             <Select 
               value={selectedChantier} 
               onValueChange={setSelectedChantier}
-              disabled={!selectedWilaya || chantiersLoading}
+              disabled={!selectedWilayaChantier || chantiersLoading}
             >
               <SelectTrigger id="chantier" className={submitted && !selectedChantier ? "border-red-700" : ""}>
                 <SelectValue placeholder={
-                  !selectedWilaya 
-                    ? "Sélectionner d'abord une wilaya" 
+                  !selectedWilayaChantier 
+                    ? "Sélectionner d'abord une wilaya chantier" 
                     : chantiersLoading 
                     ? "Chargement..." 
                     : filteredChantiers.length === 0 
@@ -212,18 +221,41 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
             )}
           </div>
 
+          {/* Wilaya Centrale Select */}
+          <div className="space-y-2">
+            <Label htmlFor="wilayaCentrale">Wilaya Centrale à Béton <span className="text-red-700">*</span></Label>
+            <Select value={selectedWilayaCentrale} onValueChange={handleWilayaCentraleChange}>
+              <SelectTrigger id="wilayaCentrale" className={submitted && !selectedWilayaCentrale ? "border-red-700" : ""}>
+                <SelectValue placeholder="Sélectionner une wilaya" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px] z-[9999] bg-popover">
+                {wilayas.map((wilaya) => (
+                  <SelectItem key={wilaya.code} value={wilaya.nom}>
+                    {wilaya.code} - {wilaya.nom}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {submitted && !selectedWilayaCentrale && (
+              <p className="text-red-700 text-sm flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                La wilaya est requise
+              </p>
+            )}
+          </div>
+
           {/* Centrale Select */}
           <div className="space-y-2">
             <Label htmlFor="centrale">Centrale à Béton <span className="text-red-700">*</span></Label>
             <Select 
               value={selectedCentrale} 
               onValueChange={setSelectedCentrale}
-              disabled={!selectedWilaya || centralesLoading}
+              disabled={!selectedWilayaCentrale || centralesLoading}
             >
               <SelectTrigger id="centrale" className={submitted && !selectedCentrale ? "border-red-700" : ""}>
                 <SelectValue placeholder={
-                  !selectedWilaya 
-                    ? "Sélectionner d'abord une wilaya" 
+                  !selectedWilayaCentrale 
+                    ? "Sélectionner d'abord une wilaya centrale" 
                     : centralesLoading 
                     ? "Chargement..." 
                     : filteredCentrales.length === 0 
@@ -245,7 +277,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
                 La centrale est requise
               </p>
             )}
-            {selectedWilaya && filteredCentrales.length === 0 && !centralesLoading && (
+            {selectedWilayaCentrale && filteredCentrales.length === 0 && !centralesLoading && (
               <p className="text-xs text-muted-foreground">
                 Aucune centrale disponible dans cette wilaya
               </p>
