@@ -30,7 +30,8 @@ interface CentraleFormDialogProps {
 }
 
 export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentrale }: CentraleFormDialogProps) {
-  const [selectedWilaya, setSelectedWilaya] = useState<string>("");
+  const [selectedWilayaChantier, setSelectedWilayaChantier] = useState<string>("");
+  const [selectedWilayaCentrale, setSelectedWilayaCentrale] = useState<string>("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("");
   const [selectedChantier, setSelectedChantier] = useState<string>("");
   const [isInitialized, setIsInitialized] = useState(false);
