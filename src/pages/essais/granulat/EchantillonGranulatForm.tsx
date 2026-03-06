@@ -180,18 +180,21 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
     );
   }
 
+  const config = breadcrumbCategoryConfig[essaiType];
+  const breadcrumbItems = config ? [
+    { label: "Granulat", path: "/essais/granulat" },
+    { label: config.categoryLabel, path: config.categoryPath },
+    { label: essaiTitle, path: basePath },
+    { label: isEditing ? "Modifier" : "Nouveau" }
+  ] : [];
+
   return (
     <div className="space-y-6">
+      <EssaiBreadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate(basePath)}
-          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
+        <BackButton to={basePath} />
         <div>
           <h1 className="text-3xl font-display font-bold text-foreground">
             {isEditing ? "Modifier" : "Nouvel"}{" "}
