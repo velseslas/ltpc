@@ -250,12 +250,12 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
             <Select 
               value={selectedCentrale} 
               onValueChange={setSelectedCentrale}
-              disabled={!selectedWilaya || centralesLoading}
+              disabled={!selectedWilayaCentrale || centralesLoading}
             >
               <SelectTrigger id="centrale" className={submitted && !selectedCentrale ? "border-red-700" : ""}>
                 <SelectValue placeholder={
-                  !selectedWilaya 
-                    ? "Sélectionner d'abord une wilaya" 
+                  !selectedWilayaCentrale 
+                    ? "Sélectionner d'abord une wilaya centrale" 
                     : centralesLoading 
                     ? "Chargement..." 
                     : filteredCentrales.length === 0 
@@ -277,7 +277,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
                 La centrale est requise
               </p>
             )}
-            {selectedWilaya && filteredCentrales.length === 0 && !centralesLoading && (
+            {selectedWilayaCentrale && filteredCentrales.length === 0 && !centralesLoading && (
               <p className="text-xs text-muted-foreground">
                 Aucune centrale disponible dans cette wilaya
               </p>
