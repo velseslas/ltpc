@@ -69,12 +69,16 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
     }
   }, [open]);
 
-  // Step 1: Set wilaya first when editing
+  // Step 1: Set wilayas first when editing
   useEffect(() => {
     if (open && editingCentrale && !centralesLoading && !chantiersLoading && centrales && chantiers && initStep === "idle") {
       setIsPreFilling(true);
       const centraleWilaya = editingCentrale.centrales_beton?.ville || "";
-      setSelectedWilaya(centraleWilaya);
+      // Find chantier wilaya from the linked chantier
+      const chantier = chantiers.find(c => c.id === editingCentrale.chantier_id);
+      const chantierWilaya = chantier?.ville || "";
+      setSelectedWilayaCentrale(centraleWilaya);
+      setSelectedWilayaChantier(chantierWilaya);
       setInitStep("wilaya");
     }
   }, [open, editingCentrale, centralesLoading, chantiersLoading, centrales, chantiers, initStep]);
