@@ -85,8 +85,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
 
   // Step 2: Once wilaya is set and filtered lists are updated, set the dependent fields
   useEffect(() => {
-    if (initStep === "wilaya" && selectedWilaya && editingCentrale) {
-      // Wait for next render cycle so filtered lists are updated
+    if (initStep === "wilaya" && (selectedWilayaCentrale || selectedWilayaChantier) && editingCentrale) {
       const timer = setTimeout(() => {
         setSelectedCentrale(editingCentrale.centrale_id);
         setSelectedChantier(editingCentrale.chantier_id || "");
@@ -96,7 +95,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
       }, 150);
       return () => clearTimeout(timer);
     }
-  }, [initStep, selectedWilaya, editingCentrale]);
+  }, [initStep, selectedWilayaCentrale, selectedWilayaChantier, editingCentrale]);
 
   // Reset centrale and chantier when wilaya changes (only if not initial load from editing)
   const handleWilayaChange = (value: string) => {
