@@ -44,11 +44,22 @@ export default function PrestataireForm() {
   const handleSubmit = async () => {
     if (!form.nom) { toast.error("Le nom est obligatoire"); return; }
     try {
+      const payload = {
+        nom: form.nom,
+        contact: form.contact,
+        telephone: form.telephone,
+        email: form.email,
+        adresse: form.adresse,
+        ville: form.wilaya,
+        specialite: form.specialite,
+        statut: form.statut,
+        observations: form.observations,
+      };
       if (isEdit) {
-        await updateMutation.mutateAsync({ id, ...form });
+        await updateMutation.mutateAsync({ id, ...payload });
         toast.success("Prestataire mis à jour");
       } else {
-        await createMutation.mutateAsync(form);
+        await createMutation.mutateAsync(payload);
         toast.success("Prestataire créé");
       }
       navigate("/intervenant/prestataires");
@@ -108,9 +119,9 @@ export default function PrestataireForm() {
             </div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
-          <div className="flex gap-3 pt-4">
-            <Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>Enregistrer</Button>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
             <Button variant="outline" onClick={() => navigate("/intervenant/prestataires")}>Annuler</Button>
+            <Button className="gradient-primary text-primary-foreground" onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>Enregistrer</Button>
           </div>
         </CardContent>
       </Card>
