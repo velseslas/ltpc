@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Trash2, ShoppingCart, Phone, Mail, MapPin, Briefcase } from "lucide-react";
+import { Plus, Trash2, ShoppingCart, Phone, Mail, MapPin, Briefcase, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
