@@ -115,7 +115,7 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
     e.preventDefault();
     setSubmitted(true);
     
-    if (!selectedWilaya || !selectedCentrale || !selectedChantier) {
+    if (!selectedWilayaChantier || !selectedWilayaCentrale || !selectedCentrale || !selectedChantier) {
       return;
     }
 
