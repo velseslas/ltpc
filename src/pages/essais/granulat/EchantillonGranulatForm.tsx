@@ -22,7 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useCarrieres } from "@/hooks/useCarrieres";
 import { useProduits } from "@/hooks/useProduits";
 import { useIntervenants } from "@/hooks/useIntervenants";
@@ -33,6 +35,20 @@ import {
 } from "@/hooks/useEchantillonsGranulatFactory";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+
+const breadcrumbCategoryConfig: Record<string, { categoryPath: string; categoryLabel: string }> = {
+  "equivalent-sable": { categoryPath: "/essais/granulat/proprete", categoryLabel: "Propreté" },
+  "bleu-methylene": { categoryPath: "/essais/granulat/proprete", categoryLabel: "Propreté" },
+  "matiere-organique": { categoryPath: "/essais/granulat/proprete", categoryLabel: "Propreté" },
+  "granulometrie": { categoryPath: "/essais/granulat/physiques", categoryLabel: "Physiques" },
+  "masse-volumique": { categoryPath: "/essais/granulat/physiques", categoryLabel: "Physiques" },
+  "forme-granulats": { categoryPath: "/essais/granulat/physiques", categoryLabel: "Physiques" },
+  "teneur-eau": { categoryPath: "/essais/granulat/physiques", categoryLabel: "Physiques" },
+  "los-angeles": { categoryPath: "/essais/granulat/mecaniques", categoryLabel: "Mécaniques" },
+  "micro-deval": { categoryPath: "/essais/granulat/mecaniques", categoryLabel: "Mécaniques" },
+  "ecrasement": { categoryPath: "/essais/granulat/mecaniques", categoryLabel: "Mécaniques" },
+  "friabilite": { categoryPath: "/essais/granulat/mecaniques", categoryLabel: "Mécaniques" },
+};
 
 const formSchema = z.object({
   carriere_id: z.string().min(1, "Sélectionnez une carrière"),
