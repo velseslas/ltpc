@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
@@ -139,16 +140,29 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
       {/* Breadcrumb et actions - Caché à l'impression */}
       <div className="print:hidden space-y-4">
         <EssaiBreadcrumb items={breadcrumbItems} />
-        <div className="flex justify-end gap-3">
-          <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${prefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
-          <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
-            <Printer className="h-4 w-4" />
-            Imprimer
-          </Button>
-          <Button onClick={handleDownloadPDF} className="flex items-center gap-2 gradient-primary text-primary-foreground">
-            <Download className="h-4 w-4" />
-            Télécharger PDF
-          </Button>
+        <div className="flex items-start gap-4">
+          <BackButton to={`${basePath}/${id}`} />
+          <div className="flex-1">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  Rapport - <span className="text-primary">{prefix}-{String(echantillon.numero).padStart(3, "0")}</span>
+                </h1>
+                <p className="text-muted-foreground text-sm">{essaiTitle}</p>
+              </div>
+              <div className="flex gap-3">
+                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${prefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
+                <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
+                  <Printer className="h-4 w-4" />
+                  Imprimer
+                </Button>
+                <Button onClick={handleDownloadPDF} className="flex items-center gap-2 gradient-primary text-primary-foreground">
+                  <Download className="h-4 w-4" />
+                  Télécharger PDF
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
