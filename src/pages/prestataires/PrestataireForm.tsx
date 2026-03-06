@@ -119,9 +119,9 @@ export default function PrestataireForm() {
             </div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
-          <div className="flex gap-3 pt-4">
-            <Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>Enregistrer</Button>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
             <Button variant="outline" onClick={() => navigate("/intervenant/prestataires")}>Annuler</Button>
+            <Button className="gradient-primary text-primary-foreground" onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>Enregistrer</Button>
           </div>
         </CardContent>
       </Card>
