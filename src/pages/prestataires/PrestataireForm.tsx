@@ -44,11 +44,22 @@ export default function PrestataireForm() {
   const handleSubmit = async () => {
     if (!form.nom) { toast.error("Le nom est obligatoire"); return; }
     try {
+      const payload = {
+        nom: form.nom,
+        contact: form.contact,
+        telephone: form.telephone,
+        email: form.email,
+        adresse: form.adresse,
+        ville: form.wilaya,
+        specialite: form.specialite,
+        statut: form.statut,
+        observations: form.observations,
+      };
       if (isEdit) {
-        await updateMutation.mutateAsync({ id, ...form });
+        await updateMutation.mutateAsync({ id, ...payload });
         toast.success("Prestataire mis à jour");
       } else {
-        await createMutation.mutateAsync(form);
+        await createMutation.mutateAsync(payload);
         toast.success("Prestataire créé");
       }
       navigate("/intervenant/prestataires");
