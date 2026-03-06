@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
