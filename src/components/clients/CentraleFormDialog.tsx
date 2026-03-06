@@ -59,7 +59,8 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
   // Reset state when dialog closes
   useEffect(() => {
     if (!open) {
-      setSelectedWilaya("");
+      setSelectedWilayaChantier("");
+      setSelectedWilayaCentrale("");
       setSelectedCentrale("");
       setSelectedChantier("");
       setIsInitialized(false);
