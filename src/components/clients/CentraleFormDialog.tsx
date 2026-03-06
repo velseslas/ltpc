@@ -192,12 +192,12 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
             <Select 
               value={selectedChantier} 
               onValueChange={setSelectedChantier}
-              disabled={!selectedWilaya || chantiersLoading}
+              disabled={!selectedWilayaChantier || chantiersLoading}
             >
               <SelectTrigger id="chantier" className={submitted && !selectedChantier ? "border-red-700" : ""}>
                 <SelectValue placeholder={
-                  !selectedWilaya 
-                    ? "Sélectionner d'abord une wilaya" 
+                  !selectedWilayaChantier 
+                    ? "Sélectionner d'abord une wilaya chantier" 
                     : chantiersLoading 
                     ? "Chargement..." 
                     : filteredChantiers.length === 0 
@@ -217,6 +217,29 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
               <p className="text-red-700 text-sm flex items-center gap-1">
                 <AlertCircle className="w-4 h-4" />
                 Le chantier est requis
+              </p>
+            )}
+          </div>
+
+          {/* Wilaya Centrale Select */}
+          <div className="space-y-2">
+            <Label htmlFor="wilayaCentrale">Wilaya Centrale à Béton <span className="text-red-700">*</span></Label>
+            <Select value={selectedWilayaCentrale} onValueChange={handleWilayaCentraleChange}>
+              <SelectTrigger id="wilayaCentrale" className={submitted && !selectedWilayaCentrale ? "border-red-700" : ""}>
+                <SelectValue placeholder="Sélectionner une wilaya" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px] z-[9999] bg-popover">
+                {wilayas.map((wilaya) => (
+                  <SelectItem key={wilaya.code} value={wilaya.nom}>
+                    {wilaya.code} - {wilaya.nom}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {submitted && !selectedWilayaCentrale && (
+              <p className="text-red-700 text-sm flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                La wilaya est requise
               </p>
             )}
           </div>
