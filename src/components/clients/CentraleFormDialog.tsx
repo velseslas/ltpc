@@ -97,13 +97,17 @@ export function CentraleFormDialog({ open, onOpenChange, clientId, editingCentra
     }
   }, [initStep, selectedWilayaCentrale, selectedWilayaChantier, editingCentrale]);
 
-  // Reset centrale and chantier when wilaya changes (only if not initial load from editing)
-  const handleWilayaChange = (value: string) => {
-    setSelectedWilaya(value);
-    // Only reset if form is initialized and wilaya actually changed
-    if (isInitialized && value !== editingCentrale?.centrales_beton?.ville) {
-      setSelectedCentrale("");
+  const handleWilayaChantierChange = (value: string) => {
+    setSelectedWilayaChantier(value);
+    if (isInitialized) {
       setSelectedChantier("");
+    }
+  };
+
+  const handleWilayaCentraleChange = (value: string) => {
+    setSelectedWilayaCentrale(value);
+    if (isInitialized) {
+      setSelectedCentrale("");
     }
   };
 
