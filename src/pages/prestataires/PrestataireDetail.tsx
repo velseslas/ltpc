@@ -63,7 +63,10 @@ export default function PrestataireDetail() {
             <p className="text-muted-foreground">{prestataire.specialite || "Prestataire"}</p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => navigate(`/intervenant/prestataires/${id}/modifier`)}>Modifier</Button>
+        <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate(`/intervenant/prestataires/${id}/modifier`)}>
+          <Pencil className="h-4 w-4 mr-2" />
+          Modifier
+        </Button>
       </div>
 
       {/* Info card */}
