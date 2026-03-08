@@ -3,6 +3,11 @@ interface EquivalentSableReportContentProps {
 }
 
 export default function EquivalentSableReportContent({ resultats }: EquivalentSableReportContentProps) {
+  const display = (key: string) => {
+    const v = resultats[key] as number;
+    return v != null && v !== 0 ? v : "-";
+  };
+
   const getClassification = (es: number) => {
     if (es >= 80) return "Sable très propre";
     if (es >= 70) return "Sable propre";
@@ -10,67 +15,97 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
     return "Sable argileux";
   };
 
-  const es1 = (resultats.es_essai1 as number) || 0;
-  const es2 = (resultats.es_essai2 as number) || 0;
-  const esMoyen = es1 && es2 ? ((es1 + es2) / 2) : 0;
+  const esvMoy = (resultats.esv_moyen as number) || (resultats.es_moyen as number) || 0;
+  const espMoy = (resultats.esp_moyen as number) || 0;
+
+  const fields: { label: string; unit: string; key1: string; key2: string }[] = [
+    { label: "Poids humide de la prise d'essai (mh)", unit: "g", key1: "mh_essai1", key2: "mh_essai2" },
+    { label: "Poids sec de la prise d'essai (ms)", unit: "g", key1: "ms_essai1", key2: "ms_essai2" },
+    { label: "Teneur en eau", unit: "%", key1: "w_essai1", key2: "w_essai2" },
+    { label: "Hauteur du floculat (h1)", unit: "cm", key1: "h1_essai1", key2: "h1_essai2" },
+    { label: "Hauteur du sable (visuelle) (h2)", unit: "cm", key1: "h2_essai1", key2: "h2_essai2" },
+    { label: "Hauteur du sable (piston) (h'2)", unit: "cm", key1: "h2p_essai1", key2: "h2p_essai2" },
+    { label: "Équivalent de sable visuel ESv %", unit: "%", key1: "esv_essai1", key2: "esv_essai2" },
+    { label: "Équivalent de sable piston ESp %", unit: "%", key1: "esp_essai1", key2: "esp_essai2" },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Résultats des essais */}
       <div>
-        <h3 className="font-bold text-sm mb-2 underline">Résultats des essais</h3>
-        <table className="w-full border-collapse border border-[#4a90a4]">
+        <h3 className="font-bold text-sm mb-2 underline">Expression des résultats</h3>
+        <table className="w-full border-collapse border border-[#4a90a4] text-sm">
           <thead>
             <tr className="bg-[#e8f4f8]">
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">Essai</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">H1 (mm)</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">H2 (mm)</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">ES (%)</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium w-1/2">Échantillon N°</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium w-16">Unité</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">1</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">2</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">Essai 1</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.h1_essai1 as number) || "-"}</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.h2_essai1 as number) || "-"}</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center font-medium">{es1 || "-"}</td>
+            {fields.map((f, i) => (
+              <tr key={i}>
+                <td className="border border-[#4a90a4] px-3 py-1.5">{f.label}</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5 text-center">({f.unit})</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">{display(f.key1)}</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">{display(f.key2)}</td>
+              </tr>
+            ))}
+
+            <tr className="bg-[#e8f4f8]">
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">Moyenne teneur en eau (W moy)</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5 text-center">(%)</td>
+              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold text-[#4a90a4]">
+                {display("w_moyen")}
+              </td>
             </tr>
-            <tr>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">Essai 2</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.h1_essai2 as number) || "-"}</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.h2_essai2 as number) || "-"}</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center font-medium">{es2 || "-"}</td>
+
+            <tr className="bg-[#e8f4f8]">
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">Moyenne (ESv % moy)</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5 text-center">(%)</td>
+              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold text-lg text-[#4a90a4]">
+                {esvMoy ? `${esvMoy} %` : "-"}
+              </td>
+            </tr>
+
+            <tr className="bg-[#e8f4f8]">
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">Moyenne (ESp % moy)</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5 text-center">(%)</td>
+              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold text-lg text-[#4a90a4]">
+                {espMoy ? `${espMoy} %` : "-"}
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      {/* Synthèse */}
+      {/* Classification */}
       <div>
-        <h3 className="font-bold text-sm mb-2 underline">Synthèse des résultats</h3>
+        <h3 className="font-bold text-sm mb-2 underline">Classification</h3>
         <table className="w-full border-collapse border border-[#4a90a4]">
           <tbody>
             <tr>
-              <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium w-1/2">Équivalent de Sable moyen (ES)</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center font-bold text-lg text-[#4a90a4]">
-                {esMoyen ? `${esMoyen.toFixed(1)} %` : "-"}
-              </td>
-            </tr>
-            <tr>
-              <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Classification</td>
+              <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium w-1/2">Classification (ESv)</td>
               <td className="border border-[#4a90a4] px-3 py-2 text-center font-medium">
-                {esMoyen ? getClassification(esMoyen) : "-"}
+                {esvMoy ? getClassification(esvMoy) : "-"}
               </td>
             </tr>
+            {espMoy > 0 && (
+              <tr>
+                <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Classification (ESp)</td>
+                <td className="border border-[#4a90a4] px-3 py-2 text-center font-medium">
+                  {getClassification(espMoy)}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Formule */}
       <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-        <p className="font-medium mb-1">Formule utilisée :</p>
-        <p>ES = (H2 / H1) × 100</p>
-        <p className="mt-1 text-xs">Où H1 = hauteur totale et H2 = hauteur du sable</p>
+        <p className="font-medium mb-1">Formules utilisées :</p>
+        <p>W = ((mh - ms) / ms) × 100</p>
+        <p>ESv = (h2 / h1) × 100 &nbsp;|&nbsp; ESp = (h'2 / h1) × 100</p>
       </div>
     </div>
   );
