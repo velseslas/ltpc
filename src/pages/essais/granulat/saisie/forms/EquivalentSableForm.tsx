@@ -8,37 +8,36 @@ interface EquivalentSableFormProps {
 }
 
 export default function EquivalentSableForm({ resultats, onChange }: EquivalentSableFormProps) {
-  const handleChange = (field: string, value: string) => {
-    const numValue = value === "" ? null : parseFloat(value);
-    const updated = { ...resultats, [field]: numValue };
+  const recalculate = (data: Record<string, unknown>): Record<string, unknown> => {
+    const updated = { ...data };
 
     // Get values
-    const mh1 = (updated.mh_essai1 as number) || 0;
-    const ms1 = (updated.ms_essai1 as number) || 0;
-    const mh2 = (updated.mh_essai2 as number) || 0;
-    const ms2 = (updated.ms_essai2 as number) || 0;
+    const mh1 = Number(updated.mh_essai1) || 0;
+    const ms1 = Number(updated.ms_essai1) || 0;
+    const mh2 = Number(updated.mh_essai2) || 0;
+    const ms2 = Number(updated.ms_essai2) || 0;
 
-    // Teneur en eau
+    // Teneur en eau W = ((mh - ms) / ms) × 100
     const w1 = ms1 > 0 ? ((mh1 - ms1) / ms1) * 100 : 0;
     const w2 = ms2 > 0 ? ((mh2 - ms2) / ms2) * 100 : 0;
-    const wMoy = w1 && w2 ? (w1 + w2) / 2 : w1 || w2;
+    const wMoy = (w1 !== 0 && w2 !== 0) ? (w1 + w2) / 2 : (w1 !== 0 ? w1 : w2);
 
     updated.w_essai1 = parseFloat(w1.toFixed(2));
     updated.w_essai2 = parseFloat(w2.toFixed(2));
     updated.w_moyen = parseFloat(wMoy.toFixed(2));
 
     // Heights
-    const h1_1 = (updated.h1_essai1 as number) || 0;
-    const h2_1 = (updated.h2_essai1 as number) || 0;
-    const h2p_1 = (updated.h2p_essai1 as number) || 0;
-    const h1_2 = (updated.h1_essai2 as number) || 0;
-    const h2_2 = (updated.h2_essai2 as number) || 0;
-    const h2p_2 = (updated.h2p_essai2 as number) || 0;
+    const h1_1 = Number(updated.h1_essai1) || 0;
+    const h2_1 = Number(updated.h2_essai1) || 0;
+    const h2p_1 = Number(updated.h2p_essai1) || 0;
+    const h1_2 = Number(updated.h1_essai2) || 0;
+    const h2_2 = Number(updated.h2_essai2) || 0;
+    const h2p_2 = Number(updated.h2p_essai2) || 0;
 
     // ESv (visuel) = h2/h1 * 100
     const esv1 = h1_1 > 0 ? (h2_1 / h1_1) * 100 : 0;
     const esv2 = h1_2 > 0 ? (h2_2 / h1_2) * 100 : 0;
-    const esvMoy = esv1 && esv2 ? (esv1 + esv2) / 2 : esv1 || esv2;
+    const esvMoy = (esv1 !== 0 && esv2 !== 0) ? (esv1 + esv2) / 2 : (esv1 !== 0 ? esv1 : esv2);
 
     updated.esv_essai1 = parseFloat(esv1.toFixed(2));
     updated.esv_essai2 = parseFloat(esv2.toFixed(2));
@@ -47,7 +46,7 @@ export default function EquivalentSableForm({ resultats, onChange }: EquivalentS
     // ESp (piston) = h2'/h1 * 100
     const esp1 = h1_1 > 0 ? (h2p_1 / h1_1) * 100 : 0;
     const esp2 = h1_2 > 0 ? (h2p_2 / h1_2) * 100 : 0;
-    const espMoy = esp1 && esp2 ? (esp1 + esp2) / 2 : esp1 || esp2;
+    const espMoy = (esp1 !== 0 && esp2 !== 0) ? (esp1 + esp2) / 2 : (esp1 !== 0 ? esp1 : esp2);
 
     updated.esp_essai1 = parseFloat(esp1.toFixed(2));
     updated.esp_essai2 = parseFloat(esp2.toFixed(2));
@@ -58,6 +57,12 @@ export default function EquivalentSableForm({ resultats, onChange }: EquivalentS
     updated.es_essai2 = updated.esv_essai2;
     updated.es_moyen = updated.esv_moyen;
 
+    return updated;
+  };
+
+  const handleChange = (field: string, value: string) => {
+    const numValue = value === "" ? null : parseFloat(value);
+    const updated = recalculate({ ...resultats, [field]: numValue });
     onChange(updated);
   };
 
@@ -68,7 +73,7 @@ export default function EquivalentSableForm({ resultats, onChange }: EquivalentS
 
   const display = (key: string, suffix = "") => {
     const v = resultats[key] as number;
-    return v ? `${v}${suffix}` : "--";
+    return v != null && v !== 0 ? `${v}${suffix}` : "--";
   };
 
   const fields: { label: string; unit: string; key1: string; key2: string; readonly?: boolean }[] = [
