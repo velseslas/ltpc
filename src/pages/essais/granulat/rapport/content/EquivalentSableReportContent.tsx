@@ -102,10 +102,39 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
         </table>
       </div>
 
-      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-        <p className="font-medium mb-1">Formules utilisées :</p>
-        <p>W = ((mh - ms) / ms) × 100</p>
-        <p>ESv = (h2 / h1) × 100 &nbsp;|&nbsp; ESp = (h'2 / h1) × 100</p>
+      <div>
+        <h3 className="font-bold text-sm mb-2 underline">Spécification</h3>
+        <table className="w-full border-collapse border border-[#4a90a4] text-sm">
+          <thead>
+            <tr className="bg-[#e8f4f8]">
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Valeur ES</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Nature du sable</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Usage recommandé</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">ES ≥ 80</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Sable très propre</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Béton de haute qualité</td>
+            </tr>
+            <tr>
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">70 ≤ ES &lt; 80</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Sable propre</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Béton courant</td>
+            </tr>
+            <tr>
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">60 ≤ ES &lt; 70</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Sable légèrement argileux</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Tolérable sous conditions</td>
+            </tr>
+            <tr>
+              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">ES &lt; 60</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Sable argileux</td>
+              <td className="border border-[#4a90a4] px-3 py-1.5">Impropre au béton</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
