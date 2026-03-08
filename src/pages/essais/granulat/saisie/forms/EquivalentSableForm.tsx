@@ -9,114 +9,167 @@ interface EquivalentSableFormProps {
 
 export default function EquivalentSableForm({ resultats, onChange }: EquivalentSableFormProps) {
   const handleChange = (field: string, value: string) => {
-    const numValue = parseFloat(value) || 0;
+    const numValue = value === "" ? null : parseFloat(value);
     const updated = { ...resultats, [field]: numValue };
-    
-    // Calculate ES values
+
+    // Get values
+    const mh1 = (updated.mh_essai1 as number) || 0;
+    const ms1 = (updated.ms_essai1 as number) || 0;
+    const mh2 = (updated.mh_essai2 as number) || 0;
+    const ms2 = (updated.ms_essai2 as number) || 0;
+
+    // Teneur en eau
+    const w1 = ms1 > 0 ? ((mh1 - ms1) / ms1) * 100 : 0;
+    const w2 = ms2 > 0 ? ((mh2 - ms2) / ms2) * 100 : 0;
+    const wMoy = w1 && w2 ? (w1 + w2) / 2 : w1 || w2;
+
+    updated.w_essai1 = parseFloat(w1.toFixed(2));
+    updated.w_essai2 = parseFloat(w2.toFixed(2));
+    updated.w_moyen = parseFloat(wMoy.toFixed(2));
+
+    // Heights
     const h1_1 = (updated.h1_essai1 as number) || 0;
     const h2_1 = (updated.h2_essai1 as number) || 0;
+    const h2p_1 = (updated.h2p_essai1 as number) || 0;
     const h1_2 = (updated.h1_essai2 as number) || 0;
     const h2_2 = (updated.h2_essai2 as number) || 0;
-    
-    const es1 = h1_1 > 0 ? (h2_1 / h1_1) * 100 : 0;
-    const es2 = h1_2 > 0 ? (h2_2 / h1_2) * 100 : 0;
-    const esMoyen = (es1 + es2) / 2;
-    
-    updated.es_essai1 = parseFloat(es1.toFixed(1));
-    updated.es_essai2 = parseFloat(es2.toFixed(1));
-    updated.es_moyen = parseFloat(esMoyen.toFixed(1));
-    
+    const h2p_2 = (updated.h2p_essai2 as number) || 0;
+
+    // ESv (visuel) = h2/h1 * 100
+    const esv1 = h1_1 > 0 ? (h2_1 / h1_1) * 100 : 0;
+    const esv2 = h1_2 > 0 ? (h2_2 / h1_2) * 100 : 0;
+    const esvMoy = esv1 && esv2 ? (esv1 + esv2) / 2 : esv1 || esv2;
+
+    updated.esv_essai1 = parseFloat(esv1.toFixed(2));
+    updated.esv_essai2 = parseFloat(esv2.toFixed(2));
+    updated.esv_moyen = parseFloat(esvMoy.toFixed(2));
+
+    // ESp (piston) = h2'/h1 * 100
+    const esp1 = h1_1 > 0 ? (h2p_1 / h1_1) * 100 : 0;
+    const esp2 = h1_2 > 0 ? (h2p_2 / h1_2) * 100 : 0;
+    const espMoy = esp1 && esp2 ? (esp1 + esp2) / 2 : esp1 || esp2;
+
+    updated.esp_essai1 = parseFloat(esp1.toFixed(2));
+    updated.esp_essai2 = parseFloat(esp2.toFixed(2));
+    updated.esp_moyen = parseFloat(espMoy.toFixed(2));
+
+    // Keep legacy fields
+    updated.es_essai1 = updated.esv_essai1;
+    updated.es_essai2 = updated.esv_essai2;
+    updated.es_moyen = updated.esv_moyen;
+
     onChange(updated);
   };
+
+  const val = (key: string) => {
+    const v = resultats[key];
+    return v != null ? String(v) : "";
+  };
+
+  const display = (key: string, suffix = "") => {
+    const v = resultats[key] as number;
+    return v ? `${v}${suffix}` : "--";
+  };
+
+  const fields: { label: string; unit: string; key1: string; key2: string; readonly?: boolean }[] = [
+    { label: "Poids humide de la prise d'essai (mh)", unit: "g", key1: "mh_essai1", key2: "mh_essai2" },
+    { label: "Poids sec de la prise d'essai (ms)", unit: "g", key1: "ms_essai1", key2: "ms_essai2" },
+    { label: "Teneur en eau", unit: "%", key1: "w_essai1", key2: "w_essai2", readonly: true },
+    { label: "Hauteur du floculat (h1)", unit: "cm", key1: "h1_essai1", key2: "h1_essai2" },
+    { label: "Hauteur du sable visuelle (h2)", unit: "cm", key1: "h2_essai1", key2: "h2_essai2" },
+    { label: "Hauteur du sable piston (h'2)", unit: "cm", key1: "h2p_essai1", key2: "h2p_essai2" },
+    { label: "Équivalent de sable visuel ESv", unit: "%", key1: "esv_essai1", key2: "esv_essai2", readonly: true },
+    { label: "Équivalent de sable piston ESp", unit: "%", key1: "esp_essai1", key2: "esp_essai2", readonly: true },
+  ];
 
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle className="text-lg">Résultats - Équivalent de Sable (NF EN 933-8)</CardTitle>
+        <CardTitle className="text-lg">Expression des résultats - Équivalent de Sable (NF EN 933-8)</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Essai 1 */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-foreground border-b border-border pb-2">Essai 1</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="h1_essai1">H1 - Hauteur totale (mm)</Label>
-                <Input
-                  id="h1_essai1"
-                  type="number"
-                  step="0.1"
-                  value={(resultats.h1_essai1 as number) || ""}
-                  onChange={(e) => handleChange("h1_essai1", e.target.value)}
-                  className="bg-background border-border"
-                  placeholder="0.0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="h2_essai1">H2 - Hauteur sable (mm)</Label>
-                <Input
-                  id="h2_essai1"
-                  type="number"
-                  step="0.1"
-                  value={(resultats.h2_essai1 as number) || ""}
-                  onChange={(e) => handleChange("h2_essai1", e.target.value)}
-                  className="bg-background border-border"
-                  placeholder="0.0"
-                />
-              </div>
-            </div>
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-              <p className="text-sm text-muted-foreground">ES Essai 1</p>
-              <p className="text-2xl font-bold text-primary">
-                {(resultats.es_essai1 as number) || "--"} %
-              </p>
-            </div>
-          </div>
+      <CardContent className="space-y-4">
+        {/* Table layout matching reference */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-muted/60">
+                <th className="border border-border px-3 py-2.5 text-left font-medium text-foreground w-1/2">Échantillon N°</th>
+                <th className="border border-border px-3 py-2.5 text-center font-medium text-foreground w-16">Unité</th>
+                <th className="border border-border px-3 py-2.5 text-center font-medium text-foreground">1</th>
+                <th className="border border-border px-3 py-2.5 text-center font-medium text-foreground">2</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fields.map((f, i) => (
+                <tr key={i} className={f.readonly ? "bg-muted/30" : ""}>
+                  <td className="border border-border px-3 py-2 text-foreground">{f.label}</td>
+                  <td className="border border-border px-3 py-2 text-center text-muted-foreground">({f.unit})</td>
+                  <td className="border border-border px-1 py-1 text-center">
+                    {f.readonly ? (
+                      <span className="font-medium text-foreground">{display(f.key1)}</span>
+                    ) : (
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={val(f.key1)}
+                        onChange={(e) => handleChange(f.key1, e.target.value)}
+                        className="bg-background border-border text-center h-8"
+                        placeholder="0.0"
+                      />
+                    )}
+                  </td>
+                  <td className="border border-border px-1 py-1 text-center">
+                    {f.readonly ? (
+                      <span className="font-medium text-foreground">{display(f.key2)}</span>
+                    ) : (
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={val(f.key2)}
+                        onChange={(e) => handleChange(f.key2, e.target.value)}
+                        className="bg-background border-border text-center h-8"
+                        placeholder="0.0"
+                      />
+                    )}
+                  </td>
+                </tr>
+              ))}
 
-          {/* Essai 2 */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-foreground border-b border-border pb-2">Essai 2</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="h1_essai2">H1 - Hauteur totale (mm)</Label>
-                <Input
-                  id="h1_essai2"
-                  type="number"
-                  step="0.1"
-                  value={(resultats.h1_essai2 as number) || ""}
-                  onChange={(e) => handleChange("h1_essai2", e.target.value)}
-                  className="bg-background border-border"
-                  placeholder="0.0"
-                />
-              </div>
-              <div>
-                <Label htmlFor="h2_essai2">H2 - Hauteur sable (mm)</Label>
-                <Input
-                  id="h2_essai2"
-                  type="number"
-                  step="0.1"
-                  value={(resultats.h2_essai2 as number) || ""}
-                  onChange={(e) => handleChange("h2_essai2", e.target.value)}
-                  className="bg-background border-border"
-                  placeholder="0.0"
-                />
-              </div>
-            </div>
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-              <p className="text-sm text-muted-foreground">ES Essai 2</p>
-              <p className="text-2xl font-bold text-primary">
-                {(resultats.es_essai2 as number) || "--"} %
-              </p>
-            </div>
-          </div>
+              {/* Moyenne teneur en eau */}
+              <tr className="bg-muted/30">
+                <td className="border border-border px-3 py-2 text-foreground font-medium">Moyenne teneur en eau (W moy)</td>
+                <td className="border border-border px-3 py-2 text-center text-muted-foreground">(%)</td>
+                <td colSpan={2} className="border border-border px-3 py-2 text-center">
+                  <span className="text-lg font-bold text-primary">{display("w_moyen", " %")}</span>
+                </td>
+              </tr>
+
+              {/* Moyenne ESv */}
+              <tr className="bg-primary/10">
+                <td className="border border-border px-3 py-2 text-foreground font-medium">Moyenne (ESv % moy)</td>
+                <td className="border border-border px-3 py-2 text-center text-muted-foreground">(%)</td>
+                <td colSpan={2} className="border border-border px-3 py-2 text-center">
+                  <span className="text-xl font-bold text-primary">{display("esv_moyen", " %")}</span>
+                </td>
+              </tr>
+
+              {/* Moyenne ESp */}
+              <tr className="bg-primary/10">
+                <td className="border border-border px-3 py-2 text-foreground font-medium">Moyenne (ESp % moy)</td>
+                <td className="border border-border px-3 py-2 text-center text-muted-foreground">(%)</td>
+                <td colSpan={2} className="border border-border px-3 py-2 text-center">
+                  <span className="text-xl font-bold text-primary">{display("esp_moyen", " %")}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* Résultat final */}
-        <div className="bg-primary/20 border border-primary/30 rounded-lg p-6 text-center">
-          <p className="text-sm text-muted-foreground mb-2">Équivalent de Sable Moyen</p>
-          <p className="text-4xl font-bold text-primary">
-            {(resultats.es_moyen as number) || "--"} %
-          </p>
+        {/* Formules */}
+        <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+          <p className="font-medium mb-1 text-foreground">Formules :</p>
+          <p>W = ((mh - ms) / ms) × 100</p>
+          <p>ESv = (h2 / h1) × 100 &nbsp;|&nbsp; ESp = (h'2 / h1) × 100</p>
         </div>
       </CardContent>
     </Card>
