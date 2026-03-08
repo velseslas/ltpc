@@ -73,7 +73,7 @@ export default function EquivalentSableForm({ resultats, onChange }: EquivalentS
 
   const display = (key: string, suffix = "") => {
     const v = resultats[key] as number;
-    return v ? `${v}${suffix}` : "--";
+    return v != null && v !== 0 ? `${v}${suffix}` : "--";
   };
 
   const fields: { label: string; unit: string; key1: string; key2: string; readonly?: boolean }[] = [
