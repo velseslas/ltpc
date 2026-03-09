@@ -52,13 +52,18 @@ export default function GranulometrieForm({ resultats, onChange }: Granulometrie
   const fondP = (resultats.fond_p as number) || 0;
   const procede = (resultats.procede as string) || "lavage_tamisage";
 
-  const tamisData = (resultats.tamis as TamisData[]) || TAMIS_STANDARDS.map(t => ({
-    ouverture: t.ouverture,
-    refus: 0,
-    refusCumule: 0,
-    pourcentageRefusCumule: 0,
-    passant: 100,
-  }));
+  // Always use TAMIS_STANDARDS as reference, merging any saved data by ouverture
+  const savedTamis = (resultats.tamis as TamisData[]) || [];
+  const tamisData: TamisData[] = TAMIS_STANDARDS.map(t => {
+    const saved = savedTamis.find(s => Math.abs(s.ouverture - t.ouverture) < 0.001);
+    return saved || {
+      ouverture: t.ouverture,
+      refus: 0,
+      refusCumule: 0,
+      pourcentageRefusCumule: 0,
+      passant: 100,
+    };
+  });
 
   const recalculate = (updated: Record<string, unknown>, tamis: TamisData[], newFondP?: number) => {
     const m1 = (updated.masse_seche_m1 as number) || 0;
