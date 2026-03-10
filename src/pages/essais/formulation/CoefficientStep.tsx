@@ -117,8 +117,7 @@ export default function CoefficientStep({
     return interpolateG(d, qualiteG);
   }, [qualiteG, dmaxG]);
 
-  // Sync G' to parent when computed
-  useMemo(() => {
+  useEffect(() => {
     if (computedG !== null) {
       onCoefficientGranulaireChange(computedG.toFixed(3));
     }
