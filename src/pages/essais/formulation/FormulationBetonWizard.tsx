@@ -39,6 +39,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Separator } from "@/components/ui/separator";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import ProportionsStep from "./ProportionsStep";
+import CoefficientStep from "./CoefficientStep";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
@@ -77,8 +78,9 @@ const STEPS = [
   { number: 1, label: "Information générale" },
   { number: 2, label: "Données de base" },
   { number: 3, label: "Information matériaux" },
-  { number: 4, label: "Essai" },
-  { number: 5, label: "Calcul proportions" },
+  { number: 4, label: "Coefficients" },
+  { number: 5, label: "Essai" },
+  { number: 6, label: "Calcul proportions" },
 ];
 
 // Stepper component
@@ -661,8 +663,9 @@ export default function FormulationBetonWizard() {
   const [adjuvantQte, setAdjuvantQte] = useState("");
   const [eauQte, setEauQte] = useState("");
 
-  // Step 4 - coefficient granulaire
+  // Step 4 - coefficients
   const [coefficientGranulaire, setCoefficientGranulaire] = useState("");
+  const [coefficientCompacite, setCoefficientCompacite] = useState("");
 
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
@@ -720,12 +723,13 @@ export default function FormulationBetonWizard() {
       case 3: return true;
       case 4: return true;
       case 5: return true;
+      case 6: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    if (currentStep < 6) setCurrentStep(currentStep + 1);
   };
 
   const handlePrev = () => {
@@ -925,8 +929,18 @@ export default function FormulationBetonWizard() {
         </Card>
       </div>
 
-      {/* Step 4 */}
+      {/* Step 4 - Coefficients */}
       <div className={currentStep === 4 ? "" : "hidden"}>
+        <CoefficientStep
+          coefficientGranulaire={coefficientGranulaire}
+          onCoefficientGranulaireChange={setCoefficientGranulaire}
+          coefficientCompacite={coefficientCompacite}
+          onCoefficientCompaciteChange={setCoefficientCompacite}
+        />
+      </div>
+
+      {/* Step 5 */}
+      <div className={currentStep === 5 ? "" : "hidden"}>
         <EssaiStep
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active} cimentActive={cimentActive} eauActive={eauActive}
           sable1ProducteurId={sableConcasseProducteurId} sable1ProduitId={sableConcasseProduitId} sable2ProducteurId={sableFinProducteurId} sable2ProduitId={sableFinProduitId}
@@ -936,8 +950,8 @@ export default function FormulationBetonWizard() {
         />
       </div>
 
-      {/* Step 5 */}
-      <div className={currentStep === 5 ? "" : "hidden"}>
+      {/* Step 6 */}
+      <div className={currentStep === 6 ? "" : "hidden"}>
         <ProportionsStep
           sableConcasseQte={sableConcasseQte} sableFinQte={sableFinQte} gravillons1Qte={gravillons1Qte} gravier2Qte={gravier2Qte} gravier3Qte={gravier3Qte}
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
@@ -958,7 +972,7 @@ export default function FormulationBetonWizard() {
           Précédent
         </Button>
 
-        {currentStep < 5 ? (
+        {currentStep < 6 ? (
           <Button
             onClick={handleNext}
             disabled={!canGoNext()}
