@@ -130,7 +130,7 @@ export default function CoefficientStep({
     return interpolateCompacite(d, serrage);
   }, [serrage, dmaxC]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (computedC !== null) {
       onCoefficientCompaciteChange(computedC.toFixed(3));
     }
