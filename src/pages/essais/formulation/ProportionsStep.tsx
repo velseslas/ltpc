@@ -513,24 +513,45 @@ export default function ProportionsStep({
                 <tr className="bg-muted">
                   <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
                   <th className="border border-border p-2.5 text-right font-semibold">kg/m³</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">%</th>
                 </tr>
               </thead>
               <tbody>
-                {components.map(({ label, value, unit }, i) => (
-                  <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                    <td className="border border-border p-2.5 text-foreground">{label}</td>
-                    <td className="border border-border p-2.5 text-right font-semibold text-foreground">
-                      {value.toFixed(1)} {unit}
-                    </td>
-                  </tr>
-                ))}
+                {components.map(({ label, value, unit, density }, i) => {
+                  const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
+                  const pct = total > 0 ? (value / total) * 100 : 0;
+                  return (
+                    <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                      <td className="border border-border p-2.5 text-foreground">{label}</td>
+                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">
+                        {value.toFixed(1)} {unit}
+                      </td>
+                      <td className="border border-border p-2.5 text-right text-foreground">
+                        {density > 0 ? density.toFixed(2) : "-"}
+                      </td>
+                      <td className="border border-border p-2.5 text-right text-foreground">
+                        {density > 0 ? volumeL.toFixed(1) : "-"}
+                      </td>
+                      <td className="border border-border p-2.5 text-right text-foreground">
+                        {pct.toFixed(1)}%
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="bg-primary/10">
-                  <td className="border border-border p-2.5 font-bold text-foreground">Poids Total</td>
+                  <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
                   <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">
                     {total.toFixed(1)} kg/m³
                   </td>
+                  <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">
+                    {(totalVolume * 1000).toFixed(1)} L
+                  </td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
                 </tr>
               </tfoot>
             </table>
