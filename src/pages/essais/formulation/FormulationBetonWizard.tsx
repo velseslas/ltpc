@@ -53,9 +53,8 @@ const STEPS = [
   { number: 1, label: "Information générale" },
   { number: 2, label: "Données de base" },
   { number: 3, label: "Information matériaux" },
-  { number: 4, label: "Coefficient granulaire" },
-  { number: 5, label: "Essai" },
-  { number: 6, label: "Calcul proportions" },
+  { number: 4, label: "Essai" },
+  { number: 5, label: "Calcul proportions" },
 ];
 
 // Stepper component
@@ -292,13 +291,12 @@ export default function FormulationBetonWizard() {
       case 3: return true;
       case 4: return true;
       case 5: return true;
-      case 6: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 6) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const handlePrev = () => {
@@ -648,40 +646,9 @@ export default function FormulationBetonWizard() {
           </Card>
         );
 
+
+
       case 4:
-        return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-lg font-semibold text-foreground">Coefficient granulaire</h2>
-              <p className="text-sm text-muted-foreground">Paramètres de correction granulaire</p>
-
-              <div className="space-y-2">
-                <Label>Coefficient granulaire (G)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={coefficientGranulaire}
-                  onChange={(e) => setCoefficientGranulaire(e.target.value)}
-                  placeholder="ex: 0.55"
-                  className="bg-secondary border-border"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="p-4 rounded-lg bg-primary/10 text-center">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Rapport G/S</p>
-                  <p className="text-xl font-bold text-primary">{ratioGS}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-primary/10 text-center">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Rapport E/C</p>
-                  <p className="text-xl font-bold text-primary">{ratioEC}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 5:
         return (
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-5">
@@ -715,7 +682,7 @@ export default function FormulationBetonWizard() {
           </Card>
         );
 
-      case 6:
+      case 5:
         return (
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-5">
@@ -801,7 +768,7 @@ export default function FormulationBetonWizard() {
           Précédent
         </Button>
 
-        {currentStep < 6 ? (
+        {currentStep < 5 ? (
           <Button
             onClick={handleNext}
             disabled={!canGoNext()}
