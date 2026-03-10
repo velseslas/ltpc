@@ -205,19 +205,6 @@ function IngredientCard({
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Quantité ({quantiteUnit}/m³)</Label>
-        <Input
-          type="number"
-          step="0.1"
-          min="0"
-          value={quantite}
-          onChange={(e) => onQuantiteChange(e.target.value)}
-          disabled={!active}
-          placeholder="0"
-          className="bg-secondary border-border"
-        />
-      </div>
     </div>
   );
 }
