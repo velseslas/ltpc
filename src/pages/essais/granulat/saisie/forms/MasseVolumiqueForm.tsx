@@ -135,6 +135,10 @@ const GRAVEL_FRACTIONS = [
   { key: "gravier_16_25", label: "16 – 25 mm" },
 ];
 
+function getGravelStorageKey(produit?: string): string {
+  return "gravier";
+}
+
 // ─── Sub-components ───
 
 function SandInputFields({ data, onFieldChange }: { data: Record<string, unknown>; onFieldChange: (field: string, value: string) => void }) {
