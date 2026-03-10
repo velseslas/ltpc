@@ -350,42 +350,87 @@ export default function FormulationBetonWizard() {
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-5">
               <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
-              <p className="text-sm text-muted-foreground">Saisissez les quantités pour 1 m³ de béton</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { label: "Sable concassé (kg)", value: sableConcasseQte, setter: setSableConcasseQte },
-                  { label: "Sable fin (kg)", value: sableFinQte, setter: setSableFinQte },
-                  { label: "Gravillons 1 (kg)", value: gravillons1Qte, setter: setGravillons1Qte },
-                  { label: "Gravier 2 (kg)", value: gravier2Qte, setter: setGravier2Qte },
-                  { label: "Gravier 3 (kg)", value: gravier3Qte, setter: setGravier3Qte },
-                  { label: "Ciment (kg)", value: cimentQte, setter: setCimentQte },
-                  { label: "Adjuvant (kg)", value: adjuvantQte, setter: setAdjuvantQte },
-                  { label: "Eau (L)", value: eauQte, setter: setEauQte },
-                ].map(({ label, value, setter }) => (
-                  <div key={label} className="space-y-1.5">
-                    <Label className="text-sm">{label}</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Résistance souhaitée à 28 j</Label>
+                  <div className="relative">
                     <Input
                       type="number"
-                      step="0.01"
+                      step="0.1"
                       min="0"
-                      value={value}
-                      onChange={(e) => setter(e.target.value)}
-                      placeholder="0.00"
-                      className="bg-secondary border-border"
+                      value={resistance28j}
+                      onChange={(e) => setResistance28j(e.target.value)}
+                      placeholder="0.0"
+                      className="bg-secondary border-border pr-14"
                     />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
                   </div>
-                ))}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Classe de résistance</Label>
+                  <Select value={classeResistance} onValueChange={setClasseResistance}>
+                    <SelectTrigger className="bg-secondary border-border">
+                      <SelectValue placeholder="Sélectionnez une classe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["C16/20", "C20/25", "C25/30", "C30/37", "C35/45", "C40/50", "C45/55", "C50/60"].map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Classe d'exposition</Label>
+                  <Select value={classeExposition} onValueChange={setClasseExposition}>
+                    <SelectTrigger className="bg-secondary border-border">
+                      <SelectValue placeholder="Sélectionnez une classe..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["X0", "XC1", "XC2", "XC3", "XC4", "XD1", "XD2", "XD3", "XS1", "XS2", "XS3", "XF1", "XF2", "XF3", "XF4", "XA1", "XA2", "XA3"].map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button variant="outline" className="gap-2" type="button">
+                  <BarChart3 className="w-4 h-4" />
+                  Voir abaque
+                </Button>
+
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Classe rhéologique</Label>
+                  <Select value={classeRheologique} onValueChange={setClasseRheologique}>
+                    <SelectTrigger className="bg-secondary border-border">
+                      <SelectValue placeholder="Sélectionnez une classe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["S1", "S2", "S3", "S4", "S5"].map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-start-3 space-y-1.5">
+                  <Label className="text-sm">Classe vrai du ciment</Label>
+                  <Input
+                    value={classeVraiCiment}
+                    onChange={(e) => setClasseVraiCiment(e.target.value)}
+                    placeholder=""
+                    className="bg-secondary border-border"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
-        );
-
-      case 3:
-        return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
               <p className="text-sm text-muted-foreground mb-2">Sélectionnez les producteurs et produits pour chaque composant</p>
 
               <IngredientSelect
