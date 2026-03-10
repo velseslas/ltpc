@@ -19,6 +19,7 @@ import {
 import { BackButton } from "@/components/ui/back-button";
 import { Separator } from "@/components/ui/separator";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import ProportionsStep from "./ProportionsStep";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
@@ -554,15 +555,7 @@ export default function FormulationBetonWizard() {
 
   const clientChantiers = chantierId ? chantiers : chantiers.filter((c: any) => !clientId || c.client_id === clientId);
 
-  // Calculations for step 6
-  const sables = (parseFloat(sableConcasseQte) || 0) + (parseFloat(sableFinQte) || 0);
-  const graviers = (parseFloat(gravillons1Qte) || 0) + (parseFloat(gravier2Qte) || 0) + (parseFloat(gravier3Qte) || 0);
-  const ciment = parseFloat(cimentQte) || 0;
-  const eau = parseFloat(eauQte) || 0;
-  const adjuvant = parseFloat(adjuvantQte) || 0;
-  const total = sables + graviers + ciment + adjuvant + eau;
-  const ratioGS = sables > 0 ? (graviers / sables).toFixed(2) : "-";
-  const ratioEC = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
+
 
   const canGoNext = () => {
     switch (currentStep) {
@@ -958,52 +951,23 @@ export default function FormulationBetonWizard() {
 
       case 5:
         return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-lg font-semibold text-foreground">Calcul des proportions</h2>
-              <p className="text-sm text-muted-foreground">Récapitulatif de la formulation pour 1 m³</p>
-
-              <div className="space-y-3">
-                {[
-                  { label: "Sable concassé", value: sableConcasseQte, unit: "kg" },
-                  { label: "Sable fin", value: sableFinQte, unit: "kg" },
-                  { label: "Gravillons 1", value: gravillons1Qte, unit: "kg" },
-                  { label: "Gravier 2", value: gravier2Qte, unit: "kg" },
-                  { label: "Gravier 3", value: gravier3Qte, unit: "kg" },
-                  { label: "Ciment", value: cimentQte, unit: "kg" },
-                  { label: "Adjuvant", value: adjuvantQte, unit: "kg" },
-                  { label: "Eau", value: eauQte, unit: "L" },
-                ].filter(({ value }) => value && parseFloat(value) > 0)
-                  .map(({ label, value, unit }) => (
-                    <div key={label} className="flex justify-between items-center py-2 border-b border-border/30">
-                      <span className="text-sm text-muted-foreground">{label}</span>
-                      <span className="font-semibold text-foreground">{parseFloat(value).toFixed(1)} {unit}</span>
-                    </div>
-                  ))
-                }
-
-                <div className="flex justify-between items-center py-3 border-t-2 border-primary/30">
-                  <span className="font-semibold text-foreground">Total</span>
-                  <span className="text-lg font-bold text-primary">{total.toFixed(1)} kg</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 mt-4">
-                <div className="p-3 rounded-lg bg-primary/10 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase">G/S</p>
-                  <p className="text-lg font-bold text-primary">{ratioGS}</p>
-                </div>
-                <div className="p-3 rounded-lg bg-primary/10 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase">E/C</p>
-                  <p className="text-lg font-bold text-primary">{ratioEC}</p>
-                </div>
-                <div className="p-3 rounded-lg bg-accent/50 text-center">
-                  <p className="text-[10px] text-muted-foreground uppercase">Coeff. G</p>
-                  <p className="text-lg font-bold text-foreground">{coefficientGranulaire || "-"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ProportionsStep
+            sableConcasseQte={sableConcasseQte}
+            sableFinQte={sableFinQte}
+            gravillons1Qte={gravillons1Qte}
+            gravier2Qte={gravier2Qte}
+            gravier3Qte={gravier3Qte}
+            cimentQte={cimentQte}
+            adjuvantQte={adjuvantQte}
+            eauQte={eauQte}
+            sable1Active={sable1Active}
+            sable2Active={sable2Active}
+            gravier1Active={gravier1Active}
+            gravier2Active={gravier2Active}
+            gravier3Active={gravier3Active}
+            coefficientGranulaire={coefficientGranulaire}
+            classeRheologique={classeRheologiqueAuto}
+          />
         );
 
       default:
