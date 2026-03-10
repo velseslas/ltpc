@@ -956,7 +956,19 @@ export default function FormulationBetonWizard() {
           sableConcasseQte={sableConcasseQte} sableFinQte={sableFinQte} gravillons1Qte={gravillons1Qte} gravier2Qte={gravier2Qte} gravier3Qte={gravier3Qte}
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
-          coefficientGranulaire={coefficientGranulaire} classeRheologique={classeRheologiqueAuto}
+          coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
+          onQuantityChange={(key, value) => {
+            const setters: Record<string, (v: string) => void> = {
+              sableConcasse: setSableConcasseQte,
+              sableFin: setSableFinQte,
+              gravillons1: setGravillons1Qte,
+              gravier2: setGravier2Qte,
+              gravier3: setGravier3Qte,
+              ciment: setCimentQte,
+              eau: setEauQte,
+            };
+            setters[key]?.(value);
+          }}
         />
       </div>
 
