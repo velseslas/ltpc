@@ -505,12 +505,12 @@ function EssaiStep({
     <div className="space-y-6">
       {/* Granulats — organisé par type d'essai */}
       {hasAnyActiveGranulat && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && resolvedGranulats.length === 0 && "animate-border-blink")}>
           <CardContent className="p-6 space-y-6">
             <h2 className="text-lg font-bold text-foreground">Essais sur les Granulats</h2>
 
             {resolvedGranulats.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic p-3">
+              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>
                 Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
               </p>
             ) : (
