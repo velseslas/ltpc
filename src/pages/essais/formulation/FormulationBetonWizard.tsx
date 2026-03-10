@@ -296,7 +296,7 @@ export default function FormulationBetonWizard() {
   };
 
   const handleNext = () => {
-    if (currentStep < 6) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const handlePrev = () => {
