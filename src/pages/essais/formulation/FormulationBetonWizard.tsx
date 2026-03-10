@@ -281,14 +281,16 @@ function EssaiStep({
   const { data: cimentProduits = [] } = useProduits(cimentProducteurId, "cimenterie");
   const { data: eauProduits = [] } = useProduits(eauProducteurId, "source_eau");
 
-  // Build granulat materials list
+  // Build granulat materials list - show all active ones
   const granulatMaterials = [
     { label: "Sable 1", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
     { label: "Sable 2", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
     { label: "Gravier 1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
     { label: "Gravier 2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
     { label: "Gravier 3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
-  ].filter((m) => m.active && m.producteurId && m.produitId);
+  ].filter((m) => m.active);
+
+  const hasAnyActiveGranulat = granulatMaterials.length > 0;
 
   const cimentProduitNom = cimentProduits.find((p: any) => p.id === cimentProduitId)?.nom || "";
   const cimentProducteurNom = getNameById(cimenteries, cimentProducteurId);
@@ -298,28 +300,37 @@ function EssaiStep({
   return (
     <div className="space-y-6">
       {/* Granulats */}
-      {granulatMaterials.length > 0 && (
+      {hasAnyActiveGranulat && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-6">
             <h2 className="text-lg font-bold text-foreground">Essais sur les Granulats</h2>
             {granulatMaterials.map((mat) => {
               const produitNom = mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "";
               const producteurNom = getNameById(carrieres, mat.producteurId);
-              const displayLabel = `${mat.label} (${produitNom}) — ${producteurNom}`;
+              const isComplete = mat.producteurId && mat.produitId;
+              const displayLabel = isComplete
+                ? `${mat.label} (${produitNom}) — ${producteurNom}`
+                : `${mat.label} — Non configuré`;
 
               return (
                 <div key={mat.label} className="space-y-3">
-                  <h3 className="text-sm font-semibold text-primary">{displayLabel}</h3>
+                  <h3 className={cn("text-sm font-semibold", isComplete ? "text-primary" : "text-muted-foreground")}>{displayLabel}</h3>
                   <Separator className="bg-border/50" />
-                  {GRANULAT_ESSAIS.map((essai) => (
-                    <GranulatEssaiRow
-                      key={essai.table}
-                      essaiNom={essai.nom}
-                      table={essai.table}
-                      carriereId={mat.producteurId}
-                      produitNom={produitNom}
-                    />
-                  ))}
+                  {!isComplete ? (
+                    <p className="text-xs text-muted-foreground italic p-3">
+                      Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
+                    </p>
+                  ) : (
+                    GRANULAT_ESSAIS.map((essai) => (
+                      <GranulatEssaiRow
+                        key={essai.table}
+                        essaiNom={essai.nom}
+                        table={essai.table}
+                        carriereId={mat.producteurId}
+                        produitNom={produitNom}
+                      />
+                    ))
+                  )}
                 </div>
               );
             })}
