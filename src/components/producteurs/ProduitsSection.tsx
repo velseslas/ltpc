@@ -37,7 +37,7 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
     }
   };
 
-  const handleEdit = (produit: { id: string; nom: string }) => {
+  const handleEdit = (produit: { id: string; nom: string; densite?: number | null }) => {
     setEditingProduit(produit);
     setDialogOpen(true);
   };
