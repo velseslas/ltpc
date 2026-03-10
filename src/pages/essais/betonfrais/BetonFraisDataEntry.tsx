@@ -41,6 +41,7 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
   const { data: echantillon, isLoading } = useEchantillonBetonFraisById(essaiType, id);
   const updateEchantillon = useUpdateEchantillonBetonFraisByType(essaiType);
   const [resultats, setResultats] = useState<Record<string, unknown>>({});
+  const [temperatureAmbiante, setTemperatureAmbiante] = useState("");
   const prefix = getPrefix(essaiType);
 
   useEffect(() => {
