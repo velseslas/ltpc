@@ -254,7 +254,7 @@ export default function CoefficientStep({
             <div className="space-y-1.5">
               <Label className="text-sm">Mode de serrage</Label>
               <Select value={serrage} onValueChange={(v) => setSerrage(v as SerrageType)}>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className={cn("bg-secondary border-border", showError && !serrage && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez un mode" />
                 </SelectTrigger>
                 <SelectContent>
