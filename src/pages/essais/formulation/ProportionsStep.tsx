@@ -691,6 +691,41 @@ export default function ProportionsStep({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Cross-step validation error dialog */}
+      <Dialog open={validationErrorOpen} onOpenChange={setValidationErrorOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Données manquantes
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-foreground">
+              Veuillez compléter les champs suivants avant de calculer les proportions :
+            </p>
+            {validationErrors.map((error) => (
+              <div key={error.step} className="space-y-1.5">
+                <p className="text-sm font-semibold text-foreground">
+                  Étape {error.step} — {error.label}
+                </p>
+                <ul className="space-y-1 ml-2">
+                  {error.fields.map((field) => (
+                    <li key={field} className="flex items-center gap-2 text-sm text-destructive">
+                      <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+                      {field}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setValidationErrorOpen(false)}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
