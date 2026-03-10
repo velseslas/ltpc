@@ -213,10 +213,33 @@ export default function FormulationBetonWizard() {
 
   // Step 2 - données de base
   const [resistance28j, setResistance28j] = useState("");
-  const [classeResistance, setClasseResistance] = useState("");
+  const [slumpSouhaite, setSlumpSouhaite] = useState("");
   const [classeExposition, setClasseExposition] = useState("");
-  const [classeRheologique, setClasseRheologique] = useState("");
   const [showAbaque, setShowAbaque] = useState(false);
+
+  // Auto-derived fields
+  const classeResistanceAuto = useMemo(() => {
+    const r = parseFloat(resistance28j);
+    if (isNaN(r) || r <= 0) return "";
+    if (r <= 20) return "C16/20";
+    if (r <= 25) return "C20/25";
+    if (r <= 30) return "C25/30";
+    if (r <= 37) return "C30/37";
+    if (r <= 45) return "C35/45";
+    if (r <= 50) return "C40/50";
+    if (r <= 55) return "C45/55";
+    return "C50/60";
+  }, [resistance28j]);
+
+  const classeRheologiqueAuto = useMemo(() => {
+    const s = parseFloat(slumpSouhaite);
+    if (isNaN(s) || s <= 0) return "";
+    if (s <= 40) return "S1";
+    if (s <= 90) return "S2";
+    if (s <= 150) return "S3";
+    if (s <= 210) return "S4";
+    return "S5";
+  }, [slumpSouhaite]);
 
   // Step 6 - calcul proportions (auto-calculated)
 
@@ -392,20 +415,44 @@ export default function FormulationBetonWizard() {
 
                 <div className="space-y-1.5">
                   <Label className="text-sm">Classe de résistance</Label>
-                  <Select value={classeResistance} onValueChange={setClasseResistance}>
-                    <SelectTrigger className="bg-secondary border-border">
-                      <SelectValue placeholder="Sélectionnez une classe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["C16/20", "C20/25", "C25/30", "C30/37", "C35/45", "C40/50", "C45/55", "C50/60"].map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={classeResistanceAuto}
+                    readOnly
+                    placeholder="—"
+                    className="bg-muted border-border cursor-default"
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Slump souhaité</Label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={slumpSouhaite}
+                      onChange={(e) => setSlumpSouhaite(e.target.value)}
+                      placeholder="0"
+                      className="bg-secondary border-border pr-14"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Classe rhéologique</Label>
+                  <Input
+                    value={classeRheologiqueAuto}
+                    readOnly
+                    placeholder="—"
+                    className="bg-muted border-border cursor-default"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                 <div className="space-y-1.5">
                   <Label className="text-sm">Classe d'exposition</Label>
                   <Select value={classeExposition} onValueChange={setClasseExposition}>
@@ -420,24 +467,10 @@ export default function FormulationBetonWizard() {
                   </Select>
                 </div>
 
-                <Button variant="outline" className="gap-2" type="button" onClick={() => setShowAbaque(true)}>
+                <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                   <BarChart3 className="w-4 h-4" />
                   Voir abaque
                 </Button>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm">Classe rhéologique</Label>
-                  <Select value={classeRheologique} onValueChange={setClasseRheologique}>
-                    <SelectTrigger className="bg-secondary border-border">
-                      <SelectValue placeholder="Sélectionnez une classe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["S1", "S2", "S3", "S4", "S5"].map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
               {/* Abaque Dialog */}
