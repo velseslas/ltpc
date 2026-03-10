@@ -1,6 +1,9 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 
 // Standard sieve openings (mm) for Dreux-Gorisse
@@ -23,6 +26,16 @@ interface ProportionsStepProps {
   coefficientGranulaire: string;
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
+  onQuantityChange?: (key: string, value: string) => void;
+}
+
+interface GranulatSlider {
+  key: string;
+  label: string;
+  active: boolean;
+  value: string;
+  color: string;
+  max: number;
 }
 
 export default function ProportionsStep({
@@ -42,9 +55,32 @@ export default function ProportionsStep({
   coefficientGranulaire,
   classeRheologique,
   granulatCurves,
+  onQuantityChange,
 }: ProportionsStepProps) {
-  const sables = (parseFloat(sableConcasseQte) || 0) + (parseFloat(sableFinQte) || 0);
-  const graviers = (parseFloat(gravillons1Qte) || 0) + (parseFloat(gravier2Qte) || 0) + (parseFloat(gravier3Qte) || 0);
+  // Local overrides for interactive adjustments
+  const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
+
+  const getVal = (key: string, original: string) => localOverrides[key] ?? original;
+
+  const handleSliderChange = (key: string, val: number) => {
+    const strVal = val.toString();
+    setLocalOverrides(prev => ({ ...prev, [key]: strVal }));
+    onQuantityChange?.(key, strVal);
+  };
+
+  const handleInputChange = (key: string, val: string) => {
+    setLocalOverrides(prev => ({ ...prev, [key]: val }));
+    onQuantityChange?.(key, val);
+  };
+
+  const sc = parseFloat(getVal("sableConcasse", sableConcasseQte)) || 0;
+  const sf = parseFloat(getVal("sableFin", sableFinQte)) || 0;
+  const g1 = parseFloat(getVal("gravillons1", gravillons1Qte)) || 0;
+  const g2 = parseFloat(getVal("gravier2", gravier2Qte)) || 0;
+  const g3 = parseFloat(getVal("gravier3", gravier3Qte)) || 0;
+
+  const sables = sc + sf;
+  const graviers = g1 + g2 + g3;
   const ciment = parseFloat(cimentQte) || 0;
   const eau = parseFloat(eauQte) || 0;
   const adjuvant = parseFloat(adjuvantQte) || 0;
@@ -53,73 +89,73 @@ export default function ProportionsStep({
   const ratioEC = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
 
   const components = [
-    { label: "Sable concassé", value: sableConcasseQte, unit: "kg", active: sable1Active },
-    { label: "Sable fin", value: sableFinQte, unit: "kg", active: sable2Active },
-    { label: "Gravillons 1", value: gravillons1Qte, unit: "kg", active: gravier1Active },
-    { label: "Gravier 2", value: gravier2Qte, unit: "kg", active: gravier2Active },
-    { label: "Gravier 3", value: gravier3Qte, unit: "kg", active: gravier3Active },
-    { label: "Ciment", value: cimentQte, unit: "kg", active: true },
-    { label: "Adjuvant", value: adjuvantQte, unit: "kg", active: true },
-    { label: "Eau", value: eauQte, unit: "L", active: true },
-  ].filter(({ value, active }) => active && value && parseFloat(value) > 0);
+    { label: "Sable concassé", value: sc, unit: "kg", active: sable1Active },
+    { label: "Sable fin", value: sf, unit: "kg", active: sable2Active },
+    { label: "Gravillons 3/8", value: g1, unit: "kg", active: gravier1Active },
+    { label: "Gravier 8/15", value: g2, unit: "kg", active: gravier2Active },
+    { label: "Gravier 15/25", value: g3, unit: "kg", active: gravier3Active },
+    { label: "Ciment", value: ciment, unit: "kg", active: true },
+    { label: "Adjuvant", value: adjuvant, unit: "kg", active: true },
+    { label: "Eau", value: eau, unit: "L", active: true },
+  ].filter(({ active, value }) => active && value > 0);
 
   const dMax = useMemo(() => {
-    if (gravier3Active && parseFloat(gravier3Qte) > 0) return 31.5;
-    if (gravier2Active && parseFloat(gravier2Qte) > 0) return 25;
-    if (gravier1Active && parseFloat(gravillons1Qte) > 0) return 16;
+    if (gravier3Active && g3 > 0) return 31.5;
+    if (gravier2Active && g2 > 0) return 25;
+    if (gravier1Active && g1 > 0) return 16;
     return 25;
-  }, [gravier1Active, gravier2Active, gravier3Active, gravillons1Qte, gravier2Qte, gravier3Qte]);
+  }, [gravier1Active, gravier2Active, gravier3Active, g1, g2, g3]);
 
-  // Generate demo granulometric curves for active materials if no real data
+  // Generate demo granulometric curves
   const demoMaterials = useMemo<MaterialCurve[]>(() => {
     if (granulatCurves && granulatCurves.length > 0) return granulatCurves;
 
     const materials: MaterialCurve[] = [];
 
-    if (sable1Active && parseFloat(sableConcasseQte) > 0) {
+    if (sable1Active && sc > 0) {
       materials.push({
         label: "Sable concassé",
-        quantity: parseFloat(sableConcasseQte),
+        quantity: sc,
         curve: TAMIS_OPENINGS.map((ouv) => ({
           ouverture: ouv,
           pourcentageTamisat: ouv >= 4 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(4 / 0.063)) * 100),
         })),
       });
     }
-    if (sable2Active && parseFloat(sableFinQte) > 0) {
+    if (sable2Active && sf > 0) {
       materials.push({
         label: "Sable fin",
-        quantity: parseFloat(sableFinQte),
+        quantity: sf,
         curve: TAMIS_OPENINGS.map((ouv) => ({
           ouverture: ouv,
           pourcentageTamisat: ouv >= 2 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(2 / 0.063)) * 100),
         })),
       });
     }
-    if (gravier1Active && parseFloat(gravillons1Qte) > 0) {
+    if (gravier1Active && g1 > 0) {
       materials.push({
         label: "Gravillons 3/8",
-        quantity: parseFloat(gravillons1Qte),
+        quantity: g1,
         curve: TAMIS_OPENINGS.map((ouv) => ({
           ouverture: ouv,
           pourcentageTamisat: ouv >= 10 ? 100 : ouv <= 2 ? 0 : Math.min(100, ((ouv - 2) / (10 - 2)) * 100),
         })),
       });
     }
-    if (gravier2Active && parseFloat(gravier2Qte) > 0) {
+    if (gravier2Active && g2 > 0) {
       materials.push({
         label: "Gravier 8/15",
-        quantity: parseFloat(gravier2Qte),
+        quantity: g2,
         curve: TAMIS_OPENINGS.map((ouv) => ({
           ouverture: ouv,
           pourcentageTamisat: ouv >= 20 ? 100 : ouv <= 6.3 ? 0 : Math.min(100, ((ouv - 6.3) / (20 - 6.3)) * 100),
         })),
       });
     }
-    if (gravier3Active && parseFloat(gravier3Qte) > 0) {
+    if (gravier3Active && g3 > 0) {
       materials.push({
         label: "Gravier 15/25",
-        quantity: parseFloat(gravier3Qte),
+        quantity: g3,
         curve: TAMIS_OPENINGS.map((ouv) => ({
           ouverture: ouv,
           pourcentageTamisat: ouv >= 31.5 ? 100 : ouv <= 12.5 ? 0 : Math.min(100, ((ouv - 12.5) / (31.5 - 12.5)) * 100),
@@ -128,7 +164,15 @@ export default function ProportionsStep({
     }
 
     return materials;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sableConcasseQte, sableFinQte, gravillons1Qte, gravier2Qte, gravier3Qte, granulatCurves]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves]);
+
+  const sliders: GranulatSlider[] = [
+    { key: "sableConcasse", label: "Sable concassé", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200 },
+    { key: "sableFin", label: "Sable fin", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800 },
+    { key: "gravillons1", label: "Gravillons 3/8", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200 },
+    { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200 },
+    { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200 },
+  ].filter(s => s.active);
 
   return (
     <div className="space-y-6">
@@ -157,6 +201,48 @@ export default function ProportionsStep({
         </Card>
       </div>
 
+      {/* Interactive Granulat Sliders */}
+      <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <CardContent className="p-6 space-y-4">
+          <h2 className="text-lg font-bold text-foreground">
+            Ajustement interactif des proportions
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Modifiez les quantités pour recalculer automatiquement la courbe de mélange
+          </p>
+          <div className="space-y-4 pt-2">
+            {sliders.map((s) => (
+              <div key={s.key} className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
+                    {s.label}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={s.value}
+                      onChange={(e) => handleInputChange(s.key, e.target.value)}
+                      className="w-20 h-8 text-right text-sm"
+                      min={0}
+                      max={s.max}
+                    />
+                    <span className="text-xs text-muted-foreground w-8">kg</span>
+                  </div>
+                </div>
+                <Slider
+                  value={[parseFloat(s.value) || 0]}
+                  onValueChange={([val]) => handleSliderChange(s.key, val)}
+                  max={s.max}
+                  step={5}
+                  className="w-full"
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Dreux-Gorisse Chart */}
       <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 space-y-4">
@@ -165,7 +251,7 @@ export default function ProportionsStep({
               Graphique granulométrique – Méthode Dreux-Gorisse (Dmax {dMax} mm)
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Fuseau granulaire, courbe de référence brisée et courbe de mélange
+              Fuseau granulométrique, courbe de référence brisée, Point A et courbe de mélange
             </p>
           </div>
 
@@ -188,7 +274,7 @@ export default function ProportionsStep({
             {components.map(({ label, value, unit }) => (
               <div key={label} className="flex justify-between items-center py-2.5 border-b border-border/30">
                 <span className="text-sm text-muted-foreground">{label}</span>
-                <span className="font-semibold text-foreground">{parseFloat(value).toFixed(1)} {unit}</span>
+                <span className="font-semibold text-foreground">{value.toFixed(1)} {unit}</span>
               </div>
             ))}
 

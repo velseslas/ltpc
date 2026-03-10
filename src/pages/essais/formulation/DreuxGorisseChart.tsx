@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
   ReferenceLine,
+  ReferenceDot,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
@@ -21,16 +22,18 @@ function logPos(mm: number) {
   return Math.log10(mm);
 }
 
-// Dreux-Gorisse reference curve (broken line method)
+// Dreux-Gorisse reference curve (broken line through Point A)
 function computeReferenceCurve(dMax: number, classeConsistance: string) {
   const dMin = 0.063;
   const kMap: Record<string, number> = {
-    S1: 6, S2: 4, S3: 0, "S4": -4, "S5": -6,
+    S1: 6, S2: 4, S3: 0, S4: -4, S5: -6,
   };
   const classeKey = classeConsistance?.split(" ")[0] || "S3";
   const K = kMap[classeKey] ?? 0;
-  const yBreak = 50 - Math.sqrt(dMax) + K;
-  const xBreak = dMax / 2;
+
+  // Point A coordinates (Dreux method)
+  const xA = dMax / 2;
+  const yA = 50 - Math.sqrt(dMax) + K;
 
   const points: { ouverture: number; pourcentage: number }[] = [];
 
@@ -39,29 +42,42 @@ function computeReferenceCurve(dMax: number, classeConsistance: string) {
     if (ouv > dMax * 1.01) break;
 
     let y: number;
-    if (ouv <= xBreak) {
-      const t = (logPos(ouv) - logPos(dMin)) / (logPos(xBreak) - logPos(dMin));
-      y = t * yBreak;
+    if (ouv <= xA) {
+      // Segment from origin (dMin, 0) to Point A (xA, yA) - log interpolation
+      const t = (logPos(ouv) - logPos(dMin)) / (logPos(xA) - logPos(dMin));
+      y = t * yA;
     } else {
-      const t = (logPos(ouv) - logPos(xBreak)) / (logPos(dMax) - logPos(xBreak));
-      y = yBreak + t * (100 - yBreak);
+      // Segment from Point A (xA, yA) to (dMax, 100) - log interpolation
+      const t = (logPos(ouv) - logPos(xA)) / (logPos(dMax) - logPos(xA));
+      y = yA + t * (100 - yA);
     }
     points.push({ ouverture: ouv, pourcentage: Math.max(0, Math.min(100, y)) });
   }
 
-  return { points, yBreak, xBreak };
+  return { points, yA, xA };
 }
 
-// Envelope curves: reference ± offset, clamped 0-100
+// Envelope: 5% lower limit and 95% upper limit curves
 function computeEnvelope(
   refPoints: { ouverture: number; pourcentage: number }[],
-  offset: number
+  dMax: number
 ) {
-  return refPoints.map((p) => ({
-    ouverture: p.ouverture,
-    upper: Math.min(100, p.pourcentage + offset),
-    lower: Math.max(0, p.pourcentage - offset),
-  }));
+  if (refPoints.length === 0) return [];
+  const dMin = 0.063;
+
+  return refPoints.map((p) => {
+    // Progressive offset: larger in the middle, smaller at extremes
+    const logRange = logPos(dMax) - logPos(dMin);
+    const logRel = (logPos(p.ouverture) - logPos(dMin)) / logRange;
+    // Bell-shaped offset peaking at center
+    const offset = 15 * Math.sin(logRel * Math.PI);
+    
+    return {
+      ouverture: p.ouverture,
+      upper: Math.min(95, p.pourcentage + offset),
+      lower: Math.max(5, p.pourcentage - offset),
+    };
+  });
 }
 
 // Module de finesse from sand curve (sum of % retained at 0.125, 0.25, 0.5, 1, 2, 4 / 100)
@@ -146,12 +162,12 @@ export default function DreuxGorisseChart({
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
   const pctGravier = totalAggregats > 0 ? ((graviers / totalAggregats) * 100).toFixed(1) : "-";
 
-  const { points: referenceCurve, yBreak } = useMemo(
+  const { points: referenceCurve, yA, xA } = useMemo(
     () => computeReferenceCurve(dMax, classeRheologique),
     [dMax, classeRheologique]
   );
 
-  const envelope = useMemo(() => computeEnvelope(referenceCurve, 15), [referenceCurve]);
+  const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
 
   const mixCurve = useMemo(() => computeMixCurve(materials), [materials]);
 
@@ -160,7 +176,7 @@ export default function DreuxGorisseChart({
     [materials]
   );
 
-  // Check conformity: mix curve within envelope
+  // Check conformity: mix curve within envelope (5%-95%)
   const isConforme = useMemo(() => {
     if (mixCurve.length === 0) return null;
     for (const mp of mixCurve) {
@@ -176,13 +192,13 @@ export default function DreuxGorisseChart({
   // Build chart data
   const chartData = useMemo(() => {
     return TAMIS_OPENINGS.map((ouv) => {
-      const point: Record<string, number | string> = { ouverture: ouv };
+      const point: Record<string, number | string | number[]> = { ouverture: ouv };
 
       // Envelope
       const env = envelope.find((e) => Math.abs(e.ouverture - ouv) < 0.001);
-      point["Limite supérieure"] = env ? env.upper : 100;
-      point["Limite inférieure"] = env ? env.lower : 0;
-      point["_envelopeRange"] = env ? [env.lower, env.upper] as any : [0, 100] as any;
+      point["Limite 95 %"] = env ? env.upper : 95;
+      point["Limite 5 %"] = env ? env.lower : 5;
+      point["_envelopeRange"] = env ? [env.lower, env.upper] : [5, 95];
 
       // Reference
       const ref = referenceCurve.find((r) => Math.abs(r.ouverture - ouv) < 0.001);
@@ -214,7 +230,7 @@ export default function DreuxGorisseChart({
           <p className="text-lg font-bold text-foreground">{dMax} mm</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Module finesse</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Module de finesse</p>
           <p className="text-lg font-bold text-foreground">{moduleFinesse ?? "-"}</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-3 text-center">
@@ -229,9 +245,9 @@ export default function DreuxGorisseChart({
 
       {/* Chart */}
       {hasMaterials ? (
-        <div className="h-[450px] w-full">
+        <div className="h-[500px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 50 }}>
+            <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-20" />
               <XAxis
                 dataKey="ouverture"
@@ -242,7 +258,7 @@ export default function DreuxGorisseChart({
                 label={{
                   value: "Ouverture des tamis (mm)",
                   position: "bottom",
-                  offset: 5,
+                  offset: 0,
                   className: "text-xs fill-muted-foreground",
                 }}
                 tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
@@ -272,19 +288,19 @@ export default function DreuxGorisseChart({
                 }}
               />
               <Legend
-                wrapperStyle={{ fontSize: "9px", paddingTop: "20px", lineHeight: "20px" }}
+                wrapperStyle={{ fontSize: "9px", paddingTop: "10px", lineHeight: "18px" }}
                 layout="horizontal"
                 align="center"
                 verticalAlign="bottom"
                 iconSize={8}
                 iconType="plainline"
                 formatter={(value: string) => {
-                  if (value === "_envelopeRange" || value === "Limite supérieure" || value === "Limite inférieure") return null;
-                  return <span style={{ marginRight: 12, whiteSpace: "nowrap" }}>{value}</span>;
+                  if (value === "_envelopeRange") return null;
+                  return <span style={{ marginRight: 10, whiteSpace: "nowrap" }}>{value}</span>;
                 }}
               />
 
-              {/* Fuseau granulaire - shaded area between lower and upper */}
+              {/* Fuseau granulaire - shaded area */}
               <Area
                 type="linear"
                 dataKey="_envelopeRange"
@@ -296,28 +312,28 @@ export default function DreuxGorisseChart({
                 connectNulls
               />
 
-              {/* Upper envelope line */}
+              {/* Upper envelope line - Limite 95% */}
               <Line
                 type="linear"
-                dataKey="Limite supérieure"
-                stroke="hsl(var(--muted-foreground))"
-                strokeWidth={1}
-                strokeDasharray="4 3"
+                dataKey="Limite 95 %"
+                stroke="#22c55e"
+                strokeWidth={1.5}
+                strokeDasharray="6 3"
                 dot={false}
                 connectNulls
-                legendType="none"
+                name="Limite 95 %"
               />
 
-              {/* Lower envelope line */}
+              {/* Lower envelope line - Limite 5% */}
               <Line
                 type="linear"
-                dataKey="Limite inférieure"
-                stroke="hsl(var(--muted-foreground))"
-                strokeWidth={1}
-                strokeDasharray="4 3"
+                dataKey="Limite 5 %"
+                stroke="#f97316"
+                strokeWidth={1.5}
+                strokeDasharray="6 3"
                 dot={false}
                 connectNulls
-                legendType="none"
+                name="Limite 5 %"
               />
 
               {/* Vertical reference lines */}
@@ -327,22 +343,41 @@ export default function DreuxGorisseChart({
                 strokeWidth={1.5}
                 strokeDasharray="6 3"
                 label={{
-                  value: `Dmax = ${dMax}`,
+                  value: `Dmax = ${dMax} mm`,
                   position: "top",
                   fill: "hsl(var(--destructive))",
                   fontSize: 10,
+                  fontWeight: 600,
                 }}
               />
               <ReferenceLine
                 x={dMaxHalf}
-                stroke="hsl(var(--accent-foreground))"
+                stroke="#a855f7"
                 strokeWidth={1.5}
                 strokeDasharray="6 3"
                 label={{
-                  value: `D/2 = ${dMaxHalf}`,
+                  value: `D/2 = ${dMaxHalf} mm (Limite sable / gravier)`,
                   position: "top",
-                  fill: "hsl(var(--accent-foreground))",
+                  fill: "#a855f7",
+                  fontSize: 9,
+                  fontWeight: 600,
+                }}
+              />
+
+              {/* Point A de Dreux */}
+              <ReferenceDot
+                x={xA}
+                y={yA}
+                r={6}
+                fill="#ef4444"
+                stroke="#fff"
+                strokeWidth={2}
+                label={{
+                  value: `A (${xA}, ${yA.toFixed(1)}%)`,
+                  position: "right",
+                  fill: "#ef4444",
                   fontSize: 10,
+                  fontWeight: 700,
                 }}
               />
 
@@ -368,7 +403,8 @@ export default function DreuxGorisseChart({
                   strokeWidth={1.5}
                   dot={{ r: 2, fill: MATERIAL_COLORS[i % MATERIAL_COLORS.length] }}
                   connectNulls
-                  opacity={0.8}
+                  opacity={0.85}
+                  name={mat.label}
                 />
               ))}
 
@@ -380,6 +416,7 @@ export default function DreuxGorisseChart({
                 strokeWidth={3}
                 dot={{ r: 3, fill: "hsl(var(--primary))" }}
                 connectNulls
+                name="Courbe de mélange"
               />
             </ComposedChart>
           </ResponsiveContainer>
@@ -390,11 +427,11 @@ export default function DreuxGorisseChart({
         </div>
       )}
 
-      {/* Fuseau legend note */}
+      {/* Fuseau legend */}
       {hasMaterials && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="inline-block w-6 h-3 rounded-sm" style={{ backgroundColor: "hsl(var(--primary))", opacity: 0.15 }} />
-          Fuseau granulaire (±15% autour de la référence)
+          Fuseau granulométrique Dreux-Gorisse (entre limites 5 % et 95 %)
         </div>
       )}
 
