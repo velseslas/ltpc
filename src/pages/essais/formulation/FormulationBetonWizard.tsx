@@ -19,6 +19,7 @@ import {
 import { BackButton } from "@/components/ui/back-button";
 import { Separator } from "@/components/ui/separator";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import ProportionsStep from "./ProportionsStep";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
