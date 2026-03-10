@@ -341,46 +341,34 @@ function EssaiStep({
       {/* Ciment */}
       {cimentActive && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardContent className="p-6 space-y-5">
+         <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
-            <h3 className="text-sm font-semibold text-primary">
-              Ciment ({cimentProduitNom}) — {cimentProducteurNom}
-            </h3>
-            <Separator className="bg-border/50" />
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                <FileText className="w-4 h-4" />
-                <span>0/0</span>
-              </div>
-              <Select>
-                <SelectTrigger className="bg-secondary border-border flex-1">
-                  <SelectValue placeholder="Résistance du Ciment" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-                Voir rapport
-              </Button>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                <FileText className="w-4 h-4" />
-                <span>0/0</span>
-              </div>
-              <Select>
-                <SelectTrigger className="bg-secondary border-border flex-1">
-                  <SelectValue placeholder="Temps de Prise" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-                Voir rapport
-              </Button>
-            </div>
+            {cimentProducteurId && cimentProduitId ? (
+              <>
+                <h3 className="text-sm font-semibold text-primary">
+                  Ciment ({cimentProduitNom}) — {cimentProducteurNom}
+                </h3>
+                <Separator className="bg-border/50" />
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                    <FileText className="w-4 h-4" /><span>0/0</span>
+                  </div>
+                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Résistance du Ciment" /></SelectTrigger>
+                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                    <FileText className="w-4 h-4" /><span>0/0</span>
+                  </div>
+                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
+                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground italic p-3">Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
+            )}
           </CardContent>
         </Card>
       )}
