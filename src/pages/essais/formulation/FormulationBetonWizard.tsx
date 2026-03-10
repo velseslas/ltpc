@@ -363,12 +363,10 @@ function EssaiStep({
                   <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">Voir rapport</Button>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                    <FileText className="w-4 h-4" /><span>0/0</span>
-                  </div>
+                  <span className="text-xs text-muted-foreground min-w-[30px]">0/0</span>
                   <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
                     <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">Voir rapport</Button>
                 </div>
               </>
             ) : (
