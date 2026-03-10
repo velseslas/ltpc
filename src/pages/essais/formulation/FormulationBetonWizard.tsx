@@ -594,7 +594,7 @@ export default function FormulationBetonWizard() {
         </h1>
       </div>
 
-      <Stepper currentStep={currentStep} />
+      <Stepper currentStep={currentStep} onStepClick={(step) => setCurrentStep(step)} />
 
       {renderStep()}
 
