@@ -332,16 +332,100 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
               Rapport {selectedSample ? `${prefix}-${String(selectedSample.numero).padStart(3, "0")}` : ""} — {essaiTitle}
             </DialogTitle>
           </DialogHeader>
-          {selectedRapport && (
-            <iframe
-              src={`${basePath}/${selectedRapport}/rapport`}
-              className="w-full border-0 rounded-lg"
-              style={{ height: "75vh" }}
-              title="Rapport d'essai"
-            />
+          {selectedRapport && showRapport && (
+            <RapportPopupContent essaiType={essaiType} sampleId={selectedRapport} essaiTitle={essaiTitle} />
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+const reportContentMap: Record<string, React.ComponentType<{ resultats: Record<string, unknown> }>> = {
+  "equivalent-sable": EquivalentSableReportContent,
+  "bleu-methylene": BleuMethyleneReportContent,
+  "matiere-organique": MatiereOrganiqueReportContent,
+  "granulometrie": GranulometrieReportContent,
+  "masse-volumique": MasseVolumiqueReportContent,
+  "forme-granulats": FormeGranulatsReportContent,
+  "teneur-eau": TeneurEauReportContent,
+  "los-angeles": LosAngelesReportContent,
+  "micro-deval": MicroDevalReportContent,
+  "ecrasement": EcrasementReportContent,
+  "friabilite": FriabiliteReportContent,
+};
+
+function RapportPopupContent({ essaiType, sampleId, essaiTitle }: { essaiType: string; sampleId: string; essaiTitle: string }) {
+  const { data: echantillon, isLoading } = useEchantillonGranulatById(essaiType, sampleId);
+  const { data: entreprise } = useEntreprise();
+  const prefix = getGranulatPrefix(essaiType);
+  const ReportContent = reportContentMap[essaiType];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!echantillon) {
+    return <p className="text-center text-muted-foreground py-8">Échantillon non trouvé</p>;
+  }
+
+  const resultats = (echantillon.resultats as Record<string, unknown>) || {};
+
+  return (
+    <div className="bg-white text-black p-6 rounded-lg" style={{ fontFamily: "Arial, sans-serif" }}>
+      <ReportHeader
+        entreprise={entreprise}
+        verificationUrl=""
+        title={`RAPPORT D'ESSAI - ${essaiTitle.toUpperCase()}`}
+        subtitle=""
+      />
+
+      <div className="mb-6">
+        <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
+        <table className="w-full border-collapse border border-black text-sm">
+          <tbody>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
+              <td className="border border-black px-3 py-1.5 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+            </tr>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium text-black">Carrière / Fournisseur</td>
+              <td className="border border-black px-3 py-1.5 text-black">{echantillon.carrieres?.nom || "-"}</td>
+            </tr>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium text-black">Produit</td>
+              <td className="border border-black px-3 py-1.5 text-black">{echantillon.produit}</td>
+            </tr>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception</td>
+              <td className="border border-black px-3 py-1.5 text-black">
+                {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {ReportContent && <ReportContent resultats={resultats} />}
+
+      <div className="mt-6 pt-4 border-t border-gray-300">
+        <div className="flex justify-between items-end">
+          <div className="text-sm text-gray-600">
+            <p>Opérateur: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
+          </div>
+          <div className="text-center">
+            {entreprise?.cachet_url ? (
+              <img src={entreprise.cachet_url} alt="Cachet" className="max-h-16 object-contain" />
+            ) : (
+              <p className="text-sm font-medium">Signature et cachet</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
