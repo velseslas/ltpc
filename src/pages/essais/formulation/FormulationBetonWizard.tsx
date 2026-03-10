@@ -233,12 +233,12 @@ export default function FormulationBetonWizard() {
 
   const classeRheologiqueAuto = useMemo(() => {
     const s = parseFloat(slumpSouhaite);
-    if (isNaN(s) || s <= 0) return "";
-    if (s <= 40) return "S1";
-    if (s <= 90) return "S2";
-    if (s <= 150) return "S3";
-    if (s <= 210) return "S4";
-    return "S5";
+    if (isNaN(s) || s < 10) return "";
+    if (s <= 40) return "S1 (10-40 mm)";
+    if (s <= 90) return "S2 (50-90 mm)";
+    if (s <= 150) return "S3 (100-150 mm)";
+    if (s <= 210) return "S4 (160-210 mm)";
+    return "S5 (≥ 220 mm)";
   }, [slumpSouhaite]);
 
   // Step 6 - calcul proportions (auto-calculated)
@@ -455,16 +455,12 @@ export default function FormulationBetonWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                 <div className="space-y-1.5">
                   <Label className="text-sm">Classe d'exposition</Label>
-                  <Select value={classeExposition} onValueChange={setClasseExposition}>
-                    <SelectTrigger className="bg-secondary border-border">
-                      <SelectValue placeholder="Sélectionnez une classe..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["X0", "XC1", "XC2", "XC3", "XC4", "XD1", "XD2", "XD3", "XS1", "XS2", "XS3", "XF1", "XF2", "XF3", "XF4", "XA1", "XA2", "XA3"].map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={classeExposition}
+                    readOnly
+                    placeholder="Sélectionnez depuis l'abaque"
+                    className="bg-muted border-border cursor-default"
+                  />
                 </div>
 
                 <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
@@ -475,12 +471,12 @@ export default function FormulationBetonWizard() {
 
               {/* Abaque Dialog */}
               <Dialog open={showAbaque} onOpenChange={setShowAbaque}>
-                <DialogContent className="max-w-4xl max-h-[85vh] overflow-auto">
+                <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] overflow-auto">
                   <DialogHeader>
-                    <DialogTitle>Abaque des classes d'exposition — EN 206</DialogTitle>
+                    <DialogTitle className="text-lg">Abaque des classes d'exposition — EN 206</DialogTitle>
                   </DialogHeader>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs border-collapse">
+                    <table className="w-full text-sm border-collapse">
                       <thead>
                         <tr className="bg-muted">
                           <th className="border border-border p-2 text-left">Classe</th>
