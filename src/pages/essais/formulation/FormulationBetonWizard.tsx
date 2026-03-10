@@ -455,16 +455,12 @@ export default function FormulationBetonWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                 <div className="space-y-1.5">
                   <Label className="text-sm">Classe d'exposition</Label>
-                  <Select value={classeExposition} onValueChange={setClasseExposition}>
-                    <SelectTrigger className="bg-secondary border-border">
-                      <SelectValue placeholder="Sélectionnez une classe..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["X0", "XC1", "XC2", "XC3", "XC4", "XD1", "XD2", "XD3", "XS1", "XS2", "XS3", "XF1", "XF2", "XF3", "XF4", "XA1", "XA2", "XA3"].map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={classeExposition}
+                    readOnly
+                    placeholder="Sélectionnez depuis l'abaque"
+                    className="bg-muted border-border cursor-default"
+                  />
                 </div>
 
                 <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
