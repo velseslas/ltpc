@@ -189,16 +189,16 @@ function getNameById(list: { id: string; nom: string }[], id: string) {
 
 // Granulat test types
 const GRANULAT_ESSAIS = [
-  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, filter: "all" as const },
-  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, filter: "sable" as const },
-  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, filter: "sable" as const },
-  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, filter: "sable" as const },
-  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const },
-  { nom: "Los Angeles", table: "echantillons_los_angeles" as const, filter: "gravier" as const },
-  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const },
-  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const },
-  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const },
-  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "sable" as const },
+  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, filter: "all" as const, essaiType: "granulometrie", basePath: "/essais/granulat/physiques/granulometrie" },
+  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, filter: "sable" as const, essaiType: "equivalent-sable", basePath: "/essais/granulat/proprete/equivalent-sable" },
+  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, filter: "sable" as const, essaiType: "bleu-methylene", basePath: "/essais/granulat/proprete/bleu-methylene" },
+  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, filter: "sable" as const, essaiType: "matiere-organique", basePath: "/essais/granulat/proprete/matiere-organique" },
+  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const, essaiType: "masse-volumique", basePath: "/essais/granulat/physiques/masse-volumique" },
+  { nom: "Los Angeles", table: "echantillons_los_angeles" as const, filter: "gravier" as const, essaiType: "los-angeles", basePath: "/essais/granulat/mecaniques/los-angeles" },
+  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const, essaiType: "micro-deval", basePath: "/essais/granulat/mecaniques/micro-deval" },
+  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const, essaiType: "forme-granulats", basePath: "/essais/granulat/physiques/forme-granulats" },
+  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const, essaiType: "ecrasement", basePath: "/essais/granulat/mecaniques/ecrasement" },
+  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "sable" as const, essaiType: "friabilite", basePath: "/essais/granulat/mecaniques/friabilite" },
 ];
 
 type GranulatTable = typeof GRANULAT_ESSAIS[number]["table"];
