@@ -452,7 +452,7 @@ export default function FormulationBetonWizard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                 <div className="space-y-1.5">
                   <Label className="text-sm">Classe d'exposition</Label>
                   <Select value={classeExposition} onValueChange={setClasseExposition}>
@@ -467,24 +467,10 @@ export default function FormulationBetonWizard() {
                   </Select>
                 </div>
 
-                <Button variant="outline" className="gap-2" type="button" onClick={() => setShowAbaque(true)}>
+                <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                   <BarChart3 className="w-4 h-4" />
                   Voir abaque
                 </Button>
-
-                <div className="space-y-1.5">
-                  <Label className="text-sm">Classe rhéologique</Label>
-                  <Select value={classeRheologique} onValueChange={setClasseRheologique}>
-                    <SelectTrigger className="bg-secondary border-border">
-                      <SelectValue placeholder="Sélectionnez une classe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["S1", "S2", "S3", "S4", "S5"].map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
               {/* Abaque Dialog */}
