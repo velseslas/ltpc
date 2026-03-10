@@ -34,10 +34,11 @@ const Auth = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("utilisateurs")
         .select("id, nom, email, role, statut")
         .order("nom");
+      console.log("Fetched utilisateurs:", data, "error:", error);
       if (data) setUtilisateurs(data as UtilisateurRow[]);
     };
     fetchUsers();
