@@ -549,6 +549,7 @@ export default function FormulationBetonWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <IngredientCard
                   label="Sable 1"
+                  producteurLabel="Carrière"
                   active={sable1Active}
                   onToggle={setSable1Active}
                   producteurType="carriere"
@@ -560,6 +561,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Sable 2"
+                  producteurLabel="Carrière"
                   active={sable2Active}
                   onToggle={setSable2Active}
                   producteurType="carriere"
@@ -571,6 +573,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Gravier 1"
+                  producteurLabel="Carrière"
                   active={gravier1Active}
                   onToggle={setGravier1Active}
                   producteurType="carriere"
@@ -582,6 +585,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Gravier 2"
+                  producteurLabel="Carrière"
                   active={gravier2Active}
                   onToggle={setGravier2Active}
                   producteurType="carriere"
@@ -593,6 +597,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Gravier 3"
+                  producteurLabel="Carrière"
                   active={gravier3Active}
                   onToggle={setGravier3Active}
                   producteurType="carriere"
@@ -604,6 +609,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Ciment"
+                  producteurLabel="Cimenterie"
                   active={cimentActive}
                   onToggle={setCimentActive}
                   producteurType="cimenterie"
@@ -626,6 +632,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Eau"
+                  producteurLabel="Source d'eau"
                   active={eauActive}
                   onToggle={setEauActive}
                   producteurType="source_eau"
