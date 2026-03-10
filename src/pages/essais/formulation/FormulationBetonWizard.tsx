@@ -213,10 +213,33 @@ export default function FormulationBetonWizard() {
 
   // Step 2 - données de base
   const [resistance28j, setResistance28j] = useState("");
-  const [classeResistance, setClasseResistance] = useState("");
+  const [slumpSouhaite, setSlumpSouhaite] = useState("");
   const [classeExposition, setClasseExposition] = useState("");
-  const [classeRheologique, setClasseRheologique] = useState("");
   const [showAbaque, setShowAbaque] = useState(false);
+
+  // Auto-derived fields
+  const classeResistanceAuto = useMemo(() => {
+    const r = parseFloat(resistance28j);
+    if (isNaN(r) || r <= 0) return "";
+    if (r <= 20) return "C16/20";
+    if (r <= 25) return "C20/25";
+    if (r <= 30) return "C25/30";
+    if (r <= 37) return "C30/37";
+    if (r <= 45) return "C35/45";
+    if (r <= 50) return "C40/50";
+    if (r <= 55) return "C45/55";
+    return "C50/60";
+  }, [resistance28j]);
+
+  const classeRheologiqueAuto = useMemo(() => {
+    const s = parseFloat(slumpSouhaite);
+    if (isNaN(s) || s <= 0) return "";
+    if (s <= 40) return "S1";
+    if (s <= 90) return "S2";
+    if (s <= 150) return "S3";
+    if (s <= 210) return "S4";
+    return "S5";
+  }, [slumpSouhaite]);
 
   // Step 6 - calcul proportions (auto-calculated)
 
