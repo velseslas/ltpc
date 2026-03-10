@@ -264,14 +264,14 @@ export default function GranulometrieForm({ resultats, onChange }: Granulometrie
                     />
                   </td>
                   <td className="py-2 px-2 text-center text-muted-foreground">
-                    {tamis.refusCumule.toFixed(2)}
+                    {(tamis.refusCumule ?? 0).toFixed(2)}
                   </td>
                   <td className="py-2 px-2 text-center text-muted-foreground">
-                    {tamis.pourcentageRefusCumule.toFixed(2)}
+                    {(tamis.pourcentageRefusCumule ?? 0).toFixed(2)}
                   </td>
                   <td className="py-2 px-2 text-center">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium">
-                      {tamis.passant.toFixed(2)}
+                      {(tamis.passant ?? 100).toFixed(2)}
                     </span>
                   </td>
                 </tr>
