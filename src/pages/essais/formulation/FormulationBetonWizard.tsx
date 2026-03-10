@@ -149,10 +149,10 @@ function IngredientCard({
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Producteur</Label>
+        <Label className="text-xs text-muted-foreground">{producteurLabel}</Label>
         <Select value={selectedProducteurId} onValueChange={onProducteurChange} disabled={!active}>
           <SelectTrigger className="bg-secondary border-border">
-            <SelectValue placeholder={active ? "Choisir un producteur" : "Composant inactif"} />
+            <SelectValue placeholder={active ? `Choisir ${producteurLabel.toLowerCase()}` : "Composant inactif"} />
           </SelectTrigger>
           <SelectContent>
             {producteurs.map((p) => (
