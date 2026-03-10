@@ -143,6 +143,7 @@ export default function ProportionsStep({
   const [calcRatioGS, setCalcRatioGS] = useState("");
   const [calcAirOcclus, setCalcAirOcclus] = useState("");
   const [hasCalculated, setHasCalculated] = useState(false);
+  const [hasValidated, setHasValidated] = useState(false);
   const [missingReportsOpen, setMissingReportsOpen] = useState(false);
   const [missingReports, setMissingReports] = useState<string[]>([]);
   const [validationErrorOpen, setValidationErrorOpen] = useState(false);
