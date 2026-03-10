@@ -1,10 +1,19 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calculator, Sparkles } from "lucide-react";
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
+import {
+  calculateMixDesign,
+  optimizeMix,
+  type GranulatInput,
+  type CalculationInputs,
+} from "./dreuxGorisseCalculation";
 
 // Standard sieve openings (mm) for Dreux-Gorisse
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
@@ -24,8 +33,10 @@ interface ProportionsStepProps {
   gravier2Active: boolean;
   gravier3Active: boolean;
   coefficientGranulaire: string;
+  coefficientCompacite: string;
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
+  granulatDensites?: Record<string, number>;
   onQuantityChange?: (key: string, value: string) => void;
 }
 
@@ -36,6 +47,40 @@ interface GranulatSlider {
   value: string;
   color: string;
   max: number;
+  isSable: boolean;
+}
+
+// Demo granulometric curves generator
+function generateDemoCurve(type: string): { ouverture: number; pourcentageTamisat: number }[] {
+  switch (type) {
+    case "sable1":
+      return TAMIS_OPENINGS.map(ouv => ({
+        ouverture: ouv,
+        pourcentageTamisat: ouv >= 4 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(4 / 0.063)) * 100),
+      }));
+    case "sable2":
+      return TAMIS_OPENINGS.map(ouv => ({
+        ouverture: ouv,
+        pourcentageTamisat: ouv >= 2 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(2 / 0.063)) * 100),
+      }));
+    case "gravier1":
+      return TAMIS_OPENINGS.map(ouv => ({
+        ouverture: ouv,
+        pourcentageTamisat: ouv >= 10 ? 100 : ouv <= 2 ? 0 : Math.min(100, ((ouv - 2) / (10 - 2)) * 100),
+      }));
+    case "gravier2":
+      return TAMIS_OPENINGS.map(ouv => ({
+        ouverture: ouv,
+        pourcentageTamisat: ouv >= 20 ? 100 : ouv <= 6.3 ? 0 : Math.min(100, ((ouv - 6.3) / (20 - 6.3)) * 100),
+      }));
+    case "gravier3":
+      return TAMIS_OPENINGS.map(ouv => ({
+        ouverture: ouv,
+        pourcentageTamisat: ouv >= 31.5 ? 100 : ouv <= 12.5 ? 0 : Math.min(100, ((ouv - 12.5) / (31.5 - 12.5)) * 100),
+      }));
+    default:
+      return [];
+  }
 }
 
 export default function ProportionsStep({
@@ -53,12 +98,29 @@ export default function ProportionsStep({
   gravier2Active,
   gravier3Active,
   coefficientGranulaire,
+  coefficientCompacite,
   classeRheologique,
   granulatCurves,
+  granulatDensites = {},
   onQuantityChange,
 }: ProportionsStepProps) {
   // Local overrides for interactive adjustments
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
+
+  // Calculation input parameters
+  const [calcEau, setCalcEau] = useState(eauQte || "175");
+  const [calcCiment, setCalcCiment] = useState(cimentQte || "350");
+  const [calcRatioGS, setCalcRatioGS] = useState("1.8");
+  const [calcAirOcclus, setCalcAirOcclus] = useState("2");
+  const [hasCalculated, setHasCalculated] = useState(false);
+
+  // Sync from parent
+  useEffect(() => {
+    if (eauQte && !hasCalculated) setCalcEau(eauQte);
+  }, [eauQte, hasCalculated]);
+  useEffect(() => {
+    if (cimentQte && !hasCalculated) setCalcCiment(cimentQte);
+  }, [cimentQte, hasCalculated]);
 
   const getVal = (key: string, original: string) => localOverrides[key] ?? original;
 
@@ -88,16 +150,98 @@ export default function ProportionsStep({
   const ratioGS = sables > 0 ? (graviers / sables).toFixed(2) : "-";
   const ratioEC = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
 
+  // Build granulat inputs for calculation engine
+  const granulatInputs = useMemo<GranulatInput[]>(() => {
+    const items: { key: string; label: string; active: boolean; isSable: boolean; curveType: string }[] = [
+      { key: "sableConcasse", label: "Sable 0/4", active: sable1Active, isSable: true, curveType: "sable1" },
+      { key: "sableFin", label: "Sable 0/1", active: sable2Active, isSable: true, curveType: "sable2" },
+      { key: "gravillons1", label: "Gravillon 3/8", active: gravier1Active, isSable: false, curveType: "gravier1" },
+      { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, isSable: false, curveType: "gravier2" },
+      { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, isSable: false, curveType: "gravier3" },
+    ];
+    return items.map(item => ({
+      key: item.key,
+      label: item.label,
+      active: item.active,
+      isSable: item.isSable,
+      densite: granulatDensites[item.key] || 2650,
+      curve: generateDemoCurve(item.curveType),
+    }));
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites]);
+
+  const handleCalculate = useCallback(() => {
+    const eauVal = parseFloat(calcEau) || 0;
+    const cimentVal = parseFloat(calcCiment) || 0;
+    const gsVal = parseFloat(calcRatioGS) || 1.8;
+    const airVal = parseFloat(calcAirOcclus) || 2;
+    const compacite = parseFloat(coefficientCompacite) || 0.8;
+    const granulaire = parseFloat(coefficientGranulaire) || 0.5;
+
+    const inputs: CalculationInputs = {
+      eau: eauVal,
+      ciment: cimentVal,
+      ratioGS: gsVal,
+      coeffGranulaire: granulaire,
+      coeffCompacite: compacite,
+      airOcclus: airVal,
+      granulats: granulatInputs,
+    };
+
+    const result = calculateMixDesign(inputs);
+
+    // Update quantities
+    const newOverrides: Record<string, string> = {};
+    for (const [key, mass] of Object.entries(result.masses)) {
+      newOverrides[key] = mass.toString();
+      onQuantityChange?.(key, mass.toString());
+    }
+    setLocalOverrides(newOverrides);
+
+    // Update eau and ciment in parent
+    onQuantityChange?.("eau", eauVal.toString());
+    onQuantityChange?.("ciment", cimentVal.toString());
+    setHasCalculated(true);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange]);
+
+  const handleOptimize = useCallback(() => {
+    const eauVal = parseFloat(calcEau) || 0;
+    const cimentVal = parseFloat(calcCiment) || 0;
+    const gsVal = parseFloat(calcRatioGS) || 1.8;
+    const airVal = parseFloat(calcAirOcclus) || 2;
+    const compacite = parseFloat(coefficientCompacite) || 0.8;
+    const granulaire = parseFloat(coefficientGranulaire) || 0.5;
+
+    const inputs: CalculationInputs = {
+      eau: eauVal,
+      ciment: cimentVal,
+      ratioGS: gsVal,
+      coeffGranulaire: granulaire,
+      coeffCompacite: compacite,
+      airOcclus: airVal,
+      granulats: granulatInputs,
+    };
+
+    const dMax = gravier3Active ? 31.5 : gravier2Active ? 25 : gravier1Active ? 16 : 25;
+    const optimized = optimizeMix(inputs, dMax, classeRheologique);
+
+    const newOverrides: Record<string, string> = {};
+    for (const [key, mass] of Object.entries(optimized)) {
+      newOverrides[key] = mass.toString();
+      onQuantityChange?.(key, mass.toString());
+    }
+    setLocalOverrides(newOverrides);
+    setHasCalculated(true);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange]);
+
   const components = [
-    { label: "Sable concassé", value: sc, unit: "kg", active: sable1Active },
-    { label: "Sable fin", value: sf, unit: "kg", active: sable2Active },
-    { label: "Gravillons 3/8", value: g1, unit: "kg", active: gravier1Active },
+    { label: "Eau", value: eau, unit: "L" },
+    { label: "Ciment", value: ciment, unit: "kg" },
+    { label: "Sable 0/4", value: sc, unit: "kg", active: sable1Active },
+    { label: "Sable 0/1", value: sf, unit: "kg", active: sable2Active },
+    { label: "Gravillon 3/8", value: g1, unit: "kg", active: gravier1Active },
     { label: "Gravier 8/15", value: g2, unit: "kg", active: gravier2Active },
     { label: "Gravier 15/25", value: g3, unit: "kg", active: gravier3Active },
-    { label: "Ciment", value: ciment, unit: "kg", active: true },
-    { label: "Adjuvant", value: adjuvant, unit: "kg", active: true },
-    { label: "Eau", value: eau, unit: "L", active: true },
-  ].filter(({ active, value }) => active && value > 0);
+  ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
   const dMax = useMemo(() => {
     if (gravier3Active && g3 > 0) return 31.5;
@@ -106,76 +250,154 @@ export default function ProportionsStep({
     return 25;
   }, [gravier1Active, gravier2Active, gravier3Active, g1, g2, g3]);
 
-  // Generate demo granulometric curves
+  // Generate granulometric curves for chart
   const demoMaterials = useMemo<MaterialCurve[]>(() => {
     if (granulatCurves && granulatCurves.length > 0) return granulatCurves;
-
     const materials: MaterialCurve[] = [];
-
     if (sable1Active && sc > 0) {
-      materials.push({
-        label: "Sable concassé",
-        quantity: sc,
-        curve: TAMIS_OPENINGS.map((ouv) => ({
-          ouverture: ouv,
-          pourcentageTamisat: ouv >= 4 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(4 / 0.063)) * 100),
-        })),
-      });
+      materials.push({ label: "Sable 0/4", quantity: sc, curve: generateDemoCurve("sable1") });
     }
     if (sable2Active && sf > 0) {
-      materials.push({
-        label: "Sable fin",
-        quantity: sf,
-        curve: TAMIS_OPENINGS.map((ouv) => ({
-          ouverture: ouv,
-          pourcentageTamisat: ouv >= 2 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(2 / 0.063)) * 100),
-        })),
-      });
+      materials.push({ label: "Sable 0/1", quantity: sf, curve: generateDemoCurve("sable2") });
     }
     if (gravier1Active && g1 > 0) {
-      materials.push({
-        label: "Gravillons 3/8",
-        quantity: g1,
-        curve: TAMIS_OPENINGS.map((ouv) => ({
-          ouverture: ouv,
-          pourcentageTamisat: ouv >= 10 ? 100 : ouv <= 2 ? 0 : Math.min(100, ((ouv - 2) / (10 - 2)) * 100),
-        })),
-      });
+      materials.push({ label: "Gravillon 3/8", quantity: g1, curve: generateDemoCurve("gravier1") });
     }
     if (gravier2Active && g2 > 0) {
-      materials.push({
-        label: "Gravier 8/15",
-        quantity: g2,
-        curve: TAMIS_OPENINGS.map((ouv) => ({
-          ouverture: ouv,
-          pourcentageTamisat: ouv >= 20 ? 100 : ouv <= 6.3 ? 0 : Math.min(100, ((ouv - 6.3) / (20 - 6.3)) * 100),
-        })),
-      });
+      materials.push({ label: "Gravier 8/15", quantity: g2, curve: generateDemoCurve("gravier2") });
     }
     if (gravier3Active && g3 > 0) {
-      materials.push({
-        label: "Gravier 15/25",
-        quantity: g3,
-        curve: TAMIS_OPENINGS.map((ouv) => ({
-          ouverture: ouv,
-          pourcentageTamisat: ouv >= 31.5 ? 100 : ouv <= 12.5 ? 0 : Math.min(100, ((ouv - 12.5) / (31.5 - 12.5)) * 100),
-        })),
-      });
+      materials.push({ label: "Gravier 15/25", quantity: g3, curve: generateDemoCurve("gravier3") });
     }
-
     return materials;
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves]);
 
   const sliders: GranulatSlider[] = [
-    { key: "sableConcasse", label: "Sable concassé", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200 },
-    { key: "sableFin", label: "Sable fin", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800 },
-    { key: "gravillons1", label: "Gravillons 3/8", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200 },
-    { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200 },
-    { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200 },
+    { key: "sableConcasse", label: "Sable 0/4", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
+    { key: "sableFin", label: "Sable 0/1", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800, isSable: true },
+    { key: "gravillons1", label: "Gravillon 3/8", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200, isSable: false },
+    { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200, isSable: false },
+    { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200, isSable: false },
   ].filter(s => s.active);
+
+  // Volume breakdown for display
+  const calcVolumes = useMemo(() => {
+    const eauVal = parseFloat(calcEau) || 0;
+    const cimentVal = parseFloat(calcCiment) || 0;
+    const airVal = parseFloat(calcAirOcclus) || 2;
+    const compacite = parseFloat(coefficientCompacite) || 0;
+    const Ve = eauVal / 1000;
+    const Vc = cimentVal / 3110;
+    const Vair = airVal / 100;
+    let Vg = 1 - (Ve + Vc + Vair);
+    if (compacite > 0) Vg *= compacite;
+    return { Ve, Vc, Vair, Vg };
+  }, [calcEau, calcCiment, calcAirOcclus, coefficientCompacite]);
 
   return (
     <div className="space-y-6">
+      {/* Calculation Parameters Card */}
+      <Card className="border-primary/30 bg-card/80 backdrop-blur-sm">
+        <CardContent className="p-6 space-y-5">
+          <div className="flex items-center gap-2">
+            <Calculator className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold text-foreground">
+              Calcul automatique — Méthode Dreux-Gorisse
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Saisissez les paramètres pour calculer automatiquement les proportions de granulats
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm">Eau (kg/m³)</Label>
+              <Input
+                type="number" step="1" min="0"
+                value={calcEau}
+                onChange={(e) => setCalcEau(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">Ciment (kg/m³)</Label>
+              <Input
+                type="number" step="1" min="0"
+                value={calcCiment}
+                onChange={(e) => setCalcCiment(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">Rapport G/S</Label>
+              <Input
+                type="number" step="0.1" min="0.1"
+                value={calcRatioGS}
+                onChange={(e) => setCalcRatioGS(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">Coeff. granulaire (G')</Label>
+              <Input
+                value={coefficientGranulaire || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">Coeff. compacité (γ)</Label>
+              <Input
+                value={coefficientCompacite || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">Air occlus (%)</Label>
+              <Input
+                type="number" step="0.5" min="0" max="10"
+                value={calcAirOcclus}
+                onChange={(e) => setCalcAirOcclus(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+          </div>
+
+          {/* Volume breakdown */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(eau)</p>
+              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Ve * 1000).toFixed(0)} L</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(ciment)</p>
+              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Vc * 1000).toFixed(0)} L</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(air)</p>
+              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Vair * 1000).toFixed(0)} L</p>
+            </div>
+            <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(granulats)</p>
+              <p className="text-sm font-semibold text-primary">{(calcVolumes.Vg * 1000).toFixed(0)} L</p>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-3 pt-1">
+            <Button onClick={handleCalculate} className="gap-2">
+              <Calculator className="w-4 h-4" />
+              Calculer les proportions
+            </Button>
+            <Button onClick={handleOptimize} variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
+              <Sparkles className="w-4 h-4" />
+              Optimiser le mélange
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Ratios Cards */}
       <div className="grid grid-cols-3 gap-4">
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
@@ -217,6 +439,9 @@ export default function ProportionsStep({
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
                     {s.label}
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      {s.isSable ? "Sable" : "Gravier"}
+                    </Badge>
                   </Label>
                   <div className="flex items-center gap-2">
                     <Input
@@ -265,25 +490,38 @@ export default function ProportionsStep({
         </CardContent>
       </Card>
 
-      {/* Recap table */}
+      {/* Final results table */}
       <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 space-y-4">
           <h2 className="text-lg font-bold text-foreground">Récapitulatif pour 1 m³</h2>
 
-          <div className="space-y-1">
-            {components.map(({ label, value, unit }) => (
-              <div key={label} className="flex justify-between items-center py-2.5 border-b border-border/30">
-                <span className="text-sm text-muted-foreground">{label}</span>
-                <span className="font-semibold text-foreground">{value.toFixed(1)} {unit}</span>
-              </div>
-            ))}
-
-            <Separator className="my-2 bg-primary/30" />
-
-            <div className="flex justify-between items-center py-3">
-              <span className="font-bold text-foreground">Poids Total</span>
-              <span className="text-xl font-bold text-primary">{total.toFixed(1)} kg/m³</span>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-muted">
+                  <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">kg/m³</th>
+                </tr>
+              </thead>
+              <tbody>
+                {components.map(({ label, value, unit }, i) => (
+                  <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                    <td className="border border-border p-2.5 text-foreground">{label}</td>
+                    <td className="border border-border p-2.5 text-right font-semibold text-foreground">
+                      {value.toFixed(1)} {unit}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-primary/10">
+                  <td className="border border-border p-2.5 font-bold text-foreground">Poids Total</td>
+                  <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">
+                    {total.toFixed(1)} kg/m³
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </CardContent>
       </Card>
