@@ -312,6 +312,7 @@ function EssaiStep({
   eauProducteurId: string; eauProduitId: string;
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
 }) {
+  const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
   const { data: sable1Produits = [] } = useProduits(sable1ProducteurId, "carriere");
   const { data: sable2Produits = [] } = useProduits(sable2ProducteurId, "carriere");
