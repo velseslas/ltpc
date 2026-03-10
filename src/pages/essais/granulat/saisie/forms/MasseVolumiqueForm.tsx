@@ -171,11 +171,11 @@ function SandInputFields({ data, onFieldChange }: { data: Record<string, unknown
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W1 = B − A (poids sec)</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W1") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W1")} g</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W2 = C − D (poids humide)</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W2") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W2")} g</p>
           </div>
         </div>
       </div>
