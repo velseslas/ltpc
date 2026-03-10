@@ -648,39 +648,73 @@ export default function FormulationBetonWizard() {
 
 
 
-      case 4:
+      case 4: {
+        const essaiSections = [
+          {
+            titre: "Essais sur les Granulats",
+            essais: [
+              { nom: "Analyse Granulométrique", count: "0/1", options: ["Analyse Granulométrique - Sable 1", "Analyse Granulométrique - Gravier 1"] },
+              { nom: "Équivalent de Sable", count: "0/1", options: ["Équivalent de Sable - Sable 1"] },
+              { nom: "Valeur au Bleu de Méthylène", count: "0/1", options: ["Valeur au Bleu de Méthylène - Sable 1"] },
+              { nom: "Coefficient d'Aplatissement", count: "0/1", options: ["Coefficient d'Aplatissement - Gravier 1"] },
+              { nom: "Micro-Deval", count: "0/1", options: ["Micro-Deval - Gravier 1"] },
+              { nom: "Los Angeles", count: "0/1", options: ["Los Angeles - Gravier 1"] },
+            ],
+          },
+          {
+            titre: "Essais sur le Ciment",
+            essais: [
+              { nom: "Résistance du Ciment", count: "0/1", options: ["Résistance du Ciment"] },
+              { nom: "Temps de Prise", count: "0/1", options: ["Temps de Prise"] },
+            ],
+          },
+          {
+            titre: "Essais sur l'Eau",
+            essais: [
+              { nom: "Analyse Chimique", count: "0/1", options: ["Analyse Chimique de l'Eau"] },
+            ],
+          },
+        ];
+
         return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-lg font-semibold text-foreground">Essai</h2>
-              <p className="text-sm text-muted-foreground">Paramètres de l'essai de convenance</p>
+          <div className="space-y-6">
+            {essaiSections.map((section) => (
+              <Card key={section.titre} className="border-border/50 bg-card/80 backdrop-blur-sm">
+                <CardContent className="p-6 space-y-5">
+                  <h2 className="text-lg font-bold text-foreground">{section.titre}</h2>
 
-              <div className="space-y-2">
-                <Label>Affaissement cible (cm)</Label>
-                <Input
-                  type="number"
-                  step="0.5"
-                  value={affaissementCible}
-                  onChange={(e) => setAffaissementCible(e.target.value)}
-                  placeholder="ex: 8"
-                  className="bg-secondary border-border"
-                />
-              </div>
+                  {section.essais.map((essai) => (
+                    <div key={essai.nom} className="space-y-3">
+                      <h3 className="text-sm font-semibold text-primary">{essai.nom}</h3>
+                      <Separator className="bg-border/50" />
 
-              <div className="space-y-2">
-                <Label>Résistance cible (MPa)</Label>
-                <Input
-                  type="number"
-                  step="0.5"
-                  value={resistanceCible}
-                  onChange={(e) => setResistanceCible(e.target.value)}
-                  placeholder="ex: 25"
-                  className="bg-secondary border-border"
-                />
-              </div>
-            </CardContent>
-          </Card>
+                      {essai.options.map((option, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                            <FileText className="w-4 h-4" />
+                            <span>{essai.count}</span>
+                          </div>
+                          <Select>
+                            <SelectTrigger className="bg-secondary border-border flex-1">
+                              <SelectValue placeholder={`Sélectionner ${essai.nom}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="placeholder">Aucun échantillon disponible</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+                            Voir rapport
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         );
+      }
 
       case 5:
         return (
