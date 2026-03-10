@@ -126,6 +126,7 @@ import PermeabiliteDataEntry from "./pages/essais/permeabilite/PermeabiliteDataE
 import PermeabiliteReport from "./pages/essais/permeabilite/PermeabiliteReport";
 
 import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
+import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
 // Normes imports
