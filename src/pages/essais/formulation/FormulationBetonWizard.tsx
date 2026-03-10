@@ -191,7 +191,7 @@ function IngredientCard({
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">{producteurLabel}</Label>
         <Select value={selectedProducteurId} onValueChange={onProducteurChange} disabled={!active}>
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className={cn("bg-secondary border-border", showError && active && !selectedProducteurId && "animate-border-blink")}>
             <SelectValue placeholder={active ? `Choisir ${producteurLabel.toLowerCase()}` : "Composant inactif"} />
           </SelectTrigger>
           <SelectContent>
@@ -204,7 +204,7 @@ function IngredientCard({
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Produit</Label>
         <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className={cn("bg-secondary border-border", showError && active && selectedProducteurId && !selectedProduitId && "animate-border-blink")}>
             <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? `Sélectionnez d'abord une ${producteurLabel.toLowerCase()}` : "Sélectionner un produit"} />
           </SelectTrigger>
           <SelectContent>
