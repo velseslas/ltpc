@@ -322,7 +322,10 @@ function ResultCards({ data, label }: { data: Record<string, unknown>; label: st
 
 // ─── Main Component ───
 
-export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiqueFormProps) {
+export default function MasseVolumiqueForm({ resultats, onChange, produit }: MasseVolumiqueFormProps) {
+  const showSand = !produit || isSandProduct(produit);
+  const showGravel = !produit || isGravelProduct(produit);
+
   const sandData = getModule(resultats, "sable");
   const gravelData = GRAVEL_FRACTIONS.map(f => ({
     ...f,
@@ -355,66 +358,102 @@ export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiq
     onChange({ ...resultats, [fractionKey]: calculated });
   };
 
+  const moduleTitle = showSand && !showGravel
+    ? "Sable 0–4 mm – Méthode Pycnomètre"
+    : showGravel && !showSand
+      ? "Graviers – Méthode Panier immersion"
+      : "Masse Volumique & Absorption";
+
   return (
     <Card className="border-border bg-card">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Masse Volumique & Absorption (NF EN 1097-6)</CardTitle>
+          <CardTitle className="text-lg">{moduleTitle} (NF EN 1097-6)</CardTitle>
           <Badge variant="outline" className="text-xs">NF EN 1097-6</Badge>
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="sable" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="sable">🏖️ Sable 0–4 mm (Pycnomètre)</TabsTrigger>
-            <TabsTrigger value="graviers">🪨 Graviers (Panier immersion)</TabsTrigger>
-          </TabsList>
+        {/* Both modules (no product info) → show tabs */}
+        {showSand && showGravel && (
+          <Tabs defaultValue="sable" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="sable">🏖️ Sable 0–4 mm (Pycnomètre)</TabsTrigger>
+              <TabsTrigger value="graviers">🪨 Graviers (Panier immersion)</TabsTrigger>
+            </TabsList>
+            <TabsContent value="sable" className="space-y-6">
+              <SandInputFields data={sandData} onFieldChange={handleSandChange} />
+              <ResultCards data={sandData} label="Résultats – Sable 0–4 mm" />
+              <SandFormulas />
+            </TabsContent>
+            <TabsContent value="graviers" className="space-y-8">
+              <GravelContent gravelData={gravelData} handleGravelChange={handleGravelChange} />
+            </TabsContent>
+          </Tabs>
+        )}
 
-          {/* ─── Sable ─── */}
-          <TabsContent value="sable" className="space-y-6">
+        {/* Sand only */}
+        {showSand && !showGravel && (
+          <div className="space-y-6">
             <SandInputFields data={sandData} onFieldChange={handleSandChange} />
             <ResultCards data={sandData} label="Résultats – Sable 0–4 mm" />
+            <SandFormulas />
+          </div>
+        )}
 
-            <div className="bg-muted/50 rounded-lg p-4">
-              <p className="text-sm font-medium text-foreground mb-2">Formules (Pycnomètre) :</p>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D</li>
-                <li>• V1 = W2 + W4 − W3 &nbsp;|&nbsp; V2 = W1 + W4 − W3</li>
-                <li>• Densité sèche = W1 / V1</li>
-                <li>• Densité humide = W2 / V1</li>
-                <li>• Densité effective = W1 / V2</li>
-                <li>• Absorption = (W2 − W1) / W1 × 100</li>
-              </ul>
-            </div>
-          </TabsContent>
-
-          {/* ─── Graviers ─── */}
-          <TabsContent value="graviers" className="space-y-8">
-            {gravelData.map(({ key, label, data }) => (
-              <div key={key} className="space-y-6 border border-border rounded-lg p-4">
-                <GravelInputFields
-                  data={data}
-                  label={label}
-                  onFieldChange={(field, value) => handleGravelChange(key, field, value)}
-                />
-                <ResultCards data={data} label={`Résultats – ${label}`} />
-              </div>
-            ))}
-
-            <div className="bg-muted/50 rounded-lg p-4">
-              <p className="text-sm font-medium text-foreground mb-2">Formules (Panier immersion) :</p>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D &nbsp;|&nbsp; W5 = E − F</li>
-                <li>• V1 = W2 − W5 &nbsp;|&nbsp; V2 = W1 − W5</li>
-                <li>• Densité sèche = W1 / V1</li>
-                <li>• Densité humide = W2 / V1</li>
-                <li>• Densité effective = W1 / V2</li>
-                <li>• Absorption = (W2 − W1) / W1 × 100</li>
-              </ul>
-            </div>
-          </TabsContent>
-        </Tabs>
+        {/* Gravel only */}
+        {showGravel && !showSand && (
+          <div className="space-y-8">
+            <GravelContent gravelData={gravelData} handleGravelChange={handleGravelChange} />
+          </div>
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+function SandFormulas() {
+  return (
+    <div className="bg-muted/50 rounded-lg p-4">
+      <p className="text-sm font-medium text-foreground mb-2">Formules (Pycnomètre) :</p>
+      <ul className="text-sm text-muted-foreground space-y-1">
+        <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D</li>
+        <li>• V1 = W2 + W4 − W3 &nbsp;|&nbsp; V2 = W1 + W4 − W3</li>
+        <li>• Densité sèche = W1 / V1</li>
+        <li>• Densité humide = W2 / V1</li>
+        <li>• Densité effective = W1 / V2</li>
+        <li>• Absorption = (W2 − W1) / W1 × 100</li>
+      </ul>
+    </div>
+  );
+}
+
+function GravelContent({ gravelData, handleGravelChange }: { 
+  gravelData: { key: string; label: string; data: Record<string, unknown> }[];
+  handleGravelChange: (fractionKey: string, field: string, value: string) => void;
+}) {
+  return (
+    <>
+      {gravelData.map(({ key, label, data }) => (
+        <div key={key} className="space-y-6 border border-border rounded-lg p-4">
+          <GravelInputFields
+            data={data}
+            label={label}
+            onFieldChange={(field, value) => handleGravelChange(key, field, value)}
+          />
+          <ResultCards data={data} label={`Résultats – ${label}`} />
+        </div>
+      ))}
+      <div className="bg-muted/50 rounded-lg p-4">
+        <p className="text-sm font-medium text-foreground mb-2">Formules (Panier immersion) :</p>
+        <ul className="text-sm text-muted-foreground space-y-1">
+          <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D &nbsp;|&nbsp; W5 = E − F</li>
+          <li>• V1 = W2 − W5 &nbsp;|&nbsp; V2 = W1 − W5</li>
+          <li>• Densité sèche = W1 / V1</li>
+          <li>• Densité humide = W2 / V1</li>
+          <li>• Densité effective = W1 / V2</li>
+          <li>• Absorption = (W2 − W1) / W1 × 100</li>
+        </ul>
+      </div>
+    </>
   );
 }
