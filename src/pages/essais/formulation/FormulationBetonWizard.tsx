@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,6 +26,27 @@ import { useProduits } from "@/hooks/useProduits";
 import { useCreateFormulation } from "@/hooks/useFormulations";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+const ABAQUE_DATA = [
+  { classe: "X0", designation: "Aucun risque de corrosion ni d'attaque", ecMax: "-", resistanceMin: "C12/15", dosageCiment: "-", teneurAir: "-" },
+  { classe: "XC1", designation: "Corrosion par carbonatation — Sec ou humide en permanence", ecMax: "0.65", resistanceMin: "C20/25", dosageCiment: "260", teneurAir: "-" },
+  { classe: "XC2", designation: "Corrosion par carbonatation — Humide, rarement sec", ecMax: "0.60", resistanceMin: "C25/30", dosageCiment: "280", teneurAir: "-" },
+  { classe: "XC3", designation: "Corrosion par carbonatation — Humidité modérée", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XC4", designation: "Corrosion par carbonatation — Alternance humide/sec", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XD1", designation: "Chlorures (hors mer) — Humidité modérée", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XD2", designation: "Chlorures (hors mer) — Humide, rarement sec", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XD3", designation: "Chlorures (hors mer) — Alternance humide/sec", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "320", teneurAir: "-" },
+  { classe: "XS1", designation: "Eau de mer — Air véhiculant du sel marin", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XS2", designation: "Eau de mer — Immersion permanente", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "320", teneurAir: "-" },
+  { classe: "XS3", designation: "Eau de mer — Zones de marnage", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "340", teneurAir: "-" },
+  { classe: "XF1", designation: "Gel/dégel — Saturation modérée, sans déverglaçage", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XF2", designation: "Gel/dégel — Saturation modérée, avec déverglaçage", ecMax: "0.55", resistanceMin: "C25/30", dosageCiment: "300", teneurAir: "4%" },
+  { classe: "XF3", designation: "Gel/dégel — Forte saturation, sans déverglaçage", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "320", teneurAir: "4%" },
+  { classe: "XF4", designation: "Gel/dégel — Forte saturation, avec déverglaçage", ecMax: "0.45", resistanceMin: "C30/37", dosageCiment: "340", teneurAir: "4%" },
+  { classe: "XA1", designation: "Attaque chimique — Faible agressivité", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XA2", designation: "Attaque chimique — Agressivité modérée", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "320", teneurAir: "-" },
+  { classe: "XA3", designation: "Attaque chimique — Forte agressivité", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "360", teneurAir: "-" },
+];
 
 const STEPS = [
   { number: 1, label: "Information générale" },
@@ -194,7 +216,7 @@ export default function FormulationBetonWizard() {
   const [classeResistance, setClasseResistance] = useState("");
   const [classeExposition, setClasseExposition] = useState("");
   const [classeRheologique, setClasseRheologique] = useState("");
-  const [classeVraiCiment, setClasseVraiCiment] = useState("");
+  const [showAbaque, setShowAbaque] = useState(false);
 
   // Step 6 - calcul proportions (auto-calculated)
 
@@ -398,7 +420,7 @@ export default function FormulationBetonWizard() {
                   </Select>
                 </div>
 
-                <Button variant="outline" className="gap-2" type="button">
+                <Button variant="outline" className="gap-2" type="button" onClick={() => setShowAbaque(true)}>
                   <BarChart3 className="w-4 h-4" />
                   Voir abaque
                 </Button>
@@ -418,17 +440,52 @@ export default function FormulationBetonWizard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-start-3 space-y-1.5">
-                  <Label className="text-sm">Classe vrai du ciment</Label>
-                  <Input
-                    value={classeVraiCiment}
-                    onChange={(e) => setClasseVraiCiment(e.target.value)}
-                    placeholder=""
-                    className="bg-secondary border-border"
-                  />
-                </div>
-              </div>
+              {/* Abaque Dialog */}
+              <Dialog open={showAbaque} onOpenChange={setShowAbaque}>
+                <DialogContent className="max-w-4xl max-h-[85vh] overflow-auto">
+                  <DialogHeader>
+                    <DialogTitle>Abaque des classes d'exposition — EN 206</DialogTitle>
+                  </DialogHeader>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-muted">
+                          <th className="border border-border p-2 text-left">Classe</th>
+                          <th className="border border-border p-2 text-left">Désignation</th>
+                          <th className="border border-border p-2 text-center">E/C max</th>
+                          <th className="border border-border p-2 text-center">Résistance min (MPa)</th>
+                          <th className="border border-border p-2 text-center">Dosage ciment min (kg/m³)</th>
+                          <th className="border border-border p-2 text-center">Teneur air (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ABAQUE_DATA.map((row, i) => (
+                          <tr
+                            key={row.classe}
+                            className={cn(
+                              "cursor-pointer transition-colors hover:bg-primary/10",
+                              classeExposition === row.classe && "bg-primary/20 font-medium",
+                              i % 2 === 0 ? "bg-card" : "bg-muted/30"
+                            )}
+                            onClick={() => {
+                              setClasseExposition(row.classe);
+                              setShowAbaque(false);
+                            }}
+                          >
+                            <td className="border border-border p-2 font-semibold">{row.classe}</td>
+                            <td className="border border-border p-2">{row.designation}</td>
+                            <td className="border border-border p-2 text-center">{row.ecMax}</td>
+                            <td className="border border-border p-2 text-center">{row.resistanceMin}</td>
+                            <td className="border border-border p-2 text-center">{row.dosageCiment}</td>
+                            <td className="border border-border p-2 text-center">{row.teneurAir}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">Cliquez sur une ligne pour sélectionner la classe d'exposition</p>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         );
