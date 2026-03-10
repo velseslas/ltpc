@@ -291,7 +291,6 @@ export default function FormulationBetonWizard() {
       case 3: return true;
       case 4: return true;
       case 5: return true;
-      case 6: return true;
       default: return false;
     }
   };
