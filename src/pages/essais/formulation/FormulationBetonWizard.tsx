@@ -339,7 +339,7 @@ function EssaiStep({
       )}
 
       {/* Ciment */}
-      {cimentActive && cimentProducteurId && cimentProduitId && (
+      {cimentActive && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
