@@ -77,8 +77,9 @@ const STEPS = [
   { number: 1, label: "Information générale" },
   { number: 2, label: "Données de base" },
   { number: 3, label: "Information matériaux" },
-  { number: 4, label: "Essai" },
-  { number: 5, label: "Calcul proportions" },
+  { number: 4, label: "Coefficients" },
+  { number: 5, label: "Essai" },
+  { number: 6, label: "Calcul proportions" },
 ];
 
 // Stepper component
