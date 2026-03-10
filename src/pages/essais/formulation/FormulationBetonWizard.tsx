@@ -282,27 +282,13 @@ export default function FormulationBetonWizard() {
               <h2 className="text-lg font-semibold text-foreground">Informations client</h2>
 
               <div className="space-y-2">
-                <Label>Nom de la formulation</Label>
+                <Label>Nom de la formulation <span className="text-destructive">*</span></Label>
                 <Input
                   value={nom}
                   onChange={(e) => setNom(e.target.value)}
                   placeholder="ex: Béton C25/30 pour fondations"
                   className="bg-secondary border-border"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Centrale à béton <span className="text-destructive">*</span></Label>
-                <Select value={centraleId} onValueChange={setCentraleId}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Sélectionnez une centrale" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {centrales.map((c: any) => (
-                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2">
@@ -327,6 +313,20 @@ export default function FormulationBetonWizard() {
                   </SelectTrigger>
                   <SelectContent>
                     {clientChantiers.map((c: any) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Centrale à béton <span className="text-destructive">*</span></Label>
+                <Select value={centraleId} onValueChange={setCentraleId}>
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="Sélectionnez une centrale" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {centrales.map((c: any) => (
                       <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
                     ))}
                   </SelectContent>
