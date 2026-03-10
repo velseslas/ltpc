@@ -646,33 +646,7 @@ export default function FormulationBetonWizard() {
           </Card>
         );
 
-              <p className="text-sm text-muted-foreground">Paramètres de correction granulaire</p>
 
-              <div className="space-y-2">
-                <Label>Coefficient granulaire (G)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={coefficientGranulaire}
-                  onChange={(e) => setCoefficientGranulaire(e.target.value)}
-                  placeholder="ex: 0.55"
-                  className="bg-secondary border-border"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="p-4 rounded-lg bg-primary/10 text-center">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Rapport G/S</p>
-                  <p className="text-xl font-bold text-primary">{ratioGS}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-primary/10 text-center">
-                  <p className="text-xs text-muted-foreground uppercase mb-1">Rapport E/C</p>
-                  <p className="text-xl font-bold text-primary">{ratioEC}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
 
       case 4:
         return (
