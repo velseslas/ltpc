@@ -236,7 +236,7 @@ export default function ProportionsStep({
   // Helper to get density for a granulat from granulatInputs
   const getDensite = (key: string): number => {
     const g = granulatInputs.find(gi => gi.key === key);
-    return g?.masseVolumique && g.masseVolumique > 0 ? g.masseVolumique / 1000 : 0;
+    return g?.densite && g.densite > 0 ? g.densite / 1000 : 0;
   };
 
   const components = [
