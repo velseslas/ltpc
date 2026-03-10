@@ -339,6 +339,42 @@ export default function FormulationBetonWizard() {
       case 2:
         return (
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardContent className="p-6 space-y-5">
+              <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
+              <p className="text-sm text-muted-foreground">Saisissez les quantités pour 1 m³ de béton</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { label: "Sable concassé (kg)", value: sableConcasseQte, setter: setSableConcasseQte },
+                  { label: "Sable fin (kg)", value: sableFinQte, setter: setSableFinQte },
+                  { label: "Gravillons 1 (kg)", value: gravillons1Qte, setter: setGravillons1Qte },
+                  { label: "Gravier 2 (kg)", value: gravier2Qte, setter: setGravier2Qte },
+                  { label: "Gravier 3 (kg)", value: gravier3Qte, setter: setGravier3Qte },
+                  { label: "Ciment (kg)", value: cimentQte, setter: setCimentQte },
+                  { label: "Adjuvant (kg)", value: adjuvantQte, setter: setAdjuvantQte },
+                  { label: "Eau (L)", value: eauQte, setter: setEauQte },
+                ].map(({ label, value, setter }) => (
+                  <div key={label} className="space-y-1.5">
+                    <Label className="text-sm">{label}</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                      placeholder="0.00"
+                      className="bg-secondary border-border"
+                    />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 3:
+        return (
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
               <p className="text-sm text-muted-foreground mb-2">Sélectionnez les producteurs et produits pour chaque composant</p>
@@ -415,42 +451,6 @@ export default function FormulationBetonWizard() {
                 onProducteurChange={setEauProducteurId}
                 onProduitChange={setEauProduitId}
               />
-            </CardContent>
-          </Card>
-        );
-
-      case 3:
-        return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
-              <p className="text-sm text-muted-foreground">Saisissez les quantités pour 1 m³ de béton</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { label: "Sable concassé (kg)", value: sableConcasseQte, setter: setSableConcasseQte },
-                  { label: "Sable fin (kg)", value: sableFinQte, setter: setSableFinQte },
-                  { label: "Gravillons 1 (kg)", value: gravillons1Qte, setter: setGravillons1Qte },
-                  { label: "Gravier 2 (kg)", value: gravier2Qte, setter: setGravier2Qte },
-                  { label: "Gravier 3 (kg)", value: gravier3Qte, setter: setGravier3Qte },
-                  { label: "Ciment (kg)", value: cimentQte, setter: setCimentQte },
-                  { label: "Adjuvant (kg)", value: adjuvantQte, setter: setAdjuvantQte },
-                  { label: "Eau (L)", value: eauQte, setter: setEauQte },
-                ].map(({ label, value, setter }) => (
-                  <div key={label} className="space-y-1.5">
-                    <Label className="text-sm">{label}</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={value}
-                      onChange={(e) => setter(e.target.value)}
-                      placeholder="0.00"
-                      className="bg-secondary border-border"
-                    />
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </Card>
         );
