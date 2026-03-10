@@ -165,7 +165,7 @@ function IngredientCard({
         <Label className="text-xs text-muted-foreground">Produit</Label>
         <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
           <SelectTrigger className="bg-secondary border-border">
-            <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? "Sélectionnez d'abord un producteur" : "Sélectionner un produit"} />
+            <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? `Sélectionnez d'abord une ${producteurLabel.toLowerCase()}` : "Sélectionner un produit"} />
           </SelectTrigger>
           <SelectContent>
             {produits.map((p: any) => (
