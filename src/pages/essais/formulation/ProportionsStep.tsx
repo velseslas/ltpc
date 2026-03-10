@@ -455,7 +455,7 @@ export default function ProportionsStep({
                 type="number" step="1" min="0"
                 value={calcEau}
                 onChange={(e) => setCalcEau(e.target.value)}
-                className="bg-secondary border-border"
+                className={cn("bg-secondary border-border", hasValidated && !calcEau && "animate-border-blink")}
               />
             </div>
             <div className="space-y-1.5">
@@ -464,7 +464,7 @@ export default function ProportionsStep({
                 type="number" step="1" min="0"
                 value={calcCiment}
                 onChange={(e) => setCalcCiment(e.target.value)}
-                className="bg-secondary border-border"
+                className={cn("bg-secondary border-border", hasValidated && !calcCiment && "animate-border-blink")}
               />
             </div>
             <div className="space-y-1.5">
@@ -473,7 +473,7 @@ export default function ProportionsStep({
                 type="number" step="0.1" min="0.1"
                 value={calcRatioGS}
                 onChange={(e) => setCalcRatioGS(e.target.value)}
-                className="bg-secondary border-border"
+                className={cn("bg-secondary border-border", hasValidated && !calcRatioGS && "animate-border-blink")}
               />
             </div>
             <div className="space-y-1.5">
@@ -498,7 +498,7 @@ export default function ProportionsStep({
                 type="number" step="0.5" min="0" max="10"
                 value={calcAirOcclus}
                 onChange={(e) => setCalcAirOcclus(e.target.value)}
-                className="bg-secondary border-border"
+                className={cn("bg-secondary border-border", hasValidated && !calcAirOcclus && "animate-border-blink")}
               />
             </div>
           </div>
