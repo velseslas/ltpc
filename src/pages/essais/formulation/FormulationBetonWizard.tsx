@@ -928,8 +928,18 @@ export default function FormulationBetonWizard() {
         </Card>
       </div>
 
-      {/* Step 4 */}
+      {/* Step 4 - Coefficients */}
       <div className={currentStep === 4 ? "" : "hidden"}>
+        <CoefficientStep
+          coefficientGranulaire={coefficientGranulaire}
+          onCoefficientGranulaireChange={setCoefficientGranulaire}
+          coefficientCompacite={coefficientCompacite}
+          onCoefficientCompaciteChange={setCoefficientCompacite}
+        />
+      </div>
+
+      {/* Step 5 */}
+      <div className={currentStep === 5 ? "" : "hidden"}>
         <EssaiStep
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active} cimentActive={cimentActive} eauActive={eauActive}
           sable1ProducteurId={sableConcasseProducteurId} sable1ProduitId={sableConcasseProduitId} sable2ProducteurId={sableFinProducteurId} sable2ProduitId={sableFinProduitId}
