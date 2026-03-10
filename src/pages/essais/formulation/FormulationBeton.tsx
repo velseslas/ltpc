@@ -243,41 +243,6 @@ const FormulationBeton = () => {
         </>
       )}
 
-      {/* Dialog pour choisir la centrale */}
-      <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nouvelle formulation</DialogTitle>
-            <DialogDescription>
-              Sélectionnez la centrale à béton pour cette formulation
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <Select value={selectedCentraleForNew} onValueChange={setSelectedCentraleForNew}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner une centrale" />
-              </SelectTrigger>
-              <SelectContent>
-                {centrales.map((c: any) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowNewDialog(false)}>
-                Annuler
-              </Button>
-              <Button
-                onClick={confirmNewFormulation}
-                disabled={!selectedCentraleForNew}
-                className="gradient-primary text-primary-foreground"
-              >
-                Créer
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
