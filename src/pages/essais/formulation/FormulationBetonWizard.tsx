@@ -650,73 +650,33 @@ export default function FormulationBetonWizard() {
 
 
 
-      case 4: {
-        const essaiSections = [
-          {
-            titre: "Essais sur les Granulats",
-            essais: [
-              { nom: "Analyse Granulométrique", count: "0/1", options: ["Analyse Granulométrique - Sable 1", "Analyse Granulométrique - Gravier 1"] },
-              { nom: "Équivalent de Sable", count: "0/1", options: ["Équivalent de Sable - Sable 1"] },
-              { nom: "Valeur au Bleu de Méthylène", count: "0/1", options: ["Valeur au Bleu de Méthylène - Sable 1"] },
-              { nom: "Coefficient d'Aplatissement", count: "0/1", options: ["Coefficient d'Aplatissement - Gravier 1"] },
-              { nom: "Micro-Deval", count: "0/1", options: ["Micro-Deval - Gravier 1"] },
-              { nom: "Los Angeles", count: "0/1", options: ["Los Angeles - Gravier 1"] },
-            ],
-          },
-          {
-            titre: "Essais sur le Ciment",
-            essais: [
-              { nom: "Résistance du Ciment", count: "0/1", options: ["Résistance du Ciment"] },
-              { nom: "Temps de Prise", count: "0/1", options: ["Temps de Prise"] },
-            ],
-          },
-          {
-            titre: "Essais sur l'Eau",
-            essais: [
-              { nom: "Analyse Chimique", count: "0/1", options: ["Analyse Chimique de l'Eau"] },
-            ],
-          },
-        ];
-
-        return (
-          <div className="space-y-6">
-            {essaiSections.map((section) => (
-              <Card key={section.titre} className="border-border/50 bg-card/80 backdrop-blur-sm">
-                <CardContent className="p-6 space-y-5">
-                  <h2 className="text-lg font-bold text-foreground">{section.titre}</h2>
-
-                  {section.essais.map((essai) => (
-                    <div key={essai.nom} className="space-y-3">
-                      <h3 className="text-sm font-semibold text-primary">{essai.nom}</h3>
-                      <Separator className="bg-border/50" />
-
-                      {essai.options.map((option, idx) => (
-                        <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                            <FileText className="w-4 h-4" />
-                            <span>{essai.count}</span>
-                          </div>
-                          <Select>
-                            <SelectTrigger className="bg-secondary border-border flex-1">
-                              <SelectValue placeholder={`Sélectionner ${essai.nom}`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="placeholder">Aucun échantillon disponible</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-                            Voir rapport
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        );
-      }
+      case 4:
+        return <EssaiStep
+          sable1Active={sable1Active}
+          sable2Active={sable2Active}
+          gravier1Active={gravier1Active}
+          gravier2Active={gravier2Active}
+          gravier3Active={gravier3Active}
+          cimentActive={cimentActive}
+          eauActive={eauActive}
+          sable1ProducteurId={sableConcasseProducteurId}
+          sable1ProduitId={sableConcasseProduitId}
+          sable2ProducteurId={sableFinProducteurId}
+          sable2ProduitId={sableFinProduitId}
+          gravier1ProducteurId={gravillons1ProducteurId}
+          gravier1ProduitId={gravillons1ProduitId}
+          gravier2ProducteurId={gravier2ProducteurId}
+          gravier2ProduitId={gravier2ProduitId}
+          gravier3ProducteurId={gravier3ProducteurId}
+          gravier3ProduitId={gravier3ProduitId}
+          cimentProducteurId={cimentProducteurId}
+          cimentProduitId={cimentProduitId}
+          eauProducteurId={eauProducteurId}
+          eauProduitId={eauProduitId}
+          carrieres={carrieres}
+          cimenteries={cimenteries}
+          sourcesEau={sourcesEau}
+        />;
 
       case 5:
         return (
