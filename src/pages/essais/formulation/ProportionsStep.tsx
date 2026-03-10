@@ -283,6 +283,7 @@ export default function ProportionsStep({
     if (!calcAirOcclus) step6Fields.push("Air occlus (%)");
     if (step6Fields.length > 0) errors.push({ step: 6, label: "Calcul proportions", fields: step6Fields });
 
+    setHasValidated(true);
     if (errors.length > 0) {
       setValidationErrors(errors);
       setValidationErrorOpen(true);
