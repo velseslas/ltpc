@@ -111,6 +111,7 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
 // Ingredient card with active/inactive toggle
 function IngredientCard({
   label,
+  producteurLabel = "Producteur",
   active,
   onToggle,
   producteurType,
@@ -121,6 +122,7 @@ function IngredientCard({
   onProduitChange,
 }: {
   label: string;
+  producteurLabel?: string;
   active: boolean;
   onToggle: (v: boolean) => void;
   producteurType: "carriere" | "cimenterie" | "adjuvant" | "source_eau";
@@ -147,10 +149,10 @@ function IngredientCard({
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Producteur</Label>
+        <Label className="text-xs text-muted-foreground">{producteurLabel}</Label>
         <Select value={selectedProducteurId} onValueChange={onProducteurChange} disabled={!active}>
           <SelectTrigger className="bg-secondary border-border">
-            <SelectValue placeholder={active ? "Choisir un producteur" : "Composant inactif"} />
+            <SelectValue placeholder={active ? `Choisir ${producteurLabel.toLowerCase()}` : "Composant inactif"} />
           </SelectTrigger>
           <SelectContent>
             {producteurs.map((p) => (
@@ -547,6 +549,7 @@ export default function FormulationBetonWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <IngredientCard
                   label="Sable 1"
+                  producteurLabel="Carrière"
                   active={sable1Active}
                   onToggle={setSable1Active}
                   producteurType="carriere"
@@ -558,6 +561,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Sable 2"
+                  producteurLabel="Carrière"
                   active={sable2Active}
                   onToggle={setSable2Active}
                   producteurType="carriere"
@@ -569,6 +573,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Gravier 1"
+                  producteurLabel="Carrière"
                   active={gravier1Active}
                   onToggle={setGravier1Active}
                   producteurType="carriere"
@@ -580,6 +585,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Gravier 2"
+                  producteurLabel="Carrière"
                   active={gravier2Active}
                   onToggle={setGravier2Active}
                   producteurType="carriere"
@@ -591,6 +597,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Gravier 3"
+                  producteurLabel="Carrière"
                   active={gravier3Active}
                   onToggle={setGravier3Active}
                   producteurType="carriere"
@@ -602,6 +609,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Ciment"
+                  producteurLabel="Cimenterie"
                   active={cimentActive}
                   onToggle={setCimentActive}
                   producteurType="cimenterie"
@@ -624,6 +632,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Eau"
+                  producteurLabel="Source d'eau"
                   active={eauActive}
                   onToggle={setEauActive}
                   producteurType="source_eau"
