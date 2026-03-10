@@ -178,7 +178,45 @@ export default function ProportionsStep({
     }));
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites]);
 
+  // Validate that all active granulats have density from reports
+  const validateDensities = useCallback((): boolean => {
+    const activeItems = [
+      { key: "sableConcasse", label: "Sable 0/4 (Masse volumique)", active: sable1Active },
+      { key: "sableFin", label: "Sable 0/1 (Masse volumique)", active: sable2Active },
+      { key: "gravillons1", label: "Gravillon 3/8 (Masse volumique)", active: gravier1Active },
+      { key: "gravier2", label: "Gravier 8/15 (Masse volumique)", active: gravier2Active },
+      { key: "gravier3", label: "Gravier 15/25 (Masse volumique)", active: gravier3Active },
+    ];
+    const missing: string[] = [];
+    for (const item of activeItems) {
+      if (item.active && (!granulatDensites[item.key] || granulatDensites[item.key] <= 0)) {
+        missing.push(item.label);
+      }
+    }
+    // Also check granulometric curves
+    const activeCurveItems = [
+      { key: "sableConcasse", label: "Sable 0/4 (Granulométrie)", active: sable1Active },
+      { key: "sableFin", label: "Sable 0/1 (Granulométrie)", active: sable2Active },
+      { key: "gravillons1", label: "Gravillon 3/8 (Granulométrie)", active: gravier1Active },
+      { key: "gravier2", label: "Gravier 8/15 (Granulométrie)", active: gravier2Active },
+      { key: "gravier3", label: "Gravier 15/25 (Granulométrie)", active: gravier3Active },
+    ];
+    for (const item of activeCurveItems) {
+      if (item.active && (!granulatCurves || !granulatCurves.find(c => c.label.includes(item.key.replace("gravillons1", "3/8").replace("gravier2", "8/15").replace("gravier3", "15/25").replace("sableConcasse", "0/4").replace("sableFin", "0/1"))))) {
+        // Only check density for now as curves may use demo fallback
+      }
+    }
+    if (missing.length > 0) {
+      setMissingReports(missing);
+      setMissingReportsOpen(true);
+      return false;
+    }
+    return true;
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves]);
+
   const handleCalculate = useCallback(() => {
+    if (!validateDensities()) return;
+
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const gsVal = parseFloat(calcRatioGS) || 1.8;
@@ -198,7 +236,6 @@ export default function ProportionsStep({
 
     const result = calculateMixDesign(inputs);
 
-    // Update quantities
     const newOverrides: Record<string, string> = {};
     for (const [key, mass] of Object.entries(result.masses)) {
       newOverrides[key] = mass.toString();
@@ -206,13 +243,14 @@ export default function ProportionsStep({
     }
     setLocalOverrides(newOverrides);
 
-    // Update eau and ciment in parent
     onQuantityChange?.("eau", eauVal.toString());
     onQuantityChange?.("ciment", cimentVal.toString());
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange, validateDensities]);
 
   const handleOptimize = useCallback(() => {
+    if (!validateDensities()) return;
+
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const gsVal = parseFloat(calcRatioGS) || 1.8;
@@ -240,7 +278,7 @@ export default function ProportionsStep({
     }
     setLocalOverrides(newOverrides);
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange, validateDensities]);
 
   // Helper to get density for a granulat from granulatInputs
   const getDensite = (key: string): number => {
