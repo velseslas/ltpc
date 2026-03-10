@@ -646,11 +646,6 @@ export default function FormulationBetonWizard() {
           </Card>
         );
 
-      case 4:
-        return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-lg font-semibold text-foreground">Coefficient granulaire</h2>
               <p className="text-sm text-muted-foreground">Paramètres de correction granulaire</p>
 
               <div className="space-y-2">
