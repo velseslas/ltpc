@@ -555,15 +555,7 @@ export default function FormulationBetonWizard() {
 
   const clientChantiers = chantierId ? chantiers : chantiers.filter((c: any) => !clientId || c.client_id === clientId);
 
-  // Calculations for step 6
-  const sables = (parseFloat(sableConcasseQte) || 0) + (parseFloat(sableFinQte) || 0);
-  const graviers = (parseFloat(gravillons1Qte) || 0) + (parseFloat(gravier2Qte) || 0) + (parseFloat(gravier3Qte) || 0);
-  const ciment = parseFloat(cimentQte) || 0;
-  const eau = parseFloat(eauQte) || 0;
-  const adjuvant = parseFloat(adjuvantQte) || 0;
-  const total = sables + graviers + ciment + adjuvant + eau;
-  const ratioGS = sables > 0 ? (graviers / sables).toFixed(2) : "-";
-  const ratioEC = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
+
 
   const canGoNext = () => {
     switch (currentStep) {
