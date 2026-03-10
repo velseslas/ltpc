@@ -218,24 +218,53 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
   });
 }
 
+function RapportMessageDialog({ open, onClose, message, type }: { open: boolean; onClose: () => void; message: string; type: "warning" | "info" }) {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            {type === "warning" ? (
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+            ) : (
+              <Info className="w-5 h-5 text-primary" />
+            )}
+            {type === "warning" ? "Rapport indisponible" : "Sélection requise"}
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground py-2">{message}</p>
+        <DialogFooter>
+          <Button onClick={onClose}>OK</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
   essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
   const [selectedRapport, setSelectedRapport] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMsg, setDialogMsg] = useState("");
+  const [dialogType, setDialogType] = useState<"warning" | "info">("info");
 
   const handleVoirRapport = () => {
     if (filtered.length === 0) {
-      toast.warning("Aucun rapport disponible pour cet essai");
+      setDialogMsg("Aucun rapport disponible pour cet essai dans la base de données.");
+      setDialogType("warning");
+      setDialogOpen(true);
       return;
     }
     if (!selectedRapport) {
-      toast.info("Veuillez sélectionner un rapport avant de le consulter");
+      setDialogMsg("Veuillez sélectionner un rapport avant de le consulter.");
+      setDialogType("info");
+      setDialogOpen(true);
       return;
     }
     // TODO: navigate to rapport
-    toast.success("Ouverture du rapport...");
   };
 
   return (
@@ -262,6 +291,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
           Voir rapport
         </Button>
       </div>
+      <RapportMessageDialog open={dialogOpen} onClose={() => setDialogOpen(false)} message={dialogMsg} type={dialogType} />
     </div>
   );
 }
