@@ -488,25 +488,27 @@ export default function ProportionsStep({
             </div>
           </div>
 
-          {/* Volume breakdown */}
+          {/* Volume breakdown - only show when values exist */}
+          {(calcEau || calcCiment || calcAirOcclus) && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(eau)</p>
-              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Ve * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-foreground">{calcEau ? `${(calcVolumes.Ve * 1000).toFixed(0)} L` : "—"}</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(ciment)</p>
-              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Vc * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-foreground">{calcCiment ? `${(calcVolumes.Vc * 1000).toFixed(0)} L` : "—"}</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(air)</p>
-              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Vair * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-foreground">{calcAirOcclus ? `${(calcVolumes.Vair * 1000).toFixed(0)} L` : "—"}</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(granulats)</p>
-              <p className="text-sm font-semibold text-primary">{(calcVolumes.Vg * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-primary">{(calcEau && calcCiment) ? `${(calcVolumes.Vg * 1000).toFixed(0)} L` : "—"}</p>
             </div>
           </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex items-center gap-3 pt-1">
