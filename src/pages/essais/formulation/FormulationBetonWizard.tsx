@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -107,9 +108,11 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
   );
 }
 
-// Ingredient selector for step 2
-function IngredientSelect({
+// Ingredient card with active/inactive toggle
+function IngredientCard({
   label,
+  active,
+  onToggle,
   producteurType,
   producteurs,
   selectedProducteurId,
@@ -118,6 +121,8 @@ function IngredientSelect({
   onProduitChange,
 }: {
   label: string;
+  active: boolean;
+  onToggle: (v: boolean) => void;
   producteurType: "carriere" | "cimenterie" | "adjuvant" | "source_eau";
   producteurs: { id: string; nom: string }[];
   selectedProducteurId: string;
@@ -125,42 +130,47 @@ function IngredientSelect({
   onProducteurChange: (v: string) => void;
   onProduitChange: (v: string) => void;
 }) {
-  const { data: produits = [], isLoading } = useProduits(selectedProducteurId, producteurType);
+  const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
 
   return (
-    <div className="space-y-3 p-4 rounded-lg border border-border/50 bg-muted/20">
-      <Label className="text-sm font-semibold">{label}</Label>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Producteur</Label>
-          <Select value={selectedProducteurId} onValueChange={onProducteurChange}>
-            <SelectTrigger className="bg-secondary border-border">
-              <SelectValue placeholder="Sélectionner" />
-            </SelectTrigger>
-            <SelectContent>
-              {producteurs.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className={cn(
+      "p-4 rounded-lg border space-y-3 transition-opacity",
+      active ? "border-border/50 bg-muted/20" : "border-border/30 bg-muted/5 opacity-60"
+    )}>
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-semibold">{label}</Label>
+        <div className="flex items-center gap-2">
+          <span className={cn("text-xs", active ? "text-primary" : "text-muted-foreground")}>
+            {active ? "Actif" : "Inactif"}
+          </span>
+          <Switch checked={active} onCheckedChange={onToggle} />
         </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Produit</Label>
-          <Select
-            value={selectedProduitId}
-            onValueChange={onProduitChange}
-            disabled={!selectedProducteurId || isLoading}
-          >
-            <SelectTrigger className="bg-secondary border-border">
-              <SelectValue placeholder={isLoading ? "Chargement..." : "Sélectionner"} />
-            </SelectTrigger>
-            <SelectContent>
-              {produits.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Producteur</Label>
+        <Select value={selectedProducteurId} onValueChange={onProducteurChange} disabled={!active}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder={active ? "Choisir un producteur" : "Composant inactif"} />
+          </SelectTrigger>
+          <SelectContent>
+            {producteurs.map((p) => (
+              <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Produit</Label>
+        <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? "Sélectionnez d'abord un producteur" : "Sélectionner un produit"} />
+          </SelectTrigger>
+          <SelectContent>
+            {produits.map((p: any) => (
+              <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -176,7 +186,16 @@ export default function FormulationBetonWizard() {
   const [chantierId, setChantierId] = useState("");
   const [centraleId, setCentraleId] = useState("");
 
-  // Step 2 - producteurs/produits
+  // Step 3 - producteurs/produits + active toggles
+  const [sable1Active, setSable1Active] = useState(true);
+  const [sable2Active, setSable2Active] = useState(false);
+  const [gravier1Active, setGravier1Active] = useState(true);
+  const [gravier2Active, setGravier2Active] = useState(false);
+  const [gravier3Active, setGravier3Active] = useState(false);
+  const [cimentActive, setCimentActive] = useState(true);
+  const [adjuvantActive, setAdjuvantActive] = useState(true);
+  const [eauActive, setEauActive] = useState(true);
+
   const [sableConcasseProducteurId, setSableConcasseProducteurId] = useState("");
   const [sableConcasseProduitId, setSableConcasseProduitId] = useState("");
   const [sableFinProducteurId, setSableFinProducteurId] = useState("");
@@ -524,80 +543,97 @@ export default function FormulationBetonWizard() {
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
-              <p className="text-sm text-muted-foreground mb-2">Sélectionnez les producteurs et produits pour chaque composant</p>
 
-              <IngredientSelect
-                label="Sable concassé"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={sableConcasseProducteurId}
-                selectedProduitId={sableConcasseProduitId}
-                onProducteurChange={setSableConcasseProducteurId}
-                onProduitChange={setSableConcasseProduitId}
-              />
-              <IngredientSelect
-                label="Sable fin"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={sableFinProducteurId}
-                selectedProduitId={sableFinProduitId}
-                onProducteurChange={setSableFinProducteurId}
-                onProduitChange={setSableFinProduitId}
-              />
-              <IngredientSelect
-                label="Gravillons 1"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={gravillons1ProducteurId}
-                selectedProduitId={gravillons1ProduitId}
-                onProducteurChange={setGravillons1ProducteurId}
-                onProduitChange={setGravillons1ProduitId}
-              />
-              <IngredientSelect
-                label="Gravier 2"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={gravier2ProducteurId}
-                selectedProduitId={gravier2ProduitId}
-                onProducteurChange={setGravier2ProducteurId}
-                onProduitChange={setGravier2ProduitId}
-              />
-              <IngredientSelect
-                label="Gravier 3"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={gravier3ProducteurId}
-                selectedProduitId={gravier3ProduitId}
-                onProducteurChange={setGravier3ProducteurId}
-                onProduitChange={setGravier3ProduitId}
-              />
-              <IngredientSelect
-                label="Ciment"
-                producteurType="cimenterie"
-                producteurs={cimenteries}
-                selectedProducteurId={cimentProducteurId}
-                selectedProduitId={cimentProduitId}
-                onProducteurChange={setCimentProducteurId}
-                onProduitChange={setCimentProduitId}
-              />
-              <IngredientSelect
-                label="Adjuvant"
-                producteurType="adjuvant"
-                producteurs={adjuvants}
-                selectedProducteurId={adjuvantProducteurId}
-                selectedProduitId={adjuvantProduitId}
-                onProducteurChange={setAdjuvantProducteurId}
-                onProduitChange={setAdjuvantProduitId}
-              />
-              <IngredientSelect
-                label="Eau"
-                producteurType="source_eau"
-                producteurs={sourcesEau}
-                selectedProducteurId={eauProducteurId}
-                selectedProduitId={eauProduitId}
-                onProducteurChange={setEauProducteurId}
-                onProduitChange={setEauProduitId}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <IngredientCard
+                  label="Sable 1"
+                  active={sable1Active}
+                  onToggle={setSable1Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={sableConcasseProducteurId}
+                  selectedProduitId={sableConcasseProduitId}
+                  onProducteurChange={setSableConcasseProducteurId}
+                  onProduitChange={setSableConcasseProduitId}
+                />
+                <IngredientCard
+                  label="Sable 2"
+                  active={sable2Active}
+                  onToggle={setSable2Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={sableFinProducteurId}
+                  selectedProduitId={sableFinProduitId}
+                  onProducteurChange={setSableFinProducteurId}
+                  onProduitChange={setSableFinProduitId}
+                />
+                <IngredientCard
+                  label="Gravier 1"
+                  active={gravier1Active}
+                  onToggle={setGravier1Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={gravillons1ProducteurId}
+                  selectedProduitId={gravillons1ProduitId}
+                  onProducteurChange={setGravillons1ProducteurId}
+                  onProduitChange={setGravillons1ProduitId}
+                />
+                <IngredientCard
+                  label="Gravier 2"
+                  active={gravier2Active}
+                  onToggle={setGravier2Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={gravier2ProducteurId}
+                  selectedProduitId={gravier2ProduitId}
+                  onProducteurChange={setGravier2ProducteurId}
+                  onProduitChange={setGravier2ProduitId}
+                />
+                <IngredientCard
+                  label="Gravier 3"
+                  active={gravier3Active}
+                  onToggle={setGravier3Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={gravier3ProducteurId}
+                  selectedProduitId={gravier3ProduitId}
+                  onProducteurChange={setGravier3ProducteurId}
+                  onProduitChange={setGravier3ProduitId}
+                />
+                <IngredientCard
+                  label="Ciment"
+                  active={cimentActive}
+                  onToggle={setCimentActive}
+                  producteurType="cimenterie"
+                  producteurs={cimenteries}
+                  selectedProducteurId={cimentProducteurId}
+                  selectedProduitId={cimentProduitId}
+                  onProducteurChange={setCimentProducteurId}
+                  onProduitChange={setCimentProduitId}
+                />
+                <IngredientCard
+                  label="Adjuvant"
+                  active={adjuvantActive}
+                  onToggle={setAdjuvantActive}
+                  producteurType="adjuvant"
+                  producteurs={adjuvants}
+                  selectedProducteurId={adjuvantProducteurId}
+                  selectedProduitId={adjuvantProduitId}
+                  onProducteurChange={setAdjuvantProducteurId}
+                  onProduitChange={setAdjuvantProduitId}
+                />
+                <IngredientCard
+                  label="Eau"
+                  active={eauActive}
+                  onToggle={setEauActive}
+                  producteurType="source_eau"
+                  producteurs={sourcesEau}
+                  selectedProducteurId={eauProducteurId}
+                  selectedProduitId={eauProduitId}
+                  onProducteurChange={setEauProducteurId}
+                  onProduitChange={setEauProduitId}
+                />
+              </div>
             </CardContent>
           </Card>
         );
@@ -729,13 +765,13 @@ export default function FormulationBetonWizard() {
       <EssaiBreadcrumb items={[
         { label: "Béton", path: "/essais/beton" },
         { label: "Formulation", path: "/essais/beton/formulation" },
-        { label: "Nouvelle formule" },
+        { label: "Nouvelle formulation de béton" },
       ]} />
 
       <div className="flex items-center gap-4">
         <BackButton to="/essais/beton/formulation" />
         <h1 className="text-3xl font-display font-bold text-foreground">
-          Nouvelle <span className="text-primary text-glow">Formule</span>
+          Nouvelle <span className="text-primary text-glow">Formulation de Béton</span>
         </h1>
       </div>
 
