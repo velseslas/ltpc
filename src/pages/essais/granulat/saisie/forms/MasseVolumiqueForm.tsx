@@ -267,15 +267,15 @@ function GravelInputFields({ data, label, onFieldChange }: { data: Record<string
         <div className="grid grid-cols-3 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W5 = E − F</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W5") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W5")} g</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V1 = W2 − W5</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V1") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V1")}</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V2 = W1 − W5</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V2") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V2")}</p>
           </div>
         </div>
       </div>
