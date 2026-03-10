@@ -8,33 +8,60 @@ interface MasseVolumiqueFormProps {
 }
 
 export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiqueFormProps) {
+  const getNum = (field: string): number | undefined => {
+    const v = resultats[field];
+    return typeof v === "number" ? v : undefined;
+  };
+
   const handleChange = (field: string, value: string) => {
-    const numValue = parseFloat(value) || 0;
-    const updated = { ...resultats, [field]: numValue };
-    
+    const updated = { ...resultats };
+
+    if (value === "" || value === undefined) {
+      delete updated[field];
+    } else {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) return;
+      updated[field] = numValue;
+    }
+
     // Calculs automatiques
-    const masseSeche = (updated.masse_seche as number) || 0;
-    const masseSaturee = (updated.masse_saturee as number) || 0;
-    const masseImmergee = (updated.masse_immergee as number) || 0;
-    
-    // Masse volumique réelle (ρrd)
+    const masseSeche = typeof updated.masse_seche === "number" ? updated.masse_seche : 0;
+    const masseSaturee = typeof updated.masse_saturee === "number" ? updated.masse_saturee : 0;
+    const masseImmergee = typeof updated.masse_immergee === "number" ? updated.masse_immergee : 0;
+
     const denominator = masseSaturee - masseImmergee;
-    if (denominator > 0) {
+    if (denominator > 0 && masseSeche > 0) {
+      // Masse volumique réelle (ρrd)
       const mvReelle = (masseSeche / denominator) * 1000;
       updated.mv_reelle = parseFloat(mvReelle.toFixed(0));
-      
+
       // Masse volumique saturée surface sèche (ρssd)
       const mvSsd = (masseSaturee / denominator) * 1000;
       updated.mv_ssd = parseFloat(mvSsd.toFixed(0));
-      
-      // Coefficient d'absorption d'eau
-      if (masseSeche > 0) {
-        const absorption = ((masseSaturee - masseSeche) / masseSeche) * 100;
-        updated.absorption = parseFloat(absorption.toFixed(2));
+
+      // Masse volumique apparente (ρa)
+      const denominatorApp = masseSeche - masseImmergee;
+      if (denominatorApp > 0) {
+        const mvApparente = (masseSeche / denominatorApp) * 1000;
+        updated.mv_apparente = parseFloat(mvApparente.toFixed(0));
       }
+
+      // Coefficient d'absorption d'eau (WA)
+      const absorption = ((masseSaturee - masseSeche) / masseSeche) * 100;
+      updated.absorption = parseFloat(absorption.toFixed(2));
+    } else {
+      delete updated.mv_reelle;
+      delete updated.mv_ssd;
+      delete updated.mv_apparente;
+      delete updated.absorption;
     }
-    
+
     onChange(updated);
+  };
+
+  const displayValue = (field: string): string => {
+    const v = getNum(field);
+    return v !== undefined ? String(v) : "";
   };
 
   return (
@@ -50,7 +77,7 @@ export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiq
               id="masse_seche"
               type="number"
               step="0.1"
-              value={(resultats.masse_seche as number) || ""}
+              value={displayValue("masse_seche")}
               onChange={(e) => handleChange("masse_seche", e.target.value)}
               className="bg-background border-border"
               placeholder="0.0"
@@ -62,7 +89,7 @@ export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiq
               id="masse_saturee"
               type="number"
               step="0.1"
-              value={(resultats.masse_saturee as number) || ""}
+              value={displayValue("masse_saturee")}
               onChange={(e) => handleChange("masse_saturee", e.target.value)}
               className="bg-background border-border"
               placeholder="0.0"
@@ -74,7 +101,7 @@ export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiq
               id="masse_immergee"
               type="number"
               step="0.1"
-              value={(resultats.masse_immergee as number) || ""}
+              value={displayValue("masse_immergee")}
               onChange={(e) => handleChange("masse_immergee", e.target.value)}
               className="bg-background border-border"
               placeholder="0.0"
@@ -83,23 +110,29 @@ export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiq
         </div>
 
         {/* Résultats calculés */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground mb-1">Masse volumique réelle ρrd</p>
             <p className="text-2xl font-bold text-primary">
-              {(resultats.mv_reelle as number) || "--"} kg/m³
+              {getNum("mv_reelle") ?? "--"} <span className="text-sm font-normal">kg/m³</span>
             </p>
           </div>
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground mb-1">Masse volumique SSD ρssd</p>
             <p className="text-2xl font-bold text-primary">
-              {(resultats.mv_ssd as number) || "--"} kg/m³
+              {getNum("mv_ssd") ?? "--"} <span className="text-sm font-normal">kg/m³</span>
+            </p>
+          </div>
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+            <p className="text-sm text-muted-foreground mb-1">Masse volumique apparente ρa</p>
+            <p className="text-2xl font-bold text-primary">
+              {getNum("mv_apparente") ?? "--"} <span className="text-sm font-normal">kg/m³</span>
             </p>
           </div>
           <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground mb-1">Absorption d'eau WA</p>
             <p className="text-2xl font-bold text-primary">
-              {(resultats.absorption as number) || "--"} %
+              {getNum("absorption") ?? "--"} <span className="text-sm font-normal">%</span>
             </p>
           </div>
         </div>
@@ -108,9 +141,11 @@ export default function MasseVolumiqueForm({ resultats, onChange }: MasseVolumiq
         <div className="bg-muted/50 rounded-lg p-4">
           <p className="text-sm font-medium text-foreground mb-2">Formules utilisées :</p>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• ρrd = M1 / (M2 - M3) × 1000</li>
-            <li>• ρssd = M2 / (M2 - M3) × 1000</li>
+            <li>• ρrd = M1 / (M2 - M3) × ρw</li>
+            <li>• ρssd = M2 / (M2 - M3) × ρw</li>
+            <li>• ρa = M1 / (M1 - M3) × ρw</li>
             <li>• WA = (M2 - M1) / M1 × 100</li>
+            <li className="text-xs mt-1">Où ρw = 1000 kg/m³</li>
           </ul>
         </div>
       </CardContent>
