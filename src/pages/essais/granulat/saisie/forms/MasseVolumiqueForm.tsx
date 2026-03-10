@@ -438,33 +438,18 @@ function SandFormulas() {
   );
 }
 
-function GravelContent({ gravelData, handleGravelChange }: { 
-  gravelData: { key: string; label: string; data: Record<string, unknown> }[];
-  handleGravelChange: (fractionKey: string, field: string, value: string) => void;
-}) {
+function GravelFormulas() {
   return (
-    <>
-      {gravelData.map(({ key, label, data }) => (
-        <div key={key} className="space-y-6 border border-border rounded-lg p-4">
-          <GravelInputFields
-            data={data}
-            label={label}
-            onFieldChange={(field, value) => handleGravelChange(key, field, value)}
-          />
-          <ResultCards data={data} label={`Résultats – ${label}`} />
-        </div>
-      ))}
-      <div className="bg-muted/50 rounded-lg p-4">
-        <p className="text-sm font-medium text-foreground mb-2">Formules (Panier immersion) :</p>
-        <ul className="text-sm text-muted-foreground space-y-1">
-          <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D &nbsp;|&nbsp; W5 = E − F</li>
-          <li>• V1 = W2 − W5 &nbsp;|&nbsp; V2 = W1 − W5</li>
-          <li>• Densité sèche = W1 / V1</li>
-          <li>• Densité humide = W2 / V1</li>
-          <li>• Densité effective = W1 / V2</li>
-          <li>• Absorption = (W2 − W1) / W1 × 100</li>
-        </ul>
-      </div>
-    </>
+    <div className="bg-muted/50 rounded-lg p-4">
+      <p className="text-sm font-medium text-foreground mb-2">Formules (Panier immersion) :</p>
+      <ul className="text-sm text-muted-foreground space-y-1">
+        <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D &nbsp;|&nbsp; W5 = E − F</li>
+        <li>• V1 = W2 − W5 &nbsp;|&nbsp; V2 = W1 − W5</li>
+        <li>• Densité sèche = W1 / V1</li>
+        <li>• Densité humide = W2 / V1</li>
+        <li>• Densité effective = W1 / V2</li>
+        <li>• Absorption = (W2 − W1) / W1 × 100</li>
+      </ul>
+    </div>
   );
 }
