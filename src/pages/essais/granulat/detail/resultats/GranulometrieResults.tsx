@@ -142,8 +142,8 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
     tamisData.forEach(t => {
       const fp = fuseau.points.find(p => Math.abs(p.ouverture - t.ouverture) < 0.01);
       if (fp) {
-        if (t.passant < fp.min) { isConform = false; issues.push(`${t.ouverture}mm: ${t.passant.toFixed(1)}% < min ${fp.min}%`); }
-        if (t.passant > fp.max) { isConform = false; issues.push(`${t.ouverture}mm: ${t.passant.toFixed(1)}% > max ${fp.max}%`); }
+        if ((t.passant ?? 0) < fp.min) { isConform = false; issues.push(`${t.ouverture}mm: ${(t.passant ?? 0).toFixed(1)}% < min ${fp.min}%`); }
+        if ((t.passant ?? 0) > fp.max) { isConform = false; issues.push(`${t.ouverture}mm: ${(t.passant ?? 0).toFixed(1)}% > max ${fp.max}%`); }
       }
     });
     return { isConform, issues };
