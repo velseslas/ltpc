@@ -321,8 +321,10 @@ function EssaiStep({
               </p>
             ) : (
               GRANULAT_ESSAIS.map((essai) => {
-                const materialsForEssai = essai.sableOnly
+                const materialsForEssai = essai.filter === "sable"
                   ? resolvedGranulats.filter((m) => m.label.toLowerCase().startsWith("sable"))
+                  : essai.filter === "gravier"
+                  ? resolvedGranulats.filter((m) => m.label.toLowerCase().startsWith("gravier"))
                   : resolvedGranulats;
                 if (materialsForEssai.length === 0) return null;
                 return (
