@@ -851,6 +851,7 @@ export type Database = {
           resultats: Json | null
           statut: string
           temperature_air: number | null
+          temperature_ambiante: number | null
           temperature_beton: number | null
           updated_at: string
         }
@@ -875,6 +876,7 @@ export type Database = {
           resultats?: Json | null
           statut?: string
           temperature_air?: number | null
+          temperature_ambiante?: number | null
           temperature_beton?: number | null
           updated_at?: string
         }
@@ -899,6 +901,7 @@ export type Database = {
           resultats?: Json | null
           statut?: string
           temperature_air?: number | null
+          temperature_ambiante?: number | null
           temperature_beton?: number | null
           updated_at?: string
         }

@@ -91,7 +91,7 @@ const CLASSES_CONSISTANCE_LIST = ["S1", "S2", "S3", "S4", "S5"];
 const getFieldsForType = (essaiType: string) => {
   switch (essaiType) {
     case "affaissement":
-      return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: false };
+      return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: true };
     case "temperature":
       return { showTemperatureBeton: false, showTemperatureAir: false, showTemperatureAmbiante: true };
     case "temps-prise":
