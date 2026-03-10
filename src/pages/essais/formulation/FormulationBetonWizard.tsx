@@ -28,8 +28,8 @@ import { cn } from "@/lib/utils";
 
 const STEPS = [
   { number: 1, label: "Information générale" },
-  { number: 2, label: "Information matériaux" },
-  { number: 3, label: "Données de base" },
+  { number: 2, label: "Données de base" },
+  { number: 3, label: "Information matériaux" },
   { number: 4, label: "Coefficient granulaire" },
   { number: 5, label: "Essai" },
   { number: 6, label: "Calcul proportions" },
@@ -282,27 +282,13 @@ export default function FormulationBetonWizard() {
               <h2 className="text-lg font-semibold text-foreground">Informations client</h2>
 
               <div className="space-y-2">
-                <Label>Nom de la formulation</Label>
+                <Label>Nom de la formulation <span className="text-destructive">*</span></Label>
                 <Input
                   value={nom}
                   onChange={(e) => setNom(e.target.value)}
                   placeholder="ex: Béton C25/30 pour fondations"
                   className="bg-secondary border-border"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Centrale à béton <span className="text-destructive">*</span></Label>
-                <Select value={centraleId} onValueChange={setCentraleId}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue placeholder="Sélectionnez une centrale" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {centrales.map((c: any) => (
-                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2">
@@ -332,11 +318,61 @@ export default function FormulationBetonWizard() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label>Centrale à béton <span className="text-destructive">*</span></Label>
+                <Select value={centraleId} onValueChange={setCentraleId}>
+                  <SelectTrigger className="bg-secondary border-border">
+                    <SelectValue placeholder="Sélectionnez une centrale" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {centrales.map((c: any) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
         );
 
       case 2:
+        return (
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardContent className="p-6 space-y-5">
+              <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
+              <p className="text-sm text-muted-foreground">Saisissez les quantités pour 1 m³ de béton</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { label: "Sable concassé (kg)", value: sableConcasseQte, setter: setSableConcasseQte },
+                  { label: "Sable fin (kg)", value: sableFinQte, setter: setSableFinQte },
+                  { label: "Gravillons 1 (kg)", value: gravillons1Qte, setter: setGravillons1Qte },
+                  { label: "Gravier 2 (kg)", value: gravier2Qte, setter: setGravier2Qte },
+                  { label: "Gravier 3 (kg)", value: gravier3Qte, setter: setGravier3Qte },
+                  { label: "Ciment (kg)", value: cimentQte, setter: setCimentQte },
+                  { label: "Adjuvant (kg)", value: adjuvantQte, setter: setAdjuvantQte },
+                  { label: "Eau (L)", value: eauQte, setter: setEauQte },
+                ].map(({ label, value, setter }) => (
+                  <div key={label} className="space-y-1.5">
+                    <Label className="text-sm">{label}</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                      placeholder="0.00"
+                      className="bg-secondary border-border"
+                    />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 3:
         return (
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-4">
@@ -415,42 +451,6 @@ export default function FormulationBetonWizard() {
                 onProducteurChange={setEauProducteurId}
                 onProduitChange={setEauProduitId}
               />
-            </CardContent>
-          </Card>
-        );
-
-      case 3:
-        return (
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-5">
-              <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
-              <p className="text-sm text-muted-foreground">Saisissez les quantités pour 1 m³ de béton</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { label: "Sable concassé (kg)", value: sableConcasseQte, setter: setSableConcasseQte },
-                  { label: "Sable fin (kg)", value: sableFinQte, setter: setSableFinQte },
-                  { label: "Gravillons 1 (kg)", value: gravillons1Qte, setter: setGravillons1Qte },
-                  { label: "Gravier 2 (kg)", value: gravier2Qte, setter: setGravier2Qte },
-                  { label: "Gravier 3 (kg)", value: gravier3Qte, setter: setGravier3Qte },
-                  { label: "Ciment (kg)", value: cimentQte, setter: setCimentQte },
-                  { label: "Adjuvant (kg)", value: adjuvantQte, setter: setAdjuvantQte },
-                  { label: "Eau (L)", value: eauQte, setter: setEauQte },
-                ].map(({ label, value, setter }) => (
-                  <div key={label} className="space-y-1.5">
-                    <Label className="text-sm">{label}</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={value}
-                      onChange={(e) => setter(e.target.value)}
-                      placeholder="0.00"
-                      className="bg-secondary border-border"
-                    />
-                  </div>
-                ))}
-              </div>
             </CardContent>
           </Card>
         );
