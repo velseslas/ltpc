@@ -187,16 +187,16 @@ function getNameById(list: { id: string; nom: string }[], id: string) {
 
 // Granulat test types
 const GRANULAT_ESSAIS = [
-  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, sableOnly: false },
-  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, sableOnly: true },
-  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, sableOnly: true },
-  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, sableOnly: false },
-  { nom: "Los Angeles", table: "echantillons_los_angeles" as const, sableOnly: false },
-  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, sableOnly: false },
-  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, sableOnly: false },
-  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, sableOnly: false },
-  { nom: "Friabilité", table: "echantillons_friabilite" as const, sableOnly: false },
-  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, sableOnly: false },
+  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, filter: "all" as const },
+  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, filter: "sable" as const },
+  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, filter: "sable" as const },
+  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, filter: "sable" as const },
+  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const },
+  { nom: "Los Angeles", table: "echantillons_los_angeles" as const, filter: "gravier" as const },
+  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const },
+  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const },
+  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const },
+  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "gravier" as const },
 ];
 
 type GranulatTable = typeof GRANULAT_ESSAIS[number]["table"];
@@ -321,8 +321,10 @@ function EssaiStep({
               </p>
             ) : (
               GRANULAT_ESSAIS.map((essai) => {
-                const materialsForEssai = essai.sableOnly
+                const materialsForEssai = essai.filter === "sable"
                   ? resolvedGranulats.filter((m) => m.label.toLowerCase().startsWith("sable"))
+                  : essai.filter === "gravier"
+                  ? resolvedGranulats.filter((m) => m.label.toLowerCase().startsWith("gravier"))
                   : resolvedGranulats;
                 if (materialsForEssai.length === 0) return null;
                 return (
