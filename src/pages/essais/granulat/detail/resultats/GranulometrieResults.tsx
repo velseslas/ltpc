@@ -320,7 +320,7 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
                             : isInFuseau ? 'bg-green-500/10 text-green-700 dark:text-green-400'
                               : 'bg-destructive/10 text-destructive'
                         }`}>
-                          {tamis.passant.toFixed(2)}%
+                          {(tamis.passant ?? 0).toFixed(2)}%
                         </span>
                       </td>
                       <td className="py-2 px-2 text-center text-muted-foreground text-xs">
