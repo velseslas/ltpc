@@ -84,10 +84,12 @@ const STEPS = [
 ];
 
 // Stepper component
-function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClick: (step: number) => void }) {
+function Stepper({ currentStep, onStepClick, errorSteps = [] }: { currentStep: number; onStepClick: (step: number) => void; errorSteps?: number[] }) {
   return (
     <div className="flex items-center justify-center gap-0 mb-8">
-      {STEPS.map((step, index) => (
+      {STEPS.map((step, index) => {
+        const hasError = errorSteps.includes(step.number);
+        return (
         <div key={step.number} className="flex items-center">
           <div className="flex flex-col items-center">
             <button
@@ -95,14 +97,16 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
               onClick={() => onStepClick(step.number)}
               className={cn(
                 "w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all cursor-pointer hover:scale-110",
-                currentStep === step.number
+                hasError
+                  ? "bg-destructive/20 text-destructive border-2 border-destructive animate-ring-blink"
+                  : currentStep === step.number
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                   : currentStep > step.number
                   ? "bg-primary/80 text-primary-foreground"
                   : "bg-muted text-muted-foreground"
               )}
             >
-              {currentStep > step.number ? (
+              {currentStep > step.number && !hasError ? (
                 <Check className="w-4 h-4" />
               ) : (
                 step.number
@@ -111,7 +115,9 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
             <span
               className={cn(
                 "text-[11px] mt-1.5 text-center max-w-[100px] leading-tight",
-                currentStep === step.number
+                hasError
+                  ? "text-destructive font-medium"
+                  : currentStep === step.number
                   ? "text-primary font-medium"
                   : "text-muted-foreground"
               )}
@@ -128,7 +134,8 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
             />
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
