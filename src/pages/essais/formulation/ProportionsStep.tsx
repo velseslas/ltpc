@@ -25,6 +25,20 @@ import {
 // Standard sieve openings (mm) for Dreux-Gorisse
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
 
+interface ValidationData {
+  // Step 2
+  resistance28j: string;
+  slumpSouhaite: string;
+  classeExposition: string;
+  // Step 3 - active materials must have producteur+produit
+  materialsValid: boolean;
+  missingMaterials: string[];
+  // Step 4
+  coefficientGranulaire: string;
+  coefficientCompacite: string;
+  // Step 5 - not strictly required but good to check
+}
+
 interface ProportionsStepProps {
   sableConcasseQte: string;
   sableFinQte: string;
@@ -45,6 +59,8 @@ interface ProportionsStepProps {
   granulatCurves?: MaterialCurve[];
   granulatDensites?: Record<string, number>;
   onQuantityChange?: (key: string, value: string) => void;
+  validationData?: ValidationData;
+  onStepErrors?: (errorSteps: number[]) => void;
 }
 
 interface GranulatSlider {
@@ -110,18 +126,22 @@ export default function ProportionsStep({
   granulatCurves,
   granulatDensites = {},
   onQuantityChange,
+  validationData,
+  onStepErrors,
 }: ProportionsStepProps) {
   // Local overrides for interactive adjustments
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
 
-  // Calculation input parameters
-  const [calcEau, setCalcEau] = useState(eauQte || "175");
-  const [calcCiment, setCalcCiment] = useState(cimentQte || "350");
-  const [calcRatioGS, setCalcRatioGS] = useState("1.8");
-  const [calcAirOcclus, setCalcAirOcclus] = useState("2");
+  // Calculation input parameters - start EMPTY (user fills them)
+  const [calcEau, setCalcEau] = useState("");
+  const [calcCiment, setCalcCiment] = useState("");
+  const [calcRatioGS, setCalcRatioGS] = useState("");
+  const [calcAirOcclus, setCalcAirOcclus] = useState("");
   const [hasCalculated, setHasCalculated] = useState(false);
   const [missingReportsOpen, setMissingReportsOpen] = useState(false);
   const [missingReports, setMissingReports] = useState<string[]>([]);
+  const [validationErrorOpen, setValidationErrorOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{ step: number; label: string; fields: string[] }[]>([]);
 
   // Sync from parent
   useEffect(() => {
@@ -214,7 +234,50 @@ export default function ProportionsStep({
     return true;
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves]);
 
+  // Cross-step validation
+  const validateAllSteps = useCallback((): boolean => {
+    const errors: { step: number; label: string; fields: string[] }[] = [];
+    
+    // Step 2 - Données de base
+    if (validationData) {
+      const step2Fields: string[] = [];
+      if (!validationData.resistance28j) step2Fields.push("Résistance souhaitée à 28 j");
+      if (!validationData.slumpSouhaite) step2Fields.push("Slump souhaité");
+      if (!validationData.classeExposition) step2Fields.push("Classe d'exposition");
+      if (step2Fields.length > 0) errors.push({ step: 2, label: "Données de base", fields: step2Fields });
+      
+      // Step 3 - Information matériaux
+      if (!validationData.materialsValid) {
+        errors.push({ step: 3, label: "Information matériaux", fields: validationData.missingMaterials });
+      }
+      
+      // Step 4 - Coefficients
+      const step4Fields: string[] = [];
+      if (!validationData.coefficientGranulaire) step4Fields.push("Coefficient granulaire (G')");
+      if (!validationData.coefficientCompacite) step4Fields.push("Coefficient de compacité (γ)");
+      if (step4Fields.length > 0) errors.push({ step: 4, label: "Coefficients", fields: step4Fields });
+    }
+
+    // Step 6 local fields
+    const step6Fields: string[] = [];
+    if (!calcEau) step6Fields.push("Eau (kg/m³)");
+    if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
+    if (!calcRatioGS) step6Fields.push("Rapport G/S");
+    if (!calcAirOcclus) step6Fields.push("Air occlus (%)");
+    if (step6Fields.length > 0) errors.push({ step: 6, label: "Calcul proportions", fields: step6Fields });
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setValidationErrorOpen(true);
+      onStepErrors?.(errors.map(e => e.step));
+      return false;
+    }
+    onStepErrors?.([]);
+    return true;
+  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, onStepErrors]);
+
   const handleCalculate = useCallback(() => {
+    if (!validateAllSteps()) return;
     if (!validateDensities()) return;
 
     const eauVal = parseFloat(calcEau) || 0;
@@ -246,9 +309,10 @@ export default function ProportionsStep({
     onQuantityChange?.("eau", eauVal.toString());
     onQuantityChange?.("ciment", cimentVal.toString());
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange, validateDensities]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange, validateDensities, validateAllSteps]);
 
   const handleOptimize = useCallback(() => {
+    if (!validateAllSteps()) return;
     if (!validateDensities()) return;
 
     const eauVal = parseFloat(calcEau) || 0;
@@ -278,7 +342,7 @@ export default function ProportionsStep({
     }
     setLocalOverrides(newOverrides);
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange, validateDensities]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange, validateDensities, validateAllSteps]);
 
   // Helper to get density for a granulat from granulatInputs
   const getDensite = (key: string): number => {
@@ -344,7 +408,7 @@ export default function ProportionsStep({
   const calcVolumes = useMemo(() => {
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
-    const airVal = parseFloat(calcAirOcclus) || 2;
+    const airVal = parseFloat(calcAirOcclus) || 0;
     const compacite = parseFloat(coefficientCompacite) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
@@ -424,25 +488,27 @@ export default function ProportionsStep({
             </div>
           </div>
 
-          {/* Volume breakdown */}
+          {/* Volume breakdown - only show when values exist */}
+          {(calcEau || calcCiment || calcAirOcclus) && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(eau)</p>
-              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Ve * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-foreground">{calcEau ? `${(calcVolumes.Ve * 1000).toFixed(0)} L` : "—"}</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(ciment)</p>
-              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Vc * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-foreground">{calcCiment ? `${(calcVolumes.Vc * 1000).toFixed(0)} L` : "—"}</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(air)</p>
-              <p className="text-sm font-semibold text-foreground">{(calcVolumes.Vair * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-foreground">{calcAirOcclus ? `${(calcVolumes.Vair * 1000).toFixed(0)} L` : "—"}</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-2.5 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(granulats)</p>
-              <p className="text-sm font-semibold text-primary">{(calcVolumes.Vg * 1000).toFixed(0)} L</p>
+              <p className="text-sm font-semibold text-primary">{(calcEau && calcCiment) ? `${(calcVolumes.Vg * 1000).toFixed(0)} L` : "—"}</p>
             </div>
           </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex items-center gap-3 pt-1">
@@ -622,6 +688,41 @@ export default function ProportionsStep({
           </div>
           <DialogFooter>
             <Button onClick={() => setMissingReportsOpen(false)}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cross-step validation error dialog */}
+      <Dialog open={validationErrorOpen} onOpenChange={setValidationErrorOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Données manquantes
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-foreground">
+              Veuillez compléter les champs suivants avant de calculer les proportions :
+            </p>
+            {validationErrors.map((error) => (
+              <div key={error.step} className="space-y-1.5">
+                <p className="text-sm font-semibold text-foreground">
+                  Étape {error.step} — {error.label}
+                </p>
+                <ul className="space-y-1 ml-2">
+                  {error.fields.map((field) => (
+                    <li key={field} className="flex items-center gap-2 text-sm text-destructive">
+                      <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+                      {field}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setValidationErrorOpen(false)}>OK</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -84,10 +84,12 @@ const STEPS = [
 ];
 
 // Stepper component
-function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClick: (step: number) => void }) {
+function Stepper({ currentStep, onStepClick, errorSteps = [] }: { currentStep: number; onStepClick: (step: number) => void; errorSteps?: number[] }) {
   return (
     <div className="flex items-center justify-center gap-0 mb-8">
-      {STEPS.map((step, index) => (
+      {STEPS.map((step, index) => {
+        const hasError = errorSteps.includes(step.number);
+        return (
         <div key={step.number} className="flex items-center">
           <div className="flex flex-col items-center">
             <button
@@ -95,14 +97,16 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
               onClick={() => onStepClick(step.number)}
               className={cn(
                 "w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all cursor-pointer hover:scale-110",
-                currentStep === step.number
+                hasError
+                  ? "bg-destructive/20 text-destructive border-2 border-destructive animate-ring-blink"
+                  : currentStep === step.number
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                   : currentStep > step.number
                   ? "bg-primary/80 text-primary-foreground"
                   : "bg-muted text-muted-foreground"
               )}
             >
-              {currentStep > step.number ? (
+              {currentStep > step.number && !hasError ? (
                 <Check className="w-4 h-4" />
               ) : (
                 step.number
@@ -111,7 +115,9 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
             <span
               className={cn(
                 "text-[11px] mt-1.5 text-center max-w-[100px] leading-tight",
-                currentStep === step.number
+                hasError
+                  ? "text-destructive font-medium"
+                  : currentStep === step.number
                   ? "text-primary font-medium"
                   : "text-muted-foreground"
               )}
@@ -128,7 +134,8 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
             />
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -148,6 +155,7 @@ function IngredientCard({
   quantite,
   onQuantiteChange,
   quantiteUnit = "kg",
+  showError = false,
 }: {
   label: string;
   producteurLabel?: string;
@@ -162,6 +170,7 @@ function IngredientCard({
   quantite: string;
   onQuantiteChange: (v: string) => void;
   quantiteUnit?: string;
+  showError?: boolean;
 }) {
   const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
 
@@ -182,7 +191,7 @@ function IngredientCard({
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">{producteurLabel}</Label>
         <Select value={selectedProducteurId} onValueChange={onProducteurChange} disabled={!active}>
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className={cn("bg-secondary border-border", showError && active && !selectedProducteurId && "animate-border-blink")}>
             <SelectValue placeholder={active ? `Choisir ${producteurLabel.toLowerCase()}` : "Composant inactif"} />
           </SelectTrigger>
           <SelectContent>
@@ -195,7 +204,7 @@ function IngredientCard({
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Produit</Label>
         <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className={cn("bg-secondary border-border", showError && active && selectedProducteurId && !selectedProduitId && "animate-border-blink")}>
             <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? `Sélectionnez d'abord une ${producteurLabel.toLowerCase()}` : "Sélectionner un produit"} />
           </SelectTrigger>
           <SelectContent>
@@ -606,7 +615,7 @@ function EssaiStep({
 export default function FormulationBetonWizard() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-
+  const [errorSteps, setErrorSteps] = useState<number[]>([]);
   // Step 1
   const [nom, setNom] = useState("");
   const [clientId, setClientId] = useState("");
@@ -782,7 +791,7 @@ export default function FormulationBetonWizard() {
         </h1>
       </div>
 
-      <Stepper currentStep={currentStep} onStepClick={(step) => setCurrentStep(step)} />
+      <Stepper currentStep={currentStep} onStepClick={(step) => { setCurrentStep(step); setErrorSteps(prev => prev.filter(s => s !== step)); }} errorSteps={errorSteps} />
 
       {/* Step 1 */}
       <div className={currentStep === 1 ? "" : "hidden"}>
@@ -825,9 +834,9 @@ export default function FormulationBetonWizard() {
             <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-sm">Résistance souhaitée à 28 j</Label>
+                <Label className="text-sm">Résistance souhaitée à 28 j <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className="bg-secondary border-border pr-14" />
+                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !resistance28j && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
                 </div>
               </div>
@@ -838,9 +847,9 @@ export default function FormulationBetonWizard() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-sm">Slump souhaité</Label>
+                <Label className="text-sm">Slump souhaité <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className="bg-secondary border-border pr-14" />
+                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !slumpSouhaite && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
                 </div>
               </div>
@@ -851,8 +860,8 @@ export default function FormulationBetonWizard() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <div className="space-y-1.5">
-                <Label className="text-sm">Classe d'exposition</Label>
-                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className="bg-muted border-border cursor-default" />
+                <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
+                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", errorSteps.includes(2) && !classeExposition && "animate-border-blink")} />
               </div>
               <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                 <BarChart3 className="w-4 h-4" />
@@ -903,14 +912,14 @@ export default function FormulationBetonWizard() {
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <IngredientCard label="Sable 1" producteurLabel="Carrière" active={sable1Active} onToggle={setSable1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableConcasseProducteurId} selectedProduitId={sableConcasseProduitId} onProducteurChange={setSableConcasseProducteurId} onProduitChange={setSableConcasseProduitId} quantite={sableConcasseQte} onQuantiteChange={setSableConcasseQte} />
-              <IngredientCard label="Sable 2" producteurLabel="Carrière" active={sable2Active} onToggle={setSable2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableFinProducteurId} selectedProduitId={sableFinProduitId} onProducteurChange={setSableFinProducteurId} onProduitChange={setSableFinProduitId} quantite={sableFinQte} onQuantiteChange={setSableFinQte} />
-              <IngredientCard label="Gravier 1" producteurLabel="Carrière" active={gravier1Active} onToggle={setGravier1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravillons1ProducteurId} selectedProduitId={gravillons1ProduitId} onProducteurChange={setGravillons1ProducteurId} onProduitChange={setGravillons1ProduitId} quantite={gravillons1Qte} onQuantiteChange={setGravillons1Qte} />
-              <IngredientCard label="Gravier 2" producteurLabel="Carrière" active={gravier2Active} onToggle={setGravier2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier2ProducteurId} selectedProduitId={gravier2ProduitId} onProducteurChange={setGravier2ProducteurId} onProduitChange={setGravier2ProduitId} quantite={gravier2Qte} onQuantiteChange={setGravier2Qte} />
-              <IngredientCard label="Gravier 3" producteurLabel="Carrière" active={gravier3Active} onToggle={setGravier3Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier3ProducteurId} selectedProduitId={gravier3ProduitId} onProducteurChange={setGravier3ProducteurId} onProduitChange={setGravier3ProduitId} quantite={gravier3Qte} onQuantiteChange={setGravier3Qte} />
-              <IngredientCard label="Ciment" producteurLabel="Cimenterie" active={cimentActive} onToggle={setCimentActive} producteurType="cimenterie" producteurs={cimenteries} selectedProducteurId={cimentProducteurId} selectedProduitId={cimentProduitId} onProducteurChange={setCimentProducteurId} onProduitChange={setCimentProduitId} quantite={cimentQte} onQuantiteChange={setCimentQte} />
-              <IngredientCard label="Adjuvant" producteurLabel="Fournisseur" active={adjuvantActive} onToggle={setAdjuvantActive} producteurType="adjuvant" producteurs={adjuvants} selectedProducteurId={adjuvantProducteurId} selectedProduitId={adjuvantProduitId} onProducteurChange={setAdjuvantProducteurId} onProduitChange={setAdjuvantProduitId} quantite={adjuvantQte} onQuantiteChange={setAdjuvantQte} />
-              <IngredientCard label="Eau" producteurLabel="Source d'eau" active={eauActive} onToggle={setEauActive} producteurType="source_eau" producteurs={sourcesEau} selectedProducteurId={eauProducteurId} selectedProduitId={eauProduitId} onProducteurChange={setEauProducteurId} onProduitChange={setEauProduitId} quantite={eauQte} onQuantiteChange={setEauQte} quantiteUnit="L" />
+              <IngredientCard label="Sable 1" producteurLabel="Carrière" active={sable1Active} onToggle={setSable1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableConcasseProducteurId} selectedProduitId={sableConcasseProduitId} onProducteurChange={setSableConcasseProducteurId} onProduitChange={setSableConcasseProduitId} quantite={sableConcasseQte} onQuantiteChange={setSableConcasseQte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Sable 2" producteurLabel="Carrière" active={sable2Active} onToggle={setSable2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableFinProducteurId} selectedProduitId={sableFinProduitId} onProducteurChange={setSableFinProducteurId} onProduitChange={setSableFinProduitId} quantite={sableFinQte} onQuantiteChange={setSableFinQte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Gravier 1" producteurLabel="Carrière" active={gravier1Active} onToggle={setGravier1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravillons1ProducteurId} selectedProduitId={gravillons1ProduitId} onProducteurChange={setGravillons1ProducteurId} onProduitChange={setGravillons1ProduitId} quantite={gravillons1Qte} onQuantiteChange={setGravillons1Qte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Gravier 2" producteurLabel="Carrière" active={gravier2Active} onToggle={setGravier2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier2ProducteurId} selectedProduitId={gravier2ProduitId} onProducteurChange={setGravier2ProducteurId} onProduitChange={setGravier2ProduitId} quantite={gravier2Qte} onQuantiteChange={setGravier2Qte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Gravier 3" producteurLabel="Carrière" active={gravier3Active} onToggle={setGravier3Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier3ProducteurId} selectedProduitId={gravier3ProduitId} onProducteurChange={setGravier3ProducteurId} onProduitChange={setGravier3ProduitId} quantite={gravier3Qte} onQuantiteChange={setGravier3Qte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Ciment" producteurLabel="Cimenterie" active={cimentActive} onToggle={setCimentActive} producteurType="cimenterie" producteurs={cimenteries} selectedProducteurId={cimentProducteurId} selectedProduitId={cimentProduitId} onProducteurChange={setCimentProducteurId} onProduitChange={setCimentProduitId} quantite={cimentQte} onQuantiteChange={setCimentQte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Adjuvant" producteurLabel="Fournisseur" active={adjuvantActive} onToggle={setAdjuvantActive} producteurType="adjuvant" producteurs={adjuvants} selectedProducteurId={adjuvantProducteurId} selectedProduitId={adjuvantProduitId} onProducteurChange={setAdjuvantProducteurId} onProduitChange={setAdjuvantProduitId} quantite={adjuvantQte} onQuantiteChange={setAdjuvantQte} showError={errorSteps.includes(3)} />
+              <IngredientCard label="Eau" producteurLabel="Source d'eau" active={eauActive} onToggle={setEauActive} producteurType="source_eau" producteurs={sourcesEau} selectedProducteurId={eauProducteurId} selectedProduitId={eauProduitId} onProducteurChange={setEauProducteurId} onProduitChange={setEauProduitId} quantite={eauQte} onQuantiteChange={setEauQte} quantiteUnit="L" showError={errorSteps.includes(3)} />
             </div>
           </CardContent>
         </Card>
@@ -923,6 +932,7 @@ export default function FormulationBetonWizard() {
           onCoefficientGranulaireChange={setCoefficientGranulaire}
           coefficientCompacite={coefficientCompacite}
           onCoefficientCompaciteChange={setCoefficientCompacite}
+          showError={errorSteps.includes(4)}
         />
       </div>
 
@@ -944,6 +954,38 @@ export default function FormulationBetonWizard() {
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
+          validationData={{
+            resistance28j,
+            slumpSouhaite,
+            classeExposition,
+            coefficientGranulaire,
+            coefficientCompacite,
+            materialsValid: (() => {
+              const activeItems = [
+                { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
+                { active: sable2Active, hasData: !!sableFinProducteurId && !!sableFinProduitId, label: "Sable 2" },
+                { active: gravier1Active, hasData: !!gravillons1ProducteurId && !!gravillons1ProduitId, label: "Gravier 1" },
+                { active: gravier2Active, hasData: !!gravier2ProducteurId && !!gravier2ProduitId, label: "Gravier 2" },
+                { active: gravier3Active, hasData: !!gravier3ProducteurId && !!gravier3ProduitId, label: "Gravier 3" },
+                { active: cimentActive, hasData: !!cimentProducteurId && !!cimentProduitId, label: "Ciment" },
+                { active: eauActive, hasData: !!eauProducteurId && !!eauProduitId, label: "Eau" },
+              ];
+              return activeItems.filter(i => i.active && !i.hasData).length === 0;
+            })(),
+            missingMaterials: (() => {
+              const activeItems = [
+                { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
+                { active: sable2Active, hasData: !!sableFinProducteurId && !!sableFinProduitId, label: "Sable 2" },
+                { active: gravier1Active, hasData: !!gravillons1ProducteurId && !!gravillons1ProduitId, label: "Gravier 1" },
+                { active: gravier2Active, hasData: !!gravier2ProducteurId && !!gravier2ProduitId, label: "Gravier 2" },
+                { active: gravier3Active, hasData: !!gravier3ProducteurId && !!gravier3ProduitId, label: "Gravier 3" },
+                { active: cimentActive, hasData: !!cimentProducteurId && !!cimentProduitId, label: "Ciment" },
+                { active: eauActive, hasData: !!eauProducteurId && !!eauProduitId, label: "Eau" },
+              ];
+              return activeItems.filter(i => i.active && !i.hasData).map(i => `${i.label} (Producteur / Produit)`);
+            })(),
+          }}
+          onStepErrors={setErrorSteps}
           onQuantityChange={(key, value) => {
             const setters: Record<string, (v: string) => void> = {
               sableConcasse: setSableConcasseQte,

@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -92,6 +93,7 @@ interface CoefficientStepProps {
   onCoefficientGranulaireChange: (v: string) => void;
   coefficientCompacite: string;
   onCoefficientCompaciteChange: (v: string) => void;
+  showError?: boolean;
 }
 
 export default function CoefficientStep({
@@ -99,6 +101,7 @@ export default function CoefficientStep({
   onCoefficientGranulaireChange,
   coefficientCompacite,
   onCoefficientCompaciteChange,
+  showError = false,
 }: CoefficientStepProps) {
   // ── G' state ──
   const [qualiteG, setQualiteG] = useState<QualiteType | "">("");
@@ -184,7 +187,7 @@ export default function CoefficientStep({
                 value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(3) : "")}
                 readOnly
                 placeholder="—"
-                className="bg-muted border-border cursor-default text-lg font-semibold"
+                className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientGranulaire && "animate-border-blink")}
               />
             </div>
             <Button
@@ -286,7 +289,7 @@ export default function CoefficientStep({
                 value={coefficientCompacite || (computedC !== null ? computedC.toFixed(3) : "")}
                 readOnly
                 placeholder="—"
-                className="bg-muted border-border cursor-default text-lg font-semibold"
+                className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientCompacite && "animate-border-blink")}
               />
             </div>
             <Button

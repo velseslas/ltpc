@@ -184,3 +184,32 @@
 .report-table .border.border-black {
   border-color: #444444 !important;
 }
+
+/* Blinking red border for validation errors */
+@keyframes border-blink {
+  0%, 100% { 
+    border-color: hsl(var(--destructive));
+    box-shadow: 0 0 8px hsl(var(--destructive) / 0.4);
+  }
+  50% { 
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+.animate-border-blink {
+  animation: border-blink 1s ease-in-out infinite;
+  border-width: 2px !important;
+}
+
+/* Blinking red ring for step numbers */
+@keyframes ring-blink {
+  0%, 100% { 
+    box-shadow: 0 0 0 3px hsl(var(--destructive) / 0.6);
+  }
+  50% { 
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+.animate-ring-blink {
+  animation: ring-blink 1s ease-in-out infinite;
+}
