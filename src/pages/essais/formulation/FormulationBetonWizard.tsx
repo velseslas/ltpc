@@ -471,12 +471,12 @@ export default function FormulationBetonWizard() {
 
               {/* Abaque Dialog */}
               <Dialog open={showAbaque} onOpenChange={setShowAbaque}>
-                <DialogContent className="max-w-4xl max-h-[85vh] overflow-auto">
+                <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] overflow-auto">
                   <DialogHeader>
-                    <DialogTitle>Abaque des classes d'exposition — EN 206</DialogTitle>
+                    <DialogTitle className="text-lg">Abaque des classes d'exposition — EN 206</DialogTitle>
                   </DialogHeader>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs border-collapse">
+                    <table className="w-full text-sm border-collapse">
                       <thead>
                         <tr className="bg-muted">
                           <th className="border border-border p-2 text-left">Classe</th>
