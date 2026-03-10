@@ -27,6 +27,27 @@ import { useCreateFormulation } from "@/hooks/useFormulations";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+const ABAQUE_DATA = [
+  { classe: "X0", designation: "Aucun risque de corrosion ni d'attaque", ecMax: "-", resistanceMin: "C12/15", dosageCiment: "-", teneurAir: "-" },
+  { classe: "XC1", designation: "Corrosion par carbonatation — Sec ou humide en permanence", ecMax: "0.65", resistanceMin: "C20/25", dosageCiment: "260", teneurAir: "-" },
+  { classe: "XC2", designation: "Corrosion par carbonatation — Humide, rarement sec", ecMax: "0.60", resistanceMin: "C25/30", dosageCiment: "280", teneurAir: "-" },
+  { classe: "XC3", designation: "Corrosion par carbonatation — Humidité modérée", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XC4", designation: "Corrosion par carbonatation — Alternance humide/sec", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XD1", designation: "Chlorures (hors mer) — Humidité modérée", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XD2", designation: "Chlorures (hors mer) — Humide, rarement sec", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XD3", designation: "Chlorures (hors mer) — Alternance humide/sec", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "320", teneurAir: "-" },
+  { classe: "XS1", designation: "Eau de mer — Air véhiculant du sel marin", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XS2", designation: "Eau de mer — Immersion permanente", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "320", teneurAir: "-" },
+  { classe: "XS3", designation: "Eau de mer — Zones de marnage", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "340", teneurAir: "-" },
+  { classe: "XF1", designation: "Gel/dégel — Saturation modérée, sans déverglaçage", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XF2", designation: "Gel/dégel — Saturation modérée, avec déverglaçage", ecMax: "0.55", resistanceMin: "C25/30", dosageCiment: "300", teneurAir: "4%" },
+  { classe: "XF3", designation: "Gel/dégel — Forte saturation, sans déverglaçage", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "320", teneurAir: "4%" },
+  { classe: "XF4", designation: "Gel/dégel — Forte saturation, avec déverglaçage", ecMax: "0.45", resistanceMin: "C30/37", dosageCiment: "340", teneurAir: "4%" },
+  { classe: "XA1", designation: "Attaque chimique — Faible agressivité", ecMax: "0.55", resistanceMin: "C30/37", dosageCiment: "300", teneurAir: "-" },
+  { classe: "XA2", designation: "Attaque chimique — Agressivité modérée", ecMax: "0.50", resistanceMin: "C30/37", dosageCiment: "320", teneurAir: "-" },
+  { classe: "XA3", designation: "Attaque chimique — Forte agressivité", ecMax: "0.45", resistanceMin: "C35/45", dosageCiment: "360", teneurAir: "-" },
+];
+
 const STEPS = [
   { number: 1, label: "Information générale" },
   { number: 2, label: "Données de base" },
