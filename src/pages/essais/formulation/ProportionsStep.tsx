@@ -709,26 +709,31 @@ export default function ProportionsStep({
 
       {/* Cross-step validation error dialog */}
       <Dialog open={validationErrorOpen} onOpenChange={setValidationErrorOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-5 h-5" />
+        <DialogContent className="sm:max-w-2xl w-[95vw] max-h-[85vh] flex flex-col">
+          <DialogHeader className="pb-3 border-b border-border">
+            <DialogTitle className="flex items-center gap-2.5 text-lg text-destructive">
+              <div className="w-10 h-10 rounded-full bg-destructive/15 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
               Données manquantes
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-foreground">
+          <div className="flex-1 overflow-y-auto py-4 space-y-5 pr-1">
+            <p className="text-sm text-muted-foreground">
               Veuillez compléter les champs suivants avant de calculer les proportions :
             </p>
             {validationErrors.map((error) => (
-              <div key={error.step} className="space-y-1.5">
-                <p className="text-sm font-semibold text-foreground">
-                  Étape {error.step} — {error.label}
+              <div key={`${error.step}-${error.label}`} className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-2.5">
+                <p className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                    Étape {error.step}
+                  </Badge>
+                  {error.label}
                 </p>
-                <ul className="space-y-1 ml-2">
+                <ul className="space-y-1.5 ml-1">
                   {error.fields.map((field) => (
-                    <li key={field} className="flex items-center gap-2 text-sm text-destructive">
-                      <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+                    <li key={field} className="flex items-start gap-2.5 text-sm text-destructive">
+                      <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0 mt-1.5" />
                       {field}
                     </li>
                   ))}
@@ -736,8 +741,8 @@ export default function ProportionsStep({
               </div>
             ))}
           </div>
-          <DialogFooter>
-            <Button onClick={() => setValidationErrorOpen(false)}>OK</Button>
+          <DialogFooter className="pt-3 border-t border-border">
+            <Button onClick={() => setValidationErrorOpen(false)} className="min-w-[100px]">OK</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
