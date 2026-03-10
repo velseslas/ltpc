@@ -579,7 +579,7 @@ function EssaiStep({
 
       {/* Eau */}
       {eauActive && (
-        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && !(eauProducteurId && eauProduitId) && "animate-border-blink")}>
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
             {eauProducteurId && eauProduitId ? (

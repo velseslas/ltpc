@@ -275,7 +275,7 @@ export default function CoefficientStep({
                   value={dmaxC}
                   onChange={(e) => setDmaxC(e.target.value)}
                   placeholder="ex: 31.5"
-                  className="bg-secondary border-border pr-12"
+                  className={cn("bg-secondary border-border pr-12", showError && !dmaxC && "animate-border-blink")}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
               </div>
