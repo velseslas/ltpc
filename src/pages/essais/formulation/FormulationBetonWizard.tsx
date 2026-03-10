@@ -245,7 +245,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
             )}
           </SelectContent>
         </Select>
-        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+        <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">
           Voir rapport
         </Button>
       </div>
