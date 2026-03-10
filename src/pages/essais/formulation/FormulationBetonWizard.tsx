@@ -155,6 +155,7 @@ function IngredientCard({
   quantite,
   onQuantiteChange,
   quantiteUnit = "kg",
+  showError = false,
 }: {
   label: string;
   producteurLabel?: string;
@@ -169,6 +170,7 @@ function IngredientCard({
   quantite: string;
   onQuantiteChange: (v: string) => void;
   quantiteUnit?: string;
+  showError?: boolean;
 }) {
   const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
 
