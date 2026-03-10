@@ -1,22 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, FlaskConical, Plus, Pencil, Trash2, Loader2, Search, Building2, ChevronDown, ChevronRight } from "lucide-react";
+import { FlaskConical, Plus, Loader2, Search, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/ui/back-button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -24,13 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useDeleteFormulation, FormulationWithDetails } from "@/hooks/useFormulations";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
 
-// Fetch all formulations with enriched data
 function useAllFormulationsWithDetails() {
   return useQuery({
     queryKey: ["formulations-all-details"],
@@ -42,7 +36,6 @@ function useAllFormulationsWithDetails() {
 
       if (error) throw error;
 
-      // Fetch centrale names
       const centraleIds = [...new Set(data.map((f: any) => f.centrale_id))];
       const { data: centrales } = await supabase
         .from("centrales_beton")
@@ -83,33 +76,14 @@ function calculateRatios(f: any) {
   };
 }
 
-function IngredientPill({ label, quantite, unite }: { label: string; quantite: number | null; unite: string }) {
-  if (!quantite) return null;
-  return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-muted/50 rounded-md text-xs">
-      <span className="text-muted-foreground">{label}:</span>
-      <span className="font-semibold text-foreground">{quantite} {unite}</span>
-    </div>
-  );
-}
-
 const FormulationBeton = () => {
   const navigate = useNavigate();
   const { data: formulations = [], isLoading } = useAllFormulationsWithDetails();
   const { data: centrales = [] } = useCentralesBeton();
-  const deleteFormulation = useDeleteFormulation();
   const [search, setSearch] = useState("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("all");
-  const [expandedCentrales, setExpandedCentrales] = useState<Set<string>>(new Set());
-
-  const toggleCentrale = (centraleId: string) => {
-    setExpandedCentrales((prev) => {
-      const next = new Set(prev);
-      if (next.has(centraleId)) next.delete(centraleId);
-      else next.add(centraleId);
-      return next;
-    });
-  };
+  const [showNewDialog, setShowNewDialog] = useState(false);
+  const [selectedCentraleForNew, setSelectedCentraleForNew] = useState<string>("");
 
   const filtered = formulations.filter((f: any) => {
     const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
@@ -118,28 +92,17 @@ const FormulationBeton = () => {
     return matchSearch && matchCentrale;
   });
 
-  // Group by centrale
-  const grouped = filtered.reduce((acc: Record<string, { nom: string; formulations: any[] }>, f: any) => {
-    if (!acc[f.centrale_id]) {
-      acc[f.centrale_id] = { nom: f.centrale_nom, formulations: [] };
+  const handleNewFormulation = () => {
+    if (centrales.length === 1) {
+      navigate(`/intervenant/producteurs/centrale/${centrales[0].id}/formulation/nouveau`);
+    } else {
+      setShowNewDialog(true);
     }
-    acc[f.centrale_id].formulations.push(f);
-    return acc;
-  }, {});
+  };
 
-  // Auto-expand all groups
-  const allCentraleIds = Object.keys(grouped);
-  if (expandedCentrales.size === 0 && allCentraleIds.length > 0) {
-    // On first render, expand all
-    allCentraleIds.forEach((id) => expandedCentrales.add(id));
-  }
-
-  const handleDelete = async (id: string, centraleId: string) => {
-    try {
-      await deleteFormulation.mutateAsync({ id, centraleId });
-      toast.success("Formulation supprimée");
-    } catch {
-      toast.error("Erreur lors de la suppression");
+  const confirmNewFormulation = () => {
+    if (selectedCentraleForNew) {
+      navigate(`/intervenant/producteurs/centrale/${selectedCentraleForNew}/formulation/nouveau`);
     }
   };
 
@@ -148,22 +111,23 @@ const FormulationBeton = () => {
       <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Formulation" }]} />
 
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate("/essais/beton")}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-          >
-            <ArrowLeft className="h-5 w-5" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <BackButton to="/essais/beton" />
+            <div>
+              <h1 className="text-3xl font-display font-bold text-foreground">
+                Formulation de <span className="text-primary text-glow">Béton</span>
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Gestion des formulations de béton par centrale
+              </p>
+            </div>
+          </div>
+          <Button onClick={handleNewFormulation} className="gap-2 gradient-primary text-primary-foreground">
+            <Plus className="w-4 h-4" />
+            Nouvelle formule
           </Button>
-          <h1 className="text-3xl font-display font-bold text-foreground">
-            Formulation de <span className="text-primary text-glow">Béton</span>
-          </h1>
         </div>
-        <p className="text-muted-foreground mt-2 ml-14">
-          Gestion des formulations de béton par centrale
-        </p>
       </div>
 
       {/* Filters */}
@@ -194,156 +158,145 @@ const FormulationBeton = () => {
         <div className="flex items-center justify-center py-16">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      ) : Object.keys(grouped).length === 0 ? (
+      ) : filtered.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <FlaskConical className="w-16 h-16 text-muted-foreground/30 mb-4" />
             <p className="text-lg font-medium text-muted-foreground">Aucune formulation trouvée</p>
             <p className="text-sm text-muted-foreground/70 mt-1">
-              Créez des formulations depuis les détails d'une centrale à béton
+              Cliquez sur "Nouvelle formule" pour créer votre première formulation
             </p>
-            <Button
-              className="mt-4 gap-2"
-              onClick={() => navigate("/intervenant/producteurs/centrale")}
-            >
-              <Building2 className="w-4 h-4" />
-              Aller aux centrales
-            </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <>
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <Card className="p-4">
               <div className="text-2xl font-bold text-primary">{filtered.length}</div>
               <div className="text-xs text-muted-foreground">Formulations</div>
             </Card>
             <Card className="p-4">
-              <div className="text-2xl font-bold text-primary">{Object.keys(grouped).length}</div>
+              <div className="text-2xl font-bold text-primary">
+                {new Set(filtered.map((f: any) => f.centrale_id)).size}
+              </div>
               <div className="text-xs text-muted-foreground">Centrales</div>
             </Card>
           </div>
 
-          {Object.entries(grouped).map(([centraleId, group]: [string, any]) => {
-            const isExpanded = expandedCentrales.has(centraleId);
-            return (
-              <div key={centraleId} className="space-y-2">
-                {/* Centrale header */}
-                <button
-                  onClick={() => toggleCentrale(centraleId)}
-                  className="flex items-center gap-3 w-full text-left py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+          {/* Formulation Widgets Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((f: any) => {
+              const total = calculateTotals(f);
+              const { gs, ec } = calculateRatios(f);
+
+              return (
+                <Card
+                  key={f.id}
+                  className="cursor-pointer group border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-lg transition-all"
+                  onClick={() => navigate(`/intervenant/producteurs/centrale/${f.centrale_id}/formulation/${f.id}/modifier`)}
                 >
-                  {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  )}
-                  <Building2 className="w-5 h-5 text-primary" />
-                  <span className="font-semibold text-foreground">{group.nom}</span>
-                  <Badge variant="secondary" className="ml-2">{group.formulations.length}</Badge>
-                </button>
+                  <CardContent className="p-5">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <FlaskConical className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground text-base">{f.nom}</h3>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Building2 className="w-3 h-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">{f.centrale_nom}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                {isExpanded && (
-                  <div className="space-y-3 pl-4">
-                    {group.formulations.map((f: any) => {
-                      const total = calculateTotals(f);
-                      const { gs, ec } = calculateRatios(f);
+                    {/* Ratios */}
+                    <div className="flex gap-2 mb-3">
+                      <div className="flex-1 bg-primary/10 rounded-lg px-3 py-2 text-center">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">G/S</div>
+                        <div className="text-sm font-bold text-primary">{gs}</div>
+                      </div>
+                      <div className="flex-1 bg-primary/10 rounded-lg px-3 py-2 text-center">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">E/C</div>
+                        <div className="text-sm font-bold text-primary">{ec}</div>
+                      </div>
+                      <div className="flex-1 bg-accent/50 rounded-lg px-3 py-2 text-center">
+                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</div>
+                        <div className="text-sm font-bold text-foreground">{total.toFixed(1)} kg</div>
+                      </div>
+                    </div>
 
-                      return (
-                        <Card
-                          key={f.id}
-                          className="group border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-colors"
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                  <FlaskConical className="w-5 h-5 text-primary" />
-                                </div>
-                                <div>
-                                  <h3 className="font-semibold text-foreground">{f.nom}</h3>
-                                  <p className="text-xs text-muted-foreground">
-                                    Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
-                                  </p>
-                                </div>
-                              </div>
+                    {/* Key ingredients summary */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {f.ciment_quantite && (
+                        <Badge variant="secondary" className="text-[10px] font-normal">
+                          Ciment: {f.ciment_quantite} kg
+                        </Badge>
+                      )}
+                      {f.eau_quantite && (
+                        <Badge variant="secondary" className="text-[10px] font-normal">
+                          Eau: {f.eau_quantite} L
+                        </Badge>
+                      )}
+                      {f.adjuvant_quantite && (
+                        <Badge variant="secondary" className="text-[10px] font-normal">
+                          Adj: {f.adjuvant_quantite} kg
+                        </Badge>
+                      )}
+                    </div>
 
-                              <div className="flex gap-2 items-center">
-                                <div className="hidden sm:flex gap-2">
-                                  <div className="bg-primary/10 rounded-lg px-3 py-1.5 text-center">
-                                    <div className="text-[10px] text-muted-foreground uppercase">G/S</div>
-                                    <div className="text-sm font-bold text-primary">{gs}</div>
-                                  </div>
-                                  <div className="bg-primary/10 rounded-lg px-3 py-1.5 text-center">
-                                    <div className="text-[10px] text-muted-foreground uppercase">E/C</div>
-                                    <div className="text-sm font-bold text-primary">{ec}</div>
-                                  </div>
-                                  <div className="bg-accent/50 rounded-lg px-3 py-1.5 text-center">
-                                    <div className="text-[10px] text-muted-foreground uppercase">Total</div>
-                                    <div className="text-sm font-bold text-foreground">{total.toFixed(1)} kg</div>
-                                  </div>
-                                </div>
-
-                                <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-7 w-7 text-muted-foreground hover:text-primary"
-                                    onClick={() => navigate(`/intervenant/producteurs/centrale/${f.centrale_id}/formulation/${f.id}/modifier`)}
-                                  >
-                                    <Pencil className="w-3.5 h-3.5" />
-                                  </Button>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Supprimer la formulation</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Êtes-vous sûr de vouloir supprimer "{f.nom}" ? Cette action est irréversible.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={() => handleDelete(f.id, f.centrale_id)}
-                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                        >
-                                          Supprimer
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Ingredients pills */}
-                            <div className="flex flex-wrap gap-2">
-                              <IngredientPill label="Sable conc." quantite={f.sable_concasse_quantite} unite="kg" />
-                              <IngredientPill label="Sable fin" quantite={f.sable_fin_quantite} unite="kg" />
-                              <IngredientPill label="Grav. 1" quantite={f.gravillons1_quantite} unite="kg" />
-                              <IngredientPill label="Gravier 2" quantite={f.gravier2_quantite} unite="kg" />
-                              <IngredientPill label="Gravier 3" quantite={f.gravier3_quantite} unite="kg" />
-                              <IngredientPill label="Ciment" quantite={f.ciment_quantite} unite="kg" />
-                              <IngredientPill label="Adjuvant" quantite={f.adjuvant_quantite} unite="kg" />
-                              <IngredientPill label="Eau" quantite={f.eau_quantite} unite="L" />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                    {/* Date */}
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <p className="text-[11px] text-muted-foreground">
+                        Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </>
       )}
+
+      {/* Dialog pour choisir la centrale */}
+      <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nouvelle formulation</DialogTitle>
+            <DialogDescription>
+              Sélectionnez la centrale à béton pour cette formulation
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <Select value={selectedCentraleForNew} onValueChange={setSelectedCentraleForNew}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner une centrale" />
+              </SelectTrigger>
+              <SelectContent>
+                {centrales.map((c: any) => (
+                  <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowNewDialog(false)}>
+                Annuler
+              </Button>
+              <Button
+                onClick={confirmNewFormulation}
+                disabled={!selectedCentraleForNew}
+                className="gradient-primary text-primary-foreground"
+              >
+                Créer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
