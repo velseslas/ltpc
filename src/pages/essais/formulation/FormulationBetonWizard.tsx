@@ -613,7 +613,7 @@ function EssaiStep({
 export default function FormulationBetonWizard() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-
+  const [errorSteps, setErrorSteps] = useState<number[]>([]);
   // Step 1
   const [nom, setNom] = useState("");
   const [clientId, setClientId] = useState("");
