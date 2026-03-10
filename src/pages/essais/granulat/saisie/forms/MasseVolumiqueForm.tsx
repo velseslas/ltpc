@@ -8,6 +8,18 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 interface MasseVolumiqueFormProps {
   resultats: Record<string, unknown>;
   onChange: (data: Record<string, unknown>) => void;
+  produit?: string;
+}
+
+function isSandProduct(produit?: string): boolean {
+  if (!produit) return false;
+  const lower = produit.toLowerCase();
+  return lower.includes("sable") || lower.includes("0/4") || lower.includes("0-4") || lower.includes("0–4");
+}
+
+function isGravelProduct(produit?: string): boolean {
+  if (!produit) return false;
+  return !isSandProduct(produit);
 }
 
 // Helper to get/set nested module data
