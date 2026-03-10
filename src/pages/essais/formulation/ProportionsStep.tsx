@@ -343,6 +343,11 @@ export default function ProportionsStep({
                   />
                   <Legend
                     wrapperStyle={{ fontSize: "11px", paddingTop: "10px" }}
+                    layout="horizontal"
+                    align="center"
+                    verticalAlign="bottom"
+                    iconSize={10}
+                    formatter={(value) => <span style={{ marginRight: 12 }}>{value}</span>}
                   />
 
                   {/* Reference curve - dashed thick */}
