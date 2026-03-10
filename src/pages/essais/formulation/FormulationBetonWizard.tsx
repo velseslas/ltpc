@@ -225,30 +225,33 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
   const completed = filtered.filter((s: any) => s.statut === "terminé").length;
 
   return (
-    <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-        <FileText className="w-4 h-4" />
-        <span>{completed}/{filtered.length || 0}</span>
+    <div className="space-y-1.5">
+      <span className="text-xs font-medium text-muted-foreground ml-1">{essaiNom}</span>
+      <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+          <FileText className="w-4 h-4" />
+          <span>{completed}/{filtered.length || 0}</span>
+        </div>
+        <Select>
+          <SelectTrigger className="bg-secondary border-border flex-1">
+            <SelectValue placeholder={`Sélectionner rapport`} />
+          </SelectTrigger>
+          <SelectContent>
+            {filtered.length === 0 ? (
+              <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
+            ) : (
+              filtered.map((s: any) => (
+                <SelectItem key={s.id} value={s.id}>
+                  N°{s.numero} — {s.date_reception} — {s.statut}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+          Voir rapport
+        </Button>
       </div>
-      <Select>
-        <SelectTrigger className="bg-secondary border-border flex-1">
-          <SelectValue placeholder={`Sélectionner rapport`} />
-        </SelectTrigger>
-        <SelectContent>
-          {filtered.length === 0 ? (
-            <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
-          ) : (
-            filtered.map((s: any) => (
-              <SelectItem key={s.id} value={s.id}>
-                N°{s.numero} — {s.date_reception} — {s.statut}
-              </SelectItem>
-            ))
-          )}
-        </SelectContent>
-      </Select>
-      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-        Voir rapport
-      </Button>
     </div>
   );
 }
