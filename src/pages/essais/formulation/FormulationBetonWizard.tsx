@@ -722,12 +722,13 @@ export default function FormulationBetonWizard() {
       case 3: return true;
       case 4: return true;
       case 5: return true;
+      case 6: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    if (currentStep < 6) setCurrentStep(currentStep + 1);
   };
 
   const handlePrev = () => {
