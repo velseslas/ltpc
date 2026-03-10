@@ -548,7 +548,7 @@ function EssaiStep({
 
       {/* Ciment */}
       {cimentActive && (
-        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && !(cimentProducteurId && cimentProduitId) && "animate-border-blink")}>
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
          <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
             {cimentProducteurId && cimentProduitId ? (
@@ -571,7 +571,7 @@ function EssaiStep({
                 </div>
               </>
             ) : (
-              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
+              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
             )}
           </CardContent>
         </Card>
@@ -579,7 +579,7 @@ function EssaiStep({
 
       {/* Eau */}
       {eauActive && (
-        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && !(eauProducteurId && eauProduitId) && "animate-border-blink")}>
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
             {eauProducteurId && eauProduitId ? (
@@ -596,7 +596,7 @@ function EssaiStep({
                 </div>
               </>
             ) : (
-              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
+              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
             )}
           </CardContent>
         </Card>

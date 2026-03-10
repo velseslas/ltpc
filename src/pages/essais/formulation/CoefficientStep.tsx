@@ -153,7 +153,7 @@ export default function CoefficientStep({
             <div className="space-y-1.5">
               <Label className="text-sm">Qualité des granulats</Label>
               <Select value={qualiteG} onValueChange={(v) => setQualiteG(v as QualiteType)}>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className={cn("bg-secondary border-border", showError && !qualiteG && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une qualité" />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,7 +173,7 @@ export default function CoefficientStep({
                   value={dmaxG}
                   onChange={(e) => setDmaxG(e.target.value)}
                   placeholder="ex: 31.5"
-                  className="bg-secondary border-border pr-12"
+                  className={cn("bg-secondary border-border pr-12", showError && !dmaxG && "animate-border-blink")}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
               </div>
@@ -254,7 +254,7 @@ export default function CoefficientStep({
             <div className="space-y-1.5">
               <Label className="text-sm">Mode de serrage</Label>
               <Select value={serrage} onValueChange={(v) => setSerrage(v as SerrageType)}>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className={cn("bg-secondary border-border", showError && !serrage && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez un mode" />
                 </SelectTrigger>
                 <SelectContent>
@@ -275,7 +275,7 @@ export default function CoefficientStep({
                   value={dmaxC}
                   onChange={(e) => setDmaxC(e.target.value)}
                   placeholder="ex: 31.5"
-                  className="bg-secondary border-border pr-12"
+                  className={cn("bg-secondary border-border pr-12", showError && !dmaxC && "animate-border-blink")}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
               </div>
