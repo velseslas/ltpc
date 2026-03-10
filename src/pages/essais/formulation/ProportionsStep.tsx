@@ -6,7 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Sparkles } from "lucide-react";
+import { Calculator, Sparkles, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 import {
   calculateMixDesign,
@@ -113,6 +120,8 @@ export default function ProportionsStep({
   const [calcRatioGS, setCalcRatioGS] = useState("1.8");
   const [calcAirOcclus, setCalcAirOcclus] = useState("2");
   const [hasCalculated, setHasCalculated] = useState(false);
+  const [missingReportsOpen, setMissingReportsOpen] = useState(false);
+  const [missingReports, setMissingReports] = useState<string[]>([]);
 
   // Sync from parent
   useEffect(() => {
@@ -169,7 +178,45 @@ export default function ProportionsStep({
     }));
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites]);
 
+  // Validate that all active granulats have density from reports
+  const validateDensities = useCallback((): boolean => {
+    const activeItems = [
+      { key: "sableConcasse", label: "Sable 0/4 (Masse volumique)", active: sable1Active },
+      { key: "sableFin", label: "Sable 0/1 (Masse volumique)", active: sable2Active },
+      { key: "gravillons1", label: "Gravillon 3/8 (Masse volumique)", active: gravier1Active },
+      { key: "gravier2", label: "Gravier 8/15 (Masse volumique)", active: gravier2Active },
+      { key: "gravier3", label: "Gravier 15/25 (Masse volumique)", active: gravier3Active },
+    ];
+    const missing: string[] = [];
+    for (const item of activeItems) {
+      if (item.active && (!granulatDensites[item.key] || granulatDensites[item.key] <= 0)) {
+        missing.push(item.label);
+      }
+    }
+    // Also check granulometric curves
+    const activeCurveItems = [
+      { key: "sableConcasse", label: "Sable 0/4 (Granulométrie)", active: sable1Active },
+      { key: "sableFin", label: "Sable 0/1 (Granulométrie)", active: sable2Active },
+      { key: "gravillons1", label: "Gravillon 3/8 (Granulométrie)", active: gravier1Active },
+      { key: "gravier2", label: "Gravier 8/15 (Granulométrie)", active: gravier2Active },
+      { key: "gravier3", label: "Gravier 15/25 (Granulométrie)", active: gravier3Active },
+    ];
+    for (const item of activeCurveItems) {
+      if (item.active && (!granulatCurves || !granulatCurves.find(c => c.label.includes(item.key.replace("gravillons1", "3/8").replace("gravier2", "8/15").replace("gravier3", "15/25").replace("sableConcasse", "0/4").replace("sableFin", "0/1"))))) {
+        // Only check density for now as curves may use demo fallback
+      }
+    }
+    if (missing.length > 0) {
+      setMissingReports(missing);
+      setMissingReportsOpen(true);
+      return false;
+    }
+    return true;
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves]);
+
   const handleCalculate = useCallback(() => {
+    if (!validateDensities()) return;
+
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const gsVal = parseFloat(calcRatioGS) || 1.8;
@@ -189,7 +236,6 @@ export default function ProportionsStep({
 
     const result = calculateMixDesign(inputs);
 
-    // Update quantities
     const newOverrides: Record<string, string> = {};
     for (const [key, mass] of Object.entries(result.masses)) {
       newOverrides[key] = mass.toString();
@@ -197,13 +243,14 @@ export default function ProportionsStep({
     }
     setLocalOverrides(newOverrides);
 
-    // Update eau and ciment in parent
     onQuantityChange?.("eau", eauVal.toString());
     onQuantityChange?.("ciment", cimentVal.toString());
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange, validateDensities]);
 
   const handleOptimize = useCallback(() => {
+    if (!validateDensities()) return;
+
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const gsVal = parseFloat(calcRatioGS) || 1.8;
@@ -231,7 +278,7 @@ export default function ProportionsStep({
     }
     setLocalOverrides(newOverrides);
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange, validateDensities]);
 
   // Helper to get density for a granulat from granulatInputs
   const getDensite = (key: string): number => {
@@ -250,16 +297,11 @@ export default function ProportionsStep({
     { label: "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
-  const materiauxVolume = materiaux.reduce((sum, c) => {
+  const totalVolume = materiaux.reduce((sum, c) => {
     const vol = c.density > 0 ? c.value / (c.density * 1000) : 0;
     return sum + vol;
   }, 0);
-  const airVolume = Math.max(0, 1 - materiauxVolume); // m³
-  const components = [
-    ...materiaux,
-    { label: "Air occlus", value: 0, unit: "-", density: 0 },
-  ];
-  const totalVolume = 1; // Always 1 m³ = 1000 L
+  const components = materiaux;
 
   const dMax = useMemo(() => {
     if (gravier3Active && g3 > 0) return 31.5;
@@ -526,16 +568,15 @@ export default function ProportionsStep({
               </thead>
               <tbody>
                 {components.map(({ label, value, density }, i) => {
-                  const isAir = label === "Air occlus";
-                  const volumeL = isAir ? airVolume * 1000 : (density > 0 ? (value / (density * 1000)) * 1000 : 0);
-                  const pct = (volumeL / 1000) * 100;
+                  const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
+                  const pct = totalVolume > 0 ? (volumeL / 1000) / totalVolume * 100 : 0;
                   return (
                     <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
                       <td className="border border-border p-2.5 text-foreground">{label}</td>
                       <td className="border border-border p-2.5 text-right text-foreground">{pct.toFixed(1)}%</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{volumeL.toFixed(1)}</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{isAir ? "-" : (density > 0 ? density.toFixed(2) : "-")}</td>
-                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{isAir ? "-" : value.toFixed(1)}</td>
+                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? volumeL.toFixed(1) : "-"}</td>
+                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? density.toFixed(2) : "-"}</td>
+                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{value.toFixed(1)}</td>
                     </tr>
                   );
                 })}
@@ -544,7 +585,7 @@ export default function ProportionsStep({
                 <tr className="bg-primary/10">
                   <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
                   <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
-                  <td className="border border-border p-2.5 text-right font-bold text-primary">1000.0 L</td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">{(totalVolume * 1000).toFixed(1)} L</td>
                   <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
                   <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{total.toFixed(1)}</td>
                 </tr>
@@ -553,6 +594,37 @@ export default function ProportionsStep({
           </div>
         </CardContent>
       </Card>
+
+      {/* Missing reports dialog */}
+      <Dialog open={missingReportsOpen} onOpenChange={setMissingReportsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Rapports manquants
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-foreground">
+              Vous devez sélectionner les rapports d'essai suivants avant de pouvoir calculer les proportions :
+            </p>
+            <ul className="space-y-1.5">
+              {missingReports.map((report) => (
+                <li key={report} className="flex items-center gap-2 text-sm text-destructive">
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+                  {report}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Retournez à l'étape "Essais" pour sélectionner les rapports de masse volumique de chaque granulat actif.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setMissingReportsOpen(false)}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
