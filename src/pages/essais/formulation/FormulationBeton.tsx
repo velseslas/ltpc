@@ -75,8 +75,6 @@ const FormulationBeton = () => {
   const { data: centrales = [] } = useCentralesBeton();
   const [search, setSearch] = useState("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("all");
-  const [showNewDialog, setShowNewDialog] = useState(false);
-  const [selectedCentraleForNew, setSelectedCentraleForNew] = useState<string>("");
 
   const filtered = formulations.filter((f: any) => {
     const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
