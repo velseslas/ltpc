@@ -323,7 +323,7 @@ export default function ProportionsStep({
                     domain={[0.063, 40]}
                     type="number"
                     tickFormatter={(v) => v >= 1 ? `${v}` : `${v}`}
-                    label={{ value: "Ouverture des tamis (mm)", position: "bottom", offset: 15, className: "text-xs fill-muted-foreground" }}
+                    label={{ value: "Ouverture des tamis (mm)", position: "bottom", offset: 0, className: "text-xs fill-muted-foreground" }}
                     tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   />
                   <YAxis
