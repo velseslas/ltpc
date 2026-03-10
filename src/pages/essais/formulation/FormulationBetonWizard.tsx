@@ -409,7 +409,7 @@ function EssaiStep({
                   
                   <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
                     <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => toast.warning("Aucun rapport disponible pour cet essai")}>Voir rapport</Button>
+                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Voir rapport</Button>
                 </div>
               </>
             ) : (
