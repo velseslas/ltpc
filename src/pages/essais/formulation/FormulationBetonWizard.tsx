@@ -189,6 +189,13 @@ export default function FormulationBetonWizard() {
   const [affaissementCible, setAffaissementCible] = useState("");
   const [resistanceCible, setResistanceCible] = useState("");
 
+  // Step 2 - données de base
+  const [resistance28j, setResistance28j] = useState("");
+  const [classeResistance, setClasseResistance] = useState("");
+  const [classeExposition, setClasseExposition] = useState("");
+  const [classeRheologique, setClasseRheologique] = useState("");
+  const [classeVraiCiment, setClasseVraiCiment] = useState("");
+
   // Step 6 - calcul proportions (auto-calculated)
 
   const { data: clients = [] } = useClients();
