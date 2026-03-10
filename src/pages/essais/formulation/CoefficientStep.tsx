@@ -187,7 +187,7 @@ export default function CoefficientStep({
                 value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(3) : "")}
                 readOnly
                 placeholder="—"
-                className="bg-muted border-border cursor-default text-lg font-semibold"
+                className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientGranulaire && "animate-border-blink")}
               />
             </div>
             <Button
