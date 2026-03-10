@@ -713,7 +713,7 @@ export default function FormulationBetonWizard() {
           </Card>
         );
 
-      case 6:
+      case 5:
         return (
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-5">
