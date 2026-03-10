@@ -14,13 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
@@ -82,8 +75,6 @@ const FormulationBeton = () => {
   const { data: centrales = [] } = useCentralesBeton();
   const [search, setSearch] = useState("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("all");
-  const [showNewDialog, setShowNewDialog] = useState(false);
-  const [selectedCentraleForNew, setSelectedCentraleForNew] = useState<string>("");
 
   const filtered = formulations.filter((f: any) => {
     const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
@@ -93,17 +84,7 @@ const FormulationBeton = () => {
   });
 
   const handleNewFormulation = () => {
-    if (centrales.length === 1) {
-      navigate(`/intervenant/producteurs/centrale/${centrales[0].id}/formulation/nouveau`);
-    } else {
-      setShowNewDialog(true);
-    }
-  };
-
-  const confirmNewFormulation = () => {
-    if (selectedCentraleForNew) {
-      navigate(`/intervenant/producteurs/centrale/${selectedCentraleForNew}/formulation/nouveau`);
-    }
+    navigate("/essais/beton/formulation/nouveau");
   };
 
   return (
@@ -262,41 +243,6 @@ const FormulationBeton = () => {
         </>
       )}
 
-      {/* Dialog pour choisir la centrale */}
-      <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nouvelle formulation</DialogTitle>
-            <DialogDescription>
-              Sélectionnez la centrale à béton pour cette formulation
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-2">
-            <Select value={selectedCentraleForNew} onValueChange={setSelectedCentraleForNew}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner une centrale" />
-              </SelectTrigger>
-              <SelectContent>
-                {centrales.map((c: any) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowNewDialog(false)}>
-                Annuler
-              </Button>
-              <Button
-                onClick={confirmNewFormulation}
-                disabled={!selectedCentraleForNew}
-                className="gradient-primary text-primary-foreground"
-              >
-                Créer
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
