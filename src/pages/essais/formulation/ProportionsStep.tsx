@@ -233,15 +233,27 @@ export default function ProportionsStep({
     setHasCalculated(true);
   }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange]);
 
+  // Helper to get density for a granulat from granulatInputs
+  const getDensite = (key: string): number => {
+    const g = granulatInputs.find(gi => gi.key === key);
+    return g?.densite && g.densite > 0 ? g.densite / 1000 : 0;
+  };
+
   const components = [
-    { label: "Eau", value: eau, unit: "L" },
-    { label: "Ciment", value: ciment, unit: "kg" },
-    { label: "Sable 0/4", value: sc, unit: "kg", active: sable1Active },
-    { label: "Sable 0/1", value: sf, unit: "kg", active: sable2Active },
-    { label: "Gravillon 3/8", value: g1, unit: "kg", active: gravier1Active },
-    { label: "Gravier 8/15", value: g2, unit: "kg", active: gravier2Active },
-    { label: "Gravier 15/25", value: g3, unit: "kg", active: gravier3Active },
+    { label: "Eau", value: eau, unit: "L", density: 1.0 },
+    { label: "Ciment", value: ciment, unit: "kg", density: 3.11 },
+    { label: "Adjuvant", value: adjuvant, unit: "kg", density: 1.05, active: adjuvant > 0 },
+    { label: "Sable 0/4", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
+    { label: "Sable 0/1", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
+    { label: "Gravillon 3/8", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
+    { label: "Gravier 8/15", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
+    { label: "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
+
+  const totalVolume = components.reduce((sum, c) => {
+    const vol = c.density > 0 ? c.value / (c.density * 1000) : 0;
+    return sum + vol;
+  }, 0);
 
   const dMax = useMemo(() => {
     if (gravier3Active && g3 > 0) return 31.5;
@@ -501,24 +513,45 @@ export default function ProportionsStep({
                 <tr className="bg-muted">
                   <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
                   <th className="border border-border p-2.5 text-right font-semibold">kg/m³</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
+                  <th className="border border-border p-2.5 text-right font-semibold">%</th>
                 </tr>
               </thead>
               <tbody>
-                {components.map(({ label, value, unit }, i) => (
-                  <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                    <td className="border border-border p-2.5 text-foreground">{label}</td>
-                    <td className="border border-border p-2.5 text-right font-semibold text-foreground">
-                      {value.toFixed(1)} {unit}
-                    </td>
-                  </tr>
-                ))}
+                {components.map(({ label, value, unit, density }, i) => {
+                  const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
+                  const pct = total > 0 ? (value / total) * 100 : 0;
+                  return (
+                    <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                      <td className="border border-border p-2.5 text-foreground">{label}</td>
+                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">
+                        {value.toFixed(1)} {unit}
+                      </td>
+                      <td className="border border-border p-2.5 text-right text-foreground">
+                        {density > 0 ? density.toFixed(2) : "-"}
+                      </td>
+                      <td className="border border-border p-2.5 text-right text-foreground">
+                        {density > 0 ? volumeL.toFixed(1) : "-"}
+                      </td>
+                      <td className="border border-border p-2.5 text-right text-foreground">
+                        {pct.toFixed(1)}%
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="bg-primary/10">
-                  <td className="border border-border p-2.5 font-bold text-foreground">Poids Total</td>
+                  <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
                   <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">
                     {total.toFixed(1)} kg/m³
                   </td>
+                  <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">
+                    {(totalVolume * 1000).toFixed(1)} L
+                  </td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
                 </tr>
               </tfoot>
             </table>
