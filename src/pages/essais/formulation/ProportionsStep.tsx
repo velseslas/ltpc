@@ -408,7 +408,7 @@ export default function ProportionsStep({
   const calcVolumes = useMemo(() => {
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
-    const airVal = parseFloat(calcAirOcclus) || 2;
+    const airVal = parseFloat(calcAirOcclus) || 0;
     const compacite = parseFloat(coefficientCompacite) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
