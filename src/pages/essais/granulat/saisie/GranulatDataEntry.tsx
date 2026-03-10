@@ -207,7 +207,11 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
 
       {/* Formulaire spécifique */}
       {FormComponent ? (
-        <FormComponent resultats={resultats} onChange={setResultats} />
+        essaiType === "masse-volumique" ? (
+          <MasseVolumiqueForm resultats={resultats} onChange={setResultats} produit={echantillon.produit} />
+        ) : (
+          <FormComponent resultats={resultats} onChange={setResultats} />
+        )
       ) : (
         <Card className="border-border bg-card">
           <CardContent className="py-8 text-center text-muted-foreground">
