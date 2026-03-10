@@ -122,6 +122,7 @@ function IngredientCard({
   onProduitChange,
 }: {
   label: string;
+  producteurLabel?: string;
   active: boolean;
   onToggle: (v: boolean) => void;
   producteurType: "carriere" | "cimenterie" | "adjuvant" | "source_eau";
