@@ -60,11 +60,17 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
       const hasResults = Object.keys(resultats).length > 0 &&
         Object.values(resultats).some(v => v !== null && v !== undefined && v !== "");
 
-      await updateEchantillon.mutateAsync({
+      const updateData: Record<string, any> = {
         id,
         resultats: resultats as Json,
         statut: hasResults ? "termine" : "en-cours",
-      });
+      };
+
+      if (essaiType === "affaissement") {
+        updateData.temperature_ambiante = temperatureAmbiante ? parseFloat(temperatureAmbiante) : null;
+      }
+
+      await updateEchantillon.mutateAsync(updateData);
 
       toast.success("Données enregistrées avec succès");
       navigate(basePath);
