@@ -179,6 +179,238 @@ function IngredientCard({
   );
 }
 
+// Helper to get name by id from a list
+function getNameById(list: { id: string; nom: string }[], id: string) {
+  return list.find((item) => item.id === id)?.nom || "";
+}
+
+// Granulat test types
+const GRANULAT_ESSAIS = [
+  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const },
+  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const },
+  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const },
+  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const },
+  { nom: "Los Angeles", table: "echantillons_los_angeles" as const },
+  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const },
+  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const },
+  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const },
+  { nom: "Friabilité", table: "echantillons_friabilite" as const },
+  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const },
+];
+
+type GranulatTable = typeof GRANULAT_ESSAIS[number]["table"];
+
+function useGranulatSamples(table: GranulatTable, carriereId: string) {
+  return useQuery({
+    queryKey: ["formulation-essai", table, carriereId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from(table)
+        .select("id, numero, produit, statut, date_reception")
+        .eq("carriere_id", carriereId)
+        .order("numero", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!carriereId,
+  });
+}
+
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
+  essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string;
+}) {
+  const { data: samples = [] } = useGranulatSamples(table, carriereId);
+  const filtered = samples.filter((s: any) => s.produit === produitNom);
+  const completed = filtered.filter((s: any) => s.statut === "terminé").length;
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+        <FileText className="w-4 h-4" />
+        <span>{completed}/{filtered.length || 0}</span>
+      </div>
+      <Select>
+        <SelectTrigger className="bg-secondary border-border flex-1">
+          <SelectValue placeholder={`Sélectionner rapport`} />
+        </SelectTrigger>
+        <SelectContent>
+          {filtered.length === 0 ? (
+            <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
+          ) : (
+            filtered.map((s: any) => (
+              <SelectItem key={s.id} value={s.id}>
+                N°{s.numero} — {s.date_reception} — {s.statut}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+        Voir rapport
+      </Button>
+    </div>
+  );
+}
+
+function EssaiStep({
+  sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, cimentActive, eauActive,
+  sable1ProducteurId, sable1ProduitId, sable2ProducteurId, sable2ProduitId,
+  gravier1ProducteurId, gravier1ProduitId, gravier2ProducteurId, gravier2ProduitId,
+  gravier3ProducteurId, gravier3ProduitId, cimentProducteurId, cimentProduitId,
+  eauProducteurId, eauProduitId,
+  carrieres, cimenteries, sourcesEau,
+}: {
+  sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
+  cimentActive: boolean; eauActive: boolean;
+  sable1ProducteurId: string; sable1ProduitId: string; sable2ProducteurId: string; sable2ProduitId: string;
+  gravier1ProducteurId: string; gravier1ProduitId: string; gravier2ProducteurId: string; gravier2ProduitId: string;
+  gravier3ProducteurId: string; gravier3ProduitId: string; cimentProducteurId: string; cimentProduitId: string;
+  eauProducteurId: string; eauProduitId: string;
+  carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
+}) {
+  // Get product names
+  const { data: sable1Produits = [] } = useProduits(sable1ProducteurId, "carriere");
+  const { data: sable2Produits = [] } = useProduits(sable2ProducteurId, "carriere");
+  const { data: gravier1Produits = [] } = useProduits(gravier1ProducteurId, "carriere");
+  const { data: gravier2Produits = [] } = useProduits(gravier2ProducteurId, "carriere");
+  const { data: gravier3Produits = [] } = useProduits(gravier3ProducteurId, "carriere");
+  const { data: cimentProduits = [] } = useProduits(cimentProducteurId, "cimenterie");
+  const { data: eauProduits = [] } = useProduits(eauProducteurId, "source_eau");
+
+  // Build granulat materials list
+  const granulatMaterials = [
+    { label: "Sable 1", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
+    { label: "Sable 2", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
+    { label: "Gravier 1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
+    { label: "Gravier 2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
+    { label: "Gravier 3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
+  ].filter((m) => m.active && m.producteurId && m.produitId);
+
+  const cimentProduitNom = cimentProduits.find((p: any) => p.id === cimentProduitId)?.nom || "";
+  const cimentProducteurNom = getNameById(cimenteries, cimentProducteurId);
+  const eauProduitNom = eauProduits.find((p: any) => p.id === eauProduitId)?.nom || "";
+  const eauProducteurNom = getNameById(sourcesEau, eauProducteurId);
+
+  return (
+    <div className="space-y-6">
+      {/* Granulats */}
+      {granulatMaterials.length > 0 && (
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-6 space-y-6">
+            <h2 className="text-lg font-bold text-foreground">Essais sur les Granulats</h2>
+            {granulatMaterials.map((mat) => {
+              const produitNom = mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "";
+              const producteurNom = getNameById(carrieres, mat.producteurId);
+              const displayLabel = `${mat.label} (${produitNom}) — ${producteurNom}`;
+
+              return (
+                <div key={mat.label} className="space-y-3">
+                  <h3 className="text-sm font-semibold text-primary">{displayLabel}</h3>
+                  <Separator className="bg-border/50" />
+                  {GRANULAT_ESSAIS.map((essai) => (
+                    <GranulatEssaiRow
+                      key={essai.table}
+                      essaiNom={essai.nom}
+                      table={essai.table}
+                      carriereId={mat.producteurId}
+                      produitNom={produitNom}
+                    />
+                  ))}
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Ciment */}
+      {cimentActive && cimentProducteurId && cimentProduitId && (
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-6 space-y-5">
+            <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
+            <h3 className="text-sm font-semibold text-primary">
+              Ciment ({cimentProduitNom}) — {cimentProducteurNom}
+            </h3>
+            <Separator className="bg-border/50" />
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                <FileText className="w-4 h-4" />
+                <span>0/0</span>
+              </div>
+              <Select>
+                <SelectTrigger className="bg-secondary border-border flex-1">
+                  <SelectValue placeholder="Résistance du Ciment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+                Voir rapport
+              </Button>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                <FileText className="w-4 h-4" />
+                <span>0/0</span>
+              </div>
+              <Select>
+                <SelectTrigger className="bg-secondary border-border flex-1">
+                  <SelectValue placeholder="Temps de Prise" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+                Voir rapport
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Eau */}
+      {eauActive && eauProducteurId && eauProduitId && (
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-6 space-y-5">
+            <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
+            <h3 className="text-sm font-semibold text-primary">
+              Eau ({eauProduitNom}) — {eauProducteurNom}
+            </h3>
+            <Separator className="bg-border/50" />
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                <FileText className="w-4 h-4" />
+                <span>0/0</span>
+              </div>
+              <Select>
+                <SelectTrigger className="bg-secondary border-border flex-1">
+                  <SelectValue placeholder="Analyse Chimique de l'Eau" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+                Voir rapport
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {granulatMaterials.length === 0 && !cimentActive && !eauActive && (
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-6 text-center text-muted-foreground">
+            Aucun matériau actif sélectionné. Veuillez configurer les matériaux à l'étape 3.
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
 export default function FormulationBetonWizard() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
