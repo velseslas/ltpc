@@ -36,15 +36,17 @@ const STEPS = [
 ];
 
 // Stepper component
-function Stepper({ currentStep }: { currentStep: number }) {
+function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClick: (step: number) => void }) {
   return (
     <div className="flex items-center justify-center gap-0 mb-8">
       {STEPS.map((step, index) => (
         <div key={step.number} className="flex items-center">
           <div className="flex flex-col items-center">
-            <div
+            <button
+              type="button"
+              onClick={() => onStepClick(step.number)}
               className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all",
+                "w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all cursor-pointer hover:scale-110",
                 currentStep === step.number
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
                   : currentStep > step.number
@@ -57,7 +59,7 @@ function Stepper({ currentStep }: { currentStep: number }) {
               ) : (
                 step.number
               )}
-            </div>
+            </button>
             <span
               className={cn(
                 "text-[11px] mt-1.5 text-center max-w-[100px] leading-tight",
