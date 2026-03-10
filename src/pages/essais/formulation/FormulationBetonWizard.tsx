@@ -789,7 +789,7 @@ export default function FormulationBetonWizard() {
         </h1>
       </div>
 
-      <Stepper currentStep={currentStep} onStepClick={(step) => setCurrentStep(step)} />
+      <Stepper currentStep={currentStep} onStepClick={(step) => { setCurrentStep(step); setErrorSteps(prev => prev.filter(s => s !== step)); }} errorSteps={errorSteps} />
 
       {/* Step 1 */}
       <div className={currentStep === 1 ? "" : "hidden"}>
