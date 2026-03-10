@@ -251,9 +251,14 @@ export default function ProportionsStep({
       if (!validationData.classeExposition) step2Fields.push("Classe d'exposition");
       if (step2Fields.length > 0) errors.push({ step: 2, label: "Données de base", fields: step2Fields });
       
-      // Step 3 - Information matériaux
+      // Step 3 - Minimum materials check
+      if (!validationData.minimumMaterialsValid) {
+        errors.push({ step: 3, label: "Information matériaux — Minimum requis", fields: validationData.minimumMaterialsMissing });
+      }
+      
+      // Step 3 - Active materials missing data
       if (!validationData.materialsValid) {
-        errors.push({ step: 3, label: "Information matériaux", fields: validationData.missingMaterials });
+        errors.push({ step: 3, label: "Information matériaux — Données manquantes", fields: validationData.missingMaterials });
       }
       
       // Step 4 - Coefficients
@@ -261,6 +266,11 @@ export default function ProportionsStep({
       if (!validationData.coefficientGranulaire) step4Fields.push("Coefficient granulaire (G')");
       if (!validationData.coefficientCompacite) step4Fields.push("Coefficient de compacité (γ)");
       if (step4Fields.length > 0) errors.push({ step: 4, label: "Coefficients", fields: step4Fields });
+
+      // Step 5 - Essais
+      if (!validationData.essaisValid) {
+        errors.push({ step: 5, label: "Essai", fields: validationData.essaisMissing });
+      }
     }
 
     // Step 6 local fields

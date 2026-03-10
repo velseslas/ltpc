@@ -960,6 +960,26 @@ export default function FormulationBetonWizard() {
             classeExposition,
             coefficientGranulaire,
             coefficientCompacite,
+            // Minimum materials: at least 1 sable, 1 gravier, ciment, eau must be active
+            minimumMaterialsValid: (() => {
+              const hasAnySable = (sable1Active && !!sableConcasseProducteurId && !!sableConcasseProduitId) || (sable2Active && !!sableFinProducteurId && !!sableFinProduitId);
+              const hasAnyGravier = (gravier1Active && !!gravillons1ProducteurId && !!gravillons1ProduitId) || (gravier2Active && !!gravier2ProducteurId && !!gravier2ProduitId) || (gravier3Active && !!gravier3ProducteurId && !!gravier3ProduitId);
+              const hasCiment = cimentActive && !!cimentProducteurId && !!cimentProduitId;
+              const hasEau = eauActive && !!eauProducteurId && !!eauProduitId;
+              return hasAnySable && hasAnyGravier && hasCiment && hasEau;
+            })(),
+            minimumMaterialsMissing: (() => {
+              const missing: string[] = [];
+              const hasAnySable = (sable1Active && !!sableConcasseProducteurId && !!sableConcasseProduitId) || (sable2Active && !!sableFinProducteurId && !!sableFinProduitId);
+              const hasAnyGravier = (gravier1Active && !!gravillons1ProducteurId && !!gravillons1ProduitId) || (gravier2Active && !!gravier2ProducteurId && !!gravier2ProduitId) || (gravier3Active && !!gravier3ProducteurId && !!gravier3ProduitId);
+              const hasCiment = cimentActive && !!cimentProducteurId && !!cimentProduitId;
+              const hasEau = eauActive && !!eauProducteurId && !!eauProduitId;
+              if (!hasAnySable) missing.push("Au moins 1 Sable actif avec carrière et produit");
+              if (!hasAnyGravier) missing.push("Au moins 1 Gravier actif avec carrière et produit");
+              if (!hasCiment) missing.push("Ciment actif avec cimenterie et produit");
+              if (!hasEau) missing.push("Eau active avec source et produit");
+              return missing;
+            })(),
             materialsValid: (() => {
               const activeItems = [
                 { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
@@ -983,6 +1003,35 @@ export default function FormulationBetonWizard() {
                 { active: eauActive, hasData: !!eauProducteurId && !!eauProduitId, label: "Eau" },
               ];
               return activeItems.filter(i => i.active && !i.hasData).map(i => `${i.label} (Producteur / Produit)`);
+            })(),
+            // Step 5 - Essais: check that active granulats have producteur+produit configured
+            essaisValid: (() => {
+              const granulatsConfigured = [
+                { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
+                { active: sable2Active, hasData: !!sableFinProducteurId && !!sableFinProduitId, label: "Sable 2" },
+                { active: gravier1Active, hasData: !!gravillons1ProducteurId && !!gravillons1ProduitId, label: "Gravier 1" },
+                { active: gravier2Active, hasData: !!gravier2ProducteurId && !!gravier2ProduitId, label: "Gravier 2" },
+                { active: gravier3Active, hasData: !!gravier3ProducteurId && !!gravier3ProduitId, label: "Gravier 3" },
+              ];
+              const cimentConfigured = cimentActive && !!cimentProducteurId && !!cimentProduitId;
+              const eauConfigured = eauActive && !!eauProducteurId && !!eauProduitId;
+              const activeGranulats = granulatsConfigured.filter(g => g.active);
+              const allGranulatsConfigured = activeGranulats.every(g => g.hasData);
+              return allGranulatsConfigured && cimentConfigured && eauConfigured;
+            })(),
+            essaisMissing: (() => {
+              const missing: string[] = [];
+              const granulatsConfigured = [
+                { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
+                { active: sable2Active, hasData: !!sableFinProducteurId && !!sableFinProduitId, label: "Sable 2" },
+                { active: gravier1Active, hasData: !!gravillons1ProducteurId && !!gravillons1ProduitId, label: "Gravier 1" },
+                { active: gravier2Active, hasData: !!gravier2ProducteurId && !!gravier2ProduitId, label: "Gravier 2" },
+                { active: gravier3Active, hasData: !!gravier3ProducteurId && !!gravier3ProduitId, label: "Gravier 3" },
+              ];
+              granulatsConfigured.filter(g => g.active && !g.hasData).forEach(g => missing.push(`${g.label} — carrière/produit non configuré`));
+              if (!(cimentActive && !!cimentProducteurId && !!cimentProduitId)) missing.push("Ciment — cimenterie/produit non configuré");
+              if (!(eauActive && !!eauProducteurId && !!eauProduitId)) missing.push("Eau — source/produit non configuré");
+              return missing;
             })(),
           }}
           onStepErrors={setErrorSteps}
