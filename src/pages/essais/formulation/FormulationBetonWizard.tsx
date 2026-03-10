@@ -297,43 +297,45 @@ function EssaiStep({
   const eauProduitNom = eauProduits.find((p: any) => p.id === eauProduitId)?.nom || "";
   const eauProducteurNom = getNameById(sourcesEau, eauProducteurId);
 
+  // Build resolved materials with names
+  const resolvedGranulats = granulatMaterials
+    .filter((m) => m.producteurId && m.produitId)
+    .map((mat) => ({
+      label: mat.label,
+      produitNom: mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "",
+      producteurNom: getNameById(carrieres, mat.producteurId),
+      carriereId: mat.producteurId,
+    }));
+
   return (
     <div className="space-y-6">
-      {/* Granulats */}
+      {/* Granulats — organisé par type d'essai */}
       {hasAnyActiveGranulat && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-6">
             <h2 className="text-lg font-bold text-foreground">Essais sur les Granulats</h2>
-            {granulatMaterials.map((mat) => {
-              const produitNom = mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "";
-              const producteurNom = getNameById(carrieres, mat.producteurId);
-              const isComplete = mat.producteurId && mat.produitId;
-              const displayLabel = isComplete
-                ? `${mat.label} (${produitNom}) — ${producteurNom}`
-                : `${mat.label} — Non configuré`;
 
-              return (
-                <div key={mat.label} className="space-y-3">
-                  <h3 className={cn("text-sm font-semibold", isComplete ? "text-primary" : "text-muted-foreground")}>{displayLabel}</h3>
+            {resolvedGranulats.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic p-3">
+                Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
+              </p>
+            ) : (
+              GRANULAT_ESSAIS.map((essai) => (
+                <div key={essai.table} className="space-y-2">
+                  <h3 className="text-sm font-semibold text-primary">{essai.nom}</h3>
                   <Separator className="bg-border/50" />
-                  {!isComplete ? (
-                    <p className="text-xs text-muted-foreground italic p-3">
-                      Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
-                    </p>
-                  ) : (
-                    GRANULAT_ESSAIS.map((essai) => (
-                      <GranulatEssaiRow
-                        key={essai.table}
-                        essaiNom={essai.nom}
-                        table={essai.table}
-                        carriereId={mat.producteurId}
-                        produitNom={produitNom}
-                      />
-                    ))
-                  )}
+                  {resolvedGranulats.map((mat) => (
+                    <GranulatEssaiRow
+                      key={`${essai.table}-${mat.label}`}
+                      essaiNom={`${mat.label} (${mat.produitNom}) — ${mat.producteurNom}`}
+                      table={essai.table}
+                      carriereId={mat.carriereId}
+                      produitNom={mat.produitNom}
+                    />
+                  ))}
                 </div>
-              );
-            })}
+              ))
+            )}
           </CardContent>
         </Card>
       )}
