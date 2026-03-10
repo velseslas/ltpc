@@ -234,7 +234,50 @@ export default function ProportionsStep({
     return true;
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves]);
 
+  // Cross-step validation
+  const validateAllSteps = useCallback((): boolean => {
+    const errors: { step: number; label: string; fields: string[] }[] = [];
+    
+    // Step 2 - Données de base
+    if (validationData) {
+      const step2Fields: string[] = [];
+      if (!validationData.resistance28j) step2Fields.push("Résistance souhaitée à 28 j");
+      if (!validationData.slumpSouhaite) step2Fields.push("Slump souhaité");
+      if (!validationData.classeExposition) step2Fields.push("Classe d'exposition");
+      if (step2Fields.length > 0) errors.push({ step: 2, label: "Données de base", fields: step2Fields });
+      
+      // Step 3 - Information matériaux
+      if (!validationData.materialsValid) {
+        errors.push({ step: 3, label: "Information matériaux", fields: validationData.missingMaterials });
+      }
+      
+      // Step 4 - Coefficients
+      const step4Fields: string[] = [];
+      if (!validationData.coefficientGranulaire) step4Fields.push("Coefficient granulaire (G')");
+      if (!validationData.coefficientCompacite) step4Fields.push("Coefficient de compacité (γ)");
+      if (step4Fields.length > 0) errors.push({ step: 4, label: "Coefficients", fields: step4Fields });
+    }
+
+    // Step 6 local fields
+    const step6Fields: string[] = [];
+    if (!calcEau) step6Fields.push("Eau (kg/m³)");
+    if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
+    if (!calcRatioGS) step6Fields.push("Rapport G/S");
+    if (!calcAirOcclus) step6Fields.push("Air occlus (%)");
+    if (step6Fields.length > 0) errors.push({ step: 6, label: "Calcul proportions", fields: step6Fields });
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setValidationErrorOpen(true);
+      onStepErrors?.(errors.map(e => e.step));
+      return false;
+    }
+    onStepErrors?.([]);
+    return true;
+  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, onStepErrors]);
+
   const handleCalculate = useCallback(() => {
+    if (!validateAllSteps()) return;
     if (!validateDensities()) return;
 
     const eauVal = parseFloat(calcEau) || 0;
@@ -266,9 +309,10 @@ export default function ProportionsStep({
     onQuantityChange?.("eau", eauVal.toString());
     onQuantityChange?.("ciment", cimentVal.toString());
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange, validateDensities]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, onQuantityChange, validateDensities, validateAllSteps]);
 
   const handleOptimize = useCallback(() => {
+    if (!validateAllSteps()) return;
     if (!validateDensities()) return;
 
     const eauVal = parseFloat(calcEau) || 0;
@@ -298,7 +342,7 @@ export default function ProportionsStep({
     }
     setLocalOverrides(newOverrides);
     setHasCalculated(true);
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange, validateDensities]);
+  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs, classeRheologique, gravier1Active, gravier2Active, gravier3Active, onQuantityChange, validateDensities, validateAllSteps]);
 
   // Helper to get density for a granulat from granulatInputs
   const getDensite = (key: string): number => {
