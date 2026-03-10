@@ -944,6 +944,7 @@ export default function FormulationBetonWizard() {
           gravier1ProducteurId={gravillons1ProducteurId} gravier1ProduitId={gravillons1ProduitId} gravier2ProducteurId={gravier2ProducteurId} gravier2ProduitId={gravier2ProduitId}
           gravier3ProducteurId={gravier3ProducteurId} gravier3ProduitId={gravier3ProduitId} cimentProducteurId={cimentProducteurId} cimentProduitId={cimentProduitId}
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
+          showError={errorSteps.includes(5)}
         />
       </div>
 
