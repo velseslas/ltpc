@@ -14,12 +14,16 @@ interface MasseVolumiqueFormProps {
 function isSandProduct(produit?: string): boolean {
   if (!produit) return false;
   const lower = produit.toLowerCase();
-  return lower.includes("sable") || lower.includes("0/4") || lower.includes("0-4") || lower.includes("0–4");
+  return lower.includes("sable") || lower.includes("0/3") || lower.includes("0/4") || lower.includes("0/5") || lower.includes("0-3") || lower.includes("0-4") || lower.includes("0-5") || lower.includes("0–3") || lower.includes("0–4") || lower.includes("0–5");
 }
 
 function isGravelProduct(produit?: string): boolean {
   if (!produit) return false;
   return !isSandProduct(produit);
+}
+
+function getProductLabel(produit?: string): string {
+  return produit || "Granulat";
 }
 
 // Helper to get/set nested module data
@@ -130,6 +134,10 @@ const GRAVEL_FRACTIONS = [
   { key: "gravier_8_16", label: "8 – 16 mm" },
   { key: "gravier_16_25", label: "16 – 25 mm" },
 ];
+
+function getGravelStorageKey(produit?: string): string {
+  return "gravier";
+}
 
 // ─── Sub-components ───
 
@@ -325,12 +333,11 @@ function ResultCards({ data, label }: { data: Record<string, unknown>; label: st
 export default function MasseVolumiqueForm({ resultats, onChange, produit }: MasseVolumiqueFormProps) {
   const showSand = !produit || isSandProduct(produit);
   const showGravel = !produit || isGravelProduct(produit);
+  const productLabel = getProductLabel(produit);
 
   const sandData = getModule(resultats, "sable");
-  const gravelData = GRAVEL_FRACTIONS.map(f => ({
-    ...f,
-    data: getModule(resultats, f.key),
-  }));
+  const gravelKey = getGravelStorageKey(produit);
+  const gravelData = getModule(resultats, gravelKey);
 
   const handleSandChange = (field: string, value: string) => {
     const mod = { ...sandData };
@@ -345,8 +352,8 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
     onChange({ ...resultats, sable: calculated });
   };
 
-  const handleGravelChange = (fractionKey: string, field: string, value: string) => {
-    const mod = { ...getModule(resultats, fractionKey) };
+  const handleGravelChange = (field: string, value: string) => {
+    const mod = { ...gravelData };
     if (value === "") {
       delete mod[field];
     } else {
@@ -355,13 +362,13 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
       mod[field] = n;
     }
     const calculated = calcGravel(mod);
-    onChange({ ...resultats, [fractionKey]: calculated });
+    onChange({ ...resultats, [gravelKey]: calculated });
   };
 
   const moduleTitle = showSand && !showGravel
-    ? "Sable 0–4 mm – Méthode Pycnomètre"
+    ? `${productLabel} – Méthode Pycnomètre`
     : showGravel && !showSand
-      ? "Graviers – Méthode Panier immersion"
+      ? `${productLabel} – Méthode Panier immersion`
       : "Masse Volumique & Absorption";
 
   return (
@@ -377,16 +384,18 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
         {showSand && showGravel && (
           <Tabs defaultValue="sable" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="sable">🏖️ Sable 0–4 mm (Pycnomètre)</TabsTrigger>
+              <TabsTrigger value="sable">🏖️ Sable (Pycnomètre)</TabsTrigger>
               <TabsTrigger value="graviers">🪨 Graviers (Panier immersion)</TabsTrigger>
             </TabsList>
             <TabsContent value="sable" className="space-y-6">
               <SandInputFields data={sandData} onFieldChange={handleSandChange} />
-              <ResultCards data={sandData} label="Résultats – Sable 0–4 mm" />
+              <ResultCards data={sandData} label="Résultats – Sable" />
               <SandFormulas />
             </TabsContent>
             <TabsContent value="graviers" className="space-y-8">
-              <GravelContent gravelData={gravelData} handleGravelChange={handleGravelChange} />
+              <GravelInputFields data={gravelData} label="Gravier" onFieldChange={handleGravelChange} />
+              <ResultCards data={gravelData} label="Résultats – Gravier" />
+              <GravelFormulas />
             </TabsContent>
           </Tabs>
         )}
@@ -395,15 +404,17 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
         {showSand && !showGravel && (
           <div className="space-y-6">
             <SandInputFields data={sandData} onFieldChange={handleSandChange} />
-            <ResultCards data={sandData} label="Résultats – Sable 0–4 mm" />
+            <ResultCards data={sandData} label={`Résultats – ${productLabel}`} />
             <SandFormulas />
           </div>
         )}
 
         {/* Gravel only */}
         {showGravel && !showSand && (
-          <div className="space-y-8">
-            <GravelContent gravelData={gravelData} handleGravelChange={handleGravelChange} />
+          <div className="space-y-6">
+            <GravelInputFields data={gravelData} label={productLabel} onFieldChange={handleGravelChange} />
+            <ResultCards data={gravelData} label={`Résultats – ${productLabel}`} />
+            <GravelFormulas />
           </div>
         )}
       </CardContent>
@@ -427,33 +438,18 @@ function SandFormulas() {
   );
 }
 
-function GravelContent({ gravelData, handleGravelChange }: { 
-  gravelData: { key: string; label: string; data: Record<string, unknown> }[];
-  handleGravelChange: (fractionKey: string, field: string, value: string) => void;
-}) {
+function GravelFormulas() {
   return (
-    <>
-      {gravelData.map(({ key, label, data }) => (
-        <div key={key} className="space-y-6 border border-border rounded-lg p-4">
-          <GravelInputFields
-            data={data}
-            label={label}
-            onFieldChange={(field, value) => handleGravelChange(key, field, value)}
-          />
-          <ResultCards data={data} label={`Résultats – ${label}`} />
-        </div>
-      ))}
-      <div className="bg-muted/50 rounded-lg p-4">
-        <p className="text-sm font-medium text-foreground mb-2">Formules (Panier immersion) :</p>
-        <ul className="text-sm text-muted-foreground space-y-1">
-          <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D &nbsp;|&nbsp; W5 = E − F</li>
-          <li>• V1 = W2 − W5 &nbsp;|&nbsp; V2 = W1 − W5</li>
-          <li>• Densité sèche = W1 / V1</li>
-          <li>• Densité humide = W2 / V1</li>
-          <li>• Densité effective = W1 / V2</li>
-          <li>• Absorption = (W2 − W1) / W1 × 100</li>
-        </ul>
-      </div>
-    </>
+    <div className="bg-muted/50 rounded-lg p-4">
+      <p className="text-sm font-medium text-foreground mb-2">Formules (Panier immersion) :</p>
+      <ul className="text-sm text-muted-foreground space-y-1">
+        <li>• W1 = B − A &nbsp;|&nbsp; W2 = C − D &nbsp;|&nbsp; W5 = E − F</li>
+        <li>• V1 = W2 − W5 &nbsp;|&nbsp; V2 = W1 − W5</li>
+        <li>• Densité sèche = W1 / V1</li>
+        <li>• Densité humide = W2 / V1</li>
+        <li>• Densité effective = W1 / V2</li>
+        <li>• Absorption = (W2 − W1) / W1 × 100</li>
+      </ul>
+    </div>
   );
 }
