@@ -42,6 +42,11 @@ function displayVal(obj: Record<string, unknown>, field: string): string {
   return v !== undefined ? String(v) : "";
 }
 
+function displayResult(obj: Record<string, unknown>, field: string): string {
+  const v = getNum(obj, field);
+  return v !== undefined ? v.toFixed(3) : "--";
+}
+
 function formatDensity(v: number | undefined): string {
   return v !== undefined ? v.toFixed(3) : "--";
 }
