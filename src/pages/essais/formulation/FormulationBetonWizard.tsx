@@ -454,6 +454,7 @@ function EssaiStep({
   gravier3ProducteurId, gravier3ProduitId, cimentProducteurId, cimentProduitId,
   eauProducteurId, eauProduitId,
   carrieres, cimenteries, sourcesEau,
+  showError = false,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -462,6 +463,7 @@ function EssaiStep({
   gravier3ProducteurId: string; gravier3ProduitId: string; cimentProducteurId: string; cimentProduitId: string;
   eauProducteurId: string; eauProduitId: string;
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
+  showError?: boolean;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
@@ -503,12 +505,12 @@ function EssaiStep({
     <div className="space-y-6">
       {/* Granulats — organisé par type d'essai */}
       {hasAnyActiveGranulat && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && resolvedGranulats.length === 0 && "animate-border-blink")}>
           <CardContent className="p-6 space-y-6">
             <h2 className="text-lg font-bold text-foreground">Essais sur les Granulats</h2>
 
             {resolvedGranulats.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic p-3">
+              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>
                 Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
               </p>
             ) : (
@@ -546,7 +548,7 @@ function EssaiStep({
 
       {/* Ciment */}
       {cimentActive && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && !(cimentProducteurId && cimentProduitId) && "animate-border-blink")}>
          <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
             {cimentProducteurId && cimentProduitId ? (
@@ -569,7 +571,7 @@ function EssaiStep({
                 </div>
               </>
             ) : (
-              <p className="text-xs text-muted-foreground italic p-3">Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
+              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
             )}
           </CardContent>
         </Card>
@@ -577,7 +579,7 @@ function EssaiStep({
 
       {/* Eau */}
       {eauActive && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <Card className={cn("border-border/50 bg-card/80 backdrop-blur-sm", showError && !(eauProducteurId && eauProduitId) && "animate-border-blink")}>
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
             {eauProducteurId && eauProduitId ? (
@@ -594,7 +596,7 @@ function EssaiStep({
                 </div>
               </>
             ) : (
-              <p className="text-xs text-muted-foreground italic p-3">Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
+              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
             )}
           </CardContent>
         </Card>
@@ -944,6 +946,7 @@ export default function FormulationBetonWizard() {
           gravier1ProducteurId={gravillons1ProducteurId} gravier1ProduitId={gravillons1ProduitId} gravier2ProducteurId={gravier2ProducteurId} gravier2ProduitId={gravier2ProduitId}
           gravier3ProducteurId={gravier3ProducteurId} gravier3ProduitId={gravier3ProduitId} cimentProducteurId={cimentProducteurId} cimentProduitId={cimentProduitId}
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
+          showError={errorSteps.includes(5)}
         />
       </div>
 
