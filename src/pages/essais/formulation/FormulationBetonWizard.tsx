@@ -971,7 +971,7 @@ export default function FormulationBetonWizard() {
           Précédent
         </Button>
 
-        {currentStep < 5 ? (
+        {currentStep < 6 ? (
           <Button
             onClick={handleNext}
             disabled={!canGoNext()}
