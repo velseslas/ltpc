@@ -311,9 +311,9 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
                   return (
                     <tr key={tamis.ouverture} className="border-b border-border/50">
                       <td className="py-2 px-2 font-medium text-foreground">{tamis.ouverture}</td>
-                      <td className="py-2 px-2 text-center text-foreground">{tamis.refus.toFixed(1)}</td>
-                      <td className="py-2 px-2 text-center text-muted-foreground">{tamis.refusCumule.toFixed(1)}</td>
-                      <td className="py-2 px-2 text-center text-muted-foreground">{tamis.pourcentageRefusCumule?.toFixed(2)}</td>
+                      <td className="py-2 px-2 text-center text-foreground">{(tamis.refus ?? 0).toFixed(1)}</td>
+                      <td className="py-2 px-2 text-center text-muted-foreground">{(tamis.refusCumule ?? 0).toFixed(1)}</td>
+                      <td className="py-2 px-2 text-center text-muted-foreground">{(tamis.pourcentageRefusCumule ?? 0).toFixed(2)}</td>
                       <td className="py-2 px-2 text-center">
                         <span className={`px-3 py-1 rounded-full font-medium ${
                           isInFuseau === null ? 'bg-primary/10 text-primary'
