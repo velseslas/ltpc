@@ -239,7 +239,7 @@ export default function ProportionsStep({
     return g?.densite && g.densite > 0 ? g.densite / 1000 : 0;
   };
 
-  const components = [
+  const materiaux = [
     { label: "Eau", value: eau, unit: "L", density: 1.0 },
     { label: "Ciment", value: ciment, unit: "kg", density: 3.11 },
     { label: "Adjuvant", value: adjuvant, unit: "kg", density: 1.05, active: adjuvant > 0 },
@@ -250,10 +250,16 @@ export default function ProportionsStep({
     { label: "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
-  const totalVolume = components.reduce((sum, c) => {
+  const materiauxVolume = materiaux.reduce((sum, c) => {
     const vol = c.density > 0 ? c.value / (c.density * 1000) : 0;
     return sum + vol;
   }, 0);
+  const airVolume = Math.max(0, 1 - materiauxVolume); // m³
+  const components = [
+    ...materiaux,
+    { label: "Air occlus", value: 0, unit: "-", density: 0 },
+  ];
+  const totalVolume = 1; // Always 1 m³ = 1000 L
 
   const dMax = useMemo(() => {
     if (gravier3Active && g3 > 0) return 31.5;
@@ -520,15 +526,16 @@ export default function ProportionsStep({
               </thead>
               <tbody>
                 {components.map(({ label, value, density }, i) => {
-                  const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
-                  const pct = total > 0 ? (value / total) * 100 : 0;
+                  const isAir = label === "Air occlus";
+                  const volumeL = isAir ? airVolume * 1000 : (density > 0 ? (value / (density * 1000)) * 1000 : 0);
+                  const pct = (volumeL / 1000) * 100;
                   return (
                     <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
                       <td className="border border-border p-2.5 text-foreground">{label}</td>
                       <td className="border border-border p-2.5 text-right text-foreground">{pct.toFixed(1)}%</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? volumeL.toFixed(1) : "-"}</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? density.toFixed(2) : "-"}</td>
-                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{value.toFixed(1)}</td>
+                      <td className="border border-border p-2.5 text-right text-foreground">{volumeL.toFixed(1)}</td>
+                      <td className="border border-border p-2.5 text-right text-foreground">{isAir ? "-" : (density > 0 ? density.toFixed(2) : "-")}</td>
+                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{isAir ? "-" : value.toFixed(1)}</td>
                     </tr>
                   );
                 })}
@@ -537,7 +544,7 @@ export default function ProportionsStep({
                 <tr className="bg-primary/10">
                   <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
                   <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
-                  <td className="border border-border p-2.5 text-right font-bold text-primary">{(totalVolume * 1000).toFixed(1)} L</td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">1000.0 L</td>
                   <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
                   <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{total.toFixed(1)}</td>
                 </tr>
