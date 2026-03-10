@@ -25,6 +25,20 @@ import {
 // Standard sieve openings (mm) for Dreux-Gorisse
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
 
+interface ValidationData {
+  // Step 2
+  resistance28j: string;
+  slumpSouhaite: string;
+  classeExposition: string;
+  // Step 3 - active materials must have producteur+produit
+  materialsValid: boolean;
+  missingMaterials: string[];
+  // Step 4
+  coefficientGranulaire: string;
+  coefficientCompacite: string;
+  // Step 5 - not strictly required but good to check
+}
+
 interface ProportionsStepProps {
   sableConcasseQte: string;
   sableFinQte: string;
@@ -45,6 +59,8 @@ interface ProportionsStepProps {
   granulatCurves?: MaterialCurve[];
   granulatDensites?: Record<string, number>;
   onQuantityChange?: (key: string, value: string) => void;
+  validationData?: ValidationData;
+  onStepErrors?: (errorSteps: number[]) => void;
 }
 
 interface GranulatSlider {
