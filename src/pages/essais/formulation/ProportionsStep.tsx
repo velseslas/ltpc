@@ -33,10 +33,15 @@ interface ValidationData {
   // Step 3 - active materials must have producteur+produit
   materialsValid: boolean;
   missingMaterials: string[];
+  // Step 3 - minimum materials
+  minimumMaterialsValid: boolean;
+  minimumMaterialsMissing: string[];
   // Step 4
   coefficientGranulaire: string;
   coefficientCompacite: string;
-  // Step 5 - not strictly required but good to check
+  // Step 5 - essais configured
+  essaisValid: boolean;
+  essaisMissing: string[];
 }
 
 interface ProportionsStepProps {
