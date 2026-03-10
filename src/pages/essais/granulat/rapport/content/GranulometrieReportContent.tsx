@@ -84,10 +84,10 @@ export default function GranulometrieReportContent({ resultats }: GranulometrieR
           {tamisData.map((tamis) => (
             <tr key={tamis.ouverture}>
               <td className="border border-[#4a90a4] px-2 py-1 text-center font-medium">{tamis.ouverture}</td>
-              <td className="border border-[#4a90a4] px-2 py-1 text-center">{tamis.refus > 0 ? tamis.refus.toFixed(1) : "0"}</td>
-              <td className="border border-[#4a90a4] px-2 py-1 text-center">{tamis.refusCumule > 0 ? tamis.refusCumule.toFixed(1) : "0"}</td>
-              <td className="border border-[#4a90a4] px-2 py-1 text-center">{tamis.pourcentageRefusCumule?.toFixed(2) || "0,00"}</td>
-              <td className="border border-[#4a90a4] px-2 py-1 text-center font-medium text-[#4a90a4]">{tamis.passant.toFixed(2)}</td>
+              <td className="border border-[#4a90a4] px-2 py-1 text-center">{(tamis.refus ?? 0) > 0 ? (tamis.refus ?? 0).toFixed(1) : "0"}</td>
+              <td className="border border-[#4a90a4] px-2 py-1 text-center">{(tamis.refusCumule ?? 0) > 0 ? (tamis.refusCumule ?? 0).toFixed(1) : "0"}</td>
+              <td className="border border-[#4a90a4] px-2 py-1 text-center">{(tamis.pourcentageRefusCumule ?? 0).toFixed(2)}</td>
+              <td className="border border-[#4a90a4] px-2 py-1 text-center font-medium text-[#4a90a4]">{(tamis.passant ?? 0).toFixed(2)}</td>
               <td className="border border-[#4a90a4] px-2 py-1 text-center"></td>
             </tr>
           ))}

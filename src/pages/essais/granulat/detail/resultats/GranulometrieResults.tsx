@@ -142,8 +142,8 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
     tamisData.forEach(t => {
       const fp = fuseau.points.find(p => Math.abs(p.ouverture - t.ouverture) < 0.01);
       if (fp) {
-        if (t.passant < fp.min) { isConform = false; issues.push(`${t.ouverture}mm: ${t.passant.toFixed(1)}% < min ${fp.min}%`); }
-        if (t.passant > fp.max) { isConform = false; issues.push(`${t.ouverture}mm: ${t.passant.toFixed(1)}% > max ${fp.max}%`); }
+        if ((t.passant ?? 0) < fp.min) { isConform = false; issues.push(`${t.ouverture}mm: ${(t.passant ?? 0).toFixed(1)}% < min ${fp.min}%`); }
+        if ((t.passant ?? 0) > fp.max) { isConform = false; issues.push(`${t.ouverture}mm: ${(t.passant ?? 0).toFixed(1)}% > max ${fp.max}%`); }
       }
     });
     return { isConform, issues };
@@ -311,16 +311,16 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
                   return (
                     <tr key={tamis.ouverture} className="border-b border-border/50">
                       <td className="py-2 px-2 font-medium text-foreground">{tamis.ouverture}</td>
-                      <td className="py-2 px-2 text-center text-foreground">{tamis.refus.toFixed(1)}</td>
-                      <td className="py-2 px-2 text-center text-muted-foreground">{tamis.refusCumule.toFixed(1)}</td>
-                      <td className="py-2 px-2 text-center text-muted-foreground">{tamis.pourcentageRefusCumule?.toFixed(2)}</td>
+                      <td className="py-2 px-2 text-center text-foreground">{(tamis.refus ?? 0).toFixed(1)}</td>
+                      <td className="py-2 px-2 text-center text-muted-foreground">{(tamis.refusCumule ?? 0).toFixed(1)}</td>
+                      <td className="py-2 px-2 text-center text-muted-foreground">{(tamis.pourcentageRefusCumule ?? 0).toFixed(2)}</td>
                       <td className="py-2 px-2 text-center">
                         <span className={`px-3 py-1 rounded-full font-medium ${
                           isInFuseau === null ? 'bg-primary/10 text-primary'
                             : isInFuseau ? 'bg-green-500/10 text-green-700 dark:text-green-400'
                               : 'bg-destructive/10 text-destructive'
                         }`}>
-                          {tamis.passant.toFixed(2)}%
+                          {(tamis.passant ?? 0).toFixed(2)}%
                         </span>
                       </td>
                       <td className="py-2 px-2 text-center text-muted-foreground text-xs">
