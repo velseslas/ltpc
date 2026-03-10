@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BarChart3, Check, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -228,10 +228,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-muted-foreground ml-1">{essaiNom}</span>
       <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-          <FileText className="w-4 h-4" />
-          <span>{completed}/{filtered.length || 0}</span>
-        </div>
+        <span className="text-xs text-muted-foreground min-w-[30px]">{completed}/{filtered.length || 0}</span>
         <Select>
           <SelectTrigger className="bg-secondary border-border flex-1">
             <SelectValue placeholder={`Sélectionner rapport`} />
@@ -248,7 +245,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
             )}
           </SelectContent>
         </Select>
-        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
+        <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">
           Voir rapport
         </Button>
       </div>
@@ -360,20 +357,16 @@ function EssaiStep({
                 </h3>
                 <Separator className="bg-border/50" />
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                    <FileText className="w-4 h-4" /><span>0/0</span>
-                  </div>
+                  <span className="text-xs text-muted-foreground min-w-[30px]">0/0</span>
                   <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Résistance du Ciment" /></SelectTrigger>
                     <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">Voir rapport</Button>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                    <FileText className="w-4 h-4" /><span>0/0</span>
-                  </div>
+                  <span className="text-xs text-muted-foreground min-w-[30px]">0/0</span>
                   <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
                     <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">Voir rapport</Button>
                 </div>
               </>
             ) : (
@@ -395,12 +388,10 @@ function EssaiStep({
                 </h3>
                 <Separator className="bg-border/50" />
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                    <FileText className="w-4 h-4" /><span>0/0</span>
-                  </div>
+                  <span className="text-xs text-muted-foreground min-w-[30px]">0/0</span>
                   <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Analyse Chimique de l'Eau" /></SelectTrigger>
                     <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">Voir rapport</Button>
                 </div>
               </>
             ) : (
