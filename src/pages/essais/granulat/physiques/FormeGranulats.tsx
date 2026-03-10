@@ -3,14 +3,14 @@ import { EchantillonGranulatList } from "@/components/essais/EchantillonGranulat
 const FormeGranulats = () => {
   return (
     <EchantillonGranulatList
-      title="Forme des Granulats"
+      title="Coefficient d'Aplatissement"
       essaiType="forme-granulats"
       basePath="/essais/granulat/physiques/forme"
       backPath="/essais/granulat/physiques"
       breadcrumbItems={[
         { label: "Granulat", path: "/essais/granulat" },
         { label: "Physiques", path: "/essais/granulat/physiques" },
-        { label: "Forme des Granulats" }
+        { label: "Coefficient d'Aplatissement" }
       ]}
     />
   );

@@ -11,7 +11,7 @@ const EssaiPhysique = () => {
     { id: "normes", title: "Normes", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/physiques/normes" },
     { id: "granulometrie", title: "Analyse Granulométrique", description: "Détermination de la distribution granulométrique par tamisage", icon: Box, gradient: "from-amber-500/20 to-orange-500/10", iconColor: "text-amber-500", essaiCount: 22, path: "/essais/granulat/physiques/granulometrie" },
     { id: "masse-volumique", title: "Masse Volumique", description: "Détermination de la masse volumique absolue et apparente", icon: Scale, gradient: "from-sky-500/20 to-blue-500/10", iconColor: "text-sky-500", essaiCount: 15, path: "/essais/granulat/physiques/masse-volumique" },
-    { id: "forme", title: "Forme des Granulats", description: "Détermination du coefficient d'aplatissement et d'élongation", icon: Shapes, gradient: "from-emerald-500/20 to-green-500/10", iconColor: "text-emerald-500", essaiCount: 18, path: "/essais/granulat/physiques/forme" },
+    { id: "forme", title: "Coefficient d'Aplatissement", description: "Détermination du coefficient d'aplatissement par tamisage sur grilles à fentes (NF EN 933-3)", icon: Shapes, gradient: "from-emerald-500/20 to-green-500/10", iconColor: "text-emerald-500", essaiCount: 18, path: "/essais/granulat/physiques/forme" },
     { id: "teneur-eau", title: "Teneur en Eau", description: "Détermination de la teneur en eau des granulats", icon: Droplets, gradient: "from-rose-500/20 to-red-500/10", iconColor: "text-rose-500", essaiCount: 12, path: "/essais/granulat/physiques/teneur-eau" },
   ];
 
