@@ -596,7 +596,7 @@ function EssaiStep({
                 </div>
               </>
             ) : (
-              <p className={cn("text-xs italic p-3", showError ? "text-destructive font-medium" : "text-muted-foreground")}>Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
+              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
             )}
           </CardContent>
         </Card>
