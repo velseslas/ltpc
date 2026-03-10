@@ -281,14 +281,16 @@ function EssaiStep({
   const { data: cimentProduits = [] } = useProduits(cimentProducteurId, "cimenterie");
   const { data: eauProduits = [] } = useProduits(eauProducteurId, "source_eau");
 
-  // Build granulat materials list
+  // Build granulat materials list - show all active ones
   const granulatMaterials = [
     { label: "Sable 1", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
     { label: "Sable 2", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
     { label: "Gravier 1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
     { label: "Gravier 2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
     { label: "Gravier 3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
-  ].filter((m) => m.active && m.producteurId && m.produitId);
+  ].filter((m) => m.active);
+
+  const hasAnyActiveGranulat = granulatMaterials.length > 0;
 
   const cimentProduitNom = cimentProduits.find((p: any) => p.id === cimentProduitId)?.nom || "";
   const cimentProducteurNom = getNameById(cimenteries, cimentProducteurId);
@@ -298,28 +300,37 @@ function EssaiStep({
   return (
     <div className="space-y-6">
       {/* Granulats */}
-      {granulatMaterials.length > 0 && (
+      {hasAnyActiveGranulat && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-6">
             <h2 className="text-lg font-bold text-foreground">Essais sur les Granulats</h2>
             {granulatMaterials.map((mat) => {
               const produitNom = mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "";
               const producteurNom = getNameById(carrieres, mat.producteurId);
-              const displayLabel = `${mat.label} (${produitNom}) — ${producteurNom}`;
+              const isComplete = mat.producteurId && mat.produitId;
+              const displayLabel = isComplete
+                ? `${mat.label} (${produitNom}) — ${producteurNom}`
+                : `${mat.label} — Non configuré`;
 
               return (
                 <div key={mat.label} className="space-y-3">
-                  <h3 className="text-sm font-semibold text-primary">{displayLabel}</h3>
+                  <h3 className={cn("text-sm font-semibold", isComplete ? "text-primary" : "text-muted-foreground")}>{displayLabel}</h3>
                   <Separator className="bg-border/50" />
-                  {GRANULAT_ESSAIS.map((essai) => (
-                    <GranulatEssaiRow
-                      key={essai.table}
-                      essaiNom={essai.nom}
-                      table={essai.table}
-                      carriereId={mat.producteurId}
-                      produitNom={produitNom}
-                    />
-                  ))}
+                  {!isComplete ? (
+                    <p className="text-xs text-muted-foreground italic p-3">
+                      Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
+                    </p>
+                  ) : (
+                    GRANULAT_ESSAIS.map((essai) => (
+                      <GranulatEssaiRow
+                        key={essai.table}
+                        essaiNom={essai.nom}
+                        table={essai.table}
+                        carriereId={mat.producteurId}
+                        produitNom={produitNom}
+                      />
+                    ))
+                  )}
                 </div>
               );
             })}
@@ -328,78 +339,63 @@ function EssaiStep({
       )}
 
       {/* Ciment */}
-      {cimentActive && cimentProducteurId && cimentProduitId && (
+      {cimentActive && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardContent className="p-6 space-y-5">
+         <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
-            <h3 className="text-sm font-semibold text-primary">
-              Ciment ({cimentProduitNom}) — {cimentProducteurNom}
-            </h3>
-            <Separator className="bg-border/50" />
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                <FileText className="w-4 h-4" />
-                <span>0/0</span>
-              </div>
-              <Select>
-                <SelectTrigger className="bg-secondary border-border flex-1">
-                  <SelectValue placeholder="Résistance du Ciment" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-                Voir rapport
-              </Button>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                <FileText className="w-4 h-4" />
-                <span>0/0</span>
-              </div>
-              <Select>
-                <SelectTrigger className="bg-secondary border-border flex-1">
-                  <SelectValue placeholder="Temps de Prise" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-                Voir rapport
-              </Button>
-            </div>
+            {cimentProducteurId && cimentProduitId ? (
+              <>
+                <h3 className="text-sm font-semibold text-primary">
+                  Ciment ({cimentProduitNom}) — {cimentProducteurNom}
+                </h3>
+                <Separator className="bg-border/50" />
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                    <FileText className="w-4 h-4" /><span>0/0</span>
+                  </div>
+                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Résistance du Ciment" /></SelectTrigger>
+                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                    <FileText className="w-4 h-4" /><span>0/0</span>
+                  </div>
+                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
+                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground italic p-3">Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
+            )}
           </CardContent>
         </Card>
       )}
 
       {/* Eau */}
-      {eauActive && eauProducteurId && eauProduitId && (
+      {eauActive && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
-            <h3 className="text-sm font-semibold text-primary">
-              Eau ({eauProduitNom}) — {eauProducteurNom}
-            </h3>
-            <Separator className="bg-border/50" />
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-                <FileText className="w-4 h-4" />
-                <span>0/0</span>
-              </div>
-              <Select>
-                <SelectTrigger className="bg-secondary border-border flex-1">
-                  <SelectValue placeholder="Analyse Chimique de l'Eau" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">
-                Voir rapport
-              </Button>
-            </div>
+            {eauProducteurId && eauProduitId ? (
+              <>
+                <h3 className="text-sm font-semibold text-primary">
+                  Eau ({eauProduitNom}) — {eauProducteurNom}
+                </h3>
+                <Separator className="bg-border/50" />
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
+                    <FileText className="w-4 h-4" /><span>0/0</span>
+                  </div>
+                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Analyse Chimique de l'Eau" /></SelectTrigger>
+                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
+                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">Voir rapport</Button>
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-muted-foreground italic p-3">Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
+            )}
           </CardContent>
         </Card>
       )}
