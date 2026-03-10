@@ -410,6 +410,10 @@ function EssaiStep({
                         table={essai.table}
                         carriereId={mat.carriereId}
                         produitNom={mat.produitNom}
+                        carriereNom={mat.producteurNom}
+                        essaiType={essai.essaiType}
+                        essaiTitle={essai.nom}
+                        basePath={essai.basePath}
                       />
                     ))}
                   </div>
