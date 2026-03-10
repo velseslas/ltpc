@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadcrumb";
@@ -39,11 +41,15 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
   const { data: echantillon, isLoading } = useEchantillonBetonFraisById(essaiType, id);
   const updateEchantillon = useUpdateEchantillonBetonFraisByType(essaiType);
   const [resultats, setResultats] = useState<Record<string, unknown>>({});
+  const [temperatureAmbiante, setTemperatureAmbiante] = useState("");
   const prefix = getPrefix(essaiType);
 
   useEffect(() => {
     if (echantillon?.resultats) {
       setResultats(echantillon.resultats as Record<string, unknown>);
+    }
+    if (echantillon && (echantillon as any).temperature_ambiante != null) {
+      setTemperatureAmbiante(String((echantillon as any).temperature_ambiante));
     }
   }, [echantillon]);
 
@@ -54,11 +60,17 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
       const hasResults = Object.keys(resultats).length > 0 &&
         Object.values(resultats).some(v => v !== null && v !== undefined && v !== "");
 
-      await updateEchantillon.mutateAsync({
+      const updateData: any = {
         id,
         resultats: resultats as Json,
         statut: hasResults ? "termine" : "en-cours",
-      });
+      };
+
+      if (essaiType === "affaissement") {
+        updateData.temperature_ambiante = temperatureAmbiante ? parseFloat(temperatureAmbiante) : null;
+      }
+
+      await updateEchantillon.mutateAsync(updateData);
 
       toast.success("Données enregistrées avec succès");
       navigate(basePath);
@@ -139,6 +151,23 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
               </p>
             </div>
           </div>
+          {essaiType === "affaissement" && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="temperature_ambiante">Température ambiante (°C)</Label>
+                  <Input
+                    id="temperature_ambiante"
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 20.0"
+                    value={temperatureAmbiante}
+                    onChange={(e) => setTemperatureAmbiante(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
