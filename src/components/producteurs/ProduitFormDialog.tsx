@@ -18,11 +18,12 @@ interface ProduitFormDialogProps {
   onOpenChange: (open: boolean) => void;
   producteurId: string;
   producteurType: string;
-  editingProduit?: { id: string; nom: string } | null;
+  editingProduit?: { id: string; nom: string; densite?: number | null } | null;
 }
 
 export function ProduitFormDialog({ open, onOpenChange, producteurId, producteurType, editingProduit }: ProduitFormDialogProps) {
   const [nom, setNom] = useState("");
+  const [densite, setDensite] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const createProduit = useCreateProduit();
   const updateProduit = useUpdateProduit();
@@ -32,8 +33,10 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
   useEffect(() => {
     if (editingProduit) {
       setNom(editingProduit.nom);
+      setDensite(editingProduit.densite != null ? String(editingProduit.densite) : "");
     } else {
       setNom("");
+      setDensite("");
     }
     setSubmitted(false);
   }, [editingProduit, open]);
@@ -46,11 +49,14 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
       return;
     }
 
+    const densiteValue = densite.trim() ? parseFloat(densite) : null;
+
     try {
       if (isEditing) {
         await updateProduit.mutateAsync({
           id: editingProduit.id,
           nom: nom.trim(),
+          densite: densiteValue,
           producteurId,
           producteurType,
         });
@@ -58,12 +64,14 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
       } else {
         await createProduit.mutateAsync({
           nom: nom.trim(),
+          densite: densiteValue,
           producteur_id: producteurId,
           producteur_type: producteurType,
         });
         toast.success("Produit ajouté avec succès");
       }
       setNom("");
+      setDensite("");
       setSubmitted(false);
       onOpenChange(false);
     } catch (error) {
@@ -73,6 +81,7 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
 
   const handleCancel = () => {
     setNom("");
+    setDensite("");
     setSubmitted(false);
     onOpenChange(false);
   };
@@ -103,6 +112,18 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
                   Le nom du produit est requis
                 </p>
               )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="densite">Densité</Label>
+              <Input
+                id="densite"
+                type="number"
+                step="0.001"
+                min="0"
+                value={densite}
+                onChange={(e) => setDensite(e.target.value)}
+                placeholder="Ex: 2.650"
+              />
             </div>
           </div>
           <DialogFooter>

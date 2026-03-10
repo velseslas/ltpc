@@ -5128,6 +5128,7 @@ export type Database = {
       produits: {
         Row: {
           created_at: string
+          densite: number | null
           id: string
           nom: string
           producteur_id: string
@@ -5136,6 +5137,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          densite?: number | null
           id?: string
           nom: string
           producteur_id: string
@@ -5144,6 +5146,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          densite?: number | null
           id?: string
           nom?: string
           producteur_id?: string
