@@ -20,7 +20,7 @@ export default function MasseVolumiqueReportContent({ resultats }: MasseVolumiqu
             </tr>
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Masse dans l'eau (M3)</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.masse_eau as number) || "-"} g</td>
+              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.masse_immergee as number) || "-"} g</td>
             </tr>
           </tbody>
         </table>
@@ -34,19 +34,19 @@ export default function MasseVolumiqueReportContent({ resultats }: MasseVolumiqu
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium w-1/2">Masse volumique réelle (ρrd)</td>
               <td className="border border-[#4a90a4] px-3 py-2 text-center font-bold text-[#4a90a4]">
-                {(resultats.masse_volumique_reelle as number) || "-"} kg/m³
+                {(resultats.mv_reelle as number) || "-"} kg/m³
               </td>
             </tr>
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Masse volumique SSS (ρssd)</td>
               <td className="border border-[#4a90a4] px-3 py-2 text-center font-bold text-[#4a90a4]">
-                {(resultats.masse_volumique_ssd as number) || "-"} kg/m³
+                {(resultats.mv_ssd as number) || "-"} kg/m³
               </td>
             </tr>
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Coefficient d'absorption (WA)</td>
               <td className="border border-[#4a90a4] px-3 py-2 text-center font-bold text-[#4a90a4]">
-                {(resultats.coefficient_absorption as number) || "-"} %
+                {(resultats.absorption as number) || "-"} %
               </td>
             </tr>
           </tbody>
