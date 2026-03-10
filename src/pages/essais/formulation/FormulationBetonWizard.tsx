@@ -228,10 +228,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-muted-foreground ml-1">{essaiNom}</span>
       <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-[60px]">
-          <FileText className="w-4 h-4" />
-          <span>{completed}/{filtered.length || 0}</span>
-        </div>
+        <span className="text-xs text-muted-foreground min-w-[30px]">{completed}/{filtered.length || 0}</span>
         <Select>
           <SelectTrigger className="bg-secondary border-border flex-1">
             <SelectValue placeholder={`Sélectionner rapport`} />
