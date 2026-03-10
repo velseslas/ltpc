@@ -120,6 +120,8 @@ export default function ProportionsStep({
   const [calcRatioGS, setCalcRatioGS] = useState("1.8");
   const [calcAirOcclus, setCalcAirOcclus] = useState("2");
   const [hasCalculated, setHasCalculated] = useState(false);
+  const [missingReportsOpen, setMissingReportsOpen] = useState(false);
+  const [missingReports, setMissingReports] = useState<string[]>([]);
 
   // Sync from parent
   useEffect(() => {
