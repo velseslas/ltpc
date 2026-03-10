@@ -2,6 +2,25 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useEchantillonGranulatById, getPrefix as getGranulatPrefix } from "@/hooks/useEchantillonsGranulatFactory";
+import { useEntreprise } from "@/hooks/useEntreprise";
+import { ReportHeader } from "@/components/reports/ReportHeader";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Loader2 } from "lucide-react";
+
+// Import report content components for popup
+import EquivalentSableReportContent from "@/pages/essais/granulat/rapport/content/EquivalentSableReportContent";
+import BleuMethyleneReportContent from "@/pages/essais/granulat/rapport/content/BleuMethyleneReportContent";
+import MatiereOrganiqueReportContent from "@/pages/essais/granulat/rapport/content/MatiereOrganiqueReportContent";
+import GranulometrieReportContent from "@/pages/essais/granulat/rapport/content/GranulometrieReportContent";
+import MasseVolumiqueReportContent from "@/pages/essais/granulat/rapport/content/MasseVolumiqueReportContent";
+import FormeGranulatsReportContent from "@/pages/essais/granulat/rapport/content/FormeGranulatsReportContent";
+import TeneurEauReportContent from "@/pages/essais/granulat/rapport/content/TeneurEauReportContent";
+import LosAngelesReportContent from "@/pages/essais/granulat/rapport/content/LosAngelesReportContent";
+import MicroDevalReportContent from "@/pages/essais/granulat/rapport/content/MicroDevalReportContent";
+import EcrasementReportContent from "@/pages/essais/granulat/rapport/content/EcrasementReportContent";
+import FriabiliteReportContent from "@/pages/essais/granulat/rapport/content/FriabiliteReportContent";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -313,16 +332,100 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
               Rapport {selectedSample ? `${prefix}-${String(selectedSample.numero).padStart(3, "0")}` : ""} — {essaiTitle}
             </DialogTitle>
           </DialogHeader>
-          {selectedRapport && (
-            <iframe
-              src={`${basePath}/${selectedRapport}/rapport`}
-              className="w-full border-0 rounded-lg"
-              style={{ height: "75vh" }}
-              title="Rapport d'essai"
-            />
+          {selectedRapport && showRapport && (
+            <RapportPopupContent essaiType={essaiType} sampleId={selectedRapport} essaiTitle={essaiTitle} />
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+const reportContentMap: Record<string, React.ComponentType<{ resultats: Record<string, unknown> }>> = {
+  "equivalent-sable": EquivalentSableReportContent,
+  "bleu-methylene": BleuMethyleneReportContent,
+  "matiere-organique": MatiereOrganiqueReportContent,
+  "granulometrie": GranulometrieReportContent,
+  "masse-volumique": MasseVolumiqueReportContent,
+  "forme-granulats": FormeGranulatsReportContent,
+  "teneur-eau": TeneurEauReportContent,
+  "los-angeles": LosAngelesReportContent,
+  "micro-deval": MicroDevalReportContent,
+  "ecrasement": EcrasementReportContent,
+  "friabilite": FriabiliteReportContent,
+};
+
+function RapportPopupContent({ essaiType, sampleId, essaiTitle }: { essaiType: string; sampleId: string; essaiTitle: string }) {
+  const { data: echantillon, isLoading } = useEchantillonGranulatById(essaiType, sampleId);
+  const { data: entreprise } = useEntreprise();
+  const prefix = getGranulatPrefix(essaiType);
+  const ReportContent = reportContentMap[essaiType];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-40">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!echantillon) {
+    return <p className="text-center text-muted-foreground py-8">Échantillon non trouvé</p>;
+  }
+
+  const resultats = (echantillon.resultats as Record<string, unknown>) || {};
+
+  return (
+    <div className="bg-white text-black p-6 rounded-lg" style={{ fontFamily: "Arial, sans-serif" }}>
+      <ReportHeader
+        entreprise={entreprise}
+        verificationUrl=""
+        title={`RAPPORT D'ESSAI - ${essaiTitle.toUpperCase()}`}
+        subtitle=""
+      />
+
+      <div className="mb-6">
+        <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
+        <table className="w-full border-collapse border border-black text-sm">
+          <tbody>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
+              <td className="border border-black px-3 py-1.5 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+            </tr>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium text-black">Carrière / Fournisseur</td>
+              <td className="border border-black px-3 py-1.5 text-black">{echantillon.carrieres?.nom || "-"}</td>
+            </tr>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium text-black">Produit</td>
+              <td className="border border-black px-3 py-1.5 text-black">{echantillon.produit}</td>
+            </tr>
+            <tr>
+              <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception</td>
+              <td className="border border-black px-3 py-1.5 text-black">
+                {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {ReportContent && <ReportContent resultats={resultats} />}
+
+      <div className="mt-6 pt-4 border-t border-gray-300">
+        <div className="flex justify-between items-end">
+          <div className="text-sm text-gray-600">
+            <p>Opérateur: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
+          </div>
+          <div className="text-center">
+            {entreprise?.cachet_url ? (
+              <img src={entreprise.cachet_url} alt="Cachet" className="max-h-16 object-contain" />
+            ) : (
+              <p className="text-sm font-medium">Signature et cachet</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
