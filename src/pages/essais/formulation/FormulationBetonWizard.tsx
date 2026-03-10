@@ -452,6 +452,7 @@ function EssaiStep({
           </CardContent>
         </Card>
       )}
+      <RapportMessageDialog open={staticDialogOpen} onClose={() => setStaticDialogOpen(false)} message="Aucun rapport disponible pour cet essai dans la base de données." type="warning" />
     </div>
   );
 }
