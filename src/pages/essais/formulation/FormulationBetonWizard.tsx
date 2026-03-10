@@ -399,7 +399,7 @@ export default function FormulationBetonWizard() {
                   </Select>
                 </div>
 
-                <Button variant="outline" className="gap-2" type="button">
+                <Button variant="outline" className="gap-2" type="button" onClick={() => setShowAbaque(true)}>
                   <BarChart3 className="w-4 h-4" />
                   Voir abaque
                 </Button>
@@ -419,17 +419,52 @@ export default function FormulationBetonWizard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-start-3 space-y-1.5">
-                  <Label className="text-sm">Classe vrai du ciment</Label>
-                  <Input
-                    value={classeVraiCiment}
-                    onChange={(e) => setClasseVraiCiment(e.target.value)}
-                    placeholder=""
-                    className="bg-secondary border-border"
-                  />
-                </div>
-              </div>
+              {/* Abaque Dialog */}
+              <Dialog open={showAbaque} onOpenChange={setShowAbaque}>
+                <DialogContent className="max-w-4xl max-h-[85vh] overflow-auto">
+                  <DialogHeader>
+                    <DialogTitle>Abaque des classes d'exposition — EN 206</DialogTitle>
+                  </DialogHeader>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-muted">
+                          <th className="border border-border p-2 text-left">Classe</th>
+                          <th className="border border-border p-2 text-left">Désignation</th>
+                          <th className="border border-border p-2 text-center">E/C max</th>
+                          <th className="border border-border p-2 text-center">Résistance min (MPa)</th>
+                          <th className="border border-border p-2 text-center">Dosage ciment min (kg/m³)</th>
+                          <th className="border border-border p-2 text-center">Teneur air (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {ABAQUE_DATA.map((row, i) => (
+                          <tr
+                            key={row.classe}
+                            className={cn(
+                              "cursor-pointer transition-colors hover:bg-primary/10",
+                              classeExposition === row.classe && "bg-primary/20 font-medium",
+                              i % 2 === 0 ? "bg-card" : "bg-muted/30"
+                            )}
+                            onClick={() => {
+                              setClasseExposition(row.classe);
+                              setShowAbaque(false);
+                            }}
+                          >
+                            <td className="border border-border p-2 font-semibold">{row.classe}</td>
+                            <td className="border border-border p-2">{row.designation}</td>
+                            <td className="border border-border p-2 text-center">{row.ecMax}</td>
+                            <td className="border border-border p-2 text-center">{row.resistanceMin}</td>
+                            <td className="border border-border p-2 text-center">{row.dosageCiment}</td>
+                            <td className="border border-border p-2 text-center">{row.teneurAir}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">Cliquez sur une ligne pour sélectionner la classe d'exposition</p>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         );
