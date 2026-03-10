@@ -196,7 +196,7 @@ const GRANULAT_ESSAIS = [
   { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const },
   { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const },
   { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const },
-  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "gravier" as const },
+  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "sable" as const },
 ];
 
 type GranulatTable = typeof GRANULAT_ESSAIS[number]["table"];
