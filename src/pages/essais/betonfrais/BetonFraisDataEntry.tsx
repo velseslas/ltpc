@@ -48,6 +48,9 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
     if (echantillon?.resultats) {
       setResultats(echantillon.resultats as Record<string, unknown>);
     }
+    if (echantillon && (echantillon as any).temperature_ambiante != null) {
+      setTemperatureAmbiante(String((echantillon as any).temperature_ambiante));
+    }
   }, [echantillon]);
 
   const handleSave = async () => {
