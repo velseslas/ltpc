@@ -169,6 +169,7 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
             </div>
           )}
         </CardContent>
+      </Card>
 
       {FormComponent ? (
         <FormComponent resultats={resultats} onChange={setResultats} />
