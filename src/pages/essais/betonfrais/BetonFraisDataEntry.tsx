@@ -60,7 +60,7 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
       const hasResults = Object.keys(resultats).length > 0 &&
         Object.values(resultats).some(v => v !== null && v !== undefined && v !== "");
 
-      const updateData: Record<string, any> = {
+      const updateData: any = {
         id,
         resultats: resultats as Json,
         statut: hasResults ? "termine" : "en-cours",
