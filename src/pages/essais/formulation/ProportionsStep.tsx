@@ -239,7 +239,7 @@ export default function ProportionsStep({
     return g?.densite && g.densite > 0 ? g.densite / 1000 : 0;
   };
 
-  const components = [
+  const materiaux = [
     { label: "Eau", value: eau, unit: "L", density: 1.0 },
     { label: "Ciment", value: ciment, unit: "kg", density: 3.11 },
     { label: "Adjuvant", value: adjuvant, unit: "kg", density: 1.05, active: adjuvant > 0 },
@@ -250,10 +250,16 @@ export default function ProportionsStep({
     { label: "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
-  const totalVolume = components.reduce((sum, c) => {
+  const materiauxVolume = materiaux.reduce((sum, c) => {
     const vol = c.density > 0 ? c.value / (c.density * 1000) : 0;
     return sum + vol;
   }, 0);
+  const airVolume = Math.max(0, 1 - materiauxVolume); // m³
+  const components = [
+    ...materiaux,
+    { label: "Air occlus", value: 0, unit: "-", density: 0 },
+  ];
+  const totalVolume = 1; // Always 1 m³ = 1000 L
 
   const dMax = useMemo(() => {
     if (gravier3Active && g3 > 0) return 31.5;
