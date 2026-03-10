@@ -289,7 +289,7 @@ export default function CoefficientStep({
                 value={coefficientCompacite || (computedC !== null ? computedC.toFixed(3) : "")}
                 readOnly
                 placeholder="—"
-                className="bg-muted border-border cursor-default text-lg font-semibold"
+                className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientCompacite && "animate-border-blink")}
               />
             </div>
             <Button
