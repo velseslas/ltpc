@@ -356,7 +356,7 @@ function EssaiStep({
                 </h3>
                 <Separator className="bg-border/50" />
                 <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  <span className="text-xs text-muted-foreground min-w-[30px]">0/0</span>
+                  
                   <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Résistance du Ciment" /></SelectTrigger>
                     <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
                   <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">Voir rapport</Button>
