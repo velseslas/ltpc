@@ -14,12 +14,16 @@ interface MasseVolumiqueFormProps {
 function isSandProduct(produit?: string): boolean {
   if (!produit) return false;
   const lower = produit.toLowerCase();
-  return lower.includes("sable") || lower.includes("0/4") || lower.includes("0-4") || lower.includes("0–4");
+  return lower.includes("sable") || lower.includes("0/3") || lower.includes("0/4") || lower.includes("0/5") || lower.includes("0-3") || lower.includes("0-4") || lower.includes("0-5") || lower.includes("0–3") || lower.includes("0–4") || lower.includes("0–5");
 }
 
 function isGravelProduct(produit?: string): boolean {
   if (!produit) return false;
   return !isSandProduct(produit);
+}
+
+function getProductLabel(produit?: string): string {
+  return produit || "Granulat";
 }
 
 // Helper to get/set nested module data
