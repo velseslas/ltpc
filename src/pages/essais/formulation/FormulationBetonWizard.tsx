@@ -111,6 +111,7 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
 // Ingredient card with active/inactive toggle
 function IngredientCard({
   label,
+  producteurLabel = "Producteur",
   active,
   onToggle,
   producteurType,
