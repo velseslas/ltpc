@@ -195,7 +195,7 @@ export default function FormulationBetonWizard() {
   const [classeResistance, setClasseResistance] = useState("");
   const [classeExposition, setClasseExposition] = useState("");
   const [classeRheologique, setClasseRheologique] = useState("");
-  const [classeVraiCiment, setClasseVraiCiment] = useState("");
+  const [showAbaque, setShowAbaque] = useState(false);
 
   // Step 6 - calcul proportions (auto-calculated)
 
