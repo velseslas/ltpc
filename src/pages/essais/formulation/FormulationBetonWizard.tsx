@@ -543,80 +543,97 @@ export default function FormulationBetonWizard() {
           <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
-              <p className="text-sm text-muted-foreground mb-2">Sélectionnez les producteurs et produits pour chaque composant</p>
 
-              <IngredientSelect
-                label="Sable concassé"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={sableConcasseProducteurId}
-                selectedProduitId={sableConcasseProduitId}
-                onProducteurChange={setSableConcasseProducteurId}
-                onProduitChange={setSableConcasseProduitId}
-              />
-              <IngredientSelect
-                label="Sable fin"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={sableFinProducteurId}
-                selectedProduitId={sableFinProduitId}
-                onProducteurChange={setSableFinProducteurId}
-                onProduitChange={setSableFinProduitId}
-              />
-              <IngredientSelect
-                label="Gravillons 1"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={gravillons1ProducteurId}
-                selectedProduitId={gravillons1ProduitId}
-                onProducteurChange={setGravillons1ProducteurId}
-                onProduitChange={setGravillons1ProduitId}
-              />
-              <IngredientSelect
-                label="Gravier 2"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={gravier2ProducteurId}
-                selectedProduitId={gravier2ProduitId}
-                onProducteurChange={setGravier2ProducteurId}
-                onProduitChange={setGravier2ProduitId}
-              />
-              <IngredientSelect
-                label="Gravier 3"
-                producteurType="carriere"
-                producteurs={carrieres}
-                selectedProducteurId={gravier3ProducteurId}
-                selectedProduitId={gravier3ProduitId}
-                onProducteurChange={setGravier3ProducteurId}
-                onProduitChange={setGravier3ProduitId}
-              />
-              <IngredientSelect
-                label="Ciment"
-                producteurType="cimenterie"
-                producteurs={cimenteries}
-                selectedProducteurId={cimentProducteurId}
-                selectedProduitId={cimentProduitId}
-                onProducteurChange={setCimentProducteurId}
-                onProduitChange={setCimentProduitId}
-              />
-              <IngredientSelect
-                label="Adjuvant"
-                producteurType="adjuvant"
-                producteurs={adjuvants}
-                selectedProducteurId={adjuvantProducteurId}
-                selectedProduitId={adjuvantProduitId}
-                onProducteurChange={setAdjuvantProducteurId}
-                onProduitChange={setAdjuvantProduitId}
-              />
-              <IngredientSelect
-                label="Eau"
-                producteurType="source_eau"
-                producteurs={sourcesEau}
-                selectedProducteurId={eauProducteurId}
-                selectedProduitId={eauProduitId}
-                onProducteurChange={setEauProducteurId}
-                onProduitChange={setEauProduitId}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <IngredientCard
+                  label="Sable 1"
+                  active={sable1Active}
+                  onToggle={setSable1Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={sableConcasseProducteurId}
+                  selectedProduitId={sableConcasseProduitId}
+                  onProducteurChange={setSableConcasseProducteurId}
+                  onProduitChange={setSableConcasseProduitId}
+                />
+                <IngredientCard
+                  label="Sable 2"
+                  active={sable2Active}
+                  onToggle={setSable2Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={sableFinProducteurId}
+                  selectedProduitId={sableFinProduitId}
+                  onProducteurChange={setSableFinProducteurId}
+                  onProduitChange={setSableFinProduitId}
+                />
+                <IngredientCard
+                  label="Gravier 1"
+                  active={gravier1Active}
+                  onToggle={setGravier1Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={gravillons1ProducteurId}
+                  selectedProduitId={gravillons1ProduitId}
+                  onProducteurChange={setGravillons1ProducteurId}
+                  onProduitChange={setGravillons1ProduitId}
+                />
+                <IngredientCard
+                  label="Gravier 2"
+                  active={gravier2Active}
+                  onToggle={setGravier2Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={gravier2ProducteurId}
+                  selectedProduitId={gravier2ProduitId}
+                  onProducteurChange={setGravier2ProducteurId}
+                  onProduitChange={setGravier2ProduitId}
+                />
+                <IngredientCard
+                  label="Gravier 3"
+                  active={gravier3Active}
+                  onToggle={setGravier3Active}
+                  producteurType="carriere"
+                  producteurs={carrieres}
+                  selectedProducteurId={gravier3ProducteurId}
+                  selectedProduitId={gravier3ProduitId}
+                  onProducteurChange={setGravier3ProducteurId}
+                  onProduitChange={setGravier3ProduitId}
+                />
+                <IngredientCard
+                  label="Ciment"
+                  active={cimentActive}
+                  onToggle={setCimentActive}
+                  producteurType="cimenterie"
+                  producteurs={cimenteries}
+                  selectedProducteurId={cimentProducteurId}
+                  selectedProduitId={cimentProduitId}
+                  onProducteurChange={setCimentProducteurId}
+                  onProduitChange={setCimentProduitId}
+                />
+                <IngredientCard
+                  label="Adjuvant"
+                  active={adjuvantActive}
+                  onToggle={setAdjuvantActive}
+                  producteurType="adjuvant"
+                  producteurs={adjuvants}
+                  selectedProducteurId={adjuvantProducteurId}
+                  selectedProduitId={adjuvantProduitId}
+                  onProducteurChange={setAdjuvantProducteurId}
+                  onProduitChange={setAdjuvantProduitId}
+                />
+                <IngredientCard
+                  label="Eau"
+                  active={eauActive}
+                  onToggle={setEauActive}
+                  producteurType="source_eau"
+                  producteurs={sourcesEau}
+                  selectedProducteurId={eauProducteurId}
+                  selectedProduitId={eauProduitId}
+                  onProducteurChange={setEauProducteurId}
+                  onProduitChange={setEauProduitId}
+                />
+              </div>
             </CardContent>
           </Card>
         );
