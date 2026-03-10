@@ -189,16 +189,16 @@ function getNameById(list: { id: string; nom: string }[], id: string) {
 
 // Granulat test types
 const GRANULAT_ESSAIS = [
-  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, filter: "all" as const },
-  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, filter: "sable" as const },
-  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, filter: "sable" as const },
-  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, filter: "sable" as const },
-  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const },
-  { nom: "Los Angeles", table: "echantillons_los_angeles" as const, filter: "gravier" as const },
-  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const },
-  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const },
-  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const },
-  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "sable" as const },
+  { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, filter: "all" as const, essaiType: "granulometrie", basePath: "/essais/granulat/physiques/granulometrie" },
+  { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, filter: "sable" as const, essaiType: "equivalent-sable", basePath: "/essais/granulat/proprete/equivalent-sable" },
+  { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, filter: "sable" as const, essaiType: "bleu-methylene", basePath: "/essais/granulat/proprete/bleu-methylene" },
+  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, filter: "sable" as const, essaiType: "matiere-organique", basePath: "/essais/granulat/proprete/matiere-organique" },
+  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const, essaiType: "masse-volumique", basePath: "/essais/granulat/physiques/masse-volumique" },
+  { nom: "Los Angeles", table: "echantillons_los_angeles" as const, filter: "gravier" as const, essaiType: "los-angeles", basePath: "/essais/granulat/mecaniques/los-angeles" },
+  { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const, essaiType: "micro-deval", basePath: "/essais/granulat/mecaniques/micro-deval" },
+  { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const, essaiType: "forme-granulats", basePath: "/essais/granulat/physiques/forme-granulats" },
+  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const, essaiType: "ecrasement", basePath: "/essais/granulat/mecaniques/ecrasement" },
+  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "sable" as const, essaiType: "friabilite", basePath: "/essais/granulat/mecaniques/friabilite" },
 ];
 
 type GranulatTable = typeof GRANULAT_ESSAIS[number]["table"];
@@ -242,8 +242,8 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
-  essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string;
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath }: {
+  essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
@@ -251,6 +251,15 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMsg, setDialogMsg] = useState("");
   const [dialogType, setDialogType] = useState<"warning" | "info">("info");
+  const [showRapport, setShowRapport] = useState(false);
+
+  // Get the prefix for this essai type
+  const prefixMap: Record<string, string> = {
+    "granulometrie": "GR", "equivalent-sable": "ES", "bleu-methylene": "BM",
+    "matiere-organique": "MO", "masse-volumique": "MV", "los-angeles": "LA",
+    "micro-deval": "MD", "forme-granulats": "FG", "ecrasement": "EC", "friabilite": "FR",
+  };
+  const prefix = prefixMap[essaiType] || "ECH";
 
   const handleVoirRapport = () => {
     if (filtered.length === 0) {
@@ -265,8 +274,10 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
       setDialogOpen(true);
       return;
     }
-    // TODO: navigate to rapport
+    setShowRapport(true);
   };
+
+  const selectedSample = filtered.find((s: any) => s.id === selectedRapport);
 
   return (
     <div className="space-y-1.5">
@@ -282,7 +293,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
             ) : (
               filtered.map((s: any) => (
                 <SelectItem key={s.id} value={s.id}>
-                  N°{s.numero} — {s.date_reception} — {s.statut}
+                  {prefix}-{String(s.numero).padStart(3, "0")} — {carriereNom} — {s.produit}
                 </SelectItem>
               ))
             )}
@@ -293,6 +304,25 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
         </Button>
       </div>
       <RapportMessageDialog open={dialogOpen} onClose={() => setDialogOpen(false)} message={dialogMsg} type={dialogType} />
+      
+      {/* Rapport popup */}
+      <Dialog open={showRapport} onOpenChange={setShowRapport}>
+        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Rapport {selectedSample ? `${prefix}-${String(selectedSample.numero).padStart(3, "0")}` : ""} — {essaiTitle}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRapport && (
+            <iframe
+              src={`${basePath}/${selectedRapport}/rapport`}
+              className="w-full border-0 rounded-lg"
+              style={{ height: "75vh" }}
+              title="Rapport d'essai"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -380,6 +410,10 @@ function EssaiStep({
                         table={essai.table}
                         carriereId={mat.carriereId}
                         produitNom={mat.produitNom}
+                        carriereNom={mat.producteurNom}
+                        essaiType={essai.essaiType}
+                        essaiTitle={essai.nom}
+                        basePath={essai.basePath}
                       />
                     ))}
                   </div>
