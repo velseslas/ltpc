@@ -24,7 +24,7 @@ interface ProduitsSectionProps {
 
 export function ProduitsSection({ producteurId, producteurType }: ProduitsSectionProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingProduit, setEditingProduit] = useState<{ id: string; nom: string } | null>(null);
+  const [editingProduit, setEditingProduit] = useState<{ id: string; nom: string; densite?: number | null } | null>(null);
   const { data: produits, isLoading } = useProduits(producteurId, producteurType);
   const deleteProduit = useDeleteProduit();
 
