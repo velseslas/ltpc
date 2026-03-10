@@ -42,6 +42,11 @@ function displayVal(obj: Record<string, unknown>, field: string): string {
   return v !== undefined ? String(v) : "";
 }
 
+function displayResult(obj: Record<string, unknown>, field: string): string {
+  const v = getNum(obj, field);
+  return v !== undefined ? v.toFixed(3) : "--";
+}
+
 function formatDensity(v: number | undefined): string {
   return v !== undefined ? v.toFixed(3) : "--";
 }
@@ -166,11 +171,11 @@ function SandInputFields({ data, onFieldChange }: { data: Record<string, unknown
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W1 = B − A (poids sec)</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W1") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W1")} g</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W2 = C − D (poids humide)</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W2") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W2")} g</p>
           </div>
         </div>
       </div>
@@ -195,11 +200,11 @@ function SandInputFields({ data, onFieldChange }: { data: Record<string, unknown
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V1 = W2 + W4 − W3</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V1") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V1")}</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V2 = W1 + W4 − W3</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V2") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V2")}</p>
           </div>
         </div>
       </div>
@@ -233,11 +238,11 @@ function GravelInputFields({ data, label, onFieldChange }: { data: Record<string
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W1 = B − A</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W1") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W1")} g</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W2 = C − D</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W2") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W2")} g</p>
           </div>
         </div>
       </div>
@@ -262,15 +267,15 @@ function GravelInputFields({ data, label, onFieldChange }: { data: Record<string
         <div className="grid grid-cols-3 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">W5 = E − F</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "W5") || "--"} g</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "W5")} g</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V1 = W2 − W5</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V1") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V1")}</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V2 = W1 − W5</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V2") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V2")}</p>
           </div>
         </div>
       </div>
