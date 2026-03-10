@@ -107,9 +107,11 @@ function Stepper({ currentStep, onStepClick }: { currentStep: number; onStepClic
   );
 }
 
-// Ingredient selector for step 2
-function IngredientSelect({
+// Ingredient card with active/inactive toggle
+function IngredientCard({
   label,
+  active,
+  onToggle,
   producteurType,
   producteurs,
   selectedProducteurId,
@@ -118,6 +120,8 @@ function IngredientSelect({
   onProduitChange,
 }: {
   label: string;
+  active: boolean;
+  onToggle: (v: boolean) => void;
   producteurType: "carriere" | "cimenterie" | "adjuvant" | "source_eau";
   producteurs: { id: string; nom: string }[];
   selectedProducteurId: string;
@@ -125,42 +129,47 @@ function IngredientSelect({
   onProducteurChange: (v: string) => void;
   onProduitChange: (v: string) => void;
 }) {
-  const { data: produits = [], isLoading } = useProduits(selectedProducteurId, producteurType);
+  const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
 
   return (
-    <div className="space-y-3 p-4 rounded-lg border border-border/50 bg-muted/20">
-      <Label className="text-sm font-semibold">{label}</Label>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Producteur</Label>
-          <Select value={selectedProducteurId} onValueChange={onProducteurChange}>
-            <SelectTrigger className="bg-secondary border-border">
-              <SelectValue placeholder="Sélectionner" />
-            </SelectTrigger>
-            <SelectContent>
-              {producteurs.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <div className={cn(
+      "p-4 rounded-lg border space-y-3 transition-opacity",
+      active ? "border-border/50 bg-muted/20" : "border-border/30 bg-muted/5 opacity-60"
+    )}>
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-semibold">{label}</Label>
+        <div className="flex items-center gap-2">
+          <span className={cn("text-xs", active ? "text-primary" : "text-muted-foreground")}>
+            {active ? "Actif" : "Inactif"}
+          </span>
+          <Switch checked={active} onCheckedChange={onToggle} />
         </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Produit</Label>
-          <Select
-            value={selectedProduitId}
-            onValueChange={onProduitChange}
-            disabled={!selectedProducteurId || isLoading}
-          >
-            <SelectTrigger className="bg-secondary border-border">
-              <SelectValue placeholder={isLoading ? "Chargement..." : "Sélectionner"} />
-            </SelectTrigger>
-            <SelectContent>
-              {produits.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Producteur</Label>
+        <Select value={selectedProducteurId} onValueChange={onProducteurChange} disabled={!active}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder={active ? "Choisir un producteur" : "Composant inactif"} />
+          </SelectTrigger>
+          <SelectContent>
+            {producteurs.map((p) => (
+              <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Produit</Label>
+        <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
+          <SelectTrigger className="bg-secondary border-border">
+            <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? "Sélectionnez d'abord un producteur" : "Sélectionner un produit"} />
+          </SelectTrigger>
+          <SelectContent>
+            {produits.map((p: any) => (
+              <SelectItem key={p.id} value={p.id}>{p.nom}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
