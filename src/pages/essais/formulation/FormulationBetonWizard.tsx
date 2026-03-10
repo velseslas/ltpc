@@ -222,13 +222,26 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
-  const completed = filtered.filter((s: any) => s.statut === "terminé").length;
+  const [selectedRapport, setSelectedRapport] = useState("");
+
+  const handleVoirRapport = () => {
+    if (filtered.length === 0) {
+      toast.warning("Aucun rapport disponible pour cet essai");
+      return;
+    }
+    if (!selectedRapport) {
+      toast.info("Veuillez sélectionner un rapport avant de le consulter");
+      return;
+    }
+    // TODO: navigate to rapport
+    toast.success("Ouverture du rapport...");
+  };
 
   return (
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-muted-foreground ml-1">{essaiNom}</span>
       <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-        <Select>
+        <Select value={selectedRapport} onValueChange={setSelectedRapport}>
           <SelectTrigger className="bg-secondary border-border flex-1">
             <SelectValue placeholder={`Sélectionner rapport`} />
           </SelectTrigger>
@@ -244,7 +257,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
             )}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap">
+        <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={handleVoirRapport}>
           Voir rapport
         </Button>
       </div>
