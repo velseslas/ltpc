@@ -621,6 +621,7 @@ export default function FormulationBetonWizard() {
                 />
                 <IngredientCard
                   label="Adjuvant"
+                  producteurLabel="Fournisseur"
                   active={adjuvantActive}
                   onToggle={setAdjuvantActive}
                   producteurType="adjuvant"
