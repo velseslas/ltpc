@@ -242,8 +242,8 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
-  essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string;
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath }: {
+  essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
@@ -251,6 +251,15 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMsg, setDialogMsg] = useState("");
   const [dialogType, setDialogType] = useState<"warning" | "info">("info");
+  const [showRapport, setShowRapport] = useState(false);
+
+  // Get the prefix for this essai type
+  const prefixMap: Record<string, string> = {
+    "granulometrie": "GR", "equivalent-sable": "ES", "bleu-methylene": "BM",
+    "matiere-organique": "MO", "masse-volumique": "MV", "los-angeles": "LA",
+    "micro-deval": "MD", "forme-granulats": "FG", "ecrasement": "EC", "friabilite": "FR",
+  };
+  const prefix = prefixMap[essaiType] || "ECH";
 
   const handleVoirRapport = () => {
     if (filtered.length === 0) {
@@ -265,8 +274,10 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
       setDialogOpen(true);
       return;
     }
-    // TODO: navigate to rapport
+    setShowRapport(true);
   };
+
+  const selectedSample = filtered.find((s: any) => s.id === selectedRapport);
 
   return (
     <div className="space-y-1.5">
@@ -282,7 +293,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
             ) : (
               filtered.map((s: any) => (
                 <SelectItem key={s.id} value={s.id}>
-                  N°{s.numero} — {s.date_reception} — {s.statut}
+                  {prefix}-{String(s.numero).padStart(3, "0")} — {carriereNom} — {s.produit}
                 </SelectItem>
               ))
             )}
@@ -293,6 +304,25 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom }: {
         </Button>
       </div>
       <RapportMessageDialog open={dialogOpen} onClose={() => setDialogOpen(false)} message={dialogMsg} type={dialogType} />
+      
+      {/* Rapport popup */}
+      <Dialog open={showRapport} onOpenChange={setShowRapport}>
+        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Rapport {selectedSample ? `${prefix}-${String(selectedSample.numero).padStart(3, "0")}` : ""} — {essaiTitle}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRapport && (
+            <iframe
+              src={`${basePath}/${selectedRapport}/rapport`}
+              className="w-full border-0 rounded-lg"
+              style={{ height: "75vh" }}
+              title="Rapport d'essai"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
