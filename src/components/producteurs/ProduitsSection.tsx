@@ -108,6 +108,9 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
                 </div>
               </CardHeader>
               <CardContent>
+                {produit.densite != null && (
+                  <p className="text-sm text-foreground mb-1">Densité : {produit.densite}</p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Ajouté le {new Date(produit.created_at).toLocaleDateString("fr-FR")}
                 </p>
