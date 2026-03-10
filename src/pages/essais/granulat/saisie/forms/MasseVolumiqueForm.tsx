@@ -200,11 +200,11 @@ function SandInputFields({ data, onFieldChange }: { data: Record<string, unknown
         <div className="grid grid-cols-2 gap-4 mt-3">
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V1 = W2 + W4 − W3</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V1") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V1")}</p>
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">V2 = W1 + W4 − W3</p>
-            <p className="text-lg font-bold text-foreground">{displayVal(data, "V2") || "--"}</p>
+            <p className="text-lg font-bold text-foreground">{displayResult(data, "V2")}</p>
           </div>
         </div>
       </div>
