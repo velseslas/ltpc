@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Produit {
   id: string;
   nom: string;
+  densite: number | null;
   producteur_id: string;
   producteur_type: string;
   created_at: string;
