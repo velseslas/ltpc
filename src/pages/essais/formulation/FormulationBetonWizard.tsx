@@ -143,6 +143,9 @@ function IngredientCard({
   selectedProduitId,
   onProducteurChange,
   onProduitChange,
+  quantite,
+  onQuantiteChange,
+  quantiteUnit = "kg",
 }: {
   label: string;
   producteurLabel?: string;
@@ -154,6 +157,9 @@ function IngredientCard({
   selectedProduitId: string;
   onProducteurChange: (v: string) => void;
   onProduitChange: (v: string) => void;
+  quantite: string;
+  onQuantiteChange: (v: string) => void;
+  quantiteUnit?: string;
 }) {
   const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
 
@@ -196,6 +202,19 @@ function IngredientCard({
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Quantité ({quantiteUnit}/m³)</Label>
+        <Input
+          type="number"
+          step="0.1"
+          min="0"
+          value={quantite}
+          onChange={(e) => onQuantiteChange(e.target.value)}
+          disabled={!active}
+          placeholder="0"
+          className="bg-secondary border-border"
+        />
       </div>
     </div>
   );
