@@ -151,8 +151,24 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
               </p>
             </div>
           </div>
+          {essaiType === "affaissement" && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="temperature_ambiante">Température ambiante (°C)</Label>
+                  <Input
+                    id="temperature_ambiante"
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 20.0"
+                    value={temperatureAmbiante}
+                    onChange={(e) => setTemperatureAmbiante(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
-      </Card>
 
       {FormComponent ? (
         <FormComponent resultats={resultats} onChange={setResultats} />
