@@ -951,6 +951,38 @@ export default function FormulationBetonWizard() {
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
+          validationData={{
+            resistance28j,
+            slumpSouhaite,
+            classeExposition,
+            coefficientGranulaire,
+            coefficientCompacite,
+            materialsValid: (() => {
+              const activeItems = [
+                { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
+                { active: sable2Active, hasData: !!sableFinProducteurId && !!sableFinProduitId, label: "Sable 2" },
+                { active: gravier1Active, hasData: !!gravillons1ProducteurId && !!gravillons1ProduitId, label: "Gravier 1" },
+                { active: gravier2Active, hasData: !!gravier2ProducteurId && !!gravier2ProduitId, label: "Gravier 2" },
+                { active: gravier3Active, hasData: !!gravier3ProducteurId && !!gravier3ProduitId, label: "Gravier 3" },
+                { active: cimentActive, hasData: !!cimentProducteurId && !!cimentProduitId, label: "Ciment" },
+                { active: eauActive, hasData: !!eauProducteurId && !!eauProduitId, label: "Eau" },
+              ];
+              return activeItems.filter(i => i.active && !i.hasData).length === 0;
+            })(),
+            missingMaterials: (() => {
+              const activeItems = [
+                { active: sable1Active, hasData: !!sableConcasseProducteurId && !!sableConcasseProduitId, label: "Sable 1" },
+                { active: sable2Active, hasData: !!sableFinProducteurId && !!sableFinProduitId, label: "Sable 2" },
+                { active: gravier1Active, hasData: !!gravillons1ProducteurId && !!gravillons1ProduitId, label: "Gravier 1" },
+                { active: gravier2Active, hasData: !!gravier2ProducteurId && !!gravier2ProduitId, label: "Gravier 2" },
+                { active: gravier3Active, hasData: !!gravier3ProducteurId && !!gravier3ProduitId, label: "Gravier 3" },
+                { active: cimentActive, hasData: !!cimentProducteurId && !!cimentProduitId, label: "Ciment" },
+                { active: eauActive, hasData: !!eauProducteurId && !!eauProduitId, label: "Eau" },
+              ];
+              return activeItems.filter(i => i.active && !i.hasData).map(i => `${i.label} (Producteur / Produit)`);
+            })(),
+          }}
+          onStepErrors={setErrorSteps}
           onQuantityChange={(key, value) => {
             const setters: Record<string, (v: string) => void> = {
               sableConcasse: setSableConcasseQte,
