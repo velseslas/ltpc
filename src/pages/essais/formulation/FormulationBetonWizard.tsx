@@ -320,21 +320,27 @@ function EssaiStep({
                 Veuillez sélectionner une carrière et un produit à l'étape 3 pour voir les rapports d'essais.
               </p>
             ) : (
-              GRANULAT_ESSAIS.map((essai) => (
-                <div key={essai.table} className="space-y-2">
-                  <h3 className="text-sm font-semibold text-primary">{essai.nom}</h3>
-                  <Separator className="bg-border/50" />
-                  {resolvedGranulats.map((mat) => (
-                    <GranulatEssaiRow
-                      key={`${essai.table}-${mat.label}`}
-                      essaiNom={`${mat.label} (${mat.produitNom}) — ${mat.producteurNom}`}
-                      table={essai.table}
-                      carriereId={mat.carriereId}
-                      produitNom={mat.produitNom}
-                    />
-                  ))}
-                </div>
-              ))
+              GRANULAT_ESSAIS.map((essai) => {
+                const materialsForEssai = essai.sableOnly
+                  ? resolvedGranulats.filter((m) => m.label.toLowerCase().startsWith("sable"))
+                  : resolvedGranulats;
+                if (materialsForEssai.length === 0) return null;
+                return (
+                  <div key={essai.table} className="space-y-2">
+                    <h3 className="text-sm font-semibold text-primary">{essai.nom}</h3>
+                    <Separator className="bg-border/50" />
+                    {materialsForEssai.map((mat) => (
+                      <GranulatEssaiRow
+                        key={`${essai.table}-${mat.label}`}
+                        essaiNom={`${mat.label} (${mat.produitNom}) — ${mat.producteurNom}`}
+                        table={essai.table}
+                        carriereId={mat.carriereId}
+                        produitNom={mat.produitNom}
+                      />
+                    ))}
+                  </div>
+                );
+              })
             )}
           </CardContent>
         </Card>
