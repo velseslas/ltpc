@@ -92,6 +92,7 @@ interface CoefficientStepProps {
   onCoefficientGranulaireChange: (v: string) => void;
   coefficientCompacite: string;
   onCoefficientCompaciteChange: (v: string) => void;
+  showError?: boolean;
 }
 
 export default function CoefficientStep({
@@ -99,6 +100,7 @@ export default function CoefficientStep({
   onCoefficientGranulaireChange,
   coefficientCompacite,
   onCoefficientCompaciteChange,
+  showError = false,
 }: CoefficientStepProps) {
   // ── G' state ──
   const [qualiteG, setQualiteG] = useState<QualiteType | "">("");
