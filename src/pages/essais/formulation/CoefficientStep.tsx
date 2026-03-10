@@ -153,7 +153,7 @@ export default function CoefficientStep({
             <div className="space-y-1.5">
               <Label className="text-sm">Qualité des granulats</Label>
               <Select value={qualiteG} onValueChange={(v) => setQualiteG(v as QualiteType)}>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className={cn("bg-secondary border-border", showError && !qualiteG && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une qualité" />
                 </SelectTrigger>
                 <SelectContent>
