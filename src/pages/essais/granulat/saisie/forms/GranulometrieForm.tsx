@@ -21,18 +21,11 @@ const TAMIS_STANDARDS = [
   { ouverture: 6.3, label: "6.3 mm" },
   { ouverture: 5, label: "5 mm" },
   { ouverture: 4, label: "4 mm" },
-  { ouverture: 3.15, label: "3.15 mm" },
-  { ouverture: 2.5, label: "2.5 mm" },
   { ouverture: 2, label: "2 mm" },
-  { ouverture: 1.25, label: "1.25 mm" },
   { ouverture: 1, label: "1 mm" },
-  { ouverture: 0.63, label: "0.63 mm" },
   { ouverture: 0.5, label: "0.5 mm" },
-  { ouverture: 0.315, label: "0.315 mm" },
   { ouverture: 0.25, label: "0.25 mm" },
-  { ouverture: 0.16, label: "0.16 mm" },
   { ouverture: 0.125, label: "0.125 mm" },
-  { ouverture: 0.08, label: "0.08 mm" },
   { ouverture: 0.063, label: "0.063 mm" },
 ];
 
