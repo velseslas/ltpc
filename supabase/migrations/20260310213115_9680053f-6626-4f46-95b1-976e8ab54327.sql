@@ -1,0 +1,1 @@
+ALTER TABLE public.produits ADD COLUMN densite numeric NULL;
