@@ -93,17 +93,7 @@ const FormulationBeton = () => {
   });
 
   const handleNewFormulation = () => {
-    if (centrales.length === 1) {
-      navigate(`/intervenant/producteurs/centrale/${centrales[0].id}/formulation/nouveau`);
-    } else {
-      setShowNewDialog(true);
-    }
-  };
-
-  const confirmNewFormulation = () => {
-    if (selectedCentraleForNew) {
-      navigate(`/intervenant/producteurs/centrale/${selectedCentraleForNew}/formulation/nouveau`);
-    }
+    navigate("/essais/beton/formulation/nouveau");
   };
 
   return (
