@@ -333,12 +333,11 @@ function ResultCards({ data, label }: { data: Record<string, unknown>; label: st
 export default function MasseVolumiqueForm({ resultats, onChange, produit }: MasseVolumiqueFormProps) {
   const showSand = !produit || isSandProduct(produit);
   const showGravel = !produit || isGravelProduct(produit);
+  const productLabel = getProductLabel(produit);
 
   const sandData = getModule(resultats, "sable");
-  const gravelData = GRAVEL_FRACTIONS.map(f => ({
-    ...f,
-    data: getModule(resultats, f.key),
-  }));
+  const gravelKey = getGravelStorageKey(produit);
+  const gravelData = getModule(resultats, gravelKey);
 
   const handleSandChange = (field: string, value: string) => {
     const mod = { ...sandData };
@@ -353,8 +352,8 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
     onChange({ ...resultats, sable: calculated });
   };
 
-  const handleGravelChange = (fractionKey: string, field: string, value: string) => {
-    const mod = { ...getModule(resultats, fractionKey) };
+  const handleGravelChange = (field: string, value: string) => {
+    const mod = { ...gravelData };
     if (value === "") {
       delete mod[field];
     } else {
@@ -363,13 +362,13 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
       mod[field] = n;
     }
     const calculated = calcGravel(mod);
-    onChange({ ...resultats, [fractionKey]: calculated });
+    onChange({ ...resultats, [gravelKey]: calculated });
   };
 
   const moduleTitle = showSand && !showGravel
-    ? "Sable 0–4 mm – Méthode Pycnomètre"
+    ? `${productLabel} – Méthode Pycnomètre`
     : showGravel && !showSand
-      ? "Graviers – Méthode Panier immersion"
+      ? `${productLabel} – Méthode Panier immersion`
       : "Masse Volumique & Absorption";
 
   return (
@@ -385,16 +384,18 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
         {showSand && showGravel && (
           <Tabs defaultValue="sable" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="sable">🏖️ Sable 0–4 mm (Pycnomètre)</TabsTrigger>
+              <TabsTrigger value="sable">🏖️ Sable (Pycnomètre)</TabsTrigger>
               <TabsTrigger value="graviers">🪨 Graviers (Panier immersion)</TabsTrigger>
             </TabsList>
             <TabsContent value="sable" className="space-y-6">
               <SandInputFields data={sandData} onFieldChange={handleSandChange} />
-              <ResultCards data={sandData} label="Résultats – Sable 0–4 mm" />
+              <ResultCards data={sandData} label="Résultats – Sable" />
               <SandFormulas />
             </TabsContent>
             <TabsContent value="graviers" className="space-y-8">
-              <GravelContent gravelData={gravelData} handleGravelChange={handleGravelChange} />
+              <GravelInputFields data={gravelData} label="Gravier" onFieldChange={handleGravelChange} />
+              <ResultCards data={gravelData} label="Résultats – Gravier" />
+              <GravelFormulas />
             </TabsContent>
           </Tabs>
         )}
@@ -403,15 +404,17 @@ export default function MasseVolumiqueForm({ resultats, onChange, produit }: Mas
         {showSand && !showGravel && (
           <div className="space-y-6">
             <SandInputFields data={sandData} onFieldChange={handleSandChange} />
-            <ResultCards data={sandData} label="Résultats – Sable 0–4 mm" />
+            <ResultCards data={sandData} label={`Résultats – ${productLabel}`} />
             <SandFormulas />
           </div>
         )}
 
         {/* Gravel only */}
         {showGravel && !showSand && (
-          <div className="space-y-8">
-            <GravelContent gravelData={gravelData} handleGravelChange={handleGravelChange} />
+          <div className="space-y-6">
+            <GravelInputFields data={gravelData} label={productLabel} onFieldChange={handleGravelChange} />
+            <ResultCards data={gravelData} label={`Résultats – ${productLabel}`} />
+            <GravelFormulas />
           </div>
         )}
       </CardContent>
