@@ -2,6 +2,25 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useEchantillonGranulatById, getPrefix as getGranulatPrefix } from "@/hooks/useEchantillonsGranulatFactory";
+import { useEntreprise } from "@/hooks/useEntreprise";
+import { ReportHeader } from "@/components/reports/ReportHeader";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Loader2 } from "lucide-react";
+
+// Import report content components for popup
+import EquivalentSableReportContent from "@/pages/essais/granulat/rapport/content/EquivalentSableReportContent";
+import BleuMethyleneReportContent from "@/pages/essais/granulat/rapport/content/BleuMethyleneReportContent";
+import MatiereOrganiqueReportContent from "@/pages/essais/granulat/rapport/content/MatiereOrganiqueReportContent";
+import GranulometrieReportContent from "@/pages/essais/granulat/rapport/content/GranulometrieReportContent";
+import MasseVolumiqueReportContent from "@/pages/essais/granulat/rapport/content/MasseVolumiqueReportContent";
+import FormeGranulatsReportContent from "@/pages/essais/granulat/rapport/content/FormeGranulatsReportContent";
+import TeneurEauReportContent from "@/pages/essais/granulat/rapport/content/TeneurEauReportContent";
+import LosAngelesReportContent from "@/pages/essais/granulat/rapport/content/LosAngelesReportContent";
+import MicroDevalReportContent from "@/pages/essais/granulat/rapport/content/MicroDevalReportContent";
+import EcrasementReportContent from "@/pages/essais/granulat/rapport/content/EcrasementReportContent";
+import FriabiliteReportContent from "@/pages/essais/granulat/rapport/content/FriabiliteReportContent";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
