@@ -431,6 +431,13 @@ export default function FormulationBetonWizard() {
               </div>
             </CardContent>
           </Card>
+        );
+
+      case 3:
+        return (
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardContent className="p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
               <p className="text-sm text-muted-foreground mb-2">Sélectionnez les producteurs et produits pour chaque composant</p>
 
               <IngredientSelect
