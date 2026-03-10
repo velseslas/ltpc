@@ -53,7 +53,7 @@ export function useUpdateProduit() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, nom, producteurId, producteurType }: { id: string; nom: string; producteurId: string; producteurType: string }) => {
+    mutationFn: async ({ id, nom, densite, producteurId, producteurType }: { id: string; nom: string; densite?: number | null; producteurId: string; producteurType: string }) => {
       const { data, error } = await supabase
         .from("produits")
         .update({ nom })
