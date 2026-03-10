@@ -233,12 +233,12 @@ export default function FormulationBetonWizard() {
 
   const classeRheologiqueAuto = useMemo(() => {
     const s = parseFloat(slumpSouhaite);
-    if (isNaN(s) || s <= 0) return "";
-    if (s <= 40) return "S1";
-    if (s <= 90) return "S2";
-    if (s <= 150) return "S3";
-    if (s <= 210) return "S4";
-    return "S5";
+    if (isNaN(s) || s < 10) return "";
+    if (s <= 40) return "S1 (10-40 mm)";
+    if (s <= 90) return "S2 (50-90 mm)";
+    if (s <= 150) return "S3 (100-150 mm)";
+    if (s <= 210) return "S4 (160-210 mm)";
+    return "S5 (≥ 220 mm)";
   }, [slumpSouhaite]);
 
   // Step 6 - calcul proportions (auto-calculated)
