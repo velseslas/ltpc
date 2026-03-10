@@ -342,12 +342,13 @@ export default function ProportionsStep({
                     formatter={(value: number) => [`${value.toFixed(1)}%`]}
                   />
                   <Legend
-                    wrapperStyle={{ fontSize: "11px", paddingTop: "10px" }}
+                    wrapperStyle={{ fontSize: "10px", paddingTop: "16px", lineHeight: "22px" }}
                     layout="horizontal"
                     align="center"
                     verticalAlign="bottom"
-                    iconSize={10}
-                    formatter={(value) => <span style={{ marginRight: 12 }}>{value}</span>}
+                    iconSize={8}
+                    iconType="plainline"
+                    formatter={(value) => <span style={{ marginRight: 16, whiteSpace: "nowrap" }}>{value}</span>}
                   />
 
                   {/* Reference curve - dashed thick */}
