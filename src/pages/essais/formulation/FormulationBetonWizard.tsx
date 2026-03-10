@@ -454,6 +454,7 @@ function EssaiStep({
   gravier3ProducteurId, gravier3ProduitId, cimentProducteurId, cimentProduitId,
   eauProducteurId, eauProduitId,
   carrieres, cimenteries, sourcesEau,
+  showError = false,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -462,6 +463,7 @@ function EssaiStep({
   gravier3ProducteurId: string; gravier3ProduitId: string; cimentProducteurId: string; cimentProduitId: string;
   eauProducteurId: string; eauProduitId: string;
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
+  showError?: boolean;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
