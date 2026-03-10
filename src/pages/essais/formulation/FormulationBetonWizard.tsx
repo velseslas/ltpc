@@ -662,8 +662,9 @@ export default function FormulationBetonWizard() {
   const [adjuvantQte, setAdjuvantQte] = useState("");
   const [eauQte, setEauQte] = useState("");
 
-  // Step 4 - coefficient granulaire
+  // Step 4 - coefficients
   const [coefficientGranulaire, setCoefficientGranulaire] = useState("");
+  const [coefficientCompacite, setCoefficientCompacite] = useState("");
 
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
