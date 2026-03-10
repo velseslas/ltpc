@@ -567,50 +567,52 @@ export default function ProportionsStep({
         </Card>
       </div>
 
-      {/* Interactive Granulat Sliders */}
-      <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-        <CardContent className="p-6 space-y-4">
-          <h2 className="text-lg font-bold text-foreground">
-            Ajustement interactif des proportions
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Modifiez les quantités pour recalculer automatiquement la courbe de mélange
-          </p>
-          <div className="space-y-4 pt-2">
-            {sliders.map((s) => (
-              <div key={s.key} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium flex items-center gap-2">
-                    <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
-                    {s.label}
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                      {s.isSable ? "Sable" : "Gravier"}
-                    </Badge>
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={s.value}
-                      onChange={(e) => handleInputChange(s.key, e.target.value)}
-                      className="w-20 h-8 text-right text-sm"
-                      min={0}
-                      max={s.max}
-                    />
-                    <span className="text-xs text-muted-foreground w-8">kg</span>
+      {/* Interactive Granulat Sliders - only after calculation */}
+      {hasCalculated && (
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-6 space-y-4">
+            <h2 className="text-lg font-bold text-foreground">
+              Ajustement interactif des proportions
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Modifiez les quantités pour recalculer automatiquement la courbe de mélange
+            </p>
+            <div className="space-y-4 pt-2">
+              {sliders.map((s) => (
+                <div key={s.key} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
+                      {s.label}
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        {s.isSable ? "Sable" : "Gravier"}
+                      </Badge>
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={s.value}
+                        onChange={(e) => handleInputChange(s.key, e.target.value)}
+                        className="w-20 h-8 text-right text-sm"
+                        min={0}
+                        max={s.max}
+                      />
+                      <span className="text-xs text-muted-foreground w-8">kg</span>
+                    </div>
                   </div>
+                  <Slider
+                    value={[parseFloat(s.value) || 0]}
+                    onValueChange={([val]) => handleSliderChange(s.key, val)}
+                    max={s.max}
+                    step={5}
+                    className="w-full"
+                  />
                 </div>
-                <Slider
-                  value={[parseFloat(s.value) || 0]}
-                  onValueChange={([val]) => handleSliderChange(s.key, val)}
-                  max={s.max}
-                  step={5}
-                  className="w-full"
-                />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Dreux-Gorisse Chart */}
       <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
