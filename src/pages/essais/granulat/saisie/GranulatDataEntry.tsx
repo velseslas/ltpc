@@ -139,11 +139,14 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
       <EssaiBreadcrumb items={breadcrumbItems} />
 
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-display font-bold text-foreground">
-          Saisie de Données - <span className="text-primary">{getPrefix(essaiType)}-{String(echantillon.numero).padStart(3, "0")}</span>
-        </h1>
-        <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+      <div className="flex items-center gap-4">
+        <BackButton to={`${basePath}/${id}`} />
+        <div>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            Saisie de Données - <span className="text-primary">{getPrefix(essaiType)}-{String(echantillon.numero).padStart(3, "0")}</span>
+          </h1>
+          <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+        </div>
       </div>
 
       {/* Informations Échantillon */}
