@@ -126,18 +126,22 @@ export default function ProportionsStep({
   granulatCurves,
   granulatDensites = {},
   onQuantityChange,
+  validationData,
+  onStepErrors,
 }: ProportionsStepProps) {
   // Local overrides for interactive adjustments
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
 
-  // Calculation input parameters
-  const [calcEau, setCalcEau] = useState(eauQte || "175");
-  const [calcCiment, setCalcCiment] = useState(cimentQte || "350");
-  const [calcRatioGS, setCalcRatioGS] = useState("1.8");
-  const [calcAirOcclus, setCalcAirOcclus] = useState("2");
+  // Calculation input parameters - start EMPTY (user fills them)
+  const [calcEau, setCalcEau] = useState("");
+  const [calcCiment, setCalcCiment] = useState("");
+  const [calcRatioGS, setCalcRatioGS] = useState("");
+  const [calcAirOcclus, setCalcAirOcclus] = useState("");
   const [hasCalculated, setHasCalculated] = useState(false);
   const [missingReportsOpen, setMissingReportsOpen] = useState(false);
   const [missingReports, setMissingReports] = useState<string[]>([]);
+  const [validationErrorOpen, setValidationErrorOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{ step: number; label: string; fields: string[] }[]>([]);
 
   // Sync from parent
   useEffect(() => {
