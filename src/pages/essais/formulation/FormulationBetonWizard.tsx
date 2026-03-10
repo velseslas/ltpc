@@ -176,7 +176,16 @@ export default function FormulationBetonWizard() {
   const [chantierId, setChantierId] = useState("");
   const [centraleId, setCentraleId] = useState("");
 
-  // Step 2 - producteurs/produits
+  // Step 3 - producteurs/produits + active toggles
+  const [sable1Active, setSable1Active] = useState(true);
+  const [sable2Active, setSable2Active] = useState(false);
+  const [gravier1Active, setGravier1Active] = useState(true);
+  const [gravier2Active, setGravier2Active] = useState(false);
+  const [gravier3Active, setGravier3Active] = useState(false);
+  const [cimentActive, setCimentActive] = useState(true);
+  const [adjuvantActive, setAdjuvantActive] = useState(true);
+  const [eauActive, setEauActive] = useState(true);
+
   const [sableConcasseProducteurId, setSableConcasseProducteurId] = useState("");
   const [sableConcasseProduitId, setSableConcasseProduitId] = useState("");
   const [sableFinProducteurId, setSableFinProducteurId] = useState("");
