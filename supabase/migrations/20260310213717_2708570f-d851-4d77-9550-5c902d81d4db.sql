@@ -1,0 +1,1 @@
+ALTER TABLE public.echantillons_affaissement ADD COLUMN temperature_ambiante numeric NULL;
