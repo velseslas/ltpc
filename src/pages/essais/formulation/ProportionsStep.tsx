@@ -568,16 +568,15 @@ export default function ProportionsStep({
               </thead>
               <tbody>
                 {components.map(({ label, value, density }, i) => {
-                  const isAir = label === "Air occlus";
-                  const volumeL = isAir ? airVolume * 1000 : (density > 0 ? (value / (density * 1000)) * 1000 : 0);
-                  const pct = (volumeL / 1000) * 100;
+                  const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
+                  const pct = totalVolume > 0 ? (volumeL / 1000) / totalVolume * 100 : 0;
                   return (
                     <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
                       <td className="border border-border p-2.5 text-foreground">{label}</td>
                       <td className="border border-border p-2.5 text-right text-foreground">{pct.toFixed(1)}%</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{volumeL.toFixed(1)}</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{isAir ? "-" : (density > 0 ? density.toFixed(2) : "-")}</td>
-                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{isAir ? "-" : value.toFixed(1)}</td>
+                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? volumeL.toFixed(1) : "-"}</td>
+                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? density.toFixed(2) : "-"}</td>
+                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{value.toFixed(1)}</td>
                     </tr>
                   );
                 })}
@@ -586,7 +585,7 @@ export default function ProportionsStep({
                 <tr className="bg-primary/10">
                   <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
                   <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
-                  <td className="border border-border p-2.5 text-right font-bold text-primary">1000.0 L</td>
+                  <td className="border border-border p-2.5 text-right font-bold text-primary">{(totalVolume * 1000).toFixed(1)} L</td>
                   <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
                   <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{total.toFixed(1)}</td>
                 </tr>
@@ -595,6 +594,37 @@ export default function ProportionsStep({
           </div>
         </CardContent>
       </Card>
+
+      {/* Missing reports dialog */}
+      <Dialog open={missingReportsOpen} onOpenChange={setMissingReportsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Rapports manquants
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-foreground">
+              Vous devez sélectionner les rapports d'essai suivants avant de pouvoir calculer les proportions :
+            </p>
+            <ul className="space-y-1.5">
+              {missingReports.map((report) => (
+                <li key={report} className="flex items-center gap-2 text-sm text-destructive">
+                  <span className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+                  {report}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Retournez à l'étape "Essais" pour sélectionner les rapports de masse volumique de chaque granulat actif.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setMissingReportsOpen(false)}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
