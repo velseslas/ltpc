@@ -1020,6 +1020,8 @@ export default function FormulationBetonWizard() {
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
+          granulatDensites={granulatDensites}
+          granulatLabels={granulatLabels}
           validationData={{
             resistance28j,
             slumpSouhaite,
