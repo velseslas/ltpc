@@ -64,6 +64,7 @@ interface ProportionsStepProps {
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
   granulatDensites?: Record<string, number>;
+  granulatLabels?: Record<string, string>;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
