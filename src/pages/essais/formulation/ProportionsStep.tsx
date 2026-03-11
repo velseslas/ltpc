@@ -132,6 +132,7 @@ export default function ProportionsStep({
   classeRheologique,
   granulatCurves,
   granulatDensites = {},
+  granulatLabels = {},
   onQuantityChange,
   validationData,
   onStepErrors,
