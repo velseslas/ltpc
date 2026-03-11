@@ -374,11 +374,11 @@ export default function ProportionsStep({
     { label: "Eau", value: eau, unit: "L", density: 1.0 },
     { label: "Ciment", value: ciment, unit: "kg", density: 3.11 },
     { label: "Adjuvant", value: adjuvant, unit: "kg", density: 1.05, active: adjuvant > 0 },
-    { label: "Sable 0/4", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
-    { label: "Sable 0/1", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
-    { label: "Gravillon 3/8", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
-    { label: "Gravier 8/15", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
-    { label: "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
+    { label: granulatLabels["sableConcasse"] || "Sable 1", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
+    { label: granulatLabels["sableFin"] || "Sable 2", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
+    { label: granulatLabels["gravillons1"] || "Gravier 1", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
+    { label: granulatLabels["gravier2"] || "Gravier 2", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
+    { label: granulatLabels["gravier3"] || "Gravier 3", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
   const totalVolume = materiaux.reduce((sum, c) => {
