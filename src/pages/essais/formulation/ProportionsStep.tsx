@@ -241,7 +241,7 @@ export default function ProportionsStep({
       return false;
     }
     return true;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves, granulatLabels]);
 
   // Cross-step validation
   const validateAllSteps = useCallback((): boolean => {
