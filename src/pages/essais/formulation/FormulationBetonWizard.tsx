@@ -1009,6 +1009,7 @@ export default function FormulationBetonWizard() {
           gravier3ProducteurId={gravier3ProducteurId} gravier3ProduitId={gravier3ProduitId} cimentProducteurId={cimentProducteurId} cimentProduitId={cimentProduitId}
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
           showError={errorSteps.includes(5)}
+          onDensityExtracted={handleDensityExtracted}
         />
       </div>
 
