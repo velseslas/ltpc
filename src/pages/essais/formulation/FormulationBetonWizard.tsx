@@ -291,8 +291,9 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath }: {
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted }: {
   essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
+  granulatKey?: string; onDensityExtracted?: (key: string, density: number) => void;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
@@ -301,6 +302,20 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
   const [dialogMsg, setDialogMsg] = useState("");
   const [dialogType, setDialogType] = useState<"warning" | "info">("info");
   const [showRapport, setShowRapport] = useState(false);
+
+  // When a MV report is selected, extract density and call back
+  const handleReportSelect = (reportId: string) => {
+    setSelectedRapport(reportId);
+    if (essaiType === "masse-volumique" && granulatKey && onDensityExtracted && reportId) {
+      const sample = filtered.find((s: any) => s.id === reportId);
+      if (sample?.resultats) {
+        const density = extractDensityFromMvReport(sample.resultats as Record<string, unknown>);
+        if (density) {
+          onDensityExtracted(granulatKey, density);
+        }
+      }
+    }
+  };
 
   // Get the prefix for this essai type
   const prefixMap: Record<string, string> = {
