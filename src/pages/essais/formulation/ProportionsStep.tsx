@@ -224,11 +224,11 @@ export default function ProportionsStep({
     }
     // Also check granulometric curves
     const activeCurveItems = [
-      { key: "sableConcasse", label: "Sable 0/4 (Granulométrie)", active: sable1Active },
-      { key: "sableFin", label: "Sable 0/1 (Granulométrie)", active: sable2Active },
-      { key: "gravillons1", label: "Gravillon 3/8 (Granulométrie)", active: gravier1Active },
-      { key: "gravier2", label: "Gravier 8/15 (Granulométrie)", active: gravier2Active },
-      { key: "gravier3", label: "Gravier 15/25 (Granulométrie)", active: gravier3Active },
+      { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Granulométrie)`, active: sable1Active },
+      { key: "sableFin", label: `${granulatLabels["sableFin"] || "Sable 2"} (Granulométrie)`, active: sable2Active },
+      { key: "gravillons1", label: `${granulatLabels["gravillons1"] || "Gravier 1"} (Granulométrie)`, active: gravier1Active },
+      { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Granulométrie)`, active: gravier2Active },
+      { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Granulométrie)`, active: gravier3Active },
     ];
     for (const item of activeCurveItems) {
       if (item.active && (!granulatCurves || !granulatCurves.find(c => c.label.includes(item.key.replace("gravillons1", "3/8").replace("gravier2", "8/15").replace("gravier3", "15/25").replace("sableConcasse", "0/4").replace("sableFin", "0/1"))))) {
