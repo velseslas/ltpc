@@ -245,7 +245,7 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from(table)
-        .select("id, numero, produit, statut, date_reception")
+        .select("id, numero, produit, statut, date_reception, resultats")
         .eq("carriere_id", carriereId)
         .order("numero", { ascending: false });
       if (error) throw error;
@@ -253,6 +253,19 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
     },
     enabled: !!carriereId,
   });
+}
+
+// Extract density from masse volumique report resultats
+function extractDensityFromMvReport(resultats: Record<string, unknown>): number | null {
+  const fractionKeys = ["sable", "gravier_4_8", "gravier_8_16", "gravier_16_25"];
+  for (const key of fractionKeys) {
+    const module = resultats[key];
+    if (module && typeof module === "object" && !Array.isArray(module)) {
+      const ds = (module as Record<string, unknown>)["densite_seche"];
+      if (typeof ds === "number" && ds > 0) return ds * 1000; // convert specific gravity to kg/m³
+    }
+  }
+  return null;
 }
 
 function RapportMessageDialog({ open, onClose, message, type }: { open: boolean; onClose: () => void; message: string; type: "warning" | "info" }) {
@@ -278,8 +291,9 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath }: {
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted }: {
   essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
+  granulatKey?: string; onDensityExtracted?: (key: string, density: number) => void;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
@@ -288,6 +302,20 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
   const [dialogMsg, setDialogMsg] = useState("");
   const [dialogType, setDialogType] = useState<"warning" | "info">("info");
   const [showRapport, setShowRapport] = useState(false);
+
+  // When a MV report is selected, extract density and call back
+  const handleReportSelect = (reportId: string) => {
+    setSelectedRapport(reportId);
+    if (essaiType === "masse-volumique" && granulatKey && onDensityExtracted && reportId) {
+      const sample = filtered.find((s: any) => s.id === reportId);
+      if (sample?.resultats) {
+        const density = extractDensityFromMvReport(sample.resultats as Record<string, unknown>);
+        if (density) {
+          onDensityExtracted(granulatKey, density);
+        }
+      }
+    }
+  };
 
   // Get the prefix for this essai type
   const prefixMap: Record<string, string> = {
@@ -319,7 +347,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-muted-foreground ml-1">{essaiNom}</span>
       <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-        <Select value={selectedRapport} onValueChange={setSelectedRapport}>
+        <Select value={selectedRapport} onValueChange={handleReportSelect}>
           <SelectTrigger className="bg-secondary border-border flex-1">
             <SelectValue placeholder={`Sélectionner rapport`} />
           </SelectTrigger>
@@ -455,6 +483,7 @@ function EssaiStep({
   eauProducteurId, eauProduitId,
   carrieres, cimenteries, sourcesEau,
   showError = false,
+  onDensityExtracted,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -464,6 +493,7 @@ function EssaiStep({
   eauProducteurId: string; eauProduitId: string;
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
   showError?: boolean;
+  onDensityExtracted?: (key: string, density: number) => void;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
@@ -477,11 +507,11 @@ function EssaiStep({
 
   // Build granulat materials list - show all active ones
   const granulatMaterials = [
-    { label: "Sable 1", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
-    { label: "Sable 2", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
-    { label: "Gravier 1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
-    { label: "Gravier 2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
-    { label: "Gravier 3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
+    { label: "Sable 1", granulatKey: "sableConcasse", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
+    { label: "Sable 2", granulatKey: "sableFin", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
+    { label: "Gravier 1", granulatKey: "gravillons1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
+    { label: "Gravier 2", granulatKey: "gravier2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
+    { label: "Gravier 3", granulatKey: "gravier3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
   ].filter((m) => m.active);
 
   const hasAnyActiveGranulat = granulatMaterials.length > 0;
@@ -496,6 +526,7 @@ function EssaiStep({
     .filter((m) => m.producteurId && m.produitId)
     .map((mat) => ({
       label: mat.label,
+      granulatKey: mat.granulatKey,
       produitNom: mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "",
       producteurNom: getNameById(carrieres, mat.producteurId),
       carriereId: mat.producteurId,
@@ -536,6 +567,8 @@ function EssaiStep({
                         essaiType={essai.essaiType}
                         essaiTitle={essai.nom}
                         basePath={essai.basePath}
+                        granulatKey={mat.granulatKey}
+                        onDensityExtracted={onDensityExtracted}
                       />
                     ))}
                   </div>
@@ -669,6 +702,12 @@ export default function FormulationBetonWizard() {
   const [affaissementCible, setAffaissementCible] = useState("");
   const [resistanceCible, setResistanceCible] = useState("");
 
+  // Step 5 - granulat densities extracted from MV reports
+  const [granulatDensites, setGranulatDensites] = useState<Record<string, number>>({});
+  const handleDensityExtracted = (key: string, density: number) => {
+    setGranulatDensites(prev => ({ ...prev, [key]: density }));
+  };
+
   // Step 2 - données de base
   const [resistance28j, setResistance28j] = useState("");
   const [slumpSouhaite, setSlumpSouhaite] = useState("");
@@ -709,6 +748,29 @@ export default function FormulationBetonWizard() {
   const { data: adjuvants = [] } = useAdjuvants();
   const { data: sourcesEau = [] } = useSourcesEau();
   const createFormulation = useCreateFormulation();
+
+  // Resolve product names for labels
+  const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
+  const { data: sable2ProduitsWiz = [] } = useProduits(sableFinProducteurId, "carriere");
+  const { data: gravier1ProduitsWiz = [] } = useProduits(gravillons1ProducteurId, "carriere");
+  const { data: gravier2ProduitsWiz = [] } = useProduits(gravier2ProducteurId, "carriere");
+  const { data: gravier3ProduitsWiz = [] } = useProduits(gravier3ProducteurId, "carriere");
+
+  const granulatLabels = useMemo(() => {
+    const labels: Record<string, string> = {};
+    const s1Name = sable1ProduitsWiz.find((p: any) => p.id === sableConcasseProduitId)?.nom;
+    if (s1Name) labels["sableConcasse"] = `Sable ${s1Name}`;
+    const s2Name = sable2ProduitsWiz.find((p: any) => p.id === sableFinProduitId)?.nom;
+    if (s2Name) labels["sableFin"] = `Sable ${s2Name}`;
+    const g1Name = gravier1ProduitsWiz.find((p: any) => p.id === gravillons1ProduitId)?.nom;
+    if (g1Name) labels["gravillons1"] = `Gravier ${g1Name}`;
+    const g2Name = gravier2ProduitsWiz.find((p: any) => p.id === gravier2ProduitId)?.nom;
+    if (g2Name) labels["gravier2"] = `Gravier ${g2Name}`;
+    const g3Name = gravier3ProduitsWiz.find((p: any) => p.id === gravier3ProduitId)?.nom;
+    if (g3Name) labels["gravier3"] = `Gravier ${g3Name}`;
+    return labels;
+  }, [sable1ProduitsWiz, sable2ProduitsWiz, gravier1ProduitsWiz, gravier2ProduitsWiz, gravier3ProduitsWiz,
+      sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId]);
 
   const clientChantiers = chantierId ? chantiers : chantiers.filter((c: any) => !clientId || c.client_id === clientId);
 
@@ -947,6 +1009,7 @@ export default function FormulationBetonWizard() {
           gravier3ProducteurId={gravier3ProducteurId} gravier3ProduitId={gravier3ProduitId} cimentProducteurId={cimentProducteurId} cimentProduitId={cimentProduitId}
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
           showError={errorSteps.includes(5)}
+          onDensityExtracted={handleDensityExtracted}
         />
       </div>
 
@@ -957,6 +1020,8 @@ export default function FormulationBetonWizard() {
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
+          granulatDensites={granulatDensites}
+          granulatLabels={granulatLabels}
           validationData={{
             resistance28j,
             slumpSouhaite,

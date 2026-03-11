@@ -64,6 +64,7 @@ interface ProportionsStepProps {
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
   granulatDensites?: Record<string, number>;
+  granulatLabels?: Record<string, string>;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
@@ -131,6 +132,7 @@ export default function ProportionsStep({
   classeRheologique,
   granulatCurves,
   granulatDensites = {},
+  granulatLabels = {},
   onQuantityChange,
   validationData,
   onStepErrors,
@@ -189,11 +191,11 @@ export default function ProportionsStep({
   // Build granulat inputs for calculation engine
   const granulatInputs = useMemo<GranulatInput[]>(() => {
     const items: { key: string; label: string; active: boolean; isSable: boolean; curveType: string }[] = [
-      { key: "sableConcasse", label: "Sable 0/4", active: sable1Active, isSable: true, curveType: "sable1" },
-      { key: "sableFin", label: "Sable 0/1", active: sable2Active, isSable: true, curveType: "sable2" },
-      { key: "gravillons1", label: "Gravillon 3/8", active: gravier1Active, isSable: false, curveType: "gravier1" },
-      { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, isSable: false, curveType: "gravier2" },
-      { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, isSable: false, curveType: "gravier3" },
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, isSable: true, curveType: "sable1" },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, isSable: true, curveType: "sable2" },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, isSable: false, curveType: "gravier1" },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, isSable: false, curveType: "gravier2" },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, isSable: false, curveType: "gravier3" },
     ];
     return items.map(item => ({
       key: item.key,
@@ -203,16 +205,16 @@ export default function ProportionsStep({
       densite: granulatDensites[item.key] || 2650,
       curve: generateDemoCurve(item.curveType),
     }));
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatLabels]);
 
   // Validate that all active granulats have density from reports
   const validateDensities = useCallback((): boolean => {
     const activeItems = [
-      { key: "sableConcasse", label: "Sable 0/4 (Masse volumique)", active: sable1Active },
-      { key: "sableFin", label: "Sable 0/1 (Masse volumique)", active: sable2Active },
-      { key: "gravillons1", label: "Gravillon 3/8 (Masse volumique)", active: gravier1Active },
-      { key: "gravier2", label: "Gravier 8/15 (Masse volumique)", active: gravier2Active },
-      { key: "gravier3", label: "Gravier 15/25 (Masse volumique)", active: gravier3Active },
+      { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Masse volumique)`, active: sable1Active },
+      { key: "sableFin", label: `${granulatLabels["sableFin"] || "Sable 2"} (Masse volumique)`, active: sable2Active },
+      { key: "gravillons1", label: `${granulatLabels["gravillons1"] || "Gravier 1"} (Masse volumique)`, active: gravier1Active },
+      { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Masse volumique)`, active: gravier2Active },
+      { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Masse volumique)`, active: gravier3Active },
     ];
     const missing: string[] = [];
     for (const item of activeItems) {
@@ -222,11 +224,11 @@ export default function ProportionsStep({
     }
     // Also check granulometric curves
     const activeCurveItems = [
-      { key: "sableConcasse", label: "Sable 0/4 (Granulométrie)", active: sable1Active },
-      { key: "sableFin", label: "Sable 0/1 (Granulométrie)", active: sable2Active },
-      { key: "gravillons1", label: "Gravillon 3/8 (Granulométrie)", active: gravier1Active },
-      { key: "gravier2", label: "Gravier 8/15 (Granulométrie)", active: gravier2Active },
-      { key: "gravier3", label: "Gravier 15/25 (Granulométrie)", active: gravier3Active },
+      { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Granulométrie)`, active: sable1Active },
+      { key: "sableFin", label: `${granulatLabels["sableFin"] || "Sable 2"} (Granulométrie)`, active: sable2Active },
+      { key: "gravillons1", label: `${granulatLabels["gravillons1"] || "Gravier 1"} (Granulométrie)`, active: gravier1Active },
+      { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Granulométrie)`, active: gravier2Active },
+      { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Granulométrie)`, active: gravier3Active },
     ];
     for (const item of activeCurveItems) {
       if (item.active && (!granulatCurves || !granulatCurves.find(c => c.label.includes(item.key.replace("gravillons1", "3/8").replace("gravier2", "8/15").replace("gravier3", "15/25").replace("sableConcasse", "0/4").replace("sableFin", "0/1"))))) {
@@ -239,7 +241,7 @@ export default function ProportionsStep({
       return false;
     }
     return true;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatCurves, granulatLabels]);
 
   // Cross-step validation
   const validateAllSteps = useCallback((): boolean => {
@@ -372,11 +374,11 @@ export default function ProportionsStep({
     { label: "Eau", value: eau, unit: "L", density: 1.0 },
     { label: "Ciment", value: ciment, unit: "kg", density: 3.11 },
     { label: "Adjuvant", value: adjuvant, unit: "kg", density: 1.05, active: adjuvant > 0 },
-    { label: "Sable 0/4", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
-    { label: "Sable 0/1", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
-    { label: "Gravillon 3/8", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
-    { label: "Gravier 8/15", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
-    { label: "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
+    { label: granulatLabels["sableConcasse"] || "Sable 1", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
+    { label: granulatLabels["sableFin"] || "Sable 2", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
+    { label: granulatLabels["gravillons1"] || "Gravier 1", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
+    { label: granulatLabels["gravier2"] || "Gravier 2", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
+    { label: granulatLabels["gravier3"] || "Gravier 3", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
   const totalVolume = materiaux.reduce((sum, c) => {
@@ -397,29 +399,29 @@ export default function ProportionsStep({
     if (granulatCurves && granulatCurves.length > 0) return granulatCurves;
     const materials: MaterialCurve[] = [];
     if (sable1Active && sc > 0) {
-      materials.push({ label: "Sable 0/4", quantity: sc, curve: generateDemoCurve("sable1") });
+      materials.push({ label: granulatLabels["sableConcasse"] || "Sable 1", quantity: sc, curve: generateDemoCurve("sable1") });
     }
     if (sable2Active && sf > 0) {
-      materials.push({ label: "Sable 0/1", quantity: sf, curve: generateDemoCurve("sable2") });
+      materials.push({ label: granulatLabels["sableFin"] || "Sable 2", quantity: sf, curve: generateDemoCurve("sable2") });
     }
     if (gravier1Active && g1 > 0) {
-      materials.push({ label: "Gravillon 3/8", quantity: g1, curve: generateDemoCurve("gravier1") });
+      materials.push({ label: granulatLabels["gravillons1"] || "Gravier 1", quantity: g1, curve: generateDemoCurve("gravier1") });
     }
     if (gravier2Active && g2 > 0) {
-      materials.push({ label: "Gravier 8/15", quantity: g2, curve: generateDemoCurve("gravier2") });
+      materials.push({ label: granulatLabels["gravier2"] || "Gravier 2", quantity: g2, curve: generateDemoCurve("gravier2") });
     }
     if (gravier3Active && g3 > 0) {
-      materials.push({ label: "Gravier 15/25", quantity: g3, curve: generateDemoCurve("gravier3") });
+      materials.push({ label: granulatLabels["gravier3"] || "Gravier 3", quantity: g3, curve: generateDemoCurve("gravier3") });
     }
     return materials;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves, granulatLabels]);
 
   const sliders: GranulatSlider[] = [
-    { key: "sableConcasse", label: "Sable 0/4", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
-    { key: "sableFin", label: "Sable 0/1", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800, isSable: true },
-    { key: "gravillons1", label: "Gravillon 3/8", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200, isSable: false },
-    { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200, isSable: false },
-    { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200, isSable: false },
+    { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
+    { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800, isSable: true },
+    { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200, isSable: false },
+    { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200, isSable: false },
+    { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200, isSable: false },
   ].filter(s => s.active);
 
   // Volume breakdown for display
