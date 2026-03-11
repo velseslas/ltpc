@@ -191,11 +191,11 @@ export default function ProportionsStep({
   // Build granulat inputs for calculation engine
   const granulatInputs = useMemo<GranulatInput[]>(() => {
     const items: { key: string; label: string; active: boolean; isSable: boolean; curveType: string }[] = [
-      { key: "sableConcasse", label: "Sable 0/4", active: sable1Active, isSable: true, curveType: "sable1" },
-      { key: "sableFin", label: "Sable 0/1", active: sable2Active, isSable: true, curveType: "sable2" },
-      { key: "gravillons1", label: "Gravillon 3/8", active: gravier1Active, isSable: false, curveType: "gravier1" },
-      { key: "gravier2", label: "Gravier 8/15", active: gravier2Active, isSable: false, curveType: "gravier2" },
-      { key: "gravier3", label: "Gravier 15/25", active: gravier3Active, isSable: false, curveType: "gravier3" },
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, isSable: true, curveType: "sable1" },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, isSable: true, curveType: "sable2" },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, isSable: false, curveType: "gravier1" },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, isSable: false, curveType: "gravier2" },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, isSable: false, curveType: "gravier3" },
     ];
     return items.map(item => ({
       key: item.key,
