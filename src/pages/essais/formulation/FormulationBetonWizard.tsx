@@ -347,7 +347,7 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-muted-foreground ml-1">{essaiNom}</span>
       <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-        <Select value={selectedRapport} onValueChange={setSelectedRapport}>
+        <Select value={selectedRapport} onValueChange={handleReportSelect}>
           <SelectTrigger className="bg-secondary border-border flex-1">
             <SelectValue placeholder={`Sélectionner rapport`} />
           </SelectTrigger>
