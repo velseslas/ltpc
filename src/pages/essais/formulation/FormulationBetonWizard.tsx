@@ -702,6 +702,12 @@ export default function FormulationBetonWizard() {
   const [affaissementCible, setAffaissementCible] = useState("");
   const [resistanceCible, setResistanceCible] = useState("");
 
+  // Step 5 - granulat densities extracted from MV reports
+  const [granulatDensites, setGranulatDensites] = useState<Record<string, number>>({});
+  const handleDensityExtracted = (key: string, density: number) => {
+    setGranulatDensites(prev => ({ ...prev, [key]: density }));
+  };
+
   // Step 2 - données de base
   const [resistance28j, setResistance28j] = useState("");
   const [slumpSouhaite, setSlumpSouhaite] = useState("");
