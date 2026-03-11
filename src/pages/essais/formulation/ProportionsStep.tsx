@@ -399,19 +399,19 @@ export default function ProportionsStep({
     if (granulatCurves && granulatCurves.length > 0) return granulatCurves;
     const materials: MaterialCurve[] = [];
     if (sable1Active && sc > 0) {
-      materials.push({ label: "Sable 0/4", quantity: sc, curve: generateDemoCurve("sable1") });
+      materials.push({ label: granulatLabels["sableConcasse"] || "Sable 1", quantity: sc, curve: generateDemoCurve("sable1") });
     }
     if (sable2Active && sf > 0) {
-      materials.push({ label: "Sable 0/1", quantity: sf, curve: generateDemoCurve("sable2") });
+      materials.push({ label: granulatLabels["sableFin"] || "Sable 2", quantity: sf, curve: generateDemoCurve("sable2") });
     }
     if (gravier1Active && g1 > 0) {
-      materials.push({ label: "Gravillon 3/8", quantity: g1, curve: generateDemoCurve("gravier1") });
+      materials.push({ label: granulatLabels["gravillons1"] || "Gravier 1", quantity: g1, curve: generateDemoCurve("gravier1") });
     }
     if (gravier2Active && g2 > 0) {
-      materials.push({ label: "Gravier 8/15", quantity: g2, curve: generateDemoCurve("gravier2") });
+      materials.push({ label: granulatLabels["gravier2"] || "Gravier 2", quantity: g2, curve: generateDemoCurve("gravier2") });
     }
     if (gravier3Active && g3 > 0) {
-      materials.push({ label: "Gravier 15/25", quantity: g3, curve: generateDemoCurve("gravier3") });
+      materials.push({ label: granulatLabels["gravier3"] || "Gravier 3", quantity: g3, curve: generateDemoCurve("gravier3") });
     }
     return materials;
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves]);
