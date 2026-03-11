@@ -749,6 +749,29 @@ export default function FormulationBetonWizard() {
   const { data: sourcesEau = [] } = useSourcesEau();
   const createFormulation = useCreateFormulation();
 
+  // Resolve product names for labels
+  const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
+  const { data: sable2ProduitsWiz = [] } = useProduits(sableFinProducteurId, "carriere");
+  const { data: gravier1ProduitsWiz = [] } = useProduits(gravillons1ProducteurId, "carriere");
+  const { data: gravier2ProduitsWiz = [] } = useProduits(gravier2ProducteurId, "carriere");
+  const { data: gravier3ProduitsWiz = [] } = useProduits(gravier3ProducteurId, "carriere");
+
+  const granulatLabels = useMemo(() => {
+    const labels: Record<string, string> = {};
+    const s1Name = sable1ProduitsWiz.find((p: any) => p.id === sableConcasseProduitId)?.nom;
+    if (s1Name) labels["sableConcasse"] = `Sable ${s1Name}`;
+    const s2Name = sable2ProduitsWiz.find((p: any) => p.id === sableFinProduitId)?.nom;
+    if (s2Name) labels["sableFin"] = `Sable ${s2Name}`;
+    const g1Name = gravier1ProduitsWiz.find((p: any) => p.id === gravillons1ProduitId)?.nom;
+    if (g1Name) labels["gravillons1"] = `Gravier ${g1Name}`;
+    const g2Name = gravier2ProduitsWiz.find((p: any) => p.id === gravier2ProduitId)?.nom;
+    if (g2Name) labels["gravier2"] = `Gravier ${g2Name}`;
+    const g3Name = gravier3ProduitsWiz.find((p: any) => p.id === gravier3ProduitId)?.nom;
+    if (g3Name) labels["gravier3"] = `Gravier ${g3Name}`;
+    return labels;
+  }, [sable1ProduitsWiz, sable2ProduitsWiz, gravier1ProduitsWiz, gravier2ProduitsWiz, gravier3ProduitsWiz,
+      sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId]);
+
   const clientChantiers = chantierId ? chantiers : chantiers.filter((c: any) => !clientId || c.client_id === clientId);
 
 
