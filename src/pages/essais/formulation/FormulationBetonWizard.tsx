@@ -245,7 +245,7 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from(table)
-        .select("id, numero, produit, statut, date_reception")
+        .select("id, numero, produit, statut, date_reception, resultats")
         .eq("carriere_id", carriereId)
         .order("numero", { ascending: false });
       if (error) throw error;
@@ -253,6 +253,19 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
     },
     enabled: !!carriereId,
   });
+}
+
+// Extract density from masse volumique report resultats
+function extractDensityFromMvReport(resultats: Record<string, unknown>): number | null {
+  const fractionKeys = ["sable", "gravier_4_8", "gravier_8_16", "gravier_16_25"];
+  for (const key of fractionKeys) {
+    const module = resultats[key];
+    if (module && typeof module === "object" && !Array.isArray(module)) {
+      const ds = (module as Record<string, unknown>)["densite_seche"];
+      if (typeof ds === "number" && ds > 0) return ds * 1000; // convert specific gravity to kg/m³
+    }
+  }
+  return null;
 }
 
 function RapportMessageDialog({ open, onClose, message, type }: { open: boolean; onClose: () => void; message: string; type: "warning" | "info" }) {
