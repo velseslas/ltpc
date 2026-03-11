@@ -210,11 +210,11 @@ export default function ProportionsStep({
   // Validate that all active granulats have density from reports
   const validateDensities = useCallback((): boolean => {
     const activeItems = [
-      { key: "sableConcasse", label: "Sable 0/4 (Masse volumique)", active: sable1Active },
-      { key: "sableFin", label: "Sable 0/1 (Masse volumique)", active: sable2Active },
-      { key: "gravillons1", label: "Gravillon 3/8 (Masse volumique)", active: gravier1Active },
-      { key: "gravier2", label: "Gravier 8/15 (Masse volumique)", active: gravier2Active },
-      { key: "gravier3", label: "Gravier 15/25 (Masse volumique)", active: gravier3Active },
+      { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Masse volumique)`, active: sable1Active },
+      { key: "sableFin", label: `${granulatLabels["sableFin"] || "Sable 2"} (Masse volumique)`, active: sable2Active },
+      { key: "gravillons1", label: `${granulatLabels["gravillons1"] || "Gravier 1"} (Masse volumique)`, active: gravier1Active },
+      { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Masse volumique)`, active: gravier2Active },
+      { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Masse volumique)`, active: gravier3Active },
     ];
     const missing: string[] = [];
     for (const item of activeItems) {
