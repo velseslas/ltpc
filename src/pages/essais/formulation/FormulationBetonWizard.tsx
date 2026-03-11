@@ -567,6 +567,8 @@ function EssaiStep({
                         essaiType={essai.essaiType}
                         essaiTitle={essai.nom}
                         basePath={essai.basePath}
+                        granulatKey={mat.granulatKey}
+                        onDensityExtracted={onDensityExtracted}
                       />
                     ))}
                   </div>
