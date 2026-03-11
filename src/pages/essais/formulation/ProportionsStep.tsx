@@ -205,7 +205,7 @@ export default function ProportionsStep({
       densite: granulatDensites[item.key] || 2650,
       curve: generateDemoCurve(item.curveType),
     }));
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatLabels]);
 
   // Validate that all active granulats have density from reports
   const validateDensities = useCallback((): boolean => {
