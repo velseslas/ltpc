@@ -414,7 +414,7 @@ export default function ProportionsStep({
       materials.push({ label: granulatLabels["gravier3"] || "Gravier 3", quantity: g3, curve: generateDemoCurve("gravier3") });
     }
     return materials;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves, granulatLabels]);
 
   const sliders: GranulatSlider[] = [
     { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
