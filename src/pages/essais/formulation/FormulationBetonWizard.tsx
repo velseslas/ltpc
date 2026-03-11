@@ -483,6 +483,7 @@ function EssaiStep({
   eauProducteurId, eauProduitId,
   carrieres, cimenteries, sourcesEau,
   showError = false,
+  onDensityExtracted,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -492,6 +493,7 @@ function EssaiStep({
   eauProducteurId: string; eauProduitId: string;
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
   showError?: boolean;
+  onDensityExtracted?: (key: string, density: number) => void;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
@@ -505,11 +507,11 @@ function EssaiStep({
 
   // Build granulat materials list - show all active ones
   const granulatMaterials = [
-    { label: "Sable 1", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
-    { label: "Sable 2", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
-    { label: "Gravier 1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
-    { label: "Gravier 2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
-    { label: "Gravier 3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
+    { label: "Sable 1", granulatKey: "sableConcasse", active: sable1Active, producteurId: sable1ProducteurId, produitId: sable1ProduitId, produits: sable1Produits },
+    { label: "Sable 2", granulatKey: "sableFin", active: sable2Active, producteurId: sable2ProducteurId, produitId: sable2ProduitId, produits: sable2Produits },
+    { label: "Gravier 1", granulatKey: "gravillons1", active: gravier1Active, producteurId: gravier1ProducteurId, produitId: gravier1ProduitId, produits: gravier1Produits },
+    { label: "Gravier 2", granulatKey: "gravier2", active: gravier2Active, producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, produits: gravier2Produits },
+    { label: "Gravier 3", granulatKey: "gravier3", active: gravier3Active, producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, produits: gravier3Produits },
   ].filter((m) => m.active);
 
   const hasAnyActiveGranulat = granulatMaterials.length > 0;
@@ -524,6 +526,7 @@ function EssaiStep({
     .filter((m) => m.producteurId && m.produitId)
     .map((mat) => ({
       label: mat.label,
+      granulatKey: mat.granulatKey,
       produitNom: mat.produits.find((p: any) => p.id === mat.produitId)?.nom || "",
       producteurNom: getNameById(carrieres, mat.producteurId),
       carriereId: mat.producteurId,
