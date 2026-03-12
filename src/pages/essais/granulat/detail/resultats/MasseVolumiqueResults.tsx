@@ -89,6 +89,7 @@ function ModuleResults({ data, label, method }: { data: Record<string, unknown>;
 
 export default function MasseVolumiqueResults({ resultats }: MasseVolumiqueResultsProps) {
   const sandData = getModule(resultats, "sable");
+  const genericGravelData = getModule(resultats, "gravier");
   const gravelFractions = [
     { key: "gravier_4_8", label: "Graviers 4–8 mm" },
     { key: "gravier_8_16", label: "Graviers 8–16 mm" },
@@ -96,7 +97,8 @@ export default function MasseVolumiqueResults({ resultats }: MasseVolumiqueResul
   ];
 
   const hasSand = Object.keys(sandData).length > 0;
-  const hasGravel = gravelFractions.some(f => Object.keys(getModule(resultats, f.key)).length > 0);
+  const hasGenericGravel = Object.keys(genericGravelData).length > 0;
+  const hasGravel = hasGenericGravel || gravelFractions.some(f => Object.keys(getModule(resultats, f.key)).length > 0);
 
   return (
     <Card className="border-border bg-card">
@@ -106,6 +108,9 @@ export default function MasseVolumiqueResults({ resultats }: MasseVolumiqueResul
       <CardContent className="space-y-8">
         {hasSand && (
           <ModuleResults data={sandData} label="Sable 0–4 mm" method="Pycnomètre" />
+        )}
+        {hasGenericGravel && (
+          <ModuleResults data={genericGravelData} label="Graviers" method="Panier immersion" />
         )}
         {gravelFractions.map(f => {
           const data = getModule(resultats, f.key);
