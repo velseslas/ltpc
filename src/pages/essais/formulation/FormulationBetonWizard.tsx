@@ -257,7 +257,7 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
 
 // Extract density from masse volumique report resultats
 function extractDensityFromMvReport(resultats: Record<string, unknown>): number | null {
-  const fractionKeys = ["sable", "gravier_4_8", "gravier_8_16", "gravier_16_25"];
+  const fractionKeys = ["sable", "gravier", "gravier_4_8", "gravier_8_16", "gravier_16_25"];
   for (const key of fractionKeys) {
     const module = resultats[key];
     if (module && typeof module === "object" && !Array.isArray(module)) {
