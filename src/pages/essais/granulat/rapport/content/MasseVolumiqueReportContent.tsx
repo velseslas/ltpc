@@ -42,7 +42,7 @@ function ModuleTable({ data, label, method, fields }: {
           {fields.map(f => (
             <tr key={f.key}>
               <td className="border border-[#4a90a4] px-2 py-1">{f.label}</td>
-              <td className="border border-[#4a90a4] px-2 py-1 text-center">{getNum(data, f.key) ?? "-"} g</td>
+              <td className="border border-[#4a90a4] px-2 py-1 text-center">{getNum(data, f.key) !== undefined ? getNum(data, f.key)!.toFixed(3) : "-"} g</td>
             </tr>
           ))}
         </tbody>
