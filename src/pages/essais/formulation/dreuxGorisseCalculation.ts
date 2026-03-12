@@ -44,22 +44,19 @@ const DENSITE_CIMENT = 3110; // kg/m³
  * Main calculation: compute granulate masses from volumes
  */
 export function calculateMixDesign(inputs: CalculationInputs): CalculationResult {
-  const { eau, ciment, ratioGS, coeffCompacite, airOcclus, granulats } = inputs;
+  const { eau, ciment, ratioGS, airOcclus, granulats } = inputs;
 
-  // Step 1-3: Volume calculations
+  // Step 1: Volume of water
   const Ve = eau / 1000;
+  // Step 2: Volume of cement
   const Vc = ciment / DENSITE_CIMENT;
+  // Step 3: Volume of occluded air
   const Vair = airOcclus / 100;
 
-  // Step 4: Volume remaining for aggregates
-  let Vgranulats = 1 - (Ve + Vc + Vair);
+  // Step 4: Volume available for aggregates (NO compacity applied here)
+  const Vgranulats = 1 - (Ve + Vc + Vair);
 
-  // Step 7: Apply compacity coefficient correction
-  if (coeffCompacite > 0) {
-    Vgranulats = Vgranulats * coeffCompacite;
-  }
-
-  // Step 5-6: Split into sand and gravel volumes
+  // Step 5: Split into sand and gravel using G/S ratio
   const Vsable = Vgranulats / (1 + ratioGS);
   const Vgravier = Vgranulats - Vsable;
 
