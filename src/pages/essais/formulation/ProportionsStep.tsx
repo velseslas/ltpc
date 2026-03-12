@@ -429,14 +429,12 @@ export default function ProportionsStep({
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const airVal = parseFloat(calcAirOcclus) || 0;
-    const compacite = parseFloat(coefficientCompacite) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
     const Vair = airVal / 100;
-    let Vg = 1 - (Ve + Vc + Vair);
-    if (compacite > 0) Vg *= compacite;
+    const Vg = 1 - (Ve + Vc + Vair);
     return { Ve, Vc, Vair, Vg };
-  }, [calcEau, calcCiment, calcAirOcclus, coefficientCompacite]);
+  }, [calcEau, calcCiment, calcAirOcclus]);
 
   return (
     <div className="space-y-6">
