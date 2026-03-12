@@ -103,13 +103,20 @@ export default function MasseVolumiqueReportContent({ resultats }: MasseVolumiqu
     { key: "gravier_8_16", label: "Graviers 8–16 mm" },
     { key: "gravier_16_25", label: "Graviers 16–25 mm" },
   ];
+  // Also check the generic "gravier" key used by the form
+  const genericGravelData = getModule(resultats, "gravier");
 
   const hasSand = Object.keys(sandData).length > 0;
+  const hasGenericGravel = Object.keys(genericGravelData).length > 0;
 
   return (
     <div className="space-y-6">
       {hasSand && (
         <ModuleTable data={sandData} label="Sable 0–4 mm" method="Pycnomètre" fields={SAND_FIELDS} />
+      )}
+
+      {hasGenericGravel && (
+        <ModuleTable data={genericGravelData} label="Graviers" method="Panier immersion" fields={GRAVEL_FIELDS} />
       )}
 
       {gravelFractions.map(f => {
