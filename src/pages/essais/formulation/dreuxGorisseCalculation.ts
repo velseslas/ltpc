@@ -7,6 +7,9 @@
 // Standard sieve openings (mm)
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
 
+// MF reference sieves (mm)
+const MF_SIEVES = [0.125, 0.25, 0.5, 1, 2, 4];
+
 export interface GranulatInput {
   key: string;
   label: string;
@@ -14,6 +17,8 @@ export interface GranulatInput {
   densite: number; // kg/m³ (e.g. 2650)
   curve: { ouverture: number; pourcentageTamisat: number }[];
   isSable: boolean;
+  moduleFinesse?: number; // Module de finesse (for sands)
+  dMax?: number; // Maximum grain size (mm)
 }
 
 export interface CalculationInputs {
@@ -29,53 +34,144 @@ export interface CalculationInputs {
 export interface CalculationResult {
   masses: Record<string, number>; // key -> kg/m³
   volumes: {
-    eau: number;
-    ciment: number;
-    air: number;
-    granulatsTotal: number;
-    sable: number;
-    gravier: number;
+    eau: number;       // m³
+    ciment: number;    // m³
+    air: number;       // m³
+    granulatsTotal: number; // m³
+    sable: number;     // m³
+    gravier: number;   // m³
+    detail: Record<string, number>; // key -> m³ per granulat
   };
+  moduleFinesse: {
+    perSand: Record<string, number>; // key -> MF
+    melange: number | null;
+  };
+  dMaxReel: number; // mm
+  volumeCheck: number; // should be exactly 1.0
 }
 
 const DENSITE_CIMENT = 3110; // kg/m³
 
 /**
+ * Compute module de finesse from a granulometric curve
+ * MF = sum of cumulative retained percentages at 0.125, 0.25, 0.5, 1, 2, 4 mm / 100
+ */
+export function computeModuleFinesse(curve: { ouverture: number; pourcentageTamisat: number }[]): number | null {
+  if (!curve || curve.length === 0) return null;
+  let sumRetained = 0;
+  for (const sieve of MF_SIEVES) {
+    const point = curve.find(c => Math.abs(c.ouverture - sieve) < 0.001);
+    if (point) {
+      sumRetained += (100 - point.pourcentageTamisat);
+    }
+  }
+  return Math.round((sumRetained / 100) * 100) / 100;
+}
+
+/**
+ * Determine Dmax from active granulats based on their actual curves or labels
+ */
+export function determineDmax(granulats: GranulatInput[]): number {
+  const active = granulats.filter(g => g.active);
+  if (active.length === 0) return 25;
+
+  let maxD = 0;
+  for (const g of active) {
+    // Use explicit dMax if provided
+    if (g.dMax && g.dMax > maxD) {
+      maxD = g.dMax;
+      continue;
+    }
+    // Infer from curve: find highest sieve where passing < 100%
+    if (g.curve && g.curve.length > 0) {
+      const sorted = [...g.curve].sort((a, b) => b.ouverture - a.ouverture);
+      for (const pt of sorted) {
+        if (pt.pourcentageTamisat < 100 && pt.ouverture > maxD) {
+          maxD = pt.ouverture;
+          break;
+        }
+      }
+    }
+  }
+  return maxD > 0 ? maxD : 25;
+}
+
+/**
  * Main calculation: compute granulate masses from volumes
+ * 
+ * CRITICAL RULES:
+ * - Vgranulats = 1 - (Ve + Vc + Vair) — compacity NEVER applied here
+ * - Ve + Vc + Vair + Vgranulats = 1.0 m³ always
+ * - Compacity is only used for internal distribution optimization
  */
 export function calculateMixDesign(inputs: CalculationInputs): CalculationResult {
-  const { eau, ciment, ratioGS, airOcclus, granulats } = inputs;
+  const { eau, ciment, ratioGS, granulats, airOcclus } = inputs;
 
-  // Step 1: Volume of water
+  // Step 1: Volume of water (m³)
   const Ve = eau / 1000;
-  // Step 2: Volume of cement
+  // Step 2: Volume of cement (m³)
   const Vc = ciment / DENSITE_CIMENT;
-  // Step 3: Volume of occluded air
+  // Step 3: Volume of occluded air (m³)
   const Vair = airOcclus / 100;
 
-  // Step 4: Volume available for aggregates (NO compacity applied here)
+  // Step 4: Volume available for aggregates — NO compacity applied
   const Vgranulats = 1 - (Ve + Vc + Vair);
+
+  // Volume check: must equal 1.0
+  const volumeCheck = Ve + Vc + Vair + Vgranulats;
 
   // Step 5: Split into sand and gravel using G/S ratio
   const Vsable = Vgranulats / (1 + ratioGS);
   const Vgravier = Vgranulats - Vsable;
 
-  // Active granulats
+  // Active granulats by type
   const activeSables = granulats.filter(g => g.active && g.isSable);
   const activeGraviers = granulats.filter(g => g.active && !g.isSable);
 
-  // Step 8-9: Distribute volumes among active granulats
+  // Step 6: Distribute volumes among active granulats (equal split)
   const sableMasses = distributeVolume(Vsable, activeSables);
   const gravierMasses = distributeVolume(Vgravier, activeGraviers);
 
   const masses: Record<string, number> = {};
+  const volumeDetail: Record<string, number> = {};
   for (const g of granulats) {
     if (!g.active) {
       masses[g.key] = 0;
+      volumeDetail[g.key] = 0;
       continue;
     }
     masses[g.key] = sableMasses[g.key] ?? gravierMasses[g.key] ?? 0;
+    const densite = g.densite > 0 ? g.densite : 2650;
+    volumeDetail[g.key] = masses[g.key] / densite;
   }
+
+  // Compute module de finesse for each sand
+  const mfPerSand: Record<string, number> = {};
+  for (const s of activeSables) {
+    const mf = s.moduleFinesse ?? computeModuleFinesse(s.curve);
+    if (mf !== null) mfPerSand[s.key] = mf;
+  }
+
+  // Compute MF mélange
+  let mfMelange: number | null = null;
+  if (activeSables.length > 0) {
+    let sumMF = 0;
+    let sumMass = 0;
+    for (const s of activeSables) {
+      const m = masses[s.key] ?? 0;
+      const mf = mfPerSand[s.key];
+      if (mf !== undefined && m > 0) {
+        sumMF += m * mf;
+        sumMass += m;
+      }
+    }
+    if (sumMass > 0) {
+      mfMelange = Math.round((sumMF / sumMass) * 100) / 100;
+    }
+  }
+
+  // Determine Dmax réel
+  const dMaxReel = determineDmax(granulats);
 
   return {
     masses,
@@ -86,7 +182,14 @@ export function calculateMixDesign(inputs: CalculationInputs): CalculationResult
       granulatsTotal: Vgranulats,
       sable: Vsable,
       gravier: Vgravier,
+      detail: volumeDetail,
     },
+    moduleFinesse: {
+      perSand: mfPerSand,
+      melange: mfMelange,
+    },
+    dMaxReel,
+    volumeCheck,
   };
 }
 
@@ -159,6 +262,9 @@ function computeMixCurveFromMasses(
 /**
  * Optimize the mix to minimize deviation from Dreux-Gorisse reference curve.
  * Uses iterative gradient-free optimization (simplex-like adjustment).
+ * 
+ * IMPORTANT: Optimization only redistributes masses WITHIN each group (sable/gravier).
+ * It NEVER changes the total Vsable or Vgravier volumes.
  */
 export function optimizeMix(
   inputs: CalculationInputs,
@@ -175,7 +281,7 @@ export function optimizeMix(
   const activeGranulats = granulats.filter(g => g.active);
   if (activeGranulats.length < 2) return masses;
 
-  // Total mass to preserve
+  // Total mass to preserve per group
   const activeSables = granulats.filter(g => g.active && g.isSable);
   const activeGraviers = granulats.filter(g => g.active && !g.isSable);
   const totalSableMass = activeSables.reduce((s, g) => s + (masses[g.key] ?? 0), 0);
