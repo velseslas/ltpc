@@ -132,8 +132,13 @@ export function calculateMixDesign(
   const activeGraviers = granulats.filter(g => g.active && !g.isSable);
 
   // Step 6: Distribute volumes among active granulats (equal split)
-  const sableMasses = distributeVolume(Vsable, activeSables);
-  const gravierMasses = distributeVolume(Vgravier, activeGraviers);
+  const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
+  const sableMasses = hasPresetMasses
+    ? Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]))
+    : distributeVolume(Vsable, activeSables);
+  const gravierMasses = hasPresetMasses
+    ? Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]))
+    : distributeVolume(Vgravier, activeGraviers);
 
   const masses: Record<string, number> = {};
   const volumeDetail: Record<string, number> = {};
