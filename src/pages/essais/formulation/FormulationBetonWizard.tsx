@@ -255,15 +255,51 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
   });
 }
 
-// Extract density from masse volumique report resultats
-function extractDensityFromMvReport(resultats: Record<string, unknown>): number | null {
+interface GranulatImportedData {
+  densiteEffective?: number;
+  absorption?: number;
+  moduleFinesse?: number;
+}
+
+function readNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function computeEffectiveDensityFromMv(masseVolumique: number, absorption: number | null): number {
+  if (absorption === null || absorption <= 0) return masseVolumique;
+  const ratio = 1 - absorption / 100;
+  return ratio > 0 ? masseVolumique / ratio : masseVolumique;
+}
+
+// Extract densité effective + absorption from masse volumique report resultats
+function extractMvDataFromReport(resultats: Record<string, unknown>): Pick<GranulatImportedData, "densiteEffective" | "absorption"> | null {
   const fractionKeys = ["sable", "gravier", "gravier_4_8", "gravier_8_16", "gravier_16_25"];
   for (const key of fractionKeys) {
     const module = resultats[key];
     if (module && typeof module === "object" && !Array.isArray(module)) {
-      const ds = (module as Record<string, unknown>)["densite_seche"];
-      if (typeof ds === "number" && ds > 0) return ds * 1000; // convert specific gravity to kg/m³
+      const data = module as Record<string, unknown>;
+      const absorption = readNumber(data.absorption) ?? readNumber(resultats.absorption);
+      const densiteEffective = readNumber(data.densite_effective);
+      const densiteSeche = readNumber(data.densite_seche);
+
+      if (densiteEffective && densiteEffective > 0) {
+        return { densiteEffective: densiteEffective * 1000, absorption: absorption ?? undefined };
+      }
+      if (densiteSeche && densiteSeche > 0) {
+        return {
+          densiteEffective: computeEffectiveDensityFromMv(densiteSeche, absorption) * 1000,
+          absorption: absorption ?? undefined,
+        };
+      }
     }
+  }
+  return null;
+}
+
+function extractModuleFinesseFromReport(resultats: Record<string, unknown>): Pick<GranulatImportedData, "moduleFinesse"> | null {
+  const moduleFinesse = readNumber(resultats.module_finesse);
+  if (moduleFinesse && moduleFinesse > 0) {
+    return { moduleFinesse };
   }
   return null;
 }
@@ -291,9 +327,11 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted }: {
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted, onModuleFinesseExtracted }: {
   essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
-  granulatKey?: string; onDensityExtracted?: (key: string, density: number) => void;
+  granulatKey?: string;
+  onDensityExtracted?: (key: string, density: number) => void;
+  onModuleFinesseExtracted?: (key: string, moduleFinesse: number) => void;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
@@ -306,13 +344,20 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
   // When a MV report is selected, extract density and call back
   const handleReportSelect = (reportId: string) => {
     setSelectedRapport(reportId);
-    if (essaiType === "masse-volumique" && granulatKey && onDensityExtracted && reportId) {
-      const sample = filtered.find((s: any) => s.id === reportId);
-      if (sample?.resultats) {
-        const density = extractDensityFromMvReport(sample.resultats as Record<string, unknown>);
-        if (density) {
-          onDensityExtracted(granulatKey, density);
-        }
+    const sample = filtered.find((s: any) => s.id === reportId);
+    if (!sample?.resultats || !granulatKey || !reportId) return;
+
+    if (essaiType === "masse-volumique" && onDensityExtracted) {
+      const mvData = extractMvDataFromReport(sample.resultats as Record<string, unknown>);
+      if (mvData?.densiteEffective) {
+        onDensityExtracted(granulatKey, mvData.densiteEffective);
+      }
+    }
+
+    if (essaiType === "granulometrie" && onModuleFinesseExtracted) {
+      const mfData = extractModuleFinesseFromReport(sample.resultats as Record<string, unknown>);
+      if (mfData?.moduleFinesse) {
+        onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
       }
     }
   };
@@ -484,6 +529,7 @@ function EssaiStep({
   carrieres, cimenteries, sourcesEau,
   showError = false,
   onDensityExtracted,
+  onModuleFinesseExtracted,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -494,6 +540,7 @@ function EssaiStep({
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
   showError?: boolean;
   onDensityExtracted?: (key: string, density: number) => void;
+  onModuleFinesseExtracted?: (key: string, moduleFinesse: number) => void;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
@@ -569,6 +616,7 @@ function EssaiStep({
                         basePath={essai.basePath}
                         granulatKey={mat.granulatKey}
                         onDensityExtracted={onDensityExtracted}
+                        onModuleFinesseExtracted={onModuleFinesseExtracted}
                       />
                     ))}
                   </div>
@@ -697,15 +745,21 @@ export default function FormulationBetonWizard() {
   // Step 4 - coefficients
   const [coefficientGranulaire, setCoefficientGranulaire] = useState("");
   const [coefficientCompacite, setCoefficientCompacite] = useState("");
+  const [dmaxUtilisateur, setDmaxUtilisateur] = useState("");
+  const [mfCorrectionNeeded, setMfCorrectionNeeded] = useState(false);
 
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
   const [resistanceCible, setResistanceCible] = useState("");
 
-  // Step 5 - granulat densities extracted from MV reports
+  // Step 5 - données granulats importées depuis les rapports
   const [granulatDensites, setGranulatDensites] = useState<Record<string, number>>({});
+  const [granulatModuleFinesse, setGranulatModuleFinesse] = useState<Record<string, number>>({});
   const handleDensityExtracted = (key: string, density: number) => {
     setGranulatDensites(prev => ({ ...prev, [key]: density }));
+  };
+  const handleModuleFinesseExtracted = (key: string, moduleFinesse: number) => {
+    setGranulatModuleFinesse(prev => ({ ...prev, [key]: moduleFinesse }));
   };
 
   // Step 2 - données de base

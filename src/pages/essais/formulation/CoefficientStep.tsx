@@ -93,6 +93,8 @@ interface CoefficientStepProps {
   onCoefficientGranulaireChange: (v: string) => void;
   coefficientCompacite: string;
   onCoefficientCompaciteChange: (v: string) => void;
+  dmaxValue?: string;
+  onDmaxChange?: (v: string) => void;
   showError?: boolean;
 }
 
@@ -101,6 +103,8 @@ export default function CoefficientStep({
   onCoefficientGranulaireChange,
   coefficientCompacite,
   onCoefficientCompaciteChange,
+  dmaxValue = "",
+  onDmaxChange,
   showError = false,
 }: CoefficientStepProps) {
   // ── G' state ──
@@ -110,8 +114,15 @@ export default function CoefficientStep({
 
   // ── Compacité state ──
   const [serrage, setSerrage] = useState<SerrageType | "">("");
-  const [dmaxC, setDmaxC] = useState("");
+  const [dmaxC, setDmaxC] = useState(dmaxValue);
   const [showAbaqueC, setShowAbaqueC] = useState(false);
+
+  useEffect(() => {
+    if (dmaxValue !== undefined) {
+      setDmaxG(dmaxValue);
+      setDmaxC(dmaxValue);
+    }
+  }, [dmaxValue]);
 
   // Auto-compute G'
   const computedG = useMemo(() => {
@@ -171,7 +182,10 @@ export default function CoefficientStep({
                   step="0.1"
                   min="0"
                   value={dmaxG}
-                  onChange={(e) => setDmaxG(e.target.value)}
+                  onChange={(e) => {
+                    setDmaxG(e.target.value);
+                    onDmaxChange?.(e.target.value);
+                  }}
                   placeholder="ex: 31.5"
                   className={cn("bg-secondary border-border pr-12", showError && !dmaxG && "animate-border-blink")}
                 />
@@ -273,7 +287,10 @@ export default function CoefficientStep({
                   step="0.1"
                   min="0"
                   value={dmaxC}
-                  onChange={(e) => setDmaxC(e.target.value)}
+                  onChange={(e) => {
+                    setDmaxC(e.target.value);
+                    onDmaxChange?.(e.target.value);
+                  }}
                   placeholder="ex: 31.5"
                   className={cn("bg-secondary border-border pr-12", showError && !dmaxC && "animate-border-blink")}
                 />

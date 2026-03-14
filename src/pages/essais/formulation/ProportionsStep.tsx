@@ -61,10 +61,13 @@ interface ProportionsStepProps {
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
   granulatDensites?: Record<string, number>;
+  granulatModuleFinesse?: Record<string, number>;
   granulatLabels?: Record<string, string>;
+  dMaxUser?: number | null;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
+  onMfCorrectionNeeded?: (needed: boolean) => void;
 }
 
 interface GranulatSlider {
@@ -138,10 +141,13 @@ export default function ProportionsStep({
   classeRheologique,
   granulatCurves,
   granulatDensites = {},
+  granulatModuleFinesse = {},
   granulatLabels = {},
+  dMaxUser,
   onQuantityChange,
   validationData,
   onStepErrors,
+  onMfCorrectionNeeded,
 }: ProportionsStepProps) {
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
   const [calcEau, setCalcEau] = useState("");
@@ -154,6 +160,7 @@ export default function ProportionsStep({
   const [missingReports, setMissingReports] = useState<string[]>([]);
   const [validationErrorOpen, setValidationErrorOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{ step: number; label: string; fields: string[] }[]>([]);
+  const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
 
   useEffect(() => {
@@ -205,39 +212,75 @@ export default function ProportionsStep({
       label: item.label,
       active: item.active,
       isSable: item.isSable,
-      densite: granulatDensites[item.key] || 2650,
+      densite: granulatDensites[item.key] ?? 0,
+      moduleFinesse: granulatModuleFinesse[item.key],
       curve: generateDemoCurve(item.curveType),
       dMax: DMAX_MAP[item.key] || undefined,
     }));
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatLabels]);
+  }, [
+    sable1Active,
+    sable2Active,
+    gravier1Active,
+    gravier2Active,
+    gravier3Active,
+    granulatDensites,
+    granulatModuleFinesse,
+    granulatLabels,
+  ]);
 
-  // Dmax réel from active granulats
+  // Dmax réel (priorité à la valeur utilisateur étape 4)
+  const dMaxAuto = useMemo(() => determineDmax(granulatInputs), [granulatInputs]);
   const dMaxReel = useMemo(() => {
-    return determineDmax(granulatInputs);
-  }, [granulatInputs]);
+    if (typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0) {
+      return dMaxUser;
+    }
+    return dMaxAuto;
+  }, [dMaxUser, dMaxAuto]);
 
-  // Validate densities
+  // Validate imported material data (densité effective + MF des sables)
   const validateDensities = useCallback((): boolean => {
     const activeItems = [
-      { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Masse volumique)`, active: sable1Active },
-      { key: "sableFin", label: `${granulatLabels["sableFin"] || "Sable 2"} (Masse volumique)`, active: sable2Active },
-      { key: "gravillons1", label: `${granulatLabels["gravillons1"] || "Gravier 1"} (Masse volumique)`, active: gravier1Active },
-      { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Masse volumique)`, active: gravier2Active },
-      { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Masse volumique)`, active: gravier3Active },
+      { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Densité effective)`, active: sable1Active },
+      { key: "sableFin", label: `${granulatLabels["sableFin"] || "Sable 2"} (Densité effective)`, active: sable2Active },
+      { key: "gravillons1", label: `${granulatLabels["gravillons1"] || "Gravier 1"} (Densité effective)`, active: gravier1Active },
+      { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Densité effective)`, active: gravier2Active },
+      { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Densité effective)`, active: gravier3Active },
     ];
+
     const missing: string[] = [];
     for (const item of activeItems) {
       if (item.active && (!granulatDensites[item.key] || granulatDensites[item.key] <= 0)) {
         missing.push(item.label);
       }
     }
+
+    const sableChecks = [
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active },
+    ];
+
+    for (const sable of sableChecks) {
+      if (sable.active && (!granulatModuleFinesse[sable.key] || granulatModuleFinesse[sable.key] <= 0)) {
+        missing.push(`${sable.label} (Module de finesse)`);
+      }
+    }
+
     if (missing.length > 0) {
       setMissingReports(missing);
       setMissingReportsOpen(true);
       return false;
     }
     return true;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatLabels]);
+  }, [
+    sable1Active,
+    sable2Active,
+    gravier1Active,
+    gravier2Active,
+    gravier3Active,
+    granulatDensites,
+    granulatModuleFinesse,
+    granulatLabels,
+  ]);
 
   // Cross-step validation
   const validateAllSteps = useCallback((): boolean => {
@@ -262,6 +305,16 @@ export default function ProportionsStep({
         errors.push({ step: 5, label: "Essai", fields: validationData.essaisMissing });
       }
     }
+
+    const mfMelangeLocal = calcResult?.moduleFinesse?.melange ?? null;
+    if (mfMelangeLocal !== null && mfMelangeLocal > 2.8 && !sable2Active) {
+      errors.push({
+        step: 3,
+        label: "Information matériaux — Correction module de finesse",
+        fields: ["Sable 2 requis pour corriger un module de finesse > 2.8"],
+      });
+    }
+
     const step6Fields: string[] = [];
     if (!calcEau) step6Fields.push("Eau (kg/m³)");
     if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
@@ -278,7 +331,7 @@ export default function ProportionsStep({
     }
     onStepErrors?.([]);
     return true;
-  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, onStepErrors]);
+  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, calcResult, sable2Active, onStepErrors]);
 
   const buildInputs = useCallback((): CalculationInputs => {
     return {
@@ -292,22 +345,35 @@ export default function ProportionsStep({
     };
   }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
 
+  const validatePhysicalConsistency = useCallback((result: CalculationResult): string[] => {
+    const errors: string[] = [];
+
+    if (Math.abs(result.volumeCheck - 1.0) > 0.001) {
+      errors.push("Incohérence volumique dans la formulation béton.");
+    }
+
+    const sumFractions = Object.values(result.volumes.detail).reduce((sum, v) => sum + v, 0);
+    if (Math.abs(sumFractions - result.volumes.granulatsTotal) > 0.001) {
+      errors.push("Erreur de répartition des granulats : le volume total n'est pas conservé.");
+    }
+
+    return errors;
+  }, []);
+
   const handleCalculate = useCallback(() => {
     if (!validateAllSteps()) return;
     if (!validateDensities()) return;
 
     const inputs = buildInputs();
     const result = calculateMixDesign(inputs);
-
-    // Volume verification
-    if (Math.abs(result.volumeCheck - 1.0) > 0.001) {
-      console.error("Volume check failed:", result.volumeCheck);
-    }
+    const errors = validatePhysicalConsistency(result);
+    setCalculationErrors(errors);
 
     const newOverrides: Record<string, string> = {};
     for (const [key, mass] of Object.entries(result.masses)) {
-      newOverrides[key] = mass.toString();
-      onQuantityChange?.(key, mass.toString());
+      const formattedMass = mass.toFixed(1);
+      newOverrides[key] = formattedMass;
+      onQuantityChange?.(key, formattedMass);
     }
     setLocalOverrides(newOverrides);
     setCalcResult(result);
@@ -315,7 +381,7 @@ export default function ProportionsStep({
     onQuantityChange?.("eau", inputs.eau.toString());
     onQuantityChange?.("ciment", inputs.ciment.toString());
     setHasCalculated(true);
-  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps]);
+  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, validatePhysicalConsistency]);
 
   const handleOptimize = useCallback(() => {
     if (!validateAllSteps()) return;
@@ -323,19 +389,20 @@ export default function ProportionsStep({
 
     const inputs = buildInputs();
     const optimized = optimizeMix(inputs, dMaxReel, classeRheologique);
-
-    // Re-run full calculation to get updated result with optimized masses
-    const result = calculateMixDesign(inputs);
+    const result = calculateMixDesign(inputs, optimized);
+    const errors = validatePhysicalConsistency(result);
+    setCalculationErrors(errors);
 
     const newOverrides: Record<string, string> = {};
     for (const [key, mass] of Object.entries(optimized)) {
-      newOverrides[key] = mass.toString();
-      onQuantityChange?.(key, mass.toString());
+      const formattedMass = mass.toFixed(1);
+      newOverrides[key] = formattedMass;
+      onQuantityChange?.(key, formattedMass);
     }
     setLocalOverrides(newOverrides);
     setCalcResult(result);
     setHasCalculated(true);
-  }, [buildInputs, dMaxReel, classeRheologique, onQuantityChange, validateDensities, validateAllSteps]);
+  }, [buildInputs, dMaxReel, classeRheologique, onQuantityChange, validateDensities, validateAllSteps, validatePhysicalConsistency]);
 
   // Helper to get density for a granulat
   const getDensite = (key: string): number => {
@@ -409,6 +476,11 @@ export default function ProportionsStep({
   // MF warning
   const mfMelange = calcResult?.moduleFinesse?.melange ?? null;
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
+  const needsSable2Correction = mfWarning && !sable2Active;
+
+  useEffect(() => {
+    onMfCorrectionNeeded?.(needsSable2Correction);
+  }, [needsSable2Correction, onMfCorrectionNeeded]);
 
   return (
     <div className="space-y-6">
@@ -531,11 +603,22 @@ export default function ProportionsStep({
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
                 <p className="text-xs text-destructive">
-                  Erreur de calcul : la somme des volumes ({(calcVolumes.volumeCheck * 1000).toFixed(1)} L) ne correspond pas à 1000 L.
+                  Incohérence volumique dans la formulation béton.
                 </p>
               </div>
             )}
           </>
+          )}
+
+          {calculationErrors.length > 0 && (
+            <div className="space-y-2">
+              {calculationErrors.map((error) => (
+                <div key={error} className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                  <p className="text-xs text-destructive">{error}</p>
+                </div>
+              ))}
+            </div>
           )}
 
           {/* Module de finesse display */}
@@ -543,7 +626,11 @@ export default function ProportionsStep({
             <div className="space-y-2">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {Object.entries(calcResult.moduleFinesse.perSand).map(([key, mf]) => {
-                  const label = granulatLabels[key] || key;
+                  const fallbackLabelMap: Record<string, string> = {
+                    sableConcasse: "Sable 1",
+                    sableFin: "Sable 2",
+                  };
+                  const label = granulatLabels[key] || fallbackLabelMap[key] || key;
                   return (
                     <div key={key} className="bg-muted/50 rounded-lg p-2.5 text-center">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">MF {label}</p>
@@ -559,10 +646,15 @@ export default function ProportionsStep({
                 )}
               </div>
               {mfWarning && (
-                <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <p className="text-xs text-amber-700">
-                    Avertissement : sable trop grossier (MF = {mfMelange?.toFixed(2)}). Ajouter du sable fin pour améliorer la granulométrie.
+                <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700 whitespace-pre-line">
+                    {`Module de finesse élevé (MF > 2.8).
+
+Le sable est considéré comme grossier selon la méthode Dreux-Gorisse.
+
+Recommandation :
+Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le module de finesse du mélange.`}
                   </p>
                 </div>
               )}
@@ -764,7 +856,7 @@ export default function ProportionsStep({
               ))}
             </ul>
             <p className="text-xs text-muted-foreground">
-              Retournez à l'étape "Essais" pour sélectionner les rapports de masse volumique de chaque granulat actif.
+              Retournez à l'étape "Essais" pour sélectionner les rapports de masse volumique et granulométrie des granulats actifs.
             </p>
           </div>
           <DialogFooter>
