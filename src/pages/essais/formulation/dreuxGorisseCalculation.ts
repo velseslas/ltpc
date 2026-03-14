@@ -310,34 +310,40 @@ export function optimizeMix(
 
   // Optimize within each group (sable/gravier) separately
   function optimizeGroup(group: GranulatInput[], totalMass: number) {
-    if (group.length < 2) return;
+    if (group.length < 2 || totalMass <= 0) return;
     const step = totalMass * 0.01; // 1% steps
 
     for (let iter = 0; iter < 200; iter++) {
       let improved = false;
       for (let i = 0; i < group.length; i++) {
         for (let j = i + 1; j < group.length; j++) {
+          const keyI = group[i].key;
+          const keyJ = group[j].key;
           const currentErr = computeError(masses);
 
-          // Try shifting mass from i to j
+          // Try shifting mass from i to j while preserving group total
           const testMasses1 = { ...masses };
-          testMasses1[group[i].key] = Math.max(0, (masses[group[i].key] ?? 0) - step);
-          testMasses1[group[j].key] = (masses[group[j].key] ?? 0) + step;
+          const currentI = masses[keyI] ?? 0;
+          const deltaI = Math.min(step, currentI);
+          testMasses1[keyI] = currentI - deltaI;
+          testMasses1[keyJ] = (masses[keyJ] ?? 0) + deltaI;
           const err1 = computeError(testMasses1);
 
-          // Try shifting mass from j to i
+          // Try shifting mass from j to i while preserving group total
           const testMasses2 = { ...masses };
-          testMasses2[group[j].key] = Math.max(0, (masses[group[j].key] ?? 0) - step);
-          testMasses2[group[i].key] = (masses[group[i].key] ?? 0) + step;
+          const currentJ = masses[keyJ] ?? 0;
+          const deltaJ = Math.min(step, currentJ);
+          testMasses2[keyJ] = currentJ - deltaJ;
+          testMasses2[keyI] = (masses[keyI] ?? 0) + deltaJ;
           const err2 = computeError(testMasses2);
 
           if (err1 < currentErr && err1 <= err2) {
-            masses[group[i].key] = testMasses1[group[i].key];
-            masses[group[j].key] = testMasses1[group[j].key];
+            masses[keyI] = testMasses1[keyI];
+            masses[keyJ] = testMasses1[keyJ];
             improved = true;
           } else if (err2 < currentErr) {
-            masses[group[i].key] = testMasses2[group[i].key];
-            masses[group[j].key] = testMasses2[group[j].key];
+            masses[keyI] = testMasses2[keyI];
+            masses[keyJ] = testMasses2[keyJ];
             improved = true;
           }
         }
@@ -348,11 +354,6 @@ export function optimizeMix(
 
   optimizeGroup(activeSables, totalSableMass);
   optimizeGroup(activeGraviers, totalGravierMass);
-
-  // Round all masses
-  for (const key of Object.keys(masses)) {
-    masses[key] = Math.round(masses[key]);
-  }
 
   return masses;
 }
