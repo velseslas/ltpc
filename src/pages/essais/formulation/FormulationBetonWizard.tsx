@@ -327,9 +327,11 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted }: {
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted, onModuleFinesseExtracted }: {
   essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
-  granulatKey?: string; onDensityExtracted?: (key: string, density: number) => void;
+  granulatKey?: string;
+  onDensityExtracted?: (key: string, density: number) => void;
+  onModuleFinesseExtracted?: (key: string, moduleFinesse: number) => void;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
