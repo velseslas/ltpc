@@ -104,7 +104,10 @@ export function determineDmax(granulats: GranulatInput[]): number {
  * - Ve + Vc + Vair + Vgranulats = 1.0 m³ always
  * - Compacity is only used for internal distribution optimization
  */
-export function calculateMixDesign(inputs: CalculationInputs): CalculationResult {
+export function calculateMixDesign(
+  inputs: CalculationInputs,
+  presetMasses?: Record<string, number>
+): CalculationResult {
   const { eau, ciment, ratioGS, granulats, airOcclus } = inputs;
 
   // Step 1: Volume of water (m³)
