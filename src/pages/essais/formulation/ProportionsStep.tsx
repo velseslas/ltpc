@@ -141,10 +141,13 @@ export default function ProportionsStep({
   classeRheologique,
   granulatCurves,
   granulatDensites = {},
+  granulatModuleFinesse = {},
   granulatLabels = {},
+  dMaxUser,
   onQuantityChange,
   validationData,
   onStepErrors,
+  onMfCorrectionNeeded,
 }: ProportionsStepProps) {
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
   const [calcEau, setCalcEau] = useState("");
