@@ -141,8 +141,8 @@ export function calculateMixDesign(inputs: CalculationInputs): CalculationResult
       continue;
     }
     masses[g.key] = sableMasses[g.key] ?? gravierMasses[g.key] ?? 0;
-    const densite = g.densite > 0 ? g.densite : 2650;
-    volumeDetail[g.key] = masses[g.key] / densite;
+    const densite = g.densite;
+    volumeDetail[g.key] = densite > 0 ? masses[g.key] / densite : 0;
   }
 
   // Compute module de finesse for each sand (strictly from imported data)
