@@ -228,10 +228,14 @@ export default function ProportionsStep({
     granulatLabels,
   ]);
 
-  // Dmax réel from active granulats
+  // Dmax réel (priorité à la valeur utilisateur étape 4)
+  const dMaxAuto = useMemo(() => determineDmax(granulatInputs), [granulatInputs]);
   const dMaxReel = useMemo(() => {
-    return determineDmax(granulatInputs);
-  }, [granulatInputs]);
+    if (typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0) {
+      return dMaxUser;
+    }
+    return dMaxAuto;
+  }, [dMaxUser, dMaxAuto]);
 
   // Validate densities
   const validateDensities = useCallback((): boolean => {
