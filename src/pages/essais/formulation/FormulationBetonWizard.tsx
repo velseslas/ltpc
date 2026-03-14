@@ -255,15 +255,51 @@ function useGranulatSamples(table: GranulatTable, carriereId: string) {
   });
 }
 
-// Extract density from masse volumique report resultats
-function extractDensityFromMvReport(resultats: Record<string, unknown>): number | null {
+interface GranulatImportedData {
+  densiteEffective?: number;
+  absorption?: number;
+  moduleFinesse?: number;
+}
+
+function readNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function computeEffectiveDensityFromMv(masseVolumique: number, absorption: number | null): number {
+  if (absorption === null || absorption <= 0) return masseVolumique;
+  const ratio = 1 - absorption / 100;
+  return ratio > 0 ? masseVolumique / ratio : masseVolumique;
+}
+
+// Extract densité effective + absorption from masse volumique report resultats
+function extractMvDataFromReport(resultats: Record<string, unknown>): Pick<GranulatImportedData, "densiteEffective" | "absorption"> | null {
   const fractionKeys = ["sable", "gravier", "gravier_4_8", "gravier_8_16", "gravier_16_25"];
   for (const key of fractionKeys) {
     const module = resultats[key];
     if (module && typeof module === "object" && !Array.isArray(module)) {
-      const ds = (module as Record<string, unknown>)["densite_seche"];
-      if (typeof ds === "number" && ds > 0) return ds * 1000; // convert specific gravity to kg/m³
+      const data = module as Record<string, unknown>;
+      const absorption = readNumber(data.absorption) ?? readNumber(resultats.absorption);
+      const densiteEffective = readNumber(data.densite_effective);
+      const densiteSeche = readNumber(data.densite_seche);
+
+      if (densiteEffective && densiteEffective > 0) {
+        return { densiteEffective: densiteEffective * 1000, absorption: absorption ?? undefined };
+      }
+      if (densiteSeche && densiteSeche > 0) {
+        return {
+          densiteEffective: computeEffectiveDensityFromMv(densiteSeche, absorption) * 1000,
+          absorption: absorption ?? undefined,
+        };
+      }
     }
+  }
+  return null;
+}
+
+function extractModuleFinesseFromReport(resultats: Record<string, unknown>): Pick<GranulatImportedData, "moduleFinesse"> | null {
+  const moduleFinesse = readNumber(resultats.module_finesse);
+  if (moduleFinesse && moduleFinesse > 0) {
+    return { moduleFinesse };
   }
   return null;
 }
