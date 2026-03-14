@@ -93,6 +93,8 @@ interface CoefficientStepProps {
   onCoefficientGranulaireChange: (v: string) => void;
   coefficientCompacite: string;
   onCoefficientCompaciteChange: (v: string) => void;
+  dmaxValue?: string;
+  onDmaxChange?: (v: string) => void;
   showError?: boolean;
 }
 
@@ -101,6 +103,8 @@ export default function CoefficientStep({
   onCoefficientGranulaireChange,
   coefficientCompacite,
   onCoefficientCompaciteChange,
+  dmaxValue = "",
+  onDmaxChange,
   showError = false,
 }: CoefficientStepProps) {
   // ── G' state ──
