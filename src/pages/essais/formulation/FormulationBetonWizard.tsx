@@ -745,6 +745,8 @@ export default function FormulationBetonWizard() {
   // Step 4 - coefficients
   const [coefficientGranulaire, setCoefficientGranulaire] = useState("");
   const [coefficientCompacite, setCoefficientCompacite] = useState("");
+  const [dmaxUtilisateur, setDmaxUtilisateur] = useState("");
+  const [mfCorrectionNeeded, setMfCorrectionNeeded] = useState(false);
 
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
