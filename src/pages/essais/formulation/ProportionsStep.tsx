@@ -454,6 +454,11 @@ export default function ProportionsStep({
   // MF warning
   const mfMelange = calcResult?.moduleFinesse?.melange ?? null;
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
+  const needsSable2Correction = mfWarning && !sable2Active;
+
+  useEffect(() => {
+    onMfCorrectionNeeded?.(needsSable2Correction);
+  }, [needsSable2Correction, onMfCorrectionNeeded]);
 
   return (
     <div className="space-y-6">
