@@ -237,7 +237,7 @@ export default function ProportionsStep({
     return dMaxAuto;
   }, [dMaxUser, dMaxAuto]);
 
-  // Validate densities
+  // Validate imported material data (densité effective + MF des sables)
   const validateDensities = useCallback((): boolean => {
     const activeItems = [
       { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Densité effective)`, active: sable1Active },
@@ -246,19 +246,41 @@ export default function ProportionsStep({
       { key: "gravier2", label: `${granulatLabels["gravier2"] || "Gravier 2"} (Densité effective)`, active: gravier2Active },
       { key: "gravier3", label: `${granulatLabels["gravier3"] || "Gravier 3"} (Densité effective)`, active: gravier3Active },
     ];
+
     const missing: string[] = [];
     for (const item of activeItems) {
       if (item.active && (!granulatDensites[item.key] || granulatDensites[item.key] <= 0)) {
         missing.push(item.label);
       }
     }
+
+    const sableChecks = [
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active },
+    ];
+
+    for (const sable of sableChecks) {
+      if (sable.active && (!granulatModuleFinesse[sable.key] || granulatModuleFinesse[sable.key] <= 0)) {
+        missing.push(`${sable.label} (Module de finesse)`);
+      }
+    }
+
     if (missing.length > 0) {
       setMissingReports(missing);
       setMissingReportsOpen(true);
       return false;
     }
     return true;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatLabels]);
+  }, [
+    sable1Active,
+    sable2Active,
+    gravier1Active,
+    gravier2Active,
+    gravier3Active,
+    granulatDensites,
+    granulatModuleFinesse,
+    granulatLabels,
+  ]);
 
   // Cross-step validation
   const validateAllSteps = useCallback((): boolean => {
