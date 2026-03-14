@@ -581,11 +581,22 @@ export default function ProportionsStep({
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
                 <p className="text-xs text-destructive">
-                  Erreur de calcul : la somme des volumes ({(calcVolumes.volumeCheck * 1000).toFixed(1)} L) ne correspond pas à 1000 L.
+                  Incohérence volumique dans la formulation béton.
                 </p>
               </div>
             )}
           </>
+          )}
+
+          {calculationErrors.length > 0 && (
+            <div className="space-y-2">
+              {calculationErrors.map((error) => (
+                <div key={error} className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                  <p className="text-xs text-destructive">{error}</p>
+                </div>
+              ))}
+            </div>
           )}
 
           {/* Module de finesse display */}
@@ -593,7 +604,11 @@ export default function ProportionsStep({
             <div className="space-y-2">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {Object.entries(calcResult.moduleFinesse.perSand).map(([key, mf]) => {
-                  const label = granulatLabels[key] || key;
+                  const fallbackLabelMap: Record<string, string> = {
+                    sableConcasse: "Sable 1",
+                    sableFin: "Sable 2",
+                  };
+                  const label = granulatLabels[key] || fallbackLabelMap[key] || key;
                   return (
                     <div key={key} className="bg-muted/50 rounded-lg p-2.5 text-center">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">MF {label}</p>
@@ -609,10 +624,15 @@ export default function ProportionsStep({
                 )}
               </div>
               {mfWarning && (
-                <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <p className="text-xs text-amber-700">
-                    Avertissement : sable trop grossier (MF = {mfMelange?.toFixed(2)}). Ajouter du sable fin pour améliorer la granulométrie.
+                <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700 whitespace-pre-line">
+                    {`Module de finesse élevé (MF > 2.8).
+
+Le sable est considéré comme grossier selon la méthode Dreux-Gorisse.
+
+Recommandation :
+Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le module de finesse du mélange.`}
                   </p>
                 </div>
               )}
