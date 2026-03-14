@@ -212,11 +212,21 @@ export default function ProportionsStep({
       label: item.label,
       active: item.active,
       isSable: item.isSable,
-      densite: granulatDensites[item.key] || 2650,
+      densite: granulatDensites[item.key] ?? 0,
+      moduleFinesse: granulatModuleFinesse[item.key],
       curve: generateDemoCurve(item.curveType),
       dMax: DMAX_MAP[item.key] || undefined,
     }));
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatLabels]);
+  }, [
+    sable1Active,
+    sable2Active,
+    gravier1Active,
+    gravier2Active,
+    gravier3Active,
+    granulatDensites,
+    granulatModuleFinesse,
+    granulatLabels,
+  ]);
 
   // Dmax réel from active granulats
   const dMaxReel = useMemo(() => {
