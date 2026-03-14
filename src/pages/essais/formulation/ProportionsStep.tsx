@@ -160,6 +160,7 @@ export default function ProportionsStep({
   const [missingReports, setMissingReports] = useState<string[]>([]);
   const [validationErrorOpen, setValidationErrorOpen] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{ step: number; label: string; fields: string[] }[]>([]);
+  const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
 
   useEffect(() => {
