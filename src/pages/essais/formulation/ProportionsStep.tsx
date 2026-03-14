@@ -309,7 +309,7 @@ export default function ProportionsStep({
     }
     onStepErrors?.([]);
     return true;
-  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, onStepErrors]);
+  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, calcResult, sable2Active, onStepErrors]);
 
   const buildInputs = useCallback((): CalculationInputs => {
     return {
