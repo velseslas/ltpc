@@ -287,7 +287,10 @@ export default function CoefficientStep({
                   step="0.1"
                   min="0"
                   value={dmaxC}
-                  onChange={(e) => setDmaxC(e.target.value)}
+                  onChange={(e) => {
+                    setDmaxC(e.target.value);
+                    onDmaxChange?.(e.target.value);
+                  }}
                   placeholder="ex: 31.5"
                   className={cn("bg-secondary border-border pr-12", showError && !dmaxC && "animate-border-blink")}
                 />

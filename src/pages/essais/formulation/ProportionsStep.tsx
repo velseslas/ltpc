@@ -856,7 +856,7 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
               ))}
             </ul>
             <p className="text-xs text-muted-foreground">
-              Retournez à l'étape "Essais" pour sélectionner les rapports de masse volumique de chaque granulat actif.
+              Retournez à l'étape "Essais" pour sélectionner les rapports de masse volumique et granulométrie des granulats actifs.
             </p>
           </div>
           <DialogFooter>
