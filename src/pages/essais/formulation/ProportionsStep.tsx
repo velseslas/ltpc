@@ -283,6 +283,16 @@ export default function ProportionsStep({
         errors.push({ step: 5, label: "Essai", fields: validationData.essaisMissing });
       }
     }
+
+    const mfMelangeLocal = calcResult?.moduleFinesse?.melange ?? null;
+    if (mfMelangeLocal !== null && mfMelangeLocal > 2.8 && !sable2Active) {
+      errors.push({
+        step: 3,
+        label: "Information matériaux — Correction module de finesse",
+        fields: ["Sable 2 requis pour corriger un module de finesse > 2.8"],
+      });
+    }
+
     const step6Fields: string[] = [];
     if (!calcEau) step6Fields.push("Eau (kg/m³)");
     if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
