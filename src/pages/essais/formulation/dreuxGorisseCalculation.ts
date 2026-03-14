@@ -145,11 +145,12 @@ export function calculateMixDesign(inputs: CalculationInputs): CalculationResult
     volumeDetail[g.key] = masses[g.key] / densite;
   }
 
-  // Compute module de finesse for each sand
+  // Compute module de finesse for each sand (strictly from imported data)
   const mfPerSand: Record<string, number> = {};
   for (const s of activeSables) {
-    const mf = s.moduleFinesse ?? computeModuleFinesse(s.curve);
-    if (mf !== null) mfPerSand[s.key] = mf;
+    if (typeof s.moduleFinesse === "number" && Number.isFinite(s.moduleFinesse) && s.moduleFinesse > 0) {
+      mfPerSand[s.key] = s.moduleFinesse;
+    }
   }
 
   // Compute MF mélange
