@@ -61,10 +61,13 @@ interface ProportionsStepProps {
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
   granulatDensites?: Record<string, number>;
+  granulatModuleFinesse?: Record<string, number>;
   granulatLabels?: Record<string, string>;
+  dMaxUser?: number | null;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
+  onMfCorrectionNeeded?: (needed: boolean) => void;
 }
 
 interface GranulatSlider {
