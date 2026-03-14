@@ -529,6 +529,7 @@ function EssaiStep({
   carrieres, cimenteries, sourcesEau,
   showError = false,
   onDensityExtracted,
+  onModuleFinesseExtracted,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -539,6 +540,7 @@ function EssaiStep({
   carrieres: { id: string; nom: string }[]; cimenteries: { id: string; nom: string }[]; sourcesEau: { id: string; nom: string }[];
   showError?: boolean;
   onDensityExtracted?: (key: string, density: number) => void;
+  onModuleFinesseExtracted?: (key: string, moduleFinesse: number) => void;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
