@@ -344,13 +344,20 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
   // When a MV report is selected, extract density and call back
   const handleReportSelect = (reportId: string) => {
     setSelectedRapport(reportId);
-    if (essaiType === "masse-volumique" && granulatKey && onDensityExtracted && reportId) {
-      const sample = filtered.find((s: any) => s.id === reportId);
-      if (sample?.resultats) {
-        const density = extractDensityFromMvReport(sample.resultats as Record<string, unknown>);
-        if (density) {
-          onDensityExtracted(granulatKey, density);
-        }
+    const sample = filtered.find((s: any) => s.id === reportId);
+    if (!sample?.resultats || !granulatKey || !reportId) return;
+
+    if (essaiType === "masse-volumique" && onDensityExtracted) {
+      const mvData = extractMvDataFromReport(sample.resultats as Record<string, unknown>);
+      if (mvData?.densiteEffective) {
+        onDensityExtracted(granulatKey, mvData.densiteEffective);
+      }
+    }
+
+    if (essaiType === "granulometrie" && onModuleFinesseExtracted) {
+      const mfData = extractModuleFinesseFromReport(sample.resultats as Record<string, unknown>);
+      if (mfData?.moduleFinesse) {
+        onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
       }
     }
   };
