@@ -14,10 +14,10 @@ export interface GranulatInput {
   key: string;
   label: string;
   active: boolean;
-  densite: number; // kg/m³ (e.g. 2650)
+  densite: number; // kg/m³ (densité effective issue des rapports)
   curve: { ouverture: number; pourcentageTamisat: number }[];
   isSable: boolean;
-  moduleFinesse?: number; // Module de finesse (for sands)
+  moduleFinesse?: number; // Module de finesse importé (for sands)
   dMax?: number; // Maximum grain size (mm)
 }
 
