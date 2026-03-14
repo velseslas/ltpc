@@ -114,8 +114,15 @@ export default function CoefficientStep({
 
   // ── Compacité state ──
   const [serrage, setSerrage] = useState<SerrageType | "">("");
-  const [dmaxC, setDmaxC] = useState("");
+  const [dmaxC, setDmaxC] = useState(dmaxValue);
   const [showAbaqueC, setShowAbaqueC] = useState(false);
+
+  useEffect(() => {
+    if (dmaxValue !== undefined) {
+      setDmaxG(dmaxValue);
+      setDmaxC(dmaxValue);
+    }
+  }, [dmaxValue]);
 
   // Auto-compute G'
   const computedG = useMemo(() => {
