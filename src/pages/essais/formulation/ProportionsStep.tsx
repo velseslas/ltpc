@@ -313,22 +313,35 @@ export default function ProportionsStep({
     };
   }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
 
+  const validatePhysicalConsistency = useCallback((result: CalculationResult): string[] => {
+    const errors: string[] = [];
+
+    if (Math.abs(result.volumeCheck - 1.0) > 0.001) {
+      errors.push("Incohérence volumique dans la formulation béton.");
+    }
+
+    const sumFractions = Object.values(result.volumes.detail).reduce((sum, v) => sum + v, 0);
+    if (Math.abs(sumFractions - result.volumes.granulatsTotal) > 0.001) {
+      errors.push("Erreur de répartition des granulats : le volume total n'est pas conservé.");
+    }
+
+    return errors;
+  }, []);
+
   const handleCalculate = useCallback(() => {
     if (!validateAllSteps()) return;
     if (!validateDensities()) return;
 
     const inputs = buildInputs();
     const result = calculateMixDesign(inputs);
-
-    // Volume verification
-    if (Math.abs(result.volumeCheck - 1.0) > 0.001) {
-      console.error("Volume check failed:", result.volumeCheck);
-    }
+    const errors = validatePhysicalConsistency(result);
+    setCalculationErrors(errors);
 
     const newOverrides: Record<string, string> = {};
     for (const [key, mass] of Object.entries(result.masses)) {
-      newOverrides[key] = mass.toString();
-      onQuantityChange?.(key, mass.toString());
+      const formattedMass = mass.toFixed(1);
+      newOverrides[key] = formattedMass;
+      onQuantityChange?.(key, formattedMass);
     }
     setLocalOverrides(newOverrides);
     setCalcResult(result);
@@ -336,7 +349,7 @@ export default function ProportionsStep({
     onQuantityChange?.("eau", inputs.eau.toString());
     onQuantityChange?.("ciment", inputs.ciment.toString());
     setHasCalculated(true);
-  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps]);
+  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, validatePhysicalConsistency]);
 
   const handleOptimize = useCallback(() => {
     if (!validateAllSteps()) return;
@@ -344,19 +357,20 @@ export default function ProportionsStep({
 
     const inputs = buildInputs();
     const optimized = optimizeMix(inputs, dMaxReel, classeRheologique);
-
-    // Re-run full calculation to get updated result with optimized masses
-    const result = calculateMixDesign(inputs);
+    const result = calculateMixDesign(inputs, optimized);
+    const errors = validatePhysicalConsistency(result);
+    setCalculationErrors(errors);
 
     const newOverrides: Record<string, string> = {};
     for (const [key, mass] of Object.entries(optimized)) {
-      newOverrides[key] = mass.toString();
-      onQuantityChange?.(key, mass.toString());
+      const formattedMass = mass.toFixed(1);
+      newOverrides[key] = formattedMass;
+      onQuantityChange?.(key, formattedMass);
     }
     setLocalOverrides(newOverrides);
     setCalcResult(result);
     setHasCalculated(true);
-  }, [buildInputs, dMaxReel, classeRheologique, onQuantityChange, validateDensities, validateAllSteps]);
+  }, [buildInputs, dMaxReel, classeRheologique, onQuantityChange, validateDensities, validateAllSteps, validatePhysicalConsistency]);
 
   // Helper to get density for a granulat
   const getDensite = (key: string): number => {
