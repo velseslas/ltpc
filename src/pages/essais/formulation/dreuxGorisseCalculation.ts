@@ -205,12 +205,20 @@ function distributeVolume(
   const result: Record<string, number> = {};
   if (granulats.length === 0) return result;
 
-  // Equal volume distribution
+  // Equal volume distribution with strict volume preservation
   const volumeEach = totalVolume / granulats.length;
-  for (const g of granulats) {
-    const densite = g.densite > 0 ? g.densite : 2650; // default
-    result[g.key] = Math.round(volumeEach * densite);
-  }
+  let distributedVolume = 0;
+
+  granulats.forEach((g, index) => {
+    const densite = g.densite;
+    const volume = index === granulats.length - 1
+      ? Math.max(0, totalVolume - distributedVolume)
+      : volumeEach;
+
+    distributedVolume += volume;
+    result[g.key] = densite > 0 ? volume * densite : 0;
+  });
+
   return result;
 }
 
