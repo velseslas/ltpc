@@ -1078,7 +1078,11 @@ export default function FormulationBetonWizard() {
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
           granulatDensites={granulatDensites}
+          granulatModuleFinesse={granulatModuleFinesse}
           granulatLabels={granulatLabels}
+          dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
+          onStepErrors={setErrorSteps}
+          onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{
             resistance28j,
             slumpSouhaite,
