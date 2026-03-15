@@ -1066,6 +1066,7 @@ export default function FormulationBetonWizard() {
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
           showError={errorSteps.includes(5)}
           onDensityExtracted={handleDensityExtracted}
+          onModuleFinesseExtracted={handleModuleFinesseExtracted}
         />
       </div>
 
