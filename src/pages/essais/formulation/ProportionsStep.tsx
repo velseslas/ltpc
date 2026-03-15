@@ -340,7 +340,7 @@ export default function ProportionsStep({
       ratioGS: parseFloat(calcRatioGS) || 1.8,
       coeffGranulaire: parseFloat(coefficientGranulaire) || 0.5,
       coeffCompacite: parseFloat(coefficientCompacite) || 0.8,
-      airOcclus: parseFloat(calcAirOcclus) || 2,
+      airOcclus: calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0,
       granulats: granulatInputs,
     };
   }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
@@ -431,7 +431,7 @@ export default function ProportionsStep({
   const calcVolumes = useMemo(() => {
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
-    const airVal = parseFloat(calcAirOcclus) || 0;
+    const airVal = calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0;
     const gsVal = parseFloat(calcRatioGS) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
