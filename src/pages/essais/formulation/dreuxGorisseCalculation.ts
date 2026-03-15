@@ -320,6 +320,8 @@ export function optimizeMix(
   function optimizeGroup(group: GranulatInput[], totalMass: number) {
     if (group.length < 2 || totalMass <= 0) return;
     const step = totalMass * 0.01; // 1% steps
+    // Minimum mass per material: 5% of group total to prevent zeroing out
+    const minMass = totalMass * 0.05;
 
     for (let iter = 0; iter < 200; iter++) {
       let improved = false;
@@ -329,21 +331,27 @@ export function optimizeMix(
           const keyJ = group[j].key;
           const currentErr = computeError(masses);
 
-          // Try shifting mass from i to j while preserving group total
+          // Try shifting mass from i to j while respecting minimum
           const testMasses1 = { ...masses };
           const currentI = masses[keyI] ?? 0;
-          const deltaI = Math.min(step, currentI);
-          testMasses1[keyI] = currentI - deltaI;
-          testMasses1[keyJ] = (masses[keyJ] ?? 0) + deltaI;
-          const err1 = computeError(testMasses1);
+          const maxDeltaI = Math.max(0, currentI - minMass);
+          const deltaI = Math.min(step, maxDeltaI);
+          if (deltaI > 0) {
+            testMasses1[keyI] = currentI - deltaI;
+            testMasses1[keyJ] = (masses[keyJ] ?? 0) + deltaI;
+          }
+          const err1 = deltaI > 0 ? computeError(testMasses1) : Infinity;
 
-          // Try shifting mass from j to i while preserving group total
+          // Try shifting mass from j to i while respecting minimum
           const testMasses2 = { ...masses };
           const currentJ = masses[keyJ] ?? 0;
-          const deltaJ = Math.min(step, currentJ);
-          testMasses2[keyJ] = currentJ - deltaJ;
-          testMasses2[keyI] = (masses[keyI] ?? 0) + deltaJ;
-          const err2 = computeError(testMasses2);
+          const maxDeltaJ = Math.max(0, currentJ - minMass);
+          const deltaJ = Math.min(step, maxDeltaJ);
+          if (deltaJ > 0) {
+            testMasses2[keyJ] = currentJ - deltaJ;
+            testMasses2[keyI] = (masses[keyI] ?? 0) + deltaJ;
+          }
+          const err2 = deltaJ > 0 ? computeError(testMasses2) : Infinity;
 
           if (err1 < currentErr && err1 <= err2) {
             masses[keyI] = testMasses1[keyI];
