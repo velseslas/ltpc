@@ -1050,6 +1050,8 @@ export default function FormulationBetonWizard() {
           onCoefficientGranulaireChange={setCoefficientGranulaire}
           coefficientCompacite={coefficientCompacite}
           onCoefficientCompaciteChange={setCoefficientCompacite}
+          dmaxValue={dmaxUtilisateur}
+          onDmaxChange={setDmaxUtilisateur}
           showError={errorSteps.includes(4)}
         />
       </div>
@@ -1064,6 +1066,7 @@ export default function FormulationBetonWizard() {
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
           showError={errorSteps.includes(5)}
           onDensityExtracted={handleDensityExtracted}
+          onModuleFinesseExtracted={handleModuleFinesseExtracted}
         />
       </div>
 
@@ -1075,7 +1078,11 @@ export default function FormulationBetonWizard() {
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active}
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
           granulatDensites={granulatDensites}
+          granulatModuleFinesse={granulatModuleFinesse}
           granulatLabels={granulatLabels}
+          dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
+          onStepErrors={setErrorSteps}
+          onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{
             resistance28j,
             slumpSouhaite,
@@ -1156,7 +1163,6 @@ export default function FormulationBetonWizard() {
               return missing;
             })(),
           }}
-          onStepErrors={setErrorSteps}
           onQuantityChange={(key, value) => {
             const setters: Record<string, (v: string) => void> = {
               sableConcasse: setSableConcasseQte,
