@@ -340,7 +340,7 @@ export default function ProportionsStep({
       ratioGS: parseFloat(calcRatioGS) || 1.8,
       coeffGranulaire: parseFloat(coefficientGranulaire) || 0.5,
       coeffCompacite: parseFloat(coefficientCompacite) || 0.8,
-      airOcclus: parseFloat(calcAirOcclus) || 2,
+      airOcclus: calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0,
       granulats: granulatInputs,
     };
   }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
