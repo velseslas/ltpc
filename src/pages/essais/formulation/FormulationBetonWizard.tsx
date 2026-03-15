@@ -1050,6 +1050,8 @@ export default function FormulationBetonWizard() {
           onCoefficientGranulaireChange={setCoefficientGranulaire}
           coefficientCompacite={coefficientCompacite}
           onCoefficientCompaciteChange={setCoefficientCompacite}
+          dmaxValue={dmaxUtilisateur}
+          onDmaxChange={setDmaxUtilisateur}
           showError={errorSteps.includes(4)}
         />
       </div>
