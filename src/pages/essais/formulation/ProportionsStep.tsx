@@ -673,7 +673,7 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
                     <div key={g.key} className="bg-muted/40 rounded-lg p-2 text-center">
                       <p className="text-[9px] text-muted-foreground uppercase tracking-wider truncate">{g.label}</p>
                       <p className="text-xs font-semibold text-foreground">{(vol * 1000).toFixed(0)} L</p>
-                      <p className="text-[10px] text-muted-foreground">{mass} kg</p>
+                      <p className="text-[10px] text-muted-foreground">{Math.round(mass)} kg</p>
                     </div>
                   );
                 })}
