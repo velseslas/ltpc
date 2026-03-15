@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Sparkles, AlertTriangle, Info } from "lucide-react";
+import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import {
   calculateMixDesign,
   optimizeMix,
   determineDmax,
+  calculatePointA,
   type GranulatInput,
   type CalculationInputs,
   type CalculationResult,
@@ -122,6 +123,8 @@ const DMAX_MAP: Record<string, number> = {
   gravier3: 25,
 };
 
+type CalcMode = "none" | "calculate" | "optimize" | "manual";
+
 export default function ProportionsStep({
   sableConcasseQte,
   sableFinQte,
@@ -162,6 +165,7 @@ export default function ProportionsStep({
   const [validationErrors, setValidationErrors] = useState<{ step: number; label: string; fields: string[] }[]>([]);
   const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
+  const [calcMode, setCalcMode] = useState<CalcMode>("none");
 
   useEffect(() => {
     if (eauQte && !hasCalculated) setCalcEau(eauQte);
@@ -200,32 +204,27 @@ export default function ProportionsStep({
 
   // Build granulat inputs for calculation engine
   const granulatInputs = useMemo<GranulatInput[]>(() => {
-    const items: { key: string; label: string; active: boolean; isSable: boolean; curveType: string }[] = [
-      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, curveType: "sable1" },
-      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, curveType: "sable2" },
-      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, curveType: "gravier1" },
-      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, curveType: "gravier2" },
-      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, curveType: "gravier3" },
+    const items: { key: string; label: string; active: boolean; isSable: boolean; isSableCorrecteur: boolean; curveType: string }[] = [
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, isSableCorrecteur: false, curveType: "sable1" },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, isSableCorrecteur: true, curveType: "sable2" },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, isSableCorrecteur: false, curveType: "gravier1" },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, isSableCorrecteur: false, curveType: "gravier2" },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, isSableCorrecteur: false, curveType: "gravier3" },
     ];
     return items.map(item => ({
       key: item.key,
       label: item.label,
       active: item.active,
       isSable: item.isSable,
+      isSableCorrecteur: item.isSableCorrecteur,
       densite: granulatDensites[item.key] ?? 0,
       moduleFinesse: granulatModuleFinesse[item.key],
       curve: generateDemoCurve(item.curveType),
       dMax: DMAX_MAP[item.key] || undefined,
     }));
   }, [
-    sable1Active,
-    sable2Active,
-    gravier1Active,
-    gravier2Active,
-    gravier3Active,
-    granulatDensites,
-    granulatModuleFinesse,
-    granulatLabels,
+    sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active,
+    granulatDensites, granulatModuleFinesse, granulatLabels,
   ]);
 
   // Dmax réel (priorité à la valeur utilisateur étape 4)
@@ -237,7 +236,7 @@ export default function ProportionsStep({
     return dMaxAuto;
   }, [dMaxUser, dMaxAuto]);
 
-  // Validate imported material data (densité effective + MF des sables)
+  // Validate imported material data
   const validateDensities = useCallback((): boolean => {
     const activeItems = [
       { key: "sableConcasse", label: `${granulatLabels["sableConcasse"] || "Sable 1"} (Densité effective)`, active: sable1Active },
@@ -271,16 +270,7 @@ export default function ProportionsStep({
       return false;
     }
     return true;
-  }, [
-    sable1Active,
-    sable2Active,
-    gravier1Active,
-    gravier2Active,
-    gravier3Active,
-    granulatDensites,
-    granulatModuleFinesse,
-    granulatLabels,
-  ]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, granulatDensites, granulatModuleFinesse, granulatLabels]);
 
   // Cross-step validation
   const validateAllSteps = useCallback((): boolean => {
@@ -319,7 +309,6 @@ export default function ProportionsStep({
     if (!calcEau) step6Fields.push("Eau (kg/m³)");
     if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
     if (!calcRatioGS) step6Fields.push("Rapport G/S");
-    if (!calcAirOcclus) step6Fields.push("Air occlus (%)");
     if (step6Fields.length > 0) errors.push({ step: 6, label: "Calcul proportions", fields: step6Fields });
 
     setHasValidated(true);
@@ -331,7 +320,7 @@ export default function ProportionsStep({
     }
     onStepErrors?.([]);
     return true;
-  }, [validationData, calcEau, calcCiment, calcRatioGS, calcAirOcclus, calcResult, sable2Active, onStepErrors]);
+  }, [validationData, calcEau, calcCiment, calcRatioGS, calcResult, sable2Active, onStepErrors]);
 
   const buildInputs = useCallback((): CalculationInputs => {
     return {
@@ -345,44 +334,35 @@ export default function ProportionsStep({
     };
   }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
 
-  const validatePhysicalConsistency = useCallback((result: CalculationResult): string[] => {
-    const errors: string[] = [];
-
-    if (Math.abs(result.volumeCheck - 1.0) > 0.001) {
-      errors.push("Incohérence volumique dans la formulation béton.");
-    }
-
-    const sumFractions = Object.values(result.volumes.detail).reduce((sum, v) => sum + v, 0);
-    if (Math.abs(sumFractions - result.volumes.granulatsTotal) > 0.001) {
-      errors.push("Erreur de répartition des granulats : le volume total n'est pas conservé.");
-    }
-
-    return errors;
-  }, []);
-
-  const handleCalculate = useCallback(() => {
-    if (!validateAllSteps()) return;
-    if (!validateDensities()) return;
-
-    const inputs = buildInputs();
-    const result = calculateMixDesign(inputs);
-    const errors = validatePhysicalConsistency(result);
+  const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
+    const errors = result.volumeErrors;
     setCalculationErrors(errors);
 
     const newOverrides: Record<string, string> = {};
-    for (const [key, mass] of Object.entries(result.masses)) {
+    for (const [key, mass] of Object.entries(massesSource)) {
       const formattedMass = mass.toFixed(1);
       newOverrides[key] = formattedMass;
       onQuantityChange?.(key, formattedMass);
     }
     setLocalOverrides(newOverrides);
     setCalcResult(result);
+    setHasCalculated(true);
+  }, [onQuantityChange]);
 
+  // BUTTON 1: Calculate Proportions
+  const handleCalculate = useCallback(() => {
+    if (!validateAllSteps()) return;
+    if (!validateDensities()) return;
+
+    const inputs = buildInputs();
+    const result = calculateMixDesign(inputs);
+    applyResult(result, result.masses);
     onQuantityChange?.("eau", inputs.eau.toString());
     onQuantityChange?.("ciment", inputs.ciment.toString());
-    setHasCalculated(true);
-  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, validatePhysicalConsistency]);
+    setCalcMode("calculate");
+  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, applyResult]);
 
+  // BUTTON 2: Optimize Curve
   const handleOptimize = useCallback(() => {
     if (!validateAllSteps()) return;
     if (!validateDensities()) return;
@@ -390,19 +370,18 @@ export default function ProportionsStep({
     const inputs = buildInputs();
     const optimized = optimizeMix(inputs, dMaxReel, classeRheologique);
     const result = calculateMixDesign(inputs, optimized);
-    const errors = validatePhysicalConsistency(result);
-    setCalculationErrors(errors);
+    applyResult(result, optimized);
+    setCalcMode("optimize");
+  }, [buildInputs, dMaxReel, classeRheologique, validateDensities, validateAllSteps, applyResult]);
 
-    const newOverrides: Record<string, string> = {};
-    for (const [key, mass] of Object.entries(optimized)) {
-      const formattedMass = mass.toFixed(1);
-      newOverrides[key] = formattedMass;
-      onQuantityChange?.(key, formattedMass);
+  // BUTTON 3: Manual Mode
+  const handleManualMode = useCallback(() => {
+    if (!hasCalculated) {
+      // Need at least one calculation first
+      handleCalculate();
     }
-    setLocalOverrides(newOverrides);
-    setCalcResult(result);
-    setHasCalculated(true);
-  }, [buildInputs, dMaxReel, classeRheologique, onQuantityChange, validateDensities, validateAllSteps, validatePhysicalConsistency]);
+    setCalcMode("manual");
+  }, [hasCalculated, handleCalculate]);
 
   // Helper to get density for a granulat
   const getDensite = (key: string): number => {
@@ -435,7 +414,7 @@ export default function ProportionsStep({
     const gsVal = parseFloat(calcRatioGS) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
-    const Vair = airVal / 100;
+    const Vair = airVal / 1000;
     const Vg = 1 - (Ve + Vc + Vair);
     const Vsable = gsVal > 0 ? Vg / (1 + gsVal) : 0;
     const Vgravier = gsVal > 0 ? Vg - Vsable : 0;
@@ -494,7 +473,8 @@ export default function ProportionsStep({
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Saisissez les paramètres pour calculer automatiquement les proportions de granulats
+            Saisissez les paramètres pour calculer automatiquement les proportions de granulats.
+            Le rapport G/S est entièrement manuel et ne sera jamais modifié par le moteur.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -542,12 +522,12 @@ export default function ProportionsStep({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm">Air occlus (%)</Label>
+              <Label className="text-sm">Air occlus (L)</Label>
               <Input
-                type="number" step="0.5" min="0" max="10"
+                type="number" step="1" min="0" max="100"
                 value={calcAirOcclus}
                 onChange={(e) => setCalcAirOcclus(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcAirOcclus && "animate-border-blink")}
+                className="bg-secondary border-border"
               />
             </div>
           </div>
@@ -599,11 +579,11 @@ export default function ProportionsStep({
             )}
 
             {/* Volume check error */}
-            {calcEau && calcCiment && calcAirOcclus && Math.abs(calcVolumes.volumeCheck - 1.0) > 0.001 && (
+            {calcEau && calcCiment && Math.abs(calcVolumes.volumeCheck - 1.0) > 0.001 && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
                 <p className="text-xs text-destructive">
-                  Incohérence volumique dans la formulation béton.
+                  Erreur de cohérence volumique : Ve + Vc + Vair + Vgranulats ≠ 1000 L
                 </p>
               </div>
             )}
@@ -621,14 +601,32 @@ export default function ProportionsStep({
             </div>
           )}
 
+          {/* Point A display */}
+          {calcResult && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="bg-red-500/10 rounded-lg p-2.5 text-center border border-red-500/20">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Point A (Dreux)</p>
+                <p className="text-sm font-semibold text-foreground">
+                  dA = {calcResult.pointA.dA} mm — PA = {calcResult.pointA.pA.toFixed(1)}%
+                </p>
+              </div>
+              <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. courbe (n)</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {(0.5 + 0.3 * (parseFloat(coefficientCompacite) || 0.8)).toFixed(2)}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Module de finesse display */}
           {calcResult && (
             <div className="space-y-2">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {Object.entries(calcResult.moduleFinesse.perSand).map(([key, mf]) => {
                   const fallbackLabelMap: Record<string, string> = {
-                    sableConcasse: "Sable 1",
-                    sableFin: "Sable 2",
+                    sableConcasse: "Sable principal",
+                    sableFin: "Sable correcteur",
                   };
                   const label = granulatLabels[key] || fallbackLabelMap[key] || key;
                   return (
@@ -649,12 +647,11 @@ export default function ProportionsStep({
                 <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <p className="text-xs text-amber-700 whitespace-pre-line">
-                    {`Module de finesse élevé (MF > 2.8).
+                    {`Sable trop grossier — ajouter un sable correcteur.
 
-Le sable est considéré comme grossier selon la méthode Dreux-Gorisse.
+Module de finesse élevé (MF > 2.8). Le sable est considéré comme grossier selon la méthode Dreux-Gorisse.
 
-Recommandation :
-Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le module de finesse du mélange.`}
+Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le module de finesse du mélange.`}
                   </p>
                 </div>
               )}
@@ -669,10 +666,12 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
                 {granulatInputs.filter(g => g.active).map(g => {
                   const vol = calcResult.volumes.detail[g.key] ?? 0;
                   const mass = calcResult.masses[g.key] ?? 0;
+                  const totalGroupVol = g.isSable ? calcResult.volumes.sable : calcResult.volumes.gravier;
+                  const pct = totalGroupVol > 0 ? ((vol / totalGroupVol) * 100).toFixed(0) : "0";
                   return (
                     <div key={g.key} className="bg-muted/40 rounded-lg p-2 text-center">
                       <p className="text-[9px] text-muted-foreground uppercase tracking-wider truncate">{g.label}</p>
-                      <p className="text-xs font-semibold text-foreground">{(vol * 1000).toFixed(0)} L</p>
+                      <p className="text-xs font-semibold text-foreground">{(vol * 1000).toFixed(0)} L ({pct}%)</p>
                       <p className="text-[10px] text-muted-foreground">{Math.round(mass)} kg</p>
                     </div>
                   );
@@ -681,17 +680,46 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-3 pt-1">
+          {/* 3 Action buttons */}
+          <Separator />
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <Button onClick={handleCalculate} className="gap-2">
               <Calculator className="w-4 h-4" />
               Calculer les proportions
             </Button>
-            <Button onClick={handleOptimize} variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
+            <Button
+              onClick={handleOptimize}
+              variant="outline"
+              className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
+            >
               <Sparkles className="w-4 h-4" />
-              Optimiser le mélange
+              Optimiser la courbe
+            </Button>
+            <Button
+              onClick={handleManualMode}
+              variant={calcMode === "manual" ? "default" : "outline"}
+              className={cn("gap-2", calcMode !== "manual" && "border-muted-foreground/30")}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Mode manuel
             </Button>
           </div>
+
+          {/* Active mode indicator */}
+          {calcMode !== "none" && (
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className={cn(
+                "text-xs",
+                calcMode === "calculate" && "bg-primary/10 text-primary border-primary/30",
+                calcMode === "optimize" && "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
+                calcMode === "manual" && "bg-amber-500/10 text-amber-500 border-amber-500/30",
+              )}>
+                {calcMode === "calculate" && "Mode : Calcul Dreux classique"}
+                {calcMode === "optimize" && "Mode : Courbe optimisée"}
+                {calcMode === "manual" && "Mode : Ajustement manuel"}
+              </Badge>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -720,15 +748,18 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
         </Card>
       </div>
 
-      {/* Interactive Granulat Sliders - only after calculation */}
-      {hasCalculated && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+      {/* Interactive Granulat Sliders - only in manual mode */}
+      {calcMode === "manual" && hasCalculated && (
+        <Card className="border-amber-500/30 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-4">
-            <h2 className="text-lg font-bold text-foreground">
-              Ajustement interactif des proportions
-            </h2>
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-5 h-5 text-amber-500" />
+              <h2 className="text-lg font-bold text-foreground">
+                Mode manuel — Ajustement interactif
+              </h2>
+            </div>
             <p className="text-xs text-muted-foreground">
-              Modifiez les quantités pour recalculer automatiquement la courbe de mélange
+              Modifiez les quantités pour recalculer instantanément la courbe granulométrique, le module de finesse et les pourcentages.
             </p>
             <div className="space-y-4 pt-2">
               {sliders.map((s) => (
@@ -775,7 +806,7 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
               Graphique granulométrique – Méthode Dreux-Gorisse (Dmax {dMaxReel} mm)
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Fuseau granulométrique, courbe de référence brisée, Point A et courbe de mélange
+              Fuseau granulométrique, courbe de référence, Point A scientifique et courbe de mélange
             </p>
           </div>
 
@@ -785,6 +816,8 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
             materials={demoMaterials}
             sables={sables}
             graviers={graviers}
+            pointA={calcResult?.pointA ?? null}
+            coeffCompacite={parseFloat(coefficientCompacite) || 0.8}
           />
         </CardContent>
       </Card>
@@ -815,7 +848,7 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
                       <td className="border border-border p-2.5 text-right text-foreground">{pct.toFixed(1)}%</td>
                       <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? volumeL.toFixed(1) : "-"}</td>
                       <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? density.toFixed(2) : "-"}</td>
-                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{value.toFixed(1)}</td>
+                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{Math.round(value)}</td>
                     </tr>
                   );
                 })}
@@ -826,7 +859,7 @@ Ajouter un sable de correction plus fin (ex : sable 0/1) afin d'abaisser le modu
                   <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
                   <td className="border border-border p-2.5 text-right font-bold text-primary">{(totalVolume * 1000).toFixed(1)} L</td>
                   <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
-                  <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{total.toFixed(1)}</td>
+                  <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{Math.round(total)}</td>
                 </tr>
               </tfoot>
             </table>
