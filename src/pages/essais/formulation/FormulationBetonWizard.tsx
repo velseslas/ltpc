@@ -1163,7 +1163,6 @@ export default function FormulationBetonWizard() {
               return missing;
             })(),
           }}
-          onStepErrors={setErrorSteps}
           onQuantityChange={(key, value) => {
             const setters: Record<string, (v: string) => void> = {
               sableConcasse: setSableConcasseQte,
