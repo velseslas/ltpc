@@ -422,7 +422,21 @@ export function optimizeMix(
 
   // Generate reference curve using the new Point A method
   const pointA = baseline.pointA;
-  const referenceCurve = generateReferenceCurve(dMax, coeffCompacite, pointA);
+  // Use MF mélange for N coefficient; fallback to 2.5 if not available
+  const mfForN = (() => {
+    const activeSablesLocal = granulats.filter(g => g.active && g.isSable);
+    let sumMF = 0, sumMass = 0;
+    for (const s of activeSablesLocal) {
+      const m = masses[s.key] ?? 0;
+      const mf = s.moduleFinesse;
+      if (mf !== undefined && mf > 0 && m > 0) {
+        sumMF += m * mf;
+        sumMass += m;
+      }
+    }
+    return sumMass > 0 ? sumMF / sumMass : 2.5;
+  })();
+  const referenceCurve = generateReferenceCurve(dMax, mfForN, pointA);
   if (referenceCurve.length === 0) return masses;
 
   const activeGranulats = granulats.filter(g => g.active);
