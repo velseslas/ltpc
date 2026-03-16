@@ -1124,7 +1124,8 @@ export default function FormulationBetonWizard() {
         <PointAEStep
           dmax={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
           mfMelange={(() => {
-            const entries = Object.entries(granulatModuleFinesse);
+            const sandKeys = ["sableConcasse", "sableFin"];
+            const entries = Object.entries(granulatModuleFinesse).filter(([k]) => sandKeys.includes(k));
             if (entries.length === 0) return null;
             const sum = entries.reduce((s, [, v]) => s + v, 0);
             return Math.round((sum / entries.length) * 100) / 100;
