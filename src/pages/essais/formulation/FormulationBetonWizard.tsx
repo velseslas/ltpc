@@ -962,41 +962,8 @@ export default function FormulationBetonWizard() {
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-sm">Résistance souhaitée à 28 j <span className="text-destructive">*</span></Label>
-                <div className="relative">
-                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !resistance28j && "animate-border-blink")} />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-sm">Classe de résistance</Label>
-                <Input value={classeResistanceAuto} readOnly placeholder="—" className="bg-muted border-border cursor-default" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-sm">Slump souhaité <span className="text-destructive">*</span></Label>
-                <div className="relative">
-                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !slumpSouhaite && "animate-border-blink")} />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-sm">Classe rhéologique</Label>
-                <Input value={classeRheologiqueAuto} readOnly placeholder="—" className="bg-muted border-border cursor-default" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-              <div className="space-y-1.5">
-                <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
-                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", errorSteps.includes(2) && !classeExposition && "animate-border-blink")} />
-            </div>
 
-            <Separator />
-
-            <h2 className="text-lg font-semibold text-foreground">Paramètres de formulation</h2>
+            <h3 className="text-md font-semibold text-foreground">Paramètres de formulation</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-sm">Eau (kg/m³)</Label>
@@ -1029,6 +996,40 @@ export default function FormulationBetonWizard() {
                 />
               </div>
             </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm">Résistance souhaitée à 28 j <span className="text-destructive">*</span></Label>
+                <div className="relative">
+                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !resistance28j && "animate-border-blink")} />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm">Classe de résistance</Label>
+                <Input value={classeResistanceAuto} readOnly placeholder="—" className="bg-muted border-border cursor-default" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm">Slump souhaité <span className="text-destructive">*</span></Label>
+                <div className="relative">
+                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !slumpSouhaite && "animate-border-blink")} />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm">Classe rhéologique</Label>
+                <Input value={classeRheologiqueAuto} readOnly placeholder="—" className="bg-muted border-border cursor-default" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+              <div className="space-y-1.5">
+                <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
+                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", errorSteps.includes(2) && !classeExposition && "animate-border-blink")} />
+              </div>
               <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                 <BarChart3 className="w-4 h-4" />
                 Voir abaque
