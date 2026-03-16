@@ -120,7 +120,7 @@ export default function CoefficientStep({
 
   useEffect(() => {
     if (computedG !== null) {
-      onCoefficientGranulaireChange(computedG.toFixed(3));
+      onCoefficientGranulaireChange(computedG.toFixed(2));
     }
   }, [computedG]);
 
