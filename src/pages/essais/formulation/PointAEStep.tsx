@@ -255,7 +255,7 @@ export default function PointAEStep({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm text-muted-foreground">Dosage ciment (depuis matériaux)</Label>
+              <Label className="text-sm text-muted-foreground">Dosage ciment (depuis données de base)</Label>
               <Input
                 value={dosageCiment ? `${dosageCiment} kg/m³` : "—"}
                 readOnly

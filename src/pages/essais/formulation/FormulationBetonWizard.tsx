@@ -1115,7 +1115,7 @@ export default function FormulationBetonWizard() {
             const sum = entries.reduce((s, [, v]) => s + v, 0);
             return Math.round((sum / entries.length) * 100) / 100;
           })()}
-          dosageCiment={cimentQte}
+          dosageCiment={calcCiment}
           showError={errorSteps.includes(5)}
           onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
           vibrationValue={vibrationAE}
