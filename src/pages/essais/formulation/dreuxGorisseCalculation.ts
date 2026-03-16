@@ -341,7 +341,7 @@ function distributeSand(
 
 /**
  * Distribute gravel volume for optimal pumpability.
- * Default distribution: 3/8 = 25%, 8/15 = 40%, 15/25 = 35%
+ * Default distribution: 3/8 = 20%, 8/15 = 45%, 15/25 = 35%
  * When exact fraction names don't match, use size-based ordering.
  */
 function distributeGravel(
