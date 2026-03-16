@@ -239,7 +239,7 @@ export default function PointAEStep({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm text-muted-foreground">Dmax (depuis étape 4)</Label>
+              <Label className="text-sm text-muted-foreground">Dmax (depuis étape 5)</Label>
               <Input
                 value={dmax ? `${dmax} mm` : "—"}
                 readOnly
