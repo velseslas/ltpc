@@ -22,23 +22,13 @@ import { Separator } from "@/components/ui/separator";
 import { Info } from "lucide-react";
 
 // ─── Abaque G' : Coefficient granulaire selon Dreux-Gorisse ───
-// Rows: Dmax values; Columns: qualité (Passable, Bonne, Excellente)
-// Values from standard Dreux-Gorisse tables
-const ABAQUE_G: { dmax: number; passable: number; bonne: number; excellente: number }[] = [
-  { dmax: 4,    passable: 0.345, bonne: 0.370, excellente: 0.400 },
-  { dmax: 6.3,  passable: 0.370, bonne: 0.400, excellente: 0.430 },
-  { dmax: 8,    passable: 0.385, bonne: 0.410, excellente: 0.450 },
-  { dmax: 10,   passable: 0.400, bonne: 0.425, excellente: 0.460 },
-  { dmax: 12.5, passable: 0.410, bonne: 0.440, excellente: 0.475 },
-  { dmax: 16,   passable: 0.425, bonne: 0.455, excellente: 0.490 },
-  { dmax: 20,   passable: 0.435, bonne: 0.465, excellente: 0.505 },
-  { dmax: 25,   passable: 0.445, bonne: 0.480, excellente: 0.520 },
-  { dmax: 31.5, passable: 0.455, bonne: 0.490, excellente: 0.530 },
-  { dmax: 40,   passable: 0.465, bonne: 0.500, excellente: 0.540 },
-  { dmax: 50,   passable: 0.475, bonne: 0.510, excellente: 0.550 },
-  { dmax: 63,   passable: 0.485, bonne: 0.520, excellente: 0.560 },
-  { dmax: 80,   passable: 0.495, bonne: 0.530, excellente: 0.570 },
-  { dmax: 100,  passable: 0.505, bonne: 0.540, excellente: 0.580 },
+// Simplified 3-range table: < 12.5, 12.5-20, > 20
+// Columns: qualité (Excellente, Bonne, Passable)
+type AbaqueGRange = { label: string; minDmax: number; maxDmax: number; excellente: number; bonne: number; passable: number };
+const ABAQUE_G_RANGES: AbaqueGRange[] = [
+  { label: "< 12,5",    minDmax: 0,    maxDmax: 12.5, excellente: 0.55, bonne: 0.45, passable: 0.35 },
+  { label: "12,5 - 20", minDmax: 12.5, maxDmax: 20,   excellente: 0.60, bonne: 0.50, passable: 0.40 },
+  { label: "> 20",      minDmax: 20,   maxDmax: Infinity, excellente: 0.65, bonne: 0.55, passable: 0.45 },
 ];
 
 // ─── Coefficient de compacité γ selon Dreux-Gorisse ───
@@ -64,16 +54,13 @@ const COMPACITE_TABLE: { dmax: number; piquage: number; vibrationFaible: number;
 type QualiteType = "passable" | "bonne" | "excellente";
 type SerrageType = "piquage" | "vibrationFaible" | "vibrationNormale" | "vibrationPuissante";
 
-function interpolateG(dmax: number, qualite: QualiteType): number {
-  if (dmax <= ABAQUE_G[0].dmax) return ABAQUE_G[0][qualite];
-  if (dmax >= ABAQUE_G[ABAQUE_G.length - 1].dmax) return ABAQUE_G[ABAQUE_G.length - 1][qualite];
-  for (let i = 0; i < ABAQUE_G.length - 1; i++) {
-    if (dmax >= ABAQUE_G[i].dmax && dmax <= ABAQUE_G[i + 1].dmax) {
-      const ratio = (dmax - ABAQUE_G[i].dmax) / (ABAQUE_G[i + 1].dmax - ABAQUE_G[i].dmax);
-      return ABAQUE_G[i][qualite] + ratio * (ABAQUE_G[i + 1][qualite] - ABAQUE_G[i][qualite]);
+function lookupG(dmax: number, qualite: QualiteType): number {
+  for (const range of ABAQUE_G_RANGES) {
+    if (dmax < range.maxDmax || range.maxDmax === Infinity) {
+      return range[qualite];
     }
   }
-  return 0;
+  return ABAQUE_G_RANGES[ABAQUE_G_RANGES.length - 1][qualite];
 }
 
 function interpolateCompacite(dmax: number, serrage: SerrageType): number {
@@ -128,12 +115,12 @@ export default function CoefficientStep({
   const computedG = useMemo(() => {
     const d = parseFloat(dmaxG);
     if (!qualiteG || isNaN(d) || d <= 0) return null;
-    return interpolateG(d, qualiteG);
+    return lookupG(d, qualiteG);
   }, [qualiteG, dmaxG]);
 
   useEffect(() => {
     if (computedG !== null) {
-      onCoefficientGranulaireChange(computedG.toFixed(3));
+      onCoefficientGranulaireChange(computedG.toFixed(2));
     }
   }, [computedG]);
 
@@ -198,7 +185,7 @@ export default function CoefficientStep({
             <div className="flex-1 space-y-1.5">
               <Label className="text-sm">Coefficient G' calculé</Label>
               <Input
-                value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(3) : "")}
+                value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(2) : "")}
                 readOnly
                 placeholder="—"
                 className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientGranulaire && "animate-border-blink")}
@@ -225,27 +212,33 @@ export default function CoefficientStep({
                   <thead>
                     <tr className="bg-muted">
                       <th className="border border-border p-2 text-left">Dmax (mm)</th>
-                      <th className="border border-border p-2 text-center">Passable</th>
-                      <th className="border border-border p-2 text-center">Bonne</th>
+                      <th className="border border-border p-2 text-left">Diamètre maximal (mm)</th>
                       <th className="border border-border p-2 text-center">Excellente</th>
+                      <th className="border border-border p-2 text-center">Bonne</th>
+                      <th className="border border-border p-2 text-center">Passable</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {ABAQUE_G.map((row, i) => (
-                      <tr key={row.dmax} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                        <td className="border border-border p-2 font-semibold">{row.dmax}</td>
-                        <td className="border border-border p-2 text-center">{row.passable.toFixed(3)}</td>
-                        <td className="border border-border p-2 text-center">{row.bonne.toFixed(3)}</td>
-                        <td className="border border-border p-2 text-center">{row.excellente.toFixed(3)}</td>
+                    {ABAQUE_G_RANGES.map((row, i) => (
+                      <tr key={row.label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                        <td className="border border-border p-2 font-semibold">{row.label}</td>
+                        <td className="border border-border p-2 text-center">{row.excellente.toFixed(2)}</td>
+                        <td className="border border-border p-2 text-center">{row.bonne.toFixed(2)}</td>
+                        <td className="border border-border p-2 text-center">{row.passable.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                <Info className="w-3 h-3 inline mr-1" />
-                Source : Méthode Dreux-Gorisse. Les valeurs intermédiaires sont interpolées linéairement.
-              </p>
+              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 mt-3">
+                <p className="text-sm font-medium text-foreground">Notes sur l'utilisation:</p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+                  <li>Les valeurs de coefficient G' sont basées sur la qualité des granulats et leur diamètre maximal</li>
+                  <li>Pour des granulats de qualité excellente, le coefficient sera plus élevé</li>
+                  <li>Un coefficient plus élevé permet généralement un béton plus économique en ciment</li>
+                  <li>La qualité est déterminée par la forme, la texture et les propriétés mécaniques des granulats</li>
+                </ul>
+              </div>
             </DialogContent>
           </Dialog>
         </CardContent>
