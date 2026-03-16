@@ -328,10 +328,10 @@ export default function ProportionsStep({
       ratioGS: parseFloat(calcRatioGS) || 1.8,
       coeffGranulaire: parseFloat(coefficientGranulaire) || 0.5,
       coeffCompacite: parseFloat(coefficientCompacite) || 0.8,
-      airOcclus: calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0,
+      airOcclus: 0,
       granulats: granulatInputs,
     };
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
+  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs]);
 
   const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
     const errors = result.volumeErrors;
