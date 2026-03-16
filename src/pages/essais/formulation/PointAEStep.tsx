@@ -544,7 +544,7 @@ export default function PointAEStep({
           {/* Summary card */}
           <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
             <p className="text-sm font-medium text-foreground">Récapitulatif des coefficients</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
               <div>
                 <span className="text-muted-foreground">K :</span>
                 <span className="ml-2 font-semibold">{kValue !== null ? kValue : "—"}</span>
@@ -561,7 +561,34 @@ export default function PointAEStep({
                 <span className="text-muted-foreground">√Dmax :</span>
                 <span className="ml-2 font-semibold">{dmax ? Math.sqrt(dmax).toFixed(2) : "—"}</span>
               </div>
+              <div>
+                <span className="text-muted-foreground">N :</span>
+                <span className="ml-2 font-semibold">
+                  {mfMelange !== null ? (0.5 + mfMelange / 10).toFixed(2) : "—"}
+                </span>
+              </div>
             </div>
+          </div>
+
+          {/* Coefficient N display */}
+          <div className="rounded-xl border-2 border-border/60 bg-muted/10 p-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-semibold">Coefficient de courbe N</Label>
+              <Badge variant="outline" className="text-xs">Auto • Lecture seule</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              N = 0.5 + (MF / 10)
+            </p>
+            <Input
+              value={mfMelange !== null ? (0.5 + mfMelange / 10).toFixed(2) : "—"}
+              readOnly
+              className="bg-muted border-border cursor-default text-lg font-bold max-w-[200px]"
+            />
+            {mfMelange !== null && (
+              <p className="text-xs text-muted-foreground">
+                N = 0.5 + ({mfMelange.toFixed(2)} / 10) = {(0.5 + mfMelange / 10).toFixed(2)}
+              </p>
+            )}
           </div>
 
           {/* Warnings */}

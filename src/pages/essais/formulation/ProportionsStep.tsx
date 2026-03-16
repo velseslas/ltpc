@@ -613,9 +613,11 @@ export default function ProportionsStep({
                 </p>
               </div>
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. courbe (n)</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. courbe N</p>
                 <p className="text-sm font-semibold text-foreground">
-                  {(0.5 + 0.3 * (parseFloat(coefficientCompacite) || 0.8)).toFixed(2)}
+                  {calcResult?.moduleFinesse?.melange !== null && calcResult?.moduleFinesse?.melange !== undefined
+                    ? (0.5 + (calcResult.moduleFinesse.melange / 10)).toFixed(2)
+                    : "—"}
                 </p>
               </div>
             </div>
@@ -819,7 +821,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             sables={sables}
             graviers={graviers}
             pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
-            coeffCompacite={parseFloat(coefficientCompacite) || 0.8}
+            mfMelange={calcResult?.moduleFinesse?.melange ?? 2.5}
           />
         </CardContent>
       </Card>

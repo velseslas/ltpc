@@ -118,16 +118,16 @@ export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange
 /**
  * Generate Dreux-Gorisse reference curve
  * Uses the power law: P(d) = 100 × (d / Dmax)^n
- * where n = 0.5 + 0.3 × γ (coefficient de compacité)
+ * where n = 0.5 + (MF / 10) (module de finesse du sable mélange)
  * 
  * The curve passes through Point A by construction
  */
 export function generateReferenceCurve(
   dMax: number,
-  coeffCompacite: number,
+  mfMelange: number,
   pointA: PointA
 ): { ouverture: number; pourcentage: number }[] {
-  const n = 0.5 + (0.3 * coeffCompacite);
+  const n = 0.5 + (mfMelange / 10);
   
   return TAMIS_OPENINGS
     .filter(ouv => ouv <= dMax * 1.01)
@@ -422,7 +422,21 @@ export function optimizeMix(
 
   // Generate reference curve using the new Point A method
   const pointA = baseline.pointA;
-  const referenceCurve = generateReferenceCurve(dMax, coeffCompacite, pointA);
+  // Use MF mélange for N coefficient; fallback to 2.5 if not available
+  const mfForN = (() => {
+    const activeSablesLocal = granulats.filter(g => g.active && g.isSable);
+    let sumMF = 0, sumMass = 0;
+    for (const s of activeSablesLocal) {
+      const m = masses[s.key] ?? 0;
+      const mf = s.moduleFinesse;
+      if (mf !== undefined && mf > 0 && m > 0) {
+        sumMF += m * mf;
+        sumMass += m;
+      }
+    }
+    return sumMass > 0 ? sumMF / sumMass : 2.5;
+  })();
+  const referenceCurve = generateReferenceCurve(dMax, mfForN, pointA);
   if (referenceCurve.length === 0) return masses;
 
   const activeGranulats = granulats.filter(g => g.active);

@@ -85,7 +85,7 @@ interface DreuxGorisseChartProps {
   sables: number;
   graviers: number;
   pointA?: PointA | null;
-  coeffCompacite?: number;
+  mfMelange?: number;
 }
 
 export default function DreuxGorisseChart({
@@ -95,7 +95,7 @@ export default function DreuxGorisseChart({
   sables,
   graviers,
   pointA: pointAProp,
-  coeffCompacite = 0.8,
+  mfMelange = 2.5,
 }: DreuxGorisseChartProps) {
   const totalAggregats = sables + graviers;
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
@@ -105,8 +105,8 @@ export default function DreuxGorisseChart({
   const pointA = pointAProp ?? { dA: dMax / 2, pA: 45 };
 
   const referenceCurve = useMemo(
-    () => generateReferenceCurve(dMax, coeffCompacite, pointA),
-    [dMax, coeffCompacite, pointA]
+    () => generateReferenceCurve(dMax, mfMelange, pointA),
+    [dMax, mfMelange, pointA]
   );
 
   const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
@@ -174,8 +174,8 @@ export default function DreuxGorisseChart({
           <p className="text-lg font-bold text-foreground">{pctGravier}%</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. n</p>
-          <p className="text-lg font-bold text-foreground">{(0.5 + 0.3 * coeffCompacite).toFixed(2)}</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. N</p>
+          <p className="text-lg font-bold text-foreground">{(0.5 + mfMelange / 10).toFixed(2)}</p>
         </div>
       </div>
 
