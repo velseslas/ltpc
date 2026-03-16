@@ -819,7 +819,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             sables={sables}
             graviers={graviers}
             pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
-            coeffCompacite={parseFloat(coefficientCompacite) || 0.8}
+            mfMelange={calcResult?.moduleFinesse?.melange ?? 2.5}
           />
         </CardContent>
       </Card>
