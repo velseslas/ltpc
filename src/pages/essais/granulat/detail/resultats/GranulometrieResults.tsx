@@ -340,9 +340,11 @@ export default function GranulometrieResults({ resultats, produit }: Granulometr
                   <td className="py-2 px-2 text-center text-muted-foreground" colSpan={2}>
                     Σ Ri + P = <span className="font-bold">{sommeRiPlusP}</span>
                   </td>
-                  <td className="py-2 px-2 text-center font-bold text-primary" colSpan={2}>
-                    FM = {moduleFinesse}
-                  </td>
+                  {!isGrav && (
+                    <td className="py-2 px-2 text-center font-bold text-primary" colSpan={2}>
+                      FM = {moduleFinesse}
+                    </td>
+                  )}
                 </tr>
               </tbody>
             </table>

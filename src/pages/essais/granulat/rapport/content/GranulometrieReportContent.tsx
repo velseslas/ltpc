@@ -100,9 +100,11 @@ export default function GranulometrieReportContent({ resultats, produit }: Granu
             <td className="border border-[#4a90a4] px-2 py-1 text-center" colSpan={2}>
               Σ Ri + P = <span className="font-bold">{sommeRiPlusP ? sommeRiPlusP.toFixed(2) : "-"}</span>
             </td>
-            <td className="border border-[#4a90a4] px-2 py-1 text-center font-bold" colSpan={2}>
-              FM = <span className="text-lg text-[#4a90a4]">{moduleFinesse || "-"}</span>
-            </td>
+            {!isGrav && (
+              <td className="border border-[#4a90a4] px-2 py-1 text-center font-bold" colSpan={2}>
+                FM = <span className="text-lg text-[#4a90a4]">{moduleFinesse || "-"}</span>
+              </td>
+            )}
           </tr>
         </tbody>
       </table>
