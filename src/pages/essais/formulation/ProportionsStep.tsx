@@ -152,16 +152,15 @@ export default function ProportionsStep({
   granulatLabels = {},
   dMaxUser,
   pointAOverride,
+  calcEau,
+  calcCiment,
+  calcRatioGS,
   onQuantityChange,
   validationData,
   onStepErrors,
   onMfCorrectionNeeded,
 }: ProportionsStepProps) {
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
-  const [calcEau, setCalcEau] = useState("");
-  const [calcCiment, setCalcCiment] = useState("");
-  const [calcRatioGS, setCalcRatioGS] = useState("");
-  const [calcAirOcclus, setCalcAirOcclus] = useState("");
   const [hasCalculated, setHasCalculated] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
   const [missingReportsOpen, setMissingReportsOpen] = useState(false);
