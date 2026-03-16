@@ -1128,9 +1128,12 @@ export default function FormulationBetonWizard() {
             if (sable1Active) activeSandKeys.push("sableConcasse");
             if (sable2Active) activeSandKeys.push("sableFin");
             const entries = Object.entries(granulatModuleFinesse).filter(([k]) => activeSandKeys.includes(k));
+            console.log("[DEBUG Step6 MF] granulatModuleFinesse=", JSON.stringify(granulatModuleFinesse), "activeSandKeys=", activeSandKeys, "filtered entries=", entries);
             if (entries.length === 0) return null;
             const sum = entries.reduce((s, [, v]) => s + v, 0);
-            return Math.round((sum / entries.length) * 100) / 100;
+            const result = Math.round((sum / entries.length) * 100) / 100;
+            console.log("[DEBUG Step6 MF] result=", result);
+            return result;
           })()}
           dosageCiment={calcCiment}
           showError={errorSteps.includes(6)}
