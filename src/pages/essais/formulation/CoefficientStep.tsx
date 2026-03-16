@@ -185,7 +185,7 @@ export default function CoefficientStep({
             <div className="flex-1 space-y-1.5">
               <Label className="text-sm">Coefficient G' calculé</Label>
               <Input
-                value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(3) : "")}
+                value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(2) : "")}
                 readOnly
                 placeholder="—"
                 className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientGranulaire && "animate-border-blink")}
