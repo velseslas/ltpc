@@ -301,9 +301,11 @@ export default function GranulometrieForm({ resultats, onChange, produit }: Gran
                 <td className="py-2 px-2 text-center text-muted-foreground font-medium">
                   Σ Ri + P = {(resultats.somme_ri_plus_p as number)?.toFixed(2) || "--"}
                 </td>
-                <td className="py-2 px-2 text-center text-muted-foreground font-medium" colSpan={2}>
-                  FM = {(resultats.module_finesse as number) || "--"}
-                </td>
+                {!isGrav && (
+                  <td className="py-2 px-2 text-center text-muted-foreground font-medium" colSpan={2}>
+                    FM = {(resultats.module_finesse as number) || "--"}
+                  </td>
+                )}
               </tr>
             </tbody>
           </table>
