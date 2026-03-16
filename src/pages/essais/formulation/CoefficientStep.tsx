@@ -54,16 +54,13 @@ const COMPACITE_TABLE: { dmax: number; piquage: number; vibrationFaible: number;
 type QualiteType = "passable" | "bonne" | "excellente";
 type SerrageType = "piquage" | "vibrationFaible" | "vibrationNormale" | "vibrationPuissante";
 
-function interpolateG(dmax: number, qualite: QualiteType): number {
-  if (dmax <= ABAQUE_G[0].dmax) return ABAQUE_G[0][qualite];
-  if (dmax >= ABAQUE_G[ABAQUE_G.length - 1].dmax) return ABAQUE_G[ABAQUE_G.length - 1][qualite];
-  for (let i = 0; i < ABAQUE_G.length - 1; i++) {
-    if (dmax >= ABAQUE_G[i].dmax && dmax <= ABAQUE_G[i + 1].dmax) {
-      const ratio = (dmax - ABAQUE_G[i].dmax) / (ABAQUE_G[i + 1].dmax - ABAQUE_G[i].dmax);
-      return ABAQUE_G[i][qualite] + ratio * (ABAQUE_G[i + 1][qualite] - ABAQUE_G[i][qualite]);
+function lookupG(dmax: number, qualite: QualiteType): number {
+  for (const range of ABAQUE_G_RANGES) {
+    if (dmax < range.maxDmax || range.maxDmax === Infinity) {
+      return range[qualite];
     }
   }
-  return 0;
+  return ABAQUE_G_RANGES[ABAQUE_G_RANGES.length - 1][qualite];
 }
 
 function interpolateCompacite(dmax: number, serrage: SerrageType): number {
