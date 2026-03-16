@@ -1065,15 +1065,37 @@ export default function FormulationBetonWizard() {
         />
       </div>
 
-      {/* Step 5 */}
+      {/* Step 5 - Calcul A et E */}
       <div className={currentStep === 5 ? "" : "hidden"}>
+        <PointAEStep
+          dmax={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
+          mfMelange={(() => {
+            const entries = Object.entries(granulatModuleFinesse);
+            if (entries.length === 0) return null;
+            const sum = entries.reduce((s, [, v]) => s + v, 0);
+            return Math.round((sum / entries.length) * 100) / 100;
+          })()}
+          dosageCiment={cimentQte}
+          showError={errorSteps.includes(5)}
+          onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
+          vibrationValue={vibrationAE}
+          onVibrationChange={setVibrationAE}
+          formeValue={formeAE}
+          onFormeChange={setFormeAE}
+          kpValue={kpAE}
+          onKpChange={setKpAE}
+        />
+      </div>
+
+      {/* Step 6 - Essai */}
+      <div className={currentStep === 6 ? "" : "hidden"}>
         <EssaiStep
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active} cimentActive={cimentActive} eauActive={eauActive}
           sable1ProducteurId={sableConcasseProducteurId} sable1ProduitId={sableConcasseProduitId} sable2ProducteurId={sableFinProducteurId} sable2ProduitId={sableFinProduitId}
           gravier1ProducteurId={gravillons1ProducteurId} gravier1ProduitId={gravillons1ProduitId} gravier2ProducteurId={gravier2ProducteurId} gravier2ProduitId={gravier2ProduitId}
           gravier3ProducteurId={gravier3ProducteurId} gravier3ProduitId={gravier3ProduitId} cimentProducteurId={cimentProducteurId} cimentProduitId={cimentProduitId}
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
-          showError={errorSteps.includes(5)}
+          showError={errorSteps.includes(6)}
           onDensityExtracted={handleDensityExtracted}
           onModuleFinesseExtracted={handleModuleFinesseExtracted}
         />
