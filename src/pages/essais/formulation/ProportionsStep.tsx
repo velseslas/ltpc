@@ -304,11 +304,11 @@ export default function ProportionsStep({
       });
     }
 
-    const step6Fields: string[] = [];
-    if (!calcEau) step6Fields.push("Eau (kg/m³)");
-    if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
-    if (!calcRatioGS) step6Fields.push("Rapport G/S");
-    if (step6Fields.length > 0) errors.push({ step: 6, label: "Calcul proportions", fields: step6Fields });
+    const step2Fields: string[] = [];
+    if (!calcEau) step2Fields.push("Eau (kg/m³)");
+    if (!calcCiment) step2Fields.push("Ciment (kg/m³)");
+    if (!calcRatioGS) step2Fields.push("Rapport G/S");
+    if (step2Fields.length > 0) errors.push({ step: 2, label: "Données de base", fields: step2Fields });
 
     setHasValidated(true);
     if (errors.length > 0) {
