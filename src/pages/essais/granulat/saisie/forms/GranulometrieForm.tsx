@@ -103,17 +103,20 @@ export default function GranulometrieForm({ resultats, onChange, produit }: Gran
     const f = m1 > 0 ? (m1m2 / m1) * 100 : 0;
     updated.teneur_fines_f = parseFloat(f.toFixed(2));
 
-    // Module de Finesse: sum of cumulative % retained on 0.125, 0.25, 0.5, 1, 2, 4 mm / 100
-    // Note: using pourcentageRefusCumule (which is (Rn/M1)*100)
-    const mfSieves = [0.125, 0.25, 0.5, 1, 2, 4];
-    const refusCumulesPourMF = mfSieves.map(ouv => {
-      const tamis = newTamis.find(t => Math.abs(t.ouverture - ouv) < 0.001);
-      return tamis ? tamis.pourcentageRefusCumule : 0;
-    });
-    const mf = refusCumulesPourMF.reduce((a, b) => a + b, 0) / 100;
+    // Module de Finesse: only for sands (not gravels)
+    let mf = 0;
+    if (!isGrav) {
+      const mfSieves = [0.125, 0.25, 0.5, 1, 2, 4];
+      const refusCumulesPourMF = mfSieves.map(ouv => {
+        const tamis = newTamis.find(t => Math.abs(t.ouverture - ouv) < 0.001);
+        return tamis ? tamis.pourcentageRefusCumule : 0;
+      });
+      mf = refusCumulesPourMF.reduce((a, b) => a + b, 0) / 100;
+    }
 
     updated.tamis = newTamis;
-    updated.module_finesse = parseFloat(mf.toFixed(2));
+    updated.module_finesse = isGrav ? null : parseFloat(mf.toFixed(2));
+    updated.is_gravier = isGrav;
     updated.fond_p = fp;
 
     onChange(updated);
