@@ -181,10 +181,12 @@ export default function GranulometrieResults({ resultats, produit }: Granulometr
 
         {/* Key results */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
-            <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
-            <p className="text-2xl font-bold text-primary">{moduleFinesse || "--"}</p>
-          </div>
+          {!isGrav && (
+            <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
+              <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
+              <p className="text-2xl font-bold text-primary">{moduleFinesse || "--"}</p>
+            </div>
+          )}
           <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">Σ Ri + P</p>
             <p className="text-lg font-bold text-foreground">{sommeRiPlusP || "--"}</p>
