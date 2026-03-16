@@ -750,6 +750,12 @@ export default function FormulationBetonWizard() {
   const [dmaxUtilisateur, setDmaxUtilisateur] = useState("");
   const [mfCorrectionNeeded, setMfCorrectionNeeded] = useState(false);
 
+  // Step 5 - Calcul A et E
+  const [vibrationAE, setVibrationAE] = useState("");
+  const [formeAE, setFormeAE] = useState("");
+  const [kpAE, setKpAE] = useState("10");
+  const [pointACoords, setPointACoords] = useState<{ xA: number; yA: number } | null>(null);
+
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
   const [resistanceCible, setResistanceCible] = useState("");
