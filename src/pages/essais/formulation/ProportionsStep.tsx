@@ -66,6 +66,9 @@ interface ProportionsStepProps {
   granulatLabels?: Record<string, string>;
   dMaxUser?: number | null;
   pointAOverride?: { xA: number; yA: number } | null;
+  calcEau: string;
+  calcCiment: string;
+  calcRatioGS: string;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
@@ -149,16 +152,15 @@ export default function ProportionsStep({
   granulatLabels = {},
   dMaxUser,
   pointAOverride,
+  calcEau,
+  calcCiment,
+  calcRatioGS,
   onQuantityChange,
   validationData,
   onStepErrors,
   onMfCorrectionNeeded,
 }: ProportionsStepProps) {
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
-  const [calcEau, setCalcEau] = useState("");
-  const [calcCiment, setCalcCiment] = useState("");
-  const [calcRatioGS, setCalcRatioGS] = useState("");
-  const [calcAirOcclus, setCalcAirOcclus] = useState("");
   const [hasCalculated, setHasCalculated] = useState(false);
   const [hasValidated, setHasValidated] = useState(false);
   const [missingReportsOpen, setMissingReportsOpen] = useState(false);
@@ -169,12 +171,7 @@ export default function ProportionsStep({
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
 
-  useEffect(() => {
-    if (eauQte && !hasCalculated) setCalcEau(eauQte);
-  }, [eauQte, hasCalculated]);
-  useEffect(() => {
-    if (cimentQte && !hasCalculated) setCalcCiment(cimentQte);
-  }, [cimentQte, hasCalculated]);
+  // calcEau, calcCiment, calcRatioGS come from props (Step 2)
 
   const getVal = (key: string, original: string) => localOverrides[key] ?? original;
 
@@ -307,11 +304,11 @@ export default function ProportionsStep({
       });
     }
 
-    const step6Fields: string[] = [];
-    if (!calcEau) step6Fields.push("Eau (kg/m³)");
-    if (!calcCiment) step6Fields.push("Ciment (kg/m³)");
-    if (!calcRatioGS) step6Fields.push("Rapport G/S");
-    if (step6Fields.length > 0) errors.push({ step: 6, label: "Calcul proportions", fields: step6Fields });
+    const step2Fields: string[] = [];
+    if (!calcEau) step2Fields.push("Eau (kg/m³)");
+    if (!calcCiment) step2Fields.push("Ciment (kg/m³)");
+    if (!calcRatioGS) step2Fields.push("Rapport G/S");
+    if (step2Fields.length > 0) errors.push({ step: 2, label: "Données de base", fields: step2Fields });
 
     setHasValidated(true);
     if (errors.length > 0) {
@@ -331,10 +328,10 @@ export default function ProportionsStep({
       ratioGS: parseFloat(calcRatioGS) || 1.8,
       coeffGranulaire: parseFloat(coefficientGranulaire) || 0.5,
       coeffCompacite: parseFloat(coefficientCompacite) || 0.8,
-      airOcclus: calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0,
+      airOcclus: 0,
       granulats: granulatInputs,
     };
-  }, [calcEau, calcCiment, calcRatioGS, calcAirOcclus, coefficientCompacite, coefficientGranulaire, granulatInputs]);
+  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs]);
 
   const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
     const errors = result.volumeErrors;
@@ -412,17 +409,15 @@ export default function ProportionsStep({
   const calcVolumes = useMemo(() => {
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
-    const airVal = calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0;
     const gsVal = parseFloat(calcRatioGS) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
-    const Vair = airVal / 1000;
-    const Vg = 1 - (Ve + Vc + Vair);
+    const Vg = 1 - (Ve + Vc);
     const Vsable = gsVal > 0 ? Vg / (1 + gsVal) : 0;
     const Vgravier = gsVal > 0 ? Vg - Vsable : 0;
-    const volumeCheck = Ve + Vc + Vair + Vg;
-    return { Ve, Vc, Vair, Vg, Vsable, Vgravier, volumeCheck };
-  }, [calcEau, calcCiment, calcAirOcclus, calcRatioGS]);
+    const volumeCheck = Ve + Vc + Vg;
+    return { Ve, Vc, Vg, Vsable, Vgravier, volumeCheck };
+  }, [calcEau, calcCiment, calcRatioGS]);
 
   // Generate granulometric curves for chart
   const demoMaterials = useMemo<MaterialCurve[]>(() => {
@@ -475,7 +470,7 @@ export default function ProportionsStep({
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Saisissez les paramètres pour calculer automatiquement les proportions de granulats.
+            Les paramètres Eau, Ciment et G/S sont définis à l'étape "Données de base".
             Le rapport G/S est entièrement manuel et ne sera jamais modifié par le moteur.
           </p>
 
@@ -483,28 +478,25 @@ export default function ProportionsStep({
             <div className="space-y-1.5">
               <Label className="text-sm">Eau (kg/m³)</Label>
               <Input
-                type="number" step="1" min="0"
-                value={calcEau}
-                onChange={(e) => setCalcEau(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcEau && "animate-border-blink")}
+                value={calcEau || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
               />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Ciment (kg/m³)</Label>
               <Input
-                type="number" step="1" min="0"
-                value={calcCiment}
-                onChange={(e) => setCalcCiment(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcCiment && "animate-border-blink")}
+                value={calcCiment || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
               />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Rapport G/S</Label>
               <Input
-                type="number" step="0.1" min="0.1"
-                value={calcRatioGS}
-                onChange={(e) => setCalcRatioGS(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcRatioGS && "animate-border-blink")}
+                value={calcRatioGS || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
               />
             </div>
             <div className="space-y-1.5">
@@ -523,21 +515,12 @@ export default function ProportionsStep({
                 className="bg-muted border-border cursor-default"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm">Air occlus (L)</Label>
-              <Input
-                type="number" step="1" min="0" max="100"
-                value={calcAirOcclus}
-                onChange={(e) => setCalcAirOcclus(e.target.value)}
-                className="bg-secondary border-border"
-              />
-            </div>
           </div>
 
           {/* Volume breakdown */}
-          {(calcEau || calcCiment || calcAirOcclus) && (
+          {(calcEau || calcCiment) && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(eau)</p>
                 <p className="text-sm font-semibold text-foreground">{calcEau ? `${(calcVolumes.Ve * 1000).toFixed(0)} L` : "—"}</p>
@@ -545,10 +528,6 @@ export default function ProportionsStep({
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(ciment)</p>
                 <p className="text-sm font-semibold text-foreground">{calcCiment ? `${(calcVolumes.Vc * 1000).toFixed(0)} L` : "—"}</p>
-              </div>
-              <div className="bg-muted/50 rounded-lg p-2.5 text-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(air)</p>
-                <p className="text-sm font-semibold text-foreground">{calcAirOcclus ? `${(calcVolumes.Vair * 1000).toFixed(0)} L` : "—"}</p>
               </div>
               <div className="bg-muted/50 rounded-lg p-2.5 text-center border border-primary/30">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(granulats)</p>
@@ -585,7 +564,7 @@ export default function ProportionsStep({
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
                 <p className="text-xs text-destructive">
-                  Erreur de cohérence volumique : Ve + Vc + Vair + Vgranulats ≠ 1000 L
+                  Erreur de cohérence volumique : Ve + Vc + Vgranulats ≠ 1000 L
                 </p>
               </div>
             )}
