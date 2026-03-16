@@ -609,7 +609,7 @@ export default function ProportionsStep({
               <div className="bg-red-500/10 rounded-lg p-2.5 text-center border border-red-500/20">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Point A (Dreux)</p>
                 <p className="text-sm font-semibold text-foreground">
-                  dA = {calcResult.pointA.dA} mm — PA = {calcResult.pointA.pA.toFixed(1)}%
+                  dA = {pointAOverride ? pointAOverride.xA.toFixed(1) : calcResult.pointA.dA} mm — PA = {pointAOverride ? pointAOverride.yA.toFixed(1) : calcResult.pointA.pA.toFixed(1)}%
                 </p>
               </div>
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
