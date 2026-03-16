@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface GranulometrieResultsProps {
   resultats: Record<string, unknown>;
+  produit?: string;
 }
 
 interface TamisData {
@@ -95,7 +96,8 @@ const chartConfig = {
   max: { label: "Limite max", color: "hsl(var(--destructive))" },
 };
 
-export default function GranulometrieResults({ resultats }: GranulometrieResultsProps) {
+export default function GranulometrieResults({ resultats, produit }: GranulometrieResultsProps) {
+  const isGrav = resultats.is_gravier === true || (produit ? /^(gravier|gravillon)/i.test(produit.trim()) || (/^\d+\/\d+/.test(produit.trim()) && !produit.trim().startsWith("0/")) : false);
   const masseSechM1 = (resultats.masse_seche_m1 as number) || 0;
   const masseApresLavageM2 = (resultats.masse_apres_lavage_m2 as number) || 0;
   const masseLavageM1M2 = (resultats.masse_lavage_m1_m2 as number) || 0;
@@ -179,10 +181,12 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
 
         {/* Key results */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
-            <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
-            <p className="text-2xl font-bold text-primary">{moduleFinesse || "--"}</p>
-          </div>
+          {!isGrav && (
+            <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
+              <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
+              <p className="text-2xl font-bold text-primary">{moduleFinesse || "--"}</p>
+            </div>
+          )}
           <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">Σ Ri + P</p>
             <p className="text-lg font-bold text-foreground">{sommeRiPlusP || "--"}</p>
@@ -336,9 +340,11 @@ export default function GranulometrieResults({ resultats }: GranulometrieResults
                   <td className="py-2 px-2 text-center text-muted-foreground" colSpan={2}>
                     Σ Ri + P = <span className="font-bold">{sommeRiPlusP}</span>
                   </td>
-                  <td className="py-2 px-2 text-center font-bold text-primary" colSpan={2}>
-                    FM = {moduleFinesse}
-                  </td>
+                  {!isGrav && (
+                    <td className="py-2 px-2 text-center font-bold text-primary" colSpan={2}>
+                      FM = {moduleFinesse}
+                    </td>
+                  )}
                 </tr>
               </tbody>
             </table>

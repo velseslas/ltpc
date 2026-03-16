@@ -10,9 +10,11 @@ interface TamisData {
 
 interface GranulometrieReportContentProps {
   resultats: Record<string, unknown>;
+  produit?: string;
 }
 
-export default function GranulometrieReportContent({ resultats }: GranulometrieReportContentProps) {
+export default function GranulometrieReportContent({ resultats, produit }: GranulometrieReportContentProps) {
+  const isGrav = resultats.is_gravier === true || (produit ? /^(gravier|gravillon)/i.test(produit.trim()) || (/^\d+\/\d+/.test(produit.trim()) && !produit.trim().startsWith("0/")) : false);
   const masseSechM1 = (resultats.masse_seche_m1 as number) || 0;
   const masseHumideM1Prime = (resultats.masse_humide_m1_prime as number) || 0;
   const masseLavageM1M2 = (resultats.masse_lavage_m1_m2 as number) || 0;
@@ -98,9 +100,11 @@ export default function GranulometrieReportContent({ resultats }: GranulometrieR
             <td className="border border-[#4a90a4] px-2 py-1 text-center" colSpan={2}>
               Σ Ri + P = <span className="font-bold">{sommeRiPlusP ? sommeRiPlusP.toFixed(2) : "-"}</span>
             </td>
-            <td className="border border-[#4a90a4] px-2 py-1 text-center font-bold" colSpan={2}>
-              FM = <span className="text-lg text-[#4a90a4]">{moduleFinesse || "-"}</span>
-            </td>
+            {!isGrav && (
+              <td className="border border-[#4a90a4] px-2 py-1 text-center font-bold" colSpan={2}>
+                FM = <span className="text-lg text-[#4a90a4]">{moduleFinesse || "-"}</span>
+              </td>
+            )}
           </tr>
         </tbody>
       </table>

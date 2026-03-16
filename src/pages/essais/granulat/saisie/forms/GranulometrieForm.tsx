@@ -7,6 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface GranulometrieFormProps {
   resultats: Record<string, unknown>;
   onChange: (data: Record<string, unknown>) => void;
+  produit?: string;
+}
+
+/** Returns true if product is a gravel (not a sand) based on naming convention */
+function isGravier(produit?: string): boolean {
+  if (!produit) return false;
+  const p = produit.toLowerCase().trim();
+  // Gravel fractions like 3/8, 8/15, 15/25, 4/8, etc.
+  return /^(gravier|gravillon|gravier\s|gravillon\s)/.test(p) ||
+    /^\d+\/\d+/.test(p) && !p.startsWith("0/");
 }
 
 const TAMIS_STANDARDS = [
@@ -37,7 +47,8 @@ interface TamisData {
   passant: number;
 }
 
-export default function GranulometrieForm({ resultats, onChange }: GranulometrieFormProps) {
+export default function GranulometrieForm({ resultats, onChange, produit }: GranulometrieFormProps) {
+  const isGrav = isGravier(produit);
   const masseSechM1 = (resultats.masse_seche_m1 as number) || 0;
   const masseHumideM1Prime = (resultats.masse_humide_m1_prime as number) || 0;
   const masseLavageM1M2 = (resultats.masse_lavage_m1_m2 as number) || 0;
@@ -92,17 +103,20 @@ export default function GranulometrieForm({ resultats, onChange }: Granulometrie
     const f = m1 > 0 ? (m1m2 / m1) * 100 : 0;
     updated.teneur_fines_f = parseFloat(f.toFixed(2));
 
-    // Module de Finesse: sum of cumulative % retained on 0.125, 0.25, 0.5, 1, 2, 4 mm / 100
-    // Note: using pourcentageRefusCumule (which is (Rn/M1)*100)
-    const mfSieves = [0.125, 0.25, 0.5, 1, 2, 4];
-    const refusCumulesPourMF = mfSieves.map(ouv => {
-      const tamis = newTamis.find(t => Math.abs(t.ouverture - ouv) < 0.001);
-      return tamis ? tamis.pourcentageRefusCumule : 0;
-    });
-    const mf = refusCumulesPourMF.reduce((a, b) => a + b, 0) / 100;
+    // Module de Finesse: only for sands (not gravels)
+    let mf = 0;
+    if (!isGrav) {
+      const mfSieves = [0.125, 0.25, 0.5, 1, 2, 4];
+      const refusCumulesPourMF = mfSieves.map(ouv => {
+        const tamis = newTamis.find(t => Math.abs(t.ouverture - ouv) < 0.001);
+        return tamis ? tamis.pourcentageRefusCumule : 0;
+      });
+      mf = refusCumulesPourMF.reduce((a, b) => a + b, 0) / 100;
+    }
 
     updated.tamis = newTamis;
-    updated.module_finesse = parseFloat(mf.toFixed(2));
+    updated.module_finesse = isGrav ? null : parseFloat(mf.toFixed(2));
+    updated.is_gravier = isGrav;
     updated.fond_p = fp;
 
     onChange(updated);
@@ -202,12 +216,14 @@ export default function GranulometrieForm({ resultats, onChange }: Granulometrie
 
         {/* Résultats calculés */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
-            <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
-            <p className="text-xl font-bold text-primary">
-              {(resultats.module_finesse as number) || "--"}
-            </p>
-          </div>
+          {!isGrav && (
+            <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
+              <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
+              <p className="text-xl font-bold text-primary">
+                {(resultats.module_finesse as number) || "--"}
+              </p>
+            </div>
+          )}
           <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">Σ Ri + P</p>
             <p className="text-xl font-bold text-foreground">
@@ -285,9 +301,11 @@ export default function GranulometrieForm({ resultats, onChange }: Granulometrie
                 <td className="py-2 px-2 text-center text-muted-foreground font-medium">
                   Σ Ri + P = {(resultats.somme_ri_plus_p as number)?.toFixed(2) || "--"}
                 </td>
-                <td className="py-2 px-2 text-center text-muted-foreground font-medium" colSpan={2}>
-                  FM = {(resultats.module_finesse as number) || "--"}
-                </td>
+                {!isGrav && (
+                  <td className="py-2 px-2 text-center text-muted-foreground font-medium" colSpan={2}>
+                    FM = {(resultats.module_finesse as number) || "--"}
+                  </td>
+                )}
               </tr>
             </tbody>
           </table>

@@ -217,7 +217,13 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
         </div>
 
         {/* Contenu spécifique au type d'essai */}
-        {ReportContent && <ReportContent resultats={resultats} />}
+        {ReportContent && (
+          essaiType === "granulometrie" ? (
+            <GranulometrieReportContent resultats={resultats} produit={echantillon.produit} />
+          ) : (
+            <ReportContent resultats={resultats} />
+          )
+        )}
 
         {/* Pied de page */}
         <div className="mt-8 pt-4 border-t border-gray-300">
