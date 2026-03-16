@@ -110,7 +110,7 @@ export function determineDmax(granulats: GranulatInput[]): number {
 export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange: number | null): PointA {
   const dA = dMax / 2;
   const mf = mfMelange ?? 2.5; // default if not available
-  const pARaw = 35 + (10 * coeffGranulaire) + (3 * (mf - 2));
+  const pARaw = 38 + (12 * coeffGranulaire) + (4 * (mf - 2));
   const pA = Math.max(38, Math.min(50, Math.round(pARaw * 100) / 100));
   return { dA, pA };
 }
