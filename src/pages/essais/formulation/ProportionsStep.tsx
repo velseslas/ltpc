@@ -818,7 +818,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             materials={demoMaterials}
             sables={sables}
             graviers={graviers}
-            pointA={calcResult?.pointA ?? null}
+            pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
             coeffCompacite={parseFloat(coefficientCompacite) || 0.8}
           />
         </CardContent>
