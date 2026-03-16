@@ -1101,8 +1101,8 @@ export default function FormulationBetonWizard() {
         />
       </div>
 
-      {/* Step 6 */}
-      <div className={currentStep === 6 ? "" : "hidden"}>
+      {/* Step 7 - Calcul proportions */}
+      <div className={currentStep === 7 ? "" : "hidden"}>
         <ProportionsStep
           sableConcasseQte={sableConcasseQte} sableFinQte={sableFinQte} gravillons1Qte={gravillons1Qte} gravier2Qte={gravier2Qte} gravier3Qte={gravier3Qte}
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
