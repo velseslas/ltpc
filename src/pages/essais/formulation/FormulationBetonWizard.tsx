@@ -992,7 +992,43 @@ export default function FormulationBetonWizard() {
               <div className="space-y-1.5">
                 <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
                 <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", errorSteps.includes(2) && !classeExposition && "animate-border-blink")} />
+            </div>
+
+            <Separator />
+
+            <h2 className="text-lg font-semibold text-foreground">Paramètres de formulation</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm">Eau (kg/m³)</Label>
+                <Input
+                  type="number" step="1" min="0"
+                  value={calcEau}
+                  onChange={(e) => setCalcEau(e.target.value)}
+                  placeholder="ex: 185"
+                  className="bg-secondary border-border"
+                />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm">Ciment (kg/m³)</Label>
+                <Input
+                  type="number" step="1" min="0"
+                  value={calcCiment}
+                  onChange={(e) => setCalcCiment(e.target.value)}
+                  placeholder="ex: 350"
+                  className="bg-secondary border-border"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm">Rapport G/S</Label>
+                <Input
+                  type="number" step="0.1" min="0.1"
+                  value={calcRatioGS}
+                  onChange={(e) => setCalcRatioGS(e.target.value)}
+                  placeholder="ex: 1.8"
+                  className="bg-secondary border-border"
+                />
+              </div>
+            </div>
               <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                 <BarChart3 className="w-4 h-4" />
                 Voir abaque
