@@ -10,6 +10,7 @@ interface TamisData {
 
 interface GranulometrieReportContentProps {
   resultats: Record<string, unknown>;
+  produit?: string;
 }
 
 export default function GranulometrieReportContent({ resultats }: GranulometrieReportContentProps) {
