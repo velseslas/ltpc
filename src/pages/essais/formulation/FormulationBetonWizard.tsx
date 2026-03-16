@@ -1112,6 +1112,7 @@ export default function FormulationBetonWizard() {
           granulatModuleFinesse={granulatModuleFinesse}
           granulatLabels={granulatLabels}
           dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
+          pointAOverride={pointACoords}
           onStepErrors={setErrorSteps}
           onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{
