@@ -171,12 +171,7 @@ export default function ProportionsStep({
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
 
-  useEffect(() => {
-    if (eauQte && !hasCalculated) setCalcEau(eauQte);
-  }, [eauQte, hasCalculated]);
-  useEffect(() => {
-    if (cimentQte && !hasCalculated) setCalcCiment(cimentQte);
-  }, [cimentQte, hasCalculated]);
+  // calcEau, calcCiment, calcRatioGS come from props (Step 2)
 
   const getVal = (key: string, original: string) => localOverrides[key] ?? original;
 
