@@ -105,8 +105,8 @@ export default function DreuxGorisseChart({
   const pointA = pointAProp ?? { dA: dMax / 2, pA: 45 };
 
   const referenceCurve = useMemo(
-    () => generateReferenceCurve(dMax, coeffCompacite, pointA),
-    [dMax, coeffCompacite, pointA]
+    () => generateReferenceCurve(dMax, mfMelange, pointA),
+    [dMax, mfMelange, pointA]
   );
 
   const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
