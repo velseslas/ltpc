@@ -118,16 +118,16 @@ export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange
 /**
  * Generate Dreux-Gorisse reference curve
  * Uses the power law: P(d) = 100 × (d / Dmax)^n
- * where n = 0.5 + 0.3 × γ (coefficient de compacité)
+ * where n = 0.5 + (MF / 10) (module de finesse du sable mélange)
  * 
  * The curve passes through Point A by construction
  */
 export function generateReferenceCurve(
   dMax: number,
-  coeffCompacite: number,
+  mfMelange: number,
   pointA: PointA
 ): { ouverture: number; pourcentage: number }[] {
-  const n = 0.5 + (0.3 * coeffCompacite);
+  const n = 0.5 + (mfMelange / 10);
   
   return TAMIS_OPENINGS
     .filter(ouv => ouv <= dMax * 1.01)
