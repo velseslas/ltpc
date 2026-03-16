@@ -1152,6 +1152,9 @@ export default function FormulationBetonWizard() {
           granulatLabels={granulatLabels}
           dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
           pointAOverride={pointACoords}
+          calcEau={calcEau}
+          calcCiment={calcCiment}
+          calcRatioGS={calcRatioGS}
           onStepErrors={setErrorSteps}
           onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{
