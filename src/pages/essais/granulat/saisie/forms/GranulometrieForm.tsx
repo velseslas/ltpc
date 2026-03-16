@@ -216,12 +216,14 @@ export default function GranulometrieForm({ resultats, onChange, produit }: Gran
 
         {/* Résultats calculés */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
-            <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
-            <p className="text-xl font-bold text-primary">
-              {(resultats.module_finesse as number) || "--"}
-            </p>
-          </div>
+          {!isGrav && (
+            <div className="bg-primary/20 border border-primary/30 rounded-lg p-3 text-center">
+              <p className="text-xs text-muted-foreground">Module de Finesse (FM)</p>
+              <p className="text-xl font-bold text-primary">
+                {(resultats.module_finesse as number) || "--"}
+              </p>
+            </div>
+          )}
           <div className="bg-muted/50 border border-border rounded-lg p-3 text-center">
             <p className="text-xs text-muted-foreground">Σ Ri + P</p>
             <p className="text-xl font-bold text-foreground">
