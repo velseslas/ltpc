@@ -1124,12 +1124,21 @@ export default function FormulationBetonWizard() {
         <PointAEStep
           dmax={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
           mfMelange={(() => {
-            const activeSandKeys: string[] = [];
-            if (sable1Active) activeSandKeys.push("sableConcasse");
-            if (sable2Active) activeSandKeys.push("sableFin");
-            const entries = Object.entries(granulatModuleFinesse).filter(([k]) => activeSandKeys.includes(k));
+            const activeSands: { key: string; mass: number }[] = [];
+            if (sable1Active) activeSands.push({ key: "sableConcasse", mass: parseFloat(sableConcasseQte) || 0 });
+            if (sable2Active) activeSands.push({ key: "sableFin", mass: parseFloat(sableFinQte) || 0 });
+            const entries = activeSands
+              .filter(s => granulatModuleFinesse[s.key] !== undefined)
+              .map(s => ({ mf: granulatModuleFinesse[s.key], mass: s.mass }));
             if (entries.length === 0) return null;
-            const sum = entries.reduce((s, [, v]) => s + v, 0);
+            const totalMass = entries.reduce((s, e) => s + e.mass, 0);
+            if (totalMass > 0) {
+              // Mass-weighted average (consistent with ProportionsStep engine)
+              const weightedSum = entries.reduce((s, e) => s + e.mf * e.mass, 0);
+              return Math.round((weightedSum / totalMass) * 100) / 100;
+            }
+            // Fallback: simple average if no masses defined yet
+            const sum = entries.reduce((s, e) => s + e.mf, 0);
             return Math.round((sum / entries.length) * 100) / 100;
           })()}
           dosageCiment={calcCiment}
