@@ -96,7 +96,8 @@ const chartConfig = {
   max: { label: "Limite max", color: "hsl(var(--destructive))" },
 };
 
-export default function GranulometrieResults({ resultats }: GranulometrieResultsProps) {
+export default function GranulometrieResults({ resultats, produit }: GranulometrieResultsProps) {
+  const isGrav = resultats.is_gravier === true || (produit ? /^(gravier|gravillon)/i.test(produit.trim()) || (/^\d+\/\d+/.test(produit.trim()) && !produit.trim().startsWith("0/")) : false);
   const masseSechM1 = (resultats.masse_seche_m1 as number) || 0;
   const masseApresLavageM2 = (resultats.masse_apres_lavage_m2 as number) || 0;
   const masseLavageM1M2 = (resultats.masse_lavage_m1_m2 as number) || 0;
