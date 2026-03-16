@@ -470,7 +470,7 @@ export default function ProportionsStep({
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Saisissez les paramètres pour calculer automatiquement les proportions de granulats.
+            Les paramètres Eau, Ciment et G/S sont définis à l'étape "Données de base".
             Le rapport G/S est entièrement manuel et ne sera jamais modifié par le moteur.
           </p>
 
@@ -478,28 +478,25 @@ export default function ProportionsStep({
             <div className="space-y-1.5">
               <Label className="text-sm">Eau (kg/m³)</Label>
               <Input
-                type="number" step="1" min="0"
-                value={calcEau}
-                onChange={(e) => setCalcEau(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcEau && "animate-border-blink")}
+                value={calcEau || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
               />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Ciment (kg/m³)</Label>
               <Input
-                type="number" step="1" min="0"
-                value={calcCiment}
-                onChange={(e) => setCalcCiment(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcCiment && "animate-border-blink")}
+                value={calcCiment || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
               />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Rapport G/S</Label>
               <Input
-                type="number" step="0.1" min="0.1"
-                value={calcRatioGS}
-                onChange={(e) => setCalcRatioGS(e.target.value)}
-                className={cn("bg-secondary border-border", hasValidated && !calcRatioGS && "animate-border-blink")}
+                value={calcRatioGS || "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
               />
             </div>
             <div className="space-y-1.5">
@@ -518,21 +515,12 @@ export default function ProportionsStep({
                 className="bg-muted border-border cursor-default"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm">Air occlus (L)</Label>
-              <Input
-                type="number" step="1" min="0" max="100"
-                value={calcAirOcclus}
-                onChange={(e) => setCalcAirOcclus(e.target.value)}
-                className="bg-secondary border-border"
-              />
-            </div>
           </div>
 
           {/* Volume breakdown */}
-          {(calcEau || calcCiment || calcAirOcclus) && (
+          {(calcEau || calcCiment) && (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(eau)</p>
                 <p className="text-sm font-semibold text-foreground">{calcEau ? `${(calcVolumes.Ve * 1000).toFixed(0)} L` : "—"}</p>
@@ -540,10 +528,6 @@ export default function ProportionsStep({
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(ciment)</p>
                 <p className="text-sm font-semibold text-foreground">{calcCiment ? `${(calcVolumes.Vc * 1000).toFixed(0)} L` : "—"}</p>
-              </div>
-              <div className="bg-muted/50 rounded-lg p-2.5 text-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(air)</p>
-                <p className="text-sm font-semibold text-foreground">{calcAirOcclus ? `${(calcVolumes.Vair * 1000).toFixed(0)} L` : "—"}</p>
               </div>
               <div className="bg-muted/50 rounded-lg p-2.5 text-center border border-primary/30">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">V(granulats)</p>
@@ -580,7 +564,7 @@ export default function ProportionsStep({
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
                 <p className="text-xs text-destructive">
-                  Erreur de cohérence volumique : Ve + Vc + Vair + Vgranulats ≠ 1000 L
+                  Erreur de cohérence volumique : Ve + Vc + Vgranulats ≠ 1000 L
                 </p>
               </div>
             )}
