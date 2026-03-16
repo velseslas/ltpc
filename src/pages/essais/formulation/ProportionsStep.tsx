@@ -148,6 +148,7 @@ export default function ProportionsStep({
   granulatModuleFinesse = {},
   granulatLabels = {},
   dMaxUser,
+  pointAOverride,
   onQuantityChange,
   validationData,
   onStepErrors,
