@@ -7,6 +7,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface GranulometrieFormProps {
   resultats: Record<string, unknown>;
   onChange: (data: Record<string, unknown>) => void;
+  produit?: string;
+}
+
+/** Returns true if product is a gravel (not a sand) based on naming convention */
+function isGravier(produit?: string): boolean {
+  if (!produit) return false;
+  const p = produit.toLowerCase().trim();
+  // Gravel fractions like 3/8, 8/15, 15/25, 4/8, etc.
+  return /^(gravier|gravillon|gravier\s|gravillon\s)/.test(p) ||
+    /^\d+\/\d+/.test(p) && !p.startsWith("0/");
 }
 
 const TAMIS_STANDARDS = [
