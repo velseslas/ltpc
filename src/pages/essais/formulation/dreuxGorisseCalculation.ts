@@ -105,7 +105,7 @@ export function determineDmax(granulats: GranulatInput[]): number {
 /**
  * Calculate Point A using the Dreux method
  * dA = Dmax / 2
- * PA = 35 + (10 × G') + (3 × (MF − 2)), clamped to [38, 50]
+ * PA = 38 + (12 × G') + (4 × (MF − 2)), clamped to [38, 50]
  */
 export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange: number | null): PointA {
   const dA = dMax / 2;
