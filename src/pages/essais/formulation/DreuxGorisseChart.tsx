@@ -85,7 +85,7 @@ interface DreuxGorisseChartProps {
   sables: number;
   graviers: number;
   pointA?: PointA | null;
-  coeffCompacite?: number;
+  mfMelange?: number;
 }
 
 export default function DreuxGorisseChart({
@@ -95,7 +95,7 @@ export default function DreuxGorisseChart({
   sables,
   graviers,
   pointA: pointAProp,
-  coeffCompacite = 0.8,
+  mfMelange = 2.5,
 }: DreuxGorisseChartProps) {
   const totalAggregats = sables + graviers;
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
