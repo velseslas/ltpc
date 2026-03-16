@@ -770,6 +770,16 @@ export default function FormulationBetonWizard() {
     setGranulatModuleFinesse(prev => ({ ...prev, [key]: moduleFinesse }));
   };
 
+  const mfImporteEtape6 = useMemo(() => {
+    if (sable1Active && (granulatModuleFinesse.sableConcasse ?? 0) > 0) {
+      return granulatModuleFinesse.sableConcasse;
+    }
+    if (sable2Active && (granulatModuleFinesse.sableFin ?? 0) > 0) {
+      return granulatModuleFinesse.sableFin;
+    }
+    return null;
+  }, [sable1Active, sable2Active, granulatModuleFinesse]);
+
   // Step 2 - données de base
   const [resistance28j, setResistance28j] = useState("");
   const [slumpSouhaite, setSlumpSouhaite] = useState("");
