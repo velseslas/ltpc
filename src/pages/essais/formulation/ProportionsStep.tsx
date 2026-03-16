@@ -65,6 +65,7 @@ interface ProportionsStepProps {
   granulatModuleFinesse?: Record<string, number>;
   granulatLabels?: Record<string, string>;
   dMaxUser?: number | null;
+  pointAOverride?: { xA: number; yA: number } | null;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
@@ -147,6 +148,7 @@ export default function ProportionsStep({
   granulatModuleFinesse = {},
   granulatLabels = {},
   dMaxUser,
+  pointAOverride,
   onQuantityChange,
   validationData,
   onStepErrors,
@@ -607,7 +609,7 @@ export default function ProportionsStep({
               <div className="bg-red-500/10 rounded-lg p-2.5 text-center border border-red-500/20">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Point A (Dreux)</p>
                 <p className="text-sm font-semibold text-foreground">
-                  dA = {calcResult.pointA.dA} mm — PA = {calcResult.pointA.pA.toFixed(1)}%
+                  dA = {pointAOverride ? pointAOverride.xA.toFixed(1) : calcResult.pointA.dA} mm — PA = {pointAOverride ? pointAOverride.yA.toFixed(1) : calcResult.pointA.pA.toFixed(1)}%
                 </p>
               </div>
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
@@ -816,7 +818,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             materials={demoMaterials}
             sables={sables}
             graviers={graviers}
-            pointA={calcResult?.pointA ?? null}
+            pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
             coeffCompacite={parseFloat(coefficientCompacite) || 0.8}
           />
         </CardContent>

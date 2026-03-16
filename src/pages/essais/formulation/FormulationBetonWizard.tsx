@@ -39,6 +39,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Separator } from "@/components/ui/separator";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import ProportionsStep from "./ProportionsStep";
+import PointAEStep from "./PointAEStep";
 import CoefficientStep from "./CoefficientStep";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
@@ -79,8 +80,9 @@ const STEPS = [
   { number: 2, label: "Données de base" },
   { number: 3, label: "Information matériaux" },
   { number: 4, label: "Coefficients" },
-  { number: 5, label: "Essai" },
-  { number: 6, label: "Calcul proportions" },
+  { number: 5, label: "Calcul A et E" },
+  { number: 6, label: "Essai" },
+  { number: 7, label: "Calcul proportions" },
 ];
 
 // Stepper component
@@ -748,6 +750,12 @@ export default function FormulationBetonWizard() {
   const [dmaxUtilisateur, setDmaxUtilisateur] = useState("");
   const [mfCorrectionNeeded, setMfCorrectionNeeded] = useState(false);
 
+  // Step 5 - Calcul A et E
+  const [vibrationAE, setVibrationAE] = useState("");
+  const [formeAE, setFormeAE] = useState("");
+  const [kpAE, setKpAE] = useState("10");
+  const [pointACoords, setPointACoords] = useState<{ xA: number; yA: number } | null>(null);
+
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
   const [resistanceCible, setResistanceCible] = useState("");
@@ -838,12 +846,13 @@ export default function FormulationBetonWizard() {
       case 4: return true;
       case 5: return true;
       case 6: return true;
+      case 7: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 6) setCurrentStep(currentStep + 1);
+    if (currentStep < 7) setCurrentStep(currentStep + 1);
   };
 
   const handlePrev = () => {
@@ -1056,22 +1065,44 @@ export default function FormulationBetonWizard() {
         />
       </div>
 
-      {/* Step 5 */}
+      {/* Step 5 - Calcul A et E */}
       <div className={currentStep === 5 ? "" : "hidden"}>
+        <PointAEStep
+          dmax={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
+          mfMelange={(() => {
+            const entries = Object.entries(granulatModuleFinesse);
+            if (entries.length === 0) return null;
+            const sum = entries.reduce((s, [, v]) => s + v, 0);
+            return Math.round((sum / entries.length) * 100) / 100;
+          })()}
+          dosageCiment={cimentQte}
+          showError={errorSteps.includes(5)}
+          onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
+          vibrationValue={vibrationAE}
+          onVibrationChange={setVibrationAE}
+          formeValue={formeAE}
+          onFormeChange={setFormeAE}
+          kpValue={kpAE}
+          onKpChange={setKpAE}
+        />
+      </div>
+
+      {/* Step 6 - Essai */}
+      <div className={currentStep === 6 ? "" : "hidden"}>
         <EssaiStep
           sable1Active={sable1Active} sable2Active={sable2Active} gravier1Active={gravier1Active} gravier2Active={gravier2Active} gravier3Active={gravier3Active} cimentActive={cimentActive} eauActive={eauActive}
           sable1ProducteurId={sableConcasseProducteurId} sable1ProduitId={sableConcasseProduitId} sable2ProducteurId={sableFinProducteurId} sable2ProduitId={sableFinProduitId}
           gravier1ProducteurId={gravillons1ProducteurId} gravier1ProduitId={gravillons1ProduitId} gravier2ProducteurId={gravier2ProducteurId} gravier2ProduitId={gravier2ProduitId}
           gravier3ProducteurId={gravier3ProducteurId} gravier3ProduitId={gravier3ProduitId} cimentProducteurId={cimentProducteurId} cimentProduitId={cimentProduitId}
           eauProducteurId={eauProducteurId} eauProduitId={eauProduitId} carrieres={carrieres} cimenteries={cimenteries} sourcesEau={sourcesEau}
-          showError={errorSteps.includes(5)}
+          showError={errorSteps.includes(6)}
           onDensityExtracted={handleDensityExtracted}
           onModuleFinesseExtracted={handleModuleFinesseExtracted}
         />
       </div>
 
-      {/* Step 6 */}
-      <div className={currentStep === 6 ? "" : "hidden"}>
+      {/* Step 7 - Calcul proportions */}
+      <div className={currentStep === 7 ? "" : "hidden"}>
         <ProportionsStep
           sableConcasseQte={sableConcasseQte} sableFinQte={sableFinQte} gravillons1Qte={gravillons1Qte} gravier2Qte={gravier2Qte} gravier3Qte={gravier3Qte}
           cimentQte={cimentQte} adjuvantQte={adjuvantQte} eauQte={eauQte}
@@ -1081,6 +1112,7 @@ export default function FormulationBetonWizard() {
           granulatModuleFinesse={granulatModuleFinesse}
           granulatLabels={granulatLabels}
           dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
+          pointAOverride={pointACoords}
           onStepErrors={setErrorSteps}
           onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{
@@ -1190,7 +1222,7 @@ export default function FormulationBetonWizard() {
           Précédent
         </Button>
 
-        {currentStep < 6 ? (
+        {currentStep < 7 ? (
           <Button
             onClick={handleNext}
             disabled={!canGoNext()}
