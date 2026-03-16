@@ -66,6 +66,9 @@ interface ProportionsStepProps {
   granulatLabels?: Record<string, string>;
   dMaxUser?: number | null;
   pointAOverride?: { xA: number; yA: number } | null;
+  calcEau: string;
+  calcCiment: string;
+  calcRatioGS: string;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
