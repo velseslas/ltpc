@@ -409,17 +409,15 @@ export default function ProportionsStep({
   const calcVolumes = useMemo(() => {
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
-    const airVal = calcAirOcclus !== '' ? (parseFloat(calcAirOcclus) ?? 0) : 0;
     const gsVal = parseFloat(calcRatioGS) || 0;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / 3110;
-    const Vair = airVal / 1000;
-    const Vg = 1 - (Ve + Vc + Vair);
+    const Vg = 1 - (Ve + Vc);
     const Vsable = gsVal > 0 ? Vg / (1 + gsVal) : 0;
     const Vgravier = gsVal > 0 ? Vg - Vsable : 0;
-    const volumeCheck = Ve + Vc + Vair + Vg;
-    return { Ve, Vc, Vair, Vg, Vsable, Vgravier, volumeCheck };
-  }, [calcEau, calcCiment, calcAirOcclus, calcRatioGS]);
+    const volumeCheck = Ve + Vc + Vg;
+    return { Ve, Vc, Vg, Vsable, Vgravier, volumeCheck };
+  }, [calcEau, calcCiment, calcRatioGS]);
 
   // Generate granulometric curves for chart
   const demoMaterials = useMemo<MaterialCurve[]>(() => {
