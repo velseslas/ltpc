@@ -115,7 +115,7 @@ export default function CoefficientStep({
   const computedG = useMemo(() => {
     const d = parseFloat(dmaxG);
     if (!qualiteG || isNaN(d) || d <= 0) return null;
-    return interpolateG(d, qualiteG);
+    return lookupG(d, qualiteG);
   }, [qualiteG, dmaxG]);
 
   useEffect(() => {
