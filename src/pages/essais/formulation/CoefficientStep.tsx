@@ -212,27 +212,33 @@ export default function CoefficientStep({
                   <thead>
                     <tr className="bg-muted">
                       <th className="border border-border p-2 text-left">Dmax (mm)</th>
-                      <th className="border border-border p-2 text-center">Passable</th>
-                      <th className="border border-border p-2 text-center">Bonne</th>
+                      <th className="border border-border p-2 text-left">Diamètre maximal (mm)</th>
                       <th className="border border-border p-2 text-center">Excellente</th>
+                      <th className="border border-border p-2 text-center">Bonne</th>
+                      <th className="border border-border p-2 text-center">Passable</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {ABAQUE_G.map((row, i) => (
-                      <tr key={row.dmax} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                        <td className="border border-border p-2 font-semibold">{row.dmax}</td>
-                        <td className="border border-border p-2 text-center">{row.passable.toFixed(3)}</td>
-                        <td className="border border-border p-2 text-center">{row.bonne.toFixed(3)}</td>
-                        <td className="border border-border p-2 text-center">{row.excellente.toFixed(3)}</td>
+                    {ABAQUE_G_RANGES.map((row, i) => (
+                      <tr key={row.label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                        <td className="border border-border p-2 font-semibold">{row.label}</td>
+                        <td className="border border-border p-2 text-center">{row.excellente.toFixed(2)}</td>
+                        <td className="border border-border p-2 text-center">{row.bonne.toFixed(2)}</td>
+                        <td className="border border-border p-2 text-center">{row.passable.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                <Info className="w-3 h-3 inline mr-1" />
-                Source : Méthode Dreux-Gorisse. Les valeurs intermédiaires sont interpolées linéairement.
-              </p>
+              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2 mt-3">
+                <p className="text-sm font-medium text-foreground">Notes sur l'utilisation:</p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+                  <li>Les valeurs de coefficient G' sont basées sur la qualité des granulats et leur diamètre maximal</li>
+                  <li>Pour des granulats de qualité excellente, le coefficient sera plus élevé</li>
+                  <li>Un coefficient plus élevé permet généralement un béton plus économique en ciment</li>
+                  <li>La qualité est déterminée par la forme, la texture et les propriétés mécaniques des granulats</li>
+                </ul>
+              </div>
             </DialogContent>
           </Dialog>
         </CardContent>
