@@ -363,9 +363,9 @@ function distributeGravel(
   // Distribution ratios for pumpability optimization
   let ratios: number[];
   if (sorted.length === 2) {
-    ratios = [0.40, 0.60]; // smaller fraction gets less
+    ratios = [0.35, 0.65]; // smaller fraction gets less
   } else if (sorted.length === 3) {
-    ratios = [0.25, 0.40, 0.35]; // 3/8=25%, 8/15=40%, 15/25=35%
+    ratios = [0.20, 0.45, 0.35]; // 3/8=20%, 8/15=45%, 15/25=35%
   } else {
     // General case: equal distribution
     ratios = sorted.map(() => 1 / sorted.length);
