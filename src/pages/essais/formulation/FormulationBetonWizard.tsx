@@ -79,9 +79,9 @@ const STEPS = [
   { number: 1, label: "Information générale" },
   { number: 2, label: "Données de base" },
   { number: 3, label: "Information matériaux" },
-  { number: 4, label: "Coefficients" },
-  { number: 5, label: "Calcul A et E" },
-  { number: 6, label: "Essai" },
+  { number: 4, label: "Essai" },
+  { number: 5, label: "Coefficients" },
+  { number: 6, label: "Calcul A et E" },
   { number: 7, label: "Calcul proportions" },
 ];
 
