@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface GranulometrieResultsProps {
   resultats: Record<string, unknown>;
+  produit?: string;
 }
 
 interface TamisData {
