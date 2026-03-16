@@ -225,7 +225,11 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
 
         {/* Résultats */}
         {hasResults && ResultComponent ? (
-          <ResultComponent resultats={resultats} />
+          essaiType === "granulometrie" ? (
+            <ResultComponent resultats={resultats} produit={echantillon.produit} />
+          ) : (
+            <ResultComponent resultats={resultats} />
+          )
         ) : (
           <Card className="border-border bg-card">
             <CardContent className="py-12 text-center">

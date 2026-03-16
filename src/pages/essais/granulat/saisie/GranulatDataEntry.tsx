@@ -209,6 +209,8 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
       {FormComponent ? (
         essaiType === "masse-volumique" ? (
           <MasseVolumiqueForm resultats={resultats} onChange={setResultats} produit={echantillon.produit} />
+        ) : essaiType === "granulometrie" ? (
+          <GranulometrieForm resultats={resultats} onChange={setResultats} produit={echantillon.produit} />
         ) : (
           <FormComponent resultats={resultats} onChange={setResultats} />
         )
