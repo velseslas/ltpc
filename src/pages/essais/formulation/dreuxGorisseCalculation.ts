@@ -105,12 +105,12 @@ export function determineDmax(granulats: GranulatInput[]): number {
 /**
  * Calculate Point A using the Dreux method
  * dA = Dmax / 2
- * PA = 35 + (10 × G') + (3 × (MF − 2)), clamped to [38, 50]
+ * PA = 38 + (12 × G') + (4 × (MF − 2)), clamped to [38, 50]
  */
 export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange: number | null): PointA {
   const dA = dMax / 2;
   const mf = mfMelange ?? 2.5; // default if not available
-  const pARaw = 35 + (10 * coeffGranulaire) + (3 * (mf - 2));
+  const pARaw = 38 + (12 * coeffGranulaire) + (4 * (mf - 2));
   const pA = Math.max(38, Math.min(50, Math.round(pARaw * 100) / 100));
   return { dA, pA };
 }
@@ -341,7 +341,7 @@ function distributeSand(
 
 /**
  * Distribute gravel volume for optimal pumpability.
- * Default distribution: 3/8 = 25%, 8/15 = 40%, 15/25 = 35%
+ * Default distribution: 3/8 = 20%, 8/15 = 45%, 15/25 = 35%
  * When exact fraction names don't match, use size-based ordering.
  */
 function distributeGravel(
@@ -363,9 +363,9 @@ function distributeGravel(
   // Distribution ratios for pumpability optimization
   let ratios: number[];
   if (sorted.length === 2) {
-    ratios = [0.40, 0.60]; // smaller fraction gets less
+    ratios = [0.35, 0.65]; // smaller fraction gets less
   } else if (sorted.length === 3) {
-    ratios = [0.25, 0.40, 0.35]; // 3/8=25%, 8/15=40%, 15/25=35%
+    ratios = [0.20, 0.45, 0.35]; // 3/8=20%, 8/15=45%, 15/25=35%
   } else {
     // General case: equal distribution
     ratios = sorted.map(() => 1 / sorted.length);
