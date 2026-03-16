@@ -47,7 +47,8 @@ interface TamisData {
   passant: number;
 }
 
-export default function GranulometrieForm({ resultats, onChange }: GranulometrieFormProps) {
+export default function GranulometrieForm({ resultats, onChange, produit }: GranulometrieFormProps) {
+  const isGrav = isGravier(produit);
   const masseSechM1 = (resultats.masse_seche_m1 as number) || 0;
   const masseHumideM1Prime = (resultats.masse_humide_m1_prime as number) || 0;
   const masseLavageM1M2 = (resultats.masse_lavage_m1_m2 as number) || 0;
