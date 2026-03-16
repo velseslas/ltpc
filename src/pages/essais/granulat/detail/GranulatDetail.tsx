@@ -226,7 +226,7 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
         {/* Résultats */}
         {hasResults && ResultComponent ? (
           essaiType === "granulometrie" ? (
-            <ResultComponent resultats={resultats} produit={echantillon.produit} />
+            <GranulometrieResults resultats={resultats} produit={echantillon.produit} />
           ) : (
             <ResultComponent resultats={resultats} />
           )

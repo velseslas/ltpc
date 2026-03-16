@@ -219,7 +219,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
         {/* Contenu spécifique au type d'essai */}
         {ReportContent && (
           essaiType === "granulometrie" ? (
-            <ReportContent resultats={resultats} produit={echantillon.produit} />
+            <GranulometrieReportContent resultats={resultats} produit={echantillon.produit} />
           ) : (
             <ReportContent resultats={resultats} />
           )
