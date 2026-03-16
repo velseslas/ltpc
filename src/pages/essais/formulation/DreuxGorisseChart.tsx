@@ -174,8 +174,8 @@ export default function DreuxGorisseChart({
           <p className="text-lg font-bold text-foreground">{pctGravier}%</p>
         </div>
         <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. n</p>
-          <p className="text-lg font-bold text-foreground">{(0.5 + 0.3 * coeffCompacite).toFixed(2)}</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. N</p>
+          <p className="text-lg font-bold text-foreground">{(0.5 + mfMelange / 10).toFixed(2)}</p>
         </div>
       </div>
 
