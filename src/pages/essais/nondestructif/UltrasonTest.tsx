@@ -73,7 +73,7 @@ const UltrasonTest = () => {
               <TableHead className="text-muted-foreground font-medium">N°</TableHead>
               <TableHead className="text-muted-foreground font-medium">Client</TableHead>
               <TableHead className="text-muted-foreground font-medium">Chantier</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Élément testé</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
               <TableHead className="text-muted-foreground font-medium">Mode</TableHead>
               <TableHead className="text-muted-foreground font-medium">Date d'essai</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
