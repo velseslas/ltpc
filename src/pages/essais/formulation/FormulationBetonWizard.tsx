@@ -817,13 +817,18 @@ export default function FormulationBetonWizard() {
   };
 
   const mfImporteEtape6 = useMemo(() => {
+    // MF mélange sable = moyenne pondérée (poids égaux) de tous les sables actifs
+    // Ne jamais utiliser le MF d'un seul sable ni inclure les graviers
+    const sandMFs: number[] = [];
     if (sable1Active && (granulatModuleFinesse.sableConcasse ?? 0) > 0) {
-      return granulatModuleFinesse.sableConcasse;
+      sandMFs.push(granulatModuleFinesse.sableConcasse);
     }
     if (sable2Active && (granulatModuleFinesse.sableFin ?? 0) > 0) {
-      return granulatModuleFinesse.sableFin;
+      sandMFs.push(granulatModuleFinesse.sableFin);
     }
-    return null;
+    if (sandMFs.length === 0) return null;
+    const avg = sandMFs.reduce((a, b) => a + b, 0) / sandMFs.length;
+    return Math.round(avg * 100) / 100;
   }, [sable1Active, sable2Active, granulatModuleFinesse]);
 
   // Step 2 - données de base
