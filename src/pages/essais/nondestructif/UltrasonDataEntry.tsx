@@ -18,6 +18,7 @@ const UltrasonDataEntry = () => {
   const updateMutation = useUpdateEchantillonUltrason();
 
   const [mesures, setMesures] = useState<Mesure[]>([{ distance: 0, temps: 0 }, { distance: 0, temps: 0 }, { distance: 0, temps: 0 }]);
+  const [elementCoule, setElementCoule] = useState("");
   const [temperature, setTemperature] = useState<string>("");
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const UltrasonDataEntry = () => {
       const r = echantillon.resultats as any;
       if (r.mesures) setMesures(r.mesures);
       if (r.temperature) setTemperature(r.temperature.toString());
+      if (r.element_coule) setElementCoule(r.element_coule);
     }
   }, [echantillon]);
 
@@ -54,6 +56,7 @@ const UltrasonDataEntry = () => {
         id: id!,
         resultats: {
           mesures,
+          element_coule: elementCoule || null,
           vitesses,
           vitesse_moyenne: vitesseMoyenne,
           qualite: vitesseMoyenne > 0 ? getQualite(vitesseMoyenne).label : null,
@@ -85,6 +88,13 @@ const UltrasonDataEntry = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Mesures</h2>
           <Button variant="outline" size="sm" onClick={addMesure} className="flex items-center gap-1"><Plus className="h-4 w-4" />Ajouter un point</Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Élément coulé</Label>
+            <Input placeholder="Ex: Poteau, Dalle, Poutre, Voile..." value={elementCoule} onChange={(e) => setElementCoule(e.target.value)} />
+          </div>
         </div>
 
         <div className="space-y-3">

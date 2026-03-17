@@ -15,12 +15,14 @@ const SclerometreDataEntry = () => {
   const { data: echantillon, isLoading } = useEchantillonSclerometre(id ?? "");
   const updateMutation = useUpdateEchantillonSclerometre();
 
+  const [elementCoule, setElementCoule] = useState("");
   const [mesures, setMesures] = useState<number[]>(Array(9).fill(0));
 
   useEffect(() => {
     if (echantillon?.resultats) {
       const r = echantillon.resultats as any;
       if (r.mesures) setMesures(r.mesures);
+      if (r.element_coule) setElementCoule(r.element_coule);
     }
   }, [echantillon]);
 
@@ -50,6 +52,7 @@ const SclerometreDataEntry = () => {
         id: id!,
         resultats: {
           mesures,
+          element_coule: elementCoule || null,
           indice_moyen: moyenne,
           mediane,
           valeurs_retenues: valeursRetenues,
@@ -82,6 +85,12 @@ const SclerometreDataEntry = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Points de mesure (indices de rebond)</h2>
           <Button variant="outline" size="sm" onClick={addPoint} className="flex items-center gap-1"><Plus className="h-4 w-4" />Ajouter</Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Élément coulé</Label>
+            <Input placeholder="Ex: Poteau, Dalle, Poutre, Voile..." value={elementCoule} onChange={(e) => setElementCoule(e.target.value)} />
+          </div>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
           {mesures.map((val, i) => (
