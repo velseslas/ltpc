@@ -90,6 +90,13 @@ const UltrasonDataEntry = () => {
           <Button variant="outline" size="sm" onClick={addMesure} className="flex items-center gap-1"><Plus className="h-4 w-4" />Ajouter un point</Button>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Élément coulé</Label>
+            <Input placeholder="Ex: Poteau, Dalle, Poutre, Voile..." value={elementCoule} onChange={(e) => setElementCoule(e.target.value)} />
+          </div>
+        </div>
+
         <div className="space-y-3">
           <div className="grid grid-cols-[60px_1fr_1fr_1fr_40px] gap-3 text-sm font-medium text-muted-foreground">
             <span>N°</span><span>Distance (mm)</span><span>Temps (µs)</span><span>Vitesse (m/s)</span><span></span>
