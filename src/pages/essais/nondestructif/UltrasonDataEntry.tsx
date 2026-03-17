@@ -26,6 +26,7 @@ const UltrasonDataEntry = () => {
       const r = echantillon.resultats as any;
       if (r.mesures) setMesures(r.mesures);
       if (r.temperature) setTemperature(r.temperature.toString());
+      if (r.element_coule) setElementCoule(r.element_coule);
     }
   }, [echantillon]);
 
