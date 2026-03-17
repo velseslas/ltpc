@@ -197,10 +197,16 @@ export default function PointAEStep({
   }, [dosageCiment]);
 
   // Ks calculation
+  // Use mfIdeal for all calculations instead of mfMelange
+  const mfForCalc = useMemo(() => {
+    const v = parseFloat(mfIdeal);
+    return isNaN(v) || v <= 0 ? null : v;
+  }, [mfIdeal]);
+
   const ks = useMemo(() => {
-    if (mfMelange === null || mfMelange === undefined) return null;
-    return Math.round(((mfMelange * 6) - 15) * 100) / 100;
-  }, [mfMelange]);
+    if (mfForCalc === null) return null;
+    return Math.round(((mfForCalc * 6) - 15) * 100) / 100;
+  }, [mfForCalc]);
 
   // K calculation
   const kValue = useMemo(() => {
@@ -238,12 +244,12 @@ export default function PointAEStep({
   return (
     <div className="space-y-6">
       {/* Warnings - displayed at top */}
-      {(!dmax || !vibration || !forme || mfMelange === null) && (
+      {(!dmax || !vibration || !forme || mfForCalc === null) && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex items-start gap-2">
           <Info className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
           <div className="text-xs text-muted-foreground space-y-1">
             {!dmax && <p>• Dmax non défini — configurez-le à l'étape 4 (Coefficients)</p>}
-            {mfMelange === null && <p>• Module de finesse non disponible — sélectionnez les rapports granulométriques à l'étape 6 (Essai)</p>}
+            {mfForCalc === null && <p>• MF idéal non saisi</p>}
             {!vibration && <p>• Vibration non sélectionnée</p>}
             {!forme && <p>• Forme des granulats non sélectionnée</p>}
           </div>
@@ -258,19 +264,11 @@ export default function PointAEStep({
             <Badge variant="outline" className="text-xs">Dreux-Gorisse</Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-sm text-muted-foreground">Dmax (depuis étape 5)</Label>
               <Input
                 value={dmax ? `${dmax} mm` : "—"}
-                readOnly
-                className="bg-muted border-border cursor-default font-semibold"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm text-muted-foreground">MF mélange pondéré</Label>
-              <Input
-                value={mfMelange !== null ? mfMelange.toFixed(2) : "—"}
                 readOnly
                 className="bg-muted border-border cursor-default font-semibold"
               />
@@ -496,9 +494,9 @@ export default function PointAEStep({
                 readOnly
                 className="bg-muted border-border cursor-default text-lg font-bold"
               />
-              {mfMelange !== null && (
+              {mfForCalc !== null && (
                 <p className="text-xs text-muted-foreground">
-                  MF = {mfMelange.toFixed(2)} → Ks = ({mfMelange.toFixed(2)} × 6) − 15 = {ks?.toFixed(2)}
+                  MF idéal = {mfForCalc.toFixed(2)} → Ks = ({mfForCalc.toFixed(2)} × 6) − 15 = {ks?.toFixed(2)}
                 </p>
               )}
             </div>
@@ -513,7 +511,7 @@ export default function PointAEStep({
                 0 = béton très sec — 5 = plastique — 10 = très pompable
               </p>
               <Select value={kp} onValueChange={(v) => { setKp(v); onKpChange?.(v); }}>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className={cn("bg-secondary border-border", showError && !kp.trim() && "animate-border-blink")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -632,7 +630,7 @@ export default function PointAEStep({
               <div>
                 <span className="text-muted-foreground">N :</span>
                 <span className="ml-2 font-semibold">
-                  {mfMelange !== null ? (0.5 + mfMelange / 10).toFixed(2) : "—"}
+                  {mfForCalc !== null ? (0.5 + mfForCalc / 10).toFixed(2) : "—"}
                 </span>
               </div>
             </div>
@@ -648,13 +646,13 @@ export default function PointAEStep({
               N = 0.5 + (MF / 10)
             </p>
             <Input
-              value={mfMelange !== null ? (0.5 + mfMelange / 10).toFixed(2) : "—"}
+              value={mfForCalc !== null ? (0.5 + mfForCalc / 10).toFixed(2) : "—"}
               readOnly
               className="bg-muted border-border cursor-default text-lg font-bold max-w-[200px]"
             />
-            {mfMelange !== null && (
+            {mfForCalc !== null && (
               <p className="text-xs text-muted-foreground">
-                N = 0.5 + ({mfMelange.toFixed(2)} / 10) = {(0.5 + mfMelange / 10).toFixed(2)}
+                N = 0.5 + ({mfForCalc.toFixed(2)} / 10) = {(0.5 + mfForCalc / 10).toFixed(2)}
               </p>
             )}
           </div>
