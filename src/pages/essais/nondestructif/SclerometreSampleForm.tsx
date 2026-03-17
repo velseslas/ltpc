@@ -60,8 +60,8 @@ const SclerometreSampleForm = () => {
       setClientId(existingData.client_id ?? "");
       setChantierId(existingData.chantier_id ?? "");
       setOperateurId(existingData.operateur_id ?? "");
-      setElementTeste(existingData.element_teste ?? "");
-      setLocalisation(existingData.localisation ?? "");
+      setOuvrage(existingData.ouvrage ?? "");
+      setPartieOuvrage(existingData.partie_ouvrage ?? "");
       setOrientation(existingData.orientation ?? "horizontale");
       setDateEssai(parseISO(existingData.date_essai));
       setAgeBetonJours(existingData.age_beton_jours?.toString() ?? "");
