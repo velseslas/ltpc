@@ -52,6 +52,7 @@ const SclerometreDataEntry = () => {
         id: id!,
         resultats: {
           mesures,
+          element_coule: elementCoule || null,
           indice_moyen: moyenne,
           mediane,
           valeurs_retenues: valeursRetenues,
