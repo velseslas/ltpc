@@ -286,13 +286,27 @@ export function calculateMixDesign(
 }
 
 /**
- * Distribute sand volume among active sands.
- * Rule: Correction sand (0/1) ≤ 30% of total sand volume.
- * Main sand gets the remainder.
+ * Distribute sand volume among active sands using the MF cible formula.
+ * 
+ * Formula (2 sands):
+ *   S1 = (MF_cible - MF2) / (MF1 - MF2)
+ *   S2 = 1 - S1
+ * 
+ * Where:
+ *   S1 = proportion of sand 1 (main sand, typically 0/3 or 0/4)
+ *   S2 = proportion of sand 2 (correction sand, typically fine sand)
+ *   MF1 = module de finesse of sand 1
+ *   MF2 = module de finesse of sand 2
+ *   MF_cible = target module de finesse (MF idéal from step 6)
+ * 
+ * Constraints: S1 and S2 must be between 0 and 1, S1 + S2 = 1
+ * 
+ * Fallback: if MF data is missing or only 1 sand, distribute equally.
  */
 function distributeSand(
   totalVolume: number,
-  sables: GranulatInput[]
+  sables: GranulatInput[],
+  mfCible?: number
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (sables.length === 0) return result;
@@ -303,49 +317,44 @@ function distributeSand(
     return result;
   }
 
-  // Identify correction sands vs main sands
-  const correctionSands = sables.filter(s => s.isSableCorrecteur);
-  const mainSands = sables.filter(s => !s.isSableCorrecteur);
-
-  // If no explicit correction sand marking, treat the smallest Dmax as correction
-  if (correctionSands.length === 0 && mainSands.length > 1) {
-    const sorted = [...sables].sort((a, b) => (a.dMax ?? 0) - (b.dMax ?? 0));
-    const correction = sorted[0];
-    const mains = sorted.slice(1);
+  // For exactly 2 sands with MF cible: use the formula S1 = (MFcible - MF2) / (MF1 - MF2)
+  if (sables.length === 2 && typeof mfCible === "number" && mfCible > 0) {
+    // Identify sand 1 (main, higher MF) and sand 2 (correction, lower MF)
+    const sorted = [...sables].sort((a, b) => (b.moduleFinesse ?? 0) - (a.moduleFinesse ?? 0));
+    const sand1 = sorted[0]; // Higher MF (main sand)
+    const sand2 = sorted[1]; // Lower MF (correction sand)
     
-    const maxCorrectionVolume = 0.30 * totalVolume;
-    const correctionVolume = Math.min(maxCorrectionVolume, totalVolume / sables.length);
-    const remainingVolume = totalVolume - correctionVolume;
-    
-    result[correction.key] = correction.densite > 0 ? correctionVolume * correction.densite : 0;
-    
-    // Distribute remaining among main sands equally
-    const volumeEach = remainingVolume / mains.length;
-    for (const m of mains) {
-      result[m.key] = m.densite > 0 ? volumeEach * m.densite : 0;
-    }
-    return result;
-  }
+    const mf1 = sand1.moduleFinesse;
+    const mf2 = sand2.moduleFinesse;
 
-  // With explicit correction sand marking
-  const maxCorrectionVolume = 0.30 * totalVolume;
-  let correctionTotalVolume = 0;
+    if (typeof mf1 === "number" && mf1 > 0 && typeof mf2 === "number" && mf2 > 0 && Math.abs(mf1 - mf2) > 0.001) {
+      let s1 = (mfCible - mf2) / (mf1 - mf2);
+      let s2 = 1 - s1;
 
-  if (correctionSands.length > 0) {
-    const corrVolumeEach = Math.min(maxCorrectionVolume / correctionSands.length, totalVolume / sables.length);
-    for (const cs of correctionSands) {
-      const vol = corrVolumeEach;
-      correctionTotalVolume += vol;
-      result[cs.key] = cs.densite > 0 ? vol * cs.densite : 0;
+      // Clamp to [0, 1]
+      s1 = Math.max(0, Math.min(1, s1));
+      s2 = Math.max(0, Math.min(1, s2));
+
+      // Normalize to ensure S1 + S2 = 1
+      const total = s1 + s2;
+      if (total > 0) {
+        s1 = s1 / total;
+        s2 = s2 / total;
+      }
+
+      const vol1 = totalVolume * s1;
+      const vol2 = totalVolume * s2;
+
+      result[sand1.key] = sand1.densite > 0 ? vol1 * sand1.densite : 0;
+      result[sand2.key] = sand2.densite > 0 ? vol2 * sand2.densite : 0;
+      return result;
     }
   }
 
-  const remainingVolume = totalVolume - correctionTotalVolume;
-  if (mainSands.length > 0) {
-    const volumeEach = remainingVolume / mainSands.length;
-    for (const ms of mainSands) {
-      result[ms.key] = ms.densite > 0 ? volumeEach * ms.densite : 0;
-    }
+  // Fallback for >2 sands or missing MF data: equal distribution
+  const volumeEach = totalVolume / sables.length;
+  for (const s of sables) {
+    result[s.key] = s.densite > 0 ? volumeEach * s.densite : 0;
   }
 
   return result;
