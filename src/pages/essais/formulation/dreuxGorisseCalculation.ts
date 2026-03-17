@@ -236,23 +236,14 @@ export function calculateMixDesign(
     volumeDetail[g.key] = densite > 0 ? masses[g.key] / densite : 0;
   }
 
-  // Compute MF mélange (weighted by mass)
-  let mfMelange: number | null = null;
-  if (activeSables.length > 0) {
-    let sumMF = 0;
-    let sumMass = 0;
-    for (const s of activeSables) {
-      const m = masses[s.key] ?? 0;
-      const mf = mfPerSand[s.key];
-      if (mf !== undefined && m > 0) {
-        sumMF += m * mf;
-        sumMass += m;
-      }
-    }
-    if (sumMass > 0) {
-      mfMelange = Math.round((sumMF / sumMass) * 100) / 100;
-    }
-  }
+  // Compute MF mélange (weighted by real sand proportions only)
+  const mfMelange = computeWeightedSandModuleFinesse(
+    activeSables.map((s) => ({
+      active: true,
+      moduleFinesse: mfPerSand[s.key],
+      proportion: volumeDetail[s.key] ?? 0,
+    }))
+  );
 
   // Calculate Point A
   const dMaxReel = determineDmax(granulats);
