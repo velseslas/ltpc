@@ -129,12 +129,10 @@ const SclerometreReport = () => {
           <>
             <div className="mb-6">
               <h3 className="font-bold text-sm mb-2 underline text-black">Indices de rebond mesurés</h3>
-              {resultats.element_coule && (
-                <p className="text-sm text-black mb-2"><span className="font-medium">Élément coulé :</span> {resultats.element_coule}</p>
-              )}
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr>
+                    <th className="border border-black px-2 py-1.5 text-left font-medium text-black">Élément coulé</th>
                     {resultats.mesures?.filter((v: number) => v > 0).map((_: number, i: number) => (
                       <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
                     ))}
@@ -142,6 +140,7 @@ const SclerometreReport = () => {
                 </thead>
                 <tbody>
                   <tr>
+                    <td className="border border-black px-2 py-1.5 text-left font-medium text-black">{resultats.element_coule ?? "-"}</td>
                     {resultats.mesures?.filter((v: number) => v > 0).map((val: number, i: number) => (
                       <td key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">{val}</td>
                     ))}
