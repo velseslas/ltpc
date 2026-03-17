@@ -43,8 +43,8 @@ const UltrasonSampleForm = () => {
   const [clientId, setClientId] = useState<string>("");
   const [chantierId, setChantierId] = useState<string>("");
   const [operateurId, setOperateurId] = useState<string>("");
-  const [elementTeste, setElementTeste] = useState("");
-  const [localisation, setLocalisation] = useState("");
+  const [ouvrage, setOuvrage] = useState("");
+  const [partieOuvrage, setPartieOuvrage] = useState("");
   const [modeTransmission, setModeTransmission] = useState("direct");
   const [frequenceKhz, setFrequenceKhz] = useState<string>("");
   const [dateEssai, setDateEssai] = useState<Date>(new Date());
