@@ -1072,7 +1072,7 @@ export default function FormulationBetonWizard() {
                   value={calcEau}
                   onChange={(e) => setCalcEau(e.target.value)}
                   placeholder="ex: 185"
-                  className="bg-secondary border-border"
+                  className={cn("bg-secondary border-border", !calcEau.trim() && "animate-border-blink")}
                 />
               </div>
               <div className="space-y-1.5">
