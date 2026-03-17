@@ -337,8 +337,9 @@ export default function ProportionsStep({
       coeffCompacite: parseFloat(coefficientCompacite) || 0.8,
       airOcclus: 0,
       granulats: granulatInputs,
+      mfCible: mfMelangeStocke ?? undefined,
     };
-  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs]);
+  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs, mfMelangeStocke]);
 
   const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
     const errors = result.volumeErrors;
