@@ -116,6 +116,12 @@ const UltrasonReport = () => {
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage ?? "-"}</td>
               </tr>
+              {resultats?.element_coule && (
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Élément coulé</td>
+                <td className="border border-black px-3 py-1.5 text-black">{resultats.element_coule}</td>
+              </tr>
+              )}
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de transmission</td>
                 <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.mode_transmission ?? "-"}</td>

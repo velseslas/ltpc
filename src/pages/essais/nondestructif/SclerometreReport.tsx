@@ -108,6 +108,12 @@ const SclerometreReport = () => {
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage ?? "-"}</td>
               </tr>
+              {resultats?.element_coule && (
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Élément coulé</td>
+                <td className="border border-black px-3 py-1.5 text-black">{resultats.element_coule}</td>
+              </tr>
+              )}
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Orientation</td>
                 <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.orientation ?? "-"}</td>
@@ -132,14 +138,14 @@ const SclerometreReport = () => {
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr>
-                    {resultats.mesures?.map((_: number, i: number) => (
+                    {resultats.mesures?.filter((v: number) => v > 0).map((_: number, i: number) => (
                       <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    {resultats.mesures?.map((val: number, i: number) => (
+                    {resultats.mesures?.filter((v: number) => v > 0).map((val: number, i: number) => (
                       <td key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">{val}</td>
                     ))}
                   </tr>
