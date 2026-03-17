@@ -129,6 +129,18 @@ import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
+// Non Destructif - Scléromètre
+import SclerometreTest from "./pages/essais/nondestructif/SclerometreTest";
+import SclerometreSampleForm from "./pages/essais/nondestructif/SclerometreSampleForm";
+import SclerometreDetail from "./pages/essais/nondestructif/SclerometreDetail";
+import SclerometreDataEntry from "./pages/essais/nondestructif/SclerometreDataEntry";
+import SclerometreReport from "./pages/essais/nondestructif/SclerometreReport";
+// Non Destructif - Ultrason
+import UltrasonTest from "./pages/essais/nondestructif/UltrasonTest";
+import UltrasonSampleForm from "./pages/essais/nondestructif/UltrasonSampleForm";
+import UltrasonDetail from "./pages/essais/nondestructif/UltrasonDetail";
+import UltrasonDataEntry from "./pages/essais/nondestructif/UltrasonDataEntry";
+import UltrasonReport from "./pages/essais/nondestructif/UltrasonReport";
 // Normes imports
 import BetonDurciNormes from "./pages/essais/betonfrais/BetonDurciNormes";
 import DestructifNormes from "./pages/essais/DestructifNormes";
@@ -535,6 +547,20 @@ const AppRoutes = () => (
       <Route path="/essais/beton/destructif/normes" element={<DestructifNormes />} />
       <Route path="/essais/beton/non-destructif" element={<EssaiNonDestructif />} />
       <Route path="/essais/beton/non-destructif/normes" element={<NonDestructifNormes />} />
+      {/* Scléromètre Routes */}
+      <Route path="/essais/beton/non-destructif/sclerometre" element={<SclerometreTest />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/nouveau" element={<SclerometreSampleForm />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id" element={<SclerometreDetail />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id/modifier" element={<SclerometreSampleForm />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id/saisie" element={<SclerometreDataEntry />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id/rapport" element={<SclerometreReport />} />
+      {/* Ultrason Routes */}
+      <Route path="/essais/beton/non-destructif/ultrason" element={<UltrasonTest />} />
+      <Route path="/essais/beton/non-destructif/ultrason/nouveau" element={<UltrasonSampleForm />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id" element={<UltrasonDetail />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id/modifier" element={<UltrasonSampleForm />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id/saisie" element={<UltrasonDataEntry />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id/rapport" element={<UltrasonReport />} />
       <Route path="/laboratoires-mobiles" element={<LaboratoiresMobiles />} />
       <Route path="/laboratoires-mobiles/nouveau" element={<LaboratoireMobileForm />} />
       <Route path="/laboratoires-mobiles/:id" element={<LaboratoireMobileDetail />} />
