@@ -143,6 +143,10 @@ function calculateXA(dmax: number): { xA: number; method: string } {
 interface PointAEStepProps {
   dmax: number | null;
   mfMelange: number | null;
+  mfSable1: number | null;
+  mfSable2: number | null;
+  mfIdeal: string;
+  onMfIdealChange?: (v: string) => void;
   dosageCiment: string; // from step 2 / step 3
   showError?: boolean;
   onPointAChange?: (xA: number, yA: number) => void;
@@ -157,6 +161,10 @@ interface PointAEStepProps {
 export default function PointAEStep({
   dmax,
   mfMelange,
+  mfSable1,
+  mfSable2,
+  mfIdeal,
+  onMfIdealChange,
   dosageCiment,
   showError = false,
   onPointAChange,
