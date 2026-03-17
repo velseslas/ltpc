@@ -917,9 +917,25 @@ export default function FormulationBetonWizard() {
 
 
 
+  // Compute which steps have incomplete mandatory fields (for blinking step indicators)
+  const stepIncomplete = useMemo(() => {
+    const incomplete: number[] = [];
+    if (!(nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0)) incomplete.push(1);
+    if (!(calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0)) incomplete.push(2);
+    if (!(coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0)) incomplete.push(5);
+    if (!(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfImporteEtape6 !== null)) incomplete.push(6);
+    return incomplete;
+  }, [nom, centraleId, clientId, chantierId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6]);
+
+  // Merge dynamic incomplete steps with errorSteps from ProportionsStep
+  const allErrorSteps = useMemo(() => {
+    const merged = new Set([...errorSteps, ...stepIncomplete]);
+    return Array.from(merged);
+  }, [errorSteps, stepIncomplete]);
+
   const canGoNext = () => {
     switch (currentStep) {
-      case 1: return nom.trim().length > 0 && centraleId.length > 0;
+      case 1: return nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0;
       case 2: return calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0;
       case 3: return true;
       case 4: return true;
