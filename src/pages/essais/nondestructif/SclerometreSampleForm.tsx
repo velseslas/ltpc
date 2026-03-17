@@ -18,6 +18,13 @@ import { useCreateEchantillonSclerometre, useUpdateEchantillonSclerometre, useEc
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
+const MENTIONS = [
+  "Essai effectué en présence du bureau de suivi",
+  "Essai effectué en présence du maître d'ouvrage",
+  "Essai effectué en présence du bureau du CTC",
+  "Essai effectué en présence de l'entreprise",
+];
+
 const ORIENTATIONS = [
   { value: "horizontale", label: "Horizontale" },
   { value: "verticale-haut", label: "Verticale vers le haut" },
