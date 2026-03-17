@@ -264,19 +264,11 @@ export default function PointAEStep({
             <Badge variant="outline" className="text-xs">Dreux-Gorisse</Badge>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-sm text-muted-foreground">Dmax (depuis étape 5)</Label>
               <Input
                 value={dmax ? `${dmax} mm` : "—"}
-                readOnly
-                className="bg-muted border-border cursor-default font-semibold"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm text-muted-foreground">MF mélange pondéré</Label>
-              <Input
-                value={mfMelange !== null ? mfMelange.toFixed(2) : "—"}
                 readOnly
                 className="bg-muted border-border cursor-default font-semibold"
               />
