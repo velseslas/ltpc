@@ -66,7 +66,10 @@ const SclerometreSampleForm = () => {
       setDateEssai(parseISO(existingData.date_essai));
       setAgeBetonJours(existingData.age_beton_jours?.toString() ?? "");
       setClasseResistance(existingData.classe_resistance ?? "");
-      setObservations(existingData.observations ?? "");
+      try {
+        const stored = JSON.parse(existingData.observations ?? "[]");
+        if (Array.isArray(stored)) setMentions(stored);
+      } catch { setMentions([]); }
     }
   }, [existingData, isEdit]);
 
