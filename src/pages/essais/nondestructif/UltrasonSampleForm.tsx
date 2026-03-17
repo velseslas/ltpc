@@ -155,12 +155,12 @@ const UltrasonSampleForm = () => {
         <h2 className="text-lg font-semibold text-foreground pt-4">Détails de l'essai</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label>Élément testé</Label>
-            <Input placeholder="Ex: Poteau P1, Dalle D2..." value={elementTeste} onChange={(e) => setElementTeste(e.target.value)} />
+            <Label>Ouvrage</Label>
+            <Input placeholder="Ex: Pont, Bâtiment A, Viaduc..." value={ouvrage} onChange={(e) => setOuvrage(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Localisation</Label>
-            <Input placeholder="Ex: Niveau 2, Axe A-B..." value={localisation} onChange={(e) => setLocalisation(e.target.value)} />
+            <Label>Partie de l'ouvrage</Label>
+            <Input placeholder="Ex: Poteau P1, Dalle D2, Poutre B3..." value={partieOuvrage} onChange={(e) => setPartieOuvrage(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label>Mode de transmission</Label>

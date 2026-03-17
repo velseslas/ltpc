@@ -91,7 +91,7 @@ const SclerometreTest = () => {
                   <TableCell className="font-medium text-foreground"><span className="text-primary">SC</span>-{String(e.numero).padStart(3, "0")}</TableCell>
                   <TableCell className="text-foreground">{e.clients?.nom ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{e.chantiers?.nom ?? "-"}</TableCell>
-                  <TableCell className="text-foreground">{e.element_teste ?? "-"}</TableCell>
+                  <TableCell className="text-foreground">{e.ouvrage ?? "-"}</TableCell>
                   <TableCell className="text-foreground capitalize">{e.orientation ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{format(new Date(e.date_essai), "dd/MM/yyyy", { locale: fr })}</TableCell>
                   <TableCell className="text-center">{getStatutBadge(e.statut)}</TableCell>

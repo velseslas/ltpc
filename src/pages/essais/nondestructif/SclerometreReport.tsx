@@ -101,8 +101,12 @@ const SclerometreReport = () => {
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers?.nom ?? "-"}</td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Élément testé</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.element_teste ?? "-"}</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage ?? "-"}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Orientation</td>

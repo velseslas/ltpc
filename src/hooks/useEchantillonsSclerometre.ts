@@ -7,8 +7,8 @@ export type EchantillonSclerometre = {
   client_id: string | null;
   chantier_id: string | null;
   operateur_id: string | null;
-  element_teste: string | null;
-  localisation: string | null;
+  ouvrage: string | null;
+  partie_ouvrage: string | null;
   orientation: string | null;
   date_essai: string;
   age_beton_jours: number | null;
