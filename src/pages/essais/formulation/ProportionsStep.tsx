@@ -337,8 +337,9 @@ export default function ProportionsStep({
       coeffCompacite: parseFloat(coefficientCompacite) || 0.8,
       airOcclus: 0,
       granulats: granulatInputs,
+      mfCible: mfMelangeStocke ?? undefined,
     };
-  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs]);
+  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs, mfMelangeStocke]);
 
   const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
     const errors = result.volumeErrors;
@@ -648,7 +649,45 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             </div>
           )}
 
-          {/* Per-fraction volumes after calculation */}
+          {/* Sand proportion verification (MF cible formula) */}
+          {calcResult && mfMelangeStocke && (() => {
+            const activeSables = granulatInputs.filter(g => g.active && g.isSable);
+            if (activeSables.length !== 2) return null;
+            const sorted = [...activeSables].sort((a, b) => (b.moduleFinesse ?? 0) - (a.moduleFinesse ?? 0));
+            const mf1 = sorted[0].moduleFinesse;
+            const mf2 = sorted[1].moduleFinesse;
+            if (!mf1 || !mf2 || Math.abs(mf1 - mf2) < 0.001) return null;
+            const s1 = Math.max(0, Math.min(1, (mfMelangeStocke - mf2) / (mf1 - mf2)));
+            const s2 = 1 - s1;
+            const mfRecalcule = (mf1 * s1) + (mf2 * s2);
+            const label1 = granulatLabels[sorted[0].key] || sorted[0].label;
+            const label2 = granulatLabels[sorted[1].key] || sorted[1].label;
+            const isValid = Math.abs(mfRecalcule - mfMelangeStocke) < 0.05;
+            return (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Proportions des sables — Formule MF cible</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">S1 — {label1}</p>
+                    <p className="text-sm font-semibold text-foreground">{(s1 * 100).toFixed(1)}%</p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">S2 — {label2}</p>
+                    <p className="text-sm font-semibold text-foreground">{(s2 * 100).toFixed(1)}%</p>
+                  </div>
+                  <div className="bg-primary/10 rounded-lg p-2.5 text-center border border-primary/20">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">MF cible</p>
+                    <p className="text-sm font-semibold text-primary">{mfMelangeStocke.toFixed(2)}</p>
+                  </div>
+                  <div className={cn("rounded-lg p-2.5 text-center border", isValid ? "bg-green-500/10 border-green-500/20" : "bg-destructive/10 border-destructive/20")}>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">MF recalculé</p>
+                    <p className={cn("text-sm font-semibold", isValid ? "text-green-600" : "text-destructive")}>{mfRecalcule.toFixed(2)} {isValid ? "✓" : "✗"}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {calcResult && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Répartition par fraction</p>
