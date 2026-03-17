@@ -138,14 +138,14 @@ const SclerometreReport = () => {
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr>
-                    {resultats.mesures?.map((_: number, i: number) => (
+                    {resultats.mesures?.filter((v: number) => v > 0).map((_: number, i: number) => (
                       <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    {resultats.mesures?.map((val: number, i: number) => (
+                    {resultats.mesures?.filter((v: number) => v > 0).map((val: number, i: number) => (
                       <td key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">{val}</td>
                     ))}
                   </tr>
