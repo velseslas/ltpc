@@ -150,9 +150,12 @@ const UltrasonReport = () => {
                 <tbody>
                   {(resultats.mesures as any[]).map((m: any, i: number) => {
                     const v = m.distance && m.temps ? Math.round((m.distance / m.temps) * 1000) : null;
+                    const nbMesures = (resultats.mesures as any[]).length;
                     return (
                       <tr key={i}>
-                        <td className="border border-black px-3 py-1.5 text-left font-medium text-black">{i === 0 ? (resultats.element_coule ?? "-") : ""}</td>
+                        {i === 0 && (
+                          <td className="border border-black px-3 py-1.5 text-left font-medium text-black align-middle" rowSpan={nbMesures}>{resultats.element_coule ?? "-"}</td>
+                        )}
                         <td className="border border-black px-3 py-1.5 text-center text-black">{m.distance ?? "-"}</td>
                         <td className="border border-black px-3 py-1.5 text-center text-black">{m.temps ?? "-"}</td>
                         <td className="border border-black px-3 py-1.5 text-center font-medium text-black">{v ?? "-"}</td>
