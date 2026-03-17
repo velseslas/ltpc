@@ -18,6 +18,13 @@ import { useCreateEchantillonUltrason, useUpdateEchantillonUltrason, useEchantil
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
+const MENTIONS = [
+  "Essai effectué en présence du bureau de suivi",
+  "Essai effectué en présence du maître d'ouvrage",
+  "Essai effectué en présence du bureau du CTC",
+  "Essai effectué en présence de l'entreprise",
+];
+
 const MODES_TRANSMISSION = [
   { value: "direct", label: "Direct (face à face)" },
   { value: "semi-direct", label: "Semi-direct (faces adjacentes)" },
