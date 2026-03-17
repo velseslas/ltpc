@@ -494,9 +494,9 @@ export default function PointAEStep({
                 readOnly
                 className="bg-muted border-border cursor-default text-lg font-bold"
               />
-              {mfMelange !== null && (
+              {mfForCalc !== null && (
                 <p className="text-xs text-muted-foreground">
-                  MF = {mfMelange.toFixed(2)} → Ks = ({mfMelange.toFixed(2)} × 6) − 15 = {ks?.toFixed(2)}
+                  MF idéal = {mfForCalc.toFixed(2)} → Ks = ({mfForCalc.toFixed(2)} × 6) − 15 = {ks?.toFixed(2)}
                 </p>
               )}
             </div>
