@@ -482,48 +482,6 @@ export default function ProportionsStep({
             Le rapport G/S est entièrement manuel et ne sera jamais modifié par le moteur.
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-sm">Eau (kg/m³)</Label>
-              <Input
-                value={calcEau || "—"}
-                readOnly
-                className="bg-muted border-border cursor-default font-semibold"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm">Ciment (kg/m³)</Label>
-              <Input
-                value={calcCiment || "—"}
-                readOnly
-                className="bg-muted border-border cursor-default font-semibold"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm">Rapport G/S</Label>
-              <Input
-                value={calcRatioGS || "—"}
-                readOnly
-                className="bg-muted border-border cursor-default font-semibold"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm">Coeff. granulaire (G')</Label>
-              <Input
-                value={coefficientGranulaire || "—"}
-                readOnly
-                className="bg-muted border-border cursor-default"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-sm">Coeff. compacité (γ)</Label>
-              <Input
-                value={coefficientCompacite || "—"}
-                readOnly
-                className="bg-muted border-border cursor-default"
-              />
-            </div>
-          </div>
 
           {/* Volume breakdown */}
           {(calcEau || calcCiment) && (
