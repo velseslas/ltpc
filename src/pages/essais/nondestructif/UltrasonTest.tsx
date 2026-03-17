@@ -34,7 +34,7 @@ const UltrasonTest = () => {
 
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, currentPage, setCurrentPage, paginatedData, totalPages, totalItems, startIndex, endIndex } = useTableFilters<EchantillonUltrasonWithRelations>({
     data: echantillons,
-    searchFields: [(e) => e.clients?.nom, (e) => e.chantiers?.nom, (e) => e.element_teste ?? undefined],
+    searchFields: [(e) => e.clients?.nom, (e) => e.chantiers?.nom, (e) => e.ouvrage ?? undefined],
     itemsPerPage: 10,
   });
 
