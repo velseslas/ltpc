@@ -129,24 +129,59 @@ const SclerometreReport = () => {
           <>
             <div className="mb-6">
               <h3 className="font-bold text-sm mb-2 underline text-black">Indices de rebond mesurés</h3>
-              <table className="w-full border-collapse border border-black text-sm">
-                <thead>
-                  <tr>
-                    <th className="border border-black px-2 py-1.5 text-left font-medium text-black">Élément coulé</th>
-                    {resultats.mesures?.filter((v: number) => v > 0).map((_: number, i: number) => (
-                      <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-black px-2 py-1.5 text-left font-medium text-black">{resultats.element_coule ?? "-"}</td>
-                    {resultats.mesures?.filter((v: number) => v > 0).map((val: number, i: number) => (
-                      <td key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">{val}</td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
+              {(() => {
+                const elems = resultats.elements as { element_coule: string; mesures: number[] }[] | undefined;
+                if (elems && elems.length > 0) {
+                  const maxPoints = Math.max(...elems.map(e => e.mesures.filter((v: number) => v > 0).length));
+                  return (
+                    <table className="w-full border-collapse border border-black text-sm">
+                      <thead>
+                        <tr>
+                          <th className="border border-black px-2 py-1.5 text-left font-medium text-black">Élément coulé</th>
+                          {Array.from({ length: maxPoints }, (_, i) => (
+                            <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {elems.map((elem, eIdx) => {
+                          const valid = elem.mesures.filter((v: number) => v > 0);
+                          return (
+                            <tr key={eIdx}>
+                              <td className="border border-black px-2 py-1.5 text-left font-medium text-black">{elem.element_coule || "-"}</td>
+                              {Array.from({ length: maxPoints }, (_, i) => (
+                                <td key={i} className="border border-black px-2 py-1.5 text-center text-black">{valid[i] ?? ""}</td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  );
+                }
+                // Legacy single-element fallback
+                const validMesures = resultats.mesures?.filter((v: number) => v > 0) ?? [];
+                return (
+                  <table className="w-full border-collapse border border-black text-sm">
+                    <thead>
+                      <tr>
+                        <th className="border border-black px-2 py-1.5 text-left font-medium text-black">Élément coulé</th>
+                        {validMesures.map((_: number, i: number) => (
+                          <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-black px-2 py-1.5 text-left font-medium text-black">{resultats.element_coule ?? "-"}</td>
+                        {validMesures.map((val: number, i: number) => (
+                          <td key={i} className="border border-black px-2 py-1.5 text-center text-black">{val}</td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                );
+              })()}
             </div>
 
             <div className="mb-6">

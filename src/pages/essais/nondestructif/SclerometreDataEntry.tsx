@@ -8,6 +8,8 @@ import { useEchantillonSclerometre, useUpdateEchantillonSclerometre } from "@/ho
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
+type ElementTest = { element_coule: string; mesures: number[] };
+
 const SclerometreDataEntry = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -15,35 +17,61 @@ const SclerometreDataEntry = () => {
   const { data: echantillon, isLoading } = useEchantillonSclerometre(id ?? "");
   const updateMutation = useUpdateEchantillonSclerometre();
 
-  const [elementCoule, setElementCoule] = useState("");
-  const [mesures, setMesures] = useState<number[]>(Array(9).fill(0));
+  const [elements, setElements] = useState<ElementTest[]>([
+    { element_coule: "", mesures: Array(9).fill(0) },
+  ]);
 
   useEffect(() => {
     if (echantillon?.resultats) {
       const r = echantillon.resultats as any;
-      if (r.mesures) setMesures(r.mesures);
-      if (r.element_coule) setElementCoule(r.element_coule);
+      if (r.elements) {
+        setElements(r.elements);
+      } else if (r.mesures) {
+        setElements([{ element_coule: r.element_coule ?? "", mesures: r.mesures }]);
+      }
     }
   }, [echantillon]);
 
-  const addPoint = () => setMesures([...mesures, 0]);
-  const removePoint = (idx: number) => setMesures(mesures.filter((_, i) => i !== idx));
-  const updatePoint = (idx: number, val: number) => {
-    const updated = [...mesures];
-    updated[idx] = val;
-    setMesures(updated);
+  const updateElement = (eIdx: number, field: string, value: string) => {
+    const updated = [...elements];
+    updated[eIdx] = { ...updated[eIdx], [field]: value };
+    setElements(updated);
   };
 
-  const validMesures = mesures.filter(v => v > 0);
+  const addPoint = (eIdx: number) => {
+    const updated = [...elements];
+    updated[eIdx].mesures = [...updated[eIdx].mesures, 0];
+    setElements(updated);
+  };
+
+  const removePoint = (eIdx: number, mIdx: number) => {
+    const updated = [...elements];
+    updated[eIdx].mesures = updated[eIdx].mesures.filter((_, i) => i !== mIdx);
+    setElements(updated);
+  };
+
+  const updatePoint = (eIdx: number, mIdx: number, val: number) => {
+    const updated = [...elements];
+    updated[eIdx].mesures[mIdx] = val;
+    setElements(updated);
+  };
+
+  const addElement = () => {
+    setElements([...elements, { element_coule: "", mesures: Array(9).fill(0) }]);
+  };
+
+  const removeElement = (eIdx: number) => {
+    setElements(elements.filter((_, i) => i !== eIdx));
+  };
+
+  // Global stats from all elements
+  const allMesures = elements.flatMap(e => e.mesures);
+  const validMesures = allMesures.filter(v => v > 0);
   const moyenne = validMesures.length > 0 ? Math.round(validMesures.reduce((a, b) => a + b, 0) / validMesures.length * 10) / 10 : 0;
-  
-  // Filtrage: rejeter valeurs s'écartant de plus de 6 unités de la médiane
   const sorted = [...validMesures].sort((a, b) => a - b);
   const mediane = sorted.length > 0 ? sorted[Math.floor(sorted.length / 2)] : 0;
   const valeursRetenues = validMesures.filter(v => Math.abs(v - mediane) <= 6);
   const indiceCorrige = valeursRetenues.length > 0 ? Math.round(valeursRetenues.reduce((a, b) => a + b, 0) / valeursRetenues.length * 10) / 10 : 0;
-  
-  // Estimation résistance (courbe générale approximative)
   const resistanceEstimee = indiceCorrige > 0 ? Math.round((indiceCorrige * 1.25 - 15) * 10) / 10 : 0;
 
   const handleSave = async () => {
@@ -51,8 +79,9 @@ const SclerometreDataEntry = () => {
       await updateMutation.mutateAsync({
         id: id!,
         resultats: {
-          mesures,
-          element_coule: elementCoule || null,
+          elements,
+          mesures: allMesures,
+          element_coule: elements[0]?.element_coule || null,
           indice_moyen: moyenne,
           mediane,
           valeurs_retenues: valeursRetenues,
@@ -82,29 +111,45 @@ const SclerometreDataEntry = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Points de mesure (indices de rebond)</h2>
-          <Button variant="outline" size="sm" onClick={addPoint} className="flex items-center gap-1"><Plus className="h-4 w-4" />Ajouter</Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label>Élément coulé</Label>
-            <Input placeholder="Ex: Poteau, Dalle, Poutre, Voile..." value={elementCoule} onChange={(e) => setElementCoule(e.target.value)} />
-          </div>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-          {mesures.map((val, i) => (
-            <div key={i} className="space-y-1 relative group">
-              <Label className="text-xs text-muted-foreground">Point {i + 1}</Label>
-              <Input type="number" value={val || ""} onChange={(e) => updatePoint(i, parseFloat(e.target.value) || 0)} placeholder="0" className="text-center" />
-              {mesures.length > 9 && (
-                <button onClick={() => removePoint(i)} className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground rounded-full p-0.5">
-                  <Trash2 className="h-3 w-3" />
-                </button>
-              )}
+        {elements.map((elem, eIdx) => (
+          <div key={eIdx} className="space-y-4">
+            {eIdx > 0 && <div className="border-t border-border" />}
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Élément {eIdx + 1}</h2>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => addPoint(eIdx)} className="flex items-center gap-1"><Plus className="h-4 w-4" />Ajouter un point</Button>
+                {elements.length > 1 && (
+                  <Button variant="outline" size="sm" onClick={() => removeElement(eIdx)} className="flex items-center gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"><Trash2 className="h-4 w-4" />Supprimer</Button>
+                )}
+              </div>
             </div>
-          ))}
-        </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Élément coulé</Label>
+                <Input placeholder="Ex: Poteau, Dalle, Poutre, Voile..." value={elem.element_coule} onChange={(e) => updateElement(eIdx, "element_coule", e.target.value)} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+              {elem.mesures.map((val, mIdx) => (
+                <div key={mIdx} className="space-y-1 relative group">
+                  <Label className="text-xs text-muted-foreground">Point {mIdx + 1}</Label>
+                  <Input type="number" value={val || ""} onChange={(e) => updatePoint(eIdx, mIdx, parseFloat(e.target.value) || 0)} placeholder="0" className="text-center" />
+                  {elem.mesures.length > 9 && (
+                    <button onClick={() => removePoint(eIdx, mIdx)} className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive text-destructive-foreground rounded-full p-0.5">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <Button variant="outline" onClick={addElement} className="w-full flex items-center justify-center gap-2 border-dashed border-primary/40 text-primary hover:bg-primary/5">
+          <Plus className="h-4 w-4" />Ajouter un élément
+        </Button>
 
         <div className="border-t border-border pt-6">
           <h2 className="text-lg font-semibold mb-4">Résultats calculés</h2>
