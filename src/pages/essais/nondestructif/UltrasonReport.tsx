@@ -137,13 +137,10 @@ const UltrasonReport = () => {
           <>
             <div className="mb-6">
               <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des mesures</h3>
-              {resultats.element_coule && (
-                <p className="text-sm text-black mb-2"><span className="font-medium">Élément coulé :</span> {resultats.element_coule}</p>
-              )}
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr>
-                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Point</th>
+                    <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Élément coulé</th>
                     <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Distance (mm)</th>
                     <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Temps (µs)</th>
                     <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Vitesse (m/s)</th>
@@ -155,7 +152,7 @@ const UltrasonReport = () => {
                     const v = m.distance && m.temps ? Math.round((m.distance / m.temps) * 1000) : null;
                     return (
                       <tr key={i}>
-                        <td className="border border-black px-3 py-1.5 text-center text-black">{i + 1}</td>
+                        <td className="border border-black px-3 py-1.5 text-left font-medium text-black">{i === 0 ? (resultats.element_coule ?? "-") : ""}</td>
                         <td className="border border-black px-3 py-1.5 text-center text-black">{m.distance ?? "-"}</td>
                         <td className="border border-black px-3 py-1.5 text-center text-black">{m.temps ?? "-"}</td>
                         <td className="border border-black px-3 py-1.5 text-center font-medium text-black">{v ?? "-"}</td>
