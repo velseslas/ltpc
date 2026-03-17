@@ -327,6 +327,8 @@ function distributeSand(
     const mf1 = sand1.moduleFinesse;
     const mf2 = sand2.moduleFinesse;
 
+    console.log('[distributeSand] MF formula inputs:', { mfCible, mf1, mf2, sand1Key: sand1.key, sand2Key: sand2.key, totalVolume });
+
     if (typeof mf1 === "number" && mf1 > 0 && typeof mf2 === "number" && mf2 > 0 && Math.abs(mf1 - mf2) > 0.001) {
       let s1 = (mfCible - mf2) / (mf1 - mf2);
       let s2 = 1 - s1;
@@ -347,6 +349,8 @@ function distributeSand(
 
       result[sand1.key] = sand1.densite > 0 ? vol1 * sand1.densite : 0;
       result[sand2.key] = sand2.densite > 0 ? vol2 * sand2.densite : 0;
+      
+      console.log('[distributeSand] MF formula result:', { s1: (s1*100).toFixed(1)+'%', s2: (s2*100).toFixed(1)+'%', mass1: result[sand1.key], mass2: result[sand2.key] });
       return result;
     }
   }
