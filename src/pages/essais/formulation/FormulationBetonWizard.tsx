@@ -1061,6 +1061,7 @@ export default function FormulationBetonWizard() {
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
             <h2 className="text-lg font-semibold text-foreground">Données de base</h2>
+            <p className="text-xs text-muted-foreground">Tous les champs sont obligatoires <span className="text-destructive">*</span></p>
 
             <h3 className="text-md font-semibold text-foreground">Paramètres de formulation</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
