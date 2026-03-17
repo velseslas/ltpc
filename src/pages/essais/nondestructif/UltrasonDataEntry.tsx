@@ -56,6 +56,7 @@ const UltrasonDataEntry = () => {
         id: id!,
         resultats: {
           mesures,
+          element_coule: elementCoule || null,
           vitesses,
           vitesse_moyenne: vitesseMoyenne,
           qualite: vitesseMoyenne > 0 ? getQualite(vitesseMoyenne).label : null,
