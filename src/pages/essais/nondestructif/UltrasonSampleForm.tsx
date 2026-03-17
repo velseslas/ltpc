@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,6 +17,13 @@ import { useIntervenants } from "@/hooks/useIntervenants";
 import { useCreateEchantillonUltrason, useUpdateEchantillonUltrason, useEchantillonUltrason } from "@/hooks/useEchantillonsUltrason";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+
+const MENTIONS = [
+  "Essai effectué en présence du bureau de suivi",
+  "Essai effectué en présence du maître d'ouvrage",
+  "Essai effectué en présence du bureau du CTC",
+  "Essai effectué en présence de l'entreprise",
+];
 
 const MODES_TRANSMISSION = [
   { value: "direct", label: "Direct (face à face)" },
@@ -50,7 +57,7 @@ const UltrasonSampleForm = () => {
   const [dateEssai, setDateEssai] = useState<Date>(new Date());
   const [ageBetonJours, setAgeBetonJours] = useState<string>("");
   const [classeResistance, setClasseResistance] = useState("");
-  const [observations, setObservations] = useState("");
+  const [mentions, setMentions] = useState<string[]>([]);
 
   const { data: chantiers } = useChantiersByClient(clientId);
 
@@ -66,7 +73,10 @@ const UltrasonSampleForm = () => {
       setDateEssai(parseISO(existingData.date_essai));
       setAgeBetonJours(existingData.age_beton_jours?.toString() ?? "");
       setClasseResistance(existingData.classe_resistance ?? "");
-      setObservations(existingData.observations ?? "");
+      try {
+        const stored = JSON.parse(existingData.observations ?? "[]");
+        if (Array.isArray(stored)) setMentions(stored);
+      } catch { setMentions([]); }
     }
   }, [existingData, isEdit]);
 
@@ -82,7 +92,7 @@ const UltrasonSampleForm = () => {
       date_essai: format(dateEssai, "yyyy-MM-dd"),
       age_beton_jours: ageBetonJours ? parseInt(ageBetonJours) : null,
       classe_resistance: classeResistance || null,
-      observations: observations || null,
+      observations: mentions.length > 0 ? JSON.stringify(mentions) : null,
     };
 
     try {
@@ -186,9 +196,20 @@ const UltrasonSampleForm = () => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Observations</Label>
-          <Textarea placeholder="Observations éventuelles..." value={observations} onChange={(e) => setObservations(e.target.value)} rows={3} />
+        <h2 className="text-lg font-semibold text-foreground pt-4">Mentions</h2>
+        <div className="space-y-3">
+          {MENTIONS.map((m) => (
+            <div key={m} className="flex items-center gap-3">
+              <Checkbox
+                id={`us-${m}`}
+                checked={mentions.includes(m)}
+                onCheckedChange={(checked) => {
+                  setMentions(prev => checked ? [...prev, m] : prev.filter(v => v !== m));
+                }}
+              />
+              <label htmlFor={`us-${m}`} className="text-sm cursor-pointer">{m}</label>
+            </div>
+          ))}
         </div>
 
         <div className="flex justify-end gap-3 pt-4">

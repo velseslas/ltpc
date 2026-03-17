@@ -232,13 +232,23 @@ const UltrasonReport = () => {
           </>
         )}
 
-        {/* Observations */}
-        {echantillon.observations && (
-          <div className="mt-6 mb-6">
-            <h3 className="font-bold text-sm mb-2 underline text-black">Observations</h3>
-            <div className="border border-black px-3 py-2 text-sm text-black">{echantillon.observations}</div>
-          </div>
-        )}
+        {/* Mentions */}
+        {(() => {
+          let mentionsList: string[] = [];
+          try { mentionsList = JSON.parse(echantillon.observations ?? "[]"); } catch {}
+          return Array.isArray(mentionsList) && mentionsList.length > 0 ? (
+            <div className="mt-6 mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Remarques</h3>
+              <table className="w-full border-collapse border border-black text-sm">
+                <tbody>
+                  {mentionsList.map((m, i) => (
+                    <tr key={i}><td className="border border-black px-3 py-1.5 text-black">{m}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null;
+        })()}
 
         {/* Footer signatures */}
         <div className="mt-8 grid grid-cols-2 gap-8 text-black">
