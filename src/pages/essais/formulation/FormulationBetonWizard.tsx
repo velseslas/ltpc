@@ -1134,7 +1134,7 @@ export default function FormulationBetonWizard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <div className="space-y-1.5">
                 <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
-                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", errorSteps.includes(2) && !classeExposition && "animate-border-blink")} />
+                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", !classeExposition.trim() && "animate-border-blink")} />
               </div>
               <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                 <BarChart3 className="w-4 h-4" />
