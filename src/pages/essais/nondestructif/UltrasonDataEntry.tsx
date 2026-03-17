@@ -18,6 +18,7 @@ const UltrasonDataEntry = () => {
   const updateMutation = useUpdateEchantillonUltrason();
 
   const [mesures, setMesures] = useState<Mesure[]>([{ distance: 0, temps: 0 }, { distance: 0, temps: 0 }, { distance: 0, temps: 0 }]);
+  const [elementCoule, setElementCoule] = useState("");
   const [temperature, setTemperature] = useState<string>("");
 
   useEffect(() => {
