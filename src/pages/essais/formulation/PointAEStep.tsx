@@ -143,6 +143,10 @@ function calculateXA(dmax: number): { xA: number; method: string } {
 interface PointAEStepProps {
   dmax: number | null;
   mfMelange: number | null;
+  mfSable1: number | null;
+  mfSable2: number | null;
+  mfIdeal: string;
+  onMfIdealChange?: (v: string) => void;
   dosageCiment: string; // from step 2 / step 3
   showError?: boolean;
   onPointAChange?: (xA: number, yA: number) => void;
@@ -157,6 +161,10 @@ interface PointAEStepProps {
 export default function PointAEStep({
   dmax,
   mfMelange,
+  mfSable1,
+  mfSable2,
+  mfIdeal,
+  onMfIdealChange,
   dosageCiment,
   showError = false,
   onPointAChange,
@@ -260,7 +268,7 @@ export default function PointAEStep({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm text-muted-foreground">MF importé (depuis essais)</Label>
+              <Label className="text-sm text-muted-foreground">MF mélange pondéré</Label>
               <Input
                 value={mfMelange !== null ? mfMelange.toFixed(2) : "—"}
                 readOnly
@@ -273,6 +281,53 @@ export default function PointAEStep({
                 value={dosageCiment ? `${dosageCiment} kg/m³` : "—"}
                 readOnly
                 className="bg-muted border-border cursor-default font-semibold"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ═══ Calcul Module de Finesse Mélange (Mf) ═══ */}
+      <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <CardContent className="p-6 space-y-5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground">Calcul module de finesse mélange (Mf)</h2>
+            <Badge variant="outline" className="text-xs">Importé + Saisie</Badge>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-sm text-muted-foreground">MF Sable 1 (importé depuis essai)</Label>
+              <Input
+                value={mfSable1 !== null && mfSable1 !== undefined ? mfSable1.toFixed(2) : "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm text-muted-foreground">MF Sable 2 (importé depuis essai)</Label>
+              <Input
+                value={mfSable2 !== null && mfSable2 !== undefined ? mfSable2.toFixed(2) : "—"}
+                readOnly
+                className="bg-muted border-border cursor-default font-semibold"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">
+                MF idéal <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                max="10"
+                placeholder="Saisir le MF idéal"
+                value={mfIdeal}
+                onChange={(e) => onMfIdealChange?.(e.target.value)}
+                className={cn(
+                  "bg-secondary border-border",
+                  showError && !mfIdeal.trim() && "animate-border-blink"
+                )}
               />
             </div>
           </div>

@@ -801,6 +801,7 @@ export default function FormulationBetonWizard() {
   const [vibrationAE, setVibrationAE] = useState("");
   const [formeAE, setFormeAE] = useState("");
   const [kpAE, setKpAE] = useState("10");
+  const [mfIdeal, setMfIdeal] = useState("");
   const [pointACoords, setPointACoords] = useState<{ xA: number; yA: number } | null>(null);
 
   // Step 5 - essai
@@ -967,9 +968,9 @@ export default function FormulationBetonWizard() {
     if (!(nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0)) incomplete.push(1);
     if (!(calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0)) incomplete.push(2);
     if (!(coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0)) incomplete.push(5);
-    if (!(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfImporteEtape6 !== null)) incomplete.push(6);
+    if (!(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfImporteEtape6 !== null && mfIdeal.trim().length > 0)) incomplete.push(6);
     return incomplete;
-  }, [nom, centraleId, clientId, chantierId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6]);
+  }, [nom, centraleId, clientId, chantierId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6, mfIdeal]);
 
   // Merge dynamic incomplete steps with errorSteps from ProportionsStep
   const allErrorSteps = useMemo(() => {
@@ -984,7 +985,7 @@ export default function FormulationBetonWizard() {
       case 3: return true;
       case 4: return true;
       case 5: return coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0;
-      case 6: return vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfImporteEtape6 !== null;
+      case 6: return vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfImporteEtape6 !== null && mfIdeal.trim().length > 0;
       case 7: return true;
       default: return false;
     }
@@ -1282,6 +1283,10 @@ export default function FormulationBetonWizard() {
         <PointAEStep
           dmax={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
           mfMelange={mfImporteEtape6}
+          mfSable1={granulatModuleFinesse.sableConcasse ?? null}
+          mfSable2={granulatModuleFinesse.sableFin ?? null}
+          mfIdeal={mfIdeal}
+          onMfIdealChange={setMfIdeal}
           dosageCiment={calcCiment}
           showError={errorSteps.includes(6)}
           onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
