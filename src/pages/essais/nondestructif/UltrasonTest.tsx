@@ -74,7 +74,7 @@ const UltrasonTest = () => {
               <TableHead className="text-muted-foreground font-medium">Client</TableHead>
               <TableHead className="text-muted-foreground font-medium">Chantier</TableHead>
               <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Mode</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Partie ouvrage</TableHead>
               <TableHead className="text-muted-foreground font-medium">Date d'essai</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
@@ -92,7 +92,7 @@ const UltrasonTest = () => {
                   <TableCell className="text-foreground">{e.clients?.nom ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{e.chantiers?.nom ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{e.ouvrage ?? "-"}</TableCell>
-                  <TableCell className="text-foreground capitalize">{e.mode_transmission ?? "-"}</TableCell>
+                  <TableCell className="text-foreground">{e.partie_ouvrage ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{format(new Date(e.date_essai), "dd/MM/yyyy", { locale: fr })}</TableCell>
                   <TableCell className="text-center">{getStatutBadge(e.statut)}</TableCell>
                   <TableCell className="text-center">
