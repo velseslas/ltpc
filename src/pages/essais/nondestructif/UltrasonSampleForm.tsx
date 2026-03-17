@@ -189,9 +189,20 @@ const UltrasonSampleForm = () => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Observations</Label>
-          <Textarea placeholder="Observations éventuelles..." value={observations} onChange={(e) => setObservations(e.target.value)} rows={3} />
+        <h2 className="text-lg font-semibold text-foreground pt-4">Mentions</h2>
+        <div className="space-y-3">
+          {MENTIONS.map((m) => (
+            <div key={m} className="flex items-center gap-3">
+              <Checkbox
+                id={`us-${m}`}
+                checked={mentions.includes(m)}
+                onCheckedChange={(checked) => {
+                  setMentions(prev => checked ? [...prev, m] : prev.filter(v => v !== m));
+                }}
+              />
+              <label htmlFor={`us-${m}`} className="text-sm cursor-pointer">{m}</label>
+            </div>
+          ))}
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
