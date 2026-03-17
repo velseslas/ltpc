@@ -160,6 +160,7 @@ export default function ProportionsStep({
   validationData,
   onStepErrors,
   onMfCorrectionNeeded,
+  mfMelangeStocke,
 }: ProportionsStepProps) {
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
   const [hasCalculated, setHasCalculated] = useState(false);
