@@ -630,7 +630,7 @@ export default function PointAEStep({
               <div>
                 <span className="text-muted-foreground">N :</span>
                 <span className="ml-2 font-semibold">
-                  {mfMelange !== null ? (0.5 + mfMelange / 10).toFixed(2) : "—"}
+                  {mfForCalc !== null ? (0.5 + mfForCalc / 10).toFixed(2) : "—"}
                 </span>
               </div>
             </div>
