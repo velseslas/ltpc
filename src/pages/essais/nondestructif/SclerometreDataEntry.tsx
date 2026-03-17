@@ -15,6 +15,7 @@ const SclerometreDataEntry = () => {
   const { data: echantillon, isLoading } = useEchantillonSclerometre(id ?? "");
   const updateMutation = useUpdateEchantillonSclerometre();
 
+  const [elementCoule, setElementCoule] = useState("");
   const [mesures, setMesures] = useState<number[]>(Array(9).fill(0));
 
   useEffect(() => {
