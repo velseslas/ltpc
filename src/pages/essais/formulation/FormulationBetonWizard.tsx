@@ -818,19 +818,62 @@ export default function FormulationBetonWizard() {
   };
 
   const mfImporteEtape6 = useMemo(() => {
-    // MF mélange sable = moyenne pondérée (poids égaux) de tous les sables actifs
-    // Ne jamais utiliser le MF d'un seul sable ni inclure les graviers
-    const sandMFs: number[] = [];
-    if (sable1Active && (granulatModuleFinesse.sableConcasse ?? 0) > 0) {
-      sandMFs.push(granulatModuleFinesse.sableConcasse);
+    const sableConcasseMf = granulatModuleFinesse.sableConcasse;
+    const sableFinMf = granulatModuleFinesse.sableFin;
+
+    if (sable1Active && (!(typeof sableConcasseMf === "number") || sableConcasseMf <= 0)) return null;
+    if (sable2Active && (!(typeof sableFinMf === "number") || sableFinMf <= 0)) return null;
+
+    const sableConcasseVolumeReel = (() => {
+      const masse = parseFloat(sableConcasseQte) || 0;
+      const densite = granulatDensites.sableConcasse ?? 0;
+      return masse > 0 && densite > 0 ? masse / densite : 0;
+    })();
+
+    const sableFinVolumeReel = (() => {
+      const masse = parseFloat(sableFinQte) || 0;
+      const densite = granulatDensites.sableFin ?? 0;
+      return masse > 0 && densite > 0 ? masse / densite : 0;
+    })();
+
+    const volumeTotalReel = sableConcasseVolumeReel + sableFinVolumeReel;
+
+    if (volumeTotalReel > 0) {
+      return computeWeightedSandModuleFinesse([
+        {
+          active: sable1Active,
+          moduleFinesse: sableConcasseMf,
+          proportion: sableConcasseVolumeReel,
+        },
+        {
+          active: sable2Active,
+          moduleFinesse: sableFinMf,
+          proportion: sableFinVolumeReel,
+        },
+      ]);
     }
-    if (sable2Active && (granulatModuleFinesse.sableFin ?? 0) > 0) {
-      sandMFs.push(granulatModuleFinesse.sableFin);
+
+    if (sable1Active && sable2Active) {
+      return computeWeightedSandModuleFinesse([
+        { active: true, moduleFinesse: sableConcasseMf, proportion: 0.7 },
+        { active: true, moduleFinesse: sableFinMf, proportion: 0.3 },
+      ]);
     }
-    if (sandMFs.length === 0) return null;
-    const avg = sandMFs.reduce((a, b) => a + b, 0) / sandMFs.length;
-    return Math.round(avg * 100) / 100;
-  }, [sable1Active, sable2Active, granulatModuleFinesse]);
+
+    if (sable1Active) {
+      return computeWeightedSandModuleFinesse([
+        { active: true, moduleFinesse: sableConcasseMf, proportion: 1 },
+      ]);
+    }
+
+    if (sable2Active) {
+      return computeWeightedSandModuleFinesse([
+        { active: true, moduleFinesse: sableFinMf, proportion: 1 },
+      ]);
+    }
+
+    return null;
+  }, [sable1Active, sable2Active, sableConcasseQte, sableFinQte, granulatDensites, granulatModuleFinesse]);
 
   // Step 2 - données de base
   const [resistance28j, setResistance28j] = useState("");
