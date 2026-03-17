@@ -1059,7 +1059,7 @@ export default function FormulationBetonWizard() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm">Ciment (kg/m³)</Label>
+                <Label className="text-sm">Ciment (kg/m³) <span className="text-destructive">*</span></Label>
                 <Input
                   type="number" step="1" min="0"
                   value={calcCiment}
