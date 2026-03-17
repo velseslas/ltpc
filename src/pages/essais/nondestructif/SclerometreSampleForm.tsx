@@ -84,7 +84,7 @@ const SclerometreSampleForm = () => {
       date_essai: format(dateEssai, "yyyy-MM-dd"),
       age_beton_jours: ageBetonJours ? parseInt(ageBetonJours) : null,
       classe_resistance: classeResistance || null,
-      observations: observations || null,
+      observations: mentions.length > 0 ? JSON.stringify(mentions) : null,
     };
 
     try {
