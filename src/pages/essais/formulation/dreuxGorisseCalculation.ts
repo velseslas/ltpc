@@ -30,6 +30,7 @@ export interface CalculationInputs {
   coeffCompacite: number;   // γ
   airOcclus: number;  // L (litres, not %)
   granulats: GranulatInput[];
+  mfCible?: number;   // MF cible (idéal) for sand proportion calculation
 }
 
 export interface PointA {
