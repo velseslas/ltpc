@@ -849,6 +849,21 @@ export default function FormulationBetonWizard() {
     return "C50/60";
   }, [resistance28j]);
 
+  // Warning: cement insufficient for resistance class
+  const cimentWarning = useMemo(() => {
+    const cimentVal = parseFloat(calcCiment);
+    if (!classeResistanceAuto || isNaN(cimentVal) || cimentVal <= 0) return null;
+    // Find matching ABAQUE row by resistanceMin
+    const row = ABAQUE_DATA.find(r => r.resistanceMin === classeResistanceAuto);
+    if (!row || row.dosageCiment === "-") return null;
+    const dosageMin = parseFloat(row.dosageCiment);
+    if (isNaN(dosageMin)) return null;
+    if (cimentVal < dosageMin) {
+      return `Le dosage en ciment (${cimentVal} kg/m³) est inférieur au minimum requis (${dosageMin} kg/m³) pour la classe ${classeResistanceAuto}.`;
+    }
+    return null;
+  }, [calcCiment, classeResistanceAuto]);
+
   const classeRheologiqueAuto = useMemo(() => {
     const s = parseFloat(slumpSouhaite);
     if (isNaN(s) || s < 10) return "";
