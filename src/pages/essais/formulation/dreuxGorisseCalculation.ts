@@ -220,7 +220,7 @@ export function calculateMixDesign(
     sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
     gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
   } else {
-    sableMasses = distributeSand(Vsable, activeSables);
+    sableMasses = distributeSand(Vsable, activeSables, inputs.mfCible);
     gravierMasses = distributeGravel(Vgravier, activeGraviers);
   }
 
