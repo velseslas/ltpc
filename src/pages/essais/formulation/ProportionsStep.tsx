@@ -601,8 +601,8 @@ export default function ProportionsStep({
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. courbe N</p>
                 <p className="text-sm font-semibold text-foreground">
-                  {calcResult?.moduleFinesse?.melange !== null && calcResult?.moduleFinesse?.melange !== undefined
-                    ? (0.5 + (calcResult.moduleFinesse.melange / 10)).toFixed(2)
+                  {mfMelange !== null && mfMelange !== undefined
+                    ? (0.5 + (mfMelange / 10)).toFixed(2)
                     : "—"}
                 </p>
               </div>
