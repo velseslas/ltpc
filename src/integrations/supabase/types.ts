@@ -2813,6 +2813,85 @@ export type Database = {
           },
         ]
       }
+      echantillons_sclerometre: {
+        Row: {
+          age_beton_jours: number | null
+          chantier_id: string | null
+          classe_resistance: string | null
+          client_id: string | null
+          created_at: string
+          date_essai: string
+          element_teste: string | null
+          id: string
+          localisation: string | null
+          numero: number
+          observations: string | null
+          operateur_id: string | null
+          orientation: string | null
+          resultats: Json | null
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          age_beton_jours?: number | null
+          chantier_id?: string | null
+          classe_resistance?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_essai?: string
+          element_teste?: string | null
+          id?: string
+          localisation?: string | null
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          orientation?: string | null
+          resultats?: Json | null
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          age_beton_jours?: number | null
+          chantier_id?: string | null
+          classe_resistance?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_essai?: string
+          element_teste?: string | null
+          id?: string
+          localisation?: string | null
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          orientation?: string | null
+          resultats?: Json | null
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "echantillons_sclerometre_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_sclerometre_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_sclerometre_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       echantillons_sondage: {
         Row: {
           chantier_id: string | null
@@ -3517,6 +3596,88 @@ export type Database = {
           },
           {
             foreignKeyName: "echantillons_triaxial_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      echantillons_ultrason: {
+        Row: {
+          age_beton_jours: number | null
+          chantier_id: string | null
+          classe_resistance: string | null
+          client_id: string | null
+          created_at: string
+          date_essai: string
+          element_teste: string | null
+          frequence_khz: number | null
+          id: string
+          localisation: string | null
+          mode_transmission: string | null
+          numero: number
+          observations: string | null
+          operateur_id: string | null
+          resultats: Json | null
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          age_beton_jours?: number | null
+          chantier_id?: string | null
+          classe_resistance?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_essai?: string
+          element_teste?: string | null
+          frequence_khz?: number | null
+          id?: string
+          localisation?: string | null
+          mode_transmission?: string | null
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          resultats?: Json | null
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          age_beton_jours?: number | null
+          chantier_id?: string | null
+          classe_resistance?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_essai?: string
+          element_teste?: string | null
+          frequence_khz?: number | null
+          id?: string
+          localisation?: string | null
+          mode_transmission?: string | null
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          resultats?: Json | null
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "echantillons_ultrason_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_ultrason_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_ultrason_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
