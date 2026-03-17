@@ -1069,7 +1069,7 @@ export default function FormulationBetonWizard() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm">Rapport G/S</Label>
+                <Label className="text-sm">Rapport G/S <span className="text-destructive">*</span></Label>
                 <Input
                   type="number" step="0.1" min="0.1"
                   value={calcRatioGS}
