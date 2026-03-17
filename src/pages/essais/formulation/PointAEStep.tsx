@@ -511,7 +511,7 @@ export default function PointAEStep({
                 0 = béton très sec — 5 = plastique — 10 = très pompable
               </p>
               <Select value={kp} onValueChange={(v) => { setKp(v); onKpChange?.(v); }}>
-                <SelectTrigger className="bg-secondary border-border">
+                <SelectTrigger className={cn("bg-secondary border-border", showError && !kp.trim() && "animate-border-blink")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
