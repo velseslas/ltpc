@@ -74,7 +74,7 @@ const SclerometreTest = () => {
               <TableHead className="text-muted-foreground font-medium">Client</TableHead>
               <TableHead className="text-muted-foreground font-medium">Chantier</TableHead>
               <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Orientation</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Partie ouvrage</TableHead>
               <TableHead className="text-muted-foreground font-medium">Date d'essai</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
