@@ -197,10 +197,16 @@ export default function PointAEStep({
   }, [dosageCiment]);
 
   // Ks calculation
+  // Use mfIdeal for all calculations instead of mfMelange
+  const mfForCalc = useMemo(() => {
+    const v = parseFloat(mfIdeal);
+    return isNaN(v) || v <= 0 ? null : v;
+  }, [mfIdeal]);
+
   const ks = useMemo(() => {
-    if (mfMelange === null || mfMelange === undefined) return null;
-    return Math.round(((mfMelange * 6) - 15) * 100) / 100;
-  }, [mfMelange]);
+    if (mfForCalc === null) return null;
+    return Math.round(((mfForCalc * 6) - 15) * 100) / 100;
+  }, [mfForCalc]);
 
   // K calculation
   const kValue = useMemo(() => {
