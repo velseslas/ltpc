@@ -229,6 +229,19 @@ export default function PointAEStep({
 
   return (
     <div className="space-y-6">
+      {/* Warnings - displayed at top */}
+      {(!dmax || !vibration || !forme || mfMelange === null) && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex items-start gap-2">
+          <Info className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+          <div className="text-xs text-muted-foreground space-y-1">
+            {!dmax && <p>• Dmax non défini — configurez-le à l'étape 4 (Coefficients)</p>}
+            {mfMelange === null && <p>• Module de finesse non disponible — sélectionnez les rapports granulométriques à l'étape 6 (Essai)</p>}
+            {!vibration && <p>• Vibration non sélectionnée</p>}
+            {!forme && <p>• Forme des granulats non sélectionnée</p>}
+          </div>
+        </div>
+      )}
+
       {/* ═══ Paramètres d'entrée ═══ */}
       <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 space-y-5">
@@ -591,18 +604,7 @@ export default function PointAEStep({
             )}
           </div>
 
-          {/* Warnings */}
-          {(!dmax || !vibration || !forme || mfMelange === null) && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex items-start gap-2">
-              <Info className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-              <div className="text-xs text-muted-foreground space-y-1">
-                {!dmax && <p>• Dmax non défini — configurez-le à l'étape 4 (Coefficients)</p>}
-                {mfMelange === null && <p>• Module de finesse non disponible — sélectionnez les rapports granulométriques à l'étape 6 (Essai)</p>}
-                {!vibration && <p>• Vibration non sélectionnée</p>}
-                {!forme && <p>• Forme des granulats non sélectionnée</p>}
-              </div>
-            </div>
-          )}
+
         </CardContent>
       </Card>
     </div>
