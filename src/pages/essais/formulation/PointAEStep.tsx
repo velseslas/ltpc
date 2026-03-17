@@ -247,7 +247,7 @@ export default function PointAEStep({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm text-muted-foreground">MF mélange (depuis essais)</Label>
+              <Label className="text-sm text-muted-foreground">MF importé (depuis essais)</Label>
               <Input
                 value={mfMelange !== null ? mfMelange.toFixed(2) : "—"}
                 readOnly
