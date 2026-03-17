@@ -50,7 +50,7 @@ const UltrasonSampleForm = () => {
   const [dateEssai, setDateEssai] = useState<Date>(new Date());
   const [ageBetonJours, setAgeBetonJours] = useState<string>("");
   const [classeResistance, setClasseResistance] = useState("");
-  const [observations, setObservations] = useState("");
+  const [mentions, setMentions] = useState<string[]>([]);
 
   const { data: chantiers } = useChantiersByClient(clientId);
 
