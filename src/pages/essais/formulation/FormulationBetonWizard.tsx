@@ -1082,7 +1082,7 @@ export default function FormulationBetonWizard() {
                   value={calcCiment}
                   onChange={(e) => setCalcCiment(e.target.value)}
                   placeholder="ex: 350"
-                  className="bg-secondary border-border"
+                  className={cn("bg-secondary border-border", !calcCiment.trim() && "animate-border-blink")}
                 />
               </div>
               <div className="space-y-1.5">
