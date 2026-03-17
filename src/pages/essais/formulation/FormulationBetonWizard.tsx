@@ -849,6 +849,21 @@ export default function FormulationBetonWizard() {
     return "C50/60";
   }, [resistance28j]);
 
+  // Warning: cement insufficient for resistance class
+  const cimentWarning = useMemo(() => {
+    const cimentVal = parseFloat(calcCiment);
+    if (!classeResistanceAuto || isNaN(cimentVal) || cimentVal <= 0) return null;
+    // Find matching ABAQUE row by resistanceMin
+    const row = ABAQUE_DATA.find(r => r.resistanceMin === classeResistanceAuto);
+    if (!row || row.dosageCiment === "-") return null;
+    const dosageMin = parseFloat(row.dosageCiment);
+    if (isNaN(dosageMin)) return null;
+    if (cimentVal < dosageMin) {
+      return `Le dosage en ciment (${cimentVal} kg/m³) est inférieur au minimum requis (${dosageMin} kg/m³) pour la classe ${classeResistanceAuto}.`;
+    }
+    return null;
+  }, [calcCiment, classeResistanceAuto]);
+
   const classeRheologiqueAuto = useMemo(() => {
     const s = parseFloat(slumpSouhaite);
     if (isNaN(s) || s < 10) return "";
@@ -1051,6 +1066,12 @@ export default function FormulationBetonWizard() {
                   className="bg-secondary border-border"
                 />
               </div>
+              {cimentWarning && (
+                <div className="col-span-full flex items-start gap-2 p-3 rounded-md border border-amber-500/50 bg-amber-500/10 text-sm text-amber-700 dark:text-amber-400">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>{cimentWarning}</span>
+                </div>
+              )}
             </div>
 
             <Separator />
