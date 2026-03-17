@@ -41,7 +41,7 @@ const UltrasonReport = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-8 space-y-8 print:border-0 print:shadow-none">
-        <ReportHeader title="RAPPORT D'ESSAI VITESSE ULTRASON" normRef="NF EN 12504-4" />
+        <ReportHeader title="RAPPORT D'ESSAI VITESSE ULTRASON" subtitle="NF EN 12504-4" verificationUrl={window.location.href} />
 
         <div className="grid grid-cols-2 gap-6 text-sm">
           <div><span className="text-muted-foreground">N° d'essai :</span> <span className="font-medium">US-{String(echantillon.numero).padStart(3, "0")}</span></div>

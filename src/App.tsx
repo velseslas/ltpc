@@ -547,6 +547,20 @@ const AppRoutes = () => (
       <Route path="/essais/beton/destructif/normes" element={<DestructifNormes />} />
       <Route path="/essais/beton/non-destructif" element={<EssaiNonDestructif />} />
       <Route path="/essais/beton/non-destructif/normes" element={<NonDestructifNormes />} />
+      {/* Scléromètre Routes */}
+      <Route path="/essais/beton/non-destructif/sclerometre" element={<SclerometreTest />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/nouveau" element={<SclerometreSampleForm />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id" element={<SclerometreDetail />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id/modifier" element={<SclerometreSampleForm />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id/saisie" element={<SclerometreDataEntry />} />
+      <Route path="/essais/beton/non-destructif/sclerometre/:id/rapport" element={<SclerometreReport />} />
+      {/* Ultrason Routes */}
+      <Route path="/essais/beton/non-destructif/ultrason" element={<UltrasonTest />} />
+      <Route path="/essais/beton/non-destructif/ultrason/nouveau" element={<UltrasonSampleForm />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id" element={<UltrasonDetail />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id/modifier" element={<UltrasonSampleForm />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id/saisie" element={<UltrasonDataEntry />} />
+      <Route path="/essais/beton/non-destructif/ultrason/:id/rapport" element={<UltrasonReport />} />
       <Route path="/laboratoires-mobiles" element={<LaboratoiresMobiles />} />
       <Route path="/laboratoires-mobiles/nouveau" element={<LaboratoireMobileForm />} />
       <Route path="/laboratoires-mobiles/:id" element={<LaboratoireMobileDetail />} />

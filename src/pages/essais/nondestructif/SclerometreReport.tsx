@@ -33,7 +33,7 @@ const SclerometreReport = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-8 space-y-8 print:border-0 print:shadow-none" id="report-content">
-        <ReportHeader title="RAPPORT D'ESSAI SCLÉROMÈTRE" normRef="NF EN 12504-2" />
+        <ReportHeader title="RAPPORT D'ESSAI SCLÉROMÈTRE" subtitle="NF EN 12504-2" verificationUrl={window.location.href} />
 
         <div className="grid grid-cols-2 gap-6 text-sm">
           <div><span className="text-muted-foreground">N° d'essai :</span> <span className="font-medium">SC-{String(echantillon.numero).padStart(3, "0")}</span></div>
