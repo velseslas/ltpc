@@ -914,7 +914,7 @@ export default function FormulationBetonWizard() {
 
   const canGoNext = () => {
     switch (currentStep) {
-      case 1: return nom.trim() !== "" && centraleId !== "";
+      case 1: return nom.trim().length > 0 && centraleId.length > 0;
       case 2: return true;
       case 3: return true;
       case 4: return true;
