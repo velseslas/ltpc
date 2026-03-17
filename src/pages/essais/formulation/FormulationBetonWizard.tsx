@@ -1109,7 +1109,7 @@ export default function FormulationBetonWizard() {
               <div className="space-y-1.5">
                 <Label className="text-sm">Résistance souhaitée à 28 j <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !resistance28j && "animate-border-blink")} />
+                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", !resistance28j.trim() && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
                 </div>
               </div>
