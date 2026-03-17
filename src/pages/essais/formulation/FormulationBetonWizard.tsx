@@ -1283,6 +1283,10 @@ export default function FormulationBetonWizard() {
         <PointAEStep
           dmax={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
           mfMelange={mfImporteEtape6}
+          mfSable1={granulatModuleFinesse.sableConcasse ?? null}
+          mfSable2={granulatModuleFinesse.sableFin ?? null}
+          mfIdeal={mfIdeal}
+          onMfIdealChange={setMfIdeal}
           dosageCiment={calcCiment}
           showError={errorSteps.includes(6)}
           onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
