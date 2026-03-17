@@ -1288,7 +1288,7 @@ export default function FormulationBetonWizard() {
           mfIdeal={mfIdeal}
           onMfIdealChange={setMfIdeal}
           dosageCiment={calcCiment}
-          showError={errorSteps.includes(6)}
+          showError={allErrorSteps.includes(6)}
           onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
           vibrationValue={vibrationAE}
           onVibrationChange={setVibrationAE}
