@@ -1004,30 +1004,31 @@ export default function FormulationBetonWizard() {
       <div className={currentStep === 1 ? "" : "hidden"}>
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-5">
-            <h2 className="text-lg font-semibold text-foreground">Informations client</h2>
+            <h2 className="text-lg font-semibold text-foreground">Informations générales</h2>
+            <p className="text-xs text-muted-foreground">Les champs marqués d'un <span className="text-destructive">*</span> sont obligatoires</p>
             <div className="space-y-2">
               <Label>Nom de la formulation <span className="text-destructive">*</span></Label>
-              <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Béton C25/30 pour fondations" className="bg-secondary border-border" />
+              <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Béton C25/30 pour fondations" className={cn("bg-secondary border-border", currentStep === 1 && nom.trim().length === 0 && "border-destructive/50")} />
             </div>
             <div className="space-y-2">
-              <Label>Nom de l'entreprise</Label>
+              <Label>Centrale à béton <span className="text-destructive">*</span></Label>
+              <Select value={centraleId} onValueChange={setCentraleId}>
+                <SelectTrigger className={cn("bg-secondary border-border", currentStep === 1 && centraleId.length === 0 && "border-destructive/50")}><SelectValue placeholder="Sélectionnez une centrale" /></SelectTrigger>
+                <SelectContent>{centrales.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Nom de l'entreprise <span className="text-muted-foreground text-xs">(optionnel)</span></Label>
               <Select value={clientId} onValueChange={setClientId}>
                 <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez une entreprise" /></SelectTrigger>
                 <SelectContent>{clients.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Chantier</Label>
+              <Label>Chantier <span className="text-muted-foreground text-xs">(optionnel)</span></Label>
               <Select value={chantierId} onValueChange={setChantierId}>
                 <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez un chantier" /></SelectTrigger>
                 <SelectContent>{clientChantiers.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Centrale à béton <span className="text-destructive">*</span></Label>
-              <Select value={centraleId} onValueChange={setCentraleId}>
-                <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez une centrale" /></SelectTrigger>
-                <SelectContent>{centrales.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
           </CardContent>
