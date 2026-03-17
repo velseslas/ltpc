@@ -457,7 +457,7 @@ export default function ProportionsStep({
   ].filter(s => s.active);
 
   // MF warning
-  const mfMelange = calcResult?.moduleFinesse?.melange ?? null;
+  const mfMelange = mfMelangeEffectif;
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
   const needsSable2Correction = mfWarning && !sable2Active;
 
