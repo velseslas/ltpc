@@ -1049,7 +1049,7 @@ export default function FormulationBetonWizard() {
             <h3 className="text-md font-semibold text-foreground">Paramètres de formulation</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-sm">Eau (kg/m³)</Label>
+                <Label className="text-sm">Eau (kg/m³) <span className="text-destructive">*</span></Label>
                 <Input
                   type="number" step="1" min="0"
                   value={calcEau}
