@@ -1,83 +1,158 @@
+import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import { useEchantillonUltrason } from "@/hooks/useEchantillonsUltrason";
+import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import ShareButton from "@/components/reports/ShareButton";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { toast } from "sonner";
+
+const getQualite = (v: number) => {
+  if (v > 4500) return "Excellent";
+  if (v > 3500) return "Bon";
+  if (v > 3000) return "Moyen";
+  if (v > 2000) return "Médiocre";
+  return "Très mauvais";
+};
 
 const UltrasonReport = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const reportRef = useRef<HTMLDivElement>(null);
   const basePath = "/essais/beton/non-destructif/ultrason";
   const { data: echantillon, isLoading } = useEchantillonUltrason(id ?? "");
+  const { data: entreprise } = useEntreprise();
 
-  if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
-  if (!echantillon) return <div className="text-center py-12 text-muted-foreground">Essai non trouvé</div>;
+  const handlePrint = () => window.print();
 
-  const resultats = echantillon.resultats as any;
-
-  const getQualite = (v: number) => {
-    if (v > 4500) return "Excellent";
-    if (v > 3500) return "Bon";
-    if (v > 3000) return "Moyen";
-    if (v > 2000) return "Médiocre";
-    return "Très mauvais";
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    try {
+      const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save(`rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+      toast.success("PDF téléchargé avec succès");
+    } catch {
+      toast.error("Erreur lors de la génération du PDF");
+    }
   };
 
+  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!echantillon) return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;
+
+  const resultats = echantillon.resultats as any;
+  const verificationUrl = `${window.location.origin}${basePath}/${id}/rapport`;
+
   return (
-    <div className="space-y-6">
-      <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Non Destructif", path: "/essais/beton/non-destructif" }, { label: "Ultrason", path: basePath }, { label: "Rapport" }]} />
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"><ArrowLeft className="h-5 w-5" /></Button>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Rapport <span className="text-primary text-glow">Ultrason</span></h1>
-            <p className="text-muted-foreground mt-1">US-{String(echantillon.numero).padStart(3, "0")}</p>
-          </div>
-        </div>
-        <Button variant="outline" onClick={() => window.print()} className="flex items-center gap-2 print:hidden"><Printer className="h-4 w-4" />Imprimer</Button>
+    <div className="space-y-6 animate-fade-in">
+      <div className="print:hidden">
+        <EssaiBreadcrumb items={[
+          { label: "Béton", path: "/essais/beton" },
+          { label: "Non Destructif", path: "/essais/beton/non-destructif" },
+          { label: "Ultrason", path: basePath },
+          { label: <><span className="text-primary">US</span>-{String(echantillon.numero).padStart(3, "0")}</>, path: `${basePath}/${id}` },
+          { label: "Rapport" },
+        ]} />
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-8 space-y-8 print:border-0 print:shadow-none">
-        <ReportHeader title="RAPPORT D'ESSAI VITESSE ULTRASON" subtitle="NF EN 12504-4" verificationUrl={window.location.href} />
+      <div className="flex items-center justify-between print:hidden">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">
+              Rapport - <span className="text-primary">US-{String(echantillon.numero).padStart(3, "0")}</span>
+            </h1>
+            <p className="text-muted-foreground mt-1">Essai Vitesse Ultrason</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <ShareButton />
+          <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
+          <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-2 gap-6 text-sm">
-          <div><span className="text-muted-foreground">N° d'essai :</span> <span className="font-medium">US-{String(echantillon.numero).padStart(3, "0")}</span></div>
-          <div><span className="text-muted-foreground">Date d'essai :</span> <span className="font-medium">{format(new Date(echantillon.date_essai), "PPP", { locale: fr })}</span></div>
-          <div><span className="text-muted-foreground">Client :</span> <span className="font-medium">{echantillon.clients?.nom ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Chantier :</span> <span className="font-medium">{echantillon.chantiers?.nom ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Élément testé :</span> <span className="font-medium">{echantillon.element_teste ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Mode de transmission :</span> <span className="font-medium capitalize">{echantillon.mode_transmission ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Fréquence :</span> <span className="font-medium">{echantillon.frequence_khz ? `${echantillon.frequence_khz} kHz` : "-"}</span></div>
-          <div><span className="text-muted-foreground">Âge du béton :</span> <span className="font-medium">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</span></div>
+      <div ref={reportRef} className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+        <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI VITESSE ULTRASON" subtitle="Norme NF EN 12504-4" />
+
+        {/* Identification */}
+        <div className="mb-6 mt-6">
+          <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
+          <table className="w-full border-collapse border border-black text-sm">
+            <tbody>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1.5 text-black">US-{String(echantillon.numero).padStart(3, "0")}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 text-black">{format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers?.nom ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Élément testé</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.element_teste ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de transmission</td>
+                <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.mode_transmission ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Fréquence</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.frequence_khz ? `${echantillon.frequence_khz} kHz` : "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Âge du béton</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
+        {/* Résultats des mesures */}
         {resultats?.mesures && (
           <>
-            <div>
-              <h3 className="font-semibold mb-3">Résultats des mesures</h3>
-              <table className="w-full text-sm border-collapse">
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des mesures</h3>
+              <table className="w-full border-collapse border border-black text-sm">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 px-3">Point</th>
-                    <th className="text-center py-2 px-3">Distance (mm)</th>
-                    <th className="text-center py-2 px-3">Temps (µs)</th>
-                    <th className="text-center py-2 px-3">Vitesse (m/s)</th>
-                    <th className="text-center py-2 px-3">Qualité</th>
+                  <tr>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Point</th>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Distance (mm)</th>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Temps (µs)</th>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Vitesse (m/s)</th>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Qualité</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(resultats.mesures as any[]).map((m: any, i: number) => {
                     const v = m.distance && m.temps ? Math.round((m.distance / m.temps) * 1000) : null;
                     return (
-                      <tr key={i} className="border-b border-border/50">
-                        <td className="py-2 px-3">{i + 1}</td>
-                        <td className="text-center py-2 px-3">{m.distance ?? "-"}</td>
-                        <td className="text-center py-2 px-3">{m.temps ?? "-"}</td>
-                        <td className="text-center py-2 px-3 font-medium">{v ?? "-"}</td>
-                        <td className="text-center py-2 px-3">{v ? getQualite(v) : "-"}</td>
+                      <tr key={i}>
+                        <td className="border border-black px-3 py-1.5 text-center text-black">{i + 1}</td>
+                        <td className="border border-black px-3 py-1.5 text-center text-black">{m.distance ?? "-"}</td>
+                        <td className="border border-black px-3 py-1.5 text-center text-black">{m.temps ?? "-"}</td>
+                        <td className="border border-black px-3 py-1.5 text-center font-medium text-black">{v ?? "-"}</td>
+                        <td className="border border-black px-3 py-1.5 text-center text-black">{v ? getQualite(v) : "-"}</td>
                       </tr>
                     );
                   })}
@@ -85,35 +160,80 @@ const UltrasonReport = () => {
               </table>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="border border-border rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Nb de mesures</span>
-                <p className="text-xl font-bold">{resultats.mesures.length}</p>
-              </div>
-              <div className="border border-primary/50 bg-primary/5 rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Vitesse moyenne</span>
-                <p className="text-xl font-bold text-primary">{resultats.vitesse_moyenne ? `${resultats.vitesse_moyenne} m/s` : "-"}</p>
-              </div>
-              <div className="border border-border rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Qualité globale</span>
-                <p className="text-xl font-bold">{resultats.qualite ?? "-"}</p>
-              </div>
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Synthèse</h3>
+              <table className="w-full border-collapse border border-black text-sm">
+                <tbody>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">Nombre de mesures</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{resultats.mesures.length}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Vitesse moyenne</td>
+                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.vitesse_moyenne ? `${resultats.vitesse_moyenne} m/s` : "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Qualité globale du béton</td>
+                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.qualite ?? "-"}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Barème de classification</h3>
+              <table className="w-full border-collapse border border-black text-xs">
+                <thead>
+                  <tr>
+                    <th className="border border-black px-2 py-1 text-center font-medium text-black">{">"} 4500 m/s</th>
+                    <th className="border border-black px-2 py-1 text-center font-medium text-black">3500 - 4500</th>
+                    <th className="border border-black px-2 py-1 text-center font-medium text-black">3000 - 3500</th>
+                    <th className="border border-black px-2 py-1 text-center font-medium text-black">2000 - 3000</th>
+                    <th className="border border-black px-2 py-1 text-center font-medium text-black">{"<"} 2000</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-center text-black">Excellent</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">Bon</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">Moyen</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">Médiocre</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">Très mauvais</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </>
         )}
 
-        <div className="text-xs text-muted-foreground border-t border-border pt-4">
-          <p className="font-medium mb-1">Barème de classification :</p>
-          <p>{">"} 4500 m/s = Excellent | 3500-4500 = Bon | 3000-3500 = Moyen | 2000-3000 = Médiocre | {"<"} 2000 = Très mauvais</p>
-        </div>
-
+        {/* Observations */}
         {echantillon.observations && (
-          <div>
-            <h3 className="font-semibold mb-2">Observations</h3>
-            <p className="text-sm text-muted-foreground">{echantillon.observations}</p>
+          <div className="mt-6 mb-6">
+            <h3 className="font-bold text-sm mb-2 underline text-black">Observations</h3>
+            <div className="border border-black px-3 py-2 text-sm text-black">{echantillon.observations}</div>
           </div>
         )}
+
+        {/* Footer signatures */}
+        <div className="mt-8 grid grid-cols-2 gap-8 text-black">
+          <div className="text-center">
+            <p className="text-sm font-medium mb-8">Le Technicien</p>
+            <p className="text-sm">_________________</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium mb-8">Le Directeur du Laboratoire</p>
+            <p className="text-sm">_________________</p>
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          #root { visibility: visible; }
+          .print\\:hidden { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
