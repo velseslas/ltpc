@@ -1274,7 +1274,7 @@ export default function FormulationBetonWizard() {
           onCoefficientCompaciteChange={setCoefficientCompacite}
           dmaxValue={dmaxUtilisateur}
           onDmaxChange={setDmaxUtilisateur}
-          showError={errorSteps.includes(5)}
+          showError={allErrorSteps.includes(5)}
         />
       </div>
 
@@ -1288,7 +1288,7 @@ export default function FormulationBetonWizard() {
           mfIdeal={mfIdeal}
           onMfIdealChange={setMfIdeal}
           dosageCiment={calcCiment}
-          showError={errorSteps.includes(6)}
+          showError={allErrorSteps.includes(6)}
           onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
           vibrationValue={vibrationAE}
           onVibrationChange={setVibrationAE}
