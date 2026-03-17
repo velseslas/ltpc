@@ -646,13 +646,13 @@ export default function PointAEStep({
               N = 0.5 + (MF / 10)
             </p>
             <Input
-              value={mfMelange !== null ? (0.5 + mfMelange / 10).toFixed(2) : "—"}
+              value={mfForCalc !== null ? (0.5 + mfForCalc / 10).toFixed(2) : "—"}
               readOnly
               className="bg-muted border-border cursor-default text-lg font-bold max-w-[200px]"
             />
-            {mfMelange !== null && (
+            {mfForCalc !== null && (
               <p className="text-xs text-muted-foreground">
-                N = 0.5 + ({mfMelange.toFixed(2)} / 10) = {(0.5 + mfMelange / 10).toFixed(2)}
+                N = 0.5 + ({mfForCalc.toFixed(2)} / 10) = {(0.5 + mfForCalc / 10).toFixed(2)}
               </p>
             )}
           </div>
