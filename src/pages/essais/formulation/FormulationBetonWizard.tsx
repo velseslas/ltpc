@@ -1309,7 +1309,7 @@ export default function FormulationBetonWizard() {
           granulatDensites={granulatDensites}
           granulatModuleFinesse={granulatModuleFinesse}
           granulatLabels={granulatLabels}
-          mfMelangeStocke={mfImporteEtape6}
+          mfMelangeStocke={mfIdeal ? parseFloat(mfIdeal) || null : null}
           dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
           pointAOverride={pointACoords}
           calcEau={calcEau}
