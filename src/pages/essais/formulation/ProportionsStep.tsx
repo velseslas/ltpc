@@ -302,7 +302,7 @@ export default function ProportionsStep({
       }
     }
 
-    const mfMelangeLocal = calcResult?.moduleFinesse?.melange ?? null;
+    const mfMelangeLocal = mfMelangeEffectif;
     if (mfMelangeLocal !== null && mfMelangeLocal > 2.8 && !sable2Active) {
       errors.push({
         step: 3,
