@@ -116,12 +116,6 @@ const UltrasonReport = () => {
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage ?? "-"}</td>
               </tr>
-              {resultats?.element_coule && (
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Élément coulé</td>
-                <td className="border border-black px-3 py-1.5 text-black">{resultats.element_coule}</td>
-              </tr>
-              )}
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de transmission</td>
                 <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.mode_transmission ?? "-"}</td>
@@ -143,6 +137,9 @@ const UltrasonReport = () => {
           <>
             <div className="mb-6">
               <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des mesures</h3>
+              {resultats.element_coule && (
+                <p className="text-sm text-black mb-2"><span className="font-medium">Élément coulé :</span> {resultats.element_coule}</p>
+              )}
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr>
