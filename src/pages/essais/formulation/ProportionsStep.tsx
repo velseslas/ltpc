@@ -173,6 +173,11 @@ export default function ProportionsStep({
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
 
+  const mfMelangeEffectif = useMemo(
+    () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
+    [mfMelangeStocke, calcResult]
+  );
+
   // calcEau, calcCiment, calcRatioGS come from props (Step 2)
 
   const getVal = (key: string, original: string) => localOverrides[key] ?? original;
