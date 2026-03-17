@@ -926,11 +926,17 @@ export default function FormulationBetonWizard() {
   };
 
   const handleNext = () => {
-    if (currentStep < 7) setCurrentStep(currentStep + 1);
+    if (currentStep < 7) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handlePrev = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleSubmit = async () => {
@@ -992,7 +998,7 @@ export default function FormulationBetonWizard() {
         </h1>
       </div>
 
-      <Stepper currentStep={currentStep} onStepClick={(step) => { setCurrentStep(step); }} errorSteps={errorSteps} />
+      <Stepper currentStep={currentStep} onStepClick={(step) => { setCurrentStep(step); window.scrollTo({ top: 0, behavior: 'smooth' }); }} errorSteps={errorSteps} />
 
       {/* Step 1 */}
       <div className={currentStep === 1 ? "" : "hidden"}>
