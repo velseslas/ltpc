@@ -1122,7 +1122,7 @@ export default function FormulationBetonWizard() {
               <div className="space-y-1.5">
                 <Label className="text-sm">Slump souhaité <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", errorSteps.includes(2) && !slumpSouhaite && "animate-border-blink")} />
+                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", !slumpSouhaite.trim() && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
                 </div>
               </div>
