@@ -53,6 +53,7 @@ import { useCreateFormulation } from "@/hooks/useFormulations";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { computeWeightedSandModuleFinesse } from "./dreuxGorisseCalculation";
 
 const ABAQUE_DATA = [
   { classe: "X0", designation: "Aucun risque de corrosion ni d'attaque", ecMax: "-", resistanceMin: "C12/15", dosageCiment: "-", teneurAir: "-" },

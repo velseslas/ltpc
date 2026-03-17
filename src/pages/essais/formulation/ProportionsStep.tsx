@@ -73,6 +73,7 @@ interface ProportionsStepProps {
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
   onMfCorrectionNeeded?: (needed: boolean) => void;
+  mfMelangeStocke?: number | null;
 }
 
 interface GranulatSlider {

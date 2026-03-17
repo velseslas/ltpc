@@ -115,6 +115,26 @@ export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange
   return { dA, pA };
 }
 
+export function computeWeightedSandModuleFinesse(
+  sands: Array<{ active: boolean; moduleFinesse?: number; proportion: number }>
+): number | null {
+  const validSands = sands.filter(
+    (sand) => sand.active && typeof sand.moduleFinesse === "number" && sand.moduleFinesse > 0 && sand.proportion > 0
+  );
+
+  if (validSands.length === 0) return null;
+
+  const totalProportion = validSands.reduce((sum, sand) => sum + sand.proportion, 0);
+  if (totalProportion <= 0) return null;
+
+  const weightedMf = validSands.reduce(
+    (sum, sand) => sum + (sand.moduleFinesse as number) * (sand.proportion / totalProportion),
+    0
+  );
+
+  return Math.round(weightedMf * 100) / 100;
+}
+
 /**
  * Generate Dreux-Gorisse reference curve
  * Uses the power law: P(d) = 100 × (d / Dmax)^n
