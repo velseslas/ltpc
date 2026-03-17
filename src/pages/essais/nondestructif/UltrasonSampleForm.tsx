@@ -59,8 +59,8 @@ const UltrasonSampleForm = () => {
       setClientId(existingData.client_id ?? "");
       setChantierId(existingData.chantier_id ?? "");
       setOperateurId(existingData.operateur_id ?? "");
-      setElementTeste(existingData.element_teste ?? "");
-      setLocalisation(existingData.localisation ?? "");
+      setOuvrage(existingData.ouvrage ?? "");
+      setPartieOuvrage(existingData.partie_ouvrage ?? "");
       setModeTransmission(existingData.mode_transmission ?? "direct");
       setFrequenceKhz(existingData.frequence_khz?.toString() ?? "");
       setDateEssai(parseISO(existingData.date_essai));
