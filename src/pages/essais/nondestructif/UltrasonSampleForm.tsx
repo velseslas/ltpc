@@ -43,8 +43,8 @@ const UltrasonSampleForm = () => {
   const [clientId, setClientId] = useState<string>("");
   const [chantierId, setChantierId] = useState<string>("");
   const [operateurId, setOperateurId] = useState<string>("");
-  const [elementTeste, setElementTeste] = useState("");
-  const [localisation, setLocalisation] = useState("");
+  const [ouvrage, setOuvrage] = useState("");
+  const [partieOuvrage, setPartieOuvrage] = useState("");
   const [modeTransmission, setModeTransmission] = useState("direct");
   const [frequenceKhz, setFrequenceKhz] = useState<string>("");
   const [dateEssai, setDateEssai] = useState<Date>(new Date());
@@ -59,8 +59,8 @@ const UltrasonSampleForm = () => {
       setClientId(existingData.client_id ?? "");
       setChantierId(existingData.chantier_id ?? "");
       setOperateurId(existingData.operateur_id ?? "");
-      setElementTeste(existingData.element_teste ?? "");
-      setLocalisation(existingData.localisation ?? "");
+      setOuvrage(existingData.ouvrage ?? "");
+      setPartieOuvrage(existingData.partie_ouvrage ?? "");
       setModeTransmission(existingData.mode_transmission ?? "direct");
       setFrequenceKhz(existingData.frequence_khz?.toString() ?? "");
       setDateEssai(parseISO(existingData.date_essai));
@@ -75,8 +75,8 @@ const UltrasonSampleForm = () => {
       client_id: clientId || null,
       chantier_id: chantierId || null,
       operateur_id: operateurId || null,
-      element_teste: elementTeste || null,
-      localisation: localisation || null,
+      ouvrage: ouvrage || null,
+      partie_ouvrage: partieOuvrage || null,
       mode_transmission: modeTransmission,
       frequence_khz: frequenceKhz ? parseFloat(frequenceKhz) : null,
       date_essai: format(dateEssai, "yyyy-MM-dd"),
@@ -155,12 +155,12 @@ const UltrasonSampleForm = () => {
         <h2 className="text-lg font-semibold text-foreground pt-4">Détails de l'essai</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label>Élément testé</Label>
-            <Input placeholder="Ex: Poteau P1, Dalle D2..." value={elementTeste} onChange={(e) => setElementTeste(e.target.value)} />
+            <Label>Ouvrage</Label>
+            <Input placeholder="Ex: Pont, Bâtiment A, Viaduc..." value={ouvrage} onChange={(e) => setOuvrage(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Localisation</Label>
-            <Input placeholder="Ex: Niveau 2, Axe A-B..." value={localisation} onChange={(e) => setLocalisation(e.target.value)} />
+            <Label>Partie de l'ouvrage</Label>
+            <Input placeholder="Ex: Poteau P1, Dalle D2, Poutre B3..." value={partieOuvrage} onChange={(e) => setPartieOuvrage(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label>Mode de transmission</Label>

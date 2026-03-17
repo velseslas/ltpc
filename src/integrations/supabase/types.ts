@@ -2821,13 +2821,13 @@ export type Database = {
           client_id: string | null
           created_at: string
           date_essai: string
-          element_teste: string | null
           id: string
-          localisation: string | null
           numero: number
           observations: string | null
           operateur_id: string | null
           orientation: string | null
+          ouvrage: string | null
+          partie_ouvrage: string | null
           resultats: Json | null
           statut: string
           updated_at: string
@@ -2839,13 +2839,13 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date_essai?: string
-          element_teste?: string | null
           id?: string
-          localisation?: string | null
           numero?: number
           observations?: string | null
           operateur_id?: string | null
           orientation?: string | null
+          ouvrage?: string | null
+          partie_ouvrage?: string | null
           resultats?: Json | null
           statut?: string
           updated_at?: string
@@ -2857,13 +2857,13 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date_essai?: string
-          element_teste?: string | null
           id?: string
-          localisation?: string | null
           numero?: number
           observations?: string | null
           operateur_id?: string | null
           orientation?: string | null
+          ouvrage?: string | null
+          partie_ouvrage?: string | null
           resultats?: Json | null
           statut?: string
           updated_at?: string
@@ -3611,14 +3611,14 @@ export type Database = {
           client_id: string | null
           created_at: string
           date_essai: string
-          element_teste: string | null
           frequence_khz: number | null
           id: string
-          localisation: string | null
           mode_transmission: string | null
           numero: number
           observations: string | null
           operateur_id: string | null
+          ouvrage: string | null
+          partie_ouvrage: string | null
           resultats: Json | null
           statut: string
           updated_at: string
@@ -3630,14 +3630,14 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date_essai?: string
-          element_teste?: string | null
           frequence_khz?: number | null
           id?: string
-          localisation?: string | null
           mode_transmission?: string | null
           numero?: number
           observations?: string | null
           operateur_id?: string | null
+          ouvrage?: string | null
+          partie_ouvrage?: string | null
           resultats?: Json | null
           statut?: string
           updated_at?: string
@@ -3649,14 +3649,14 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           date_essai?: string
-          element_teste?: string | null
           frequence_khz?: number | null
           id?: string
-          localisation?: string | null
           mode_transmission?: string | null
           numero?: number
           observations?: string | null
           operateur_id?: string | null
+          ouvrage?: string | null
+          partie_ouvrage?: string | null
           resultats?: Json | null
           statut?: string
           updated_at?: string

@@ -34,7 +34,7 @@ const UltrasonTest = () => {
 
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, currentPage, setCurrentPage, paginatedData, totalPages, totalItems, startIndex, endIndex } = useTableFilters<EchantillonUltrasonWithRelations>({
     data: echantillons,
-    searchFields: [(e) => e.clients?.nom, (e) => e.chantiers?.nom, (e) => e.element_teste ?? undefined],
+    searchFields: [(e) => e.clients?.nom, (e) => e.chantiers?.nom, (e) => e.ouvrage ?? undefined],
     itemsPerPage: 10,
   });
 
@@ -73,7 +73,7 @@ const UltrasonTest = () => {
               <TableHead className="text-muted-foreground font-medium">N°</TableHead>
               <TableHead className="text-muted-foreground font-medium">Client</TableHead>
               <TableHead className="text-muted-foreground font-medium">Chantier</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Élément testé</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
               <TableHead className="text-muted-foreground font-medium">Mode</TableHead>
               <TableHead className="text-muted-foreground font-medium">Date d'essai</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
@@ -91,7 +91,7 @@ const UltrasonTest = () => {
                   <TableCell className="font-medium text-foreground"><span className="text-primary">US</span>-{String(e.numero).padStart(3, "0")}</TableCell>
                   <TableCell className="text-foreground">{e.clients?.nom ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{e.chantiers?.nom ?? "-"}</TableCell>
-                  <TableCell className="text-foreground">{e.element_teste ?? "-"}</TableCell>
+                  <TableCell className="text-foreground">{e.ouvrage ?? "-"}</TableCell>
                   <TableCell className="text-foreground capitalize">{e.mode_transmission ?? "-"}</TableCell>
                   <TableCell className="text-foreground">{format(new Date(e.date_essai), "dd/MM/yyyy", { locale: fr })}</TableCell>
                   <TableCell className="text-center">{getStatutBadge(e.statut)}</TableCell>

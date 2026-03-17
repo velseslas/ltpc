@@ -57,8 +57,8 @@ const UltrasonDetail = () => {
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
           <h2 className="text-lg font-semibold">Détails de l'essai</h2>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div><span className="text-muted-foreground">Élément testé</span><p className="font-medium">{echantillon.element_teste ?? "-"}</p></div>
-            <div><span className="text-muted-foreground">Localisation</span><p className="font-medium">{echantillon.localisation ?? "-"}</p></div>
+            <div><span className="text-muted-foreground">Ouvrage</span><p className="font-medium">{echantillon.ouvrage ?? "-"}</p></div>
+            <div><span className="text-muted-foreground">Partie de l'ouvrage</span><p className="font-medium">{echantillon.partie_ouvrage ?? "-"}</p></div>
             <div><span className="text-muted-foreground">Mode de transmission</span><p className="font-medium capitalize">{echantillon.mode_transmission ?? "-"}</p></div>
             <div><span className="text-muted-foreground">Fréquence</span><p className="font-medium">{echantillon.frequence_khz ? `${echantillon.frequence_khz} kHz` : "-"}</p></div>
             <div><span className="text-muted-foreground">Âge du béton</span><p className="font-medium">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</p></div>
