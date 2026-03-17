@@ -148,21 +148,40 @@ const UltrasonReport = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(resultats.mesures as any[]).map((m: any, i: number) => {
-                    const v = m.distance && m.temps ? Math.round((m.distance / m.temps) * 1000) : null;
-                    const nbMesures = (resultats.mesures as any[]).length;
-                    return (
-                      <tr key={i}>
-                        {i === 0 && (
-                          <td className="border border-black px-3 py-1.5 text-left font-medium text-black align-middle" rowSpan={nbMesures}>{resultats.element_coule ?? "-"}</td>
-                        )}
-                        <td className="border border-black px-3 py-1.5 text-center text-black">{m.distance ?? "-"}</td>
-                        <td className="border border-black px-3 py-1.5 text-center text-black">{m.temps ?? "-"}</td>
-                        <td className="border border-black px-3 py-1.5 text-center font-medium text-black">{v ?? "-"}</td>
-                        <td className="border border-black px-3 py-1.5 text-center text-black">{v ? getQualite(v) : "-"}</td>
-                      </tr>
-                    );
-                  })}
+                  {resultats.elements ? (
+                    (resultats.elements as any[]).map((elem: any, eIdx: number) =>
+                      (elem.mesures as any[]).map((m: any, mIdx: number) => {
+                        const v = m.distance && m.temps ? Math.round((m.distance / m.temps) * 1000) : null;
+                        return (
+                          <tr key={`${eIdx}-${mIdx}`}>
+                            {mIdx === 0 && (
+                              <td className="border border-black px-3 py-1.5 text-left font-medium text-black align-middle" rowSpan={elem.mesures.length}>{elem.element_coule || "-"}</td>
+                            )}
+                            <td className="border border-black px-3 py-1.5 text-center text-black">{m.distance ?? "-"}</td>
+                            <td className="border border-black px-3 py-1.5 text-center text-black">{m.temps ?? "-"}</td>
+                            <td className="border border-black px-3 py-1.5 text-center font-medium text-black">{v ?? "-"}</td>
+                            <td className="border border-black px-3 py-1.5 text-center text-black">{v ? getQualite(v) : "-"}</td>
+                          </tr>
+                        );
+                      })
+                    )
+                  ) : (
+                    (resultats.mesures as any[]).map((m: any, i: number) => {
+                      const v = m.distance && m.temps ? Math.round((m.distance / m.temps) * 1000) : null;
+                      const nbMesures = (resultats.mesures as any[]).length;
+                      return (
+                        <tr key={i}>
+                          {i === 0 && (
+                            <td className="border border-black px-3 py-1.5 text-left font-medium text-black align-middle" rowSpan={nbMesures}>{resultats.element_coule ?? "-"}</td>
+                          )}
+                          <td className="border border-black px-3 py-1.5 text-center text-black">{m.distance ?? "-"}</td>
+                          <td className="border border-black px-3 py-1.5 text-center text-black">{m.temps ?? "-"}</td>
+                          <td className="border border-black px-3 py-1.5 text-center font-medium text-black">{v ?? "-"}</td>
+                          <td className="border border-black px-3 py-1.5 text-center text-black">{v ? getQualite(v) : "-"}</td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
