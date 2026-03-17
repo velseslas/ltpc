@@ -1066,6 +1066,12 @@ export default function FormulationBetonWizard() {
                   className="bg-secondary border-border"
                 />
               </div>
+              {cimentWarning && (
+                <div className="col-span-full flex items-start gap-2 p-3 rounded-md border border-amber-500/50 bg-amber-500/10 text-sm text-amber-700 dark:text-amber-400">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>{cimentWarning}</span>
+                </div>
+              )}
             </div>
 
             <Separator />
