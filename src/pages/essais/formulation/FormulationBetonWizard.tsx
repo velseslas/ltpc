@@ -158,6 +158,8 @@ function IngredientCard({
   onQuantiteChange,
   quantiteUnit = "kg",
   showError = false,
+  expectedMaterialType,
+  allSelectedProduitIds = [],
 }: {
   label: string;
   producteurLabel?: string;
@@ -173,10 +175,39 @@ function IngredientCard({
   onQuantiteChange: (v: string) => void;
   quantiteUnit?: string;
   showError?: boolean;
+  expectedMaterialType?: "sable" | "gravier";
+  allSelectedProduitIds?: string[];
 }) {
   const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const handleProduitChange = (produitId: string) => {
+    const produit = produits.find((p: any) => p.id === produitId);
+    if (produit && expectedMaterialType) {
+      const nomLower = produit.nom.toLowerCase();
+      if (expectedMaterialType === "sable" && (nomLower.includes("gravier") || nomLower.includes("gravillon"))) {
+        setAlertMessage(`Le produit "${produit.nom}" semble être un gravier. Veuillez sélectionner un produit de type sable pour ${label}.`);
+        setAlertOpen(true);
+        return;
+      }
+      if (expectedMaterialType === "gravier" && nomLower.includes("sable")) {
+        setAlertMessage(`Le produit "${produit.nom}" semble être un sable. Veuillez sélectionner un produit de type gravier pour ${label}.`);
+        setAlertOpen(true);
+        return;
+      }
+    }
+    if (produitId && allSelectedProduitIds.includes(produitId)) {
+      const produitNom = produit?.nom || produitId;
+      setAlertMessage(`Le produit "${produitNom}" est déjà sélectionné dans un autre composant. Veuillez choisir un produit différent.`);
+      setAlertOpen(true);
+      return;
+    }
+    onProduitChange(produitId);
+  };
 
   return (
+    <>
     <div className={cn(
       "p-4 rounded-lg border space-y-3 transition-opacity",
       active ? "border-border/50 bg-muted/20" : "border-border/30 bg-muted/5 opacity-60"
@@ -205,7 +236,7 @@ function IngredientCard({
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Produit</Label>
-        <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
+        <Select value={selectedProduitId} onValueChange={handleProduitChange} disabled={!active || !selectedProducteurId}>
           <SelectTrigger className={cn("bg-secondary border-border", showError && active && selectedProducteurId && !selectedProduitId && "animate-border-blink")}>
             <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? `Sélectionnez d'abord une ${producteurLabel.toLowerCase()}` : "Sélectionner un produit"} />
           </SelectTrigger>
@@ -217,6 +248,21 @@ function IngredientCard({
         </Select>
       </div>
     </div>
+    <Dialog open={alertOpen} onOpenChange={setAlertOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+            Attention
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">{alertMessage}</p>
+        <DialogFooter>
+          <Button onClick={() => setAlertOpen(false)}>OK</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
@@ -1088,15 +1134,23 @@ export default function FormulationBetonWizard() {
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 space-y-4">
             <h2 className="text-lg font-semibold text-foreground">Information matériaux</h2>
+            {(() => {
+              const allProduitIds = [
+                sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId,
+                gravier2ProduitId, gravier3ProduitId, cimentProduitId, adjuvantProduitId, eauProduitId
+              ].filter(Boolean);
+              const getOtherIds = (currentId: string) => allProduitIds.filter(id => id && id !== currentId);
+              return null;
+            })()}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <IngredientCard label="Sable 1" producteurLabel="Carrière" active={sable1Active} onToggle={setSable1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableConcasseProducteurId} selectedProduitId={sableConcasseProduitId} onProducteurChange={setSableConcasseProducteurId} onProduitChange={setSableConcasseProduitId} quantite={sableConcasseQte} onQuantiteChange={setSableConcasseQte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Sable 2" producteurLabel="Carrière" active={sable2Active} onToggle={setSable2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableFinProducteurId} selectedProduitId={sableFinProduitId} onProducteurChange={setSableFinProducteurId} onProduitChange={setSableFinProduitId} quantite={sableFinQte} onQuantiteChange={setSableFinQte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Gravier 1" producteurLabel="Carrière" active={gravier1Active} onToggle={setGravier1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravillons1ProducteurId} selectedProduitId={gravillons1ProduitId} onProducteurChange={setGravillons1ProducteurId} onProduitChange={setGravillons1ProduitId} quantite={gravillons1Qte} onQuantiteChange={setGravillons1Qte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Gravier 2" producteurLabel="Carrière" active={gravier2Active} onToggle={setGravier2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier2ProducteurId} selectedProduitId={gravier2ProduitId} onProducteurChange={setGravier2ProducteurId} onProduitChange={setGravier2ProduitId} quantite={gravier2Qte} onQuantiteChange={setGravier2Qte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Gravier 3" producteurLabel="Carrière" active={gravier3Active} onToggle={setGravier3Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier3ProducteurId} selectedProduitId={gravier3ProduitId} onProducteurChange={setGravier3ProducteurId} onProduitChange={setGravier3ProduitId} quantite={gravier3Qte} onQuantiteChange={setGravier3Qte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Ciment" producteurLabel="Cimenterie" active={cimentActive} onToggle={setCimentActive} producteurType="cimenterie" producteurs={cimenteries} selectedProducteurId={cimentProducteurId} selectedProduitId={cimentProduitId} onProducteurChange={setCimentProducteurId} onProduitChange={setCimentProduitId} quantite={cimentQte} onQuantiteChange={setCimentQte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Adjuvant" producteurLabel="Fournisseur" active={adjuvantActive} onToggle={setAdjuvantActive} producteurType="adjuvant" producteurs={adjuvants} selectedProducteurId={adjuvantProducteurId} selectedProduitId={adjuvantProduitId} onProducteurChange={setAdjuvantProducteurId} onProduitChange={setAdjuvantProduitId} quantite={adjuvantQte} onQuantiteChange={setAdjuvantQte} showError={errorSteps.includes(3)} />
-              <IngredientCard label="Eau" producteurLabel="Source d'eau" active={eauActive} onToggle={setEauActive} producteurType="source_eau" producteurs={sourcesEau} selectedProducteurId={eauProducteurId} selectedProduitId={eauProduitId} onProducteurChange={setEauProducteurId} onProduitChange={setEauProduitId} quantite={eauQte} onQuantiteChange={setEauQte} quantiteUnit="L" showError={errorSteps.includes(3)} />
+              <IngredientCard label="Sable 1" producteurLabel="Carrière" active={sable1Active} onToggle={setSable1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableConcasseProducteurId} selectedProduitId={sableConcasseProduitId} onProducteurChange={setSableConcasseProducteurId} onProduitChange={setSableConcasseProduitId} quantite={sableConcasseQte} onQuantiteChange={setSableConcasseQte} showError={errorSteps.includes(3)} expectedMaterialType="sable" allSelectedProduitIds={[sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId, cimentProduitId, adjuvantProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Sable 2" producteurLabel="Carrière" active={sable2Active} onToggle={setSable2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={sableFinProducteurId} selectedProduitId={sableFinProduitId} onProducteurChange={setSableFinProducteurId} onProduitChange={setSableFinProduitId} quantite={sableFinQte} onQuantiteChange={setSableFinQte} showError={errorSteps.includes(3)} expectedMaterialType="sable" allSelectedProduitIds={[sableConcasseProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId, cimentProduitId, adjuvantProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Gravier 1" producteurLabel="Carrière" active={gravier1Active} onToggle={setGravier1Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravillons1ProducteurId} selectedProduitId={gravillons1ProduitId} onProducteurChange={setGravillons1ProducteurId} onProduitChange={setGravillons1ProduitId} quantite={gravillons1Qte} onQuantiteChange={setGravillons1Qte} showError={errorSteps.includes(3)} expectedMaterialType="gravier" allSelectedProduitIds={[sableConcasseProduitId, sableFinProduitId, gravier2ProduitId, gravier3ProduitId, cimentProduitId, adjuvantProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Gravier 2" producteurLabel="Carrière" active={gravier2Active} onToggle={setGravier2Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier2ProducteurId} selectedProduitId={gravier2ProduitId} onProducteurChange={setGravier2ProducteurId} onProduitChange={setGravier2ProduitId} quantite={gravier2Qte} onQuantiteChange={setGravier2Qte} showError={errorSteps.includes(3)} expectedMaterialType="gravier" allSelectedProduitIds={[sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier3ProduitId, cimentProduitId, adjuvantProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Gravier 3" producteurLabel="Carrière" active={gravier3Active} onToggle={setGravier3Active} producteurType="carriere" producteurs={carrieres} selectedProducteurId={gravier3ProducteurId} selectedProduitId={gravier3ProduitId} onProducteurChange={setGravier3ProducteurId} onProduitChange={setGravier3ProduitId} quantite={gravier3Qte} onQuantiteChange={setGravier3Qte} showError={errorSteps.includes(3)} expectedMaterialType="gravier" allSelectedProduitIds={[sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, cimentProduitId, adjuvantProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Ciment" producteurLabel="Cimenterie" active={cimentActive} onToggle={setCimentActive} producteurType="cimenterie" producteurs={cimenteries} selectedProducteurId={cimentProducteurId} selectedProduitId={cimentProduitId} onProducteurChange={setCimentProducteurId} onProduitChange={setCimentProduitId} quantite={cimentQte} onQuantiteChange={setCimentQte} showError={errorSteps.includes(3)} allSelectedProduitIds={[sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId, adjuvantProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Adjuvant" producteurLabel="Fournisseur" active={adjuvantActive} onToggle={setAdjuvantActive} producteurType="adjuvant" producteurs={adjuvants} selectedProducteurId={adjuvantProducteurId} selectedProduitId={adjuvantProduitId} onProducteurChange={setAdjuvantProducteurId} onProduitChange={setAdjuvantProduitId} quantite={adjuvantQte} onQuantiteChange={setAdjuvantQte} showError={errorSteps.includes(3)} allSelectedProduitIds={[sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId, cimentProduitId, eauProduitId].filter(Boolean)} />
+              <IngredientCard label="Eau" producteurLabel="Source d'eau" active={eauActive} onToggle={setEauActive} producteurType="source_eau" producteurs={sourcesEau} selectedProducteurId={eauProducteurId} selectedProduitId={eauProduitId} onProducteurChange={setEauProducteurId} onProduitChange={setEauProduitId} quantite={eauQte} onQuantiteChange={setEauQte} quantiteUnit="L" showError={errorSteps.includes(3)} allSelectedProduitIds={[sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId, cimentProduitId, adjuvantProduitId].filter(Boolean)} />
             </div>
           </CardContent>
         </Card>
