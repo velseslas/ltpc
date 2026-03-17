@@ -73,6 +73,7 @@ interface ProportionsStepProps {
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
   onMfCorrectionNeeded?: (needed: boolean) => void;
+  mfMelangeStocke?: number | null;
 }
 
 interface GranulatSlider {
@@ -159,6 +160,7 @@ export default function ProportionsStep({
   validationData,
   onStepErrors,
   onMfCorrectionNeeded,
+  mfMelangeStocke,
 }: ProportionsStepProps) {
   const [localOverrides, setLocalOverrides] = useState<Record<string, string>>({});
   const [hasCalculated, setHasCalculated] = useState(false);
@@ -170,6 +172,11 @@ export default function ProportionsStep({
   const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
+
+  const mfMelangeEffectif = useMemo(
+    () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
+    [mfMelangeStocke, calcResult]
+  );
 
   // calcEau, calcCiment, calcRatioGS come from props (Step 2)
 
@@ -295,7 +302,7 @@ export default function ProportionsStep({
       }
     }
 
-    const mfMelangeLocal = calcResult?.moduleFinesse?.melange ?? null;
+    const mfMelangeLocal = mfMelangeEffectif;
     if (mfMelangeLocal !== null && mfMelangeLocal > 2.8 && !sable2Active) {
       errors.push({
         step: 3,
@@ -319,7 +326,7 @@ export default function ProportionsStep({
     }
     onStepErrors?.([]);
     return true;
-  }, [validationData, calcEau, calcCiment, calcRatioGS, calcResult, sable2Active, onStepErrors]);
+  }, [validationData, calcEau, calcCiment, calcRatioGS, mfMelangeEffectif, sable2Active, onStepErrors]);
 
   const buildInputs = useCallback((): CalculationInputs => {
     return {
@@ -450,7 +457,7 @@ export default function ProportionsStep({
   ].filter(s => s.active);
 
   // MF warning
-  const mfMelange = calcResult?.moduleFinesse?.melange ?? null;
+  const mfMelange = mfMelangeEffectif;
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
   const needsSable2Correction = mfWarning && !sable2Active;
 
@@ -594,8 +601,8 @@ export default function ProportionsStep({
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Coeff. courbe N</p>
                 <p className="text-sm font-semibold text-foreground">
-                  {calcResult?.moduleFinesse?.melange !== null && calcResult?.moduleFinesse?.melange !== undefined
-                    ? (0.5 + (calcResult.moduleFinesse.melange / 10)).toFixed(2)
+                  {mfMelange !== null && mfMelange !== undefined
+                    ? (0.5 + (mfMelange / 10)).toFixed(2)
                     : "—"}
                 </p>
               </div>
@@ -800,7 +807,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             sables={sables}
             graviers={graviers}
             pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
-            mfMelange={calcResult?.moduleFinesse?.melange ?? 2.5}
+            mfMelange={mfMelange ?? 2.5}
           />
         </CardContent>
       </Card>

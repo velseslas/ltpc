@@ -115,6 +115,26 @@ export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange
   return { dA, pA };
 }
 
+export function computeWeightedSandModuleFinesse(
+  sands: Array<{ active: boolean; moduleFinesse?: number; proportion: number }>
+): number | null {
+  const validSands = sands.filter(
+    (sand) => sand.active && typeof sand.moduleFinesse === "number" && sand.moduleFinesse > 0 && sand.proportion > 0
+  );
+
+  if (validSands.length === 0) return null;
+
+  const totalProportion = validSands.reduce((sum, sand) => sum + sand.proportion, 0);
+  if (totalProportion <= 0) return null;
+
+  const weightedMf = validSands.reduce(
+    (sum, sand) => sum + (sand.moduleFinesse as number) * (sand.proportion / totalProportion),
+    0
+  );
+
+  return Math.round(weightedMf * 100) / 100;
+}
+
 /**
  * Generate Dreux-Gorisse reference curve
  * Uses the power law: P(d) = 100 × (d / Dmax)^n
@@ -216,23 +236,14 @@ export function calculateMixDesign(
     volumeDetail[g.key] = densite > 0 ? masses[g.key] / densite : 0;
   }
 
-  // Compute MF mélange (weighted by mass)
-  let mfMelange: number | null = null;
-  if (activeSables.length > 0) {
-    let sumMF = 0;
-    let sumMass = 0;
-    for (const s of activeSables) {
-      const m = masses[s.key] ?? 0;
-      const mf = mfPerSand[s.key];
-      if (mf !== undefined && m > 0) {
-        sumMF += m * mf;
-        sumMass += m;
-      }
-    }
-    if (sumMass > 0) {
-      mfMelange = Math.round((sumMF / sumMass) * 100) / 100;
-    }
-  }
+  // Compute MF mélange (weighted by real sand proportions only)
+  const mfMelange = computeWeightedSandModuleFinesse(
+    activeSables.map((s) => ({
+      active: true,
+      moduleFinesse: mfPerSand[s.key],
+      proportion: volumeDetail[s.key] ?? 0,
+    }))
+  );
 
   // Calculate Point A
   const dMaxReel = determineDmax(granulats);
@@ -422,20 +433,16 @@ export function optimizeMix(
 
   // Generate reference curve using the new Point A method
   const pointA = baseline.pointA;
-  // Use MF mélange for N coefficient; fallback to 2.5 if not available
-  const mfForN = (() => {
-    const activeSablesLocal = granulats.filter(g => g.active && g.isSable);
-    let sumMF = 0, sumMass = 0;
-    for (const s of activeSablesLocal) {
-      const m = masses[s.key] ?? 0;
-      const mf = s.moduleFinesse;
-      if (mf !== undefined && mf > 0 && m > 0) {
-        sumMF += m * mf;
-        sumMass += m;
-      }
-    }
-    return sumMass > 0 ? sumMF / sumMass : 2.5;
-  })();
+  // Use MF mélange pondéré par les proportions réelles des sables; fallback to 2.5 if not available
+  const mfForN = computeWeightedSandModuleFinesse(
+    granulats
+      .filter(g => g.active && g.isSable)
+      .map((s) => ({
+        active: true,
+        moduleFinesse: s.moduleFinesse,
+        proportion: s.densite > 0 ? (masses[s.key] ?? 0) / s.densite : 0,
+      }))
+  ) ?? 2.5;
   const referenceCurve = generateReferenceCurve(dMax, mfForN, pointA);
   if (referenceCurve.length === 0) return masses;
 
