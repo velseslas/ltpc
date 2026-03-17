@@ -801,6 +801,7 @@ export default function FormulationBetonWizard() {
   const [vibrationAE, setVibrationAE] = useState("");
   const [formeAE, setFormeAE] = useState("");
   const [kpAE, setKpAE] = useState("10");
+  const [mfIdeal, setMfIdeal] = useState("");
   const [pointACoords, setPointACoords] = useState<{ xA: number; yA: number } | null>(null);
 
   // Step 5 - essai
