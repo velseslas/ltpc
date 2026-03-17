@@ -1092,7 +1092,7 @@ export default function FormulationBetonWizard() {
                   value={calcRatioGS}
                   onChange={(e) => setCalcRatioGS(e.target.value)}
                   placeholder="ex: 1.8"
-                  className="bg-secondary border-border"
+                  className={cn("bg-secondary border-border", !calcRatioGS.trim() && "animate-border-blink")}
                 />
               </div>
               {cimentWarning && (
