@@ -129,6 +129,18 @@ import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
+// Non Destructif - Scléromètre
+import SclerometreTest from "./pages/essais/nondestructif/SclerometreTest";
+import SclerometreSampleForm from "./pages/essais/nondestructif/SclerometreSampleForm";
+import SclerometreDetail from "./pages/essais/nondestructif/SclerometreDetail";
+import SclerometreDataEntry from "./pages/essais/nondestructif/SclerometreDataEntry";
+import SclerometreReport from "./pages/essais/nondestructif/SclerometreReport";
+// Non Destructif - Ultrason
+import UltrasonTest from "./pages/essais/nondestructif/UltrasonTest";
+import UltrasonSampleForm from "./pages/essais/nondestructif/UltrasonSampleForm";
+import UltrasonDetail from "./pages/essais/nondestructif/UltrasonDetail";
+import UltrasonDataEntry from "./pages/essais/nondestructif/UltrasonDataEntry";
+import UltrasonReport from "./pages/essais/nondestructif/UltrasonReport";
 // Normes imports
 import BetonDurciNormes from "./pages/essais/betonfrais/BetonDurciNormes";
 import DestructifNormes from "./pages/essais/DestructifNormes";
