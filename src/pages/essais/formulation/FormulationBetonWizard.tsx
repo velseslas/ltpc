@@ -1274,7 +1274,7 @@ export default function FormulationBetonWizard() {
           onCoefficientCompaciteChange={setCoefficientCompacite}
           dmaxValue={dmaxUtilisateur}
           onDmaxChange={setDmaxUtilisateur}
-          showError={errorSteps.includes(5)}
+          showError={allErrorSteps.includes(5)}
         />
       </div>
 
