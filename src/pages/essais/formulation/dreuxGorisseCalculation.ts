@@ -433,20 +433,16 @@ export function optimizeMix(
 
   // Generate reference curve using the new Point A method
   const pointA = baseline.pointA;
-  // Use MF mélange for N coefficient; fallback to 2.5 if not available
-  const mfForN = (() => {
-    const activeSablesLocal = granulats.filter(g => g.active && g.isSable);
-    let sumMF = 0, sumMass = 0;
-    for (const s of activeSablesLocal) {
-      const m = masses[s.key] ?? 0;
-      const mf = s.moduleFinesse;
-      if (mf !== undefined && mf > 0 && m > 0) {
-        sumMF += m * mf;
-        sumMass += m;
-      }
-    }
-    return sumMass > 0 ? sumMF / sumMass : 2.5;
-  })();
+  // Use MF mélange pondéré par les proportions réelles des sables; fallback to 2.5 if not available
+  const mfForN = computeWeightedSandModuleFinesse(
+    granulats
+      .filter(g => g.active && g.isSable)
+      .map((s) => ({
+        active: true,
+        moduleFinesse: s.moduleFinesse,
+        proportion: s.densite > 0 ? (masses[s.key] ?? 0) / s.densite : 0,
+      }))
+  ) ?? 2.5;
   const referenceCurve = generateReferenceCurve(dMax, mfForN, pointA);
   if (referenceCurve.length === 0) return masses;
 
