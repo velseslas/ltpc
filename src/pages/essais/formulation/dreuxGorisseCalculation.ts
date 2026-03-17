@@ -385,12 +385,24 @@ function distributeGravel(
   // Sort by Dmax (smallest first)
   const sorted = [...graviers].sort((a, b) => (a.dMax ?? 0) - (b.dMax ?? 0));
 
-  // Distribution ratios for pumpability optimization
+  // Distribution ratios optimized for pumpability, compacity & segregation reduction
+  // 3/8 is capped at 10%, remainder split 55/45 between 8/15 and 15/25
   let ratios: number[];
   if (sorted.length === 2) {
-    ratios = [0.35, 0.65]; // smaller fraction gets less
+    // Determine if smallest fraction is a 3/8-type (dMax <= 10)
+    const smallestIsSmallFraction = (sorted[0].dMax ?? 0) <= 10;
+    if (smallestIsSmallFraction) {
+      // 3/8 absent scenario doesn't apply here; this is 3/8 + one larger
+      // If 15/25 absent: 3/8=10%, 8/15=90%
+      // If 3/8 present + 15/25: 3/8=10%, 15/25=90%
+      ratios = [0.10, 0.90];
+    } else {
+      // No small fraction (e.g. 8/15 + 15/25): 8/15=60%, 15/25=40%
+      ratios = [0.60, 0.40];
+    }
   } else if (sorted.length === 3) {
-    ratios = [0.20, 0.45, 0.35]; // 3/8=20%, 8/15=45%, 15/25=35%
+    // 3/8=10%, 8/15=55%*90%=49.5%≈50%, 15/25=45%*90%=40.5%≈40%
+    ratios = [0.10, 0.55 * 0.90, 0.45 * 0.90]; // [0.10, 0.495, 0.405]
   } else {
     // General case: equal distribution
     ratios = sorted.map(() => 1 / sorted.length);
