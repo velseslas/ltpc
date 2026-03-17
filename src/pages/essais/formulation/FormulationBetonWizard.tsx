@@ -158,6 +158,8 @@ function IngredientCard({
   onQuantiteChange,
   quantiteUnit = "kg",
   showError = false,
+  expectedMaterialType,
+  allSelectedProduitIds = [],
 }: {
   label: string;
   producteurLabel?: string;
@@ -173,10 +175,39 @@ function IngredientCard({
   onQuantiteChange: (v: string) => void;
   quantiteUnit?: string;
   showError?: boolean;
+  expectedMaterialType?: "sable" | "gravier";
+  allSelectedProduitIds?: string[];
 }) {
   const { data: produits = [] } = useProduits(selectedProducteurId, producteurType);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const handleProduitChange = (produitId: string) => {
+    const produit = produits.find((p: any) => p.id === produitId);
+    if (produit && expectedMaterialType) {
+      const nomLower = produit.nom.toLowerCase();
+      if (expectedMaterialType === "sable" && (nomLower.includes("gravier") || nomLower.includes("gravillon"))) {
+        setAlertMessage(`Le produit "${produit.nom}" semble être un gravier. Veuillez sélectionner un produit de type sable pour ${label}.`);
+        setAlertOpen(true);
+        return;
+      }
+      if (expectedMaterialType === "gravier" && nomLower.includes("sable")) {
+        setAlertMessage(`Le produit "${produit.nom}" semble être un sable. Veuillez sélectionner un produit de type gravier pour ${label}.`);
+        setAlertOpen(true);
+        return;
+      }
+    }
+    if (produitId && allSelectedProduitIds.includes(produitId)) {
+      const produitNom = produit?.nom || produitId;
+      setAlertMessage(`Le produit "${produitNom}" est déjà sélectionné dans un autre composant. Veuillez choisir un produit différent.`);
+      setAlertOpen(true);
+      return;
+    }
+    onProduitChange(produitId);
+  };
 
   return (
+    <>
     <div className={cn(
       "p-4 rounded-lg border space-y-3 transition-opacity",
       active ? "border-border/50 bg-muted/20" : "border-border/30 bg-muted/5 opacity-60"
@@ -205,7 +236,7 @@ function IngredientCard({
       </div>
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Produit</Label>
-        <Select value={selectedProduitId} onValueChange={onProduitChange} disabled={!active || !selectedProducteurId}>
+        <Select value={selectedProduitId} onValueChange={handleProduitChange} disabled={!active || !selectedProducteurId}>
           <SelectTrigger className={cn("bg-secondary border-border", showError && active && selectedProducteurId && !selectedProduitId && "animate-border-blink")}>
             <SelectValue placeholder={!active ? "Composant inactif" : !selectedProducteurId ? `Sélectionnez d'abord une ${producteurLabel.toLowerCase()}` : "Sélectionner un produit"} />
           </SelectTrigger>
@@ -217,6 +248,21 @@ function IngredientCard({
         </Select>
       </div>
     </div>
+    <Dialog open={alertOpen} onOpenChange={setAlertOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+            Attention
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">{alertMessage}</p>
+        <DialogFooter>
+          <Button onClick={() => setAlertOpen(false)}>OK</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
