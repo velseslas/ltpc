@@ -920,11 +920,11 @@ export default function FormulationBetonWizard() {
   const canGoNext = () => {
     switch (currentStep) {
       case 1: return nom.trim().length > 0 && centraleId.length > 0;
-      case 2: return true;
+      case 2: return calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0;
       case 3: return true;
       case 4: return true;
-      case 5: return true;
-      case 6: return true;
+      case 5: return coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0;
+      case 6: return vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfImporteEtape6 !== null;
       case 7: return true;
       default: return false;
     }
@@ -1049,7 +1049,7 @@ export default function FormulationBetonWizard() {
             <h3 className="text-md font-semibold text-foreground">Paramètres de formulation</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-sm">Eau (kg/m³)</Label>
+                <Label className="text-sm">Eau (kg/m³) <span className="text-destructive">*</span></Label>
                 <Input
                   type="number" step="1" min="0"
                   value={calcEau}
@@ -1059,7 +1059,7 @@ export default function FormulationBetonWizard() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm">Ciment (kg/m³)</Label>
+                <Label className="text-sm">Ciment (kg/m³) <span className="text-destructive">*</span></Label>
                 <Input
                   type="number" step="1" min="0"
                   value={calcCiment}
@@ -1069,7 +1069,7 @@ export default function FormulationBetonWizard() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm">Rapport G/S</Label>
+                <Label className="text-sm">Rapport G/S <span className="text-destructive">*</span></Label>
                 <Input
                   type="number" step="0.1" min="0.1"
                   value={calcRatioGS}
