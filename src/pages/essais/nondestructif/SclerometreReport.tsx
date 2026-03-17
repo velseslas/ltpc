@@ -1,92 +1,202 @@
+import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import { useEchantillonSclerometre } from "@/hooks/useEchantillonsSclerometre";
+import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import ShareButton from "@/components/reports/ShareButton";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { toast } from "sonner";
 
 const SclerometreReport = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const reportRef = useRef<HTMLDivElement>(null);
   const basePath = "/essais/beton/non-destructif/sclerometre";
   const { data: echantillon, isLoading } = useEchantillonSclerometre(id ?? "");
+  const { data: entreprise } = useEntreprise();
 
-  if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
-  if (!echantillon) return <div className="text-center py-12 text-muted-foreground">Essai non trouvé</div>;
+  const handlePrint = () => window.print();
+
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    try {
+      const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save(`rapport-sclerometre-SC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+      toast.success("PDF téléchargé avec succès");
+    } catch {
+      toast.error("Erreur lors de la génération du PDF");
+    }
+  };
+
+  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!echantillon) return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;
 
   const resultats = echantillon.resultats as any;
+  const verificationUrl = `${window.location.origin}${basePath}/${id}/rapport`;
 
   return (
-    <div className="space-y-6">
-      <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Non Destructif", path: "/essais/beton/non-destructif" }, { label: "Scléromètre", path: basePath }, { label: "Rapport" }]} />
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"><ArrowLeft className="h-5 w-5" /></Button>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Rapport <span className="text-primary text-glow">Scléromètre</span></h1>
-            <p className="text-muted-foreground mt-1">SC-{String(echantillon.numero).padStart(3, "0")}</p>
-          </div>
-        </div>
-        <Button variant="outline" onClick={() => window.print()} className="flex items-center gap-2 print:hidden"><Printer className="h-4 w-4" />Imprimer</Button>
+    <div className="space-y-6 animate-fade-in">
+      <div className="print:hidden">
+        <EssaiBreadcrumb items={[
+          { label: "Béton", path: "/essais/beton" },
+          { label: "Non Destructif", path: "/essais/beton/non-destructif" },
+          { label: "Scléromètre", path: basePath },
+          { label: <><span className="text-primary">SC</span>-{String(echantillon.numero).padStart(3, "0")}</>, path: `${basePath}/${id}` },
+          { label: "Rapport" },
+        ]} />
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-8 space-y-8 print:border-0 print:shadow-none" id="report-content">
-        <ReportHeader title="RAPPORT D'ESSAI SCLÉROMÈTRE" subtitle="NF EN 12504-2" verificationUrl={window.location.href} />
+      <div className="flex items-center justify-between print:hidden">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">
+              Rapport - <span className="text-primary">SC-{String(echantillon.numero).padStart(3, "0")}</span>
+            </h1>
+            <p className="text-muted-foreground mt-1">Essai au Scléromètre</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <ShareButton />
+          <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
+          <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-2 gap-6 text-sm">
-          <div><span className="text-muted-foreground">N° d'essai :</span> <span className="font-medium">SC-{String(echantillon.numero).padStart(3, "0")}</span></div>
-          <div><span className="text-muted-foreground">Date d'essai :</span> <span className="font-medium">{format(new Date(echantillon.date_essai), "PPP", { locale: fr })}</span></div>
-          <div><span className="text-muted-foreground">Client :</span> <span className="font-medium">{echantillon.clients?.nom ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Chantier :</span> <span className="font-medium">{echantillon.chantiers?.nom ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Élément testé :</span> <span className="font-medium">{echantillon.element_teste ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Orientation :</span> <span className="font-medium capitalize">{echantillon.orientation ?? "-"}</span></div>
-          <div><span className="text-muted-foreground">Âge du béton :</span> <span className="font-medium">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</span></div>
-          <div><span className="text-muted-foreground">Classe de résistance :</span> <span className="font-medium">{echantillon.classe_resistance ?? "-"}</span></div>
+      <div ref={reportRef} className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+        <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI AU SCLÉROMÈTRE" subtitle="Norme NF EN 12504-2" />
+
+        {/* Identification */}
+        <div className="mb-6 mt-6">
+          <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
+          <table className="w-full border-collapse border border-black text-sm">
+            <tbody>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1.5 text-black">SC-{String(echantillon.numero).padStart(3, "0")}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 text-black">{format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers?.nom ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Élément testé</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.element_teste ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Orientation</td>
+                <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.orientation ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Âge du béton</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Classe de résistance</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.classe_resistance ?? "-"}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
+        {/* Résultats */}
         {resultats && (
           <>
-            <div>
-              <h3 className="font-semibold mb-3">Indices de rebond mesurés</h3>
-              <div className="grid grid-cols-5 md:grid-cols-9 gap-2">
-                {resultats.mesures?.map((val: number, i: number) => (
-                  <div key={i} className="border border-border rounded p-2 text-center text-sm">
-                    <span className="text-xs text-muted-foreground block">P{i + 1}</span>
-                    <span className="font-bold">{val}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Indices de rebond mesurés</h3>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr>
+                    {resultats.mesures?.map((_: number, i: number) => (
+                      <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    {resultats.mesures?.map((val: number, i: number) => (
+                      <td key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">{val}</td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="border border-border rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Médiane</span>
-                <p className="text-xl font-bold">{resultats.mediane ?? "-"}</p>
-              </div>
-              <div className="border border-border rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Valeurs retenues</span>
-                <p className="text-xl font-bold">{resultats.valeurs_retenues?.length ?? "-"}</p>
-              </div>
-              <div className="border border-primary/50 bg-primary/5 rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Indice corrigé</span>
-                <p className="text-xl font-bold text-primary">{resultats.indice_corrige ?? "-"}</p>
-              </div>
-              <div className="border border-emerald-500/50 bg-emerald-500/5 rounded-lg p-4 text-center">
-                <span className="text-sm text-muted-foreground">Résistance estimée</span>
-                <p className="text-xl font-bold text-emerald-600">{resultats.resistance_estimee ? `${resultats.resistance_estimee} MPa` : "-"}</p>
-              </div>
+
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Résultats de l'essai</h3>
+              <table className="w-full border-collapse border border-black text-sm">
+                <tbody>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">Médiane</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{resultats.mediane ?? "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Valeurs retenues</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{resultats.valeurs_retenues?.length ?? "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Indice de rebond corrigé</td>
+                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.indice_corrige ?? "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Résistance estimée (MPa)</td>
+                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.resistance_estimee ? `${resultats.resistance_estimee} MPa` : "-"}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </>
         )}
 
+        {/* Observations */}
         {echantillon.observations && (
-          <div>
-            <h3 className="font-semibold mb-2">Observations</h3>
-            <p className="text-sm text-muted-foreground">{echantillon.observations}</p>
+          <div className="mt-6 mb-6">
+            <h3 className="font-bold text-sm mb-2 underline text-black">Observations</h3>
+            <div className="border border-black px-3 py-2 text-sm text-black">{echantillon.observations}</div>
           </div>
         )}
+
+        {/* Footer signatures */}
+        <div className="mt-8 grid grid-cols-2 gap-8 text-black">
+          <div className="text-center">
+            <p className="text-sm font-medium mb-8">Le Technicien</p>
+            <p className="text-sm">_________________</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium mb-8">Le Directeur du Laboratoire</p>
+            <p className="text-sm">_________________</p>
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          #root { visibility: visible; }
+          .print\\:hidden { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
