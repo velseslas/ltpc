@@ -86,6 +86,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
       produit: "",
       operateur_id: "",
       date_reception: new Date().toISOString().split("T")[0],
+      date_essai: "",
       observations: "",
     },
   });
