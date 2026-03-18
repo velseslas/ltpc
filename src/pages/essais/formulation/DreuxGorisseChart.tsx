@@ -17,7 +17,11 @@ import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
 
 // Standard sieve openings (mm) for Dreux-Gorisse
-const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
+const ALL_TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
+
+function getTamisForDmax(dMax: number) {
+  return ALL_TAMIS_OPENINGS.filter(t => t <= dMax + 0.001);
+}
 
 function logPos(mm: number) {
   return Math.log10(mm);
@@ -51,11 +55,12 @@ export interface MaterialCurve {
 }
 
 // Compute mix curve
-function computeMixCurve(materials: MaterialCurve[]) {
+function computeMixCurve(materials: MaterialCurve[], dMax: number) {
   const totalQty = materials.reduce((sum, m) => sum + m.quantity, 0);
   if (totalQty === 0) return [];
 
-  return TAMIS_OPENINGS.map((ouv) => {
+  const tamis = getTamisForDmax(dMax);
+  return tamis.map((ouv) => {
     let weightedPass = 0;
     for (const mat of materials) {
       const point = mat.curve.find((p) => Math.abs(p.ouverture - ouv) < 0.001);
@@ -111,7 +116,7 @@ export default function DreuxGorisseChart({
 
   const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
 
-  const mixCurve = useMemo(() => computeMixCurve(materials), [materials]);
+  const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
 
   // Check conformity: mix curve within envelope (5%-95%)
   const isConforme = useMemo(() => {
@@ -126,9 +131,11 @@ export default function DreuxGorisseChart({
     return true;
   }, [mixCurve, envelope]);
 
-  // Build chart data
+  // Build chart data — filtered to Dmax
+  const tamis = useMemo(() => getTamisForDmax(dMax), [dMax]);
+
   const chartData = useMemo(() => {
-    return TAMIS_OPENINGS.map((ouv) => {
+    return tamis.map((ouv) => {
       const point: Record<string, number | string | number[]> = { ouverture: ouv };
 
       const env = envelope.find((e) => Math.abs(e.ouverture - ouv) < 0.001);
@@ -140,7 +147,8 @@ export default function DreuxGorisseChart({
       point["Référence Dreux-Gorisse"] = ref ? ref.pourcentage : 0;
 
       materials.forEach((mat) => {
-        const mp = mat.curve.find((c) => Math.abs(c.ouverture - ouv) < 0.001);
+        const filteredCurve = mat.curve.filter(c => c.ouverture <= dMax + 0.001);
+        const mp = filteredCurve.find((c) => Math.abs(c.ouverture - ouv) < 0.001);
         point[mat.label] = mp ? parseFloat(mp.pourcentageTamisat.toFixed(1)) : 0;
       });
 
@@ -149,7 +157,7 @@ export default function DreuxGorisseChart({
 
       return point;
     });
-  }, [referenceCurve, envelope, materials, mixCurve]);
+  }, [tamis, referenceCurve, envelope, materials, mixCurve, dMax]);
 
   const hasMaterials = materials.length > 0;
 
@@ -188,7 +196,7 @@ export default function DreuxGorisseChart({
               <XAxis
                 dataKey="ouverture"
                 scale="log"
-                domain={[0.063, 40]}
+                domain={[0.063, dMax]}
                 type="number"
                 tickFormatter={(v: number) => `${v}`}
                 label={{
