@@ -340,15 +340,13 @@ function distributeSand(
       let s1 = (mfCible - mf2) / (mf1 - mf2);
       let s2 = 1 - s1;
 
-      // Clamp to [0, 1]
-      s1 = Math.max(0, Math.min(1, s1));
-      s2 = Math.max(0, Math.min(1, s2));
+      // Clamp to [MIN_FRACTION, 1-MIN_FRACTION] to guarantee both sands
+      s1 = Math.max(MIN_FRACTION, Math.min(1 - MIN_FRACTION, s1));
+      s2 = 1 - s1;
 
-      // Normalize to ensure S1 + S2 = 1
-      const total = s1 + s2;
-      if (total > 0) {
-        s1 = s1 / total;
-        s2 = s2 / total;
+      if (s2 < MIN_FRACTION) {
+        s2 = MIN_FRACTION;
+        s1 = 1 - MIN_FRACTION;
       }
 
       const vol1 = totalVolume * s1;
@@ -364,7 +362,15 @@ function distributeSand(
 
   // For >2 sands or missing MF data: use least-squares optimization against reference curve
   if (referenceCurve && referenceCurve.length > 0) {
-    const proportions = solveSimplexLeastSquares(sables, referenceCurve);
+    let proportions = solveSimplexLeastSquares(sables, referenceCurve);
+    
+    // Post-validation: ensure ALL sands are present
+    const missingOrZero = sables.filter(s => (proportions[s.key] ?? 0) < MIN_FRACTION);
+    if (missingOrZero.length > 0) {
+      console.warn(`[distributeSand] ⚠️ Correction appliquée — sables sous le seuil: ${missingOrZero.map(s => s.label).join(', ')}`);
+      proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
+    }
+
     for (const s of sables) {
       const vol = totalVolume * (proportions[s.key] ?? 0);
       result[s.key] = s.densite > 0 ? vol * s.densite : 0;
