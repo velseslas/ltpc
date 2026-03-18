@@ -386,6 +386,8 @@ const CompressionSampleForm = () => {
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
       mention_info_client: mentionInfoClient,
       mention_eprouvette_client: mentionEprouvetteClient,
+      date_essai: dateEssai ? format(dateEssai, "yyyy-MM-dd") : null,
+      etuvage: etuvage,
     };
 
     try {
