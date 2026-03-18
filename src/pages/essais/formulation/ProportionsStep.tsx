@@ -821,6 +821,17 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
         </CardContent>
       </Card>
 
+      {/* Stability & Segregation Analysis */}
+      {hasCalculated && (
+        <StabilityAnalysisPanel
+          mfMelange={mfMelange}
+          materials={demoMaterials}
+          pct38={pct38}
+          pct1525={pct1525}
+          isWithinEnvelope={null}
+        />
+      )}
+
       {/* MF Analysis Panel */}
       {hasCalculated && mfMelange !== null && mfMelange !== undefined && (() => {
         const mf = mfMelange;
