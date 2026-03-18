@@ -44,6 +44,8 @@ import LimitesAtterberg from "./pages/essais/geotechnique/identification/Limites
 import GranulometrieSol from "./pages/essais/geotechnique/identification/GranulometrieSol";
 import TeneurEauSol from "./pages/essais/geotechnique/identification/TeneurEauSol";
 import ClassificationSol from "./pages/essais/geotechnique/identification/ClassificationSol";
+import ClassificationSolDataEntry from "./pages/essais/geotechnique/identification/ClassificationSolDataEntry";
+import ClassificationSolReport from "./pages/essais/geotechnique/identification/ClassificationSolReport";
 // Géotechnique - Compactage
 import ProctorNormal from "./pages/essais/geotechnique/compactage/ProctorNormal";
 import ProctorModifie from "./pages/essais/geotechnique/compactage/ProctorModifie";
