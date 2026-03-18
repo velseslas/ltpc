@@ -202,11 +202,11 @@ function ClassificationSolResultats({ resultats }: { resultats: Record<string, u
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">Wl</p>
-              <p className="text-lg font-bold text-foreground">{resultats.wl ? `${resultats.wl}%` : "-"}</p>
+              <p className="text-lg font-bold text-foreground">{resultats.wl ? `${String(resultats.wl)}%` : "-"}</p>
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">Ip</p>
-              <p className="text-lg font-bold text-foreground">{resultats.ip ? `${resultats.ip}%` : "-"}</p>
+              <p className="text-lg font-bold text-foreground">{resultats.ip ? `${String(resultats.ip)}%` : "-"}</p>
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">VBS</p>
