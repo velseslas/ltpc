@@ -170,6 +170,14 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
                 {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Date d'essai</p>
+              <p className="font-medium text-foreground">
+                {echantillon.date_essai
+                  ? format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })
+                  : "-"}
+              </p>
+            </div>
             {echantillon.observations && (
               <div className="md:col-span-3">
                 <p className="text-sm text-muted-foreground">Observations</p>

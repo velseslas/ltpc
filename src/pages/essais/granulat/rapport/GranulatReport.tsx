@@ -206,6 +206,14 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                   {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
                 </td>
               </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 text-black">
+                  {(echantillon as any).date_essai 
+                    ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr })
+                    : "-"}
+                </td>
+              </tr>
               {echantillon.observations && (
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black">Observations</td>

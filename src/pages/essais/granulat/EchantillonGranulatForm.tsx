@@ -329,6 +329,24 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="date_essai"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date d'essai</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="date"
+                          className="bg-background border-border"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <FormField
