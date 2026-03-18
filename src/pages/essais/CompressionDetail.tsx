@@ -316,17 +316,29 @@ const CompressionDetail = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Date de coulage</p>
-                  <p className="font-medium">
-                    {echantillon.date_coulage 
-                      ? format(new Date(echantillon.date_coulage), "dd MMMM yyyy", { locale: fr })
-                      : "-"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Mode de coulage</p>
-                  <p className="font-medium">{getModeCoulageLabel(echantillon.mode_coulage)}</p>
-                </div>
+                   <p className="text-sm text-muted-foreground">Date de coulage</p>
+                   <p className="font-medium">
+                     {echantillon.date_coulage 
+                       ? format(new Date(echantillon.date_coulage), "dd MMMM yyyy", { locale: fr })
+                       : "-"}
+                   </p>
+                 </div>
+                 <div>
+                   <p className="text-sm text-muted-foreground">Date d'essai</p>
+                   <p className="font-medium">
+                     {echantillon.date_essai 
+                       ? format(new Date(echantillon.date_essai), "dd MMMM yyyy", { locale: fr })
+                       : "-"}
+                   </p>
+                 </div>
+                 <div>
+                   <p className="text-sm text-muted-foreground">Mode de coulage</p>
+                   <p className="font-medium">{getModeCoulageLabel(echantillon.mode_coulage)}</p>
+                 </div>
+                 <div>
+                   <p className="text-sm text-muted-foreground">Étuvage</p>
+                   <p className="font-medium">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</p>
+                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Technicien</p>
                   <p className="font-medium">{echantillon.operateur_nom}</p>

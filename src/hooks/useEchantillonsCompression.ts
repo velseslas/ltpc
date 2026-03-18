@@ -43,6 +43,8 @@ export type EchantillonCompressionInsert = {
   jours_essai?: Json | null;
   usage?: string | null;
   date_coulage?: string | null;
+  date_essai?: string | null;
+  etuvage?: string | null;
   statut?: string;
   observations?: string | null;
   resultats?: Json | null;

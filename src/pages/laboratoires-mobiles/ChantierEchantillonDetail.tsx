@@ -241,8 +241,20 @@ export default function ChantierEchantillonDetail() {
                 </p>
               </div>
               <div>
+                <p className="text-sm text-muted-foreground">Date d'essai</p>
+                <p className="font-medium">
+                  {echantillon.date_essai 
+                    ? format(new Date(echantillon.date_essai), "dd MMMM yyyy", { locale: fr })
+                    : "-"}
+                </p>
+              </div>
+              <div>
                 <p className="text-sm text-muted-foreground">Technicien</p>
                 <p className="font-medium">{echantillon.operateur_nom}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Étuvage</p>
+                <p className="font-medium">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</p>
               </div>
             </div>
           </CardContent>
