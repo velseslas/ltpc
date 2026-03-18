@@ -17,7 +17,11 @@ import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
 
 // Standard sieve openings (mm) for Dreux-Gorisse
-const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
+const ALL_TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
+
+function getTamisForDmax(dMax: number) {
+  return ALL_TAMIS_OPENINGS.filter(t => t <= dMax + 0.001);
+}
 
 function logPos(mm: number) {
   return Math.log10(mm);
