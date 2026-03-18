@@ -312,7 +312,8 @@ export function calculateMixDesign(
 function distributeSand(
   totalVolume: number,
   sables: GranulatInput[],
-  mfCible?: number
+  mfCible?: number,
+  referenceCurve?: { ouverture: number; pourcentage: number }[]
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (sables.length === 0) return result;
