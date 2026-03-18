@@ -55,6 +55,7 @@ const formSchema = z.object({
   produit: z.string().min(1, "Sélectionnez un produit"),
   operateur_id: z.string().optional(),
   date_reception: z.string().min(1, "La date de réception est requise"),
+  date_essai: z.string().optional(),
   observations: z.string().max(500, "Maximum 500 caractères").optional(),
 });
 
