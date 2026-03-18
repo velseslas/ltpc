@@ -396,32 +396,11 @@ function distributeSand(
  * @returns Volumetric proportions (sum = 1) keyed by granulat key
  */
 /**
- * Determine minimum proportion for a gravel based on its label/dMax.
- * 3/8 → 5%, 8/15 → 20%, 15/25 → 15%, others → 5%
- */
-function getGravelMinProportion(g: GranulatInput): number {
-  const label = g.label.toLowerCase();
-  if (label.includes('3/8') || label.includes('4/8')) return 0.05;
-  if (label.includes('8/15') || label.includes('8/16') || label.includes('10/15') || label.includes('10/16')) return 0.20;
-  if (label.includes('15/25') || label.includes('16/25') || label.includes('16/20') || label.includes('15/20')) return 0.15;
-  // Fallback: use dMax to infer size class
-  if (g.dMax !== undefined) {
-    if (g.dMax <= 8) return 0.05;
-    if (g.dMax <= 16) return 0.20;
-    if (g.dMax <= 25) return 0.15;
-  }
-  return 0.05;
-}
-
-/**
- * Project a vector onto the constrained simplex:
- *   Σ pi = 1, pi ≥ minBounds[i]
+ * Project a vector onto the simplex:
+ *   Σ pi = 1, pi ≥ 0
  * Uses iterative clipping and renormalization.
  */
-function projectOntoConstrainedSimplex(
-  values: number[],
-  minBounds: number[]
-): number[] {
+function projectOntoSimplex(values: number[]): number[] {
   const n = values.length;
   const result = [...values];
 
