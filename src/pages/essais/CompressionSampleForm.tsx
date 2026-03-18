@@ -207,7 +207,7 @@ const CompressionSampleForm = () => {
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionInfoClient((existingEchantillon as { mention_info_client?: boolean }).mention_info_client || false);
       setMentionEprouvetteClient((existingEchantillon as { mention_eprouvette_client?: boolean }).mention_eprouvette_client || false);
-      setDateEssai(existingEchantillon.date_essai ? parseISO(existingEchantillon.date_essai) : undefined);
+      
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai
