@@ -398,6 +398,9 @@ function distributeSand(
 /**
  * Project a vector onto the standard simplex: Σ pi = 1, pi ≥ 0
  */
+// Minimum proportion for any active fraction (2%) — ensures no fraction is silently dropped
+const MIN_FRACTION = 0.02;
+
 function projectOntoSimplex(values: number[]): number[] {
   const n = values.length;
   const result = [...values];
@@ -414,6 +417,63 @@ function projectOntoSimplex(values: number[]): number[] {
     }
     for (let i = 0; i < n; i++) result[i] /= sum;
   }
+  return result;
+}
+
+/**
+ * Enforce minimum proportion for ALL fractions.
+ * Any fraction below MIN_FRACTION is raised to MIN_FRACTION,
+ * then excess is subtracted proportionally from fractions above MIN_FRACTION.
+ */
+function enforceMinimumProportions(proportions: Record<string, number>, minFraction: number): Record<string, number> {
+  const keys = Object.keys(proportions);
+  const n = keys.length;
+  if (n <= 1) return proportions;
+
+  const result = { ...proportions };
+  
+  // If min per fraction exceeds budget, fall back to equal distribution
+  if (minFraction * n > 1.0) {
+    const eq = 1 / n;
+    for (const k of keys) result[k] = eq;
+    return result;
+  }
+
+  let needsRedistribution = true;
+  for (let iter = 0; iter < 10 && needsRedistribution; iter++) {
+    needsRedistribution = false;
+    let deficit = 0;
+    let surplusTotal = 0;
+
+    // Identify fractions below minimum
+    for (const k of keys) {
+      if (result[k] < minFraction) {
+        deficit += minFraction - result[k];
+        result[k] = minFraction;
+        needsRedistribution = true;
+      } else {
+        surplusTotal += result[k] - minFraction;
+      }
+    }
+
+    // Redistribute deficit proportionally from surplus fractions
+    if (deficit > 0 && surplusTotal > 0) {
+      for (const k of keys) {
+        if (result[k] > minFraction) {
+          const surplus = result[k] - minFraction;
+          const reduction = (surplus / surplusTotal) * deficit;
+          result[k] = Math.max(minFraction, result[k] - reduction);
+        }
+      }
+    }
+  }
+
+  // Normalize to exactly 1.0
+  const sum = keys.reduce((s, k) => s + result[k], 0);
+  if (sum > 0 && Math.abs(sum - 1.0) > 1e-9) {
+    for (const k of keys) result[k] /= sum;
+  }
+
   return result;
 }
 
