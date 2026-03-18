@@ -809,6 +809,110 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
         </CardContent>
       </Card>
 
+      {/* MF Analysis Panel */}
+      {hasCalculated && mfMelange !== null && mfMelange !== undefined && (() => {
+        const mf = mfMelange;
+        let level: "ok" | "warn" | "danger";
+        let icon: React.ReactNode;
+        let title: string;
+        let description: string;
+        let actions: string[] = [];
+
+        if (mf >= 2.5 && mf <= 2.8) {
+          level = "ok";
+          icon = <CheckCircle2 className="w-5 h-5" />;
+          title = "Zone optimale — bon équilibre granulométrique";
+          description = "Le module de finesse du mélange est dans la plage idéale. La courbe granulométrique est bien équilibrée dans la zone 0–5 mm, assurant une bonne pompabilité et une ouvrabilité correcte.";
+        } else if (mf < 2.5) {
+          level = mf < 2.2 ? "danger" : "warn";
+          icon = mf < 2.2 ? <AlertCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />;
+          title = "Excès de fines — risque de ségrégation";
+          description = `MF mélange = ${mf.toFixed(2)} — Le sable est trop fin. La courbe granulométrique est décalée vers les fines dans la zone 0–5 mm, ce qui peut provoquer un excès de demande en eau et un retrait accru.`;
+          actions = [
+            "Réduire la proportion de sable fin (0/1)",
+            "Augmenter la proportion de sable grossier (0/4)",
+            "Vérifier la cohérence de la courbe dans la zone 0–5 mm",
+          ];
+        } else {
+          level = mf > 3.0 ? "danger" : "warn";
+          icon = mf > 3.0 ? <AlertCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />;
+          title = "Sable trop grossier — manque de fines — mauvaise pompabilité";
+          description = `MF mélange = ${mf.toFixed(2)} — Le sable est trop grossier. La courbe granulométrique est déficitaire en fines dans la zone 0–5 mm, compromettant la pompabilité et la cohésion du béton.`;
+          actions = [
+            "Augmenter la proportion de sable fin (0/1)",
+            "Ajuster les proportions entre les sables",
+            "Vérifier que la courbe de mélange passe dans le fuseau en zone 0–5 mm",
+          ];
+        }
+
+        const colorMap = {
+          ok: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-600", badge: "bg-emerald-500" },
+          warn: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-600", badge: "bg-amber-500" },
+          danger: { bg: "bg-destructive/10", border: "border-destructive/30", text: "text-destructive", badge: "bg-destructive" },
+        };
+        const c = colorMap[level];
+
+        return (
+          <Card className={cn("border bg-card/80 backdrop-blur-sm", c.border)}>
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", c.bg, c.text)}>
+                  {icon}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-base font-bold text-foreground">Analyse MF — Pompabilité & Courbe</h3>
+                    <Badge className={cn("text-[10px] text-white border-0", c.badge)}>
+                      MF = {mf.toFixed(2)}
+                    </Badge>
+                    <Badge variant="outline" className={cn("text-[10px]", c.border, c.text)}>
+                      {level === "ok" ? "Conforme" : level === "warn" ? "Ajustement conseillé" : "Problème détecté"}
+                    </Badge>
+                  </div>
+                  <p className={cn("text-sm font-medium", c.text)}>{title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{description}</p>
+                </div>
+              </div>
+
+              {actions.length > 0 && (
+                <div className={cn("rounded-lg p-3 space-y-2", c.bg)}>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions recommandées</p>
+                  <ul className="space-y-1.5">
+                    {actions.map((action, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                        <span className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-1.5", c.badge)} />
+                        {action}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Fine zone coherence */}
+              <div className="rounded-lg bg-muted/50 p-3 space-y-1.5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cohérence courbe — Zone 0–5 mm</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="text-center">
+                    <p className="text-[10px] text-muted-foreground">MF mélange</p>
+                    <p className={cn("text-sm font-bold", c.text)}>{mf.toFixed(2)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] text-muted-foreground">Plage optimale</p>
+                    <p className="text-sm font-bold text-foreground">2.5 – 2.8</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] text-muted-foreground">Écart</p>
+                    <p className={cn("text-sm font-bold", level === "ok" ? "text-emerald-600" : c.text)}>
+                      {mf >= 2.5 && mf <= 2.8 ? "0.00" : mf < 2.5 ? (2.5 - mf).toFixed(2) : (mf - 2.8).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {/* Final results table */}
       <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 space-y-4">
