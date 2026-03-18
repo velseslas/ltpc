@@ -63,6 +63,8 @@ import Sondage from "./pages/essais/geotechnique/insitu/Sondage";
 import EchantillonGeotechniqueForm from "./pages/essais/geotechnique/EchantillonGeotechniqueForm";
 import GeotechniqueDetail from "./pages/essais/geotechnique/GeotechniqueDetail";
 import GeotechniqueDataEntry from "./pages/essais/geotechnique/GeotechniqueDataEntry";
+import LimitesAtterbergDataEntry from "./pages/essais/geotechnique/identification/LimitesAtterbergDataEntry";
+import LimitesAtterbergReport from "./pages/essais/geotechnique/identification/LimitesAtterbergReport";
 import IdentificationNormes from "./pages/essais/geotechnique/normes/IdentificationNormes";
 import CompactageNormes from "./pages/essais/geotechnique/normes/CompactageNormes";
 import MecaniqueNormes from "./pages/essais/geotechnique/normes/MecaniqueNormes";
@@ -400,8 +402,9 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/identification/limites-atterberg" element={<LimitesAtterberg />} />
       <Route path="/essais/geotechnique/identification/limites-atterberg/nouveau" element={<EchantillonGeotechniqueForm essaiType="limites-atterberg" essaiTitle="Limites d'Atterberg" basePath="/essais/geotechnique/identification/limites-atterberg" />} />
       <Route path="/essais/geotechnique/identification/limites-atterberg/:id" element={<GeotechniqueDetail essaiType="limites-atterberg" essaiTitle="Limites d'Atterberg" basePath="/essais/geotechnique/identification/limites-atterberg" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
-      <Route path="/essais/geotechnique/identification/limites-atterberg/:id/saisie" element={<GeotechniqueDataEntry essaiType="limites-atterberg" essaiTitle="Limites d'Atterberg" basePath="/essais/geotechnique/identification/limites-atterberg" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
+      <Route path="/essais/geotechnique/identification/limites-atterberg/:id/saisie" element={<LimitesAtterbergDataEntry />} />
       <Route path="/essais/geotechnique/identification/limites-atterberg/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="limites-atterberg" essaiTitle="Limites d'Atterberg" basePath="/essais/geotechnique/identification/limites-atterberg" />} />
+      <Route path="/essais/geotechnique/identification/limites-atterberg/:id/rapport" element={<LimitesAtterbergReport />} />
       <Route path="/essais/geotechnique/identification/granulometrie-sol" element={<GranulometrieSol />} />
       <Route path="/essais/geotechnique/identification/granulometrie-sol/nouveau" element={<EchantillonGeotechniqueForm essaiType="granulometrie-sol" essaiTitle="Analyse Granulométrique des Sols" basePath="/essais/geotechnique/identification/granulometrie-sol" />} />
       <Route path="/essais/geotechnique/identification/granulometrie-sol/:id" element={<GeotechniqueDetail essaiType="granulometrie-sol" essaiTitle="Analyse Granulométrique des Sols" basePath="/essais/geotechnique/identification/granulometrie-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />

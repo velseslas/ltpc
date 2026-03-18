@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, Pencil, ClipboardEdit } from "lucide-react";
+import { ArrowLeft, Loader2, Pencil, ClipboardEdit, FileText } from "lucide-react";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -70,6 +70,11 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
           <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)}>
             <ClipboardEdit className="w-4 h-4 mr-2" />Saisie
           </Button>
+          {echantillon.statut === "termine" && (
+            <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/rapport`)}>
+              <FileText className="w-4 h-4 mr-2" />Rapport
+            </Button>
+          )}
           <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/modifier`)}>
             <Pencil className="w-4 h-4 mr-2" />Modifier
           </Button>
