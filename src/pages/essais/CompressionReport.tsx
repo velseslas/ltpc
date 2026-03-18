@@ -224,6 +224,8 @@ const CompressionReport = () => {
           essai_convenance_details: data.essai_convenance_details || null,
           mention_info_client: (data as any).mention_info_client || false,
           mention_eprouvette_client: (data as any).mention_eprouvette_client || false,
+          date_essai: data.date_essai || null,
+          etuvage: (data as any).etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
