@@ -55,11 +55,12 @@ export interface MaterialCurve {
 }
 
 // Compute mix curve
-function computeMixCurve(materials: MaterialCurve[]) {
+function computeMixCurve(materials: MaterialCurve[], dMax: number) {
   const totalQty = materials.reduce((sum, m) => sum + m.quantity, 0);
   if (totalQty === 0) return [];
 
-  return TAMIS_OPENINGS.map((ouv) => {
+  const tamis = getTamisForDmax(dMax);
+  return tamis.map((ouv) => {
     let weightedPass = 0;
     for (const mat of materials) {
       const point = mat.curve.find((p) => Math.abs(p.ouverture - ouv) < 0.001);
