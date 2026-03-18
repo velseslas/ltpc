@@ -134,16 +134,7 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
       </Card>
 
       {echantillon.resultats && (
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Résultats</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-sm text-foreground bg-muted/50 p-4 rounded-lg overflow-auto">
-              {JSON.stringify(echantillon.resultats, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
+        <ResultatsSection essaiType={essaiType} resultats={echantillon.resultats as Record<string, unknown>} />
       )}
     </div>
   );
