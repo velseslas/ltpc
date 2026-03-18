@@ -64,6 +64,8 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 export default function ChantierEchantillonReport() {
