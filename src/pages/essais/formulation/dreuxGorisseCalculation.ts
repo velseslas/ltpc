@@ -253,8 +253,7 @@ export function calculateMixDesign(
     }))
   );
 
-  // Calculate Point A
-  const dMaxReel = determineDmax(granulats);
+  // Calculate final Point A (using actual MF mélange)
   const pointA = calculatePointA(dMaxReel, coeffGranulaire, mfMelange);
 
   // Volume consistency checks
