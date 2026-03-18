@@ -137,7 +137,7 @@ export default function ChantierEchantillonForm() {
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
   const [operateurId, setOperateurId] = useState("");
-  const [dateEssai, setDateEssai] = useState<Date | undefined>();
+  
   const [etuvage, setEtuvage] = useState("non");
 
   // Data fetching
