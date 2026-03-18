@@ -13,6 +13,7 @@ import jsPDF from "jspdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Line, ComposedChart } from "recharts";
+import { classifySoil } from "@/components/essais/geotechnique/SoilClassification";
 
 const basePath = "/essais/geotechnique/identification/limites-atterberg";
 const essaiType = "limites-atterberg";
