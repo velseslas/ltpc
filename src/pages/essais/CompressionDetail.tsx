@@ -36,6 +36,8 @@ interface EchantillonData {
   essai_convenance: boolean;
   essai_convenance_details: string | null;
   classe_resistance: string | null;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 const getStatutBadge = (statut: string) => {
