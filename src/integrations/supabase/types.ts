@@ -947,6 +947,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -960,6 +961,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -973,6 +975,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1492,6 +1495,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1505,6 +1509,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1518,6 +1523,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1549,6 +1555,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1562,6 +1569,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1575,6 +1583,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1606,6 +1615,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1619,6 +1629,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1632,6 +1643,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1663,6 +1675,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1676,6 +1689,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1689,6 +1703,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1720,6 +1735,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1733,6 +1749,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1746,6 +1763,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1917,6 +1935,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1930,6 +1949,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1943,6 +1963,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -1974,6 +1995,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -1987,6 +2009,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -2000,6 +2023,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -2031,6 +2055,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -2044,6 +2069,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -2057,6 +2083,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -2088,6 +2115,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -2101,6 +2129,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -2114,6 +2143,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -3287,6 +3317,7 @@ export type Database = {
         Row: {
           carriere_id: string | null
           created_at: string
+          date_essai: string | null
           date_reception: string
           id: string
           numero: number
@@ -3300,6 +3331,7 @@ export type Database = {
         Insert: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
@@ -3313,6 +3345,7 @@ export type Database = {
         Update: {
           carriere_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_reception?: string
           id?: string
           numero?: number
