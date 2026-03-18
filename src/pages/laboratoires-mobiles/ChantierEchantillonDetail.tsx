@@ -34,6 +34,8 @@ interface EchantillonData {
   jours_essai: { jour: number; nombre: number }[];
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 const getStatutBadge = (statut: string) => {
@@ -104,6 +106,8 @@ export default function ChantierEchantillonDetail() {
           jours_essai: joursEssai,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          date_essai: data.date_essai || null,
+          etuvage: (data as any).etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
@@ -237,8 +241,20 @@ export default function ChantierEchantillonDetail() {
                 </p>
               </div>
               <div>
+                <p className="text-sm text-muted-foreground">Date d'essai</p>
+                <p className="font-medium">
+                  {echantillon.date_essai 
+                    ? format(new Date(echantillon.date_essai), "dd MMMM yyyy", { locale: fr })
+                    : "-"}
+                </p>
+              </div>
+              <div>
                 <p className="text-sm text-muted-foreground">Technicien</p>
                 <p className="font-medium">{echantillon.operateur_nom}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Étuvage</p>
+                <p className="font-medium">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</p>
               </div>
             </div>
           </CardContent>

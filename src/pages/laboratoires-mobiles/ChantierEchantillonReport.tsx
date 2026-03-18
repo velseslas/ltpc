@@ -64,6 +64,8 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 export default function ChantierEchantillonReport() {
@@ -216,6 +218,8 @@ export default function ChantierEchantillonReport() {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          date_essai: data.date_essai || null,
+          etuvage: (data as any).etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
@@ -407,6 +411,14 @@ export default function ChantierEchantillonReport() {
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.date_essai || "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
               </tr>
             </tbody>
           </table>

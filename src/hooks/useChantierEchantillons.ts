@@ -59,6 +59,8 @@ export function useCreateChantierEchantillon() {
       mode_coulage?: string | null;
       temperature_air?: number | null;
       temperature_beton?: number | null;
+      date_essai?: string | null;
+      etuvage?: string | null;
     }) => {
       const { data, error } = await supabase
         .from("echantillons_compression")

@@ -168,6 +168,8 @@ const CompressionSampleForm = () => {
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
   const [mentionInfoClient, setMentionInfoClient] = useState(false);
   const [mentionEprouvetteClient, setMentionEprouvetteClient] = useState(false);
+  const [dateEssai, setDateEssai] = useState<Date | undefined>();
+  const [etuvage, setEtuvage] = useState("non");
   const [submitted, setSubmitted] = useState(false);
 
   // Initialize clientId and centraleId first for dependent hooks
@@ -205,6 +207,8 @@ const CompressionSampleForm = () => {
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionInfoClient((existingEchantillon as { mention_info_client?: boolean }).mention_info_client || false);
       setMentionEprouvetteClient((existingEchantillon as { mention_eprouvette_client?: boolean }).mention_eprouvette_client || false);
+      setDateEssai(existingEchantillon.date_essai ? parseISO(existingEchantillon.date_essai) : undefined);
+      setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai
       const savedJours = existingEchantillon.jours_essai as Array<{ jour: number; nombre: number }> | null;
@@ -382,6 +386,8 @@ const CompressionSampleForm = () => {
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
       mention_info_client: mentionInfoClient,
       mention_eprouvette_client: mentionEprouvetteClient,
+      date_essai: dateEssai ? format(dateEssai, "yyyy-MM-dd") : null,
+      etuvage: etuvage,
     };
 
     try {
@@ -837,6 +843,49 @@ const CompressionSampleForm = () => {
                   className={cn("bg-background", submitted && !nombreEprouvettes && "border-red-700")}
                 />
                 <ValidationMessage show={submitted && !nombreEprouvettes} message="Ce champ est obligatoire" />
+              </div>
+
+              {/* Date d'essai */}
+              <div className="space-y-2">
+                <Label>Date d'essai</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal bg-background",
+                        !dateEssai && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateEssai
+                        ? format(dateEssai, "PPP", { locale: fr })
+                        : "Sélectionner une date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateEssai}
+                      onSelect={setDateEssai}
+                      locale={fr}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Étuvage */}
+              <div className="space-y-2">
+                <Label htmlFor="etuvage">Étuvage</Label>
+                <Select value={etuvage} onValueChange={setEtuvage}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="oui">Oui</SelectItem>
+                    <SelectItem value="non">Non</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Mode de coulage */}

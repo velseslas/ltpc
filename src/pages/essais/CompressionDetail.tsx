@@ -36,6 +36,8 @@ interface EchantillonData {
   essai_convenance: boolean;
   essai_convenance_details: string | null;
   classe_resistance: string | null;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 const getStatutBadge = (statut: string) => {
@@ -122,6 +124,8 @@ const CompressionDetail = () => {
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
           classe_resistance: data.classe_resistance || null,
+          date_essai: data.date_essai || null,
+          etuvage: (data as any).etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
@@ -312,17 +316,29 @@ const CompressionDetail = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Date de coulage</p>
-                  <p className="font-medium">
-                    {echantillon.date_coulage 
-                      ? format(new Date(echantillon.date_coulage), "dd MMMM yyyy", { locale: fr })
-                      : "-"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Mode de coulage</p>
-                  <p className="font-medium">{getModeCoulageLabel(echantillon.mode_coulage)}</p>
-                </div>
+                   <p className="text-sm text-muted-foreground">Date de coulage</p>
+                   <p className="font-medium">
+                     {echantillon.date_coulage 
+                       ? format(new Date(echantillon.date_coulage), "dd MMMM yyyy", { locale: fr })
+                       : "-"}
+                   </p>
+                 </div>
+                 <div>
+                   <p className="text-sm text-muted-foreground">Date d'essai</p>
+                   <p className="font-medium">
+                     {echantillon.date_essai 
+                       ? format(new Date(echantillon.date_essai), "dd MMMM yyyy", { locale: fr })
+                       : "-"}
+                   </p>
+                 </div>
+                 <div>
+                   <p className="text-sm text-muted-foreground">Mode de coulage</p>
+                   <p className="font-medium">{getModeCoulageLabel(echantillon.mode_coulage)}</p>
+                 </div>
+                 <div>
+                   <p className="text-sm text-muted-foreground">Étuvage</p>
+                   <p className="font-medium">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</p>
+                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Technicien</p>
                   <p className="font-medium">{echantillon.operateur_nom}</p>

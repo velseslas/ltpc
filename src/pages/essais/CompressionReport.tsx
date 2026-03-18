@@ -66,6 +66,8 @@ interface EchantillonData {
   essai_convenance_details: string | null;
   mention_info_client: boolean;
   mention_eprouvette_client: boolean;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 const CompressionReport = () => {
@@ -222,6 +224,8 @@ const CompressionReport = () => {
           essai_convenance_details: data.essai_convenance_details || null,
           mention_info_client: (data as any).mention_info_client || false,
           mention_eprouvette_client: (data as any).mention_eprouvette_client || false,
+          date_essai: data.date_essai || null,
+          etuvage: (data as any).etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
@@ -423,6 +427,14 @@ const CompressionReport = () => {
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
                   <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.date_essai || "-"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
               </tbody>
             </table>
