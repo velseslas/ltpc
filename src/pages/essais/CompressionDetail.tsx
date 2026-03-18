@@ -324,14 +324,6 @@ const CompressionDetail = () => {
                    </p>
                  </div>
                  <div>
-                   <p className="text-sm text-muted-foreground">Date d'essai</p>
-                   <p className="font-medium">
-                     {echantillon.date_essai 
-                       ? format(new Date(echantillon.date_essai), "dd MMMM yyyy", { locale: fr })
-                       : "-"}
-                   </p>
-                 </div>
-                 <div>
                    <p className="text-sm text-muted-foreground">Mode de coulage</p>
                    <p className="font-medium">{getModeCoulageLabel(echantillon.mode_coulage)}</p>
                  </div>

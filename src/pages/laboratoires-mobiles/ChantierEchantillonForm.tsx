@@ -137,7 +137,7 @@ export default function ChantierEchantillonForm() {
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
   const [operateurId, setOperateurId] = useState("");
-  const [dateEssai, setDateEssai] = useState<Date | undefined>();
+  
   const [etuvage, setEtuvage] = useState("non");
 
   // Data fetching
@@ -180,7 +180,7 @@ export default function ChantierEchantillonForm() {
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setOperateurId(existingEchantillon.operateur_id || "");
-      setDateEssai(existingEchantillon.date_essai ? parseISO(existingEchantillon.date_essai) : undefined);
+      
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai
@@ -290,7 +290,7 @@ export default function ChantierEchantillonForm() {
       mode_coulage: modeCoulage || null,
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
-      date_essai: dateEssai ? format(dateEssai, "yyyy-MM-dd") : null,
+      
       etuvage: etuvage,
     };
 
@@ -318,7 +318,7 @@ export default function ChantierEchantillonForm() {
             mode_coulage: data.mode_coulage,
             essai_convenance: data.essai_convenance,
             essai_convenance_details: data.essai_convenance_details,
-            date_essai: data.date_essai,
+            
             etuvage: data.etuvage,
           })
           .eq("id", echantillonId);
@@ -649,34 +649,6 @@ export default function ChantierEchantillonForm() {
               />
             </div>
 
-            {/* Date d'essai */}
-            <div className="space-y-2">
-              <Label>Date d'essai</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-background",
-                      !dateEssai && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateEssai
-                      ? format(dateEssai, "PPP", { locale: fr })
-                      : "Sélectionner une date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateEssai}
-                    onSelect={setDateEssai}
-                    locale={fr}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
 
             {/* Étuvage */}
             <div className="space-y-2">
