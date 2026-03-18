@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Pencil, ClipboardEdit, FileText } from "lucide-react";
+import { ClassificationBadge, AbaqueButton } from "@/components/essais/geotechnique/CasagrandeAbaque";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";

@@ -84,6 +84,7 @@ export default function LimitesAtterbergReport() {
   const Ic = pf(calculs.ic);
   const moyLiq = pf(calculs.moyenne_liquidite);
   const moyPlast = pf(calculs.moyenne_plasticite);
+  const classificationResult = classifySoil(Wl, Ip);
 
   const handlePrint = () => window.print();
 
