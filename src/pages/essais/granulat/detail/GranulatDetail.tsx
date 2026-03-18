@@ -213,6 +213,14 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
                   {format(new Date(echantillon.date_reception), "dd MMMM yyyy", { locale: fr })}
                 </p>
               </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Date d'essai</p>
+                <p className="font-medium text-foreground">
+                  {(echantillon as any).date_essai 
+                    ? format(new Date((echantillon as any).date_essai), "dd MMMM yyyy", { locale: fr })
+                    : "-"}
+                </p>
+              </div>
             </div>
             {echantillon.observations && (
               <div className="mt-6 pt-6 border-t border-border">

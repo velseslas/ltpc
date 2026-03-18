@@ -8,6 +8,7 @@ export interface EchantillonGranulatBase {
   carriere_id: string | null;
   produit: string;
   date_reception: string;
+  date_essai: string | null;
   statut: "termine" | "en-cours" | "a-faire";
   resultats: Json | null;
   observations: string | null;

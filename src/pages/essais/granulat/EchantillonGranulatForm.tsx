@@ -55,6 +55,7 @@ const formSchema = z.object({
   produit: z.string().min(1, "Sélectionnez un produit"),
   operateur_id: z.string().optional(),
   date_reception: z.string().min(1, "La date de réception est requise"),
+  date_essai: z.string().optional(),
   observations: z.string().max(500, "Maximum 500 caractères").optional(),
 });
 
@@ -85,6 +86,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
       produit: "",
       operateur_id: "",
       date_reception: new Date().toISOString().split("T")[0],
+      date_essai: "",
       observations: "",
     },
   });
@@ -132,6 +134,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         // Set remaining fields
         if (echantillon) {
           form.setValue("date_reception", echantillon.date_reception);
+          form.setValue("date_essai", (echantillon as any).date_essai || "");
           form.setValue("observations", echantillon.observations || "");
           form.setValue("operateur_id", echantillon.operateur_id || "");
         }
@@ -153,6 +156,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         produit: values.produit,
         operateur_id: values.operateur_id || null,
         date_reception: values.date_reception,
+        date_essai: values.date_essai || null,
         observations: values.observations || null,
       };
 
@@ -314,6 +318,24 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date de réception *</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="date"
+                          className="bg-background border-border"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date_essai"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date d'essai</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
