@@ -319,14 +319,20 @@ export default function PointAEStep({
                 step="0.01"
                 min="0"
                 max="10"
-                placeholder="Saisir le MF idéal"
+                placeholder="Saisir le MF idéal (2.2 - 2.8)"
                 value={mfIdeal}
                 onChange={(e) => onMfIdealChange?.(e.target.value)}
                 className={cn(
                   "bg-secondary border-border",
-                  showError && !mfIdeal.trim() && "animate-border-blink"
+                  showError && !mfIdeal.trim() && "animate-border-blink",
+                  mfIdeal.trim() && (parseFloat(mfIdeal) < 2.2 || parseFloat(mfIdeal) > 2.8) && "animate-border-blink"
                 )}
               />
+              {mfIdeal.trim() && (parseFloat(mfIdeal) < 2.2 || parseFloat(mfIdeal) > 2.8) && (
+                <p className="text-xs text-destructive font-medium">
+                  ⚠️ Le MF idéal doit être compris entre 2.2 et 2.8
+                </p>
+              )}
             </div>
           </div>
         </CardContent>
