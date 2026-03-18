@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal } from "lucide-react";
+import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal, CheckCircle2, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
