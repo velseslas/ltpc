@@ -63,6 +63,8 @@ import Sondage from "./pages/essais/geotechnique/insitu/Sondage";
 import EchantillonGeotechniqueForm from "./pages/essais/geotechnique/EchantillonGeotechniqueForm";
 import GeotechniqueDetail from "./pages/essais/geotechnique/GeotechniqueDetail";
 import GeotechniqueDataEntry from "./pages/essais/geotechnique/GeotechniqueDataEntry";
+import LimitesAtterbergDataEntry from "./pages/essais/geotechnique/identification/LimitesAtterbergDataEntry";
+import LimitesAtterbergReport from "./pages/essais/geotechnique/identification/LimitesAtterbergReport";
 import IdentificationNormes from "./pages/essais/geotechnique/normes/IdentificationNormes";
 import CompactageNormes from "./pages/essais/geotechnique/normes/CompactageNormes";
 import MecaniqueNormes from "./pages/essais/geotechnique/normes/MecaniqueNormes";
