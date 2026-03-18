@@ -70,6 +70,11 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
           <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)}>
             <ClipboardEdit className="w-4 h-4 mr-2" />Saisie
           </Button>
+          {echantillon.statut === "termine" && (
+            <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/rapport`)}>
+              <FileText className="w-4 h-4 mr-2" />Rapport
+            </Button>
+          )}
           <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/modifier`)}>
             <Pencil className="w-4 h-4 mr-2" />Modifier
           </Button>
