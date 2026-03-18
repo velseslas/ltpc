@@ -396,65 +396,36 @@ function distributeSand(
  * @returns Volumetric proportions (sum = 1) keyed by granulat key
  */
 /**
- * Project a vector onto the simplex:
- *   Σ pi = 1, pi ≥ 0
- * Uses iterative clipping and renormalization.
+ * Project a vector onto the standard simplex: Σ pi = 1, pi ≥ 0
  */
 function projectOntoSimplex(values: number[]): number[] {
   const n = values.length;
   const result = [...values];
 
-  // Iterative projection: clamp to min, redistribute excess
   for (let iter = 0; iter < 20; iter++) {
-    // Clamp to minimums
     for (let i = 0; i < n; i++) {
-      if (result[i] < minBounds[i]) result[i] = minBounds[i];
+      if (result[i] < 0) result[i] = 0;
     }
     const sum = result.reduce((a, b) => a + b, 0);
     if (Math.abs(sum - 1.0) < 1e-9) break;
-
-    // Redistribute excess proportionally among non-clamped values
-    const excess = sum - 1.0;
-    const freeIndices = [];
-    for (let i = 0; i < n; i++) {
-      if (result[i] > minBounds[i] + 1e-9) freeIndices.push(i);
-    }
-    if (freeIndices.length === 0) {
-      // All at minimum — normalize uniformly
-      const s = result.reduce((a, b) => a + b, 0);
-      for (let i = 0; i < n; i++) result[i] = s > 0 ? result[i] / s : 1 / n;
+    if (sum === 0) {
+      for (let i = 0; i < n; i++) result[i] = 1 / n;
       break;
     }
-    const freeSum = freeIndices.reduce((s, i) => s + result[i], 0);
-    for (const i of freeIndices) {
-      result[i] -= excess * (result[i] / freeSum);
-      if (result[i] < minBounds[i]) result[i] = minBounds[i];
-    }
+    for (let i = 0; i < n; i++) result[i] /= sum;
   }
-
-  // Final normalize
-  const finalSum = result.reduce((a, b) => a + b, 0);
-  if (finalSum > 0 && Math.abs(finalSum - 1.0) > 1e-9) {
-    for (let i = 0; i < n; i++) result[i] /= finalSum;
-  }
-
   return result;
 }
 
 function solveSimplexLeastSquares(
   group: GranulatInput[],
   referenceCurve: { ouverture: number; pourcentage: number }[],
-  sieves: number[] = TAMIS_OPENINGS,
-  minBounds?: number[]
+  sieves: number[] = TAMIS_OPENINGS
 ): Record<string, number> {
   const n = group.length;
   if (n === 0) return {};
   if (n === 1) return { [group[0].key]: 1.0 };
 
-  const mins = minBounds ?? new Array(n).fill(0);
-
-  // Build matrix: A[sieve][material] = passing percentage at that sieve
-  // Target vector: b[sieve] = reference curve value at that sieve
   const relevantSieves = sieves.filter(s => {
     const hasRef = referenceCurve.some(r => Math.abs(r.ouverture - s) < 0.001);
     const hasData = group.some(g => g.curve.some(c => Math.abs(c.ouverture - s) < 0.001));
@@ -490,15 +461,11 @@ function solveSimplexLeastSquares(
     return pt ? pt.pourcentage : 0;
   });
 
-  // For 2 materials: analytical 1D sweep with min bounds
+  // For 2 materials: analytical 1D sweep
   if (n === 2) {
-    const pMin = Math.max(mins[0], 1 - (1 - mins[1])); // ensure both mins respected
-    const pMax = Math.min(1 - mins[1], 1 - mins[0] > 0 ? 1 : 1);
     let bestP = 0.5;
     let bestErr = Infinity;
-    const lo = Math.max(mins[0], 0);
-    const hi = Math.min(1 - mins[1], 1);
-    for (let p = lo; p <= hi + 0.0005; p += 0.001) {
+    for (let p = 0; p <= 1.0005; p += 0.001) {
       let err = 0;
       for (let s = 0; s < A.length; s++) {
         const mix = p * A[s][0] + (1 - p) * A[s][1];
@@ -506,15 +473,14 @@ function solveSimplexLeastSquares(
       }
       if (err < bestErr) {
         bestErr = err;
-        bestP = Math.min(hi, Math.max(lo, p));
+        bestP = Math.min(1, Math.max(0, p));
       }
     }
     return { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
   }
 
-  // For 3+ materials: projected gradient descent with min bounds
-  let props = projectOntoConstrainedSimplex(group.map(() => 1 / n), mins);
-
+  // For 3+ materials: projected gradient descent (pi ≥ 0, Σpi = 1)
+  let props = projectOntoSimplex(group.map(() => 1 / n));
   const lr = 0.0001;
   const maxIter = 5000;
 
@@ -528,9 +494,8 @@ function solveSimplexLeastSquares(
         grad[i] += 2 * residual * A[s][i];
       }
     }
-
     const newProps = props.map((p, i) => p - lr * grad[i]);
-    props = projectOntoConstrainedSimplex(newProps, mins);
+    props = projectOntoSimplex(newProps);
   }
 
   return Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
@@ -540,7 +505,8 @@ function solveSimplexLeastSquares(
  * Distribute gravel volume using least-squares optimization against
  * the Dreux reference curve, using actual granulometric curves.
  * 
- * NO fixed percentages — proportions are computed mathematically.
+ * Fully flexible: works with any number/combination of fractions.
+ * No hardcoded minimum proportions.
  */
 function distributeGravel(
   totalVolume: number,
@@ -552,50 +518,20 @@ function distributeGravel(
 
   if (graviers.length === 1) {
     const g = graviers[0];
+    console.warn('[distributeGravel] ⚠️ Une seule fraction de gravier — mélange non optimisé');
     result[g.key] = g.densite > 0 ? totalVolume * g.densite : 0;
     return result;
   }
 
-  // Compute minimum bounds per gravel (physical stability constraint)
-  const minBounds = graviers.map(g => getGravelMinProportion(g));
-  const sumMins = minBounds.reduce((a, b) => a + b, 0);
-
-  // Safety: if min bounds exceed 100%, scale them down proportionally
-  const effectiveMins = sumMins > 1.0
-    ? minBounds.map(m => m / sumMins * 0.95)
-    : minBounds;
-
-  console.log('[distributeGravel] Min bounds:', 
-    graviers.map((g, i) => `${g.label}: ≥${(effectiveMins[i] * 100).toFixed(0)}%`).join(', ')
-  );
-
   if (referenceCurve && referenceCurve.length > 0) {
-    const proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS, effectiveMins);
-    
-    // Verify constraints are met
-    let constraintViolated = false;
-    for (let i = 0; i < graviers.length; i++) {
-      const p = proportions[graviers[i].key] ?? 0;
-      if (p < effectiveMins[i] - 0.001) {
-        constraintViolated = true;
-        console.warn(`[distributeGravel] ⚠️ Contrainte violée pour ${graviers[i].label}: ${(p*100).toFixed(1)}% < min ${(effectiveMins[i]*100).toFixed(0)}%`);
-      }
-    }
+    const proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
 
-    if (constraintViolated) {
-      // Force redistribution respecting minimums
-      const forced = projectOntoConstrainedSimplex(
-        graviers.map(g => proportions[g.key] ?? 1 / graviers.length),
-        effectiveMins
-      );
-      console.warn('[distributeGravel] ⚠️ Redistribution forcée appliquée:', 
-        graviers.map((g, i) => `${g.label}: ${(forced[i] * 100).toFixed(1)}%`).join(', ')
-      );
-      for (let i = 0; i < graviers.length; i++) {
-        const vol = totalVolume * forced[i];
-        result[graviers[i].key] = graviers[i].densite > 0 ? vol * graviers[i].densite : 0;
+    // Smart alert: warn if any fraction dominates (>90%)
+    for (const g of graviers) {
+      const p = proportions[g.key] ?? 0;
+      if (p > 0.90) {
+        console.warn(`[distributeGravel] ⚠️ Fraction dominante: ${g.label} = ${(p * 100).toFixed(1)}% — vérifier la cohérence granulométrique`);
       }
-      return result;
     }
 
     console.log('[distributeGravel] Optimized proportions:', 
