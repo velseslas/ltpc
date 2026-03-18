@@ -66,6 +66,8 @@ interface EchantillonData {
   essai_convenance_details: string | null;
   mention_info_client: boolean;
   mention_eprouvette_client: boolean;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 const CompressionReport = () => {
