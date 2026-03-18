@@ -210,7 +210,7 @@ function ClassificationSolResultats({ resultats }: { resultats: Record<string, u
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">VBS</p>
-              <p className="text-lg font-bold text-foreground">{resultats.vbs || "-"}</p>
+              <p className="text-lg font-bold text-foreground">{resultats.vbs ? String(resultats.vbs) : "-"}</p>
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">MO</p>
