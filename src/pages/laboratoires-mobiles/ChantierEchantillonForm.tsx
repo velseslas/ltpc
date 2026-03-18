@@ -290,7 +290,7 @@ export default function ChantierEchantillonForm() {
       mode_coulage: modeCoulage || null,
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
-      date_essai: dateEssai ? format(dateEssai, "yyyy-MM-dd") : null,
+      
       etuvage: etuvage,
     };
 
