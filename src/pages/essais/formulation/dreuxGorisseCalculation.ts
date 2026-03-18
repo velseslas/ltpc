@@ -577,10 +577,48 @@ function distributeGravel(
     return result;
   }
 
-  // If we have a reference curve, use least-squares optimization
+  // Compute minimum bounds per gravel (physical stability constraint)
+  const minBounds = graviers.map(g => getGravelMinProportion(g));
+  const sumMins = minBounds.reduce((a, b) => a + b, 0);
+
+  // Safety: if min bounds exceed 100%, scale them down proportionally
+  const effectiveMins = sumMins > 1.0
+    ? minBounds.map(m => m / sumMins * 0.95)
+    : minBounds;
+
+  console.log('[distributeGravel] Min bounds:', 
+    graviers.map((g, i) => `${g.label}: ≥${(effectiveMins[i] * 100).toFixed(0)}%`).join(', ')
+  );
+
   if (referenceCurve && referenceCurve.length > 0) {
-    const proportions = solveSimplexLeastSquares(graviers, referenceCurve);
+    const proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS, effectiveMins);
     
+    // Verify constraints are met
+    let constraintViolated = false;
+    for (let i = 0; i < graviers.length; i++) {
+      const p = proportions[graviers[i].key] ?? 0;
+      if (p < effectiveMins[i] - 0.001) {
+        constraintViolated = true;
+        console.warn(`[distributeGravel] ⚠️ Contrainte violée pour ${graviers[i].label}: ${(p*100).toFixed(1)}% < min ${(effectiveMins[i]*100).toFixed(0)}%`);
+      }
+    }
+
+    if (constraintViolated) {
+      // Force redistribution respecting minimums
+      const forced = projectOntoConstrainedSimplex(
+        graviers.map(g => proportions[g.key] ?? 1 / graviers.length),
+        effectiveMins
+      );
+      console.warn('[distributeGravel] ⚠️ Redistribution forcée appliquée:', 
+        graviers.map((g, i) => `${g.label}: ${(forced[i] * 100).toFixed(1)}%`).join(', ')
+      );
+      for (let i = 0; i < graviers.length; i++) {
+        const vol = totalVolume * forced[i];
+        result[graviers[i].key] = graviers[i].densite > 0 ? vol * graviers[i].densite : 0;
+      }
+      return result;
+    }
+
     console.log('[distributeGravel] Optimized proportions:', 
       Object.entries(proportions).map(([k, v]) => `${k}: ${(v * 100).toFixed(1)}%`).join(', ')
     );
@@ -592,7 +630,7 @@ function distributeGravel(
     return result;
   }
 
-  // Fallback: equal distribution (only when no reference curve available)
+  // Fallback: equal distribution
   const volumeEach = totalVolume / graviers.length;
   for (const g of graviers) {
     result[g.key] = g.densite > 0 ? volumeEach * g.densite : 0;
