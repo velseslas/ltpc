@@ -214,7 +214,7 @@ function ClassificationSolResultats({ resultats }: { resultats: Record<string, u
             </div>
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-xs text-muted-foreground">MO</p>
-              <p className="text-lg font-bold text-foreground">{resultats.matiere_organique ? `${resultats.matiere_organique}%` : "-"}</p>
+              <p className="text-lg font-bold text-foreground">{resultats.matiere_organique ? `${String(resultats.matiere_organique)}%` : "-"}</p>
             </div>
           </div>
         </CardContent>

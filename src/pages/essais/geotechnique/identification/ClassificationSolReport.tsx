@@ -149,11 +149,11 @@ export default function ClassificationSolReport() {
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.wl || "-"}</td>
-                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.ip || "-"}</td>
-                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.vbs || "-"}</td>
-                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.matiere_organique || "-"}</td>
-                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.caco3 || "-"}</td>
+                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{String(resultats.wl || "-")}</td>
+                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{String(resultats.ip || "-")}</td>
+                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{String(resultats.vbs || "-")}</td>
+                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{String(resultats.matiere_organique || "-")}</td>
+                <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{String(resultats.caco3 || "-")}</td>
               </tr>
             </tbody>
           </table>
