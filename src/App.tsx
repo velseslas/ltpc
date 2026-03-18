@@ -44,6 +44,8 @@ import LimitesAtterberg from "./pages/essais/geotechnique/identification/Limites
 import GranulometrieSol from "./pages/essais/geotechnique/identification/GranulometrieSol";
 import TeneurEauSol from "./pages/essais/geotechnique/identification/TeneurEauSol";
 import ClassificationSol from "./pages/essais/geotechnique/identification/ClassificationSol";
+import ClassificationSolDataEntry from "./pages/essais/geotechnique/identification/ClassificationSolDataEntry";
+import ClassificationSolReport from "./pages/essais/geotechnique/identification/ClassificationSolReport";
 // Géotechnique - Compactage
 import ProctorNormal from "./pages/essais/geotechnique/compactage/ProctorNormal";
 import ProctorModifie from "./pages/essais/geotechnique/compactage/ProctorModifie";
@@ -418,8 +420,9 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/identification/classification-sol" element={<ClassificationSol />} />
       <Route path="/essais/geotechnique/identification/classification-sol/nouveau" element={<EchantillonGeotechniqueForm essaiType="classification-sol" essaiTitle="Classification des Sols" basePath="/essais/geotechnique/identification/classification-sol" />} />
       <Route path="/essais/geotechnique/identification/classification-sol/:id" element={<GeotechniqueDetail essaiType="classification-sol" essaiTitle="Classification des Sols" basePath="/essais/geotechnique/identification/classification-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
-      <Route path="/essais/geotechnique/identification/classification-sol/:id/saisie" element={<GeotechniqueDataEntry essaiType="classification-sol" essaiTitle="Classification des Sols" basePath="/essais/geotechnique/identification/classification-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
+      <Route path="/essais/geotechnique/identification/classification-sol/:id/saisie" element={<ClassificationSolDataEntry />} />
       <Route path="/essais/geotechnique/identification/classification-sol/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="classification-sol" essaiTitle="Classification des Sols" basePath="/essais/geotechnique/identification/classification-sol" />} />
+      <Route path="/essais/geotechnique/identification/classification-sol/:id/rapport" element={<ClassificationSolReport />} />
       {/* Compactage */}
       <Route path="/essais/geotechnique/compactage/proctor-normal" element={<ProctorNormal />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/nouveau" element={<EchantillonGeotechniqueForm essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" />} />

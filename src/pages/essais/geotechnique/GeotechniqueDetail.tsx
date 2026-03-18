@@ -180,9 +180,90 @@ function LimitesAtterbergResultats({ resultats }: { resultats: Record<string, un
   );
 }
 
+function ClassificationSolResultats({ resultats }: { resultats: Record<string, unknown> }) {
+  const granulometrie = (resultats.granulometrie as Record<string, string>) || {};
+  const gtr = resultats.classification_gtr as Record<string, string> | null;
+  const uscs = resultats.classification_uscs as Record<string, string> | null;
+
+  return (
+    <div className="space-y-6">
+      {/* Key values */}
+      <Card className="border-border bg-card">
+        <CardHeader><CardTitle className="text-lg">Paramètres d'identification</CardTitle></CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Passant 80µm</p>
+              <p className="text-lg font-bold text-primary">{granulometrie["0.08"] ? `${granulometrie["0.08"]}%` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Passant 2mm</p>
+              <p className="text-lg font-bold text-primary">{granulometrie["2"] ? `${granulometrie["2"]}%` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Wl</p>
+              <p className="text-lg font-bold text-foreground">{resultats.wl ? `${String(resultats.wl)}%` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Ip</p>
+              <p className="text-lg font-bold text-foreground">{resultats.ip ? `${String(resultats.ip)}%` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">VBS</p>
+              <p className="text-lg font-bold text-foreground">{resultats.vbs ? String(resultats.vbs) : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">MO</p>
+              <p className="text-lg font-bold text-foreground">{resultats.matiere_organique ? `${String(resultats.matiere_organique)}%` : "-"}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Classifications */}
+      {(gtr || uscs) && (
+        <Card className="border-border bg-card">
+          <CardHeader><CardTitle className="text-lg">Classification du sol</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {gtr && (
+                <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">GTR (NF P 11-300)</p>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-lg font-bold border-primary/50 text-primary bg-primary/10 px-3 py-1">
+                      {gtr.sous_classe}
+                    </Badge>
+                    <span className="font-semibold text-foreground">{gtr.label}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{gtr.description}</p>
+                </div>
+              )}
+              {uscs && (
+                <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">USCS (ASTM D2487)</p>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-lg font-bold border-primary/50 text-primary bg-primary/10 px-3 py-1">
+                      {uscs.code}
+                    </Badge>
+                    <span className="font-semibold text-foreground">{uscs.label}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{uscs.description}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
 function ResultatsSection({ essaiType, resultats }: { essaiType: string; resultats: Record<string, unknown> }) {
   if (essaiType === "limites-atterberg") {
     return <LimitesAtterbergResultats resultats={resultats} />;
+  }
+  if (essaiType === "classification-sol") {
+    return <ClassificationSolResultats resultats={resultats} />;
   }
 
   return (
