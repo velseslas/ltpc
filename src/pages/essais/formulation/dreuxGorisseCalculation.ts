@@ -568,11 +568,8 @@ function solveSimplexLeastSquares(
 }
 
 /**
- * Distribute gravel volume using least-squares optimization against
- * the Dreux reference curve, using actual granulometric curves.
- * 
- * Fully flexible: works with any number/combination of fractions.
- * No hardcoded minimum proportions.
+ * Distribute gravel volume using least-squares optimization.
+ * CRITICAL: Every active fraction MUST receive a non-zero proportion.
  */
 function distributeGravel(
   totalVolume: number,
@@ -589,32 +586,37 @@ function distributeGravel(
     return result;
   }
 
+  let proportions: Record<string, number>;
+  
   if (referenceCurve && referenceCurve.length > 0) {
-    const proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
-
-    // Smart alert: warn if any fraction dominates (>90%)
-    for (const g of graviers) {
-      const p = proportions[g.key] ?? 0;
-      if (p > 0.90) {
-        console.warn(`[distributeGravel] ⚠️ Fraction dominante: ${g.label} = ${(p * 100).toFixed(1)}% — vérifier la cohérence granulométrique`);
-      }
-    }
-
-    console.log('[distributeGravel] Optimized proportions:', 
-      Object.entries(proportions).map(([k, v]) => `${k}: ${(v * 100).toFixed(1)}%`).join(', ')
-    );
-
-    for (const g of graviers) {
-      const vol = totalVolume * (proportions[g.key] ?? 0);
-      result[g.key] = g.densite > 0 ? vol * g.densite : 0;
-    }
-    return result;
+    proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
+  } else {
+    const eq = 1 / graviers.length;
+    proportions = Object.fromEntries(graviers.map(g => [g.key, eq]));
   }
 
-  // Fallback: equal distribution
-  const volumeEach = totalVolume / graviers.length;
+  // Post-validation: ensure ALL fractions are present and non-zero
+  const missingOrZero = graviers.filter(g => (proportions[g.key] ?? 0) < MIN_FRACTION);
+  if (missingOrZero.length > 0) {
+    console.warn(`[distributeGravel] ⚠️ Correction appliquée — fractions sous le seuil: ${missingOrZero.map(g => g.label).join(', ')}`);
+    proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
+  }
+
+  // Smart alert: warn if any fraction dominates (>90%)
   for (const g of graviers) {
-    result[g.key] = g.densite > 0 ? volumeEach * g.densite : 0;
+    const p = proportions[g.key] ?? 0;
+    if (p > 0.90) {
+      console.warn(`[distributeGravel] ⚠️ Fraction dominante: ${g.label} = ${(p * 100).toFixed(1)}%`);
+    }
+  }
+
+  console.log('[distributeGravel] Final proportions:', 
+    graviers.map(g => `${g.label}: ${((proportions[g.key] ?? 0) * 100).toFixed(1)}%`).join(', ')
+  );
+
+  for (const g of graviers) {
+    const vol = totalVolume * (proportions[g.key] ?? 0);
+    result[g.key] = g.densite > 0 ? vol * g.densite : 0;
   }
   return result;
 }
