@@ -1223,10 +1223,12 @@ export type Database = {
           condition_cure: string | null
           created_at: string
           date_coulage: string | null
+          date_essai: string | null
           destination_beton: string | null
           dimension_eprouvette: string | null
           essai_convenance: boolean
           essai_convenance_details: string | null
+          etuvage: string | null
           formulation_id: string | null
           id: string
           jours_essai: Json | null
@@ -1256,10 +1258,12 @@ export type Database = {
           condition_cure?: string | null
           created_at?: string
           date_coulage?: string | null
+          date_essai?: string | null
           destination_beton?: string | null
           dimension_eprouvette?: string | null
           essai_convenance?: boolean
           essai_convenance_details?: string | null
+          etuvage?: string | null
           formulation_id?: string | null
           id?: string
           jours_essai?: Json | null
@@ -1289,10 +1293,12 @@ export type Database = {
           condition_cure?: string | null
           created_at?: string
           date_coulage?: string | null
+          date_essai?: string | null
           destination_beton?: string | null
           dimension_eprouvette?: string | null
           essai_convenance?: boolean
           essai_convenance_details?: string | null
+          etuvage?: string | null
           formulation_id?: string | null
           id?: string
           jours_essai?: Json | null
