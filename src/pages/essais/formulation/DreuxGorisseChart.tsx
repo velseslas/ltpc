@@ -116,7 +116,7 @@ export default function DreuxGorisseChart({
 
   const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
 
-  const mixCurve = useMemo(() => computeMixCurve(materials), [materials]);
+  const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
 
   // Check conformity: mix curve within envelope (5%-95%)
   const isConforme = useMemo(() => {
