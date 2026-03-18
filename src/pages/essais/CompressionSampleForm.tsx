@@ -168,7 +168,7 @@ const CompressionSampleForm = () => {
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
   const [mentionInfoClient, setMentionInfoClient] = useState(false);
   const [mentionEprouvetteClient, setMentionEprouvetteClient] = useState(false);
-  const [dateEssai, setDateEssai] = useState<Date | undefined>();
+  
   const [etuvage, setEtuvage] = useState("non");
   const [submitted, setSubmitted] = useState(false);
 
