@@ -218,6 +218,8 @@ export default function ChantierEchantillonReport() {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          date_essai: data.date_essai || null,
+          etuvage: (data as any).etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
