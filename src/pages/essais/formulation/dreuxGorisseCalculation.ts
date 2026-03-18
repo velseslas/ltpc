@@ -365,13 +365,131 @@ function distributeSand(
 }
 
 /**
- * Distribute gravel volume for optimal pumpability.
- * Default distribution: 3/8 = 20%, 8/15 = 45%, 15/25 = 35%
- * When exact fraction names don't match, use size-based ordering.
+ * Solve least-squares proportions on the simplex for a group of granulats.
+ * 
+ * Minimizes: Σ (Σ(pi × Pi(d)) - P_ref(d))² 
+ * Subject to: Σpi = 1, pi ≥ 0
+ * 
+ * Uses projected gradient descent on the probability simplex.
+ * Works with any number of materials (1, 2, 3, ...).
+ * 
+ * @param group - Active granulats in this group
+ * @param referenceCurve - Target Dreux curve values at each sieve
+ * @param sieves - Sieve openings to use for fitting
+ * @returns Volumetric proportions (sum = 1) keyed by granulat key
+ */
+function solveSimplexLeastSquares(
+  group: GranulatInput[],
+  referenceCurve: { ouverture: number; pourcentage: number }[],
+  sieves: number[] = TAMIS_OPENINGS
+): Record<string, number> {
+  const n = group.length;
+  if (n === 0) return {};
+  if (n === 1) return { [group[0].key]: 1.0 };
+
+  // Build matrix: A[sieve][material] = passing percentage at that sieve
+  // Target vector: b[sieve] = reference curve value at that sieve
+  const relevantSieves = sieves.filter(s => {
+    // Only use sieves where at least one material has data and reference exists
+    const hasRef = referenceCurve.some(r => Math.abs(r.ouverture - s) < 0.001);
+    const hasData = group.some(g => g.curve.some(c => Math.abs(c.ouverture - s) < 0.001));
+    return hasRef && hasData;
+  });
+
+  if (relevantSieves.length === 0) {
+    // Fallback: equal distribution
+    const eq = 1 / n;
+    return Object.fromEntries(group.map(g => [g.key, eq]));
+  }
+
+  // Extract passing values for each material at each sieve
+  const A: number[][] = relevantSieves.map(sieve => 
+    group.map(g => {
+      const pt = g.curve.find(c => Math.abs(c.ouverture - sieve) < 0.001);
+      if (pt) return pt.pourcentageTamisat;
+      // Interpolate: if sieve > max curve point, assume 100; if < min, assume 0
+      const sorted = [...g.curve].sort((a, b) => a.ouverture - b.ouverture);
+      if (sorted.length === 0) return 0;
+      if (sieve <= sorted[0].ouverture) return sorted[0].pourcentageTamisat;
+      if (sieve >= sorted[sorted.length - 1].ouverture) return sorted[sorted.length - 1].pourcentageTamisat;
+      // Linear interpolation in log space
+      for (let i = 0; i < sorted.length - 1; i++) {
+        if (sieve >= sorted[i].ouverture && sieve <= sorted[i + 1].ouverture) {
+          const t = (Math.log10(sieve) - Math.log10(sorted[i].ouverture)) / 
+                    (Math.log10(sorted[i + 1].ouverture) - Math.log10(sorted[i].ouverture));
+          return sorted[i].pourcentageTamisat + t * (sorted[i + 1].pourcentageTamisat - sorted[i].pourcentageTamisat);
+        }
+      }
+      return 0;
+    })
+  );
+
+  const b: number[] = relevantSieves.map(sieve => {
+    const pt = referenceCurve.find(r => Math.abs(r.ouverture - sieve) < 0.001);
+    return pt ? pt.pourcentage : 0;
+  });
+
+  // For 2 materials: analytical 1D sweep (most common case)
+  if (n === 2) {
+    let bestP = 0.5;
+    let bestErr = Infinity;
+    for (let p = 0; p <= 1.0; p += 0.001) {
+      let err = 0;
+      for (let s = 0; s < A.length; s++) {
+        const mix = p * A[s][0] + (1 - p) * A[s][1];
+        err += (mix - b[s]) ** 2;
+      }
+      if (err < bestErr) {
+        bestErr = err;
+        bestP = p;
+      }
+    }
+    return { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
+  }
+
+  // For 3+ materials: projected gradient descent on simplex
+  // Initialize with equal proportions
+  let props = group.map(() => 1 / n);
+
+  const lr = 0.0001; // learning rate
+  const maxIter = 5000;
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    // Compute gradient: dE/dp_i = 2 * Σ_s (Σ_j p_j*A[s][j] - b[s]) * A[s][i]
+    const grad = new Array(n).fill(0);
+    for (let s = 0; s < A.length; s++) {
+      let mix = 0;
+      for (let j = 0; j < n; j++) mix += props[j] * A[s][j];
+      const residual = mix - b[s];
+      for (let i = 0; i < n; i++) {
+        grad[i] += 2 * residual * A[s][i];
+      }
+    }
+
+    // Gradient step
+    const newProps = props.map((p, i) => p - lr * grad[i]);
+
+    // Project onto simplex: clip to ≥ 0, then normalize to sum = 1
+    const clipped = newProps.map(p => Math.max(0, p));
+    const sum = clipped.reduce((a, b) => a + b, 0);
+    if (sum > 0) {
+      props = clipped.map(p => p / sum);
+    }
+  }
+
+  return Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
+}
+
+/**
+ * Distribute gravel volume using least-squares optimization against
+ * the Dreux reference curve, using actual granulometric curves.
+ * 
+ * NO fixed percentages — proportions are computed mathematically.
  */
 function distributeGravel(
   totalVolume: number,
-  graviers: GranulatInput[]
+  graviers: GranulatInput[],
+  referenceCurve?: { ouverture: number; pourcentage: number }[]
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (graviers.length === 0) return result;
@@ -382,38 +500,26 @@ function distributeGravel(
     return result;
   }
 
-  // Sort by Dmax (smallest first)
-  const sorted = [...graviers].sort((a, b) => (a.dMax ?? 0) - (b.dMax ?? 0));
+  // If we have a reference curve, use least-squares optimization
+  if (referenceCurve && referenceCurve.length > 0) {
+    const proportions = solveSimplexLeastSquares(graviers, referenceCurve);
+    
+    console.log('[distributeGravel] Optimized proportions:', 
+      Object.entries(proportions).map(([k, v]) => `${k}: ${(v * 100).toFixed(1)}%`).join(', ')
+    );
 
-  // Distribution ratios optimized for pumpability, compacity & segregation reduction
-  // 3/8 is capped at 10%, remainder split 55/45 between 8/15 and 15/25
-  let ratios: number[];
-  if (sorted.length === 2) {
-    // Determine if smallest fraction is a 3/8-type (dMax <= 10)
-    const smallestIsSmallFraction = (sorted[0].dMax ?? 0) <= 10;
-    if (smallestIsSmallFraction) {
-      // 3/8 absent scenario doesn't apply here; this is 3/8 + one larger
-      // If 15/25 absent: 3/8=10%, 8/15=90%
-      // If 3/8 present + 15/25: 3/8=10%, 15/25=90%
-      ratios = [0.10, 0.90];
-    } else {
-      // No small fraction (e.g. 8/15 + 15/25): 8/15=60%, 15/25=40%
-      ratios = [0.60, 0.40];
+    for (const g of graviers) {
+      const vol = totalVolume * (proportions[g.key] ?? 0);
+      result[g.key] = g.densite > 0 ? vol * g.densite : 0;
     }
-  } else if (sorted.length === 3) {
-    // 3/8=10%, 8/15=55%*90%=49.5%≈50%, 15/25=45%*90%=40.5%≈40%
-    ratios = [0.10, 0.55 * 0.90, 0.45 * 0.90]; // [0.10, 0.495, 0.405]
-  } else {
-    // General case: equal distribution
-    ratios = sorted.map(() => 1 / sorted.length);
+    return result;
   }
 
-  for (let i = 0; i < sorted.length; i++) {
-    const g = sorted[i];
-    const vol = totalVolume * ratios[i];
-    result[g.key] = g.densite > 0 ? vol * g.densite : 0;
+  // Fallback: equal distribution (only when no reference curve available)
+  const volumeEach = totalVolume / graviers.length;
+  for (const g of graviers) {
+    result[g.key] = g.densite > 0 ? volumeEach * g.densite : 0;
   }
-
   return result;
 }
 
