@@ -196,7 +196,7 @@ export default function DreuxGorisseChart({
               <XAxis
                 dataKey="ouverture"
                 scale="log"
-                domain={[0.063, 40]}
+                domain={[0.063, dMax]}
                 type="number"
                 tickFormatter={(v: number) => `${v}`}
                 label={{
