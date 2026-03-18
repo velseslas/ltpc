@@ -564,25 +564,25 @@ function computeMixCurveFromMasses(
 
 /**
  * Optimize the mix to minimize deviation from Dreux-Gorisse reference curve.
+ * Uses least-squares optimization with actual granulometric curves.
  * 
  * CONSTRAINTS:
  * - Correction sand (0/1) ≤ 30% of total sand volume
  * - Total volumes Vsable and Vgravier remain constant
  * - G/S ratio is NEVER changed
- * - Each material keeps a minimum of 5% of its group total
+ * - Each material keeps a minimum proportion
  */
 export function optimizeMix(
   inputs: CalculationInputs,
   dMax: number,
   _classeConsistance: string
 ): Record<string, number> {
-  const { granulats, coeffGranulaire, coeffCompacite } = inputs;
+  const { granulats, coeffGranulaire } = inputs;
   const baseline = calculateMixDesign(inputs);
   const masses = { ...baseline.masses };
 
-  // Generate reference curve using the new Point A method
+  // Generate reference curve
   const pointA = baseline.pointA;
-  // Use MF mélange pondéré par les proportions réelles des sables; fallback to 2.5 if not available
   const mfForN = computeWeightedSandModuleFinesse(
     granulats
       .filter(g => g.active && g.isSable)
@@ -600,91 +600,52 @@ export function optimizeMix(
 
   const activeSables = granulats.filter(g => g.active && g.isSable);
   const activeGraviers = granulats.filter(g => g.active && !g.isSable);
-  const totalSableMass = activeSables.reduce((s, g) => s + (masses[g.key] ?? 0), 0);
-  const totalGravierMass = activeGraviers.reduce((s, g) => s + (masses[g.key] ?? 0), 0);
 
-  // Compute total sand volume for the 30% constraint
+  // Compute total volumes per group
   const totalSableVolume = activeSables.reduce((s, g) => {
     const m = masses[g.key] ?? 0;
     return s + (g.densite > 0 ? m / g.densite : 0);
   }, 0);
+  const totalGravierVolume = activeGraviers.reduce((s, g) => {
+    const m = masses[g.key] ?? 0;
+    return s + (g.densite > 0 ? m / g.densite : 0);
+  }, 0);
 
-  function computeError(m: Record<string, number>): number {
-    const mix = computeMixCurveFromMasses(granulats, m);
-    let err = 0;
-    for (const ref of referenceCurve) {
-      const mp = mix.find(p => Math.abs(p.ouverture - ref.ouverture) < 0.001);
-      if (mp) {
-        err += (mp.pourcentage - ref.pourcentage) ** 2;
-      }
-    }
-    return err;
-  }
-
-  function checkCorrectionSandConstraint(m: Record<string, number>): boolean {
+  // Optimize sands using least-squares
+  if (activeSables.length >= 2 && totalSableVolume > 0) {
+    const proportions = solveSimplexLeastSquares(activeSables, referenceCurve);
+    
+    // Apply correction sand constraint (≤ 30%)
     for (const s of activeSables) {
-      if (s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2)) {
-        const vol = s.densite > 0 ? (m[s.key] ?? 0) / s.densite : 0;
-        if (totalSableVolume > 0 && vol / totalSableVolume > 0.31) {
-          return false;
+      if ((s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2)) && (proportions[s.key] ?? 0) > 0.30) {
+        proportions[s.key] = 0.30;
+        // Redistribute remainder proportionally among other sands
+        const others = activeSables.filter(o => o.key !== s.key);
+        const othersTotal = others.reduce((sum, o) => sum + (proportions[o.key] ?? 0), 0);
+        const remaining = 0.70;
+        for (const o of others) {
+          proportions[o.key] = othersTotal > 0 
+            ? ((proportions[o.key] ?? 0) / othersTotal) * remaining 
+            : remaining / others.length;
         }
       }
     }
-    return true;
-  }
 
-  function optimizeGroup(group: GranulatInput[], totalMass: number) {
-    if (group.length < 2 || totalMass <= 0) return;
-    const step = totalMass * 0.01;
-    const minMass = totalMass * 0.05;
-
-    for (let iter = 0; iter < 200; iter++) {
-      let improved = false;
-      for (let i = 0; i < group.length; i++) {
-        for (let j = i + 1; j < group.length; j++) {
-          const keyI = group[i].key;
-          const keyJ = group[j].key;
-          const currentErr = computeError(masses);
-
-          // Try shifting mass from i to j
-          const testMasses1 = { ...masses };
-          const currentI = masses[keyI] ?? 0;
-          const maxDeltaI = Math.max(0, currentI - minMass);
-          const deltaI = Math.min(step, maxDeltaI);
-          if (deltaI > 0) {
-            testMasses1[keyI] = currentI - deltaI;
-            testMasses1[keyJ] = (masses[keyJ] ?? 0) + deltaI;
-          }
-          const err1 = (deltaI > 0 && checkCorrectionSandConstraint(testMasses1)) ? computeError(testMasses1) : Infinity;
-
-          // Try shifting mass from j to i
-          const testMasses2 = { ...masses };
-          const currentJ = masses[keyJ] ?? 0;
-          const maxDeltaJ = Math.max(0, currentJ - minMass);
-          const deltaJ = Math.min(step, maxDeltaJ);
-          if (deltaJ > 0) {
-            testMasses2[keyJ] = currentJ - deltaJ;
-            testMasses2[keyI] = (masses[keyI] ?? 0) + deltaJ;
-          }
-          const err2 = (deltaJ > 0 && checkCorrectionSandConstraint(testMasses2)) ? computeError(testMasses2) : Infinity;
-
-          if (err1 < currentErr && err1 <= err2) {
-            masses[keyI] = testMasses1[keyI];
-            masses[keyJ] = testMasses1[keyJ];
-            improved = true;
-          } else if (err2 < currentErr) {
-            masses[keyI] = testMasses2[keyI];
-            masses[keyJ] = testMasses2[keyJ];
-            improved = true;
-          }
-        }
-      }
-      if (!improved) break;
+    for (const s of activeSables) {
+      const vol = totalSableVolume * (proportions[s.key] ?? 0);
+      masses[s.key] = s.densite > 0 ? vol * s.densite : 0;
     }
   }
 
-  optimizeGroup(activeSables, totalSableMass);
-  optimizeGroup(activeGraviers, totalGravierMass);
+  // Optimize gravels using least-squares
+  if (activeGraviers.length >= 2 && totalGravierVolume > 0) {
+    const proportions = solveSimplexLeastSquares(activeGraviers, referenceCurve);
+    for (const g of activeGraviers) {
+      const vol = totalGravierVolume * (proportions[g.key] ?? 0);
+      masses[g.key] = g.densite > 0 ? vol * g.densite : 0;
+    }
+  }
 
+  console.log('[optimizeMix] Final optimized masses:', masses);
   return masses;
 }
