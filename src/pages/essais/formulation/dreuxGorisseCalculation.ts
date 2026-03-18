@@ -210,7 +210,14 @@ export function calculateMixDesign(
     }
   }
 
-  // Step 5: Distribute volumes
+  // Step 5: Generate preliminary reference curve for gravel optimization
+  // Use MF cible or estimated MF for reference curve generation
+  const prelimMf = inputs.mfCible ?? 2.5;
+  const dMaxReel = determineDmax(granulats);
+  const prelimPointA = calculatePointA(dMaxReel, coeffGranulaire, prelimMf);
+  const referenceCurve = generateReferenceCurve(dMaxReel, prelimMf, prelimPointA);
+
+  // Step 6: Distribute volumes
   const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
   
   let sableMasses: Record<string, number>;
@@ -220,8 +227,8 @@ export function calculateMixDesign(
     sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
     gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
   } else {
-    sableMasses = distributeSand(Vsable, activeSables, inputs.mfCible);
-    gravierMasses = distributeGravel(Vgravier, activeGraviers);
+    sableMasses = distributeSand(Vsable, activeSables, inputs.mfCible, referenceCurve);
+    gravierMasses = distributeGravel(Vgravier, activeGraviers, referenceCurve);
   }
 
   const masses: Record<string, number> = {};
