@@ -362,7 +362,17 @@ function distributeSand(
     }
   }
 
-  // Fallback for >2 sands or missing MF data: equal distribution
+  // For >2 sands or missing MF data: use least-squares optimization against reference curve
+  if (referenceCurve && referenceCurve.length > 0) {
+    const proportions = solveSimplexLeastSquares(sables, referenceCurve);
+    for (const s of sables) {
+      const vol = totalVolume * (proportions[s.key] ?? 0);
+      result[s.key] = s.densite > 0 ? vol * s.densite : 0;
+    }
+    return result;
+  }
+
+  // Final fallback: equal distribution
   const volumeEach = totalVolume / sables.length;
   for (const s of sables) {
     result[s.key] = s.densite > 0 ? volumeEach * s.densite : 0;
