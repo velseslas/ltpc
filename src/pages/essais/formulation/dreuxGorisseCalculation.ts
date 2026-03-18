@@ -521,11 +521,14 @@ function solveSimplexLeastSquares(
     return pt ? pt.pourcentage : 0;
   });
 
-  // For 2 materials: analytical 1D sweep
+  // For 2 materials: analytical 1D sweep with minimum enforcement
   if (n === 2) {
     let bestP = 0.5;
     let bestErr = Infinity;
-    for (let p = 0; p <= 1.0005; p += 0.001) {
+    // Sweep only within [MIN_FRACTION, 1-MIN_FRACTION] to guarantee both fractions
+    const lo = MIN_FRACTION;
+    const hi = 1 - MIN_FRACTION;
+    for (let p = lo; p <= hi + 0.0005; p += 0.001) {
       let err = 0;
       for (let s = 0; s < A.length; s++) {
         const mix = p * A[s][0] + (1 - p) * A[s][1];
@@ -533,10 +536,11 @@ function solveSimplexLeastSquares(
       }
       if (err < bestErr) {
         bestErr = err;
-        bestP = Math.min(1, Math.max(0, p));
+        bestP = Math.min(hi, Math.max(lo, p));
       }
     }
-    return { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
+    const raw = { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
+    return enforceMinimumProportions(raw, MIN_FRACTION);
   }
 
   // For 3+ materials: projected gradient descent (pi ≥ 0, Σpi = 1)
@@ -558,7 +562,9 @@ function solveSimplexLeastSquares(
     props = projectOntoSimplex(newProps);
   }
 
-  return Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
+  // Enforce minimum proportions for all fractions
+  const rawResult = Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
+  return enforceMinimumProportions(rawResult, MIN_FRACTION);
 }
 
 /**
