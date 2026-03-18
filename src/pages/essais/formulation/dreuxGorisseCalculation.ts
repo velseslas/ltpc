@@ -340,15 +340,13 @@ function distributeSand(
       let s1 = (mfCible - mf2) / (mf1 - mf2);
       let s2 = 1 - s1;
 
-      // Clamp to [0, 1]
-      s1 = Math.max(0, Math.min(1, s1));
-      s2 = Math.max(0, Math.min(1, s2));
+      // Clamp to [MIN_FRACTION, 1-MIN_FRACTION] to guarantee both sands
+      s1 = Math.max(MIN_FRACTION, Math.min(1 - MIN_FRACTION, s1));
+      s2 = 1 - s1;
 
-      // Normalize to ensure S1 + S2 = 1
-      const total = s1 + s2;
-      if (total > 0) {
-        s1 = s1 / total;
-        s2 = s2 / total;
+      if (s2 < MIN_FRACTION) {
+        s2 = MIN_FRACTION;
+        s1 = 1 - MIN_FRACTION;
       }
 
       const vol1 = totalVolume * s1;
@@ -364,7 +362,15 @@ function distributeSand(
 
   // For >2 sands or missing MF data: use least-squares optimization against reference curve
   if (referenceCurve && referenceCurve.length > 0) {
-    const proportions = solveSimplexLeastSquares(sables, referenceCurve);
+    let proportions = solveSimplexLeastSquares(sables, referenceCurve);
+    
+    // Post-validation: ensure ALL sands are present
+    const missingOrZero = sables.filter(s => (proportions[s.key] ?? 0) < MIN_FRACTION);
+    if (missingOrZero.length > 0) {
+      console.warn(`[distributeSand] ⚠️ Correction appliquée — sables sous le seuil: ${missingOrZero.map(s => s.label).join(', ')}`);
+      proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
+    }
+
     for (const s of sables) {
       const vol = totalVolume * (proportions[s.key] ?? 0);
       result[s.key] = s.densite > 0 ? vol * s.densite : 0;
@@ -398,6 +404,9 @@ function distributeSand(
 /**
  * Project a vector onto the standard simplex: Σ pi = 1, pi ≥ 0
  */
+// Minimum proportion for any active fraction (2%) — ensures no fraction is silently dropped
+const MIN_FRACTION = 0.02;
+
 function projectOntoSimplex(values: number[]): number[] {
   const n = values.length;
   const result = [...values];
@@ -414,6 +423,63 @@ function projectOntoSimplex(values: number[]): number[] {
     }
     for (let i = 0; i < n; i++) result[i] /= sum;
   }
+  return result;
+}
+
+/**
+ * Enforce minimum proportion for ALL fractions.
+ * Any fraction below MIN_FRACTION is raised to MIN_FRACTION,
+ * then excess is subtracted proportionally from fractions above MIN_FRACTION.
+ */
+function enforceMinimumProportions(proportions: Record<string, number>, minFraction: number): Record<string, number> {
+  const keys = Object.keys(proportions);
+  const n = keys.length;
+  if (n <= 1) return proportions;
+
+  const result = { ...proportions };
+  
+  // If min per fraction exceeds budget, fall back to equal distribution
+  if (minFraction * n > 1.0) {
+    const eq = 1 / n;
+    for (const k of keys) result[k] = eq;
+    return result;
+  }
+
+  let needsRedistribution = true;
+  for (let iter = 0; iter < 10 && needsRedistribution; iter++) {
+    needsRedistribution = false;
+    let deficit = 0;
+    let surplusTotal = 0;
+
+    // Identify fractions below minimum
+    for (const k of keys) {
+      if (result[k] < minFraction) {
+        deficit += minFraction - result[k];
+        result[k] = minFraction;
+        needsRedistribution = true;
+      } else {
+        surplusTotal += result[k] - minFraction;
+      }
+    }
+
+    // Redistribute deficit proportionally from surplus fractions
+    if (deficit > 0 && surplusTotal > 0) {
+      for (const k of keys) {
+        if (result[k] > minFraction) {
+          const surplus = result[k] - minFraction;
+          const reduction = (surplus / surplusTotal) * deficit;
+          result[k] = Math.max(minFraction, result[k] - reduction);
+        }
+      }
+    }
+  }
+
+  // Normalize to exactly 1.0
+  const sum = keys.reduce((s, k) => s + result[k], 0);
+  if (sum > 0 && Math.abs(sum - 1.0) > 1e-9) {
+    for (const k of keys) result[k] /= sum;
+  }
+
   return result;
 }
 
@@ -461,11 +527,14 @@ function solveSimplexLeastSquares(
     return pt ? pt.pourcentage : 0;
   });
 
-  // For 2 materials: analytical 1D sweep
+  // For 2 materials: analytical 1D sweep with minimum enforcement
   if (n === 2) {
     let bestP = 0.5;
     let bestErr = Infinity;
-    for (let p = 0; p <= 1.0005; p += 0.001) {
+    // Sweep only within [MIN_FRACTION, 1-MIN_FRACTION] to guarantee both fractions
+    const lo = MIN_FRACTION;
+    const hi = 1 - MIN_FRACTION;
+    for (let p = lo; p <= hi + 0.0005; p += 0.001) {
       let err = 0;
       for (let s = 0; s < A.length; s++) {
         const mix = p * A[s][0] + (1 - p) * A[s][1];
@@ -473,10 +542,11 @@ function solveSimplexLeastSquares(
       }
       if (err < bestErr) {
         bestErr = err;
-        bestP = Math.min(1, Math.max(0, p));
+        bestP = Math.min(hi, Math.max(lo, p));
       }
     }
-    return { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
+    const raw = { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
+    return enforceMinimumProportions(raw, MIN_FRACTION);
   }
 
   // For 3+ materials: projected gradient descent (pi ≥ 0, Σpi = 1)
@@ -498,15 +568,14 @@ function solveSimplexLeastSquares(
     props = projectOntoSimplex(newProps);
   }
 
-  return Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
+  // Enforce minimum proportions for all fractions
+  const rawResult = Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
+  return enforceMinimumProportions(rawResult, MIN_FRACTION);
 }
 
 /**
- * Distribute gravel volume using least-squares optimization against
- * the Dreux reference curve, using actual granulometric curves.
- * 
- * Fully flexible: works with any number/combination of fractions.
- * No hardcoded minimum proportions.
+ * Distribute gravel volume using least-squares optimization.
+ * CRITICAL: Every active fraction MUST receive a non-zero proportion.
  */
 function distributeGravel(
   totalVolume: number,
@@ -523,32 +592,37 @@ function distributeGravel(
     return result;
   }
 
+  let proportions: Record<string, number>;
+  
   if (referenceCurve && referenceCurve.length > 0) {
-    const proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
-
-    // Smart alert: warn if any fraction dominates (>90%)
-    for (const g of graviers) {
-      const p = proportions[g.key] ?? 0;
-      if (p > 0.90) {
-        console.warn(`[distributeGravel] ⚠️ Fraction dominante: ${g.label} = ${(p * 100).toFixed(1)}% — vérifier la cohérence granulométrique`);
-      }
-    }
-
-    console.log('[distributeGravel] Optimized proportions:', 
-      Object.entries(proportions).map(([k, v]) => `${k}: ${(v * 100).toFixed(1)}%`).join(', ')
-    );
-
-    for (const g of graviers) {
-      const vol = totalVolume * (proportions[g.key] ?? 0);
-      result[g.key] = g.densite > 0 ? vol * g.densite : 0;
-    }
-    return result;
+    proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
+  } else {
+    const eq = 1 / graviers.length;
+    proportions = Object.fromEntries(graviers.map(g => [g.key, eq]));
   }
 
-  // Fallback: equal distribution
-  const volumeEach = totalVolume / graviers.length;
+  // Post-validation: ensure ALL fractions are present and non-zero
+  const missingOrZero = graviers.filter(g => (proportions[g.key] ?? 0) < MIN_FRACTION);
+  if (missingOrZero.length > 0) {
+    console.warn(`[distributeGravel] ⚠️ Correction appliquée — fractions sous le seuil: ${missingOrZero.map(g => g.label).join(', ')}`);
+    proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
+  }
+
+  // Smart alert: warn if any fraction dominates (>90%)
   for (const g of graviers) {
-    result[g.key] = g.densite > 0 ? volumeEach * g.densite : 0;
+    const p = proportions[g.key] ?? 0;
+    if (p > 0.90) {
+      console.warn(`[distributeGravel] ⚠️ Fraction dominante: ${g.label} = ${(p * 100).toFixed(1)}%`);
+    }
+  }
+
+  console.log('[distributeGravel] Final proportions:', 
+    graviers.map(g => `${g.label}: ${((proportions[g.key] ?? 0) * 100).toFixed(1)}%`).join(', ')
+  );
+
+  for (const g of graviers) {
+    const vol = totalVolume * (proportions[g.key] ?? 0);
+    result[g.key] = g.densite > 0 ? vol * g.densite : 0;
   }
   return result;
 }
