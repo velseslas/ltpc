@@ -177,6 +177,11 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/modifier`); }}>
                           <Pencil className="w-4 h-4 mr-2" />Modifier
                         </DropdownMenuItem>
+                        {echantillon.statut === "termine" && (
+                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/rapport`); }} className="text-emerald-500 focus:text-emerald-500">
+                            <FileText className="w-4 h-4 mr-2" />Rapport
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           onClick={(e) => { e.stopPropagation(); setEchantillonToDelete(echantillon.id); setDeleteDialogOpen(true); }}
                           className="text-destructive focus:text-destructive"
