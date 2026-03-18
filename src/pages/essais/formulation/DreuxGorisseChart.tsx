@@ -131,9 +131,11 @@ export default function DreuxGorisseChart({
     return true;
   }, [mixCurve, envelope]);
 
-  // Build chart data
+  // Build chart data — filtered to Dmax
+  const tamis = useMemo(() => getTamisForDmax(dMax), [dMax]);
+
   const chartData = useMemo(() => {
-    return TAMIS_OPENINGS.map((ouv) => {
+    return tamis.map((ouv) => {
       const point: Record<string, number | string | number[]> = { ouverture: ouv };
 
       const env = envelope.find((e) => Math.abs(e.ouverture - ouv) < 0.001);
@@ -145,7 +147,8 @@ export default function DreuxGorisseChart({
       point["Référence Dreux-Gorisse"] = ref ? ref.pourcentage : 0;
 
       materials.forEach((mat) => {
-        const mp = mat.curve.find((c) => Math.abs(c.ouverture - ouv) < 0.001);
+        const filteredCurve = mat.curve.filter(c => c.ouverture <= dMax + 0.001);
+        const mp = filteredCurve.find((c) => Math.abs(c.ouverture - ouv) < 0.001);
         point[mat.label] = mp ? parseFloat(mp.pourcentageTamisat.toFixed(1)) : 0;
       });
 
@@ -154,7 +157,7 @@ export default function DreuxGorisseChart({
 
       return point;
     });
-  }, [referenceCurve, envelope, materials, mixCurve]);
+  }, [tamis, referenceCurve, envelope, materials, mixCurve, dMax]);
 
   const hasMaterials = materials.length > 0;
 
