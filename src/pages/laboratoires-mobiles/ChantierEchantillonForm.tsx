@@ -318,6 +318,8 @@ export default function ChantierEchantillonForm() {
             mode_coulage: data.mode_coulage,
             essai_convenance: data.essai_convenance,
             essai_convenance_details: data.essai_convenance_details,
+            date_essai: data.date_essai,
+            etuvage: data.etuvage,
           })
           .eq("id", echantillonId);
         if (error) throw error;
