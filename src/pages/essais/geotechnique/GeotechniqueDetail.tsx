@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Pencil, ClipboardEdit, FileText } from "lucide-react";
+import { ClassificationBadge, AbaqueButton } from "@/components/essais/geotechnique/CasagrandeAbaque";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -140,7 +141,10 @@ function LimitesAtterbergResultats({ resultats }: { resultats: Record<string, un
 
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg">Synthèse</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Synthèse</CardTitle>
+            {wl > 0 && ip > 0 && <AbaqueButton wl={wl} ip={ip} />}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -165,6 +169,11 @@ function LimitesAtterbergResultats({ resultats }: { resultats: Record<string, un
               <p className="text-lg font-bold text-foreground">{ic > 0 ? fmt(ic) : "-"}</p>
             </div>
           </div>
+          {wl > 0 && ip > 0 && (
+            <div className="mt-4">
+              <ClassificationBadge wl={wl} ip={ip} />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

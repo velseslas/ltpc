@@ -13,6 +13,7 @@ import jsPDF from "jspdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Line, ComposedChart } from "recharts";
+import { classifySoil } from "@/components/essais/geotechnique/SoilClassification";
 
 const basePath = "/essais/geotechnique/identification/limites-atterberg";
 const essaiType = "limites-atterberg";
@@ -83,6 +84,7 @@ export default function LimitesAtterbergReport() {
   const Ic = pf(calculs.ic);
   const moyLiq = pf(calculs.moyenne_liquidite);
   const moyPlast = pf(calculs.moyenne_plasticite);
+  const classificationResult = classifySoil(Wl, Ip);
 
   const handlePrint = () => window.print();
 
@@ -301,6 +303,29 @@ export default function LimitesAtterbergReport() {
             </tbody>
           </table>
         </div>
+
+        {/* Classification du sol */}
+        {classificationResult && (
+          <div className="mb-4">
+            <h3 className="font-bold text-sm mb-2 underline text-black">Classification du sol (Casagrande)</h3>
+            <table className="w-full border-collapse border border-black text-sm">
+              <tbody>
+                <tr>
+                  <td className="border border-black px-3 py-2 font-medium text-black w-1/3">Code</td>
+                  <td className="border border-black px-3 py-2 font-bold text-black">{classificationResult.code}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-3 py-2 font-medium text-black">Classification</td>
+                  <td className="border border-black px-3 py-2 text-black">{classificationResult.label}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-3 py-2 font-medium text-black">Description</td>
+                  <td className="border border-black px-3 py-2 text-black">{classificationResult.description}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Pied de page */}
         <div className="mt-8 pt-4 border-t border-gray-300">
