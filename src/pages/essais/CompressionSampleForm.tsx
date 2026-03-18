@@ -835,6 +835,24 @@ const CompressionSampleForm = () => {
                 </Select>
               </div>
 
+              {/* Mode de coulage */}
+              <div className="space-y-2">
+                <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-700">*</span></Label>
+                <Select value={modeCoulage} onValueChange={setModeCoulage}>
+                  <SelectTrigger className={cn(submitted && !modeCoulage && "border-red-700")}>
+                    <SelectValue placeholder="Sélectionnez le mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MODES_COULAGE.map((mode) => (
+                      <SelectItem key={mode.value} value={mode.value}>
+                        {mode.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <ValidationMessage show={submitted && !modeCoulage} message="Ce champ est obligatoire" />
+              </div>
+
               {/* Mentions rapport */}
               <div className="space-y-3 md:col-span-2">
                 <p className="text-sm font-medium text-foreground">Mentions à afficher sur le rapport :</p>
@@ -858,24 +876,6 @@ const CompressionSampleForm = () => {
                     Éprouvette confectionnée par le client
                   </Label>
                 </div>
-              </div>
-
-              {/* Mode de coulage */}
-              <div className="space-y-2">
-                <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-700">*</span></Label>
-                <Select value={modeCoulage} onValueChange={setModeCoulage}>
-                  <SelectTrigger className={cn(submitted && !modeCoulage && "border-red-700")}>
-                    <SelectValue placeholder="Sélectionnez le mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MODES_COULAGE.map((mode) => (
-                      <SelectItem key={mode.value} value={mode.value}>
-                        {mode.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <ValidationMessage show={submitted && !modeCoulage} message="Ce champ est obligatoire" />
               </div>
             </div>
           </div>
