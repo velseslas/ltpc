@@ -420,7 +420,12 @@ export default function LimitesAtterbergDataEntry() {
 
       {/* Résultats calculés */}
       <Card className="border-border bg-card">
-        <CardHeader><CardTitle className="text-lg">Résultats Calculés</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Résultats Calculés</CardTitle>
+            {Wl > 0 && Ip > 0 && <AbaqueButton wl={Wl} ip={Ip} />}
+          </div>
+        </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="p-3 bg-muted/30 rounded-lg text-center">
@@ -444,6 +449,11 @@ export default function LimitesAtterbergDataEntry() {
               <p className="text-xl font-bold text-primary">{Ic !== 0 ? fmt(Ic) : "-"}</p>
             </div>
           </div>
+          {Wl > 0 && Ip > 0 && (
+            <div className="mt-4">
+              <ClassificationBadge wl={Wl} ip={Ip} />
+            </div>
+          )}
           {regression.points.length >= 2 && (
             <p className="text-xs text-muted-foreground mt-3">
               Équation de régression : y = {regression.slope.toFixed(4)}x + {regression.intercept.toFixed(3)}
