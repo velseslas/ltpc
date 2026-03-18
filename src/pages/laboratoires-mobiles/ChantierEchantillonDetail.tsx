@@ -34,6 +34,8 @@ interface EchantillonData {
   jours_essai: { jour: number; nombre: number }[];
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  date_essai: string | null;
+  etuvage: string | null;
 }
 
 const getStatutBadge = (statut: string) => {
