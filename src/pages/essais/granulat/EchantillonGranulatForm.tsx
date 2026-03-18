@@ -156,6 +156,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         produit: values.produit,
         operateur_id: values.operateur_id || null,
         date_reception: values.date_reception,
+        date_essai: values.date_essai || null,
         observations: values.observations || null,
       };
 
