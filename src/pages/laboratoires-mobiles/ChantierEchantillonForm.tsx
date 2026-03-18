@@ -180,6 +180,8 @@ export default function ChantierEchantillonForm() {
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setOperateurId(existingEchantillon.operateur_id || "");
+      setDateEssai(existingEchantillon.date_essai ? parseISO(existingEchantillon.date_essai) : undefined);
+      setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai
       const savedJours = existingEchantillon.jours_essai as Array<{ jour: number; nombre: number }> | null;
