@@ -463,6 +463,17 @@ export default function ProportionsStep({
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
   const needsSable2Correction = mfWarning && !sable2Active;
 
+  // Stability analysis: compute gravel fraction percentages
+  const pct38 = useMemo(() => {
+    if (!gravier1Active || graviers === 0) return undefined;
+    return (g1 / graviers) * 100;
+  }, [g1, graviers, gravier1Active]);
+
+  const pct1525 = useMemo(() => {
+    if (!gravier3Active || graviers === 0) return undefined;
+    return (g3 / graviers) * 100;
+  }, [g3, graviers, gravier3Active]);
+
   useEffect(() => {
     onMfCorrectionNeeded?.(needsSable2Correction);
   }, [needsSable2Correction, onMfCorrectionNeeded]);
