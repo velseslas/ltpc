@@ -210,7 +210,14 @@ export function calculateMixDesign(
     }
   }
 
-  // Step 5: Distribute volumes
+  // Step 5: Generate preliminary reference curve for gravel optimization
+  // Use MF cible or estimated MF for reference curve generation
+  const prelimMf = inputs.mfCible ?? 2.5;
+  const dMaxReel = determineDmax(granulats);
+  const prelimPointA = calculatePointA(dMaxReel, coeffGranulaire, prelimMf);
+  const referenceCurve = generateReferenceCurve(dMaxReel, prelimMf, prelimPointA);
+
+  // Step 6: Distribute volumes
   const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
   
   let sableMasses: Record<string, number>;
@@ -220,8 +227,8 @@ export function calculateMixDesign(
     sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
     gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
   } else {
-    sableMasses = distributeSand(Vsable, activeSables, inputs.mfCible);
-    gravierMasses = distributeGravel(Vgravier, activeGraviers);
+    sableMasses = distributeSand(Vsable, activeSables, inputs.mfCible, referenceCurve);
+    gravierMasses = distributeGravel(Vgravier, activeGraviers, referenceCurve);
   }
 
   const masses: Record<string, number> = {};
@@ -246,8 +253,7 @@ export function calculateMixDesign(
     }))
   );
 
-  // Calculate Point A
-  const dMaxReel = determineDmax(granulats);
+  // Calculate final Point A (using actual MF mélange)
   const pointA = calculatePointA(dMaxReel, coeffGranulaire, mfMelange);
 
   // Volume consistency checks
@@ -306,7 +312,8 @@ export function calculateMixDesign(
 function distributeSand(
   totalVolume: number,
   sables: GranulatInput[],
-  mfCible?: number
+  mfCible?: number,
+  referenceCurve?: { ouverture: number; pourcentage: number }[]
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (sables.length === 0) return result;
@@ -355,7 +362,17 @@ function distributeSand(
     }
   }
 
-  // Fallback for >2 sands or missing MF data: equal distribution
+  // For >2 sands or missing MF data: use least-squares optimization against reference curve
+  if (referenceCurve && referenceCurve.length > 0) {
+    const proportions = solveSimplexLeastSquares(sables, referenceCurve);
+    for (const s of sables) {
+      const vol = totalVolume * (proportions[s.key] ?? 0);
+      result[s.key] = s.densite > 0 ? vol * s.densite : 0;
+    }
+    return result;
+  }
+
+  // Final fallback: equal distribution
   const volumeEach = totalVolume / sables.length;
   for (const s of sables) {
     result[s.key] = s.densite > 0 ? volumeEach * s.densite : 0;
@@ -365,13 +382,131 @@ function distributeSand(
 }
 
 /**
- * Distribute gravel volume for optimal pumpability.
- * Default distribution: 3/8 = 20%, 8/15 = 45%, 15/25 = 35%
- * When exact fraction names don't match, use size-based ordering.
+ * Solve least-squares proportions on the simplex for a group of granulats.
+ * 
+ * Minimizes: Σ (Σ(pi × Pi(d)) - P_ref(d))² 
+ * Subject to: Σpi = 1, pi ≥ 0
+ * 
+ * Uses projected gradient descent on the probability simplex.
+ * Works with any number of materials (1, 2, 3, ...).
+ * 
+ * @param group - Active granulats in this group
+ * @param referenceCurve - Target Dreux curve values at each sieve
+ * @param sieves - Sieve openings to use for fitting
+ * @returns Volumetric proportions (sum = 1) keyed by granulat key
+ */
+function solveSimplexLeastSquares(
+  group: GranulatInput[],
+  referenceCurve: { ouverture: number; pourcentage: number }[],
+  sieves: number[] = TAMIS_OPENINGS
+): Record<string, number> {
+  const n = group.length;
+  if (n === 0) return {};
+  if (n === 1) return { [group[0].key]: 1.0 };
+
+  // Build matrix: A[sieve][material] = passing percentage at that sieve
+  // Target vector: b[sieve] = reference curve value at that sieve
+  const relevantSieves = sieves.filter(s => {
+    // Only use sieves where at least one material has data and reference exists
+    const hasRef = referenceCurve.some(r => Math.abs(r.ouverture - s) < 0.001);
+    const hasData = group.some(g => g.curve.some(c => Math.abs(c.ouverture - s) < 0.001));
+    return hasRef && hasData;
+  });
+
+  if (relevantSieves.length === 0) {
+    // Fallback: equal distribution
+    const eq = 1 / n;
+    return Object.fromEntries(group.map(g => [g.key, eq]));
+  }
+
+  // Extract passing values for each material at each sieve
+  const A: number[][] = relevantSieves.map(sieve => 
+    group.map(g => {
+      const pt = g.curve.find(c => Math.abs(c.ouverture - sieve) < 0.001);
+      if (pt) return pt.pourcentageTamisat;
+      // Interpolate: if sieve > max curve point, assume 100; if < min, assume 0
+      const sorted = [...g.curve].sort((a, b) => a.ouverture - b.ouverture);
+      if (sorted.length === 0) return 0;
+      if (sieve <= sorted[0].ouverture) return sorted[0].pourcentageTamisat;
+      if (sieve >= sorted[sorted.length - 1].ouverture) return sorted[sorted.length - 1].pourcentageTamisat;
+      // Linear interpolation in log space
+      for (let i = 0; i < sorted.length - 1; i++) {
+        if (sieve >= sorted[i].ouverture && sieve <= sorted[i + 1].ouverture) {
+          const t = (Math.log10(sieve) - Math.log10(sorted[i].ouverture)) / 
+                    (Math.log10(sorted[i + 1].ouverture) - Math.log10(sorted[i].ouverture));
+          return sorted[i].pourcentageTamisat + t * (sorted[i + 1].pourcentageTamisat - sorted[i].pourcentageTamisat);
+        }
+      }
+      return 0;
+    })
+  );
+
+  const b: number[] = relevantSieves.map(sieve => {
+    const pt = referenceCurve.find(r => Math.abs(r.ouverture - sieve) < 0.001);
+    return pt ? pt.pourcentage : 0;
+  });
+
+  // For 2 materials: analytical 1D sweep (most common case)
+  if (n === 2) {
+    let bestP = 0.5;
+    let bestErr = Infinity;
+    for (let p = 0; p <= 1.0; p += 0.001) {
+      let err = 0;
+      for (let s = 0; s < A.length; s++) {
+        const mix = p * A[s][0] + (1 - p) * A[s][1];
+        err += (mix - b[s]) ** 2;
+      }
+      if (err < bestErr) {
+        bestErr = err;
+        bestP = p;
+      }
+    }
+    return { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
+  }
+
+  // For 3+ materials: projected gradient descent on simplex
+  // Initialize with equal proportions
+  let props = group.map(() => 1 / n);
+
+  const lr = 0.0001; // learning rate
+  const maxIter = 5000;
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    // Compute gradient: dE/dp_i = 2 * Σ_s (Σ_j p_j*A[s][j] - b[s]) * A[s][i]
+    const grad = new Array(n).fill(0);
+    for (let s = 0; s < A.length; s++) {
+      let mix = 0;
+      for (let j = 0; j < n; j++) mix += props[j] * A[s][j];
+      const residual = mix - b[s];
+      for (let i = 0; i < n; i++) {
+        grad[i] += 2 * residual * A[s][i];
+      }
+    }
+
+    // Gradient step
+    const newProps = props.map((p, i) => p - lr * grad[i]);
+
+    // Project onto simplex: clip to ≥ 0, then normalize to sum = 1
+    const clipped = newProps.map(p => Math.max(0, p));
+    const sum = clipped.reduce((a, b) => a + b, 0);
+    if (sum > 0) {
+      props = clipped.map(p => p / sum);
+    }
+  }
+
+  return Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
+}
+
+/**
+ * Distribute gravel volume using least-squares optimization against
+ * the Dreux reference curve, using actual granulometric curves.
+ * 
+ * NO fixed percentages — proportions are computed mathematically.
  */
 function distributeGravel(
   totalVolume: number,
-  graviers: GranulatInput[]
+  graviers: GranulatInput[],
+  referenceCurve?: { ouverture: number; pourcentage: number }[]
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (graviers.length === 0) return result;
@@ -382,38 +517,26 @@ function distributeGravel(
     return result;
   }
 
-  // Sort by Dmax (smallest first)
-  const sorted = [...graviers].sort((a, b) => (a.dMax ?? 0) - (b.dMax ?? 0));
+  // If we have a reference curve, use least-squares optimization
+  if (referenceCurve && referenceCurve.length > 0) {
+    const proportions = solveSimplexLeastSquares(graviers, referenceCurve);
+    
+    console.log('[distributeGravel] Optimized proportions:', 
+      Object.entries(proportions).map(([k, v]) => `${k}: ${(v * 100).toFixed(1)}%`).join(', ')
+    );
 
-  // Distribution ratios optimized for pumpability, compacity & segregation reduction
-  // 3/8 is capped at 10%, remainder split 55/45 between 8/15 and 15/25
-  let ratios: number[];
-  if (sorted.length === 2) {
-    // Determine if smallest fraction is a 3/8-type (dMax <= 10)
-    const smallestIsSmallFraction = (sorted[0].dMax ?? 0) <= 10;
-    if (smallestIsSmallFraction) {
-      // 3/8 absent scenario doesn't apply here; this is 3/8 + one larger
-      // If 15/25 absent: 3/8=10%, 8/15=90%
-      // If 3/8 present + 15/25: 3/8=10%, 15/25=90%
-      ratios = [0.10, 0.90];
-    } else {
-      // No small fraction (e.g. 8/15 + 15/25): 8/15=60%, 15/25=40%
-      ratios = [0.60, 0.40];
+    for (const g of graviers) {
+      const vol = totalVolume * (proportions[g.key] ?? 0);
+      result[g.key] = g.densite > 0 ? vol * g.densite : 0;
     }
-  } else if (sorted.length === 3) {
-    // 3/8=10%, 8/15=55%*90%=49.5%≈50%, 15/25=45%*90%=40.5%≈40%
-    ratios = [0.10, 0.55 * 0.90, 0.45 * 0.90]; // [0.10, 0.495, 0.405]
-  } else {
-    // General case: equal distribution
-    ratios = sorted.map(() => 1 / sorted.length);
+    return result;
   }
 
-  for (let i = 0; i < sorted.length; i++) {
-    const g = sorted[i];
-    const vol = totalVolume * ratios[i];
-    result[g.key] = g.densite > 0 ? vol * g.densite : 0;
+  // Fallback: equal distribution (only when no reference curve available)
+  const volumeEach = totalVolume / graviers.length;
+  for (const g of graviers) {
+    result[g.key] = g.densite > 0 ? volumeEach * g.densite : 0;
   }
-
   return result;
 }
 
@@ -441,25 +564,25 @@ function computeMixCurveFromMasses(
 
 /**
  * Optimize the mix to minimize deviation from Dreux-Gorisse reference curve.
+ * Uses least-squares optimization with actual granulometric curves.
  * 
  * CONSTRAINTS:
  * - Correction sand (0/1) ≤ 30% of total sand volume
  * - Total volumes Vsable and Vgravier remain constant
  * - G/S ratio is NEVER changed
- * - Each material keeps a minimum of 5% of its group total
+ * - Each material keeps a minimum proportion
  */
 export function optimizeMix(
   inputs: CalculationInputs,
   dMax: number,
   _classeConsistance: string
 ): Record<string, number> {
-  const { granulats, coeffGranulaire, coeffCompacite } = inputs;
+  const { granulats, coeffGranulaire } = inputs;
   const baseline = calculateMixDesign(inputs);
   const masses = { ...baseline.masses };
 
-  // Generate reference curve using the new Point A method
+  // Generate reference curve
   const pointA = baseline.pointA;
-  // Use MF mélange pondéré par les proportions réelles des sables; fallback to 2.5 if not available
   const mfForN = computeWeightedSandModuleFinesse(
     granulats
       .filter(g => g.active && g.isSable)
@@ -477,91 +600,52 @@ export function optimizeMix(
 
   const activeSables = granulats.filter(g => g.active && g.isSable);
   const activeGraviers = granulats.filter(g => g.active && !g.isSable);
-  const totalSableMass = activeSables.reduce((s, g) => s + (masses[g.key] ?? 0), 0);
-  const totalGravierMass = activeGraviers.reduce((s, g) => s + (masses[g.key] ?? 0), 0);
 
-  // Compute total sand volume for the 30% constraint
+  // Compute total volumes per group
   const totalSableVolume = activeSables.reduce((s, g) => {
     const m = masses[g.key] ?? 0;
     return s + (g.densite > 0 ? m / g.densite : 0);
   }, 0);
+  const totalGravierVolume = activeGraviers.reduce((s, g) => {
+    const m = masses[g.key] ?? 0;
+    return s + (g.densite > 0 ? m / g.densite : 0);
+  }, 0);
 
-  function computeError(m: Record<string, number>): number {
-    const mix = computeMixCurveFromMasses(granulats, m);
-    let err = 0;
-    for (const ref of referenceCurve) {
-      const mp = mix.find(p => Math.abs(p.ouverture - ref.ouverture) < 0.001);
-      if (mp) {
-        err += (mp.pourcentage - ref.pourcentage) ** 2;
-      }
-    }
-    return err;
-  }
-
-  function checkCorrectionSandConstraint(m: Record<string, number>): boolean {
+  // Optimize sands using least-squares
+  if (activeSables.length >= 2 && totalSableVolume > 0) {
+    const proportions = solveSimplexLeastSquares(activeSables, referenceCurve);
+    
+    // Apply correction sand constraint (≤ 30%)
     for (const s of activeSables) {
-      if (s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2)) {
-        const vol = s.densite > 0 ? (m[s.key] ?? 0) / s.densite : 0;
-        if (totalSableVolume > 0 && vol / totalSableVolume > 0.31) {
-          return false;
+      if ((s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2)) && (proportions[s.key] ?? 0) > 0.30) {
+        proportions[s.key] = 0.30;
+        // Redistribute remainder proportionally among other sands
+        const others = activeSables.filter(o => o.key !== s.key);
+        const othersTotal = others.reduce((sum, o) => sum + (proportions[o.key] ?? 0), 0);
+        const remaining = 0.70;
+        for (const o of others) {
+          proportions[o.key] = othersTotal > 0 
+            ? ((proportions[o.key] ?? 0) / othersTotal) * remaining 
+            : remaining / others.length;
         }
       }
     }
-    return true;
-  }
 
-  function optimizeGroup(group: GranulatInput[], totalMass: number) {
-    if (group.length < 2 || totalMass <= 0) return;
-    const step = totalMass * 0.01;
-    const minMass = totalMass * 0.05;
-
-    for (let iter = 0; iter < 200; iter++) {
-      let improved = false;
-      for (let i = 0; i < group.length; i++) {
-        for (let j = i + 1; j < group.length; j++) {
-          const keyI = group[i].key;
-          const keyJ = group[j].key;
-          const currentErr = computeError(masses);
-
-          // Try shifting mass from i to j
-          const testMasses1 = { ...masses };
-          const currentI = masses[keyI] ?? 0;
-          const maxDeltaI = Math.max(0, currentI - minMass);
-          const deltaI = Math.min(step, maxDeltaI);
-          if (deltaI > 0) {
-            testMasses1[keyI] = currentI - deltaI;
-            testMasses1[keyJ] = (masses[keyJ] ?? 0) + deltaI;
-          }
-          const err1 = (deltaI > 0 && checkCorrectionSandConstraint(testMasses1)) ? computeError(testMasses1) : Infinity;
-
-          // Try shifting mass from j to i
-          const testMasses2 = { ...masses };
-          const currentJ = masses[keyJ] ?? 0;
-          const maxDeltaJ = Math.max(0, currentJ - minMass);
-          const deltaJ = Math.min(step, maxDeltaJ);
-          if (deltaJ > 0) {
-            testMasses2[keyJ] = currentJ - deltaJ;
-            testMasses2[keyI] = (masses[keyI] ?? 0) + deltaJ;
-          }
-          const err2 = (deltaJ > 0 && checkCorrectionSandConstraint(testMasses2)) ? computeError(testMasses2) : Infinity;
-
-          if (err1 < currentErr && err1 <= err2) {
-            masses[keyI] = testMasses1[keyI];
-            masses[keyJ] = testMasses1[keyJ];
-            improved = true;
-          } else if (err2 < currentErr) {
-            masses[keyI] = testMasses2[keyI];
-            masses[keyJ] = testMasses2[keyJ];
-            improved = true;
-          }
-        }
-      }
-      if (!improved) break;
+    for (const s of activeSables) {
+      const vol = totalSableVolume * (proportions[s.key] ?? 0);
+      masses[s.key] = s.densite > 0 ? vol * s.densite : 0;
     }
   }
 
-  optimizeGroup(activeSables, totalSableMass);
-  optimizeGroup(activeGraviers, totalGravierMass);
+  // Optimize gravels using least-squares
+  if (activeGraviers.length >= 2 && totalGravierVolume > 0) {
+    const proportions = solveSimplexLeastSquares(activeGraviers, referenceCurve);
+    for (const g of activeGraviers) {
+      const vol = totalGravierVolume * (proportions[g.key] ?? 0);
+      masses[g.key] = g.densite > 0 ? vol * g.densite : 0;
+    }
+  }
 
+  console.log('[optimizeMix] Final optimized masses:', masses);
   return masses;
 }
