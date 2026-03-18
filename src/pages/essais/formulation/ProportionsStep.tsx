@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal, CheckCircle2, AlertCircle } from "lucide-react";
+import StabilityAnalysisPanel from "./StabilityAnalysisPanel";
 import {
   Dialog,
   DialogContent,
@@ -462,6 +463,17 @@ export default function ProportionsStep({
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
   const needsSable2Correction = mfWarning && !sable2Active;
 
+  // Stability analysis: compute gravel fraction percentages
+  const pct38 = useMemo(() => {
+    if (!gravier1Active || graviers === 0) return undefined;
+    return (g1 / graviers) * 100;
+  }, [g1, graviers, gravier1Active]);
+
+  const pct1525 = useMemo(() => {
+    if (!gravier3Active || graviers === 0) return undefined;
+    return (g3 / graviers) * 100;
+  }, [g3, graviers, gravier3Active]);
+
   useEffect(() => {
     onMfCorrectionNeeded?.(needsSable2Correction);
   }, [needsSable2Correction, onMfCorrectionNeeded]);
@@ -808,6 +820,17 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           />
         </CardContent>
       </Card>
+
+      {/* Stability & Segregation Analysis */}
+      {hasCalculated && (
+        <StabilityAnalysisPanel
+          mfMelange={mfMelange}
+          materials={demoMaterials}
+          pct38={pct38}
+          pct1525={pct1525}
+          isWithinEnvelope={null}
+        />
+      )}
 
       {/* MF Analysis Panel */}
       {hasCalculated && mfMelange !== null && mfMelange !== undefined && (() => {
