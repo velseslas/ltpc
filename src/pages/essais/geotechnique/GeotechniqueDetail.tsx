@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, Pencil, ClipboardEdit } from "lucide-react";
+import { ArrowLeft, Loader2, Pencil, ClipboardEdit, FileText } from "lucide-react";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
