@@ -52,8 +52,16 @@ const EssaiInSitu = () => {
       iconColor: "text-violet-500",
       path: "/essais/geotechnique/in-situ/sondage"
     },
+    {
+      id: "densitometre",
+      title: "Densitomètre à Membrane",
+      description: "Détermination de la densité en place par densitomètre à membrane",
+      icon: Circle,
+      gradient: "from-rose-500/20 to-pink-500/10",
+      iconColor: "text-rose-500",
+      path: "/essais/geotechnique/in-situ/densitometre"
+    },
   ];
-  return (
     <>
       <EssaiBreadcrumb 
         items={[
