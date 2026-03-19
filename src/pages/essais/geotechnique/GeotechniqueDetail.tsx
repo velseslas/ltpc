@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 
 function pf(v: string | number) { return parseFloat(String(v)) || 0; }
-function fmt(v: number) { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(2); }
+function fmt(v: number, dec = 2) { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
 
 function linearRegression(points: { x: number; y: number }[]) {
   if (points.length < 2) return { slope: 0, intercept: 0 };
