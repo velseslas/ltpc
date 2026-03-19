@@ -61,6 +61,9 @@ import Penetrometre from "./pages/essais/geotechnique/insitu/Penetrometre";
 import Pressiometre from "./pages/essais/geotechnique/insitu/Pressiometre";
 import Plaque from "./pages/essais/geotechnique/insitu/Plaque";
 import Sondage from "./pages/essais/geotechnique/insitu/Sondage";
+import Densitometre from "./pages/essais/geotechnique/insitu/Densitometre";
+import DensitometreDataEntry from "./pages/essais/geotechnique/insitu/DensitometreDataEntry";
+import DensitometreReport from "./pages/essais/geotechnique/insitu/DensitometreReport";
 // Géotechnique - shared
 import EchantillonGeotechniqueForm from "./pages/essais/geotechnique/EchantillonGeotechniqueForm";
 import GeotechniqueDetail from "./pages/essais/geotechnique/GeotechniqueDetail";
@@ -486,6 +489,13 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/in-situ/sondage/:id" element={<GeotechniqueDetail essaiType="sondage" essaiTitle="Sondage" basePath="/essais/geotechnique/in-situ/sondage" categoryPath="/essais/geotechnique/in-situ" categoryLabel="In-Situ" />} />
       <Route path="/essais/geotechnique/in-situ/sondage/:id/saisie" element={<GeotechniqueDataEntry essaiType="sondage" essaiTitle="Sondage" basePath="/essais/geotechnique/in-situ/sondage" categoryPath="/essais/geotechnique/in-situ" categoryLabel="In-Situ" />} />
       <Route path="/essais/geotechnique/in-situ/sondage/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="sondage" essaiTitle="Sondage" basePath="/essais/geotechnique/in-situ/sondage" />} />
+      {/* Densitomètre */}
+      <Route path="/essais/geotechnique/in-situ/densitometre" element={<Densitometre />} />
+      <Route path="/essais/geotechnique/in-situ/densitometre/nouveau" element={<EchantillonGeotechniqueForm essaiType="densitometre" essaiTitle="Densitomètre à Membrane" basePath="/essais/geotechnique/in-situ/densitometre" />} />
+      <Route path="/essais/geotechnique/in-situ/densitometre/:id" element={<GeotechniqueDetail essaiType="densitometre" essaiTitle="Densitomètre à Membrane" basePath="/essais/geotechnique/in-situ/densitometre" categoryPath="/essais/geotechnique/in-situ" categoryLabel="In-Situ" />} />
+      <Route path="/essais/geotechnique/in-situ/densitometre/:id/saisie" element={<DensitometreDataEntry />} />
+      <Route path="/essais/geotechnique/in-situ/densitometre/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="densitometre" essaiTitle="Densitomètre à Membrane" basePath="/essais/geotechnique/in-situ/densitometre" />} />
+      <Route path="/essais/geotechnique/in-situ/densitometre/:id/rapport" element={<DensitometreReport />} />
       <Route path="/essais/beton" element={<EssaiBeton />} />
       <Route path="/essais/beton/formulation" element={<FormulationBeton />} />
       <Route path="/essais/beton/formulation/nouveau" element={<FormulationBetonWizard />} />

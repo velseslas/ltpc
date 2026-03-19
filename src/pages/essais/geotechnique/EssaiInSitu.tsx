@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowDownCircle, Gauge, SquareStack, Search, FileText } from "lucide-react";
+import { ArrowLeft, ArrowDownCircle, Gauge, SquareStack, Search, FileText, Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -51,6 +51,15 @@ const EssaiInSitu = () => {
       gradient: "from-violet-500/20 to-purple-500/10",
       iconColor: "text-violet-500",
       path: "/essais/geotechnique/in-situ/sondage"
+    },
+    {
+      id: "densitometre",
+      title: "Densitomètre à Membrane",
+      description: "Détermination de la densité en place par densitomètre à membrane",
+      icon: Circle,
+      gradient: "from-rose-500/20 to-pink-500/10",
+      iconColor: "text-rose-500",
+      path: "/essais/geotechnique/in-situ/densitometre"
     },
   ];
   return (

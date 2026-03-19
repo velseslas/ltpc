@@ -1497,6 +1497,76 @@ export type Database = {
           },
         ]
       }
+      echantillons_densitometre: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          created_at: string
+          date_prelevement: string
+          id: string
+          numero: number
+          observations: string | null
+          operateur_id: string | null
+          profondeur: string | null
+          resultats: Json | null
+          statut: string
+          type_sol: string
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_prelevement?: string
+          id?: string
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          profondeur?: string | null
+          resultats?: Json | null
+          statut?: string
+          type_sol?: string
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_prelevement?: string
+          id?: string
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          profondeur?: string | null
+          resultats?: Json | null
+          statut?: string
+          type_sol?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "echantillons_densitometre_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_densitometre_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_densitometre_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       echantillons_ecrasement: {
         Row: {
           carriere_id: string | null

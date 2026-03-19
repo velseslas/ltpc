@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 
 function pf(v: string | number) { return parseFloat(String(v)) || 0; }
-function fmt(v: number) { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(2); }
+function fmt(v: number, dec = 2) { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
 
 function linearRegression(points: { x: number; y: number }[]) {
   if (points.length < 2) return { slope: 0, intercept: 0 };
@@ -258,12 +258,65 @@ function ClassificationSolResultats({ resultats }: { resultats: Record<string, u
   );
 }
 
+function DensitometreResultats({ resultats }: { resultats: Record<string, unknown> }) {
+  const v0 = pf(resultats.v0 as string); const v1 = pf(resultats.v1 as string);
+  const V = v1 - v0; const M = pf(resultats.M as string);
+  const tare = pf(resultats.tare as string); const H = pf(resultats.H as string);
+  const S = pf(resultats.S as string); const I = S - tare; const E = H - S;
+  const W = I > 0 ? (E / I) * 100 : 0;
+  const P = V > 0 ? M / V : 0;
+  const Pd = (100 + W) > 0 ? (P * 100) / (100 + W) : 0;
+  const yd_max = pf(resultats.yd_max as string);
+  const compactage = yd_max > 0 ? (Pd / yd_max) * 100 : 0;
+
+  return (
+    <Card className="border-border bg-card">
+      <CardHeader><CardTitle className="text-lg">Résultats — Densitomètre à Membrane</CardTitle></CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">Volume du trou (V)</p>
+            <p className="text-lg font-bold text-primary">{fmt(V)} cm³</p>
+          </div>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">Teneur en eau (W)</p>
+            <p className="text-lg font-bold text-primary">{fmt(W)} %</p>
+          </div>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">Densité humide (P)</p>
+            <p className="text-lg font-bold text-foreground">{fmt(P)} g/cm³</p>
+          </div>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">Densité sèche (Pd)</p>
+            <p className="text-lg font-bold text-primary">{fmt(Pd)} g/cm³</p>
+          </div>
+          {yd_max > 0 && (
+            <>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-xs text-muted-foreground">γd max</p>
+                <p className="text-lg font-bold text-foreground">{fmt(yd_max)} g/cm³</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50">
+                <p className="text-xs text-muted-foreground">% Compactage</p>
+                <p className={`text-lg font-bold ${compactage >= 95 ? "text-emerald-500" : "text-amber-500"}`}>{fmt(compactage, 1)} %</p>
+              </div>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ResultatsSection({ essaiType, resultats }: { essaiType: string; resultats: Record<string, unknown> }) {
   if (essaiType === "limites-atterberg") {
     return <LimitesAtterbergResultats resultats={resultats} />;
   }
   if (essaiType === "classification-sol") {
     return <ClassificationSolResultats resultats={resultats} />;
+  }
+  if (essaiType === "densitometre") {
+    return <DensitometreResultats resultats={resultats} />;
   }
 
   return (

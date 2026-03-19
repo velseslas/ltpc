@@ -45,7 +45,7 @@ const EssaiGeotechnique = () => {
       icon: Compass,
       gradient: "from-sky-500/20 to-blue-500/10",
       iconColor: "text-sky-500",
-      essaiCount: 4,
+      essaiCount: 5,
       path: "/essais/geotechnique/in-situ"
     },
   ];
