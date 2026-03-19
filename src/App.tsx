@@ -61,6 +61,9 @@ import Penetrometre from "./pages/essais/geotechnique/insitu/Penetrometre";
 import Pressiometre from "./pages/essais/geotechnique/insitu/Pressiometre";
 import Plaque from "./pages/essais/geotechnique/insitu/Plaque";
 import Sondage from "./pages/essais/geotechnique/insitu/Sondage";
+import Densitometre from "./pages/essais/geotechnique/insitu/Densitometre";
+import DensitometreDataEntry from "./pages/essais/geotechnique/insitu/DensitometreDataEntry";
+import DensitometreReport from "./pages/essais/geotechnique/insitu/DensitometreReport";
 // Géotechnique - shared
 import EchantillonGeotechniqueForm from "./pages/essais/geotechnique/EchantillonGeotechniqueForm";
 import GeotechniqueDetail from "./pages/essais/geotechnique/GeotechniqueDetail";
