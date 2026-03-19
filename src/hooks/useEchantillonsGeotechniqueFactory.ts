@@ -50,6 +50,7 @@ const essaiTypeToTable: Record<string, string> = {
   "pressiometre": "echantillons_pressiometre",
   "plaque": "echantillons_plaque",
   "sondage": "echantillons_sondage",
+  "densitometre": "echantillons_densitometre",
 };
 
 const essaiTypeToPrefix: Record<string, string> = {
