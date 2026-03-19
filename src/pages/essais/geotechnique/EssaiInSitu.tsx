@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowDownCircle, Gauge, SquareStack, Search, FileText } from "lucide-react";
+import { ArrowLeft, ArrowDownCircle, Gauge, SquareStack, Search, FileText, Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
