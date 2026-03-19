@@ -70,6 +70,7 @@ const essaiTypeToPrefix: Record<string, string> = {
   "pressiometre": "PR",
   "plaque": "PL",
   "sondage": "SC",
+  "densitometre": "DM",
 };
 
 export function getGeoTableName(essaiType: string): string {
