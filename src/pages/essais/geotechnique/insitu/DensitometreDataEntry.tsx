@@ -197,38 +197,31 @@ export default function DensitometreDataEntry() {
                     </td>
                   </tr>
                 ))}
+                {/* Evd row */}
+                <tr className="border-b border-border/50 bg-muted/30">
+                  <td className="p-3 font-bold text-foreground" colSpan={2}>Evd</td>
+                  <td className="p-3" colSpan={1}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">γd max</span>
+                      <Input
+                        type="number"
+                        step="any"
+                        value={r.yd_max || ""}
+                        onChange={e => set("yd_max", e.target.value)}
+                        className="bg-background border-border h-9 w-24"
+                        placeholder="g/cm³"
+                      />
+                    </div>
+                  </td>
+                  <td className="p-3 text-center text-sm text-muted-foreground">% Compactage</td>
+                  <td className="p-3">
+                    <span className={`font-bold text-lg ${calc.compactage >= 95 ? "text-emerald-500" : calc.compactage > 0 ? "text-amber-500" : "text-muted-foreground"}`}>
+                      {calc.compactage > 0 ? fmt(calc.compactage, 1) + " %" : "-"}
+                    </span>
+                  </td>
+                </tr>
               </tbody>
             </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Evd - Compactage */}
-      <Card className="border-border bg-card">
-        <CardHeader><CardTitle className="text-lg">Évaluation du Compactage</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-            <div>
-              <Label>γd max (g/cm³)</Label>
-              <Input
-                type="number"
-                step="any"
-                value={r.yd_max || ""}
-                onChange={e => set("yd_max", e.target.value)}
-                className="bg-background border-border"
-                placeholder="Ex: 1.9"
-              />
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50">
-              <p className="text-xs text-muted-foreground">Densité sèche (Pd)</p>
-              <p className="text-2xl font-bold text-primary">{fmt(calc.Pd, 3)} g/cm³</p>
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50">
-              <p className="text-xs text-muted-foreground">% Compactage</p>
-              <p className={`text-2xl font-bold ${calc.compactage >= 95 ? "text-emerald-500" : calc.compactage > 0 ? "text-amber-500" : "text-muted-foreground"}`}>
-                {calc.compactage > 0 ? fmt(calc.compactage, 1) + " %" : "-"}
-              </p>
-            </div>
           </div>
         </CardContent>
       </Card>
