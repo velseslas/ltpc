@@ -50,6 +50,16 @@ const normesData: NormeData[] = [
     appareillage: ["Sondeuse rotative ou à percussion", "Carottiers simples, doubles ou triples", "Tubes de prélèvement en acier ou PVC", "Fluide de forage (eau, boue bentonitique)", "Caisse à carottes pour stockage", "Appareil photo pour documentation"],
     modeOperatoire: ["Implanter le sondage selon le plan de reconnaissance", "Forer jusqu'à la profondeur de prélèvement", "Introduire le carottier adapté au type de sol", "Enfoncer par rotation lente et pression contrôlée", "Extraire la carotte avec précaution", "Conditionner les échantillons (paraffinage, tube étanche)", "Documenter la coupe géologique et les observations", "Transporter vers le laboratoire en conditions adaptées"],
     expression: "Taux de récupération = (longueur carotte récupérée / longueur forée) × 100. RQD (Rock Quality Designation) = (Σ morceaux > 10 cm / longueur forée) × 100 (pour roches). Classes de qualité : 1 (très bon, intact) à 5 (très pauvre, remanié)."
+  },
+  {
+    id: "densitometre",
+    title: "Densitomètre à Membrane",
+    normeNumber: "NF P 94-061-2",
+    domaine: "Cette norme définit l'essai de détermination de la masse volumique en place d'un matériau au moyen du densitomètre à membrane. Il est applicable aux sols grenus et aux matériaux de remblai contenant peu de fines.",
+    principe: "Un trou est creusé dans le sol et le volume est mesuré en appliquant une membrane souple remplie d'eau. Le sol extrait est pesé et sa teneur en eau est déterminée. La densité sèche est calculée à partir du volume du trou, de la masse du sol et de sa teneur en eau.",
+    appareillage: ["Densitomètre à membrane avec cylindre gradué", "Pompe à vide ou dispositif de mise en pression", "Membrane souple en caoutchouc ou latex", "Balance de précision (± 0,1 g)", "Étuve de séchage (105 ± 5 °C)", "Outils de creusement (burin, spatule)", "Récipients étanches pour le sol", "Plateau de base avec anneau de fixation"],
+    modeOperatoire: ["Niveler la surface et positionner le plateau de base", "Mesurer le volume initial V0 (lecture sur le cylindre gradué)", "Creuser un trou cylindrique de 10 à 15 cm de profondeur", "Recueillir soigneusement tout le sol extrait dans un récipient", "Peser la masse totale du sol extrait (M)", "Mesurer le volume final V1 avec la membrane dans le trou", "Calculer le volume du trou V = V1 − V0", "Prélever un échantillon pour déterminer la teneur en eau W", "Calculer la densité humide P = M / V", "Calculer la densité sèche Pd = P × 100 / (100 + W)"],
+    expression: "V = V1 − V0 (volume du trou en cm³). E = H − S (poids de l'eau). I = S − Tare (sol sec). W = (E / I) × 100 (teneur en eau en %). P = M / V (densité humide en g/cm³). Pd = P × 100 / (100 + W) (densité sèche en g/cm³). % Compactage = (Pd / γd max) × 100. Objectif : % Compactage ≥ 95% (selon spécifications du projet)."
   }
 ];
 
