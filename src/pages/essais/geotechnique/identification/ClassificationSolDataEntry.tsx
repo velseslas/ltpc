@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Save, Loader2, Info } from "lucide-react";
-import { AbaqueButton } from "@/components/essais/geotechnique/CasagrandeAbaque";
+import { GTRUSCSAbaqueButton } from "@/components/essais/geotechnique/GTRUSCSAbaque";
 import { toast } from "sonner";
 import {
   useEchantillonGeotechniqueById,
