@@ -119,15 +119,15 @@ export function GTRUSCSAbaqueButton({ passant80um, passant2mm, ip, vbs, mo, gtrS
                     return (
                       <div
                         key={sc.code}
-                        className={`p-2 rounded border text-sm transition-all ${
+                        className={`p-2.5 rounded border-2 text-sm transition-all ${
                           isActive
-                            ? "bg-primary/10 border-primary ring-2 ring-primary/30 shadow-sm"
-                            : "bg-background/60 border-border/50"
+                            ? `${sc.bg} ${sc.borderColor} ring-2 ring-primary/30 shadow-md`
+                            : `${sc.bg} ${sc.borderColor} opacity-70`
                         }`}
                       >
-                        <span className={`font-bold ${sc.color}`}>{sc.code}</span>
-                        <span className="text-muted-foreground ml-1">— {sc.label}</span>
-                        <p className="text-xs text-muted-foreground mt-0.5">{sc.condition}</p>
+                        <span className="font-extrabold text-foreground text-base">{sc.code}</span>
+                        <span className="text-foreground/80 ml-1.5 font-medium">— {sc.label}</span>
+                        <p className="text-xs text-foreground/60 mt-0.5 font-medium">{sc.condition}</p>
                       </div>
                     );
                   })}
