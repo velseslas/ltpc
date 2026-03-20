@@ -292,9 +292,15 @@ export default function ClassificationSolDataEntry() {
       )}
 
       <div className="flex justify-end gap-4">
-        {pf(wl) > 0 && pf(ip) > 0 && (
-          <AbaqueButton wl={pf(wl)} ip={pf(ip)} />
-        )}
+        <GTRUSCSAbaqueButton
+          passant80um={pf(granulometrie["0.08"])}
+          passant2mm={pf(granulometrie["2"])}
+          ip={pf(ip)}
+          vbs={pf(vbs)}
+          mo={pf(matiereOrganique)}
+          gtrSousClasse={gtrResult?.sousClasse}
+          uscsCode={uscsResult?.code}
+        />
         <Button variant="outline" onClick={() => navigate(basePath)}>Annuler</Button>
         <Button onClick={handleSave} disabled={updateEchantillon.isPending} className="gradient-primary text-primary-foreground">
           {updateEchantillon.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
