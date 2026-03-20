@@ -292,6 +292,9 @@ export default function ClassificationSolDataEntry() {
       )}
 
       <div className="flex justify-end gap-4">
+        {pf(wl) > 0 && pf(ip) > 0 && (
+          <AbaqueButton wl={pf(wl)} ip={pf(ip)} />
+        )}
         <Button variant="outline" onClick={() => navigate(basePath)}>Annuler</Button>
         <Button onClick={handleSave} disabled={updateEchantillon.isPending} className="gradient-primary text-primary-foreground">
           {updateEchantillon.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
