@@ -94,19 +94,18 @@ export default function ClassificationSolReport() {
       <div ref={reportRef} className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI - CLASSIFICATION DES SOLS" subtitle="NF P 11-300 (GTR) / ASTM D2487 (USCS)" />
 
-        {/* Identification */}
-        <div className="mb-4">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
-          <table className="w-full border-collapse border border-black text-sm">
-            <tbody>
-              <tr><td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td><td className="border border-black px-3 py-1.5 text-black">{numero}</td></tr>
-              <tr><td className="border border-black px-3 py-1.5 font-medium text-black">Client</td><td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom || "-"}</td></tr>
-              <tr><td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td><td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers?.nom || "-"}</td></tr>
-              <tr><td className="border border-black px-3 py-1.5 font-medium text-black">Type de sol</td><td className="border border-black px-3 py-1.5 text-black">{echantillon.type_sol}</td></tr>
-              <tr><td className="border border-black px-3 py-1.5 font-medium text-black">Profondeur</td><td className="border border-black px-3 py-1.5 text-black">{echantillon.profondeur || "-"}</td></tr>
-              <tr><td className="border border-black px-3 py-1.5 font-medium text-black">Date de prélèvement</td><td className="border border-black px-3 py-1.5 text-black">{format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</td></tr>
-            </tbody>
-          </table>
+        {/* Infos échantillon */}
+        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+          <div className="border border-gray-300 p-3 rounded">
+            <p><span className="font-bold">N° Échantillon :</span> {numero}</p>
+            <p><span className="font-bold">Client :</span> {echantillon.clients?.nom || "-"}</p>
+            <p><span className="font-bold">Chantier :</span> {echantillon.chantiers?.nom || "-"}</p>
+          </div>
+          <div className="border border-gray-300 p-3 rounded">
+            <p><span className="font-bold">Date de prélèvement :</span> {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p>
+            <p><span className="font-bold">Type de sol :</span> {echantillon.type_sol}</p>
+            <p><span className="font-bold">Profondeur :</span> {echantillon.profondeur || "-"}</p>
+          </div>
         </div>
 
         {/* Granulométrie */}
