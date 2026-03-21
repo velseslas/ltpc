@@ -308,6 +308,43 @@ function DensitometreResultats({ resultats }: { resultats: Record<string, unknow
   );
 }
 
+function TeneurEauSolResultats({ resultats }: { resultats: Record<string, unknown> }) {
+  const prises = [1, 2].map(n => {
+    const m1 = pf(resultats[`p${n}_m1`] as string);
+    const m2 = pf(resultats[`p${n}_m2`] as string);
+    const m3 = pf(resultats[`p${n}_m3`] as string);
+    const mh = m2 - m1;
+    const md = m3 - m1;
+    const mw = m2 - m3;
+    const W = md > 0 ? (mw / md) * 100 : 0;
+    return { m1, m2, m3, mh, md, mw, W };
+  });
+  const validW = prises.filter(p => p.W > 0);
+  const moyen = validW.length > 0 ? validW.reduce((s, p) => s + p.W, 0) / validW.length : 0;
+
+  return (
+    <Card className="border-border bg-card">
+      <CardHeader><CardTitle className="text-lg">Résultats — Teneur en Eau</CardTitle></CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">W Prise 01</p>
+            <p className="text-lg font-bold text-primary">{prises[0].W > 0 ? fmt(prises[0].W) + " %" : "-"}</p>
+          </div>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground">W Prise 02</p>
+            <p className="text-lg font-bold text-primary">{prises[1].W > 0 ? fmt(prises[1].W) + " %" : "-"}</p>
+          </div>
+          <div className="p-3 rounded-lg bg-primary/10 border border-primary/30">
+            <p className="text-xs text-muted-foreground">W Moyen</p>
+            <p className="text-xl font-bold text-primary">{moyen > 0 ? fmt(moyen) + " %" : "-"}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ResultatsSection({ essaiType, resultats }: { essaiType: string; resultats: Record<string, unknown> }) {
   if (essaiType === "limites-atterberg") {
     return <LimitesAtterbergResultats resultats={resultats} />;
@@ -317,6 +354,9 @@ function ResultatsSection({ essaiType, resultats }: { essaiType: string; resulta
   }
   if (essaiType === "densitometre") {
     return <DensitometreResultats resultats={resultats} />;
+  }
+  if (essaiType === "teneur-eau-sol") {
+    return <TeneurEauSolResultats resultats={resultats} />;
   }
 
   return (
