@@ -44,6 +44,8 @@ import LimitesAtterberg from "./pages/essais/geotechnique/identification/Limites
 import GranulometrieSol from "./pages/essais/geotechnique/identification/GranulometrieSol";
 import TeneurEauSol from "./pages/essais/geotechnique/identification/TeneurEauSol";
 import ClassificationSol from "./pages/essais/geotechnique/identification/ClassificationSol";
+import TeneurEauSolDataEntry from "./pages/essais/geotechnique/identification/TeneurEauSolDataEntry";
+import TeneurEauSolReport from "./pages/essais/geotechnique/identification/TeneurEauSolReport";
 import ClassificationSolDataEntry from "./pages/essais/geotechnique/identification/ClassificationSolDataEntry";
 import ClassificationSolReport from "./pages/essais/geotechnique/identification/ClassificationSolReport";
 // Géotechnique - Compactage
@@ -418,7 +420,8 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/identification/teneur-eau-sol" element={<TeneurEauSol />} />
       <Route path="/essais/geotechnique/identification/teneur-eau-sol/nouveau" element={<EchantillonGeotechniqueForm essaiType="teneur-eau-sol" essaiTitle="Teneur en Eau des Sols" basePath="/essais/geotechnique/identification/teneur-eau-sol" />} />
       <Route path="/essais/geotechnique/identification/teneur-eau-sol/:id" element={<GeotechniqueDetail essaiType="teneur-eau-sol" essaiTitle="Teneur en Eau des Sols" basePath="/essais/geotechnique/identification/teneur-eau-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
-      <Route path="/essais/geotechnique/identification/teneur-eau-sol/:id/saisie" element={<GeotechniqueDataEntry essaiType="teneur-eau-sol" essaiTitle="Teneur en Eau des Sols" basePath="/essais/geotechnique/identification/teneur-eau-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
+      <Route path="/essais/geotechnique/identification/teneur-eau-sol/:id/saisie" element={<TeneurEauSolDataEntry />} />
+      <Route path="/essais/geotechnique/identification/teneur-eau-sol/:id/rapport" element={<TeneurEauSolReport />} />
       <Route path="/essais/geotechnique/identification/teneur-eau-sol/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="teneur-eau-sol" essaiTitle="Teneur en Eau des Sols" basePath="/essais/geotechnique/identification/teneur-eau-sol" />} />
       <Route path="/essais/geotechnique/identification/classification-sol" element={<ClassificationSol />} />
       <Route path="/essais/geotechnique/identification/classification-sol/nouveau" element={<EchantillonGeotechniqueForm essaiType="classification-sol" essaiTitle="Classification des Sols" basePath="/essais/geotechnique/identification/classification-sol" />} />
