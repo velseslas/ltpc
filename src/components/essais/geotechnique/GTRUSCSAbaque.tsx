@@ -15,34 +15,33 @@ interface GTRUSCSAbaqueProps {
   uscsCode?: string | null;
 }
 
-// GTR classification tree data
 const GTR_TREE = [
   {
-    classe: "A", label: "Sols fins", condition: "Passant 80µm > 35%", color: "bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-600",
+    classe: "A", label: "Sols fins", condition: "Passant 80µm > 35%",
     sousClasses: [
-      { code: "A1", label: "Peu plastique", condition: "Ip ≤ 12", bg: "bg-yellow-100 dark:bg-yellow-900/40", borderColor: "border-yellow-400 dark:border-yellow-600" },
-      { code: "A2", label: "Moy. plastique", condition: "12 < Ip ≤ 25", bg: "bg-amber-100 dark:bg-amber-900/40", borderColor: "border-amber-400 dark:border-amber-600" },
-      { code: "A3", label: "Plastique", condition: "25 < Ip ≤ 40", bg: "bg-orange-100 dark:bg-orange-900/40", borderColor: "border-orange-400 dark:border-orange-600" },
-      { code: "A4", label: "Très plastique", condition: "Ip > 40", bg: "bg-red-100 dark:bg-red-900/40", borderColor: "border-red-400 dark:border-red-600" },
+      { code: "A1", label: "Peu plastique", condition: "Ip ≤ 12" },
+      { code: "A2", label: "Moy. plastique", condition: "12 < Ip ≤ 25" },
+      { code: "A3", label: "Plastique", condition: "25 < Ip ≤ 40" },
+      { code: "A4", label: "Très plastique", condition: "Ip > 40" },
     ],
   },
   {
-    classe: "B", label: "Sols sableux/graveleux", condition: "Passant 80µm ≤ 35%", color: "bg-sky-50 dark:bg-sky-950/30 border-sky-400 dark:border-sky-600",
+    classe: "B", label: "Sols sableux/graveleux", condition: "Passant 80µm ≤ 35%",
     sousClasses: [
-      { code: "B1", label: "Sable propre", condition: "VBS ≤ 0.1", bg: "bg-cyan-100 dark:bg-cyan-900/40", borderColor: "border-cyan-400 dark:border-cyan-600" },
-      { code: "B2", label: "Sable peu argileux", condition: "0.1 < VBS ≤ 0.2", bg: "bg-sky-100 dark:bg-sky-900/40", borderColor: "border-sky-400 dark:border-sky-600" },
-      { code: "B3", label: "Sable argileux", condition: "0.2 < VBS ≤ 1.5", bg: "bg-blue-100 dark:bg-blue-900/40", borderColor: "border-blue-400 dark:border-blue-600" },
-      { code: "B4", label: "Sable très argileux", condition: "VBS > 1.5", bg: "bg-indigo-100 dark:bg-indigo-900/40", borderColor: "border-indigo-400 dark:border-indigo-600" },
-      { code: "B5", label: "Grave propre", condition: "Pass. 2mm ≤ 70%, Pass. 80µm ≤ 12%", bg: "bg-teal-100 dark:bg-teal-900/40", borderColor: "border-teal-400 dark:border-teal-600" },
-      { code: "B6", label: "Grave argileuse", condition: "Pass. 2mm ≤ 70%, Pass. 80µm > 12%", bg: "bg-violet-100 dark:bg-violet-900/40", borderColor: "border-violet-400 dark:border-violet-600" },
+      { code: "B1", label: "Sable propre", condition: "VBS ≤ 0.1" },
+      { code: "B2", label: "Sable peu argileux", condition: "0.1 < VBS ≤ 0.2" },
+      { code: "B3", label: "Sable argileux", condition: "0.2 < VBS ≤ 1.5" },
+      { code: "B4", label: "Sable très argileux", condition: "VBS > 1.5" },
+      { code: "B5", label: "Grave propre", condition: "Pass. 2mm ≤ 70%, Pass. 80µm ≤ 12%" },
+      { code: "B6", label: "Grave argileuse", condition: "Pass. 2mm ≤ 70%, Pass. 80µm > 12%" },
     ],
   },
   {
-    classe: "F", label: "Sols organiques", condition: "MO > 10%", color: "bg-green-50 dark:bg-green-950/30 border-green-400 dark:border-green-600",
+    classe: "F", label: "Sols organiques", condition: "MO > 10%",
     sousClasses: [
-      { code: "F1", label: "Faible MO", condition: "3% < MO ≤ 10%", bg: "bg-lime-100 dark:bg-lime-900/40", borderColor: "border-lime-400 dark:border-lime-600" },
-      { code: "F2", label: "Forte MO", condition: "10% < MO ≤ 30%", bg: "bg-green-100 dark:bg-green-900/40", borderColor: "border-green-400 dark:border-green-600" },
-      { code: "F3", label: "Tourbe", condition: "MO > 30%", bg: "bg-emerald-100 dark:bg-emerald-900/40", borderColor: "border-emerald-400 dark:border-emerald-600" },
+      { code: "F1", label: "Faible MO", condition: "3% < MO ≤ 10%" },
+      { code: "F2", label: "Forte MO", condition: "10% < MO ≤ 30%" },
+      { code: "F3", label: "Tourbe", condition: "MO > 30%" },
     ],
   },
 ];
@@ -50,27 +49,25 @@ const GTR_TREE = [
 const USCS_GROUPS = [
   {
     label: "Sols grossiers (Pass. 80µm < 50%)",
-    color: "bg-sky-50 dark:bg-sky-950/30 border-sky-400 dark:border-sky-600",
     codes: [
-      { code: "GW", label: "Grave bien graduée", condition: "Pass. 80µm < 5%", bg: "bg-teal-100 dark:bg-teal-900/40", borderColor: "border-teal-400" },
-      { code: "GP", label: "Grave mal graduée", condition: "Pass. 80µm < 5%", bg: "bg-cyan-100 dark:bg-cyan-900/40", borderColor: "border-cyan-400" },
-      { code: "GM", label: "Grave limoneuse", condition: "Ip ≤ 7", bg: "bg-sky-100 dark:bg-sky-900/40", borderColor: "border-sky-400" },
-      { code: "GC", label: "Grave argileuse", condition: "Ip > 7", bg: "bg-blue-100 dark:bg-blue-900/40", borderColor: "border-blue-400" },
-      { code: "SW", label: "Sable bien gradué", condition: "Pass. 80µm < 5%", bg: "bg-emerald-100 dark:bg-emerald-900/40", borderColor: "border-emerald-400" },
-      { code: "SP", label: "Sable mal gradué", condition: "Pass. 80µm < 5%", bg: "bg-green-100 dark:bg-green-900/40", borderColor: "border-green-400" },
-      { code: "SM", label: "Sable limoneux", condition: "Ip ≤ 7", bg: "bg-lime-100 dark:bg-lime-900/40", borderColor: "border-lime-400" },
-      { code: "SC", label: "Sable argileux", condition: "Ip > 7", bg: "bg-yellow-100 dark:bg-yellow-900/40", borderColor: "border-yellow-400" },
+      { code: "GW", label: "Grave bien graduée", condition: "Pass. 80µm < 5%" },
+      { code: "GP", label: "Grave mal graduée", condition: "Pass. 80µm < 5%" },
+      { code: "GM", label: "Grave limoneuse", condition: "Ip ≤ 7" },
+      { code: "GC", label: "Grave argileuse", condition: "Ip > 7" },
+      { code: "SW", label: "Sable bien gradué", condition: "Pass. 80µm < 5%" },
+      { code: "SP", label: "Sable mal gradué", condition: "Pass. 80µm < 5%" },
+      { code: "SM", label: "Sable limoneux", condition: "Ip ≤ 7" },
+      { code: "SC", label: "Sable argileux", condition: "Ip > 7" },
     ],
   },
   {
     label: "Sols fins (Pass. 80µm ≥ 50%)",
-    color: "bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-600",
     codes: [
-      { code: "ML", label: "Limon peu plastique", condition: "Wl < 50, sous ligne A", bg: "bg-sky-100 dark:bg-sky-900/40", borderColor: "border-sky-400" },
-      { code: "CL", label: "Argile peu plastique", condition: "Wl < 50, au-dessus ligne A", bg: "bg-orange-100 dark:bg-orange-900/40", borderColor: "border-orange-400" },
-      { code: "CL-ML", label: "Argile limoneuse", condition: "4 ≤ Ip ≤ 7, Wl < 50", bg: "bg-amber-100 dark:bg-amber-900/40", borderColor: "border-amber-400" },
-      { code: "MH", label: "Limon très plastique", condition: "Wl ≥ 50, sous ligne A", bg: "bg-violet-100 dark:bg-violet-900/40", borderColor: "border-violet-400" },
-      { code: "CH", label: "Argile très plastique", condition: "Wl ≥ 50, au-dessus ligne A", bg: "bg-red-100 dark:bg-red-900/40", borderColor: "border-red-400" },
+      { code: "ML", label: "Limon peu plastique", condition: "Wl < 50, sous ligne A" },
+      { code: "CL", label: "Argile peu plastique", condition: "Wl < 50, au-dessus ligne A" },
+      { code: "CL-ML", label: "Argile limoneuse", condition: "4 ≤ Ip ≤ 7, Wl < 50" },
+      { code: "MH", label: "Limon très plastique", condition: "Wl ≥ 50, sous ligne A" },
+      { code: "CH", label: "Argile très plastique", condition: "Wl ≥ 50, au-dessus ligne A" },
     ],
   },
 ];
@@ -97,7 +94,6 @@ export function GTRUSCSAbaqueButton({ passant80um, passant2mm, ip, vbs, mo, gtrS
           </TabsList>
 
           <TabsContent value="gtr" className="space-y-4 mt-4">
-            {/* Current values summary */}
             <div className="grid grid-cols-5 gap-2 text-center text-xs">
               <ValueBox label="Pass. 80µm" value={passant80um} unit="%" />
               <ValueBox label="Pass. 2mm" value={passant2mm} unit="%" />
@@ -107,9 +103,9 @@ export function GTRUSCSAbaqueButton({ passant80um, passant2mm, ip, vbs, mo, gtrS
             </div>
 
             {GTR_TREE.map(group => (
-              <div key={group.classe} className={`rounded-lg border p-3 ${group.color}`}>
+              <div key={group.classe} className="rounded-lg border border-border bg-card p-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-lg">Classe {group.classe}</span>
+                  <span className="font-bold text-lg text-foreground">Classe {group.classe}</span>
                   <span className="text-sm text-muted-foreground">— {group.label}</span>
                   <Badge variant="outline" className="text-xs ml-auto">{group.condition}</Badge>
                 </div>
@@ -119,15 +115,15 @@ export function GTRUSCSAbaqueButton({ passant80um, passant2mm, ip, vbs, mo, gtrS
                     return (
                       <div
                         key={sc.code}
-                        className={`p-2.5 rounded border-2 text-sm transition-all ${
+                        className={`p-2.5 rounded border text-sm transition-all ${
                           isActive
-                            ? `${sc.bg} ${sc.borderColor} ring-2 ring-primary/30 shadow-md`
-                            : `${sc.bg} ${sc.borderColor} opacity-70`
+                            ? "bg-primary/15 border-primary ring-2 ring-primary/30 shadow-md"
+                            : "bg-muted/30 border-border opacity-80 hover:opacity-100"
                         }`}
                       >
-                        <span className="font-extrabold text-foreground text-base">{sc.code}</span>
+                        <span className={`font-extrabold text-base ${isActive ? "text-primary" : "text-foreground"}`}>{sc.code}</span>
                         <span className="text-foreground/80 ml-1.5 font-medium">— {sc.label}</span>
-                        <p className="text-xs text-foreground/60 mt-0.5 font-medium">{sc.condition}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{sc.condition}</p>
                       </div>
                     );
                   })}
@@ -146,23 +142,23 @@ export function GTRUSCSAbaqueButton({ passant80um, passant2mm, ip, vbs, mo, gtrS
             </div>
 
             {USCS_GROUPS.map(group => (
-              <div key={group.label} className={`rounded-lg border p-3 ${group.color}`}>
-                <p className="font-bold text-sm mb-2">{group.label}</p>
+              <div key={group.label} className="rounded-lg border border-border bg-card p-3">
+                <p className="font-bold text-sm mb-2 text-foreground">{group.label}</p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {group.codes.map(c => {
                     const isActive = uscsCode === c.code || (uscsCode === "GW/GP" && (c.code === "GW" || c.code === "GP")) || (uscsCode === "SW/SP" && (c.code === "SW" || c.code === "SP"));
                     return (
                       <div
                         key={c.code}
-                        className={`p-2.5 rounded border-2 text-sm transition-all ${
+                        className={`p-2.5 rounded border text-sm transition-all ${
                           isActive
-                            ? `${c.bg} ${c.borderColor} ring-2 ring-primary/30 shadow-md`
-                            : `${c.bg} ${c.borderColor} opacity-70`
+                            ? "bg-primary/15 border-primary ring-2 ring-primary/30 shadow-md"
+                            : "bg-muted/30 border-border opacity-80 hover:opacity-100"
                         }`}
                       >
-                        <span className="font-extrabold text-foreground text-base">{c.code}</span>
+                        <span className={`font-extrabold text-base ${isActive ? "text-primary" : "text-foreground"}`}>{c.code}</span>
                         <span className="text-foreground/80 ml-1.5 font-medium">— {c.label}</span>
-                        <p className="text-xs text-foreground/60 mt-0.5 font-medium">{c.condition}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{c.condition}</p>
                       </div>
                     );
                   })}
