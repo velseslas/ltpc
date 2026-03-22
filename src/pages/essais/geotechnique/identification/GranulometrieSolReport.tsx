@@ -155,37 +155,33 @@ export default function GranulometrieSolReport() {
           <p className="font-bold">Classification NF EN 13285 : <span className="text-blue-700 text-lg">{classification}</span></p>
         </div>
 
-        {/* Courbe granulométrique */}
-        {chartData.length > 1 && (
-          <div className="mb-4">
-            <h3 className="font-bold text-sm mb-2 underline text-center">Courbe granulométrique</h3>
-            <div className="border border-gray-400 p-4 bg-white">
-              <div style={{ width: '100%', height: 280 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                    <XAxis
-                      dataKey="d"
-                      scale="log"
-                      domain={['auto', 'auto']}
-                      tickFormatter={v => `${v}`}
-                      label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11 } }}
-                      tick={{ fontSize: 10 }}
-                    />
-                    <YAxis
-                      domain={[0, 100]}
-                      tickFormatter={v => `${v}%`}
-                      label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
-                      tick={{ fontSize: 10 }}
-                    />
-                    <ReferenceLine y={50} stroke="#999" strokeDasharray="5 5" />
-                    <Line type="monotone" dataKey="passant" stroke="#1d4ed8" strokeWidth={2} dot={{ fill: '#1d4ed8', r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
+        {/* Fuseau granulométrique */}
+        {chartData.length > 1 && (() => {
+          const fuseauData = FUSEAU_GNT_0_315.min.map((pt, i) => {
+            const sample = chartData.find(t => Math.abs(t.d - pt.d) < 0.01);
+            return { d: pt.d, min: pt.p, max: FUSEAU_GNT_0_315.max[i].p, passant: sample?.passant ?? null };
+          });
+          return (
+            <div className="mb-4">
+              <h3 className="font-bold text-sm mb-2 underline text-center">Fuseau granulométrique — GNT 0/31.5</h3>
+              <div className="border border-gray-400 p-4 bg-white">
+                <div style={{ width: '100%', height: 280 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={fuseauData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                      <XAxis dataKey="d" scale="log" domain={['auto', 'auto']} tickFormatter={v => `${v}`} label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11 } }} tick={{ fontSize: 10 }} />
+                      <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }} tick={{ fontSize: 10 }} />
+                      <Line type="monotone" dataKey="min" stroke="#999" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Min fuseau" />
+                      <Line type="monotone" dataKey="max" stroke="#999" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Max fuseau" />
+                      <Line type="monotone" dataKey="passant" stroke="#1d4ed8" strokeWidth={2.5} dot={{ fill: '#1d4ed8', r: 4 }} connectNulls name="Échantillon" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="text-xs text-center text-gray-500 mt-2">Lignes pointillées : limites du fuseau NF EN 13285 (GNT 0/31.5)</p>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Observations */}
         {echantillon.observations && (
