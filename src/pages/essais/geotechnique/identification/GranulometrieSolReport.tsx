@@ -63,7 +63,7 @@ export default function GranulometrieSolReport() {
           <ArrowLeft className="h-4 w-4 mr-2" />Retour
         </Button>
         <div className="flex gap-2">
-          <ShareButton title={`Rapport Granulométrie Sol ${numero}`} />
+          <ShareButton />
           <Button onClick={() => window.print()}>
             <Printer className="h-4 w-4 mr-2" />Imprimer
           </Button>
