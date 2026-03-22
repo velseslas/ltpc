@@ -42,6 +42,8 @@ import EssaiInSitu from "./pages/essais/geotechnique/EssaiInSitu";
 // Géotechnique - Identification
 import LimitesAtterberg from "./pages/essais/geotechnique/identification/LimitesAtterberg";
 import GranulometrieSol from "./pages/essais/geotechnique/identification/GranulometrieSol";
+import GranulometrieSolDataEntry from "./pages/essais/geotechnique/identification/GranulometrieSolDataEntry";
+import GranulometrieSolReport from "./pages/essais/geotechnique/identification/GranulometrieSolReport";
 import TeneurEauSol from "./pages/essais/geotechnique/identification/TeneurEauSol";
 import ClassificationSol from "./pages/essais/geotechnique/identification/ClassificationSol";
 import TeneurEauSolDataEntry from "./pages/essais/geotechnique/identification/TeneurEauSolDataEntry";
@@ -415,7 +417,8 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/identification/granulometrie-sol" element={<GranulometrieSol />} />
       <Route path="/essais/geotechnique/identification/granulometrie-sol/nouveau" element={<EchantillonGeotechniqueForm essaiType="granulometrie-sol" essaiTitle="Analyse Granulométrique des Sols" basePath="/essais/geotechnique/identification/granulometrie-sol" />} />
       <Route path="/essais/geotechnique/identification/granulometrie-sol/:id" element={<GeotechniqueDetail essaiType="granulometrie-sol" essaiTitle="Analyse Granulométrique des Sols" basePath="/essais/geotechnique/identification/granulometrie-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
-      <Route path="/essais/geotechnique/identification/granulometrie-sol/:id/saisie" element={<GeotechniqueDataEntry essaiType="granulometrie-sol" essaiTitle="Analyse Granulométrique des Sols" basePath="/essais/geotechnique/identification/granulometrie-sol" categoryPath="/essais/geotechnique/identification" categoryLabel="Identification" />} />
+      <Route path="/essais/geotechnique/identification/granulometrie-sol/:id/saisie" element={<GranulometrieSolDataEntry />} />
+      <Route path="/essais/geotechnique/identification/granulometrie-sol/:id/rapport" element={<GranulometrieSolReport />} />
       <Route path="/essais/geotechnique/identification/granulometrie-sol/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="granulometrie-sol" essaiTitle="Analyse Granulométrique des Sols" basePath="/essais/geotechnique/identification/granulometrie-sol" />} />
       <Route path="/essais/geotechnique/identification/teneur-eau-sol" element={<TeneurEauSol />} />
       <Route path="/essais/geotechnique/identification/teneur-eau-sol/nouveau" element={<EchantillonGeotechniqueForm essaiType="teneur-eau-sol" essaiTitle="Teneur en Eau des Sols" basePath="/essais/geotechnique/identification/teneur-eau-sol" />} />
