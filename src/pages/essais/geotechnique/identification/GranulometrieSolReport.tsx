@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
-import { ShareButton } from "@/components/reports/ShareButton";
+import ShareButton from "@/components/reports/ShareButton";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from "recharts";
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
