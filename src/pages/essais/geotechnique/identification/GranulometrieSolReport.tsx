@@ -74,7 +74,8 @@ export default function GranulometrieSolReport() {
       <div className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 max-w-4xl mx-auto" id="report-content">
         <ReportHeader
           title="ANALYSE GRANULOMÉTRIQUE DES SOLS"
-          normRef="NF P 94-056"
+          subtitle="NF P 94-056"
+          verificationUrl={window.location.href}
           entreprise={entreprise || undefined}
         />
 
