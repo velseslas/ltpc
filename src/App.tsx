@@ -42,6 +42,8 @@ import EssaiInSitu from "./pages/essais/geotechnique/EssaiInSitu";
 // Géotechnique - Identification
 import LimitesAtterberg from "./pages/essais/geotechnique/identification/LimitesAtterberg";
 import GranulometrieSol from "./pages/essais/geotechnique/identification/GranulometrieSol";
+import GranulometrieSolDataEntry from "./pages/essais/geotechnique/identification/GranulometrieSolDataEntry";
+import GranulometrieSolReport from "./pages/essais/geotechnique/identification/GranulometrieSolReport";
 import TeneurEauSol from "./pages/essais/geotechnique/identification/TeneurEauSol";
 import ClassificationSol from "./pages/essais/geotechnique/identification/ClassificationSol";
 import TeneurEauSolDataEntry from "./pages/essais/geotechnique/identification/TeneurEauSolDataEntry";
