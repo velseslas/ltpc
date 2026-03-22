@@ -311,44 +311,53 @@ export default function GranulometrieSolDataEntry() {
         </Card>
       </div>
 
-      {/* Courbe granulométrique */}
-      {calc.chartData.length > 1 && (
-        <Card className="border-border bg-card">
-          <CardHeader><CardTitle className="text-lg">Courbe granulométrique</CardTitle></CardHeader>
-          <CardContent>
-            <div style={{ width: '100%', height: 320 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={calc.chartData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis
-                    dataKey="d"
-                    scale="log"
-                    domain={['auto', 'auto']}
-                    tickFormatter={v => `${v}`}
-                    label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
-                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <YAxis
-                    domain={[0, 100]}
-                    tickFormatter={v => `${v}%`}
-                    label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
-                    tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <Tooltip formatter={(value: number) => [`${value.toFixed(1)}%`, 'Passant']} labelFormatter={l => `Tamis: ${l} mm`} />
-                  <ReferenceLine y={50} stroke="hsl(var(--muted-foreground))" strokeDasharray="5 5" />
-                  <Line
-                    type="monotone"
-                    dataKey="passant"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Fuseau granulométrique */}
+      {calc.chartData.length > 1 && (() => {
+        const fuseauData = FUSEAU_GNT_0_315.min.map((pt, i) => {
+          const sample = calc.tamisCalc.find(t => Math.abs(t.d - pt.d) < 0.01);
+          return {
+            d: pt.d,
+            min: pt.p,
+            max: FUSEAU_GNT_0_315.max[i].p,
+            passant: sample?.passant ?? null,
+          };
+        });
+        return (
+          <Card className="border-border bg-card">
+            <CardHeader><CardTitle className="text-lg">Fuseau granulométrique — GNT 0/31.5</CardTitle></CardHeader>
+            <CardContent>
+              <div style={{ width: '100%', height: 350 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={fuseauData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="d"
+                      scale="log"
+                      domain={['auto', 'auto']}
+                      tickFormatter={v => `${v}`}
+                      label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      tickFormatter={v => `${v}%`}
+                      label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <Tooltip formatter={(value: number | null) => value !== null ? [`${value}%`] : ['-']} labelFormatter={l => `Tamis: ${l} mm`} />
+                    <Line type="monotone" dataKey="min" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Min fuseau" />
+                    <Line type="monotone" dataKey="max" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Max fuseau" />
+                    <Line type="monotone" dataKey="passant" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ fill: 'hsl(var(--primary))', r: 4 }} connectNulls name="Échantillon" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                Lignes pointillées : limites du fuseau NF EN 13285 (GNT 0/31.5)
+              </p>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Abaque Dialog */}
       <Dialog open={showAbaque} onOpenChange={setShowAbaque}>

@@ -8,7 +8,20 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+
+const FUSEAU_GNT_0_315 = {
+  min: [
+    { d: 0.063, p: 2 }, { d: 0.5, p: 10 }, { d: 2, p: 20 }, { d: 4, p: 25 },
+    { d: 6.3, p: 30 }, { d: 10, p: 38 }, { d: 16, p: 50 }, { d: 20, p: 58 },
+    { d: 25, p: 68 }, { d: 31.5, p: 100 },
+  ],
+  max: [
+    { d: 0.063, p: 9 }, { d: 0.5, p: 30 }, { d: 2, p: 45 }, { d: 4, p: 55 },
+    { d: 6.3, p: 60 }, { d: 10, p: 68 }, { d: 16, p: 78 }, { d: 20, p: 85 },
+    { d: 25, p: 95 }, { d: 31.5, p: 100 },
+  ],
+};
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 1): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
