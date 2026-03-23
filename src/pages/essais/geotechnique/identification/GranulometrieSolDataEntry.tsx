@@ -131,7 +131,6 @@ export default function GranulometrieSolDataEntry() {
       // Store computed values
       const toSave = {
         ...r,
-        type_materiau: typeMateriau,
         computed_f: calc.f,
         computed_classification: calc.classification.classe,
         computed_tamis: calc.tamisCalc,
