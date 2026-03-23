@@ -209,7 +209,7 @@ export default function GranulometrieSolDataEntry() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label>Type de matériau</Label>
-              <Select value={typeMateriau} onValueChange={(v) => { setTypeMateriau(v); set("type_materiau", v); }}>
+              <Select value={typeMateriau} onValueChange={(v) => set("type_materiau", v)}>
                 <SelectTrigger className="bg-background border-border">
                   <SelectValue />
                 </SelectTrigger>
