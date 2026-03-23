@@ -67,15 +67,15 @@ export default function GranulometrieSolDataEntry() {
 
   const [r, setR] = useState<Record<string, unknown>>({});
   const [showAbaque, setShowAbaque] = useState(false);
-  const [typeMateriau, setTypeMateriau] = useState<string>("GNT");
 
   useEffect(() => {
     if (echantillon?.resultats) {
       const res = echantillon.resultats as Record<string, unknown>;
       setR(res);
-      if (res.type_materiau) setTypeMateriau(String(res.type_materiau));
     }
   }, [echantillon]);
+
+  const typeMateriau = String(r.type_materiau || "GNT");
 
   const set = (key: string, value: string) => setR(prev => ({ ...prev, [key]: value }));
 
@@ -131,7 +131,6 @@ export default function GranulometrieSolDataEntry() {
       // Store computed values
       const toSave = {
         ...r,
-        type_materiau: typeMateriau,
         computed_f: calc.f,
         computed_classification: calc.classification.classe,
         computed_tamis: calc.tamisCalc,
@@ -209,7 +208,7 @@ export default function GranulometrieSolDataEntry() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label>Type de matériau</Label>
-              <Select value={typeMateriau} onValueChange={setTypeMateriau}>
+              <Select value={typeMateriau} onValueChange={(v) => set("type_materiau", v)}>
                 <SelectTrigger className="bg-background border-border">
                   <SelectValue />
                 </SelectTrigger>
