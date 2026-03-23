@@ -251,6 +251,21 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     </FormItem>
                   )}
                 />
+
+                {essaiType === "granulometrie-sol" && (
+                  <div>
+                    <Label className="text-sm font-medium">Type de matériau *</Label>
+                    <Select value={typeMateriau} onValueChange={setTypeMateriau}>
+                      <SelectTrigger className="bg-background border-border mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border">
+                        <SelectItem value="GNT">GNT (Grave Non Traitée)</SelectItem>
+                        <SelectItem value="Autre">Autre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
 
               <FormField
