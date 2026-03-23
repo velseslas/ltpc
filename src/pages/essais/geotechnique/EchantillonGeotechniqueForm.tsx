@@ -99,7 +99,8 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const data = {
+      const existingResultats = (echantillon?.resultats as Record<string, unknown>) || {};
+      const data: Record<string, unknown> = {
         client_id: values.client_id,
         chantier_id: values.chantier_id,
         type_sol: values.type_sol,
@@ -107,6 +108,10 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         date_prelevement: values.date_prelevement,
         observations: values.observations || null,
       };
+      // Store type_materiau in resultats for granulometrie-sol
+      if (essaiType === "granulometrie-sol") {
+        data.resultats = { ...existingResultats, type_materiau: typeMateriau };
+      }
 
       if (isEditing && id) {
         await updateEchantillon.mutateAsync({ id, ...data });
