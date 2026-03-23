@@ -67,10 +67,13 @@ export default function GranulometrieSolDataEntry() {
 
   const [r, setR] = useState<Record<string, unknown>>({});
   const [showAbaque, setShowAbaque] = useState(false);
+  const [typeMateriau, setTypeMateriau] = useState<string>("GNT");
 
   useEffect(() => {
     if (echantillon?.resultats) {
-      setR(echantillon.resultats as Record<string, unknown>);
+      const res = echantillon.resultats as Record<string, unknown>;
+      setR(res);
+      if (res.type_materiau) setTypeMateriau(String(res.type_materiau));
     }
   }, [echantillon]);
 
