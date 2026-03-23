@@ -68,6 +68,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const selectedClientId = form.watch("client_id");
   const chantiers = allChantiers?.filter(c => !selectedClientId || c.client_id === selectedClientId);
 
+  const [typeMateriau, setTypeMateriau] = useState("GNT");
   const [isFormInitialized, setIsFormInitialized] = useState(false);
 
   useEffect(() => {
