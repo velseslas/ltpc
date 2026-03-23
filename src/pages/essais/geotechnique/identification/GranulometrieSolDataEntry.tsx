@@ -301,95 +301,116 @@ export default function GranulometrieSolDataEntry() {
         </CardContent>
       </Card>
 
-      {/* Classification & Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-border bg-card">
-          <CardContent className="pt-4 text-center">
-            <p className="text-xs text-muted-foreground">Classification NF EN 13285</p>
-            <p className={`text-2xl font-bold mt-1 ${calc.classification.conforme ? "text-primary" : "text-destructive"}`}>
-              {calc.classification.classe}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">{calc.classification.description}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border bg-card">
-          <CardContent className="pt-4 text-center">
-            <p className="text-xs text-muted-foreground">Passant à 0,063 mm</p>
-            <p className="text-2xl font-bold text-primary mt-1">
-              {fmt(calc.tamisCalc.find(t => Math.abs(t.d - 0.063) < 0.01)?.passant ?? 0)}%
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="border-border bg-card">
-          <CardContent className="pt-4 text-center">
-            <p className="text-xs text-muted-foreground">Passant à 2 mm</p>
-            <p className="text-2xl font-bold text-foreground mt-1">
-              {fmt(calc.tamisCalc.find(t => Math.abs(t.d - 2) < 0.01)?.passant ?? 0)}%
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Fuseau granulométrique */}
-      {calc.chartData.length > 1 && (() => {
-        const fuseauData = FUSEAU_GNT_0_315.min.map((pt, i) => {
-          const sample = calc.tamisCalc.find(t => Math.abs(t.d - pt.d) < 0.01);
-          return {
-            d: pt.d,
-            min: pt.p,
-            max: FUSEAU_GNT_0_315.max[i].p,
-            passant: sample?.passant ?? null,
-          };
-        });
-        return (
+      {/* Classification & Stats — only for GNT */}
+      {typeMateriau === "GNT" && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="border-border bg-card">
-            <CardHeader><CardTitle className="text-lg">Fuseau granulométrique — GNT 0/31.5</CardTitle></CardHeader>
-            <CardContent>
-              <div style={{ width: '100%', height: 350 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={fuseauData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis
-                      dataKey="d"
-                      scale="log"
-                      domain={['auto', 'auto']}
-                      tickFormatter={v => `${v}`}
-                      label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
-                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                    />
-                    <YAxis
-                      domain={[0, 100]}
-                      tickFormatter={v => `${v}%`}
-                      label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
-                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                    />
-                    <Tooltip formatter={(value: number | null) => value !== null ? [`${value}%`] : ['-']} labelFormatter={l => `Tamis: ${l} mm`} />
-                    <Line type="monotone" dataKey="min" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Min fuseau" />
-                    <Line type="monotone" dataKey="max" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Max fuseau" />
-                    <Line type="monotone" dataKey="passant" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ fill: 'hsl(var(--primary))', r: 4 }} connectNulls name="Échantillon" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="text-xs text-center text-muted-foreground mt-2">
-                Lignes pointillées : limites du fuseau NF EN 13285 (GNT 0/31.5)
+            <CardContent className="pt-4 text-center">
+              <p className="text-xs text-muted-foreground">Classification NF EN 13285</p>
+              <p className={`text-2xl font-bold mt-1 ${calc.classification.conforme ? "text-primary" : "text-destructive"}`}>
+                {calc.classification.classe}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">{calc.classification.description}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-border bg-card">
+            <CardContent className="pt-4 text-center">
+              <p className="text-xs text-muted-foreground">Passant à 0,063 mm</p>
+              <p className="text-2xl font-bold text-primary mt-1">
+                {fmt(calc.tamisCalc.find(t => Math.abs(t.d - 0.063) < 0.01)?.passant ?? 0)}%
               </p>
             </CardContent>
           </Card>
-        );
+          <Card className="border-border bg-card">
+            <CardContent className="pt-4 text-center">
+              <p className="text-xs text-muted-foreground">Passant à 2 mm</p>
+              <p className="text-2xl font-bold text-foreground mt-1">
+                {fmt(calc.tamisCalc.find(t => Math.abs(t.d - 2) < 0.01)?.passant ?? 0)}%
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Chart: Fuseau for GNT, simple curve for Autre */}
+      {calc.chartData.length > 1 && (() => {
+        if (typeMateriau === "GNT") {
+          const fuseauData = FUSEAU_GNT_0_315.min.map((pt, i) => {
+            const sample = calc.tamisCalc.find(t => Math.abs(t.d - pt.d) < 0.01);
+            return {
+              d: pt.d,
+              min: pt.p,
+              max: FUSEAU_GNT_0_315.max[i].p,
+              passant: sample?.passant ?? null,
+            };
+          });
+          return (
+            <Card className="border-border bg-card">
+              <CardHeader><CardTitle className="text-lg">Fuseau granulométrique — GNT 0/31.5</CardTitle></CardHeader>
+              <CardContent>
+                <div style={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={fuseauData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="d" scale="log" domain={['auto', 'auto']} tickFormatter={v => `${v}`}
+                        label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                      <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`}
+                        label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                      <Tooltip formatter={(value: number | null) => value !== null ? [`${value}%`] : ['-']} labelFormatter={l => `Tamis: ${l} mm`} />
+                      <Line type="monotone" dataKey="min" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Min fuseau" />
+                      <Line type="monotone" dataKey="max" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Max fuseau" />
+                      <Line type="monotone" dataKey="passant" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ fill: 'hsl(var(--primary))', r: 4 }} connectNulls name="Échantillon" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="text-xs text-center text-muted-foreground mt-2">Lignes pointillées : limites du fuseau NF EN 13285 (GNT 0/31.5)</p>
+              </CardContent>
+            </Card>
+          );
+        } else {
+          // Simple curve only
+          const curveData = calc.chartData;
+          return (
+            <Card className="border-border bg-card">
+              <CardHeader><CardTitle className="text-lg">Courbe granulométrique</CardTitle></CardHeader>
+              <CardContent>
+                <div style={{ width: '100%', height: 350 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={curveData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="d" scale="log" domain={['auto', 'auto']} tickFormatter={v => `${v}`}
+                        label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                      <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`}
+                        label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: 'hsl(var(--muted-foreground))' } }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                      <Tooltip formatter={(value: number | null) => value !== null ? [`${value}%`] : ['-']} labelFormatter={l => `Tamis: ${l} mm`} />
+                      <Line type="monotone" dataKey="passant" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ fill: 'hsl(var(--primary))', r: 4 }} connectNulls name="Échantillon" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }
       })()}
 
-      {/* Abaque Dialog */}
-      <Dialog open={showAbaque} onOpenChange={setShowAbaque}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Abaque NF EN 13285 — Graves Non Traitées</DialogTitle>
-          </DialogHeader>
-          <GranulometrieSolAbaque
-            tamisData={calc.tamisCalc.map(t => ({ d: t.d, passant: t.passant }))}
-            classification={calc.classification}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Abaque Dialog — GNT only */}
+      {typeMateriau === "GNT" && (
+        <Dialog open={showAbaque} onOpenChange={setShowAbaque}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Abaque NF EN 13285 — Graves Non Traitées</DialogTitle>
+            </DialogHeader>
+            <GranulometrieSolAbaque
+              tamisData={calc.tamisCalc.map(t => ({ d: t.d, passant: t.passant }))}
+              classification={calc.classification}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
