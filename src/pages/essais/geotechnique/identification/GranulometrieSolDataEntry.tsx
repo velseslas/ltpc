@@ -177,10 +177,12 @@ export default function GranulometrieSolDataEntry() {
           <p className="text-muted-foreground">Analyse Granulométrique des Sols (NF P 94-056)</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowAbaque(true)}>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Voir Abaque NF EN 13285
-          </Button>
+          {typeMateriau === "GNT" && (
+            <Button variant="outline" onClick={() => setShowAbaque(true)}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Voir Abaque NF EN 13285
+            </Button>
+          )}
           <Button onClick={handleSave} disabled={updateEchantillon.isPending}>
             {updateEchantillon.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
             Enregistrer
