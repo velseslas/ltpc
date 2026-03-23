@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
@@ -68,6 +69,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const selectedClientId = form.watch("client_id");
   const chantiers = allChantiers?.filter(c => !selectedClientId || c.client_id === selectedClientId);
 
+  const [typeMateriau, setTypeMateriau] = useState("GNT");
   const [isFormInitialized, setIsFormInitialized] = useState(false);
 
   useEffect(() => {
@@ -78,6 +80,9 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       form.setValue("profondeur", echantillon.profondeur || "");
       form.setValue("date_prelevement", echantillon.date_prelevement);
       form.setValue("observations", echantillon.observations || "");
+      // Restore type_materiau from resultats
+      const res = echantillon.resultats as Record<string, unknown> | null;
+      if (res?.type_materiau) setTypeMateriau(String(res.type_materiau));
       setIsFormInitialized(true);
     }
   }, [echantillon, isEditing, form, isFormInitialized]);
@@ -95,6 +100,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
 
   const onSubmit = async (values: FormValues) => {
     try {
+      const existingResultats = (echantillon?.resultats as Record<string, unknown>) || {};
       const data = {
         client_id: values.client_id,
         chantier_id: values.chantier_id,
@@ -102,6 +108,9 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         profondeur: values.profondeur || null,
         date_prelevement: values.date_prelevement,
         observations: values.observations || null,
+        ...(essaiType === "granulometrie-sol" ? {
+          resultats: { ...existingResultats, type_materiau: typeMateriau } as any
+        } : {}),
       };
 
       if (isEditing && id) {
@@ -243,6 +252,21 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     </FormItem>
                   )}
                 />
+
+                {essaiType === "granulometrie-sol" && (
+                  <div>
+                    <Label className="text-sm font-medium">Type de matériau *</Label>
+                    <Select value={typeMateriau} onValueChange={setTypeMateriau}>
+                      <SelectTrigger className="bg-background border-border mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border">
+                        <SelectItem value="GNT">GNT (Grave Non Traitée)</SelectItem>
+                        <SelectItem value="Autre">Autre</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
 
               <FormField
