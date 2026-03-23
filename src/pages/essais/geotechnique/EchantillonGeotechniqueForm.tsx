@@ -79,6 +79,9 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       form.setValue("profondeur", echantillon.profondeur || "");
       form.setValue("date_prelevement", echantillon.date_prelevement);
       form.setValue("observations", echantillon.observations || "");
+      // Restore type_materiau from resultats
+      const res = echantillon.resultats as Record<string, unknown> | null;
+      if (res?.type_materiau) setTypeMateriau(String(res.type_materiau));
       setIsFormInitialized(true);
     }
   }, [echantillon, isEditing, form, isFormInitialized]);
