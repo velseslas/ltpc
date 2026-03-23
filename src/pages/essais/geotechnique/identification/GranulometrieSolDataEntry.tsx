@@ -202,11 +202,23 @@ export default function GranulometrieSolDataEntry() {
         </CardContent>
       </Card>
 
-      {/* Masses */}
+      {/* Type Matériau + Masses */}
       <Card className="border-border bg-card">
-        <CardHeader><CardTitle className="text-lg">Masses</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-lg">Paramètres & Masses</CardTitle></CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <Label>Type de matériau</Label>
+              <Select value={typeMateriau} onValueChange={setTypeMateriau}>
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  <SelectItem value="GNT">GNT (Grave Non Traitée)</SelectItem>
+                  <SelectItem value="Autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div>
               <Label>Masse humide (g)</Label>
               <Input type="number" step="0.1" value={String(r.masse_humide ?? "")} onChange={e => set("masse_humide", e.target.value)} className="bg-background border-border" />
