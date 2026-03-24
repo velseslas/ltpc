@@ -1,7 +1,9 @@
 import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer, Loader2 } from "lucide-react";
+import { Printer, Loader2, Download } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
+import ShareButton from "@/components/reports/ShareButton";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
