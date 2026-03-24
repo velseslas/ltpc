@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer, Loader2 } from "lucide-react";
+import { Printer, Loader2, Download } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { useEchantillonGeotechniqueById } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
