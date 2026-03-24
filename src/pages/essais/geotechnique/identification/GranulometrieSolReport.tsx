@@ -54,9 +54,11 @@ export default function GranulometrieSolReport() {
   });
 
   const f = m1 > 0 ? ((m1 - m2) + fondP) / m1 * 100 : 0;
-  const classification = String(r.computed_classification || "-");
+    const classification = String(r.computed_classification || "-");
+    const typeMateriau = String(r.type_materiau || "GNT");
+    const isGNT = typeMateriau === "GNT";
 
-  const chartData = tamisCalc.filter(t => t.refusCumule > 0 || t.passant < 100).sort((a, b) => a.d - b.d).map(t => ({ d: t.d, passant: t.passant }));
+    const chartData = tamisCalc.filter(t => t.refusCumule > 0 || t.passant < 100).sort((a, b) => a.d - b.d).map(t => ({ d: t.d, passant: t.passant }));
 
   const numero = `GRSOL-${String(echantillon.numero).padStart(3, "0")}`;
   const basePath = "/essais/geotechnique/identification/granulometrie-sol";
@@ -150,13 +152,15 @@ export default function GranulometrieSolReport() {
           </tbody>
         </table>
 
-        {/* Classification */}
-        <div className="border border-gray-400 p-3 mb-4 text-sm">
-          <p className="font-bold">Classification NF EN 13285 : <span className="text-blue-700 text-lg">{classification}</span></p>
-        </div>
+        {/* Classification - GNT only */}
+        {isGNT && (
+          <div className="border border-gray-400 p-3 mb-4 text-sm">
+            <p className="font-bold">Classification NF EN 13285 : <span className="text-blue-700 text-lg">{classification}</span></p>
+          </div>
+        )}
 
-        {/* Fuseau granulométrique */}
-        {chartData.length > 1 && (() => {
+        {/* Fuseau granulométrique - GNT only */}
+        {isGNT && chartData.length > 1 && (() => {
           const fuseauData = FUSEAU_GNT_0_315.min.map((pt, i) => {
             const sample = chartData.find(t => Math.abs(t.d - pt.d) < 0.01);
             return { d: pt.d, min: pt.p, max: FUSEAU_GNT_0_315.max[i].p, passant: sample?.passant ?? null };
@@ -182,6 +186,25 @@ export default function GranulometrieSolReport() {
             </div>
           );
         })()}
+
+        {/* Courbe simple - Autre only */}
+        {!isGNT && chartData.length > 1 && (
+          <div className="mb-4">
+            <h3 className="font-bold text-sm mb-2 underline text-center">Courbe granulométrique</h3>
+            <div className="border border-gray-400 p-4 bg-white">
+              <div style={{ width: '100%', height: 280 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                    <XAxis dataKey="d" scale="log" domain={['auto', 'auto']} tickFormatter={v => `${v}`} label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11 } }} tick={{ fontSize: 10 }} />
+                    <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} label={{ value: 'Passant cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }} tick={{ fontSize: 10 }} />
+                    <Line type="monotone" dataKey="passant" stroke="#1d4ed8" strokeWidth={2.5} dot={{ fill: '#1d4ed8', r: 4 }} connectNulls name="Échantillon" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Observations */}
         {echantillon.observations && (
