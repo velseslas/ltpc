@@ -76,16 +76,20 @@ export default function TeneurEauSolReport() {
         ]} />
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+            <BackButton to={`${basePath}/${id}`} />
             <h1 className="text-3xl font-display font-bold text-foreground">
               Rapport <span className="text-primary">{numero}</span>
             </h1>
           </div>
-          <Button onClick={handlePrint} className="gradient-primary text-primary-foreground">
-            <Printer className="h-4 w-4 mr-2" />Imprimer
-          </Button>
+          <div className="flex gap-2">
+            <ShareButton />
+            <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handlePrint}>
+              <Download className="h-4 w-4 mr-2" />Télécharger
+            </Button>
+            <Button onClick={handlePrint} className="gradient-primary text-primary-foreground">
+              <Printer className="h-4 w-4 mr-2" />Imprimer
+            </Button>
+          </div>
         </div>
       </div>
 
