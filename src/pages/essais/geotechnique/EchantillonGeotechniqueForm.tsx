@@ -225,19 +225,6 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="profondeur"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Profondeur</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Ex: 0-1m, 2-3m..." className="bg-background border-border" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}

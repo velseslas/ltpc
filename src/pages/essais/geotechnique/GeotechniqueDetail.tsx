@@ -620,10 +620,6 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
               <p className="font-medium text-foreground">{echantillon.type_sol}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Profondeur</p>
-              <p className="font-medium text-foreground">{echantillon.profondeur || "-"}</p>
-            </div>
-            <div>
               <p className="text-sm text-muted-foreground">Date de prélèvement</p>
               <p className="font-medium text-foreground">
                 {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
