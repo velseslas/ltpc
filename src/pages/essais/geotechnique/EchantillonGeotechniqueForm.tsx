@@ -29,7 +29,7 @@ const formSchema = z.object({
   client_id: z.string().min(1, "Sélectionnez un client"),
   chantier_id: z.string().min(1, "Sélectionnez un chantier"),
   type_sol: z.string().min(1, "Le type de sol est requis").max(200),
-  profondeur: z.string().max(100).optional(),
+  
   date_prelevement: z.string().min(1, "La date est requise"),
   observations: z.string().max(500).optional(),
 });
