@@ -54,9 +54,11 @@ export default function GranulometrieSolReport() {
   });
 
   const f = m1 > 0 ? ((m1 - m2) + fondP) / m1 * 100 : 0;
-  const classification = String(r.computed_classification || "-");
+    const classification = String(r.computed_classification || "-");
+    const typeMateriau = String(r.type_materiau || "GNT");
+    const isGNT = typeMateriau === "GNT";
 
-  const chartData = tamisCalc.filter(t => t.refusCumule > 0 || t.passant < 100).sort((a, b) => a.d - b.d).map(t => ({ d: t.d, passant: t.passant }));
+    const chartData = tamisCalc.filter(t => t.refusCumule > 0 || t.passant < 100).sort((a, b) => a.d - b.d).map(t => ({ d: t.d, passant: t.passant }));
 
   const numero = `GRSOL-${String(echantillon.numero).padStart(3, "0")}`;
   const basePath = "/essais/geotechnique/identification/granulometrie-sol";
