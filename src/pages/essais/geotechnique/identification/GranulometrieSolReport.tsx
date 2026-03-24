@@ -75,12 +75,18 @@ export default function GranulometrieSolReport() {
       ]} />
 
       <div className="flex items-center justify-between print:hidden">
-        <Button variant="outline" onClick={() => navigate(`${basePath}/${id}`)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />Retour
-        </Button>
+        <div className="flex items-center gap-4">
+          <BackButton to={`${basePath}/${id}`} />
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            Rapport <span className="text-primary">{numero}</span>
+          </h1>
+        </div>
         <div className="flex gap-2">
           <ShareButton />
-          <Button onClick={() => window.print()}>
+          <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => window.print()}>
+            <Download className="h-4 w-4 mr-2" />Télécharger
+          </Button>
+          <Button onClick={() => window.print()} className="gradient-primary text-primary-foreground">
             <Printer className="h-4 w-4 mr-2" />Imprimer
           </Button>
         </div>
