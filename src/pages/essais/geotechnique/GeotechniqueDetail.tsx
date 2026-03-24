@@ -11,6 +11,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 function pf(v: string | number) { return parseFloat(String(v)) || 0; }
 function fmt(v: number, dec = 2) { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
@@ -345,6 +346,148 @@ function TeneurEauSolResultats({ resultats }: { resultats: Record<string, unknow
   );
 }
 
+const TAMIS_SOL = [125, 80, 63, 50, 40, 31.5, 25, 20, 16, 12.5, 10, 8, 6.3, 5, 4, 2, 1, 0.5, 0.25, 0.125, 0.063];
+
+const FUSEAU_GNT_0_315 = {
+  min: [
+    { d: 0.063, p: 2 }, { d: 0.5, p: 10 }, { d: 2, p: 20 }, { d: 4, p: 25 },
+    { d: 6.3, p: 30 }, { d: 10, p: 38 }, { d: 16, p: 50 }, { d: 20, p: 58 },
+    { d: 25, p: 68 }, { d: 31.5, p: 100 },
+  ],
+  max: [
+    { d: 0.063, p: 9 }, { d: 0.5, p: 30 }, { d: 2, p: 45 }, { d: 4, p: 55 },
+    { d: 6.3, p: 60 }, { d: 10, p: 68 }, { d: 16, p: 78 }, { d: 20, p: 85 },
+    { d: 25, p: 95 }, { d: 31.5, p: 100 },
+  ],
+};
+
+function GranulometrieSolResultats({ resultats }: { resultats: Record<string, unknown> }) {
+  const r = resultats;
+  const m1 = pf(r.masse_seche_m1 as string);
+  const m2 = pf(r.masse_apres_lavage_m2 as string);
+  const fondP = pf(r.fond_p as string);
+  const typeMateriau = String(r.type_materiau || "GNT");
+  const isGNT = typeMateriau === "GNT";
+
+  let refusCumule = 0;
+  const tamisCalc = TAMIS_SOL.map(d => {
+    const refus = pf(r[`refus_${d}`] as string);
+    refusCumule += refus;
+    const pct = m1 > 0 ? (refusCumule / m1) * 100 : 0;
+    const passant = Math.max(0, 100 - pct);
+    return { d, refus, refusCumule: parseFloat(refusCumule.toFixed(1)), refusCumulePct: parseFloat(pct.toFixed(1)), passant: parseFloat(passant.toFixed(1)) };
+  });
+
+  const f = m1 > 0 ? ((m1 - m2) + fondP) / m1 * 100 : 0;
+  const classification = String(r.computed_classification || "-");
+  const chartData = tamisCalc.filter(t => t.refusCumule > 0 || t.passant < 100).sort((a, b) => a.d - b.d).map(t => ({ d: t.d, passant: t.passant }));
+
+  return (
+    <div className="space-y-6">
+      {/* Tableau des tamis */}
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Résultats — Analyse Granulométrique</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border">
+                  <TableHead className="text-muted-foreground">Tamis (mm)</TableHead>
+                  <TableHead className="text-muted-foreground">Refus (g)</TableHead>
+                  <TableHead className="text-muted-foreground">Refus cumulé (g)</TableHead>
+                  <TableHead className="text-muted-foreground">Refus cumulé (%)</TableHead>
+                  <TableHead className="text-muted-foreground">Passant (%)</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tamisCalc.filter(t => t.refus > 0 || t.refusCumule > 0).map(t => (
+                  <TableRow key={t.d} className="border-border">
+                    <TableCell className="font-bold text-foreground">{t.d}</TableCell>
+                    <TableCell className="text-foreground">{fmt(t.refus, 1)}</TableCell>
+                    <TableCell className="text-foreground">{fmt(t.refusCumule, 1)}</TableCell>
+                    <TableCell className="text-foreground">{fmt(t.refusCumulePct, 1)}</TableCell>
+                    <TableCell className="font-bold text-primary">{fmt(t.passant, 1)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Synthèse */}
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Synthèse</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Masse sèche M1</p>
+              <p className="text-lg font-bold text-foreground">{m1 > 0 ? `${fmt(m1, 1)} g` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Masse après lavage M2</p>
+              <p className="text-lg font-bold text-foreground">{m2 > 0 ? `${fmt(m2, 1)} g` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Teneur en fines (f)</p>
+              <p className="text-lg font-bold text-primary">{f > 0 ? `${fmt(f, 1)} %` : "-"}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-xs text-muted-foreground">Type matériau</p>
+              <p className="text-lg font-bold text-foreground">{typeMateriau}</p>
+            </div>
+            {isGNT && (
+              <div className="p-3 rounded-lg bg-muted/50 md:col-span-4">
+                <p className="text-xs text-muted-foreground">Classification NF EN 13285</p>
+                <p className="text-xl font-bold text-primary">{classification}</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Graphique */}
+      {chartData.length > 1 && (
+        <Card className="border-border bg-card">
+          <CardHeader>
+            <CardTitle className="text-lg">{isGNT ? "Fuseau granulométrique — GNT 0/31.5" : "Courbe granulométrique"}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div style={{ width: '100%', height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                {isGNT ? (
+                  <LineChart data={FUSEAU_GNT_0_315.min.map((pt, i) => {
+                    const sample = chartData.find(t => Math.abs(t.d - pt.d) < 0.01);
+                    return { d: pt.d, min: pt.p, max: FUSEAU_GNT_0_315.max[i].p, passant: sample?.passant ?? null };
+                  })} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="d" scale="log" domain={['auto', 'auto']} tickFormatter={v => `${v}`} label={{ value: 'Tamis (mm)', position: 'bottom', offset: 10 }} tick={{ fontSize: 10 }} />
+                    <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} tick={{ fontSize: 10 }} />
+                    <Line type="monotone" dataKey="min" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Min fuseau" />
+                    <Line type="monotone" dataKey="max" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="5 5" dot={false} name="Max fuseau" />
+                    <Line type="monotone" dataKey="passant" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ fill: 'hsl(var(--primary))', r: 4 }} connectNulls name="Échantillon" />
+                  </LineChart>
+                ) : (
+                  <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="d" scale="log" domain={['auto', 'auto']} tickFormatter={v => `${v}`} label={{ value: 'Tamis (mm)', position: 'bottom', offset: 10 }} tick={{ fontSize: 10 }} />
+                    <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} tick={{ fontSize: 10 }} />
+                    <Line type="monotone" dataKey="passant" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ fill: 'hsl(var(--primary))', r: 4 }} connectNulls name="Échantillon" />
+                  </LineChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
 function ResultatsSection({ essaiType, resultats }: { essaiType: string; resultats: Record<string, unknown> }) {
   if (essaiType === "limites-atterberg") {
     return <LimitesAtterbergResultats resultats={resultats} />;
@@ -357,6 +500,9 @@ function ResultatsSection({ essaiType, resultats }: { essaiType: string; resulta
   }
   if (essaiType === "teneur-eau-sol") {
     return <TeneurEauSolResultats resultats={resultats} />;
+  }
+  if (essaiType === "granulometrie-sol") {
+    return <GranulometrieSolResultats resultats={resultats} />;
   }
 
   return (
