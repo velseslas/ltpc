@@ -105,7 +105,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         client_id: values.client_id,
         chantier_id: values.chantier_id,
         type_sol: values.type_sol,
-        profondeur: values.profondeur || null,
+        
         date_prelevement: values.date_prelevement,
         observations: values.observations || null,
         ...(essaiType === "granulometrie-sol" ? {
