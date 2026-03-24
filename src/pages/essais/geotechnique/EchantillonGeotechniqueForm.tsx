@@ -60,7 +60,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       client_id: "",
       chantier_id: "",
       type_sol: "",
-      profondeur: "",
+      
       date_prelevement: new Date().toISOString().split("T")[0],
       observations: "",
     },
