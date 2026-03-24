@@ -29,7 +29,7 @@ const formSchema = z.object({
   client_id: z.string().min(1, "Sélectionnez un client"),
   chantier_id: z.string().min(1, "Sélectionnez un chantier"),
   type_sol: z.string().min(1, "Le type de sol est requis").max(200),
-  profondeur: z.string().max(100).optional(),
+  
   date_prelevement: z.string().min(1, "La date est requise"),
   observations: z.string().max(500).optional(),
 });
@@ -60,7 +60,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       client_id: "",
       chantier_id: "",
       type_sol: "",
-      profondeur: "",
+      
       date_prelevement: new Date().toISOString().split("T")[0],
       observations: "",
     },
@@ -77,7 +77,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       form.setValue("client_id", echantillon.client_id || "");
       form.setValue("chantier_id", echantillon.chantier_id || "");
       form.setValue("type_sol", echantillon.type_sol);
-      form.setValue("profondeur", echantillon.profondeur || "");
+      
       form.setValue("date_prelevement", echantillon.date_prelevement);
       form.setValue("observations", echantillon.observations || "");
       // Restore type_materiau from resultats
@@ -105,7 +105,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         client_id: values.client_id,
         chantier_id: values.chantier_id,
         type_sol: values.type_sol,
-        profondeur: values.profondeur || null,
+        
         date_prelevement: values.date_prelevement,
         observations: values.observations || null,
         ...(essaiType === "granulometrie-sol" ? {
@@ -225,19 +225,6 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="profondeur"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Profondeur</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Ex: 0-1m, 2-3m..." className="bg-background border-border" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
