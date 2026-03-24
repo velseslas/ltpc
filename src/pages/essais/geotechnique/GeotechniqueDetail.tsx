@@ -11,6 +11,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 function pf(v: string | number) { return parseFloat(String(v)) || 0; }
 function fmt(v: number, dec = 2) { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
