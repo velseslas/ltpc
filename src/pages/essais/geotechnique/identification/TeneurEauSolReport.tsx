@@ -107,11 +107,12 @@ export default function TeneurEauSolReport() {
             <p><span className="font-bold">N° Échantillon :</span> {numero}</p>
             <p><span className="font-bold">Client :</span> {echantillon.clients?.nom || "-"}</p>
             <p><span className="font-bold">Chantier :</span> {echantillon.chantiers?.nom || "-"}</p>
+            {echantillon.carrieres && <p><span className="font-bold">Carrière :</span> {echantillon.carrieres.nom}</p>}
           </div>
           <div className="border border-gray-300 p-3 rounded">
             <p><span className="font-bold">Date de prélèvement :</span> {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p>
+            {echantillon.date_essai && <p><span className="font-bold">Date d'essai :</span> {format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</p>}
             <p><span className="font-bold">Type de sol :</span> {echantillon.type_sol}</p>
-            
           </div>
         </div>
 

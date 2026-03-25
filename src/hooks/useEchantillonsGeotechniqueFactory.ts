@@ -7,9 +7,11 @@ export interface EchantillonGeotechniqueBase {
   numero: number;
   chantier_id: string | null;
   client_id: string | null;
+  carriere_id: string | null;
   type_sol: string;
   profondeur: string | null;
   date_prelevement: string;
+  date_essai: string | null;
   statut: "termine" | "en-cours" | "a-faire";
   resultats: Json | null;
   observations: string | null;
@@ -22,6 +24,10 @@ export interface EchantillonGeotechniqueBase {
     ville: string | null;
   } | null;
   clients?: {
+    id: string;
+    nom: string;
+  } | null;
+  carrieres?: {
     id: string;
     nom: string;
   } | null;
@@ -102,6 +108,7 @@ export function useEchantillonsGeotechniqueByType(essaiType: string) {
           *,
           chantiers (id, nom, ville),
           clients (id, nom),
+          carrieres (id, nom),
           intervenants (id, nom, prenom)
         `)
         .order("numero", { ascending: false });
@@ -125,6 +132,7 @@ export function useEchantillonGeotechniqueById(essaiType: string, id: string | u
           *,
           chantiers (id, nom, ville),
           clients (id, nom),
+          carrieres (id, nom),
           intervenants (id, nom, prenom, signature_url)
         `)
         .eq("id", id!)
@@ -145,9 +153,11 @@ export function useCreateEchantillonGeotechniqueByType(essaiType: string) {
     mutationFn: async (echantillon: {
       chantier_id?: string;
       client_id?: string;
+      carriere_id?: string | null;
       type_sol: string;
       profondeur?: string;
       date_prelevement: string;
+      date_essai?: string | null;
       statut?: string;
       observations?: string;
       operateur_id?: string;
@@ -181,9 +191,11 @@ export function useUpdateEchantillonGeotechniqueByType(essaiType: string) {
       id: string;
       chantier_id?: string;
       client_id?: string;
+      carriere_id?: string | null;
       type_sol?: string;
       profondeur?: string;
       date_prelevement?: string;
+      date_essai?: string | null;
       statut?: string;
       observations?: string;
       operateur_id?: string;

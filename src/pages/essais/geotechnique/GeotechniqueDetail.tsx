@@ -615,6 +615,12 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
               <p className="text-sm text-muted-foreground">Chantier</p>
               <p className="font-medium text-foreground">{echantillon.chantiers?.nom || "-"}</p>
             </div>
+            {echantillon.carrieres && (
+              <div>
+                <p className="text-sm text-muted-foreground">Carrière</p>
+                <p className="font-medium text-foreground">{echantillon.carrieres.nom}</p>
+              </div>
+            )}
             <div>
               <p className="text-sm text-muted-foreground">Type de sol</p>
               <p className="font-medium text-foreground">{echantillon.type_sol}</p>
@@ -625,6 +631,14 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
                 {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
               </p>
             </div>
+            {echantillon.date_essai && (
+              <div>
+                <p className="text-sm text-muted-foreground">Date d'essai</p>
+                <p className="font-medium text-foreground">
+                  {format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}
+                </p>
+              </div>
+            )}
             <div>
               <p className="text-sm text-muted-foreground">Opérateur</p>
               <p className="font-medium text-foreground">

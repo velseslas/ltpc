@@ -1145,9 +1145,11 @@ export type Database = {
       }
       echantillons_classification_sol: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -1160,9 +1162,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1175,9 +1179,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1190,6 +1196,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_classification_sol_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_classification_sol_chantier_id_fkey"
             columns: ["chantier_id"]
@@ -1502,6 +1515,7 @@ export type Database = {
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -1517,6 +1531,7 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1532,6 +1547,7 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1869,9 +1885,11 @@ export type Database = {
       }
       echantillons_granulometrie_sol: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -1884,9 +1902,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1899,9 +1919,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1914,6 +1936,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_granulometrie_sol_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_granulometrie_sol_chantier_id_fkey"
             columns: ["chantier_id"]
@@ -1939,9 +1968,11 @@ export type Database = {
       }
       echantillons_limites_atterberg: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -1954,9 +1985,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1969,9 +2002,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1984,6 +2019,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_limites_atterberg_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_limites_atterberg_chantier_id_fkey"
             columns: ["chantier_id"]
@@ -3451,9 +3493,11 @@ export type Database = {
       }
       echantillons_teneur_eau_sol: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -3466,9 +3510,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -3481,9 +3527,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -3496,6 +3544,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_teneur_eau_sol_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_teneur_eau_sol_chantier_id_fkey"
             columns: ["chantier_id"]
