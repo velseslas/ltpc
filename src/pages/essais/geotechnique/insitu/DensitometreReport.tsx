@@ -109,8 +109,8 @@ export default function DensitometreReport() {
           </div>
           <div className="border border-gray-300 p-3 rounded">
             <p><span className="font-bold">Date de prélèvement :</span> {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p>
+            {echantillon.date_essai && <p><span className="font-bold">Date d'essai :</span> {format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</p>}
             <p><span className="font-bold">Type de sol :</span> {echantillon.type_sol}</p>
-            
           </div>
         </div>
 

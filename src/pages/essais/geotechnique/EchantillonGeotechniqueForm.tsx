@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
+import { useCarrieres } from "@/hooks/useCarrieres";
 import {
   useEchantillonGeotechniqueById,
   useCreateEchantillonGeotechniqueByType,
@@ -28,9 +29,10 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 const formSchema = z.object({
   client_id: z.string().min(1, "Sélectionnez un client"),
   chantier_id: z.string().min(1, "Sélectionnez un chantier"),
+  carriere_id: z.string().optional(),
   type_sol: z.string().min(1, "Le type de sol est requis").max(200),
-  
   date_prelevement: z.string().min(1, "La date est requise"),
+  date_essai: z.string().optional(),
   observations: z.string().max(500).optional(),
 });
 
@@ -42,6 +44,11 @@ interface EchantillonGeotechniqueFormProps {
   basePath: string;
 }
 
+// Types that show carriere field (not densitometre)
+const TYPES_WITH_CARRIERE = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol"];
+// Types that show date_essai field
+const TYPES_WITH_DATE_ESSAI = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre"];
+
 export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, basePath }: EchantillonGeotechniqueFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -49,19 +56,24 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
 
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: allChantiers, isLoading: chantiersLoading } = useChantiers();
+  const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
   const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGeotechniqueById(essaiType, id);
 
   const createEchantillon = useCreateEchantillonGeotechniqueByType(essaiType);
   const updateEchantillon = useUpdateEchantillonGeotechniqueByType(essaiType);
+
+  const showCarriere = TYPES_WITH_CARRIERE.includes(essaiType);
+  const showDateEssai = TYPES_WITH_DATE_ESSAI.includes(essaiType);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       client_id: "",
       chantier_id: "",
+      carriere_id: "",
       type_sol: "",
-      
       date_prelevement: new Date().toISOString().split("T")[0],
+      date_essai: "",
       observations: "",
     },
   });
@@ -76,18 +88,17 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
     if (echantillon && isEditing && !isFormInitialized) {
       form.setValue("client_id", echantillon.client_id || "");
       form.setValue("chantier_id", echantillon.chantier_id || "");
+      form.setValue("carriere_id", echantillon.carriere_id || "");
       form.setValue("type_sol", echantillon.type_sol);
-      
       form.setValue("date_prelevement", echantillon.date_prelevement);
+      form.setValue("date_essai", echantillon.date_essai || "");
       form.setValue("observations", echantillon.observations || "");
-      // Restore type_materiau from resultats
       const res = echantillon.resultats as Record<string, unknown> | null;
       if (res?.type_materiau) setTypeMateriau(String(res.type_materiau));
       setIsFormInitialized(true);
     }
   }, [echantillon, isEditing, form, isFormInitialized]);
 
-  // Reset chantier when client changes (only after init)
   useEffect(() => {
     if (isFormInitialized && selectedClientId) {
       const currentChantier = form.getValues("chantier_id");
@@ -101,23 +112,30 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const onSubmit = async (values: FormValues) => {
     try {
       const existingResultats = (echantillon?.resultats as Record<string, unknown>) || {};
-      const data = {
+      const data: Record<string, unknown> = {
         client_id: values.client_id,
         chantier_id: values.chantier_id,
         type_sol: values.type_sol,
-        
         date_prelevement: values.date_prelevement,
         observations: values.observations || null,
-        ...(essaiType === "granulometrie-sol" ? {
-          resultats: { ...existingResultats, type_materiau: typeMateriau } as any
-        } : {}),
       };
 
+      if (showCarriere) {
+        data.carriere_id = values.carriere_id || null;
+      }
+      if (showDateEssai) {
+        data.date_essai = values.date_essai || null;
+      }
+
+      if (essaiType === "granulometrie-sol") {
+        data.resultats = { ...existingResultats, type_materiau: typeMateriau };
+      }
+
       if (isEditing && id) {
-        await updateEchantillon.mutateAsync({ id, ...data });
+        await updateEchantillon.mutateAsync({ id, ...data } as any);
         toast.success("Échantillon modifié avec succès");
       } else {
-        await createEchantillon.mutateAsync(data);
+        await createEchantillon.mutateAsync(data as any);
         toast.success("Échantillon créé avec succès");
       }
       navigate(basePath);
@@ -126,7 +144,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
     }
   };
 
-  const isLoading = clientsLoading || chantiersLoading || (isEditing && echantillonLoading);
+  const isLoading = clientsLoading || chantiersLoading || carrieresLoading || (isEditing && echantillonLoading);
   const isPending = createEchantillon.isPending || updateEchantillon.isPending;
 
   if (isLoading) {
@@ -211,6 +229,32 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                   )}
                 />
 
+                {showCarriere && (
+                  <FormField
+                    control={form.control}
+                    name="carriere_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Carrière</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger className="bg-background border-border">
+                              <SelectValue placeholder="Sélectionnez une carrière (optionnel)" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-popover border-border">
+                            <SelectItem value="none">Aucune</SelectItem>
+                            {carrieres?.map((carriere) => (
+                              <SelectItem key={carriere.id} value={carriere.id}>{carriere.nom}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                 <FormField
                   control={form.control}
                   name="type_sol"
@@ -225,7 +269,6 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                   )}
                 />
 
-
                 <FormField
                   control={form.control}
                   name="date_prelevement"
@@ -239,6 +282,22 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     </FormItem>
                   )}
                 />
+
+                {showDateEssai && (
+                  <FormField
+                    control={form.control}
+                    name="date_essai"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date d'essai</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="date" className="bg-background border-border" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 {essaiType === "granulometrie-sol" && (
                   <div>
