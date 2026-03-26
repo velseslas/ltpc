@@ -158,8 +158,29 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
     );
   }
 
+  const CATEGORY_MAP: Record<string, { path: string; label: string }> = {
+    "identification": { path: "/essais/geotechnique/identification", label: "Identification" },
+    "compactage": { path: "/essais/geotechnique/compactage", label: "Compactage" },
+    "insitu": { path: "/essais/geotechnique/insitu", label: "In Situ" },
+    "mecanique": { path: "/essais/geotechnique/mecanique", label: "Mécanique" },
+  };
+
+  const categorySegment = basePath.split("/")[3] || "";
+  const categoryInfo = CATEGORY_MAP[categorySegment];
+  const categoryPath = propCategoryPath || categoryInfo?.path || "/essais/geotechnique";
+  const categoryLabel = propCategoryLabel || categoryInfo?.label || "Géotechnique";
+
+  const breadcrumbItems = [
+    { label: "Géotechnique", path: "/essais/geotechnique" },
+    { label: categoryLabel, path: categoryPath },
+    { label: essaiTitle, path: basePath },
+    { label: isEditing ? "Modifier" : "Nouvel échantillon" },
+  ];
+
   return (
     <div className="space-y-6">
+      <EssaiBreadcrumb items={breadcrumbItems} />
+
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="w-5 h-5" />
