@@ -25,6 +25,7 @@ import {
 } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
 const formSchema = z.object({
   client_id: z.string().min(1, "Sélectionnez un client"),
