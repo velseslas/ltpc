@@ -25,6 +25,7 @@ import {
 } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
 const formSchema = z.object({
   client_id: z.string().min(1, "Sélectionnez un client"),
@@ -42,6 +43,8 @@ interface EchantillonGeotechniqueFormProps {
   essaiType: string;
   essaiTitle: string;
   basePath: string;
+  categoryPath?: string;
+  categoryLabel?: string;
 }
 
 // Types that show carriere field (not densitometre)
@@ -49,7 +52,7 @@ const TYPES_WITH_CARRIERE = ["teneur-eau-sol", "granulometrie-sol", "limites-att
 // Types that show date_essai field
 const TYPES_WITH_DATE_ESSAI = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre"];
 
-export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, basePath }: EchantillonGeotechniqueFormProps) {
+export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, basePath, categoryPath: propCategoryPath, categoryLabel: propCategoryLabel }: EchantillonGeotechniqueFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
@@ -155,8 +158,29 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
     );
   }
 
+  const CATEGORY_MAP: Record<string, { path: string; label: string }> = {
+    "identification": { path: "/essais/geotechnique/identification", label: "Identification" },
+    "compactage": { path: "/essais/geotechnique/compactage", label: "Compactage" },
+    "insitu": { path: "/essais/geotechnique/insitu", label: "In Situ" },
+    "mecanique": { path: "/essais/geotechnique/mecanique", label: "Mécanique" },
+  };
+
+  const categorySegment = basePath.split("/")[3] || "";
+  const categoryInfo = CATEGORY_MAP[categorySegment];
+  const categoryPath = propCategoryPath || categoryInfo?.path || "/essais/geotechnique";
+  const categoryLabel = propCategoryLabel || categoryInfo?.label || "Géotechnique";
+
+  const breadcrumbItems = [
+    { label: "Géotechnique", path: "/essais/geotechnique" },
+    { label: categoryLabel, path: categoryPath },
+    { label: essaiTitle, path: basePath },
+    { label: isEditing ? "Modifier" : "Nouvel échantillon" },
+  ];
+
   return (
     <div className="space-y-6">
+      <EssaiBreadcrumb items={breadcrumbItems} />
+
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="w-5 h-5" />
