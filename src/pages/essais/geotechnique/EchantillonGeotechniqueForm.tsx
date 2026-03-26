@@ -43,6 +43,8 @@ interface EchantillonGeotechniqueFormProps {
   essaiType: string;
   essaiTitle: string;
   basePath: string;
+  categoryPath?: string;
+  categoryLabel?: string;
 }
 
 // Types that show carriere field (not densitometre)
