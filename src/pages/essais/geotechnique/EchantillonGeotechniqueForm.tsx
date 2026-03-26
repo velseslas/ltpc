@@ -52,7 +52,7 @@ const TYPES_WITH_CARRIERE = ["teneur-eau-sol", "granulometrie-sol", "limites-att
 // Types that show date_essai field
 const TYPES_WITH_DATE_ESSAI = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre"];
 
-export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, basePath }: EchantillonGeotechniqueFormProps) {
+export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, basePath, categoryPath: propCategoryPath, categoryLabel: propCategoryLabel }: EchantillonGeotechniqueFormProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
