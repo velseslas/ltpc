@@ -18,17 +18,31 @@ const SPECS_GEO = [
   { min: 0, max: 10, label: "Sol très argileux", usage: "Impropre", rangeLabel: "ES < 10" },
 ];
 
+const SPECS_ROUTE = [
+  { min: 50, max: Infinity, label: "Sable très propre", usage: "Couche de roulement, enrobés", rangeLabel: "ES ≥ 50" },
+  { min: 40, max: 50, label: "Sable propre", usage: "Couche de base", rangeLabel: "40 ≤ ES < 50" },
+  { min: 30, max: 40, label: "Sable légèrement argileux", usage: "Couche de fondation", rangeLabel: "30 ≤ ES < 40" },
+  { min: 20, max: 30, label: "Sable argileux", usage: "Sous couche, remblai technique", rangeLabel: "20 ≤ ES < 30" },
+  { min: 0, max: 20, label: "Sable très argileux", usage: "Impropre pour corps de chaussée", rangeLabel: "ES < 20" },
+];
+
+function getSpecs(type: string) {
+  if (type === "geotechnique") return SPECS_GEO;
+  if (type === "route") return SPECS_ROUTE;
+  return SPECS_BETON;
+}
+
 function getConformity(es: number, type: string) {
-  const specs = type === "geotechnique" ? SPECS_GEO : SPECS_BETON;
+  const specs = getSpecs(type);
   const spec = specs.find(s => es >= s.min && es < s.max);
   if (!spec) return null;
-  const conforme = type === "geotechnique" ? es >= 20 : es >= 60;
+  const conforme = type === "geotechnique" ? es >= 20 : type === "route" ? es >= 40 : es >= 60;
   return { ...spec, conforme };
 }
 
 export default function EquivalentSableReportContent({ resultats }: EquivalentSableReportContentProps) {
   const typeEssai = (resultats.type_essai as string) || "beton";
-  const specs = typeEssai === "geotechnique" ? SPECS_GEO : SPECS_BETON;
+  const specs = getSpecs(typeEssai);
 
   const display = (key: string) => {
     const v = resultats[key] as number;
@@ -55,7 +69,7 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
     <div className="space-y-6">
       {/* Type d'essai badge */}
       <div className="text-sm">
-        <strong>Type d'essai :</strong> {typeEssai === "geotechnique" ? "Géotechnique" : "Béton"}
+        <strong>Type d'essai :</strong> {typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"}
       </div>
 
       <div>
@@ -148,7 +162,7 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
       {/* Spécifications */}
       <div>
         <h3 className="font-bold text-sm mb-2 underline">
-          Spécification ({typeEssai === "geotechnique" ? "Géotechnique" : "Béton"})
+          Spécification ({typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"})
         </h3>
         <table className="w-full border-collapse border border-[#4a90a4] text-sm">
           <thead>
