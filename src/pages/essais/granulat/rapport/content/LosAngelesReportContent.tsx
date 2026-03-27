@@ -2,28 +2,64 @@ interface LosAngelesReportContentProps {
   resultats: Record<string, unknown>;
 }
 
-export default function LosAngelesReportContent({ resultats }: LosAngelesReportContentProps) {
-  const getClassification = (coeff: number) => {
-    if (coeff <= 20) return { label: "LA20", description: "Très résistant" };
-    if (coeff <= 25) return { label: "LA25", description: "Résistant" };
-    if (coeff <= 30) return { label: "LA30", description: "Moyennement résistant" };
-    if (coeff <= 40) return { label: "LA40", description: "Peu résistant" };
-    return { label: "LA>40", description: "Faible résistance" };
-  };
+const SPECS_BETON = [
+  { min: 0, max: 20, label: "LA20 - Excellente résistance", usage: "Béton de haute qualité", rangeLabel: "LA < 20" },
+  { min: 20, max: 25, label: "LA25 - Bonne résistance", usage: "Béton hydraulique", rangeLabel: "20 ≤ LA < 25" },
+  { min: 25, max: 30, label: "LA30 - Résistance moyenne", usage: "Béton courant", rangeLabel: "25 ≤ LA < 30" },
+  { min: 30, max: 40, label: "LA40 - Résistance faible", usage: "Tolérable sous conditions", rangeLabel: "30 ≤ LA < 40" },
+  { min: 40, max: Infinity, label: "Non conforme", usage: "Impropre au béton", rangeLabel: "LA ≥ 40" },
+];
 
+const SPECS_GEO = [
+  { min: 0, max: 25, label: "Bonne résistance", usage: "Couche de forme, remblai technique", rangeLabel: "LA < 25" },
+  { min: 25, max: 35, label: "Résistance acceptable", usage: "Remblai courant", rangeLabel: "25 ≤ LA < 35" },
+  { min: 35, max: 45, label: "Résistance faible", usage: "Sous réserve d'étude", rangeLabel: "35 ≤ LA < 45" },
+  { min: 45, max: Infinity, label: "Résistance insuffisante", usage: "Impropre", rangeLabel: "LA ≥ 45" },
+];
+
+const SPECS_ROUTE = [
+  { min: 0, max: 20, label: "LA20 - Excellente résistance", usage: "Couche de roulement, enrobés", rangeLabel: "LA < 20" },
+  { min: 20, max: 25, label: "LA25 - Bonne résistance", usage: "Couche de base", rangeLabel: "20 ≤ LA < 25" },
+  { min: 25, max: 30, label: "LA30 - Résistance moyenne", usage: "Couche de fondation", rangeLabel: "25 ≤ LA < 30" },
+  { min: 30, max: 40, label: "LA40 - Résistance acceptable", usage: "Sous couche", rangeLabel: "30 ≤ LA < 40" },
+  { min: 40, max: Infinity, label: "Non conforme", usage: "Impropre pour corps de chaussée", rangeLabel: "LA ≥ 40" },
+];
+
+function getSpecs(type: string) {
+  if (type === "geotechnique") return SPECS_GEO;
+  if (type === "route") return SPECS_ROUTE;
+  return SPECS_BETON;
+}
+
+function getConformity(la: number, type: string) {
+  const specs = getSpecs(type);
+  const spec = specs.find(s => la >= s.min && la < s.max);
+  if (!spec) return null;
+  const conforme = type === "geotechnique" ? la <= 35 : type === "route" ? la <= 30 : la <= 40;
+  return { ...spec, conforme };
+}
+
+const typeLabel = (t: string) => t === "geotechnique" ? "Géotechnique" : t === "route" ? "Route" : "Béton";
+
+export default function LosAngelesReportContent({ resultats }: LosAngelesReportContentProps) {
+  const typeEssai = (resultats.type_essai as string) || "beton";
   const coeff = (resultats.coefficient_la as number) || 0;
-  const classification = getClassification(coeff);
+  const conformity = coeff > 0 ? getConformity(coeff, typeEssai) : null;
+  const specs = getSpecs(typeEssai);
 
   return (
     <div className="space-y-6">
-      {/* Résultats des essais */}
+      <div className="text-sm">
+        <strong>Type d'essai :</strong> {typeLabel(typeEssai)}
+      </div>
+
       <div>
         <h3 className="font-bold text-sm mb-2 underline">Résultats des essais</h3>
         <table className="w-full border-collapse border border-[#4a90a4]">
           <tbody>
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium w-1/2">Classe granulaire</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.classe_granulaire as string) || "-"}</td>
+              <td className="border border-[#4a90a4] px-3 py-2 text-center">{(resultats.classe_granulaire as string) || (resultats.granularite as string) || "-"}</td>
             </tr>
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Masse initiale (M)</td>
@@ -37,7 +73,6 @@ export default function LosAngelesReportContent({ resultats }: LosAngelesReportC
         </table>
       </div>
 
-      {/* Synthèse */}
       <div>
         <h3 className="font-bold text-sm mb-2 underline">Synthèse des résultats</h3>
         <table className="w-full border-collapse border border-[#4a90a4]">
@@ -51,23 +86,61 @@ export default function LosAngelesReportContent({ resultats }: LosAngelesReportC
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium">Catégorie</td>
               <td className="border border-[#4a90a4] px-3 py-2 text-center font-medium">
-                {coeff ? `${classification.label} - ${classification.description}` : "-"}
+                {conformity ? `${conformity.label}` : "-"}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      {/* Classification */}
-      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-        <p className="font-medium mb-1">Classification selon NF EN 12620 :</p>
-        <ul className="space-y-0.5">
-          <li>• LA ≤ 20 : Très résistant à la fragmentation</li>
-          <li>• 20 &lt; LA ≤ 25 : Résistant</li>
-          <li>• 25 &lt; LA ≤ 30 : Moyennement résistant</li>
-          <li>• 30 &lt; LA ≤ 40 : Peu résistant</li>
-          <li>• LA &gt; 40 : Faible résistance</li>
-        </ul>
+      {/* Conformité */}
+      {conformity && (
+        <div>
+          <h3 className="font-bold text-sm mb-2 underline">Conformité</h3>
+          <table className="w-full border-collapse border border-[#4a90a4] text-sm">
+            <thead>
+              <tr className="bg-[#e8f4f8]">
+                <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Paramètre</th>
+                <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">Valeur</th>
+                <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Classification</th>
+                <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">Conformité</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">LA</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold">{coeff} %</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5">{conformity.label} — {conformity.usage}</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold" style={{ color: conformity.conforme ? "#16a34a" : "#dc2626" }}>
+                  {conformity.conforme ? "✓ Conforme" : "✗ Non conforme"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Spécifications */}
+      <div>
+        <h3 className="font-bold text-sm mb-2 underline">Spécification ({typeLabel(typeEssai)})</h3>
+        <table className="w-full border-collapse border border-[#4a90a4] text-sm">
+          <thead>
+            <tr className="bg-[#e8f4f8]">
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Valeur LA</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Classification</th>
+              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Usage recommandé</th>
+            </tr>
+          </thead>
+          <tbody>
+            {specs.map((s, i) => (
+              <tr key={i}>
+                <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">{s.rangeLabel}</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5">{s.label}</td>
+                <td className="border border-[#4a90a4] px-3 py-1.5">{s.usage}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
