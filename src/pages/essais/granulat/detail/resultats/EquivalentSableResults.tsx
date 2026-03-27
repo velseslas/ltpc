@@ -19,17 +19,31 @@ const SPECS_GEO = [
   { min: 0, max: 10, label: "Sol très argileux", usage: "Impropre" },
 ];
 
+const SPECS_ROUTE = [
+  { min: 50, max: Infinity, label: "Sable très propre", usage: "Couche de roulement, enrobés" },
+  { min: 40, max: 50, label: "Sable propre", usage: "Couche de base" },
+  { min: 30, max: 40, label: "Sable légèrement argileux", usage: "Couche de fondation" },
+  { min: 20, max: 30, label: "Sable argileux", usage: "Sous couche, remblai technique" },
+  { min: 0, max: 20, label: "Sable très argileux", usage: "Impropre pour corps de chaussée" },
+];
+
+function getSpecs(type: string) {
+  if (type === "geotechnique") return SPECS_GEO;
+  if (type === "route") return SPECS_ROUTE;
+  return SPECS_BETON;
+}
+
 function getConformity(es: number, type: string) {
-  const specs = type === "geotechnique" ? SPECS_GEO : SPECS_BETON;
+  const specs = getSpecs(type);
   const spec = specs.find(s => es >= s.min && es < s.max);
   if (!spec) return null;
-  const conforme = type === "geotechnique" ? es >= 20 : es >= 60;
+  const conforme = type === "geotechnique" ? es >= 20 : type === "route" ? es >= 40 : es >= 60;
   return { ...spec, conforme };
 }
 
 export default function EquivalentSableResults({ resultats }: EquivalentSableResultsProps) {
   const typeEssai = (resultats.type_essai as string) || "beton";
-  const specs = typeEssai === "geotechnique" ? SPECS_GEO : SPECS_BETON;
+  const specs = getSpecs(typeEssai);
 
   const display = (key: string) => {
     const v = resultats[key] as number;
@@ -59,7 +73,7 @@ export default function EquivalentSableResults({ resultats }: EquivalentSableRes
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Résultats - Équivalent de Sable (NF EN 933-8)</CardTitle>
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
-              {typeEssai === "geotechnique" ? "Géotechnique" : "Béton"}
+              {typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"}
             </span>
           </div>
         </CardHeader>
@@ -115,7 +129,7 @@ export default function EquivalentSableResults({ resultats }: EquivalentSableRes
           {(conformityEsv || conformityEsp) && (
             <Card className={`border-2 ${conformityEsv?.conforme ? "border-green-500/50 bg-green-50/50 dark:bg-green-950/20" : "border-red-500/50 bg-red-50/50 dark:bg-red-950/20"}`}>
               <CardContent className="pt-4 space-y-2">
-                <p className="text-sm font-semibold text-foreground">Conformité ({typeEssai === "geotechnique" ? "Géotechnique" : "Béton"}) :</p>
+                <p className="text-sm font-semibold text-foreground">Conformité ({typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"}) :</p>
                 {conformityEsv && (
                   <div className="flex items-center gap-2">
                     {conformityEsv.conforme ? <CheckCircle className="h-5 w-5 text-green-600" /> : <XCircle className="h-5 w-5 text-red-600" />}
@@ -135,7 +149,7 @@ export default function EquivalentSableResults({ resultats }: EquivalentSableRes
           {/* Spécifications */}
           <div className="bg-muted/50 rounded-lg p-4">
             <p className="text-sm font-medium text-foreground mb-2">
-              Spécification ({typeEssai === "geotechnique" ? "Géotechnique" : "Béton"}) :
+              Spécification ({typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"}) :
             </p>
             <ul className="text-sm text-muted-foreground space-y-1">
               {specs.map((s, i) => (
