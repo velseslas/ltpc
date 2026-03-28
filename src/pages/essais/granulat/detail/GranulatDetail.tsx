@@ -206,9 +206,17 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
               <div>
                 <p className="text-sm text-muted-foreground">N° Échantillon</p>
                 <p className="font-semibold text-foreground text-lg font-mono">
-                  <span className="text-primary">{getPrefix(essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+                  <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
                 </p>
               </div>
+              {ESSAIS_WITH_TYPE.includes(essaiType) && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Type d'essai</p>
+                  <Badge variant="outline" className="mt-1 capitalize">
+                    {((resultats?.type_essai as string) || "beton") === "beton" ? "Béton" : ((resultats?.type_essai as string) || "") === "geotechnique" ? "Géotechnique" : "Route"}
+                  </Badge>
+                </div>
+              )}
               <div>
                 <p className="text-sm text-muted-foreground">Carrière</p>
                 <p className="font-medium text-foreground">
