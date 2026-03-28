@@ -33,6 +33,21 @@ import {
   EchantillonGranulatBase,
   getPrefix
 } from "@/hooks/useEchantillonsGranulatFactory";
+
+const TYPE_ESSAI_SUFFIX: Record<string, string> = {
+  beton: "B",
+  geotechnique: "G",
+  route: "R",
+};
+
+const ESSAIS_WITH_TYPE = ["equivalent-sable", "bleu-methylene", "micro-deval", "los-angeles"];
+
+function getTypeSuffix(echantillon: EchantillonGranulatBase, essaiType: string): string {
+  if (!ESSAIS_WITH_TYPE.includes(essaiType)) return "";
+  const resultats = echantillon.resultats as Record<string, unknown> | null;
+  const typeEssai = (resultats?.type_essai as string) || "beton";
+  return TYPE_ESSAI_SUFFIX[typeEssai] || "B";
+}
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -203,7 +218,7 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                   onClick={() => navigate(`${basePath}/${echantillon.id}`)}
                 >
                   <TableCell className="font-medium text-foreground font-mono">
-                    <span className="text-primary">{getPrefix(essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+                    <span className="text-primary">{getPrefix(essaiType)}{getTypeSuffix(echantillon, essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
                   </TableCell>
                   <TableCell className="text-foreground">
                     {echantillon.carrieres?.nom || "-"}

@@ -6,8 +6,24 @@ import { ArrowLeft, Edit, ClipboardEdit, FileText, Loader2 } from "lucide-react"
 import { 
   useEchantillonGranulatById,
   formatNumero,
-  getPrefix
+  getPrefix,
+  EchantillonGranulatBase
 } from "@/hooks/useEchantillonsGranulatFactory";
+
+const TYPE_ESSAI_SUFFIX: Record<string, string> = {
+  beton: "B",
+  geotechnique: "G",
+  route: "R",
+};
+
+const ESSAIS_WITH_TYPE = ["equivalent-sable", "bleu-methylene", "micro-deval", "los-angeles"];
+
+function getTypeSuffix(echantillon: EchantillonGranulatBase, essaiType: string): string {
+  if (!ESSAIS_WITH_TYPE.includes(essaiType)) return "";
+  const resultats = echantillon.resultats as Record<string, unknown> | null;
+  const typeEssai = (resultats?.type_essai as string) || "beton";
+  return TYPE_ESSAI_SUFFIX[typeEssai] || "B";
+}
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb, BreadcrumbItem as BreadcrumbItemType } from "@/components/essais/EssaiBreadcrumb";
@@ -110,6 +126,7 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
 
   const resultats = (echantillon.resultats as Record<string, unknown>) || {};
   const hasResults = Object.keys(resultats).length > 0;
+  const fullPrefix = `${getPrefix(essaiType)}${getTypeSuffix(echantillon, essaiType)}`;
 
   // Générer le breadcrumb automatiquement basé sur le type d'essai
   const config = breadcrumbConfig[essaiType];
@@ -120,7 +137,7 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
     { 
       label: (
         <>
-          <span className="text-primary">{getPrefix(essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+          <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
         </>
       ) as React.ReactNode
     }
@@ -145,7 +162,7 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-display font-bold text-foreground">
-                  <span className="text-primary">{getPrefix(essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+                  <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
                 </h1>
                 {getStatusBadge(echantillon.statut)}
               </div>

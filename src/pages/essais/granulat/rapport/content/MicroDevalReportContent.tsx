@@ -49,10 +49,6 @@ export default function MicroDevalReportContent({ resultats }: MicroDevalReportC
 
   return (
     <div className="space-y-6">
-      <div className="text-sm">
-        <strong>Type d'essai :</strong> {typeLabel(typeEssai)}
-      </div>
-
       <div>
         <h3 className="font-bold text-sm mb-2 underline">Résultats des essais</h3>
         <table className="w-full border-collapse border border-[#4a90a4]">

@@ -4,7 +4,22 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
-import { useEchantillonGranulatById, getPrefix } from "@/hooks/useEchantillonsGranulatFactory";
+import { useEchantillonGranulatById, getPrefix, EchantillonGranulatBase } from "@/hooks/useEchantillonsGranulatFactory";
+
+const TYPE_ESSAI_SUFFIX: Record<string, string> = {
+  beton: "B",
+  geotechnique: "G",
+  route: "R",
+};
+
+const ESSAIS_WITH_TYPE = ["equivalent-sable", "bleu-methylene", "micro-deval", "los-angeles"];
+
+function getTypeSuffix(echantillon: EchantillonGranulatBase, essaiType: string): string {
+  if (!ESSAIS_WITH_TYPE.includes(essaiType)) return "";
+  const resultats = echantillon.resultats as Record<string, unknown> | null;
+  const typeEssai = (resultats?.type_essai as string) || "beton";
+  return TYPE_ESSAI_SUFFIX[typeEssai] || "B";
+}
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -69,6 +84,8 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
   const { data: echantillon, isLoading } = useEchantillonGranulatById(essaiType, id);
   const { data: entreprise } = useEntreprise();
   const prefix = getPrefix(essaiType);
+  const typeSuffix = echantillon ? getTypeSuffix(echantillon, essaiType) : "";
+  const fullPrefix = `${prefix}${typeSuffix}`;
 
   const ReportContent = reportContentComponents[essaiType];
 
@@ -95,7 +112,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rapport-${essaiType}-${prefix}-${String(echantillon!.numero).padStart(3, "0")}.pdf`;
+    a.download = `rapport-${essaiType}-${fullPrefix}-${String(echantillon!.numero).padStart(3, "0")}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -127,7 +144,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
     { 
       label: (
         <>
-          <span className="text-primary">{getPrefix(essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+          <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
         </>
       ), 
       path: `${basePath}/${id}` 
@@ -146,12 +163,12 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  Rapport - <span className="text-primary">{prefix}-{String(echantillon.numero).padStart(3, "0")}</span>
+                  Rapport - <span className="text-primary">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</span>
                 </h1>
                 <p className="text-muted-foreground text-sm">{essaiTitle}</p>
               </div>
               <div className="flex gap-3">
-                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${prefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
+                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${fullPrefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
                 <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
                   <Printer className="h-4 w-4" />
                   Imprimer
@@ -186,7 +203,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             <tbody>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1.5 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1.5 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Type d'essai</td>
