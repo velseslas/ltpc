@@ -4650,6 +4650,96 @@ export type Database = {
           },
         ]
       }
+      maitres_oeuvre: {
+        Row: {
+          adresse: string | null
+          contact: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nom: string
+          observations: string | null
+          specialite: string | null
+          statut: string
+          telephone: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          adresse?: string | null
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom: string
+          observations?: string | null
+          specialite?: string | null
+          statut?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          adresse?: string | null
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom?: string
+          observations?: string | null
+          specialite?: string | null
+          statut?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
+      maitres_ouvrage: {
+        Row: {
+          adresse: string | null
+          contact: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nom: string
+          observations: string | null
+          secteur: string | null
+          statut: string
+          telephone: string | null
+          updated_at: string
+          ville: string | null
+        }
+        Insert: {
+          adresse?: string | null
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom: string
+          observations?: string | null
+          secteur?: string | null
+          statut?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Update: {
+          adresse?: string | null
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nom?: string
+          observations?: string | null
+          secteur?: string | null
+          statut?: string
+          telephone?: string | null
+          updated_at?: string
+          ville?: string | null
+        }
+        Relationships: []
+      }
       materiel: {
         Row: {
           created_at: string
