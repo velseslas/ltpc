@@ -159,6 +159,12 @@ import NonDestructifNormes from "./pages/essais/NonDestructifNormes";
 import GranulatPhysiquesNormes from "./pages/essais/granulat/GranulatPhysiquesNormes";
 import GranulatPropreteNormes from "./pages/essais/granulat/GranulatPropreteNormes";
 import GranulatMecaniquesNormes from "./pages/essais/granulat/GranulatMecaniquesNormes";
+import MaitreOuvrageListe from "./pages/maitres-ouvrage/MaitreOuvrageListe";
+import MaitreOuvrageForm from "./pages/maitres-ouvrage/MaitreOuvrageForm";
+import MaitreOuvrageDetail from "./pages/maitres-ouvrage/MaitreOuvrageDetail";
+import MaitreOeuvreListe from "./pages/maitres-oeuvre/MaitreOeuvreListe";
+import MaitreOeuvreForm from "./pages/maitres-oeuvre/MaitreOeuvreForm";
+import MaitreOeuvreDetail from "./pages/maitres-oeuvre/MaitreOeuvreDetail";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import Parametres from "./pages/Parametres";
 import Entreprise from "./pages/parametres/Entreprise";
@@ -309,6 +315,14 @@ const AppRoutes = () => (
       <Route path="/intervenant/prestataires/:id" element={<PrestataireDetail />} />
       <Route path="/intervenant/prestataires/:id/modifier" element={<PrestataireForm />} />
       <Route path="/intervenant/prestataires/:id/bon-commande/nouveau" element={<BonCommandePrestataireForm />} />
+      <Route path="/intervenant/maitres-ouvrage" element={<MaitreOuvrageListe />} />
+      <Route path="/intervenant/maitres-ouvrage/nouveau" element={<MaitreOuvrageForm />} />
+      <Route path="/intervenant/maitres-ouvrage/:id" element={<MaitreOuvrageDetail />} />
+      <Route path="/intervenant/maitres-ouvrage/:id/modifier" element={<MaitreOuvrageForm />} />
+      <Route path="/intervenant/maitres-oeuvre" element={<MaitreOeuvreListe />} />
+      <Route path="/intervenant/maitres-oeuvre/nouveau" element={<MaitreOeuvreForm />} />
+      <Route path="/intervenant/maitres-oeuvre/:id" element={<MaitreOeuvreDetail />} />
+      <Route path="/intervenant/maitres-oeuvre/:id/modifier" element={<MaitreOeuvreForm />} />
       <Route path="/rh" element={<RH />} />
       <Route path="/rh/postes" element={<Postes />} />
       <Route path="/rh/postes/nouveau" element={<PosteForm />} />
