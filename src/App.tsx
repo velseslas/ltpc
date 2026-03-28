@@ -315,6 +315,14 @@ const AppRoutes = () => (
       <Route path="/intervenant/prestataires/:id" element={<PrestataireDetail />} />
       <Route path="/intervenant/prestataires/:id/modifier" element={<PrestataireForm />} />
       <Route path="/intervenant/prestataires/:id/bon-commande/nouveau" element={<BonCommandePrestataireForm />} />
+      <Route path="/intervenant/maitres-ouvrage" element={<MaitreOuvrageListe />} />
+      <Route path="/intervenant/maitres-ouvrage/nouveau" element={<MaitreOuvrageForm />} />
+      <Route path="/intervenant/maitres-ouvrage/:id" element={<MaitreOuvrageDetail />} />
+      <Route path="/intervenant/maitres-ouvrage/:id/modifier" element={<MaitreOuvrageForm />} />
+      <Route path="/intervenant/maitres-oeuvre" element={<MaitreOeuvreListe />} />
+      <Route path="/intervenant/maitres-oeuvre/nouveau" element={<MaitreOeuvreForm />} />
+      <Route path="/intervenant/maitres-oeuvre/:id" element={<MaitreOeuvreDetail />} />
+      <Route path="/intervenant/maitres-oeuvre/:id/modifier" element={<MaitreOeuvreForm />} />
       <Route path="/rh" element={<RH />} />
       <Route path="/rh/postes" element={<Postes />} />
       <Route path="/rh/postes/nouveau" element={<PosteForm />} />
