@@ -168,7 +168,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <p className="text-muted-foreground text-sm">{essaiTitle}</p>
               </div>
               <div className="flex gap-3">
-                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${prefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
+                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${fullPrefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
                 <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
                   <Printer className="h-4 w-4" />
                   Imprimer
@@ -203,7 +203,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             <tbody>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1.5 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1.5 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Type d'essai</td>
