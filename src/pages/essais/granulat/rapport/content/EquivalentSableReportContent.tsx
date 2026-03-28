@@ -67,11 +67,6 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
 
   return (
     <div className="space-y-6">
-      {/* Type d'essai badge */}
-      <div className="text-sm">
-        <strong>Type d'essai :</strong> {typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"}
-      </div>
-
       <div>
         <h3 className="font-bold text-sm mb-2 underline">Expression des résultats</h3>
         <table className="w-full border-collapse border border-[#4a90a4] text-sm">

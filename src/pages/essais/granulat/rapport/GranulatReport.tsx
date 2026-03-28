@@ -4,7 +4,22 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
-import { useEchantillonGranulatById, getPrefix } from "@/hooks/useEchantillonsGranulatFactory";
+import { useEchantillonGranulatById, getPrefix, EchantillonGranulatBase } from "@/hooks/useEchantillonsGranulatFactory";
+
+const TYPE_ESSAI_SUFFIX: Record<string, string> = {
+  beton: "B",
+  geotechnique: "G",
+  route: "R",
+};
+
+const ESSAIS_WITH_TYPE = ["equivalent-sable", "bleu-methylene", "micro-deval", "los-angeles"];
+
+function getTypeSuffix(echantillon: EchantillonGranulatBase, essaiType: string): string {
+  if (!ESSAIS_WITH_TYPE.includes(essaiType)) return "";
+  const resultats = echantillon.resultats as Record<string, unknown> | null;
+  const typeEssai = (resultats?.type_essai as string) || "beton";
+  return TYPE_ESSAI_SUFFIX[typeEssai] || "B";
+}
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
