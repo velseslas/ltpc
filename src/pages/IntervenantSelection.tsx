@@ -1,4 +1,4 @@
-import { Users, Factory, Briefcase } from "lucide-react";
+import { Users, Factory, Briefcase, Landmark, HardHat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
@@ -24,11 +24,27 @@ const IntervenantSelection = () => {
     },
     {
       title: "Prestataires",
-      description: "Gérez vos prestataires et bons de commande",
+      description: "Gérez vos prestataires et sous-traitants",
       icon: Briefcase,
       path: "/intervenant/prestataires",
       gradient: "from-violet-500/20 to-purple-500/10",
       iconColor: "text-violet-500",
+    },
+    {
+      title: "Maître de l'ouvrage",
+      description: "Gérez les maîtres de l'ouvrage (MOA)",
+      icon: Landmark,
+      path: "/intervenant/maitres-ouvrage",
+      gradient: "from-emerald-500/20 to-teal-500/10",
+      iconColor: "text-emerald-500",
+    },
+    {
+      title: "Maître d'œuvre",
+      description: "Gérez les maîtres d'œuvre (MOE)",
+      icon: HardHat,
+      path: "/intervenant/maitres-oeuvre",
+      gradient: "from-rose-500/20 to-pink-500/10",
+      iconColor: "text-rose-500",
     },
   ];
 
