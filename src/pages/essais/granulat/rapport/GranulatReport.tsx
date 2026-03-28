@@ -84,6 +84,8 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
   const { data: echantillon, isLoading } = useEchantillonGranulatById(essaiType, id);
   const { data: entreprise } = useEntreprise();
   const prefix = getPrefix(essaiType);
+  const typeSuffix = echantillon ? getTypeSuffix(echantillon, essaiType) : "";
+  const fullPrefix = `${prefix}${typeSuffix}`;
 
   const ReportContent = reportContentComponents[essaiType];
 
