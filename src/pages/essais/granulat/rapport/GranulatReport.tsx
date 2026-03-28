@@ -112,7 +112,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rapport-${essaiType}-${prefix}-${String(echantillon!.numero).padStart(3, "0")}.pdf`;
+    a.download = `rapport-${essaiType}-${fullPrefix}-${String(echantillon!.numero).padStart(3, "0")}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -144,7 +144,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
     { 
       label: (
         <>
-          <span className="text-primary">{getPrefix(essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+          <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
         </>
       ), 
       path: `${basePath}/${id}` 
@@ -163,7 +163,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  Rapport - <span className="text-primary">{prefix}-{String(echantillon.numero).padStart(3, "0")}</span>
+                  Rapport - <span className="text-primary">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</span>
                 </h1>
                 <p className="text-muted-foreground text-sm">{essaiTitle}</p>
               </div>
