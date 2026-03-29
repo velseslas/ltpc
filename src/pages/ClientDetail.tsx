@@ -1022,22 +1022,29 @@ const ClientDetail = () => {
         editingDoc={editingDocAdmin}
       />
 
+      <MoaFormDialog
+        open={isMoaFormOpen}
+        onOpenChange={setIsMoaFormOpen}
+        clientId={id || ""}
+        existingIds={clientMoa?.map((m: any) => m.maitres_ouvrage?.id).filter(Boolean) || []}
+      />
+
+      <MoeFormDialog
+        open={isMoeFormOpen}
+        onOpenChange={setIsMoeFormOpen}
+        clientId={id || ""}
+        existingIds={clientMoe?.map((m: any) => m.maitres_oeuvre?.id).filter(Boolean) || []}
+      />
+
       <AlertDialog open={!!contractToDelete} onOpenChange={() => setContractToDelete(null)}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce contrat ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. Le contrat sera définitivement supprimé.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-border">Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteContrat}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Supprimer
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteContrat} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -1046,18 +1053,11 @@ const ClientDetail = () => {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Retirer cette centrale ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              La centrale "{centraleToDelete?.nom}" sera retirée de ce client. Cette action ne supprime pas la centrale.
-            </AlertDialogDescription>
+            <AlertDialogDescription>La centrale "{centraleToDelete?.nom}" sera retirée de ce client.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-border">Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteCentrale}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Retirer
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteCentrale} className="bg-destructive hover:bg-destructive/90">Retirer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -1066,18 +1066,11 @@ const ClientDetail = () => {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce chantier ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Le chantier "{chantierToDelete?.nom}" sera définitivement supprimé. Cette action est irréversible.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Le chantier "{chantierToDelete?.nom}" sera définitivement supprimé.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-border">Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteChantier}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Supprimer
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteChantier} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -1086,18 +1079,37 @@ const ClientDetail = () => {
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce document ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Ce document administratif sera définitivement supprimé. Cette action est irréversible.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Ce document sera définitivement supprimé.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-border">Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteDocAdmin}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Supprimer
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteDocAdmin} className="bg-destructive hover:bg-destructive/90">Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!moaToDelete} onOpenChange={() => setMoaToDelete(null)}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Retirer ce maître de l'ouvrage ?</AlertDialogTitle>
+            <AlertDialogDescription>"{moaToDelete?.nom}" sera retiré de ce client.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMoa} className="bg-destructive hover:bg-destructive/90">Retirer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!moeToDelete} onOpenChange={() => setMoeToDelete(null)}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Retirer ce maître d'œuvre ?</AlertDialogTitle>
+            <AlertDialogDescription>"{moeToDelete?.nom}" sera retiré de ce client.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMoe} className="bg-destructive hover:bg-destructive/90">Retirer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
