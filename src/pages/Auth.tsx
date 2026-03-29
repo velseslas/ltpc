@@ -190,7 +190,7 @@ const Auth = () => {
               <Button
                 type="submit"
                 className="w-full gradient-primary text-primary-foreground font-medium"
-                disabled={isLoading || !username.trim()}
+                disabled={isLoading || isUsersLoading || !username.trim()}
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
               </Button>
