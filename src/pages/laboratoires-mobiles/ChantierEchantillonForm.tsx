@@ -370,6 +370,12 @@ export default function ChantierEchantillonForm() {
 
   return (
     <div className="space-y-6">
+      <EssaiBreadcrumb items={[
+        { label: "Laboratoires Mobiles", path: "/laboratoires-mobiles" },
+        { label: chantier?.nom || "Chantier", path: `/laboratoires-mobiles/chantier/${chantierId}` },
+        { label: isEditMode ? "Modifier échantillon" : "Nouvel échantillon" },
+      ]} />
+
       {/* Header avec bouton retour */}
       <div className="flex items-start gap-4">
         <Button
