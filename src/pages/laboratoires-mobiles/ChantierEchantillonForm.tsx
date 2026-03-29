@@ -565,9 +565,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="classeConsistance">Classe de consistance (Slump)</Label>
               <Select value={classeConsistance} onValueChange={setClasseConsistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe" />
+                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_CONSISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
@@ -582,9 +583,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="classeResistance">Classe de résistance</Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe" />
+                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_RESISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
