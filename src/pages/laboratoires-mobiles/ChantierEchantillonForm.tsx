@@ -490,13 +490,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Technicien */}
             <div className="space-y-2">
-              <Label htmlFor="operateur">Technicien</Label>
+              <Label htmlFor="operateur">Technicien <span className="text-red-500">*</span></Label>
               <Select value={operateurId} onValueChange={setOperateurId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez un technicien (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez un technicien" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {intervenants.map((intervenant) => (
                     <SelectItem key={intervenant.id} value={intervenant.id}>
                       {intervenant.prenom} {intervenant.nom}
