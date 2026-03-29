@@ -676,7 +676,7 @@ export default function ChantierEchantillonForm() {
                 value={nombreEprouvettes}
                 onChange={(e) => setNombreEprouvettes(e.target.value)}
                 placeholder="Ex: 6"
-                className="bg-background"
+                className={cn("bg-background", showError && (!nombreEprouvettes || parseInt(nombreEprouvettes) <= 0) && "animate-border-blink")}
               />
             </div>
 
