@@ -40,18 +40,23 @@ const TractionFendageReport = () => {
     if (!reportRef.current) return;
 
     try {
+      await document.fonts.ready;
+
       const A4_WIDTH_MM = 210;
       const A4_HEIGHT_MM = 297;
       const MARGIN_MM = 10;
       const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
       const SECTION_GAP_MM = 2;
+      const AVAILABLE_HEIGHT_MM = A4_HEIGHT_MM - MARGIN_MM * 2;
 
       const sections = Array.from(
         reportRef.current.querySelectorAll("[data-pdf-section]")
       ) as HTMLElement[];
 
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      let currentY = MARGIN_MM;
+      const renderedSections: Array<{
+        canvas: HTMLCanvasElement;
+        heightMM: number;
+      }> = [];
 
       for (const section of sections) {
         const canvas = await html2canvas(section, {
@@ -61,18 +66,95 @@ const TractionFendageReport = () => {
           logging: false,
         });
 
-        const scaleFactor = CONTENT_WIDTH_MM / (canvas.width / 2);
-        const heightMM = (canvas.height / 2) * scaleFactor;
-        const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+        const heightMM = (canvas.height * CONTENT_WIDTH_MM) / canvas.width;
+        renderedSections.push({ canvas, heightMM });
+      }
 
-        if (heightMM > remainingSpace && currentY > MARGIN_MM) {
-          pdf.addPage();
-          currentY = MARGIN_MM;
+      const totalContentHeightMM = renderedSections.reduce(
+        (sum, section, index) => sum + section.heightMM + (index < renderedSections.length - 1 ? SECTION_GAP_MM : 0),
+        0
+      );
+
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const canFitSinglePageWithSmallShrink = totalContentHeightMM <= AVAILABLE_HEIGHT_MM * 1.2;
+
+      if (canFitSinglePageWithSmallShrink) {
+        const fitScale = Math.min(1, AVAILABLE_HEIGHT_MM / totalContentHeightMM);
+        const contentWidth = CONTENT_WIDTH_MM * fitScale;
+        const startX = (A4_WIDTH_MM - contentWidth) / 2;
+        let currentY = MARGIN_MM;
+
+        for (const section of renderedSections) {
+          const imgData = section.canvas.toDataURL("image/png");
+          const sectionHeight = section.heightMM * fitScale;
+          pdf.addImage(imgData, "PNG", startX, currentY, contentWidth, sectionHeight);
+          currentY += sectionHeight + SECTION_GAP_MM * fitScale;
         }
+      } else {
+        let currentY = MARGIN_MM;
 
-        const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
-        currentY += heightMM + SECTION_GAP_MM;
+        for (const section of renderedSections) {
+          const { canvas, heightMM } = section;
+
+          if (heightMM <= AVAILABLE_HEIGHT_MM) {
+            const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+            if (heightMM > remainingSpace && currentY > MARGIN_MM) {
+              pdf.addPage();
+              currentY = MARGIN_MM;
+            }
+
+            const imgData = canvas.toDataURL("image/png");
+            pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+            currentY += heightMM + SECTION_GAP_MM;
+            continue;
+          }
+
+          const pageSliceHeightPx = Math.floor((AVAILABLE_HEIGHT_MM * canvas.width) / CONTENT_WIDTH_MM);
+          let offsetY = 0;
+
+          while (offsetY < canvas.height) {
+            const sliceHeightPx = Math.min(pageSliceHeightPx, canvas.height - offsetY);
+            const sliceCanvas = document.createElement("canvas");
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = sliceHeightPx;
+
+            const ctx = sliceCanvas.getContext("2d");
+            if (!ctx) break;
+
+            ctx.drawImage(
+              canvas,
+              0,
+              offsetY,
+              canvas.width,
+              sliceHeightPx,
+              0,
+              0,
+              canvas.width,
+              sliceHeightPx
+            );
+
+            const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
+            const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+
+            if (sliceHeightMM > remainingSpace && currentY > MARGIN_MM) {
+              pdf.addPage();
+              currentY = MARGIN_MM;
+            }
+
+            const sliceImgData = sliceCanvas.toDataURL("image/png");
+            pdf.addImage(sliceImgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
+            currentY += sliceHeightMM;
+            offsetY += sliceHeightPx;
+
+            if (offsetY < canvas.height) {
+              pdf.addPage();
+              currentY = MARGIN_MM;
+            }
+          }
+
+          currentY += SECTION_GAP_MM;
+        }
       }
 
       pdf.save(`rapport-TF-${echantillon?.numero}.pdf`);
