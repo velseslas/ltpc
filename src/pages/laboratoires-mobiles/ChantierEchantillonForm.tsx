@@ -28,10 +28,10 @@ import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateChantierEchantillon } from "@/hooks/useChantierEchantillons";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useIntervenants } from "@/hooks/useIntervenants";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 
 const CONDITIONS_CURE = [
   { value: "standard", label: "Cure standard (20°C, 95% HR)" },
@@ -137,7 +137,6 @@ export default function ChantierEchantillonForm() {
   const [modeCoulage, setModeCoulage] = useState("");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
-  const [operateurId, setOperateurId] = useState("");
   
   const [etuvage, setEtuvage] = useState("non");
   const [showError, setShowError] = useState(false);
@@ -145,7 +144,14 @@ export default function ChantierEchantillonForm() {
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
-  const { data: intervenants = [] } = useIntervenants();
+  const { data: labos } = useLaboratoiresMobiles();
+
+  // Get the responsable_id (technician) assigned to this chantier's lab
+  const responsableId = useMemo(() => {
+    if (!labos || !chantierId) return null;
+    const labo = labos.find(l => l.chantier_id === chantierId);
+    return labo?.responsable_id || null;
+  }, [labos, chantierId]);
 
   // Fetch existing echantillon for edit mode
   const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
@@ -181,7 +187,6 @@ export default function ChantierEchantillonForm() {
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
-      setOperateurId(existingEchantillon.operateur_id || "");
       
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
@@ -261,7 +266,6 @@ export default function ChantierEchantillonForm() {
     if (!essaiConvenance && !destinationBeton) missingFields.push("Partie de l'ouvrage");
     if (!centraleId || centraleId === "none") missingFields.push("Centrale à béton");
     if (!formulationId) missingFields.push("Formulation");
-    if (!operateurId || operateurId === "none") missingFields.push("Technicien");
     if (!classeConsistance || classeConsistance === "none") missingFields.push("Classe de consistance");
     if (!classeResistance || classeResistance === "none") missingFields.push("Classe de résistance");
     if (!modeCoulage || modeCoulage === "none") missingFields.push("Mode de coulage");
@@ -298,7 +302,7 @@ export default function ChantierEchantillonForm() {
       client_id: chantier?.client_id || null,
       centrale_id: cleanValue(centraleId),
       formulation_id: cleanValue(formulationId),
-      operateur_id: cleanValue(operateurId),
+      operateur_id: responsableId,
       ouvrage: essaiConvenance ? null : (ouvrage || null),
       destination_beton: essaiConvenance ? null : (destinationBeton || null),
       condition_cure: conditionCure,
@@ -497,22 +501,6 @@ export default function ChantierEchantillonForm() {
               </Select>
             </div>
 
-            {/* Technicien */}
-            <div className="space-y-2">
-              <Label htmlFor="operateur">Technicien <span className="text-red-500">*</span></Label>
-              <Select value={operateurId} onValueChange={setOperateurId}>
-                <SelectTrigger className={cn(showError && !operateurId && "animate-border-blink")}>
-                  <SelectValue placeholder="Sélectionnez un technicien" />
-                </SelectTrigger>
-                <SelectContent>
-                  {intervenants.map((intervenant) => (
-                    <SelectItem key={intervenant.id} value={intervenant.id}>
-                      {intervenant.prenom} {intervenant.nom}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             {/* Date de coulage */}
             <div className="space-y-2">
