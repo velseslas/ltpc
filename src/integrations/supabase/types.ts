@@ -1316,6 +1316,7 @@ export type Database = {
           etuvage: string | null
           formulation_id: string | null
           id: string
+          is_laboratoire_chantier: boolean
           jours_essai: Json | null
           mention_eprouvette_client: boolean
           mention_info_client: boolean
@@ -1351,6 +1352,7 @@ export type Database = {
           etuvage?: string | null
           formulation_id?: string | null
           id?: string
+          is_laboratoire_chantier?: boolean
           jours_essai?: Json | null
           mention_eprouvette_client?: boolean
           mention_info_client?: boolean
@@ -1386,6 +1388,7 @@ export type Database = {
           etuvage?: string | null
           formulation_id?: string | null
           id?: string
+          is_laboratoire_chantier?: boolean
           jours_essai?: Json | null
           mention_eprouvette_client?: boolean
           mention_info_client?: boolean

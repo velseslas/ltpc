@@ -1,0 +1,1 @@
+ALTER TABLE public.echantillons_compression ADD COLUMN is_laboratoire_chantier boolean NOT NULL DEFAULT false;
