@@ -132,6 +132,7 @@ const ClientDetail = () => {
   };
 
 
+  const getStatusLabel = (statut: string) => {
     switch (statut) {
       case "actif":
       case "en_cours":
