@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
 interface EprouvetteData {
   numero: number;
@@ -327,6 +328,16 @@ export default function ChantierEchantillonReport() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Breadcrumb - Caché à l'impression */}
+      <div className="print:hidden">
+        <EssaiBreadcrumb items={[
+          { label: "Laboratoires Mobiles", path: "/laboratoires-mobiles" },
+          { label: echantillon.chantier_nom, path: `/laboratoires-mobiles/chantier/${chantierId}` },
+          { label: `EC-${String(echantillon.numero_chantier).padStart(3, "0")}`, path: `/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillonId}` },
+          { label: "Rapport" },
+        ]} />
+      </div>
+
       {/* Header avec actions - Caché à l'impression */}
       <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">

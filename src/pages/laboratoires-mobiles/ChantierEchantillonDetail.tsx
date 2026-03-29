@@ -8,6 +8,7 @@ import { ArrowLeft, Pencil, FileBarChart, ClipboardList, ClipboardEdit, Loader2,
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
 interface EchantillonData {
   id: string;
@@ -142,6 +143,12 @@ export default function ChantierEchantillonDetail() {
 
   return (
     <div className="space-y-6">
+      <EssaiBreadcrumb items={[
+        { label: "Laboratoires Mobiles", path: "/laboratoires-mobiles" },
+        { label: echantillon.chantier_nom, path: `/laboratoires-mobiles/chantier/${chantierId}` },
+        { label: `EC-${String(echantillon.numero_chantier).padStart(3, "0")}` },
+      ]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
