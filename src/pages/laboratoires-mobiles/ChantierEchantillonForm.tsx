@@ -593,7 +593,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="classeConsistance">Classe de consistance (Slump) <span className="text-red-500">*</span></Label>
               <Select value={classeConsistance} onValueChange={setClasseConsistance}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !classeConsistance && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
