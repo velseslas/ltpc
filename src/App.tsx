@@ -208,6 +208,7 @@ import ChantierEchantillonDetail from "./pages/laboratoires-mobiles/ChantierEcha
 import ChantierEchantillonDataEntry from "./pages/laboratoires-mobiles/ChantierEchantillonDataEntry";
 import ChantierEchantillonReport from "./pages/laboratoires-mobiles/ChantierEchantillonReport";
 import ChantierEchantillonBulletin from "./pages/laboratoires-mobiles/ChantierEchantillonBulletin";
+import EtatCoulages from "./pages/laboratoires-mobiles/EtatCoulages";
 import { UserCog, Truck, Microscope, Receipt, FileText } from "lucide-react";
 import FacturationDashboard from "./pages/facturation/FacturationDashboard";
 import FactureListe from "./pages/facturation/FactureListe";
@@ -608,6 +609,7 @@ const AppRoutes = () => (
       <Route path="/laboratoires-mobiles/chantier/:chantierId/echantillon/:echantillonId/saisie" element={<ChantierEchantillonDataEntry />} />
       <Route path="/laboratoires-mobiles/chantier/:chantierId/echantillon/:echantillonId/rapport" element={<ChantierEchantillonReport />} />
       <Route path="/laboratoires-mobiles/chantier/:chantierId/echantillon/:echantillonId/bulletin" element={<ChantierEchantillonBulletin />} />
+      <Route path="/laboratoires-mobiles/chantier/:chantierId/etat-coulages" element={<EtatCoulages />} />
       <Route path="/materiel" element={<MaterielDashboard />} />
       <Route path="/materiel/liste" element={<MaterielListe />} />
       <Route path="/materiel/liste/nouveau" element={<MaterielListeForm />} />
