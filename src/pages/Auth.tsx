@@ -31,15 +31,24 @@ const Auth = () => {
   const { data: entreprise, isLoading: isEntrepriseLoading } = useEntreprise();
 
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurRow[]>([]);
+  const [isUsersLoading, setIsUsersLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase
-        .from("utilisateurs")
-        .select("id, nom, email, role, statut")
-        .order("nom");
-      console.log("Fetched utilisateurs:", data, "error:", error);
-      if (data) setUtilisateurs(data as UtilisateurRow[]);
+      setIsUsersLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("utilisateurs")
+          .select("id, nom, email, role, statut")
+          .order("nom");
+        console.log("Fetched utilisateurs:", data, "error:", error);
+        if (data) setUtilisateurs(data as UtilisateurRow[]);
+        if (error) console.error("Error fetching utilisateurs:", error);
+      } catch (err) {
+        console.error("Exception fetching utilisateurs:", err);
+      } finally {
+        setIsUsersLoading(false);
+      }
     };
     fetchUsers();
   }, []);
