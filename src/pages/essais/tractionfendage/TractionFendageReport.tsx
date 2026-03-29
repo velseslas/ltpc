@@ -40,25 +40,42 @@ const TractionFendageReport = () => {
     if (!reportRef.current) return;
 
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
+      const A4_WIDTH_MM = 210;
+      const A4_HEIGHT_MM = 297;
+      const MARGIN_MM = 10;
+      const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
+      const SECTION_GAP_MM = 2;
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const sections = Array.from(
+        reportRef.current.querySelectorAll("[data-pdf-section]")
+      ) as HTMLElement[];
 
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      let currentY = MARGIN_MM;
 
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      for (const section of sections) {
+        const canvas = await html2canvas(section, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+        });
+
+        const scaleFactor = CONTENT_WIDTH_MM / (canvas.width / 2);
+        const heightMM = (canvas.height / 2) * scaleFactor;
+        const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
+
+        if (heightMM > remainingSpace && currentY > MARGIN_MM) {
+          pdf.addPage();
+          currentY = MARGIN_MM;
+        }
+
+        const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
+        currentY += heightMM + SECTION_GAP_MM;
+      }
+
       pdf.save(`rapport-TF-${echantillon?.numero}.pdf`);
-
       toast.success("PDF téléchargé avec succès");
     } catch (error) {
       toast.error("Erreur lors de la génération du PDF");
