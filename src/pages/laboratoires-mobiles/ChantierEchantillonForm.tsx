@@ -598,13 +598,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Classe de résistance */}
             <div className="space-y-2">
-              <Label htmlFor="classeResistance">Classe de résistance</Label>
+              <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-500">*</span></Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_RESISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
