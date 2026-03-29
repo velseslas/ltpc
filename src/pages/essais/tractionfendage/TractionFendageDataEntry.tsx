@@ -108,7 +108,7 @@ const TractionFendageDataEntry = () => {
     const { diameter, length } = getCylinderDimensions();
     const volumeMm3 = 3.1416 * Math.pow(diameter / 2, 2) * length;
     const volumeCm3 = volumeMm3 / 1000;
-    const density = weight / volumeCm3 / 1000;
+    const density = weight / volumeCm3;
     return density.toFixed(2);
   };
 
