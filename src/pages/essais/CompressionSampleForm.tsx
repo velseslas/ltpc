@@ -261,11 +261,13 @@ const CompressionSampleForm = () => {
     }
   }, [existingEchantillon, formulations, isLoadingFormulations]);
 
-  // Filter techniciens by poste name
+  // Filter techniciens by poste name or role
   const techniciens = useMemo(() => {
-    return intervenants.filter((i) => 
-      i.postes?.nom?.toUpperCase() === "TECHNICIEN"
-    );
+    return intervenants.filter((i) => {
+      const posteName = i.postes?.nom?.toUpperCase() || "";
+      const role = (i.role || "").toUpperCase();
+      return posteName.includes("TECHNICIEN") || role.includes("TECHNICIEN");
+    });
   }, [intervenants]);
 
   // Calculate total distributed
