@@ -253,7 +253,27 @@ export default function ChantierEchantillonForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Only validate eprouvette distribution
+    // Validate required fields
+    const missingFields: string[] = [];
+    if (!essaiConvenance && !ouvrage) missingFields.push("Ouvrage");
+    if (!essaiConvenance && !destinationBeton) missingFields.push("Partie de l'ouvrage");
+    if (!centraleId || centraleId === "none") missingFields.push("Centrale à béton");
+    if (!formulationId) missingFields.push("Formulation");
+    if (!operateurId || operateurId === "none") missingFields.push("Technicien");
+    if (!classeConsistance || classeConsistance === "none") missingFields.push("Classe de consistance");
+    if (!classeResistance || classeResistance === "none") missingFields.push("Classe de résistance");
+    if (!modeCoulage || modeCoulage === "none") missingFields.push("Mode de coulage");
+    if (!dateCoulage) missingFields.push("Date de coulage");
+    if (!typeEprouvette) missingFields.push("Type d'éprouvette");
+    if (!dimensionEprouvette) missingFields.push("Dimension");
+    if (!nombreEprouvettes || parseInt(nombreEprouvettes) <= 0) missingFields.push("Nombre d'éprouvettes");
+
+    if (missingFields.length > 0) {
+      toast.error(`Champs obligatoires manquants : ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Validate eprouvette distribution
     const totalEprouvettes = parseInt(nombreEprouvettes) || 0;
     if (totalEprouvettes > 0 && totalDistribue !== totalEprouvettes) {
       toast.error(
@@ -400,7 +420,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Ouvrage */}
             <div className="space-y-2">
-              <Label htmlFor="ouvrage">Ouvrage</Label>
+              <Label htmlFor="ouvrage">Ouvrage <span className="text-red-500">*</span></Label>
               <Input
                 id="ouvrage"
                 value={ouvrage}
@@ -413,7 +433,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Partie de l'ouvrage */}
             <div className="space-y-2">
-              <Label htmlFor="destination">Partie de l'ouvrage</Label>
+              <Label htmlFor="destination">Partie de l'ouvrage <span className="text-red-500">*</span></Label>
               <Input
                 id="destination"
                 value={destinationBeton}
@@ -426,13 +446,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Centrale à béton */}
             <div className="space-y-2">
-              <Label htmlFor="centrale">Centrale à béton</Label>
+              <Label htmlFor="centrale">Centrale à béton <span className="text-red-500">*</span></Label>
               <Select value={centraleId} onValueChange={handleCentraleChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une centrale (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez une centrale" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {centrales.map((centrale) => (
                     <SelectItem key={centrale.id} value={centrale.id}>
                       {centrale.nom}
@@ -444,7 +463,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Formulation de béton */}
             <div className="space-y-2">
-              <Label htmlFor="formulation">Formulation de béton</Label>
+              <Label htmlFor="formulation">Formulation de béton <span className="text-red-500">*</span></Label>
               <Select
                 value={formulationId}
                 onValueChange={setFormulationId}
@@ -471,13 +490,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Technicien */}
             <div className="space-y-2">
-              <Label htmlFor="operateur">Technicien</Label>
+              <Label htmlFor="operateur">Technicien <span className="text-red-500">*</span></Label>
               <Select value={operateurId} onValueChange={setOperateurId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez un technicien (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez un technicien" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {intervenants.map((intervenant) => (
                     <SelectItem key={intervenant.id} value={intervenant.id}>
                       {intervenant.prenom} {intervenant.nom}
@@ -489,7 +507,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Date de coulage */}
             <div className="space-y-2">
-              <Label>Date de coulage</Label>
+              <Label>Date de coulage <span className="text-red-500">*</span></Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -563,13 +581,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Classe de consistance */}
             <div className="space-y-2">
-              <Label htmlFor="classeConsistance">Classe de consistance (Slump)</Label>
+              <Label htmlFor="classeConsistance">Classe de consistance (Slump) <span className="text-red-500">*</span></Label>
               <Select value={classeConsistance} onValueChange={setClasseConsistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_CONSISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
@@ -581,13 +598,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Classe de résistance */}
             <div className="space-y-2">
-              <Label htmlFor="classeResistance">Classe de résistance</Label>
+              <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-500">*</span></Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_RESISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
@@ -599,7 +615,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Type d'éprouvette */}
             <div className="space-y-2">
-              <Label htmlFor="type">Type d'éprouvette *</Label>
+              <Label htmlFor="type">Type d'éprouvette <span className="text-red-500">*</span></Label>
               <Select value={typeEprouvette} onValueChange={(value) => {
                 setTypeEprouvette(value);
                 // Reset dimension when type changes
@@ -623,7 +639,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Dimension d'éprouvette */}
             <div className="space-y-2">
-              <Label htmlFor="dimension">Dimension *</Label>
+              <Label htmlFor="dimension">Dimension <span className="text-red-500">*</span></Label>
               <Select value={dimensionEprouvette} onValueChange={setDimensionEprouvette}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionnez la dimension" />
@@ -642,7 +658,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Nombre d'éprouvettes */}
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre d'éprouvettes *</Label>
+              <Label htmlFor="nombre">Nombre d'éprouvettes <span className="text-red-500">*</span></Label>
               <Input
                 id="nombre"
                 type="number"
@@ -657,7 +673,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Étuvage */}
             <div className="space-y-2">
-              <Label htmlFor="etuvage">Étuvage</Label>
+              <Label htmlFor="etuvage">Étuvage <span className="text-red-500">*</span></Label>
               <Select value={etuvage} onValueChange={setEtuvage}>
                 <SelectTrigger>
                   <SelectValue />
@@ -671,13 +687,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Mode de coulage */}
             <div className="space-y-2">
-              <Label htmlFor="modeCoulage">Mode de coulage</Label>
+              <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-500">*</span></Label>
               <Select value={modeCoulage} onValueChange={setModeCoulage}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez le mode (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez le mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {MODES_COULAGE.map((mode) => (
                     <SelectItem key={mode.value} value={mode.value}>
                       {mode.label}
