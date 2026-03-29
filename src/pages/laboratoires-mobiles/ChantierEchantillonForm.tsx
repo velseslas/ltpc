@@ -478,7 +478,7 @@ export default function ChantierEchantillonForm() {
                 onValueChange={setFormulationId}
                 disabled={!centraleId}
               >
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !formulationId && "animate-border-blink")}>
                   <SelectValue
                     placeholder={
                       centraleId
