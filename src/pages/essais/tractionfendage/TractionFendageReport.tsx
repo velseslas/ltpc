@@ -60,10 +60,12 @@ const TractionFendageReport = () => {
 
       for (const section of sections) {
         const canvas = await html2canvas(section, {
-          scale: 2,
+          scale: 3,
           useCORS: true,
           backgroundColor: "#ffffff",
           logging: false,
+          windowWidth: section.scrollWidth,
+          windowHeight: section.scrollHeight,
         });
 
         const heightMM = (canvas.height * CONTENT_WIDTH_MM) / canvas.width;
@@ -501,6 +503,24 @@ const TractionFendageReport = () => {
 
       {/* Styles d'impression */}
       <style>{`
+        [data-ref="report"] table {
+          border-collapse: collapse !important;
+          border-spacing: 0 !important;
+        }
+
+        [data-ref="report"] table,
+        [data-ref="report"] th,
+        [data-ref="report"] td {
+          border-color: #4b5563 !important;
+        }
+
+        [data-ref="report"] th,
+        [data-ref="report"] td {
+          vertical-align: middle !important;
+          line-height: 1.15 !important;
+          box-sizing: border-box !important;
+        }
+
         @media print {
           @page {
             size: A4;
