@@ -673,7 +673,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Étuvage */}
             <div className="space-y-2">
-              <Label htmlFor="etuvage">Étuvage</Label>
+              <Label htmlFor="etuvage">Étuvage <span className="text-red-500">*</span></Label>
               <Select value={etuvage} onValueChange={setEtuvage}>
                 <SelectTrigger>
                   <SelectValue />
