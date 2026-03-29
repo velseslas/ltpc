@@ -31,15 +31,24 @@ const Auth = () => {
   const { data: entreprise, isLoading: isEntrepriseLoading } = useEntreprise();
 
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurRow[]>([]);
+  const [isUsersLoading, setIsUsersLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase
-        .from("utilisateurs")
-        .select("id, nom, email, role, statut")
-        .order("nom");
-      console.log("Fetched utilisateurs:", data, "error:", error);
-      if (data) setUtilisateurs(data as UtilisateurRow[]);
+      setIsUsersLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("utilisateurs")
+          .select("id, nom, email, role, statut")
+          .order("nom");
+        console.log("Fetched utilisateurs:", data, "error:", error);
+        if (data) setUtilisateurs(data as UtilisateurRow[]);
+        if (error) console.error("Error fetching utilisateurs:", error);
+      } catch (err) {
+        console.error("Exception fetching utilisateurs:", err);
+      } finally {
+        setIsUsersLoading(false);
+      }
     };
     fetchUsers();
   }, []);
@@ -181,9 +190,9 @@ const Auth = () => {
               <Button
                 type="submit"
                 className="w-full gradient-primary text-primary-foreground font-medium"
-                disabled={isLoading || !username.trim()}
+                disabled={isLoading || isUsersLoading || !username.trim()}
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isUsersLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
               </Button>
             </form>
           </CardContent>
