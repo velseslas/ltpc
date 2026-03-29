@@ -230,7 +230,7 @@ export default function ChantierEchantillonForm() {
 
   // Handle centrale change - reset formulation
   const handleCentraleChange = (value: string) => {
-    setCentraleId(value);
+    setCentraleId(value === "none" ? "" : value);
     setFormulationId("");
   };
 
@@ -253,9 +253,9 @@ export default function ChantierEchantillonForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate that distributed count matches total
+    // Only validate eprouvette distribution
     const totalEprouvettes = parseInt(nombreEprouvettes) || 0;
-    if (totalDistribue !== totalEprouvettes) {
+    if (totalEprouvettes > 0 && totalDistribue !== totalEprouvettes) {
       toast.error(
         `Le nombre d'éprouvettes distribuées (${totalDistribue}) ne correspond pas au nombre total saisi (${totalEprouvettes})`
       );
@@ -268,12 +268,14 @@ export default function ChantierEchantillonForm() {
       ...(autreJourSelected && autreJour ? [{ jour: parseInt(autreJour), nombre: autreJourNombre }] : []),
     ];
 
+    const cleanValue = (v: string) => (!v || v === "none") ? null : v;
+
     const data = {
       chantier_id: chantierId!,
       client_id: chantier?.client_id || null,
-      centrale_id: centraleId || null,
-      formulation_id: formulationId || null,
-      operateur_id: operateurId || null,
+      centrale_id: cleanValue(centraleId),
+      formulation_id: cleanValue(formulationId),
+      operateur_id: cleanValue(operateurId),
       ouvrage: essaiConvenance ? null : (ouvrage || null),
       destination_beton: essaiConvenance ? null : (destinationBeton || null),
       condition_cure: conditionCure,
@@ -285,12 +287,11 @@ export default function ChantierEchantillonForm() {
       usage: essaiConvenance ? null : (destinationBeton || null),
       temperature_beton: temperatureBeton ? parseFloat(temperatureBeton) : null,
       temperature_air: temperatureAir ? parseFloat(temperatureAir) : null,
-      classe_consistance: classeConsistance || null,
-      classe_resistance: classeResistance || null,
-      mode_coulage: modeCoulage || null,
+      classe_consistance: cleanValue(classeConsistance),
+      classe_resistance: cleanValue(classeResistance),
+      mode_coulage: cleanValue(modeCoulage),
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
-      
       etuvage: etuvage,
     };
 
@@ -428,9 +429,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="centrale">Centrale à béton</Label>
               <Select value={centraleId} onValueChange={handleCentraleChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une centrale" />
+                  <SelectValue placeholder="Sélectionnez une centrale (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {centrales.map((centrale) => (
                     <SelectItem key={centrale.id} value={centrale.id}>
                       {centrale.nom}
@@ -472,9 +474,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="operateur">Technicien</Label>
               <Select value={operateurId} onValueChange={setOperateurId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez un technicien" />
+                  <SelectValue placeholder="Sélectionnez un technicien (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {intervenants.map((intervenant) => (
                     <SelectItem key={intervenant.id} value={intervenant.id}>
                       {intervenant.prenom} {intervenant.nom}
@@ -563,9 +566,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="classeConsistance">Classe de consistance (Slump)</Label>
               <Select value={classeConsistance} onValueChange={setClasseConsistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe" />
+                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_CONSISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
@@ -580,9 +584,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="classeResistance">Classe de résistance</Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe" />
+                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_RESISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
@@ -669,9 +674,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="modeCoulage">Mode de coulage</Label>
               <Select value={modeCoulage} onValueChange={setModeCoulage}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez le mode" />
+                  <SelectValue placeholder="Sélectionnez le mode (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {MODES_COULAGE.map((mode) => (
                     <SelectItem key={mode.value} value={mode.value}>
                       {mode.label}
