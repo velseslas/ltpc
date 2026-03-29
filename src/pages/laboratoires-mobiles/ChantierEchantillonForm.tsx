@@ -507,7 +507,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Date de coulage */}
             <div className="space-y-2">
-              <Label>Date de coulage</Label>
+              <Label>Date de coulage <span className="text-red-500">*</span></Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
