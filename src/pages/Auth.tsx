@@ -192,7 +192,7 @@ const Auth = () => {
                 className="w-full gradient-primary text-primary-foreground font-medium"
                 disabled={isLoading || isUsersLoading || !username.trim()}
               >
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isUsersLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Se connecter"}
               </Button>
             </form>
           </CardContent>
