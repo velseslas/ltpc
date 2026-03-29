@@ -420,7 +420,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Ouvrage */}
             <div className="space-y-2">
-              <Label htmlFor="ouvrage">Ouvrage</Label>
+              <Label htmlFor="ouvrage">Ouvrage <span className="text-red-500">*</span></Label>
               <Input
                 id="ouvrage"
                 value={ouvrage}
