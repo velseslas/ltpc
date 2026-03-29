@@ -446,13 +446,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Centrale à béton */}
             <div className="space-y-2">
-              <Label htmlFor="centrale">Centrale à béton</Label>
+              <Label htmlFor="centrale">Centrale à béton <span className="text-red-500">*</span></Label>
               <Select value={centraleId} onValueChange={handleCentraleChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une centrale (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez une centrale" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {centrales.map((centrale) => (
                     <SelectItem key={centrale.id} value={centrale.id}>
                       {centrale.nom}
