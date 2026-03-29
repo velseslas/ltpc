@@ -699,7 +699,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-500">*</span></Label>
               <Select value={modeCoulage} onValueChange={setModeCoulage}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !modeCoulage && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez le mode" />
                 </SelectTrigger>
                 <SelectContent>
