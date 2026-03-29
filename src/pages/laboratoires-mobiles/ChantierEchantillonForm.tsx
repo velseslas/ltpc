@@ -687,13 +687,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Mode de coulage */}
             <div className="space-y-2">
-              <Label htmlFor="modeCoulage">Mode de coulage</Label>
+              <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-500">*</span></Label>
               <Select value={modeCoulage} onValueChange={setModeCoulage}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez le mode (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez le mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {MODES_COULAGE.map((mode) => (
                     <SelectItem key={mode.value} value={mode.value}>
                       {mode.label}
