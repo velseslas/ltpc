@@ -66,7 +66,7 @@ export function useEchantillonsCompression() {
           clients(id, nom),
           chantiers(id, nom)
         `)
-        .is("numero_chantier", null)
+        .eq("is_laboratoire_chantier", false)
         .order("numero", { ascending: true });
 
       if (error) throw error;
