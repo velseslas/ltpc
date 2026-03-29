@@ -113,7 +113,25 @@ const ClientDetail = () => {
     }
   };
 
-  const getStatusLabel = (statut: string) => {
+  const handleDeleteMoa = async () => {
+    if (!moaToDelete || !id) return;
+    try {
+      await removeMoa.mutateAsync({ id: moaToDelete.id, clientId: id });
+      toast.success("Maître de l'ouvrage retiré");
+      setMoaToDelete(null);
+    } catch { toast.error("Erreur lors de la suppression"); }
+  };
+
+  const handleDeleteMoe = async () => {
+    if (!moeToDelete || !id) return;
+    try {
+      await removeMoe.mutateAsync({ id: moeToDelete.id, clientId: id });
+      toast.success("Maître d'œuvre retiré");
+      setMoeToDelete(null);
+    } catch { toast.error("Erreur lors de la suppression"); }
+  };
+
+
     switch (statut) {
       case "actif":
       case "en_cours":
