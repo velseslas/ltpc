@@ -140,6 +140,7 @@ export default function ChantierEchantillonForm() {
   const [operateurId, setOperateurId] = useState("");
   
   const [etuvage, setEtuvage] = useState("non");
+  const [showError, setShowError] = useState(false);
 
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
