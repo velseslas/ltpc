@@ -253,9 +253,9 @@ export default function ChantierEchantillonForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate that distributed count matches total
+    // Only validate eprouvette distribution
     const totalEprouvettes = parseInt(nombreEprouvettes) || 0;
-    if (totalDistribue !== totalEprouvettes) {
+    if (totalEprouvettes > 0 && totalDistribue !== totalEprouvettes) {
       toast.error(
         `Le nombre d'éprouvettes distribuées (${totalDistribue}) ne correspond pas au nombre total saisi (${totalEprouvettes})`
       );
