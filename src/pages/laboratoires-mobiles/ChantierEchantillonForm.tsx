@@ -266,7 +266,6 @@ export default function ChantierEchantillonForm() {
     if (!essaiConvenance && !destinationBeton) missingFields.push("Partie de l'ouvrage");
     if (!centraleId || centraleId === "none") missingFields.push("Centrale à béton");
     if (!formulationId) missingFields.push("Formulation");
-    if (!operateurId || operateurId === "none") missingFields.push("Technicien");
     if (!classeConsistance || classeConsistance === "none") missingFields.push("Classe de consistance");
     if (!classeResistance || classeResistance === "none") missingFields.push("Classe de résistance");
     if (!modeCoulage || modeCoulage === "none") missingFields.push("Mode de coulage");
