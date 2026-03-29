@@ -435,7 +435,7 @@ export default function ChantierEchantillonForm() {
                 value={ouvrage}
                 onChange={(e) => setOuvrage(e.target.value)}
                 placeholder="Ex: Bâtiment A, Pont, Tunnel..."
-                className={cn("bg-background", essaiConvenance && "opacity-50")}
+                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !ouvrage && "animate-border-blink")}
                 disabled={essaiConvenance}
               />
             </div>
