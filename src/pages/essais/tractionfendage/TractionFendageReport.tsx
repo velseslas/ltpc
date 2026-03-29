@@ -46,116 +46,67 @@ const TractionFendageReport = () => {
       const A4_HEIGHT_MM = 297;
       const MARGIN_MM = 10;
       const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
-      const SECTION_GAP_MM = 2;
       const AVAILABLE_HEIGHT_MM = A4_HEIGHT_MM - MARGIN_MM * 2;
 
-      const sections = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-section]")
-      ) as HTMLElement[];
-
-      const renderedSections: Array<{
-        canvas: HTMLCanvasElement;
-        heightMM: number;
-      }> = [];
-
-      for (const section of sections) {
-        const canvas = await html2canvas(section, {
-          scale: 3,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          logging: false,
-          windowWidth: section.scrollWidth,
-          windowHeight: section.scrollHeight,
-        });
-
-        const heightMM = (canvas.height * CONTENT_WIDTH_MM) / canvas.width;
-        renderedSections.push({ canvas, heightMM });
-      }
-
-      const totalContentHeightMM = renderedSections.reduce(
-        (sum, section, index) => sum + section.heightMM + (index < renderedSections.length - 1 ? SECTION_GAP_MM : 0),
-        0
-      );
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        windowWidth: reportRef.current.scrollWidth,
+        windowHeight: reportRef.current.scrollHeight,
+      });
 
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const fullHeightMM = (canvas.height * CONTENT_WIDTH_MM) / canvas.width;
 
-      const canFitSinglePageWithSmallShrink = totalContentHeightMM <= AVAILABLE_HEIGHT_MM * 1.2;
+      const canFitOnSinglePage = fullHeightMM <= AVAILABLE_HEIGHT_MM * 1.3;
 
-      if (canFitSinglePageWithSmallShrink) {
-        const fitScale = Math.min(1, AVAILABLE_HEIGHT_MM / totalContentHeightMM);
-        const contentWidth = CONTENT_WIDTH_MM * fitScale;
-        const startX = (A4_WIDTH_MM - contentWidth) / 2;
-        let currentY = MARGIN_MM;
+      if (canFitOnSinglePage) {
+        const fitScale = Math.min(1, AVAILABLE_HEIGHT_MM / fullHeightMM);
+        const renderWidthMM = CONTENT_WIDTH_MM * fitScale;
+        const renderHeightMM = fullHeightMM * fitScale;
+        const startX = (A4_WIDTH_MM - renderWidthMM) / 2;
+        const startY = MARGIN_MM + (AVAILABLE_HEIGHT_MM - renderHeightMM) / 2;
 
-        for (const section of renderedSections) {
-          const imgData = section.canvas.toDataURL("image/png");
-          const sectionHeight = section.heightMM * fitScale;
-          pdf.addImage(imgData, "PNG", startX, currentY, contentWidth, sectionHeight);
-          currentY += sectionHeight + SECTION_GAP_MM * fitScale;
-        }
+        const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", startX, startY, renderWidthMM, renderHeightMM);
       } else {
-        let currentY = MARGIN_MM;
+        const pageSliceHeightPx = Math.floor((AVAILABLE_HEIGHT_MM * canvas.width) / CONTENT_WIDTH_MM);
+        let offsetY = 0;
+        let pageIndex = 0;
 
-        for (const section of renderedSections) {
-          const { canvas, heightMM } = section;
-
-          if (heightMM <= AVAILABLE_HEIGHT_MM) {
-            const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
-            if (heightMM > remainingSpace && currentY > MARGIN_MM) {
-              pdf.addPage();
-              currentY = MARGIN_MM;
-            }
-
-            const imgData = canvas.toDataURL("image/png");
-            pdf.addImage(imgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, heightMM);
-            currentY += heightMM + SECTION_GAP_MM;
-            continue;
+        while (offsetY < canvas.height) {
+          if (pageIndex > 0) {
+            pdf.addPage();
           }
 
-          const pageSliceHeightPx = Math.floor((AVAILABLE_HEIGHT_MM * canvas.width) / CONTENT_WIDTH_MM);
-          let offsetY = 0;
+          const sliceHeightPx = Math.min(pageSliceHeightPx, canvas.height - offsetY);
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvas.width;
+          sliceCanvas.height = sliceHeightPx;
 
-          while (offsetY < canvas.height) {
-            const sliceHeightPx = Math.min(pageSliceHeightPx, canvas.height - offsetY);
-            const sliceCanvas = document.createElement("canvas");
-            sliceCanvas.width = canvas.width;
-            sliceCanvas.height = sliceHeightPx;
+          const ctx = sliceCanvas.getContext("2d");
+          if (!ctx) break;
 
-            const ctx = sliceCanvas.getContext("2d");
-            if (!ctx) break;
+          ctx.drawImage(
+            canvas,
+            0,
+            offsetY,
+            canvas.width,
+            sliceHeightPx,
+            0,
+            0,
+            canvas.width,
+            sliceHeightPx
+          );
 
-            ctx.drawImage(
-              canvas,
-              0,
-              offsetY,
-              canvas.width,
-              sliceHeightPx,
-              0,
-              0,
-              canvas.width,
-              sliceHeightPx
-            );
+          const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
+          const sliceImgData = sliceCanvas.toDataURL("image/png");
+          pdf.addImage(sliceImgData, "PNG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
 
-            const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
-            const remainingSpace = A4_HEIGHT_MM - MARGIN_MM - currentY;
-
-            if (sliceHeightMM > remainingSpace && currentY > MARGIN_MM) {
-              pdf.addPage();
-              currentY = MARGIN_MM;
-            }
-
-            const sliceImgData = sliceCanvas.toDataURL("image/png");
-            pdf.addImage(sliceImgData, "PNG", MARGIN_MM, currentY, CONTENT_WIDTH_MM, sliceHeightMM);
-            currentY += sliceHeightMM;
-            offsetY += sliceHeightPx;
-
-            if (offsetY < canvas.height) {
-              pdf.addPage();
-              currentY = MARGIN_MM;
-            }
-          }
-
-          currentY += SECTION_GAP_MM;
+          offsetY += sliceHeightPx;
+          pageIndex += 1;
         }
       }
 
@@ -503,22 +454,48 @@ const TractionFendageReport = () => {
 
       {/* Styles d'impression */}
       <style>{`
+        [data-ref="report"] {
+          color: #000000;
+          background: #ffffff;
+        }
+
+        [data-ref="report"] h1,
+        [data-ref="report"] h2,
+        [data-ref="report"] h3,
+        [data-ref="report"] .text-primary {
+          color: #1e5a7a !important;
+        }
+
         [data-ref="report"] table {
           border-collapse: collapse !important;
           border-spacing: 0 !important;
+          width: 100% !important;
         }
 
         [data-ref="report"] table,
         [data-ref="report"] th,
         [data-ref="report"] td {
           border-color: #4b5563 !important;
+          border-width: 1px !important;
         }
 
         [data-ref="report"] th,
         [data-ref="report"] td {
           vertical-align: middle !important;
-          line-height: 1.15 !important;
+          text-align: center;
+          line-height: 1.2 !important;
           box-sizing: border-box !important;
+          padding-top: 4px !important;
+          padding-bottom: 4px !important;
+        }
+
+        [data-ref="report"] td.font-medium,
+        [data-ref="report"] td:first-child {
+          text-align: left;
+        }
+
+        [data-ref="report"] .border-gray-300 {
+          border-color: #d1d5db !important;
         }
 
         @media print {
@@ -526,16 +503,27 @@ const TractionFendageReport = () => {
             size: A4;
             margin: 10mm;
           }
+
+          html,
+          body {
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
           body * {
             visibility: hidden;
           }
+
           .print\\:hidden {
             display: none !important;
           }
+
           #root {
             padding: 0 !important;
             margin: 0 !important;
           }
+
           [data-ref="report"] {
             visibility: visible;
             position: absolute;
@@ -543,13 +531,19 @@ const TractionFendageReport = () => {
             top: 0;
             width: 100%;
             font-size: 11px;
+            background: #ffffff !important;
           }
+
           [data-ref="report"] * {
             visibility: visible;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
+
           [data-ref="report"] .mb-4 {
             margin-bottom: 8px !important;
           }
+
           [data-ref="report"] .mb-6 {
             margin-bottom: 10px !important;
           }
