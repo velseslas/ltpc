@@ -254,19 +254,19 @@ export default function EtatCoulages() {
             </Button>
           </div>
 
-          <div ref={reportRef} className="bg-white text-black p-8 print:p-4" style={{ minWidth: "1100px" }}>
-            {/* Client name above header */}
-            <div className="text-center mb-2">
-              <p className="text-lg font-bold text-black">{client?.nom || ""}</p>
-              <p className="text-sm text-black">Chantier : {chantier?.nom || ""}</p>
-            </div>
-
+          <div ref={reportRef} className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/laboratoires-mobiles/chantier/${chantierId}/etat-coulages`}
               title="ÉTAT DES COULAGES"
               subtitle={`${dateDebut ? format(dateDebut, "dd/MM/yyyy") : ""} ${dateDebut || dateFin ? "—" : ""} ${dateFin ? format(dateFin, "dd/MM/yyyy") : ""}`}
             />
+
+            {/* Client & chantier below title */}
+            <div className="text-center mb-4">
+              <p className="text-base font-bold text-black">{client?.nom || ""}</p>
+              <p className="text-sm text-black">Chantier : {chantier?.nom || ""}</p>
+            </div>
 
             {/* Filters summary */}
             <div className="text-xs text-black mb-4 flex flex-wrap gap-4">
@@ -282,23 +282,16 @@ export default function EtatCoulages() {
                 <tr className="bg-[#1e5a7a] text-white">
                   <th className="border border-black p-1.5 text-center">N°</th>
                   <th className="border border-black p-1.5 text-center">Date coulage</th>
+                  <th className="border border-black p-1.5 text-center">Centrale à béton</th>
                   <th className="border border-black p-1.5 text-center">Ouvrage</th>
                   <th className="border border-black p-1.5 text-center">Partie ouvrage</th>
-                  <th className="border border-black p-1.5 text-center">Centrale</th>
-                  <th className="border border-black p-1.5 text-center">Classe résistance</th>
-                  <th className="border border-black p-1.5 text-center">Classe consistance</th>
-                  <th className="border border-black p-1.5 text-center">Type éprouvette</th>
-                  <th className="border border-black p-1.5 text-center">Nb éprouvettes</th>
-                  <th className="border border-black p-1.5 text-center">Mode coulage</th>
-                  <th className="border border-black p-1.5 text-center">T° béton</th>
-                  <th className="border border-black p-1.5 text-center">T° air</th>
                   <th className="border border-black p-1.5 text-center">Statut</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredEchantillons.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="border border-black p-4 text-center text-gray-500">
+                    <td colSpan={6} className="border border-black p-4 text-center text-gray-500">
                       Aucun échantillon trouvé pour les critères sélectionnés
                     </td>
                   </tr>
@@ -311,16 +304,9 @@ export default function EtatCoulages() {
                       <td className="border border-black p-1.5 text-center">
                         {e.date_coulage ? format(new Date(e.date_coulage), "dd/MM/yyyy") : "—"}
                       </td>
+                      <td className="border border-black p-1.5">{e.centrales_beton?.nom || "—"}</td>
                       <td className="border border-black p-1.5">{e.ouvrage || "—"}</td>
                       <td className="border border-black p-1.5">{e.destination_beton || "—"}</td>
-                      <td className="border border-black p-1.5">{e.centrales_beton?.nom || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.classe_resistance || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.classe_consistance || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.type_eprouvette || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.nombre_eprouvettes || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.mode_coulage || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.temperature_beton ?? "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{e.temperature_air ?? "—"}</td>
                       <td className="border border-black p-1.5 text-center">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-xs font-medium",
