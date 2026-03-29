@@ -442,8 +442,16 @@ const TractionFendageReport = () => {
           }
           #root {
             padding: 0 !important;
+            margin: 0 !important;
           }
-          [data-ref="report"], [data-ref="report"] * {
+          [data-ref="report"] {
+            visibility: visible;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          [data-ref="report"] * {
             visibility: visible;
           }
         }
