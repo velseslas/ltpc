@@ -454,22 +454,48 @@ const TractionFendageReport = () => {
 
       {/* Styles d'impression */}
       <style>{`
+        [data-ref="report"] {
+          color: #000000;
+          background: #ffffff;
+        }
+
+        [data-ref="report"] h1,
+        [data-ref="report"] h2,
+        [data-ref="report"] h3,
+        [data-ref="report"] .text-primary {
+          color: #1e5a7a !important;
+        }
+
         [data-ref="report"] table {
           border-collapse: collapse !important;
           border-spacing: 0 !important;
+          width: 100% !important;
         }
 
         [data-ref="report"] table,
         [data-ref="report"] th,
         [data-ref="report"] td {
           border-color: #4b5563 !important;
+          border-width: 1px !important;
         }
 
         [data-ref="report"] th,
         [data-ref="report"] td {
           vertical-align: middle !important;
-          line-height: 1.15 !important;
+          text-align: center;
+          line-height: 1.2 !important;
           box-sizing: border-box !important;
+          padding-top: 4px !important;
+          padding-bottom: 4px !important;
+        }
+
+        [data-ref="report"] td.font-medium,
+        [data-ref="report"] td:first-child {
+          text-align: left;
+        }
+
+        [data-ref="report"] .border-gray-300 {
+          border-color: #d1d5db !important;
         }
 
         @media print {
@@ -477,16 +503,27 @@ const TractionFendageReport = () => {
             size: A4;
             margin: 10mm;
           }
+
+          html,
+          body {
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
           body * {
             visibility: hidden;
           }
+
           .print\\:hidden {
             display: none !important;
           }
+
           #root {
             padding: 0 !important;
             margin: 0 !important;
           }
+
           [data-ref="report"] {
             visibility: visible;
             position: absolute;
@@ -494,13 +531,19 @@ const TractionFendageReport = () => {
             top: 0;
             width: 100%;
             font-size: 11px;
+            background: #ffffff !important;
           }
+
           [data-ref="report"] * {
             visibility: visible;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
+
           [data-ref="report"] .mb-4 {
             margin-bottom: 8px !important;
           }
+
           [data-ref="report"] .mb-6 {
             margin-bottom: 10px !important;
           }
