@@ -433,7 +433,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Partie de l'ouvrage */}
             <div className="space-y-2">
-              <Label htmlFor="destination">Partie de l'ouvrage</Label>
+              <Label htmlFor="destination">Partie de l'ouvrage <span className="text-red-500">*</span></Label>
               <Input
                 id="destination"
                 value={destinationBeton}
