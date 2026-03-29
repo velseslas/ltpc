@@ -428,9 +428,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="centrale">Centrale à béton</Label>
               <Select value={centraleId} onValueChange={handleCentraleChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une centrale" />
+                  <SelectValue placeholder="Sélectionnez une centrale (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {centrales.map((centrale) => (
                     <SelectItem key={centrale.id} value={centrale.id}>
                       {centrale.nom}
