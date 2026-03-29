@@ -67,9 +67,9 @@ const TractionFendageDataEntry = () => {
 
   // Standard K coefficients for known specimen types (K = π × D × L / 2, in mm²)
   const STANDARD_K: Record<string, number> = {
-    "160x320": 80425,
-    "150x300": 70685,
-    "100x200": 31416,
+    "160x320": 80.425,
+    "150x300": 70.685,
+    "100x200": 31.416,
   };
 
   // Get K coefficient based on specimen dimension
@@ -80,7 +80,7 @@ const TractionFendageDataEntry = () => {
     const parts = dimension.split("x").map(p => parseFloat(p.trim()));
     const D = parts[0] || 160;
     const L = parts[1] || 320;
-    return (3.1416 * D * L) / 2;
+    return (3.1416 * D * L) / 2 / 1000;
   };
 
   // Get cylinder dimensions from dimension_eprouvette (e.g., "160x320")
@@ -111,7 +111,7 @@ const TractionFendageDataEntry = () => {
     if (isNaN(p) || p === 0) return "";
     
     const K = getK();
-    const fct = (p * 1000) / K;
+    const fct = p / K;
     return fct.toFixed(2);
   };
 
