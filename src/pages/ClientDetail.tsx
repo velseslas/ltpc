@@ -867,6 +867,128 @@ const ClientDetail = () => {
             )}
           </div>
         )}
+
+        {activeTab === "moa" && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-display font-semibold text-foreground">
+                Maîtres de l'ouvrage
+              </h2>
+              <Button 
+                className="gap-2 gradient-primary text-primary-foreground"
+                onClick={() => setIsMoaFormOpen(true)}
+              >
+                <Plus className="w-4 h-4" />
+                Associer un MOA
+              </Button>
+            </div>
+
+            {clientMoa && clientMoa.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {clientMoa.map((item: any) => (
+                  <div key={item.id} className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-all duration-300 group">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400">MOA</span>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                        onClick={() => setMoaToDelete({ id: item.id, nom: item.maitres_ouvrage?.nom || "" })}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <h4 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.maitres_ouvrage?.nom}</h4>
+                    {item.maitres_ouvrage?.contact && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <User className="w-4 h-4 text-primary/70" /><span>{item.maitres_ouvrage.contact}</span>
+                      </div>
+                    )}
+                    {item.maitres_ouvrage?.telephone && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Phone className="w-4 h-4 text-primary/70" /><span>{item.maitres_ouvrage.telephone}</span>
+                      </div>
+                    )}
+                    {item.maitres_ouvrage?.email && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Mail className="w-4 h-4 text-primary/70" /><span>{item.maitres_ouvrage.email}</span>
+                      </div>
+                    )}
+                    {item.maitres_ouvrage?.ville && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4 text-primary/70" /><span>{item.maitres_ouvrage.ville}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground bg-card border border-border rounded-xl">
+                <Landmark className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Aucun maître de l'ouvrage associé</p>
+                <p className="text-sm mt-1">Cliquez sur "Associer un MOA" pour en ajouter</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "moe" && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-display font-semibold text-foreground">
+                Maîtres d'œuvre
+              </h2>
+              <Button 
+                className="gap-2 gradient-primary text-primary-foreground"
+                onClick={() => setIsMoeFormOpen(true)}
+              >
+                <Plus className="w-4 h-4" />
+                Associer un MOE
+              </Button>
+            </div>
+
+            {clientMoe && clientMoe.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {clientMoe.map((item: any) => (
+                  <div key={item.id} className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 transition-all duration-300 group">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-rose-500/20 text-rose-400">MOE</span>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                        onClick={() => setMoeToDelete({ id: item.id, nom: item.maitres_oeuvre?.nom || "" })}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <h4 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{item.maitres_oeuvre?.nom}</h4>
+                    {item.maitres_oeuvre?.contact && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <User className="w-4 h-4 text-primary/70" /><span>{item.maitres_oeuvre.contact}</span>
+                      </div>
+                    )}
+                    {item.maitres_oeuvre?.telephone && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Phone className="w-4 h-4 text-primary/70" /><span>{item.maitres_oeuvre.telephone}</span>
+                      </div>
+                    )}
+                    {item.maitres_oeuvre?.email && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Mail className="w-4 h-4 text-primary/70" /><span>{item.maitres_oeuvre.email}</span>
+                      </div>
+                    )}
+                    {item.maitres_oeuvre?.ville && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4 text-primary/70" /><span>{item.maitres_oeuvre.ville}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground bg-card border border-border rounded-xl">
+                <HardHat className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Aucun maître d'œuvre associé</p>
+                <p className="text-sm mt-1">Cliquez sur "Associer un MOE" pour en ajouter</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <ContractFormDialog 
