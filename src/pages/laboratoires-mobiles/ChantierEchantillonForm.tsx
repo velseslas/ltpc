@@ -523,7 +523,8 @@ export default function ChantierEchantillonForm() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal bg-background",
-                      !dateCoulage && "text-muted-foreground"
+                      !dateCoulage && "text-muted-foreground",
+                      showError && !dateCoulage && "animate-border-blink"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
