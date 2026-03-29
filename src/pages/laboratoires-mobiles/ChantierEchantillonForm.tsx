@@ -268,12 +268,14 @@ export default function ChantierEchantillonForm() {
       ...(autreJourSelected && autreJour ? [{ jour: parseInt(autreJour), nombre: autreJourNombre }] : []),
     ];
 
+    const cleanValue = (v: string) => (!v || v === "none") ? null : v;
+
     const data = {
       chantier_id: chantierId!,
       client_id: chantier?.client_id || null,
-      centrale_id: centraleId || null,
-      formulation_id: formulationId || null,
-      operateur_id: operateurId || null,
+      centrale_id: cleanValue(centraleId),
+      formulation_id: cleanValue(formulationId),
+      operateur_id: cleanValue(operateurId),
       ouvrage: essaiConvenance ? null : (ouvrage || null),
       destination_beton: essaiConvenance ? null : (destinationBeton || null),
       condition_cure: conditionCure,
@@ -285,12 +287,11 @@ export default function ChantierEchantillonForm() {
       usage: essaiConvenance ? null : (destinationBeton || null),
       temperature_beton: temperatureBeton ? parseFloat(temperatureBeton) : null,
       temperature_air: temperatureAir ? parseFloat(temperatureAir) : null,
-      classe_consistance: classeConsistance || null,
-      classe_resistance: classeResistance || null,
-      mode_coulage: modeCoulage || null,
+      classe_consistance: cleanValue(classeConsistance),
+      classe_resistance: cleanValue(classeResistance),
+      mode_coulage: cleanValue(modeCoulage),
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
-      
       etuvage: etuvage,
     };
 
