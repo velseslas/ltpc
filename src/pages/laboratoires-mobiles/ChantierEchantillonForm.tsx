@@ -501,7 +501,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="operateur">Technicien <span className="text-red-500">*</span></Label>
               <Select value={operateurId} onValueChange={setOperateurId}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !operateurId && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez un technicien" />
                 </SelectTrigger>
                 <SelectContent>
