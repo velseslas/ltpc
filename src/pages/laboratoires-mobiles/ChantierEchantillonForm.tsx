@@ -658,7 +658,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Nombre d'éprouvettes */}
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre d'éprouvettes *</Label>
+              <Label htmlFor="nombre">Nombre d'éprouvettes <span className="text-red-500">*</span></Label>
               <Input
                 id="nombre"
                 type="number"
