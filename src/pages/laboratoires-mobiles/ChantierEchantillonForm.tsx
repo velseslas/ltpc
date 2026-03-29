@@ -639,7 +639,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Dimension d'éprouvette */}
             <div className="space-y-2">
-              <Label htmlFor="dimension">Dimension *</Label>
+              <Label htmlFor="dimension">Dimension <span className="text-red-500">*</span></Label>
               <Select value={dimensionEprouvette} onValueChange={setDimensionEprouvette}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionnez la dimension" />
