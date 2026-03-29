@@ -473,9 +473,10 @@ export default function ChantierEchantillonForm() {
               <Label htmlFor="operateur">Technicien</Label>
               <Select value={operateurId} onValueChange={setOperateurId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez un technicien" />
+                  <SelectValue placeholder="Sélectionnez un technicien (optionnel)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">-- Aucun --</SelectItem>
                   {intervenants.map((intervenant) => (
                     <SelectItem key={intervenant.id} value={intervenant.id}>
                       {intervenant.prenom} {intervenant.nom}
