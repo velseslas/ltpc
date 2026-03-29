@@ -615,7 +615,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Type d'éprouvette */}
             <div className="space-y-2">
-              <Label htmlFor="type">Type d'éprouvette *</Label>
+              <Label htmlFor="type">Type d'éprouvette <span className="text-red-500">*</span></Label>
               <Select value={typeEprouvette} onValueChange={(value) => {
                 setTypeEprouvette(value);
                 // Reset dimension when type changes
