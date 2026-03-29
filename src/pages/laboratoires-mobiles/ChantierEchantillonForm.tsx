@@ -230,7 +230,7 @@ export default function ChantierEchantillonForm() {
 
   // Handle centrale change - reset formulation
   const handleCentraleChange = (value: string) => {
-    setCentraleId(value);
+    setCentraleId(value === "none" ? "" : value);
     setFormulationId("");
   };
 
