@@ -463,7 +463,7 @@ export default function ChantierEchantillonForm() {
 
             {/* Formulation de béton */}
             <div className="space-y-2">
-              <Label htmlFor="formulation">Formulation de béton</Label>
+              <Label htmlFor="formulation">Formulation de béton <span className="text-red-500">*</span></Label>
               <Select
                 value={formulationId}
                 onValueChange={setFormulationId}
