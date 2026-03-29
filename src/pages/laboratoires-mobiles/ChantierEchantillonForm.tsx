@@ -271,6 +271,7 @@ export default function ChantierEchantillonForm() {
     if (!nombreEprouvettes || parseInt(nombreEprouvettes) <= 0) missingFields.push("Nombre d'éprouvettes");
 
     if (missingFields.length > 0) {
+      setShowError(true);
       toast.error(`Champs obligatoires manquants : ${missingFields.join(", ")}`);
       return;
     }
