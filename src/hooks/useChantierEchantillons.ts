@@ -64,7 +64,7 @@ export function useCreateChantierEchantillon() {
     }) => {
       const { data, error } = await supabase
         .from("echantillons_compression")
-        .insert(echantillon)
+        .insert({ ...echantillon, is_laboratoire_chantier: true })
         .select(`
           *,
           clients(id, nom),
