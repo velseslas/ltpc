@@ -66,20 +66,26 @@ const TractionFendageDataEntry = () => {
   }, [echantillon]);
 
   // Standard K coefficients for known specimen types (K = π × D × L / 2, in mm²)
+  // Standard K coefficients (K in cm² → used as divisor for P in kN to get MPa)
   const STANDARD_K: Record<string, number> = {
     "160x320": 80.425,
+    "16x32": 80.425,
     "150x300": 70.685,
+    "15x30": 70.685,
     "100x200": 31.416,
+    "10x20": 31.416,
   };
 
   // Get K coefficient based on specimen dimension
   const getK = (): number => {
-    const dimension = echantillon?.dimension_eprouvette || "160x320";
+    const dimension = echantillon?.dimension_eprouvette || "16x32";
     if (STANDARD_K[dimension]) return STANDARD_K[dimension];
     // Custom dimension: parse and calculate K = (π × D × L) / 2
     const parts = dimension.split("x").map(p => parseFloat(p.trim()));
-    const D = parts[0] || 160;
-    const L = parts[1] || 320;
+    let D = parts[0] || 160;
+    let L = parts[1] || 320;
+    // If values seem to be in cm (< 100), convert to mm
+    if (D < 100) { D *= 10; L *= 10; }
     return (3.1416 * D * L) / 2 / 1000;
   };
 
