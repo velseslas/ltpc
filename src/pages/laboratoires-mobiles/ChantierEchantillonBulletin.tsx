@@ -287,6 +287,16 @@ export default function ChantierEchantillonBulletin() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Breadcrumb - Caché à l'impression */}
+      <div className="print:hidden">
+        <EssaiBreadcrumb items={[
+          { label: "Laboratoires Mobiles", path: "/laboratoires-mobiles" },
+          { label: echantillon.chantier_nom, path: `/laboratoires-mobiles/chantier/${chantierId}` },
+          { label: `EC-${String(echantillon.numero_chantier).padStart(3, "0")}`, path: `/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillonId}` },
+          { label: "Bulletin" },
+        ]} />
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
