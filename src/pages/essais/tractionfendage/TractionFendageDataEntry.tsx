@@ -80,7 +80,7 @@ const TractionFendageDataEntry = () => {
     const parts = dimension.split("x").map(p => parseFloat(p.trim()));
     const D = parts[0] || 160;
     const L = parts[1] || 320;
-    return (3.1416 * D * L) / 2;
+    return (3.1416 * D * L) / 2 / 1000;
   };
 
   // Get cylinder dimensions from dimension_eprouvette (e.g., "160x320")
