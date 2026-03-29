@@ -89,14 +89,15 @@ const TractionFendageDataEntry = () => {
     return (3.1416 * D * L) / 2 / 1000;
   };
 
-  // Get cylinder dimensions from dimension_eprouvette (e.g., "160x320")
+  // Get cylinder dimensions in mm from dimension_eprouvette (e.g., "16x32" or "160x320")
   const getCylinderDimensions = () => {
-    const dimension = echantillon?.dimension_eprouvette || "160x320";
+    const dimension = echantillon?.dimension_eprouvette || "16x32";
     const parts = dimension.split("x").map(p => parseFloat(p.trim()));
-    return {
-      diameter: parts[0] || 160,
-      length: parts[1] || 320,
-    };
+    let diameter = parts[0] || 160;
+    let length = parts[1] || 320;
+    // If values seem to be in cm (< 100), convert to mm
+    if (diameter < 100) { diameter *= 10; length *= 10; }
+    return { diameter, length };
   };
 
   // Calculate density from weight for cylindrical specimen
