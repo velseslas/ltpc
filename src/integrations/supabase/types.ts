@@ -573,6 +573,78 @@ export type Database = {
           },
         ]
       }
+      client_maitres_oeuvre: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          maitre_oeuvre_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          maitre_oeuvre_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          maitre_oeuvre_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_maitres_oeuvre_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_maitres_oeuvre_maitre_oeuvre_id_fkey"
+            columns: ["maitre_oeuvre_id"]
+            isOneToOne: false
+            referencedRelation: "maitres_oeuvre"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_maitres_ouvrage: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          maitre_ouvrage_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          maitre_ouvrage_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          maitre_ouvrage_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_maitres_ouvrage_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_maitres_ouvrage_maitre_ouvrage_id_fkey"
+            columns: ["maitre_ouvrage_id"]
+            isOneToOne: false
+            referencedRelation: "maitres_ouvrage"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           adresse: string | null
