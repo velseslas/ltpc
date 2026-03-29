@@ -609,6 +609,7 @@ const AppRoutes = () => (
       <Route path="/laboratoires-mobiles/chantier/:chantierId/echantillon/:echantillonId/saisie" element={<ChantierEchantillonDataEntry />} />
       <Route path="/laboratoires-mobiles/chantier/:chantierId/echantillon/:echantillonId/rapport" element={<ChantierEchantillonReport />} />
       <Route path="/laboratoires-mobiles/chantier/:chantierId/echantillon/:echantillonId/bulletin" element={<ChantierEchantillonBulletin />} />
+      <Route path="/laboratoires-mobiles/chantier/:chantierId/etat-coulages" element={<EtatCoulages />} />
       <Route path="/materiel" element={<MaterielDashboard />} />
       <Route path="/materiel/liste" element={<MaterielListe />} />
       <Route path="/materiel/liste/nouveau" element={<MaterielListeForm />} />
