@@ -65,6 +65,24 @@ const TractionFendageDataEntry = () => {
     }
   }, [echantillon]);
 
+  // Standard K coefficients for known specimen types (K = π × D × L / 2, in mm²)
+  const STANDARD_K: Record<string, number> = {
+    "160x320": 80425,
+    "150x300": 70685,
+    "100x200": 31416,
+  };
+
+  // Get K coefficient based on specimen dimension
+  const getK = (): number => {
+    const dimension = echantillon?.dimension_eprouvette || "160x320";
+    if (STANDARD_K[dimension]) return STANDARD_K[dimension];
+    // Custom dimension: parse and calculate K = (π × D × L) / 2
+    const parts = dimension.split("x").map(p => parseFloat(p.trim()));
+    const D = parts[0] || 160;
+    const L = parts[1] || 320;
+    return (3.1416 * D * L) / 2;
+  };
+
   // Get cylinder dimensions from dimension_eprouvette (e.g., "160x320")
   const getCylinderDimensions = () => {
     const dimension = echantillon?.dimension_eprouvette || "160x320";
@@ -81,24 +99,19 @@ const TractionFendageDataEntry = () => {
     if (isNaN(weight) || weight === 0) return "";
     
     const { diameter, length } = getCylinderDimensions();
-    // Volume in mm³ = π × (d/2)² × L
-    const volumeMm3 = Math.PI * Math.pow(diameter / 2, 2) * length;
-    // Convert to cm³ (divide by 1000)
+    const volumeMm3 = 3.1416 * Math.pow(diameter / 2, 2) * length;
     const volumeCm3 = volumeMm3 / 1000;
-    // Density in t/m³ = weight(g) / volume(cm³) / 1000
     const density = weight / volumeCm3 / 1000;
     return density.toFixed(2);
   };
 
-  // Calculate resistance from charge for cylindrical specimen
+  // Calculate resistance using K coefficient: fct = P(kN) × 1000 / K
   const calculateResistance = (charge: string): string => {
     const p = parseFloat(charge);
     if (isNaN(p) || p === 0) return "";
     
-    const { diameter, length } = getCylinderDimensions();
-    // Formula for splitting tensile strength: fct = 2P / (π × d × L)
-    // P in kN (×1000 for N), d and L in mm, result in MPa
-    const fct = (2 * p * 1000) / (Math.PI * diameter * length);
+    const K = getK();
+    const fct = (p * 1000) / K;
     return fct.toFixed(2);
   };
 
