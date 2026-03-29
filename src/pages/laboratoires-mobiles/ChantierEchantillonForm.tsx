@@ -144,7 +144,14 @@ export default function ChantierEchantillonForm() {
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
-  const { data: intervenants = [] } = useIntervenants();
+  const { data: labos } = useLaboratoiresMobiles();
+
+  // Get the responsable_id (technician) assigned to this chantier's lab
+  const responsableId = useMemo(() => {
+    if (!labos || !chantierId) return null;
+    const labo = labos.find(l => l.chantier_id === chantierId);
+    return labo?.responsable_id || null;
+  }, [labos, chantierId]);
 
   // Fetch existing echantillon for edit mode
   const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
