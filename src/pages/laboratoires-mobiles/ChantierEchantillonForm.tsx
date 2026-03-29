@@ -253,7 +253,27 @@ export default function ChantierEchantillonForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Only validate eprouvette distribution
+    // Validate required fields
+    const missingFields: string[] = [];
+    if (!essaiConvenance && !ouvrage) missingFields.push("Ouvrage");
+    if (!essaiConvenance && !destinationBeton) missingFields.push("Partie de l'ouvrage");
+    if (!centraleId || centraleId === "none") missingFields.push("Centrale à béton");
+    if (!formulationId) missingFields.push("Formulation");
+    if (!operateurId || operateurId === "none") missingFields.push("Technicien");
+    if (!classeConsistance || classeConsistance === "none") missingFields.push("Classe de consistance");
+    if (!classeResistance || classeResistance === "none") missingFields.push("Classe de résistance");
+    if (!modeCoulage || modeCoulage === "none") missingFields.push("Mode de coulage");
+    if (!dateCoulage) missingFields.push("Date de coulage");
+    if (!typeEprouvette) missingFields.push("Type d'éprouvette");
+    if (!dimensionEprouvette) missingFields.push("Dimension");
+    if (!nombreEprouvettes || parseInt(nombreEprouvettes) <= 0) missingFields.push("Nombre d'éprouvettes");
+
+    if (missingFields.length > 0) {
+      toast.error(`Champs obligatoires manquants : ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Validate eprouvette distribution
     const totalEprouvettes = parseInt(nombreEprouvettes) || 0;
     if (totalEprouvettes > 0 && totalDistribue !== totalEprouvettes) {
       toast.error(
