@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
   Building2, User, Mail, Phone, MapPin, 
-  FileText, Plus, Loader2, Calendar, Trash2, Printer, Edit, LayoutGrid, Download, Factory, FileCheck, FolderOpen, ArrowLeft, Pencil
+  FileText, Plus, Loader2, Calendar, Trash2, Printer, Edit, LayoutGrid, Download, Factory, FileCheck, FolderOpen, ArrowLeft, Pencil, Landmark, HardHat
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useClient } from "@/hooks/useClients";
@@ -11,8 +11,12 @@ import { useDocumentsAdministratifsByClient, useDeleteDocumentAdministratif } fr
 import { DocumentAdministratifFormDialog } from "@/components/clients/DocumentAdministratifFormDialog";
 import { useChantiersByClient, useDeleteChantier } from "@/hooks/useChantiers";
 import { useClientCentrales, useRemoveClientCentrale, ClientCentrale } from "@/hooks/useClientCentrales";
+import { useClientMaitresOuvrage, useRemoveClientMaitreOuvrage } from "@/hooks/useClientMaitresOuvrage";
+import { useClientMaitresOeuvre, useRemoveClientMaitreOeuvre } from "@/hooks/useClientMaitresOeuvre";
 import { ContractFormDialog } from "@/components/clients/ContractFormDialog";
 import { CentraleFormDialog } from "@/components/clients/CentraleFormDialog";
+import { MoaFormDialog } from "@/components/clients/MoaFormDialog";
+import { MoeFormDialog } from "@/components/clients/MoeFormDialog";
 import { toast } from "sonner";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import {
@@ -29,27 +33,35 @@ import {
 const ClientDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"projets" | "contrats" | "dossier">("projets");
+  const [activeTab, setActiveTab] = useState<"projets" | "contrats" | "dossier" | "moa" | "moe">("projets");
   const [isContractFormOpen, setIsContractFormOpen] = useState(false);
   const [editingContrat, setEditingContrat] = useState<any>(null);
   const [isDocAdminFormOpen, setIsDocAdminFormOpen] = useState(false);
   const [editingDocAdmin, setEditingDocAdmin] = useState<any>(null);
   const [isCentraleFormOpen, setIsCentraleFormOpen] = useState(false);
   const [editingCentrale, setEditingCentrale] = useState<ClientCentrale | null>(null);
+  const [isMoaFormOpen, setIsMoaFormOpen] = useState(false);
+  const [isMoeFormOpen, setIsMoeFormOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<string | null>(null);
   const [docAdminToDelete, setDocAdminToDelete] = useState<string | null>(null);
   const [centraleToDelete, setCentraleToDelete] = useState<{ id: string; nom: string } | null>(null);
   const [chantierToDelete, setChantierToDelete] = useState<{ id: string; nom: string } | null>(null);
+  const [moaToDelete, setMoaToDelete] = useState<{ id: string; nom: string } | null>(null);
+  const [moeToDelete, setMoeToDelete] = useState<{ id: string; nom: string } | null>(null);
 
   const { data: client, isLoading: clientLoading } = useClient(id || "");
   const { data: contrats, isLoading: contratsLoading } = useContratsByClient(id || "");
   const { data: chantiers } = useChantiersByClient(id || "");
   const { data: clientCentrales } = useClientCentrales(id || "");
   const { data: docsAdmin, isLoading: docsAdminLoading } = useDocumentsAdministratifsByClient(id || "");
+  const { data: clientMoa } = useClientMaitresOuvrage(id || "");
+  const { data: clientMoe } = useClientMaitresOeuvre(id || "");
   const deleteContrat = useDeleteContrat();
   const deleteDocAdmin = useDeleteDocumentAdministratif();
   const removeClientCentrale = useRemoveClientCentrale();
   const deleteChantier = useDeleteChantier();
+  const removeMoa = useRemoveClientMaitreOuvrage();
+  const removeMoe = useRemoveClientMaitreOeuvre();
 
   // Calculate project stats
   const totalChantiers = chantiers?.length || 0;
