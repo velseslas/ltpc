@@ -31,6 +31,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
 const CONDITIONS_CURE = [
   { value: "standard", label: "Cure standard (20°C, 95% HR)" },
@@ -139,6 +140,7 @@ export default function ChantierEchantillonForm() {
   const [operateurId, setOperateurId] = useState("");
   
   const [etuvage, setEtuvage] = useState("non");
+  const [showError, setShowError] = useState(false);
 
   // Data fetching
   const { data: centrales = [] } = useCentralesBeton();
@@ -269,6 +271,7 @@ export default function ChantierEchantillonForm() {
     if (!nombreEprouvettes || parseInt(nombreEprouvettes) <= 0) missingFields.push("Nombre d'éprouvettes");
 
     if (missingFields.length > 0) {
+      setShowError(true);
       toast.error(`Champs obligatoires manquants : ${missingFields.join(", ")}`);
       return;
     }
@@ -367,6 +370,12 @@ export default function ChantierEchantillonForm() {
 
   return (
     <div className="space-y-6">
+      <EssaiBreadcrumb items={[
+        { label: "Laboratoires Mobiles", path: "/laboratoires-mobiles" },
+        { label: chantier?.nom || "Chantier", path: `/laboratoires-mobiles/chantier/${chantierId}` },
+        { label: isEditMode ? "Modifier échantillon" : "Nouvel échantillon" },
+      ]} />
+
       {/* Header avec bouton retour */}
       <div className="flex items-start gap-4">
         <Button
@@ -426,7 +435,7 @@ export default function ChantierEchantillonForm() {
                 value={ouvrage}
                 onChange={(e) => setOuvrage(e.target.value)}
                 placeholder="Ex: Bâtiment A, Pont, Tunnel..."
-                className={cn("bg-background", essaiConvenance && "opacity-50")}
+                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !ouvrage && "animate-border-blink")}
                 disabled={essaiConvenance}
               />
             </div>
@@ -439,7 +448,7 @@ export default function ChantierEchantillonForm() {
                 value={destinationBeton}
                 onChange={(e) => setDestinationBeton(e.target.value)}
                 placeholder="Ex: Dalle, Poteau, Fondation..."
-                className={cn("bg-background", essaiConvenance && "opacity-50")}
+                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !destinationBeton && "animate-border-blink")}
                 disabled={essaiConvenance}
               />
             </div>
@@ -448,7 +457,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="centrale">Centrale à béton <span className="text-red-500">*</span></Label>
               <Select value={centraleId} onValueChange={handleCentraleChange}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !centraleId && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une centrale" />
                 </SelectTrigger>
                 <SelectContent>
@@ -469,7 +478,7 @@ export default function ChantierEchantillonForm() {
                 onValueChange={setFormulationId}
                 disabled={!centraleId}
               >
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !formulationId && "animate-border-blink")}>
                   <SelectValue
                     placeholder={
                       centraleId
@@ -492,7 +501,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="operateur">Technicien <span className="text-red-500">*</span></Label>
               <Select value={operateurId} onValueChange={setOperateurId}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !operateurId && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez un technicien" />
                 </SelectTrigger>
                 <SelectContent>
@@ -514,7 +523,8 @@ export default function ChantierEchantillonForm() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal bg-background",
-                      !dateCoulage && "text-muted-foreground"
+                      !dateCoulage && "text-muted-foreground",
+                      showError && !dateCoulage && "animate-border-blink"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -583,7 +593,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="classeConsistance">Classe de consistance (Slump) <span className="text-red-500">*</span></Label>
               <Select value={classeConsistance} onValueChange={setClasseConsistance}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !classeConsistance && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -600,7 +610,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-500">*</span></Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !classeResistance && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
@@ -666,7 +676,7 @@ export default function ChantierEchantillonForm() {
                 value={nombreEprouvettes}
                 onChange={(e) => setNombreEprouvettes(e.target.value)}
                 placeholder="Ex: 6"
-                className="bg-background"
+                className={cn("bg-background", showError && (!nombreEprouvettes || parseInt(nombreEprouvettes) <= 0) && "animate-border-blink")}
               />
             </div>
 
@@ -689,7 +699,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-500">*</span></Label>
               <Select value={modeCoulage} onValueChange={setModeCoulage}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !modeCoulage && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez le mode" />
                 </SelectTrigger>
                 <SelectContent>
