@@ -302,7 +302,7 @@ export default function ChantierEchantillonForm() {
       client_id: chantier?.client_id || null,
       centrale_id: cleanValue(centraleId),
       formulation_id: cleanValue(formulationId),
-      operateur_id: cleanValue(operateurId),
+      operateur_id: responsableId,
       ouvrage: essaiConvenance ? null : (ouvrage || null),
       destination_beton: essaiConvenance ? null : (destinationBeton || null),
       condition_cure: conditionCure,
