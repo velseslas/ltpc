@@ -187,7 +187,6 @@ export default function ChantierEchantillonForm() {
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
-      setOperateurId(existingEchantillon.operateur_id || "");
       
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
