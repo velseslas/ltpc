@@ -123,13 +123,23 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
           onStatusChange={setStatusFilter}
           searchPlaceholder="Rechercher un échantillon..."
         />
-        <Button 
-          className="flex items-center gap-2"
-          onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/nouveau`)}
-        >
-          <Plus className="h-4 w-4" />
-          Nouveau échantillon
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/etat-coulages`)}
+          >
+            <ClipboardList className="h-4 w-4" />
+            État des coulages
+          </Button>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/nouveau`)}
+          >
+            <Plus className="h-4 w-4" />
+            Nouveau échantillon
+          </Button>
+        </div>
       </div>
 
       {/* Tableau des échantillons */}
