@@ -610,7 +610,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-500">*</span></Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
-                <SelectTrigger>
+                <SelectTrigger className={cn(showError && !classeResistance && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
