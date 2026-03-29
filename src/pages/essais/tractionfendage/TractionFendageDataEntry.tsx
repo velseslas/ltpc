@@ -111,7 +111,7 @@ const TractionFendageDataEntry = () => {
     if (isNaN(p) || p === 0) return "";
     
     const K = getK();
-    const fct = (p * 1000) / (K * 1000);
+    const fct = p / K;
     return fct.toFixed(2);
   };
 
