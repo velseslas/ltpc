@@ -581,13 +581,12 @@ export default function ChantierEchantillonForm() {
 
             {/* Classe de consistance */}
             <div className="space-y-2">
-              <Label htmlFor="classeConsistance">Classe de consistance (Slump)</Label>
+              <Label htmlFor="classeConsistance">Classe de consistance (Slump) <span className="text-red-500">*</span></Label>
               <Select value={classeConsistance} onValueChange={setClasseConsistance}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une classe (optionnel)" />
+                  <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">-- Aucune --</SelectItem>
                   {CLASSES_CONSISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
