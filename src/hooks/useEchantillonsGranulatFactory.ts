@@ -6,6 +6,8 @@ export interface EchantillonGranulatBase {
   id: string;
   numero: number;
   carriere_id: string | null;
+  client_id: string | null;
+  chantier_id: string | null;
   produit: string;
   date_reception: string;
   date_essai: string | null;
@@ -19,6 +21,14 @@ export interface EchantillonGranulatBase {
     id: string;
     nom: string;
     ville: string | null;
+  } | null;
+  clients?: {
+    id: string;
+    nom: string;
+  } | null;
+  chantiers?: {
+    id: string;
+    nom: string;
   } | null;
   intervenants?: {
     id: string;
