@@ -208,6 +208,8 @@ export function useUpdateEchantillonGranulatByType(essaiType: string) {
     }: {
       id: string;
       carriere_id?: string;
+      client_id?: string | null;
+      chantier_id?: string | null;
       produit?: string;
       date_reception?: string;
       statut?: string;
