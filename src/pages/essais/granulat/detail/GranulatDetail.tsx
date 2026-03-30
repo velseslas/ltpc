@@ -202,36 +202,48 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
             <CardTitle className="text-lg">Informations de l'échantillon</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
-                <p className="text-sm text-muted-foreground">N° Échantillon</p>
-                <p className="font-semibold text-foreground text-lg font-mono">
-                  <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
-                </p>
-              </div>
-              {ESSAIS_WITH_TYPE.includes(essaiType) && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Type d'essai</p>
-                  <Badge variant="outline" className="mt-1 capitalize">
-                    {((resultats?.type_essai as string) || "beton") === "beton" ? "Béton" : ((resultats?.type_essai as string) || "") === "geotechnique" ? "Géotechnique" : "Route"}
-                  </Badge>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-muted-foreground">Carrière</p>
-                <p className="font-medium text-foreground">
-                  {echantillon.carrieres?.nom || "-"}
-                </p>
-                {echantillon.carrieres?.ville && (
-                  <p className="text-sm text-muted-foreground">
-                    {echantillon.carrieres.ville}
-                  </p>
-                )}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Produit</p>
-                <p className="font-medium text-foreground">{echantillon.produit}</p>
-              </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+               <div>
+                 <p className="text-sm text-muted-foreground">N° Échantillon</p>
+                 <p className="font-semibold text-foreground text-lg font-mono">
+                   <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
+                 </p>
+               </div>
+               {ESSAIS_WITH_TYPE.includes(essaiType) && (
+                 <div>
+                   <p className="text-sm text-muted-foreground">Type d'essai</p>
+                   <Badge variant="outline" className="mt-1 capitalize">
+                     {((resultats?.type_essai as string) || "beton") === "beton" ? "Béton" : ((resultats?.type_essai as string) || "") === "geotechnique" ? "Géotechnique" : "Route"}
+                   </Badge>
+                 </div>
+               )}
+               <div>
+                 <p className="text-sm text-muted-foreground">Entreprise</p>
+                 <p className="font-medium text-foreground">
+                   {echantillon.clients?.nom || "-"}
+                 </p>
+               </div>
+               <div>
+                 <p className="text-sm text-muted-foreground">Chantier</p>
+                 <p className="font-medium text-foreground">
+                   {echantillon.chantiers?.nom || "-"}
+                 </p>
+               </div>
+               <div>
+                 <p className="text-sm text-muted-foreground">Carrière</p>
+                 <p className="font-medium text-foreground">
+                   {echantillon.carrieres?.nom || "-"}
+                 </p>
+                 {echantillon.carrieres?.ville && (
+                   <p className="text-sm text-muted-foreground">
+                     {echantillon.carrieres.ville}
+                   </p>
+                 )}
+               </div>
+               <div>
+                 <p className="text-sm text-muted-foreground">Produit</p>
+                 <p className="font-medium text-foreground">{echantillon.produit}</p>
+               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Date de réception</p>
                 <p className="font-medium text-foreground">
