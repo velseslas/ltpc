@@ -201,14 +201,16 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground w-24">N°</TableHead>
-                <TableHead className="text-muted-foreground">Carrière</TableHead>
-                <TableHead className="text-muted-foreground">Produit</TableHead>
-                <TableHead className="text-muted-foreground">Date de réception</TableHead>
-                <TableHead className="text-muted-foreground">Statut</TableHead>
-                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-              </TableRow>
+             <TableRow className="border-border hover:bg-transparent">
+                 <TableHead className="text-muted-foreground w-24">N°</TableHead>
+                 <TableHead className="text-muted-foreground">Entreprise</TableHead>
+                 <TableHead className="text-muted-foreground">Chantier</TableHead>
+                 <TableHead className="text-muted-foreground">Carrière</TableHead>
+                 <TableHead className="text-muted-foreground">Produit</TableHead>
+                 <TableHead className="text-muted-foreground">Date de réception</TableHead>
+                 <TableHead className="text-muted-foreground">Statut</TableHead>
+                 <TableHead className="text-muted-foreground text-right">Actions</TableHead>
+               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedData.map((echantillon) => (
