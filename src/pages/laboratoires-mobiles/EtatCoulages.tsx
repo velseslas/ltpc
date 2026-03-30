@@ -266,6 +266,9 @@ export default function EtatCoulages() {
             <div className="text-center mb-4">
               <p className="text-base font-bold text-black">{client?.nom || ""}</p>
               <p className="text-sm text-black">Chantier : {chantier?.nom || ""}</p>
+              <p className="text-sm text-black mt-1">
+                Période : {dateDebut ? format(dateDebut, "dd/MM/yyyy") : "—"} au {dateFin ? format(dateFin, "dd/MM/yyyy") : "—"}
+              </p>
             </div>
 
             {/* Filters summary */}
