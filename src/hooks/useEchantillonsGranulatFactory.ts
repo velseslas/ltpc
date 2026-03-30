@@ -140,6 +140,14 @@ export function useEchantillonGranulatById(essaiType: string, id: string | undef
             nom,
             ville
           ),
+          clients (
+            id,
+            nom
+          ),
+          chantiers (
+            id,
+            nom
+          ),
           intervenants (
             id,
             nom,
