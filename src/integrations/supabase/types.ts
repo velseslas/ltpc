@@ -1018,6 +1018,8 @@ export type Database = {
       echantillons_bleu_methylene: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -1032,6 +1034,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1046,6 +1050,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1064,6 +1070,20 @@ export type Database = {
             columns: ["carriere_id"]
             isOneToOne: false
             referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_bleu_methylene_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_bleu_methylene_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
           {
@@ -1661,6 +1681,8 @@ export type Database = {
       echantillons_ecrasement: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -1675,6 +1697,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1689,6 +1713,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1710,6 +1736,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_ecrasement_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_ecrasement_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_ecrasement_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -1721,6 +1761,8 @@ export type Database = {
       echantillons_equivalent_sable: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -1735,6 +1777,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1749,6 +1793,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1770,6 +1816,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_equivalent_sable_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_equivalent_sable_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_equivalent_sable_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -1781,6 +1841,8 @@ export type Database = {
       echantillons_forme_granulats: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -1795,6 +1857,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1809,6 +1873,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1830,6 +1896,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_forme_granulats_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_forme_granulats_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_forme_granulats_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -1841,6 +1921,8 @@ export type Database = {
       echantillons_friabilite: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -1855,6 +1937,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1869,6 +1953,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1890,6 +1976,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_friabilite_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_friabilite_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_friabilite_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -1901,6 +2001,8 @@ export type Database = {
       echantillons_granulometrie: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -1915,6 +2017,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1929,6 +2033,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -1947,6 +2053,20 @@ export type Database = {
             columns: ["carriere_id"]
             isOneToOne: false
             referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_granulometrie_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_granulometrie_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
           {
@@ -2127,6 +2247,8 @@ export type Database = {
       echantillons_los_angeles: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -2141,6 +2263,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2155,6 +2279,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2176,6 +2302,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_los_angeles_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_los_angeles_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_los_angeles_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2187,6 +2327,8 @@ export type Database = {
       echantillons_masse_volumique: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -2201,6 +2343,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2215,6 +2359,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2236,6 +2382,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_masse_volumique_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_masse_volumique_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_masse_volumique_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2247,6 +2407,8 @@ export type Database = {
       echantillons_matiere_organique: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -2261,6 +2423,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2275,6 +2439,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2296,6 +2462,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "echantillons_matiere_organique_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_matiere_organique_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "echantillons_matiere_organique_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2307,6 +2487,8 @@ export type Database = {
       echantillons_micro_deval: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -2321,6 +2503,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2335,6 +2519,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -2353,6 +2539,20 @@ export type Database = {
             columns: ["carriere_id"]
             isOneToOne: false
             referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_micro_deval_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_micro_deval_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
           {
@@ -3509,6 +3709,8 @@ export type Database = {
       echantillons_teneur_eau: {
         Row: {
           carriere_id: string | null
+          chantier_id: string | null
+          client_id: string | null
           created_at: string
           date_essai: string | null
           date_reception: string
@@ -3523,6 +3725,8 @@ export type Database = {
         }
         Insert: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -3537,6 +3741,8 @@ export type Database = {
         }
         Update: {
           carriere_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
           created_at?: string
           date_essai?: string | null
           date_reception?: string
@@ -3555,6 +3761,20 @@ export type Database = {
             columns: ["carriere_id"]
             isOneToOne: false
             referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_teneur_eau_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_teneur_eau_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
           {
