@@ -209,6 +209,18 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Type d'essai</td>
                 <td className="border border-black px-3 py-1.5 text-black font-semibold">{essaiTitle}</td>
               </tr>
+              {echantillon.clients?.nom && (
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Entreprise</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients.nom}</td>
+                </tr>
+              )}
+              {echantillon.chantiers?.nom && (
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers.nom}</td>
+                </tr>
+              )}
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Carrière / Fournisseur</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.carrieres?.nom || "-"}</td>
