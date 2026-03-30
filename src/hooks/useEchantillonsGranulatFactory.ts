@@ -172,6 +172,8 @@ export function useCreateEchantillonGranulatByType(essaiType: string) {
   return useMutation({
     mutationFn: async (echantillon: {
       carriere_id?: string;
+      client_id?: string | null;
+      chantier_id?: string | null;
       produit: string;
       date_reception: string;
       statut?: string;
