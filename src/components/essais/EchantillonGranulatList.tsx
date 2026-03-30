@@ -219,18 +219,24 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                   className="border-border hover:bg-muted/50 cursor-pointer"
                   onClick={() => navigate(`${basePath}/${echantillon.id}`)}
                 >
-                  <TableCell className="font-medium text-foreground font-mono">
-                    <span className="text-primary">{getPrefix(essaiType)}{getTypeSuffix(echantillon, essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {echantillon.carrieres?.nom || "-"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {echantillon.produit}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
-                  </TableCell>
+                   <TableCell className="font-medium text-foreground font-mono">
+                     <span className="text-primary">{getPrefix(essaiType)}{getTypeSuffix(echantillon, essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.clients?.nom || "-"}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.chantiers?.nom || "-"}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.carrieres?.nom || "-"}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.produit}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
+                   </TableCell>
                   <TableCell>
                     {getStatutBadge(echantillon.statut)}
                   </TableCell>
