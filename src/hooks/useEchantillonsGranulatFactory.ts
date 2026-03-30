@@ -102,6 +102,14 @@ export function useEchantillonsGranulatByType(essaiType: string) {
             nom,
             ville
           ),
+          clients (
+            id,
+            nom
+          ),
+          chantiers (
+            id,
+            nom
+          ),
           intervenants (
             id,
             nom,
