@@ -28,6 +28,8 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useCarrieres } from "@/hooks/useCarrieres";
 import { useProduits } from "@/hooks/useProduits";
 import { useIntervenants } from "@/hooks/useIntervenants";
+import { useClients } from "@/hooks/useClients";
+import { useChantiersByClient } from "@/hooks/useChantiers";
 import { 
   useEchantillonGranulatById,
   useCreateEchantillonGranulatByType, 
@@ -51,6 +53,8 @@ const breadcrumbCategoryConfig: Record<string, { categoryPath: string; categoryL
 };
 
 const formSchema = z.object({
+  client_id: z.string().optional(),
+  chantier_id: z.string().optional(),
   carriere_id: z.string().min(1, "Sélectionnez une carrière"),
   produit: z.string().min(1, "Sélectionnez un produit"),
   operateur_id: z.string().optional(),
@@ -74,6 +78,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
 
   const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
   const { data: intervenants } = useIntervenants();
+  const { data: clients } = useClients();
   const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGranulatById(essaiType, id);
   
   const createEchantillon = useCreateEchantillonGranulatByType(essaiType);
@@ -82,6 +87,8 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      client_id: "",
+      chantier_id: "",
       carriere_id: "",
       produit: "",
       operateur_id: "",
@@ -91,17 +98,20 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
     },
   });
 
+  const selectedClientId = form.watch("client_id");
   const selectedCarriereId = form.watch("carriere_id");
+  const { data: chantiers } = useChantiersByClient(selectedClientId || "");
   const { data: produits, isLoading: produitsLoading } = useProduits(selectedCarriereId, "carriere");
   
   // Track if form has been initialized with edit data
   const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [lastCarriereId, setLastCarriereId] = useState("");
+  const [lastClientId, setLastClientId] = useState("");
   const [isPreFilling, setIsPreFilling] = useState(false);
   const [initStep, setInitStep] = useState(0);
   const [pendingProduit, setPendingProduit] = useState<string | null>(null);
 
-  // Reset produit when carriere changes (only after form is initialized and carriere actually changed)
+  // Reset produit when carriere changes (only after form is initialized)
   useEffect(() => {
     if (isFormInitialized && selectedCarriereId && selectedCarriereId !== lastCarriereId && initStep === 0) {
       form.setValue("produit", "");
@@ -109,13 +119,22 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
     }
   }, [selectedCarriereId, form, isFormInitialized, lastCarriereId, initStep]);
 
+  // Reset chantier when client changes (only after form is initialized)
+  useEffect(() => {
+    if (isFormInitialized && selectedClientId !== lastClientId && initStep === 0) {
+      form.setValue("chantier_id", "");
+      setLastClientId(selectedClientId || "");
+    }
+  }, [selectedClientId, form, isFormInitialized, lastClientId, initStep]);
+
   // Multi-step initialization for edit mode
   useEffect(() => {
     if (echantillon && isEditing && !isFormInitialized) {
       setIsPreFilling(true);
       
-      // Step 1: Set the carriere_id first
       if (initStep === 0) {
+        form.setValue("client_id", (echantillon as any).client_id || "");
+        setLastClientId((echantillon as any).client_id || "");
         form.setValue("carriere_id", echantillon.carriere_id || "");
         setLastCarriereId(echantillon.carriere_id || "");
         setPendingProduit(echantillon.produit);
@@ -127,11 +146,10 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   // Step 2: Wait for products to load, then set the produit
   useEffect(() => {
     if (initStep === 1 && pendingProduit && !produitsLoading && produits) {
-      // Small delay to ensure the select is ready
       const timer = setTimeout(() => {
         form.setValue("produit", pendingProduit);
+        form.setValue("chantier_id", (echantillon as any)?.chantier_id || "");
         
-        // Set remaining fields
         if (echantillon) {
           form.setValue("date_reception", echantillon.date_reception);
           form.setValue("date_essai", (echantillon as any).date_essai || "");
@@ -152,6 +170,8 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const onSubmit = async (values: FormValues) => {
     try {
       const data = {
+        client_id: values.client_id || null,
+        chantier_id: values.chantier_id || null,
         carriere_id: values.carriere_id,
         produit: values.produit,
         operateur_id: values.operateur_id || null,
@@ -221,6 +241,72 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Entreprise (Client) */}
+                <FormField
+                  control={form.control}
+                  name="client_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Entreprise</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border">
+                            <SelectValue placeholder="Sélectionnez une entreprise" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-popover border-border">
+                          {clients?.map((client) => (
+                            <SelectItem key={client.id} value={client.id}>
+                              {client.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Chantier filtered by client */}
+                <FormField
+                  control={form.control}
+                  name="chantier_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Chantier</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value}
+                        disabled={!selectedClientId}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border">
+                            <SelectValue placeholder={
+                              !selectedClientId 
+                                ? "Sélectionnez d'abord une entreprise" 
+                                : "Sélectionnez un chantier"
+                            } />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-popover border-border">
+                          {chantiers?.length === 0 ? (
+                            <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                              Aucun chantier pour cette entreprise
+                            </div>
+                          ) : (
+                            chantiers?.map((chantier) => (
+                              <SelectItem key={chantier.id} value={chantier.id}>
+                                {chantier.nom}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="carriere_id"

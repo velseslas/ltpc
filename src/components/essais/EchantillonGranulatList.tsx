@@ -201,14 +201,16 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground w-24">N°</TableHead>
-                <TableHead className="text-muted-foreground">Carrière</TableHead>
-                <TableHead className="text-muted-foreground">Produit</TableHead>
-                <TableHead className="text-muted-foreground">Date de réception</TableHead>
-                <TableHead className="text-muted-foreground">Statut</TableHead>
-                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-              </TableRow>
+             <TableRow className="border-border hover:bg-transparent">
+                 <TableHead className="text-muted-foreground w-24">N°</TableHead>
+                 <TableHead className="text-muted-foreground">Entreprise</TableHead>
+                 <TableHead className="text-muted-foreground">Chantier</TableHead>
+                 <TableHead className="text-muted-foreground">Carrière</TableHead>
+                 <TableHead className="text-muted-foreground">Produit</TableHead>
+                 <TableHead className="text-muted-foreground">Date de réception</TableHead>
+                 <TableHead className="text-muted-foreground">Statut</TableHead>
+                 <TableHead className="text-muted-foreground text-right">Actions</TableHead>
+               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedData.map((echantillon) => (
@@ -217,18 +219,24 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                   className="border-border hover:bg-muted/50 cursor-pointer"
                   onClick={() => navigate(`${basePath}/${echantillon.id}`)}
                 >
-                  <TableCell className="font-medium text-foreground font-mono">
-                    <span className="text-primary">{getPrefix(essaiType)}{getTypeSuffix(echantillon, essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {echantillon.carrieres?.nom || "-"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {echantillon.produit}
-                  </TableCell>
-                  <TableCell className="text-foreground">
-                    {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
-                  </TableCell>
+                   <TableCell className="font-medium text-foreground font-mono">
+                     <span className="text-primary">{getPrefix(essaiType)}{getTypeSuffix(echantillon, essaiType)}</span>-{String(echantillon.numero).padStart(3, "0")}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.clients?.nom || "-"}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.chantiers?.nom || "-"}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.carrieres?.nom || "-"}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {echantillon.produit}
+                   </TableCell>
+                   <TableCell className="text-foreground">
+                     {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
+                   </TableCell>
                   <TableCell>
                     {getStatutBadge(echantillon.statut)}
                   </TableCell>
@@ -293,12 +301,12 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                   </TableCell>
                 </TableRow>
               ))}
-              {paginatedData.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    Aucun échantillon trouvé
-                  </TableCell>
-                </TableRow>
+               {paginatedData.length === 0 && (
+                 <TableRow>
+                   <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                     Aucun échantillon trouvé
+                   </TableCell>
+                 </TableRow>
               )}
             </TableBody>
           </Table>

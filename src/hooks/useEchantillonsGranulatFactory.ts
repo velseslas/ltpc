@@ -6,6 +6,8 @@ export interface EchantillonGranulatBase {
   id: string;
   numero: number;
   carriere_id: string | null;
+  client_id: string | null;
+  chantier_id: string | null;
   produit: string;
   date_reception: string;
   date_essai: string | null;
@@ -19,6 +21,14 @@ export interface EchantillonGranulatBase {
     id: string;
     nom: string;
     ville: string | null;
+  } | null;
+  clients?: {
+    id: string;
+    nom: string;
+  } | null;
+  chantiers?: {
+    id: string;
+    nom: string;
   } | null;
   intervenants?: {
     id: string;
@@ -92,6 +102,14 @@ export function useEchantillonsGranulatByType(essaiType: string) {
             nom,
             ville
           ),
+          clients (
+            id,
+            nom
+          ),
+          chantiers (
+            id,
+            nom
+          ),
           intervenants (
             id,
             nom,
@@ -122,6 +140,14 @@ export function useEchantillonGranulatById(essaiType: string, id: string | undef
             nom,
             ville
           ),
+          clients (
+            id,
+            nom
+          ),
+          chantiers (
+            id,
+            nom
+          ),
           intervenants (
             id,
             nom,
@@ -146,6 +172,8 @@ export function useCreateEchantillonGranulatByType(essaiType: string) {
   return useMutation({
     mutationFn: async (echantillon: {
       carriere_id?: string;
+      client_id?: string | null;
+      chantier_id?: string | null;
       produit: string;
       date_reception: string;
       statut?: string;
@@ -180,6 +208,8 @@ export function useUpdateEchantillonGranulatByType(essaiType: string) {
     }: {
       id: string;
       carriere_id?: string;
+      client_id?: string | null;
+      chantier_id?: string | null;
       produit?: string;
       date_reception?: string;
       statut?: string;
