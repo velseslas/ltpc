@@ -101,6 +101,7 @@ import GranulatDetail from "./pages/essais/granulat/detail/GranulatDetail";
 import GranulatReport from "./pages/essais/granulat/rapport/GranulatReport";
 import EtatEssaisGranulat from "./pages/essais/granulat/EtatEssaisGranulat";
 import EtatEssaisBetonFrais from "./pages/essais/betonfrais/EtatEssaisBetonFrais";
+import EtatEssaisBetonDurci from "./pages/essais/betondurci/EtatEssaisBetonDurci";
 import BetonFrais from "./pages/essais/BetonFrais";
 import BetonDurci from "./pages/essais/BetonDurci";
 import CompressionTest from "./pages/essais/CompressionTest";
