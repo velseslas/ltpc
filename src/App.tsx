@@ -466,8 +466,9 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/compactage/proctor-normal" element={<ProctorNormal />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/nouveau" element={<EchantillonGeotechniqueForm essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/:id" element={<GeotechniqueDetail essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
-      <Route path="/essais/geotechnique/compactage/proctor-normal/:id/saisie" element={<GeotechniqueDataEntry essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-normal/:id/saisie" element={<ProctorDataEntry essaiType="proctor-normal" />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-normal/:id/rapport" element={<ProctorReport essaiType="proctor-normal" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie" element={<ProctorModifie />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/nouveau" element={<EchantillonGeotechniqueForm essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/:id" element={<GeotechniqueDetail essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
