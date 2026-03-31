@@ -156,6 +156,7 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                   </TableCell>
                   <TableCell className="text-foreground">{echantillon.clients?.nom || "-"}</TableCell>
                   <TableCell className="text-foreground">{echantillon.chantiers?.nom || "-"}</TableCell>
+                  <TableCell className="text-foreground">{echantillon.carrieres?.nom || "-"}</TableCell>
                   <TableCell className="text-foreground">{echantillon.type_sol}</TableCell>
                   <TableCell className="text-foreground">
                     {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
