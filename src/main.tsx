@@ -73,7 +73,9 @@ function installAuthLockFallback() {
   const patchedRequest = async (...args: unknown[]) => {
     const name = typeof args[0] === "string" ? args[0] : null;
     const hasOptions = isLockOptions(args[1]);
-    const options = hasOptions ? args[1] : undefined;
+    const options: LockRequestOptions | undefined = hasOptions
+      ? (args[1] as LockRequestOptions)
+      : undefined;
     const callbackCandidate = hasOptions ? args[2] : args[1];
     const callback =
       typeof callbackCandidate === "function"
