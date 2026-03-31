@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext, ReactNode } from "react";
+import { useEffect, useState, createContext, useContext, ReactNode, useMemo } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,30 +20,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let authEventReceived = false;
 
-    // Restore session from storage FIRST
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
+    const applySession = (nextSession: Session | null) => {
+      if (!mounted) return;
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setIsLoading(false);
+    };
+
+    const syncAutoRefresh = () => {
+      if (typeof document === "undefined") {
+        supabase.auth.startAutoRefresh();
+        return;
       }
+
+      if (document.visibilityState === "visible") {
+        supabase.auth.startAutoRefresh();
+      } else {
+        supabase.auth.stopAutoRefresh();
+      }
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      authEventReceived = true;
+      applySession(nextSession);
     });
 
-    // THEN listen for subsequent auth changes (sign in/out/token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+    void supabase.auth
+      .getSession()
+      .then(({ data: { session: initialSession } }) => {
+        if (authEventReceived) return;
+        applySession(initialSession);
+      })
+      .catch(() => {
         if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
           setIsLoading(false);
         }
-      }
-    );
+      });
+
+    syncAutoRefresh();
+    document.addEventListener("visibilitychange", syncAutoRefresh);
+    window.addEventListener("focus", syncAutoRefresh);
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", syncAutoRefresh);
+      window.removeEventListener("focus", syncAutoRefresh);
+      supabase.auth.stopAutoRefresh();
     };
   }, []);
 
@@ -57,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, metadata?: { nom?: string; prenom?: string }) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -73,11 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
-  return (
-    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ user, session, isLoading, signIn, signUp, signOut }),
+    [user, session, isLoading],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

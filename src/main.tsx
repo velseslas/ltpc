@@ -1,6 +1,64 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
 
+type LockRequestOptions = {
+  mode?: "exclusive" | "shared";
+  ifAvailable?: boolean;
+  steal?: boolean;
+  signal?: AbortSignal;
+};
+
+type LockRequestCallback = (
+  lock: Lock | { name: string; mode: "exclusive" | "shared" } | null,
+) => unknown | Promise<unknown>;
+
+const fallbackLockQueue = new Map<string, Promise<void>>();
+
+function isLockOptions(value: unknown): value is LockRequestOptions {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function runWithFallbackLock(
+  name: string,
+  options: LockRequestOptions | undefined,
+  callback: LockRequestCallback,
+) {
+  if (options?.signal?.aborted) {
+    throw new DOMException("The operation was aborted.", "AbortError");
+  }
+
+  const pendingLock = fallbackLockQueue.get(name);
+  if (options?.ifAvailable && pendingLock) {
+    return await callback(null);
+  }
+
+  const previous = pendingLock ?? Promise.resolve();
+  let release: (() => void) | undefined;
+
+  const current = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+
+  const chain = previous.catch(() => undefined).then(() => current);
+  fallbackLockQueue.set(name, chain);
+
+  await previous.catch(() => undefined);
+
+  try {
+    return await callback({
+      name,
+      mode: options?.mode ?? "exclusive",
+    });
+  } finally {
+    release?.();
+    void chain.finally(() => {
+      if (fallbackLockQueue.get(name) === chain) {
+        fallbackLockQueue.delete(name);
+      }
+    });
+  }
+}
+
 function installAuthLockFallback() {
   if (typeof navigator === "undefined") return;
 
@@ -13,22 +71,40 @@ function installAuthLockFallback() {
   const originalRequest = locks.request.bind(locks);
 
   const patchedRequest = async (...args: unknown[]) => {
-    try {
+    const name = typeof args[0] === "string" ? args[0] : null;
+    const hasOptions = isLockOptions(args[1]);
+    const options: LockRequestOptions | undefined = hasOptions
+      ? (args[1] as LockRequestOptions)
+      : undefined;
+    const callbackCandidate = hasOptions ? args[2] : args[1];
+    const callback =
+      typeof callbackCandidate === "function"
+        ? (callbackCandidate as LockRequestCallback)
+        : null;
+
+    if (!name || !callback) {
       return await originalRequest(...args);
+    }
+
+    const wrappedCallback: LockRequestCallback = async (lock) => {
+      if (lock !== null || options?.ifAvailable) {
+        return await callback(lock);
+      }
+
+      return await runWithFallbackLock(name, options, callback);
+    };
+
+    try {
+      return hasOptions
+        ? await originalRequest(name, options, wrappedCallback)
+        : await originalRequest(name, wrappedCallback);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (!message.includes("request() is not allowed in this context")) {
         throw error;
       }
 
-      const callback =
-        typeof args[1] === "function"
-          ? (args[1] as (lock: unknown) => unknown | Promise<unknown>)
-          : typeof args[2] === "function"
-            ? (args[2] as (lock: unknown) => unknown | Promise<unknown>)
-            : null;
-
-      return callback ? await callback(null) : undefined;
+      return await runWithFallbackLock(name, options, callback);
     }
   };
 
