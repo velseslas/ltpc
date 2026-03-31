@@ -172,9 +172,9 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
           />
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="border-border">
+          <Button variant="outline" className="border-border" onClick={() => navigate(`/essais/granulat/etat-essais?type=${essaiType}&back=${encodeURIComponent(basePath)}`)}>
             <FileText className="w-4 h-4 mr-2" />
-            Générer état
+            État des essais
           </Button>
           <Button 
             className="gradient-primary text-primary-foreground"
