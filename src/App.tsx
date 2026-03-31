@@ -142,6 +142,12 @@ import PermeabiliteReport from "./pages/essais/permeabilite/PermeabiliteReport";
 import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
+// Destructif - Carottage
+import CarottageTest from "./pages/essais/destructif/CarottageTest";
+import CarottageSampleForm from "./pages/essais/destructif/CarottageSampleForm";
+import CarottageDetail from "./pages/essais/destructif/CarottageDetail";
+import CarottageDataEntry from "./pages/essais/destructif/CarottageDataEntry";
+import CarottageReport from "./pages/essais/destructif/CarottageReport";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
 // Non Destructif - Scléromètre
 import SclerometreTest from "./pages/essais/nondestructif/SclerometreTest";
