@@ -99,6 +99,7 @@ import EchantillonGranulatForm from "./pages/essais/granulat/EchantillonGranulat
 import GranulatDataEntry from "./pages/essais/granulat/saisie/GranulatDataEntry";
 import GranulatDetail from "./pages/essais/granulat/detail/GranulatDetail";
 import GranulatReport from "./pages/essais/granulat/rapport/GranulatReport";
+import EtatEssaisGranulat from "./pages/essais/granulat/EtatEssaisGranulat";
 import BetonFrais from "./pages/essais/BetonFrais";
 import BetonDurci from "./pages/essais/BetonDurci";
 import CompressionTest from "./pages/essais/CompressionTest";
