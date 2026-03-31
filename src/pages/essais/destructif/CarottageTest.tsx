@@ -8,7 +8,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
+import { ArrowLeft, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart, FileText } from "lucide-react";
 import { useEchantillonsCarottage, useDeleteEchantillonCarottage, CarottageWithRelations } from "@/hooks/useEchantillonsCarottage";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -89,9 +89,14 @@ const CarottageTest = () => {
             statusFilter={statusFilter} onStatusChange={setStatusFilter}
           />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => navigate("/essais/beton/destructif/carottage/nouveau")}>
-          <Plus className="h-4 w-4" /> Nouveau échantillon
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate("/essais/beton/destructif/carottage/etat-essais")}>
+            <FileText className="h-4 w-4" /> État des essais
+          </Button>
+          <Button className="flex items-center gap-2" onClick={() => navigate("/essais/beton/destructif/carottage/nouveau")}>
+            <Plus className="h-4 w-4" /> Nouveau échantillon
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
