@@ -113,7 +113,9 @@ function normalizeStoredAuthSession() {
     if (parsed && typeof parsed === "object" && "currentSession" in parsed) {
       const nextValue = {
         ...parsed,
-        currentSession: normalizeSessionExpiry(parsed.currentSession ?? null),
+        currentSession: normalizeSessionExpiry(
+          (parsed as { currentSession?: SessionLike | null }).currentSession ?? null,
+        ),
       };
       window.localStorage.setItem(storageKey, JSON.stringify(nextValue));
       return;
