@@ -48,9 +48,9 @@ interface EchantillonGeotechniqueFormProps {
 }
 
 // Types that show carriere field (not densitometre)
-const TYPES_WITH_CARRIERE = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol"];
+const TYPES_WITH_CARRIERE = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "proctor-normal", "proctor-modifie", "cbr"];
 // Types that show date_essai field
-const TYPES_WITH_DATE_ESSAI = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre"];
+const TYPES_WITH_DATE_ESSAI = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre", "proctor-normal", "proctor-modifie", "cbr"];
 
 export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, basePath, categoryPath: propCategoryPath, categoryLabel: propCategoryLabel }: EchantillonGeotechniqueFormProps) {
   const navigate = useNavigate();

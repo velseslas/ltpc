@@ -196,11 +196,13 @@ export default function CBRDataEntry() {
       <Card className="border-border bg-card">
         <CardHeader><CardTitle className="text-lg">Informations Échantillon</CardTitle></CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div><p className="text-sm text-muted-foreground">Client</p><p className="font-medium text-foreground">{echantillon.clients?.nom || "-"}</p></div>
             <div><p className="text-sm text-muted-foreground">Chantier</p><p className="font-medium text-foreground">{echantillon.chantiers?.nom || "-"}</p></div>
+            <div><p className="text-sm text-muted-foreground">Carrière</p><p className="font-medium text-foreground">{(echantillon as any).carrieres?.nom || "-"}</p></div>
             <div><p className="text-sm text-muted-foreground">Type de sol</p><p className="font-medium text-foreground">{echantillon.type_sol}</p></div>
-            <div><p className="text-sm text-muted-foreground">Date</p><p className="font-medium text-foreground">{format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p></div>
+            <div><p className="text-sm text-muted-foreground">Date de prélèvement</p><p className="font-medium text-foreground">{format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p></div>
+            <div><p className="text-sm text-muted-foreground">Date d'essai</p><p className="font-medium text-foreground">{(echantillon as any).date_essai ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr }) : "-"}</p></div>
           </div>
         </CardContent>
       </Card>
