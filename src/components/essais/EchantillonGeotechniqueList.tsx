@@ -137,6 +137,7 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                 <TableHead className="text-muted-foreground w-24">N°</TableHead>
                 <TableHead className="text-muted-foreground">Client</TableHead>
                 <TableHead className="text-muted-foreground">Chantier</TableHead>
+                <TableHead className="text-muted-foreground">Carrière</TableHead>
                 <TableHead className="text-muted-foreground">Type de sol</TableHead>
                 <TableHead className="text-muted-foreground">Date</TableHead>
                 <TableHead className="text-muted-foreground">Statut</TableHead>
