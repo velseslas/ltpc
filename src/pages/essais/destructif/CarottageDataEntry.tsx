@@ -69,20 +69,20 @@ const CarottageDataEntry = () => {
     const updated = [...results];
     updated[idx] = { ...updated[idx], [field]: value };
 
-    // Auto-calculate resistance if charge and diameter are present
+    // Auto-calculate resistance: F(kN) * 1000 / A(mm²) = MPa
     const charge = parseFloat(updated[idx].charge_rupture);
     const diam = parseFloat(updated[idx].diametre);
     if (!isNaN(charge) && !isNaN(diam) && diam > 0) {
-      const area = (Math.PI * diam * diam) / 4;
-      updated[idx].resistance = (charge / area).toFixed(2);
+      const area = (Math.PI * diam * diam) / 4; // mm²
+      updated[idx].resistance = ((charge * 1000) / area).toFixed(2); // kN→N / mm² = MPa
     }
 
-    // Auto-calculate masse volumique
+    // Auto-calculate masse volumique: masse(g) / volume(mm³) * 1e6 = kg/m³
     const masse = parseFloat(updated[idx].masse);
     const longueur = parseFloat(updated[idx].longueur_apres);
     if (!isNaN(masse) && !isNaN(diam) && !isNaN(longueur) && diam > 0 && longueur > 0) {
-      const volume = (Math.PI * (diam / 2) ** 2 * longueur) / 1e6; // cm³ to dm³
-      updated[idx].masse_volumique = ((masse / 1000) / (volume / 1000)).toFixed(0); // kg/m³
+      const volume_mm3 = (Math.PI * (diam / 2) ** 2 * longueur); // mm³
+      updated[idx].masse_volumique = ((masse / volume_mm3) * 1e6).toFixed(0); // kg/m³
     }
 
     setResults(updated);
