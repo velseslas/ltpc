@@ -72,6 +72,10 @@ import DensitometreReport from "./pages/essais/geotechnique/insitu/DensitometreR
 import EchantillonGeotechniqueForm from "./pages/essais/geotechnique/EchantillonGeotechniqueForm";
 import GeotechniqueDetail from "./pages/essais/geotechnique/GeotechniqueDetail";
 import GeotechniqueDataEntry from "./pages/essais/geotechnique/GeotechniqueDataEntry";
+import ProctorDataEntry from "./pages/essais/geotechnique/compactage/ProctorDataEntry";
+import ProctorReport from "./pages/essais/geotechnique/compactage/ProctorReport";
+import CBRDataEntry from "./pages/essais/geotechnique/compactage/CBRDataEntry";
+import CBRReport from "./pages/essais/geotechnique/compactage/CBRReport";
 import LimitesAtterbergDataEntry from "./pages/essais/geotechnique/identification/LimitesAtterbergDataEntry";
 import LimitesAtterbergReport from "./pages/essais/geotechnique/identification/LimitesAtterbergReport";
 import IdentificationNormes from "./pages/essais/geotechnique/normes/IdentificationNormes";
