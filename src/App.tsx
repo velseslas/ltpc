@@ -472,8 +472,9 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/compactage/proctor-modifie" element={<ProctorModifie />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/nouveau" element={<EchantillonGeotechniqueForm essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/:id" element={<GeotechniqueDetail essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
-      <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/saisie" element={<GeotechniqueDataEntry essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/saisie" element={<ProctorDataEntry essaiType="proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/rapport" element={<ProctorReport essaiType="proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/cbr" element={<CBR />} />
       <Route path="/essais/geotechnique/compactage/cbr/nouveau" element={<EchantillonGeotechniqueForm essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" />} />
       <Route path="/essais/geotechnique/compactage/cbr/:id" element={<GeotechniqueDetail essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
