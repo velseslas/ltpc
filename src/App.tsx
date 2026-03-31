@@ -478,8 +478,9 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/compactage/cbr" element={<CBR />} />
       <Route path="/essais/geotechnique/compactage/cbr/nouveau" element={<EchantillonGeotechniqueForm essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" />} />
       <Route path="/essais/geotechnique/compactage/cbr/:id" element={<GeotechniqueDetail essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
-      <Route path="/essais/geotechnique/compactage/cbr/:id/saisie" element={<GeotechniqueDataEntry essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
+      <Route path="/essais/geotechnique/compactage/cbr/:id/saisie" element={<CBRDataEntry />} />
       <Route path="/essais/geotechnique/compactage/cbr/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" />} />
+      <Route path="/essais/geotechnique/compactage/cbr/:id/rapport" element={<CBRReport />} />
       <Route path="/essais/geotechnique/compactage/densite-place" element={<DensitePlace />} />
       <Route path="/essais/geotechnique/compactage/densite-place/nouveau" element={<EchantillonGeotechniqueForm essaiType="densite-place" essaiTitle="Densité en Place" basePath="/essais/geotechnique/compactage/densite-place" />} />
       <Route path="/essais/geotechnique/compactage/densite-place/:id" element={<GeotechniqueDetail essaiType="densite-place" essaiTitle="Densité en Place" basePath="/essais/geotechnique/compactage/densite-place" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
