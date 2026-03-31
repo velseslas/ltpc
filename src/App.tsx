@@ -101,6 +101,7 @@ import GranulatDetail from "./pages/essais/granulat/detail/GranulatDetail";
 import GranulatReport from "./pages/essais/granulat/rapport/GranulatReport";
 import EtatEssaisGranulat from "./pages/essais/granulat/EtatEssaisGranulat";
 import EtatEssaisBetonFrais from "./pages/essais/betonfrais/EtatEssaisBetonFrais";
+import EtatEssaisBetonDurci from "./pages/essais/betondurci/EtatEssaisBetonDurci";
 import BetonFrais from "./pages/essais/BetonFrais";
 import BetonDurci from "./pages/essais/BetonDurci";
 import CompressionTest from "./pages/essais/CompressionTest";
@@ -556,6 +557,7 @@ const AppRoutes = () => (
       <Route path="/essais/beton/beton-frais/teneur-air/:id/rapport" element={<BetonFraisReport essaiType="teneur-air" essaiTitle="Teneur en Air" normRef="Norme NF EN 12350-7" basePath="/essais/beton/beton-frais/teneur-air" />} />
       <Route path="/essais/beton/beton-durci" element={<BetonDurci />} />
       <Route path="/essais/beton/beton-durci/normes" element={<BetonDurciNormes />} />
+      <Route path="/essais/beton/beton-durci/etat-essais" element={<EtatEssaisBetonDurci />} />
       <Route path="/essais/beton/beton-durci/compression" element={<CompressionTest />} />
       <Route path="/essais/beton/beton-durci/compression/nouveau" element={<CompressionSampleForm />} />
       <Route path="/essais/beton/beton-durci/compression/:id/saisie" element={<CompressionDataEntry />} />
