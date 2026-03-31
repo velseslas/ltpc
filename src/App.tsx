@@ -148,6 +148,7 @@ import CarottageSampleForm from "./pages/essais/destructif/CarottageSampleForm";
 import CarottageDetail from "./pages/essais/destructif/CarottageDetail";
 import CarottageDataEntry from "./pages/essais/destructif/CarottageDataEntry";
 import CarottageReport from "./pages/essais/destructif/CarottageReport";
+import EtatEssaisCarottage from "./pages/essais/destructif/EtatEssaisCarottage";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
 // Non Destructif - Scléromètre
 import SclerometreTest from "./pages/essais/nondestructif/SclerometreTest";
