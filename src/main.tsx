@@ -12,10 +12,118 @@ type LockRequestCallback = (
   lock: Lock | { name: string; mode: "exclusive" | "shared" } | null,
 ) => unknown | Promise<unknown>;
 
+type SessionLike = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_at?: number;
+  expires_in?: number;
+  [key: string]: unknown;
+};
+
 const fallbackLockQueue = new Map<string, Promise<void>>();
 
 function isLockOptions(value: unknown): value is LockRequestOptions {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function decodeJwtPayload(token?: string) {
+  if (!token) return null;
+
+  try {
+    const [, payload] = token.split(".");
+    if (!payload) return null;
+
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const normalized = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    return JSON.parse(atob(normalized)) as { exp?: number; iat?: number };
+  } catch {
+    return null;
+  }
+}
+
+function normalizeSessionExpiry<T extends SessionLike | null>(session: T): T {
+  if (!session) return session;
+
+  const payload = decodeJwtPayload(session.access_token);
+  const expiresIn =
+    typeof session.expires_in === "number" && session.expires_in > 0
+      ? session.expires_in
+      : payload?.exp && payload?.iat
+        ? payload.exp - payload.iat
+        : null;
+
+  if (!expiresIn || expiresIn <= 0) return session;
+
+  return {
+    ...session,
+    expires_in: expiresIn,
+    expires_at: Math.round(Date.now() / 1000) + expiresIn,
+  } as T;
+}
+
+function installAuthFetchPatch() {
+  if (typeof window === "undefined") return;
+
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const response = await originalFetch(input, init);
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+    if (!url.includes("/auth/v1/token") || !response.ok) {
+      return response;
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return response;
+    }
+
+    try {
+      const body = await response.clone().json();
+      const normalized = normalizeSessionExpiry(body);
+
+      if (normalized === body) {
+        return response;
+      }
+
+      return new Response(JSON.stringify(normalized), {
+        status: response.status,
+        statusText: response.statusText,
+        headers: new Headers(response.headers),
+      });
+    } catch {
+      return response;
+    }
+  };
+}
+
+function normalizeStoredAuthSession() {
+  if (typeof window === "undefined") return;
+
+  try {
+    const projectRef = new URL(import.meta.env.VITE_SUPABASE_URL).hostname.split(".")[0];
+    const storageKey = `sb-${projectRef}-auth-token`;
+    const raw = window.localStorage.getItem(storageKey);
+
+    if (!raw) return;
+
+    const parsed = JSON.parse(raw) as SessionLike | { currentSession?: SessionLike | null };
+
+    if (parsed && typeof parsed === "object" && "currentSession" in parsed) {
+      const nextValue = {
+        ...parsed,
+        currentSession: normalizeSessionExpiry(parsed.currentSession ?? null),
+      };
+      window.localStorage.setItem(storageKey, JSON.stringify(nextValue));
+      return;
+    }
+
+    const normalized = normalizeSessionExpiry(parsed as SessionLike | null);
+    window.localStorage.setItem(storageKey, JSON.stringify(normalized));
+  } catch {
+    // Ignore malformed storage values.
+  }
 }
 
 async function runWithFallbackLock(
@@ -137,6 +245,8 @@ function installAuthLockFallback() {
 }
 
 async function bootstrap() {
+  installAuthFetchPatch();
+  normalizeStoredAuthSession();
   installAuthLockFallback();
   const { default: App } = await import("./App.tsx");
   createRoot(document.getElementById("root")!).render(<App />);
