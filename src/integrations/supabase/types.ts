@@ -1191,9 +1191,11 @@ export type Database = {
       }
       echantillons_cbr: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -1206,9 +1208,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1221,9 +1225,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -1236,6 +1242,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_cbr_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_cbr_chantier_id_fkey"
             columns: ["chantier_id"]
@@ -3192,9 +3205,11 @@ export type Database = {
       }
       echantillons_proctor_modifie: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -3207,9 +3222,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -3222,9 +3239,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -3237,6 +3256,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_proctor_modifie_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_proctor_modifie_chantier_id_fkey"
             columns: ["chantier_id"]
@@ -3262,9 +3288,11 @@ export type Database = {
       }
       echantillons_proctor_normal: {
         Row: {
+          carriere_id: string | null
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_essai: string | null
           date_prelevement: string
           id: string
           numero: number
@@ -3277,9 +3305,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -3292,9 +3322,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          carriere_id?: string | null
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_essai?: string | null
           date_prelevement?: string
           id?: string
           numero?: number
@@ -3307,6 +3339,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "echantillons_proctor_normal_carriere_id_fkey"
+            columns: ["carriere_id"]
+            isOneToOne: false
+            referencedRelation: "carrieres"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "echantillons_proctor_normal_chantier_id_fkey"
             columns: ["chantier_id"]
