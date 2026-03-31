@@ -137,6 +137,7 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                 <TableHead className="text-muted-foreground w-24">N°</TableHead>
                 <TableHead className="text-muted-foreground">Client</TableHead>
                 <TableHead className="text-muted-foreground">Chantier</TableHead>
+                <TableHead className="text-muted-foreground">Carrière</TableHead>
                 <TableHead className="text-muted-foreground">Type de sol</TableHead>
                 <TableHead className="text-muted-foreground">Date</TableHead>
                 <TableHead className="text-muted-foreground">Statut</TableHead>
@@ -155,6 +156,7 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                   </TableCell>
                   <TableCell className="text-foreground">{echantillon.clients?.nom || "-"}</TableCell>
                   <TableCell className="text-foreground">{echantillon.chantiers?.nom || "-"}</TableCell>
+                  <TableCell className="text-foreground">{echantillon.carrieres?.nom || "-"}</TableCell>
                   <TableCell className="text-foreground">{echantillon.type_sol}</TableCell>
                   <TableCell className="text-foreground">
                     {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
