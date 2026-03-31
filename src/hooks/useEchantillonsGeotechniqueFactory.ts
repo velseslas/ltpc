@@ -104,6 +104,8 @@ const tablesWithCarriere = new Set([
   "echantillons_friabilite", "echantillons_forme_granulats",
   "echantillons_teneur_eau", "echantillons_masse_volumique",
   "echantillons_matiere_organique",
+  "echantillons_proctor_normal", "echantillons_proctor_modifie",
+  "echantillons_cbr",
 ]);
 
 function getSelectQuery(tableName: string, withSignature = false) {
