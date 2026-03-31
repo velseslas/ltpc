@@ -144,13 +144,23 @@ export function EchantillonBetonFraisList({
             searchPlaceholder="Rechercher par client, chantier, centrale..."
           />
         </div>
-        <Button
-          onClick={() => navigate(`${basePath}/nouveau`)}
-          className="gradient-primary text-primary-foreground shrink-0"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nouveau
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate(`/essais/beton/beton-frais/etat-essais?type=${essaiType}&back=${basePath}`)}
+          >
+            <ClipboardList className="h-4 w-4" />
+            État des essais
+          </Button>
+          <Button
+            onClick={() => navigate(`${basePath}/nouveau`)}
+            className="gradient-primary text-primary-foreground"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
