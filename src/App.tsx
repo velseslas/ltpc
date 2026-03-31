@@ -524,6 +524,7 @@ const AppRoutes = () => (
       <Route path="/essais/beton/formulation" element={<FormulationBeton />} />
       <Route path="/essais/beton/formulation/nouveau" element={<FormulationBetonWizard />} />
       <Route path="/essais/beton/beton-frais" element={<BetonFrais />} />
+      <Route path="/essais/beton/beton-frais/etat-essais" element={<EtatEssaisBetonFrais />} />
       <Route path="/essais/beton/beton-frais/normes" element={<BetonFraisNormes />} />
       {/* Affaissement routes */}
       <Route path="/essais/beton/beton-frais/affaissement" element={<Affaissement />} />

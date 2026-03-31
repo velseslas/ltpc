@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, MoreHorizontal, Eye, Edit, Trash2, ClipboardEdit, FileText, ArrowLeft, Loader2 } from "lucide-react";
+import { Plus, MoreHorizontal, Eye, Edit, Trash2, ClipboardEdit, FileText, ArrowLeft, Loader2, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
