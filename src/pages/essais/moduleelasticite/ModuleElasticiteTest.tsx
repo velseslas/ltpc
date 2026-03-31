@@ -144,9 +144,9 @@ const ModuleElasticiteTest = () => {
           />
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate("/essais/beton/beton-durci/etat-essais?type=module-elasticite&back=/essais/beton/beton-durci/module-elasticite")}>
             <FileText className="h-4 w-4" />
-            Générer état
+            État des essais
           </Button>
           <Button 
             className="flex items-center gap-2"
