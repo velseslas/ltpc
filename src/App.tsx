@@ -340,6 +340,7 @@ const AppRoutes = () => (
       <Route path="/rh/documents" element={<Documents />} />
       <Route path="/essais" element={<Essais />} />
       <Route path="/essais/granulat" element={<EssaiGranulat />} />
+      <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
       <Route path="/essais/granulat/proprete" element={<EssaiProprete />} />
       <Route path="/essais/granulat/proprete/normes" element={<GranulatPropreteNormes />} />
       <Route path="/essais/granulat/proprete/equivalent-sable" element={<EquivalentSable />} />
