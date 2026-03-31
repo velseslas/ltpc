@@ -89,9 +89,14 @@ const CarottageTest = () => {
             statusFilter={statusFilter} onStatusChange={setStatusFilter}
           />
         </div>
-        <Button className="flex items-center gap-2" onClick={() => navigate("/essais/beton/destructif/carottage/nouveau")}>
-          <Plus className="h-4 w-4" /> Nouveau échantillon
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate("/essais/beton/destructif/carottage/etat-essais")}>
+            <FileText className="h-4 w-4" /> État des essais
+          </Button>
+          <Button className="flex items-center gap-2" onClick={() => navigate("/essais/beton/destructif/carottage/nouveau")}>
+            <Plus className="h-4 w-4" /> Nouveau échantillon
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
