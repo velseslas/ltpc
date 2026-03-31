@@ -72,6 +72,10 @@ import DensitometreReport from "./pages/essais/geotechnique/insitu/DensitometreR
 import EchantillonGeotechniqueForm from "./pages/essais/geotechnique/EchantillonGeotechniqueForm";
 import GeotechniqueDetail from "./pages/essais/geotechnique/GeotechniqueDetail";
 import GeotechniqueDataEntry from "./pages/essais/geotechnique/GeotechniqueDataEntry";
+import ProctorDataEntry from "./pages/essais/geotechnique/compactage/ProctorDataEntry";
+import ProctorReport from "./pages/essais/geotechnique/compactage/ProctorReport";
+import CBRDataEntry from "./pages/essais/geotechnique/compactage/CBRDataEntry";
+import CBRReport from "./pages/essais/geotechnique/compactage/CBRReport";
 import LimitesAtterbergDataEntry from "./pages/essais/geotechnique/identification/LimitesAtterbergDataEntry";
 import LimitesAtterbergReport from "./pages/essais/geotechnique/identification/LimitesAtterbergReport";
 import IdentificationNormes from "./pages/essais/geotechnique/normes/IdentificationNormes";
@@ -462,18 +466,21 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/compactage/proctor-normal" element={<ProctorNormal />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/nouveau" element={<EchantillonGeotechniqueForm essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/:id" element={<GeotechniqueDetail essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
-      <Route path="/essais/geotechnique/compactage/proctor-normal/:id/saisie" element={<GeotechniqueDataEntry essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-normal/:id/saisie" element={<ProctorDataEntry essaiType="proctor-normal" />} />
       <Route path="/essais/geotechnique/compactage/proctor-normal/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="proctor-normal" essaiTitle="Essai Proctor Normal" basePath="/essais/geotechnique/compactage/proctor-normal" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-normal/:id/rapport" element={<ProctorReport essaiType="proctor-normal" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie" element={<ProctorModifie />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/nouveau" element={<EchantillonGeotechniqueForm essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/:id" element={<GeotechniqueDetail essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
-      <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/saisie" element={<GeotechniqueDataEntry essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/saisie" element={<ProctorDataEntry essaiType="proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="proctor-modifie" essaiTitle="Essai Proctor Modifié" basePath="/essais/geotechnique/compactage/proctor-modifie" />} />
+      <Route path="/essais/geotechnique/compactage/proctor-modifie/:id/rapport" element={<ProctorReport essaiType="proctor-modifie" />} />
       <Route path="/essais/geotechnique/compactage/cbr" element={<CBR />} />
       <Route path="/essais/geotechnique/compactage/cbr/nouveau" element={<EchantillonGeotechniqueForm essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" />} />
       <Route path="/essais/geotechnique/compactage/cbr/:id" element={<GeotechniqueDetail essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
-      <Route path="/essais/geotechnique/compactage/cbr/:id/saisie" element={<GeotechniqueDataEntry essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
+      <Route path="/essais/geotechnique/compactage/cbr/:id/saisie" element={<CBRDataEntry />} />
       <Route path="/essais/geotechnique/compactage/cbr/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="cbr" essaiTitle="Essai CBR" basePath="/essais/geotechnique/compactage/cbr" />} />
+      <Route path="/essais/geotechnique/compactage/cbr/:id/rapport" element={<CBRReport />} />
       <Route path="/essais/geotechnique/compactage/densite-place" element={<DensitePlace />} />
       <Route path="/essais/geotechnique/compactage/densite-place/nouveau" element={<EchantillonGeotechniqueForm essaiType="densite-place" essaiTitle="Densité en Place" basePath="/essais/geotechnique/compactage/densite-place" />} />
       <Route path="/essais/geotechnique/compactage/densite-place/:id" element={<GeotechniqueDetail essaiType="densite-place" essaiTitle="Densité en Place" basePath="/essais/geotechnique/compactage/densite-place" categoryPath="/essais/geotechnique/compactage" categoryLabel="Compactage" />} />
