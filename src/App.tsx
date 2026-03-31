@@ -594,6 +594,13 @@ const AppRoutes = () => (
       <Route path="/essais/beton/beton-durci/permeabilite/:id/rapport" element={<PermeabiliteReport />} />
       <Route path="/essais/beton/destructif" element={<EssaiDestructif />} />
       <Route path="/essais/beton/destructif/normes" element={<DestructifNormes />} />
+      {/* Carottage Routes */}
+      <Route path="/essais/beton/destructif/carottage" element={<CarottageTest />} />
+      <Route path="/essais/beton/destructif/carottage/nouveau" element={<CarottageSampleForm />} />
+      <Route path="/essais/beton/destructif/carottage/:id" element={<CarottageDetail />} />
+      <Route path="/essais/beton/destructif/carottage/:id/modifier" element={<CarottageSampleForm />} />
+      <Route path="/essais/beton/destructif/carottage/:id/saisie" element={<CarottageDataEntry />} />
+      <Route path="/essais/beton/destructif/carottage/:id/rapport" element={<CarottageReport />} />
       <Route path="/essais/beton/non-destructif" element={<EssaiNonDestructif />} />
       <Route path="/essais/beton/non-destructif/normes" element={<NonDestructifNormes />} />
       {/* Scléromètre Routes */}
