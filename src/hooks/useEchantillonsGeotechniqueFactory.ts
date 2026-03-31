@@ -145,13 +145,7 @@ export function useEchantillonGeotechniqueById(essaiType: string, id: string | u
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any)
         .from(tableName)
-        .select(`
-          *,
-          chantiers (id, nom, ville),
-          clients (id, nom),
-          carrieres (id, nom),
-          intervenants (id, nom, prenom, signature_url)
-        `)
+        .select(getSelectQuery(tableName, true))
         .eq("id", id!)
         .maybeSingle();
 
