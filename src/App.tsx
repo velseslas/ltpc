@@ -99,6 +99,7 @@ import EchantillonGranulatForm from "./pages/essais/granulat/EchantillonGranulat
 import GranulatDataEntry from "./pages/essais/granulat/saisie/GranulatDataEntry";
 import GranulatDetail from "./pages/essais/granulat/detail/GranulatDetail";
 import GranulatReport from "./pages/essais/granulat/rapport/GranulatReport";
+import EtatEssaisGranulat from "./pages/essais/granulat/EtatEssaisGranulat";
 import BetonFrais from "./pages/essais/BetonFrais";
 import BetonDurci from "./pages/essais/BetonDurci";
 import CompressionTest from "./pages/essais/CompressionTest";
@@ -339,6 +340,7 @@ const AppRoutes = () => (
       <Route path="/rh/documents" element={<Documents />} />
       <Route path="/essais" element={<Essais />} />
       <Route path="/essais/granulat" element={<EssaiGranulat />} />
+      <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
       <Route path="/essais/granulat/proprete" element={<EssaiProprete />} />
       <Route path="/essais/granulat/proprete/normes" element={<GranulatPropreteNormes />} />
       <Route path="/essais/granulat/proprete/equivalent-sable" element={<EquivalentSable />} />
