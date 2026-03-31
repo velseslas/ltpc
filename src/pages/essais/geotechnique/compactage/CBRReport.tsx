@@ -117,9 +117,11 @@ export default function CBRReport() {
             <p><span className="font-bold">N° Échantillon :</span> {numero}</p>
             <p><span className="font-bold">Client :</span> {echantillon.clients?.nom || "-"}</p>
             <p><span className="font-bold">Chantier :</span> {echantillon.chantiers?.nom || "-"}</p>
+            <p><span className="font-bold">Carrière :</span> {(echantillon as any).carrieres?.nom || "-"}</p>
           </div>
           <div className="border border-gray-300 p-3 rounded">
             <p><span className="font-bold">Date de prélèvement :</span> {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p>
+            <p><span className="font-bold">Date d'essai :</span> {(echantillon as any).date_essai ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr }) : "-"}</p>
             <p><span className="font-bold">Type de sol :</span> {echantillon.type_sol}</p>
             <p><span className="font-bold">Surcharge :</span> {r.surcharge as string || "-"} kg</p>
             <p><span className="font-bold">Immersion :</span> {r.immersion_jours as string || "-"} jours</p>
