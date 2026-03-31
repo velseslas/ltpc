@@ -95,6 +95,29 @@ export function formatGeoNumero(numero: number, essaiType?: string): string {
   return numStr;
 }
 
+// Tables that have a carriere_id foreign key
+const tablesWithCarriere = new Set([
+  "echantillons_granulometrie_sol", "echantillons_classification_sol",
+  "echantillons_granulometrie", "echantillons_equivalent_sable",
+  "echantillons_bleu_methylene", "echantillons_los_angeles",
+  "echantillons_micro_deval", "echantillons_ecrasement",
+  "echantillons_friabilite", "echantillons_forme_granulats",
+  "echantillons_teneur_eau", "echantillons_masse_volumique",
+  "echantillons_matiere_organique",
+]);
+
+function getSelectQuery(tableName: string, withSignature = false) {
+  const hasCarriere = tablesWithCarriere.has(tableName);
+  const intervenantFields = withSignature ? "id, nom, prenom, signature_url" : "id, nom, prenom";
+  return `
+    *,
+    chantiers (id, nom, ville),
+    clients (id, nom),
+    ${hasCarriere ? "carrieres (id, nom)," : ""}
+    intervenants (${intervenantFields})
+  `;
+}
+
 export function useEchantillonsGeotechniqueByType(essaiType: string) {
   const tableName = getGeoTableName(essaiType);
 
@@ -104,13 +127,7 @@ export function useEchantillonsGeotechniqueByType(essaiType: string) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any)
         .from(tableName)
-        .select(`
-          *,
-          chantiers (id, nom, ville),
-          clients (id, nom),
-          carrieres (id, nom),
-          intervenants (id, nom, prenom)
-        `)
+        .select(getSelectQuery(tableName))
         .order("numero", { ascending: false });
 
       if (error) throw error;
