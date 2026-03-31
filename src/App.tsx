@@ -142,6 +142,12 @@ import PermeabiliteReport from "./pages/essais/permeabilite/PermeabiliteReport";
 import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
+// Destructif - Carottage
+import CarottageTest from "./pages/essais/destructif/CarottageTest";
+import CarottageSampleForm from "./pages/essais/destructif/CarottageSampleForm";
+import CarottageDetail from "./pages/essais/destructif/CarottageDetail";
+import CarottageDataEntry from "./pages/essais/destructif/CarottageDataEntry";
+import CarottageReport from "./pages/essais/destructif/CarottageReport";
 import EssaiNonDestructif from "./pages/essais/EssaiNonDestructif";
 // Non Destructif - Scléromètre
 import SclerometreTest from "./pages/essais/nondestructif/SclerometreTest";
@@ -588,6 +594,13 @@ const AppRoutes = () => (
       <Route path="/essais/beton/beton-durci/permeabilite/:id/rapport" element={<PermeabiliteReport />} />
       <Route path="/essais/beton/destructif" element={<EssaiDestructif />} />
       <Route path="/essais/beton/destructif/normes" element={<DestructifNormes />} />
+      {/* Carottage Routes */}
+      <Route path="/essais/beton/destructif/carottage" element={<CarottageTest />} />
+      <Route path="/essais/beton/destructif/carottage/nouveau" element={<CarottageSampleForm />} />
+      <Route path="/essais/beton/destructif/carottage/:id" element={<CarottageDetail />} />
+      <Route path="/essais/beton/destructif/carottage/:id/modifier" element={<CarottageSampleForm />} />
+      <Route path="/essais/beton/destructif/carottage/:id/saisie" element={<CarottageDataEntry />} />
+      <Route path="/essais/beton/destructif/carottage/:id/rapport" element={<CarottageReport />} />
       <Route path="/essais/beton/non-destructif" element={<EssaiNonDestructif />} />
       <Route path="/essais/beton/non-destructif/normes" element={<NonDestructifNormes />} />
       {/* Scléromètre Routes */}

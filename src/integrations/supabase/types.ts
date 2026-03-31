@@ -1095,6 +1095,100 @@ export type Database = {
           },
         ]
       }
+      echantillons_carottage: {
+        Row: {
+          chantier_id: string | null
+          classe_resistance: string | null
+          client_id: string | null
+          created_at: string
+          date_essai: string | null
+          date_prelevement: string
+          diametre_carotte: string | null
+          direction_carottage: string | null
+          etat_surface: string | null
+          id: string
+          localisation: string | null
+          longueur_carotte: number | null
+          numero: number
+          observations: string | null
+          operateur_id: string | null
+          ouvrage: string | null
+          partie_ouvrage: string | null
+          presence_armatures: boolean | null
+          resultats: Json | null
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          classe_resistance?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_essai?: string | null
+          date_prelevement?: string
+          diametre_carotte?: string | null
+          direction_carottage?: string | null
+          etat_surface?: string | null
+          id?: string
+          localisation?: string | null
+          longueur_carotte?: number | null
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          ouvrage?: string | null
+          partie_ouvrage?: string | null
+          presence_armatures?: boolean | null
+          resultats?: Json | null
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          classe_resistance?: string | null
+          client_id?: string | null
+          created_at?: string
+          date_essai?: string | null
+          date_prelevement?: string
+          diametre_carotte?: string | null
+          direction_carottage?: string | null
+          etat_surface?: string | null
+          id?: string
+          localisation?: string | null
+          longueur_carotte?: number | null
+          numero?: number
+          observations?: string | null
+          operateur_id?: string | null
+          ouvrage?: string | null
+          partie_ouvrage?: string | null
+          presence_armatures?: boolean | null
+          resultats?: Json | null
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "echantillons_carottage_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_carottage_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_carottage_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       echantillons_cbr: {
         Row: {
           chantier_id: string | null
