@@ -602,6 +602,7 @@ const AppRoutes = () => (
       <Route path="/essais/beton/destructif/carottage/:id/modifier" element={<CarottageSampleForm />} />
       <Route path="/essais/beton/destructif/carottage/:id/saisie" element={<CarottageDataEntry />} />
       <Route path="/essais/beton/destructif/carottage/:id/rapport" element={<CarottageReport />} />
+      <Route path="/essais/beton/destructif/carottage/etat-essais" element={<EtatEssaisCarottage />} />
       <Route path="/essais/beton/non-destructif" element={<EssaiNonDestructif />} />
       <Route path="/essais/beton/non-destructif/normes" element={<NonDestructifNormes />} />
       {/* Scléromètre Routes */}
