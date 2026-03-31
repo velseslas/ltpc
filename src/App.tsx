@@ -100,6 +100,7 @@ import GranulatDataEntry from "./pages/essais/granulat/saisie/GranulatDataEntry"
 import GranulatDetail from "./pages/essais/granulat/detail/GranulatDetail";
 import GranulatReport from "./pages/essais/granulat/rapport/GranulatReport";
 import EtatEssaisGranulat from "./pages/essais/granulat/EtatEssaisGranulat";
+import EtatEssaisBetonFrais from "./pages/essais/betonfrais/EtatEssaisBetonFrais";
 import BetonFrais from "./pages/essais/BetonFrais";
 import BetonDurci from "./pages/essais/BetonDurci";
 import CompressionTest from "./pages/essais/CompressionTest";
@@ -523,6 +524,7 @@ const AppRoutes = () => (
       <Route path="/essais/beton/formulation" element={<FormulationBeton />} />
       <Route path="/essais/beton/formulation/nouveau" element={<FormulationBetonWizard />} />
       <Route path="/essais/beton/beton-frais" element={<BetonFrais />} />
+      <Route path="/essais/beton/beton-frais/etat-essais" element={<EtatEssaisBetonFrais />} />
       <Route path="/essais/beton/beton-frais/normes" element={<BetonFraisNormes />} />
       {/* Affaissement routes */}
       <Route path="/essais/beton/beton-frais/affaissement" element={<Affaissement />} />
