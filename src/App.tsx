@@ -64,6 +64,8 @@ import Oedometrique from "./pages/essais/geotechnique/mecanique/Oedometrique";
 import Penetrometre from "./pages/essais/geotechnique/insitu/Penetrometre";
 import Pressiometre from "./pages/essais/geotechnique/insitu/Pressiometre";
 import Plaque from "./pages/essais/geotechnique/insitu/Plaque";
+import PlaqueDataEntry from "./pages/essais/geotechnique/insitu/PlaqueDataEntry";
+import PlaqueReport from "./pages/essais/geotechnique/insitu/PlaqueReport";
 import Sondage from "./pages/essais/geotechnique/insitu/Sondage";
 import Densitometre from "./pages/essais/geotechnique/insitu/Densitometre";
 import DensitometreDataEntry from "./pages/essais/geotechnique/insitu/DensitometreDataEntry";
