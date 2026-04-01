@@ -523,7 +523,8 @@ const AppRoutes = () => (
       <Route path="/essais/geotechnique/in-situ/plaque" element={<Plaque />} />
       <Route path="/essais/geotechnique/in-situ/plaque/nouveau" element={<EchantillonGeotechniqueForm essaiType="plaque" essaiTitle="Essai de Plaque" basePath="/essais/geotechnique/in-situ/plaque" />} />
       <Route path="/essais/geotechnique/in-situ/plaque/:id" element={<GeotechniqueDetail essaiType="plaque" essaiTitle="Essai de Plaque" basePath="/essais/geotechnique/in-situ/plaque" categoryPath="/essais/geotechnique/in-situ" categoryLabel="In-Situ" />} />
-      <Route path="/essais/geotechnique/in-situ/plaque/:id/saisie" element={<GeotechniqueDataEntry essaiType="plaque" essaiTitle="Essai de Plaque" basePath="/essais/geotechnique/in-situ/plaque" categoryPath="/essais/geotechnique/in-situ" categoryLabel="In-Situ" />} />
+      <Route path="/essais/geotechnique/in-situ/plaque/:id/saisie" element={<PlaqueDataEntry />} />
+      <Route path="/essais/geotechnique/in-situ/plaque/:id/rapport" element={<PlaqueReport />} />
       <Route path="/essais/geotechnique/in-situ/plaque/:id/modifier" element={<EchantillonGeotechniqueForm essaiType="plaque" essaiTitle="Essai de Plaque" basePath="/essais/geotechnique/in-situ/plaque" />} />
       <Route path="/essais/geotechnique/in-situ/sondage" element={<Sondage />} />
       <Route path="/essais/geotechnique/in-situ/sondage/nouveau" element={<EchantillonGeotechniqueForm essaiType="sondage" essaiTitle="Sondage" basePath="/essais/geotechnique/in-situ/sondage" />} />
