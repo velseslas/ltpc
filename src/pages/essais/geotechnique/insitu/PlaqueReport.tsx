@@ -135,25 +135,33 @@ export default function PlaqueReport() {
 
         {/* Courbe */}
         {chartData.length >= 2 && (
-          <div className="mb-6">
+          <div className="mb-6 page-break-inside-avoid">
             <h3 className="font-bold text-center text-base mb-3">Courbe Contrainte - Déformation</h3>
-            <div className="h-[280px] border border-gray-300 rounded p-2">
+            <div style={{ width: "100%", height: 320 }} className="border border-gray-300 rounded p-3">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                <LineChart data={chartData} margin={{ top: 15, right: 40, left: 30, bottom: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                   <XAxis
                     dataKey="sigma"
                     type="number"
                     domain={[0, 'dataMax + 0.02']}
-                    label={{ value: "σ (MPa)", position: "insideBottom", offset: -10 }}
+                    tick={{ fontSize: 11 }}
+                    label={{ value: "Contrainte σ (MPa)", position: "insideBottom", offset: -15, style: { fontSize: 12, fontWeight: "bold" } }}
                   />
                   <YAxis
                     reversed
-                    label={{ value: "Déformation (mm)", angle: -90, position: "insideLeft" }}
+                    tick={{ fontSize: 11 }}
+                    label={{ value: "Déformation (mm)", angle: -90, position: "insideLeft", offset: -15, style: { fontSize: 12, fontWeight: "bold" } }}
+                    tickFormatter={v => v.toFixed(2)}
                   />
-                  <Legend formatter={(value) => value === "cycle1" ? "Cycle 1" : "Cycle 2"} />
-                  <Line type="monotone" dataKey="cycle1" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: "#3b82f6" }} connectNulls />
-                  <Line type="monotone" dataKey="cycle2" stroke="#ef4444" strokeWidth={2} dot={{ r: 3, fill: "#ef4444" }} connectNulls />
+                  <Legend
+                    verticalAlign="top"
+                    height={30}
+                    formatter={(value) => value === "cycle1" ? "Cycle 1 (chargement)" : "Cycle 2 (rechargement)"}
+                    wrapperStyle={{ fontSize: 12 }}
+                  />
+                  <Line type="monotone" dataKey="cycle1" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, fill: "#3b82f6", strokeWidth: 1, stroke: "#fff" }} connectNulls name="cycle1" />
+                  <Line type="monotone" dataKey="cycle2" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 4, fill: "#ef4444", strokeWidth: 1, stroke: "#fff" }} connectNulls name="cycle2" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
