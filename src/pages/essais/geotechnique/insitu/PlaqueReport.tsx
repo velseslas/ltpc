@@ -181,6 +181,64 @@ export default function PlaqueReport() {
           </div>
         </div>
 
+        {/* Spécifications et Conformité */}
+        <table className="w-full border-collapse border border-black text-sm mb-6">
+          <thead>
+            <tr className="bg-[#d4e5f7]">
+              <th className="border border-black p-2 text-center">Paramètre</th>
+              <th className="border border-black p-2 text-center">Valeur mesurée</th>
+              <th className="border border-black p-2 text-center">Spécification</th>
+              <th className="border border-black p-2 text-center">Conformité</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              const ev2Conforme = EV2 >= 50;
+              const kConforme = K > 0 && K <= 2;
+              const ev2Class = EV2 >= 120 ? "PF3" : EV2 >= 50 ? "PF2" : EV2 >= 20 ? "PF1" : "-";
+              return (
+                <>
+                  <tr className="bg-white">
+                    <td className="border border-black p-2 font-medium text-center">EV2</td>
+                    <td className="border border-black p-2 text-center font-bold">{EV2 > 0 ? fmt(EV2, 1) + " MPa" : "-"}</td>
+                    <td className="border border-black p-2 text-center">≥ 50 MPa (arase terrassement)</td>
+                    <td className="border border-black p-2 text-center">
+                      {EV2 > 0 ? (
+                        <span className={`font-bold ${ev2Conforme ? "text-green-600" : "text-red-600"}`}>
+                          {ev2Conforme ? "✓ CONFORME" : "✗ NON CONFORME"}
+                        </span>
+                      ) : "-"}
+                    </td>
+                  </tr>
+                  <tr className="bg-gray-50">
+                    <td className="border border-black p-2 font-medium text-center">K = EV2/EV1</td>
+                    <td className="border border-black p-2 text-center font-bold">{K > 0 ? fmt(K, 2) : "-"}</td>
+                    <td className="border border-black p-2 text-center">≤ 2,0</td>
+                    <td className="border border-black p-2 text-center">
+                      {K > 0 ? (
+                        <span className={`font-bold ${kConforme ? "text-green-600" : "text-red-600"}`}>
+                          {kConforme ? "✓ CONFORME" : "✗ NON CONFORME"}
+                        </span>
+                      ) : "-"}
+                    </td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="border border-black p-2 font-medium text-center">Classe de plateforme</td>
+                    <td className="border border-black p-2 text-center font-bold" colSpan={3}>
+                      {EV2 > 0 ? (
+                        <span className="text-blue-600 font-bold">{ev2Class}</span>
+                      ) : "-"}
+                      <span className="text-gray-500 ml-2 text-xs">
+                        (PF1: 20-50 MPa | PF2: 50-120 MPa | PF3: ≥ 120 MPa)
+                      </span>
+                    </td>
+                  </tr>
+                </>
+              );
+            })()}
+          </tbody>
+        </table>
+
         {/* Observations */}
         {(r.notes as string) && (
           <div className="border border-gray-300 p-3 rounded mb-6">
