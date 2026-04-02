@@ -35,6 +35,7 @@ interface DocumentListPageProps {
   };
   extraFields?: "engagement" | "service" | "prix" | "attestation";
   extraColumns?: { header: string; render: (item: any) => React.ReactNode }[];
+  onItemClick?: (item: any) => void;
 }
 
 const statusBadge = (statut: string) => {
@@ -48,7 +49,7 @@ const statusBadge = (statut: string) => {
   return <Badge className={s.className}>{s.label}</Badge>;
 };
 
-const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, extraColumns }: DocumentListPageProps) => {
+const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, extraColumns, onItemClick }: DocumentListPageProps) => {
   const navigate = useNavigate();
   const { query, create, update, remove } = useHook();
   const [formOpen, setFormOpen] = useState(false);
@@ -185,7 +186,8 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
             {paginatedData.map((item: any) => (
               <div
                 key={item.id}
-                className="rounded-xl bg-card border border-border p-6 hover:border-primary/50 transition-all duration-300 group"
+                className={`rounded-xl bg-card border border-border p-6 hover:border-primary/50 transition-all duration-300 group ${onItemClick ? "cursor-pointer" : ""}`}
+                onClick={() => onItemClick?.(item)}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
