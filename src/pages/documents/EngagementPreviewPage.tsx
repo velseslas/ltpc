@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { QRCodeSVG } from "qrcode.react";
 
 const EngagementPreviewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +43,8 @@ const EngagementPreviewPage = () => {
 
   const labName = entreprise?.nom || "LABS.CAM";
   const labSiege = entreprise?.siege_social || "";
+  const labRepresentant = entreprise?.representant || "Le Directeur";
+  const logoUrl = entreprise?.logo_url || null;
 
   const getArticleContent = (num: number) => {
     const saved = savedArticles?.find((a) => a.article_number === num);
@@ -97,6 +100,7 @@ const EngagementPreviewPage = () => {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', serif; }
         @page { size: A4; margin: 15mm; }
+        .page-break { page-break-before: always; }
       </style>
       </head><body>${printContent.innerHTML}</body></html>
     `);
@@ -119,6 +123,12 @@ const EngagementPreviewPage = () => {
       let currentY = margin;
 
       for (let i = 0; i < sections.length; i++) {
+        const isPageBreak = sections[i].getAttribute("data-pdf-page-break") === "true";
+        if (isPageBreak && i > 0) {
+          pdf.addPage();
+          currentY = margin;
+        }
+
         const canvas = await html2canvas(sections[i], {
           scale: 3,
           useCORS: true,
@@ -156,6 +166,7 @@ const EngagementPreviewPage = () => {
   };
 
   const articleNumbers = [1, 2, 3, 4, 5];
+  const qrData = `Engagement: ${engagement.titre} | Client: ${clientName} | Chantier: ${chantierName} | Date: ${dateDoc}`;
 
   return (
     <>
@@ -216,52 +227,90 @@ const EngagementPreviewPage = () => {
         <div
           ref={reportRef}
           className="bg-white text-black shadow-xl mx-auto"
-          style={{ maxWidth: "800px", width: "100%", padding: "40px 50px", ...sectionStyle }}
+          style={{ maxWidth: "800px", width: "100%", ...sectionStyle }}
         >
-          {/* Couverture */}
-          <div data-pdf-section>
-            <div style={{ textAlign: "center", borderBottom: "3px double #1a5276", paddingBottom: "12px", marginBottom: "50px" }}>
-              <p style={{ fontSize: "15px", fontWeight: "bold", letterSpacing: "1.5px", color: "#1a5276", marginBottom: "3px", ...sectionStyle }}>
-                LABORATOIRE DES TRAVAUX PUBLICS ET DE CONSTRUCTION
-              </p>
-              <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1a5276", ...sectionStyle }}>
-                {labName}{labSiege ? `, SIS À ${labSiege.toUpperCase()}` : ""}
-              </p>
-              <p style={{ fontSize: "10px", color: "#555", marginTop: "4px", ...sectionStyle }}>
-                {entreprise?.telephone ? `TEL- FAX ${entreprise.telephone}` : ""}
-                {entreprise?.email ? ` | Mail : ${entreprise.email}` : ""}
-              </p>
+          {/* ============ PAGE DE GARDE ============ */}
+          <div data-pdf-section style={{ padding: "50px 50px 40px", minHeight: "1050px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            {/* En-tête avec logo */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px double #1a5276", paddingBottom: "14px", marginBottom: "16px" }}>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: "15px", fontWeight: "bold", letterSpacing: "1.5px", color: "#1a5276", marginBottom: "3px", ...sectionStyle }}>
+                    LABORATOIRE DES TRAVAUX PUBLICS ET DE CONSTRUCTION
+                  </p>
+                  <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1a5276", ...sectionStyle }}>
+                    {labName}{labSiege ? `, SIS À ${labSiege.toUpperCase()}` : ""}
+                  </p>
+                  <p style={{ fontSize: "10px", color: "#555", marginTop: "4px", ...sectionStyle }}>
+                    {entreprise?.telephone ? `TEL- FAX ${entreprise.telephone}` : ""}
+                    {entreprise?.email ? ` | Mail : ${entreprise.email}` : ""}
+                  </p>
+                  {entreprise?.numero_autorisation && (
+                    <p style={{ fontSize: "10px", color: "#555", marginTop: "2px", ...sectionStyle }}>
+                      N° Autorisation : {entreprise.numero_autorisation}
+                    </p>
+                  )}
+                </div>
+                {logoUrl && (
+                  <div style={{ marginLeft: "20px", flexShrink: 0 }}>
+                    <img src={logoUrl} alt="Logo laboratoire" style={{ height: "70px", width: "auto", objectFit: "contain" }} crossOrigin="anonymous" />
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Titre central */}
             <div style={{ textAlign: "center", margin: "60px 0" }}>
-              <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#1a5276", marginBottom: "14px", letterSpacing: "1px", ...sectionStyle }}>
-                ENGAGEMENT D'ASSISTANCE TECHNIQUE
-              </h2>
-              <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#2c3e50", ...sectionStyle }}>
-                « TRAVAUX DE LABORATOIRE »
-              </h3>
-              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#2c3e50", marginTop: "8px", ...sectionStyle }}>
-                CONTRÔLE ET SUIVI DE LA QUALITÉ DES BÉTONS
-              </h3>
+              <div style={{ border: "2px solid #1a5276", padding: "30px 40px", display: "inline-block" }}>
+                <h2 style={{ fontSize: "22px", fontWeight: "bold", color: "#1a5276", marginBottom: "14px", letterSpacing: "2px", ...sectionStyle }}>
+                  ENGAGEMENT D'ASSISTANCE TECHNIQUE
+                </h2>
+                <div style={{ width: "80px", height: "3px", background: "#1a5276", margin: "0 auto 14px" }} />
+                <h3 style={{ fontSize: "16px", fontWeight: "bold", color: "#2c3e50", ...sectionStyle }}>
+                  « TRAVAUX DE LABORATOIRE »
+                </h3>
+                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#2c3e50", marginTop: "10px", ...sectionStyle }}>
+                  CONTRÔLE ET SUIVI DE LA QUALITÉ DES BÉTONS
+                </h3>
+              </div>
             </div>
 
-            <div style={{ margin: "50px 0", padding: "20px 24px", border: "1px solid #ccc", borderLeft: "4px solid #1a5276", background: "#f8fafc" }}>
-              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
+            {/* Info client / projet */}
+            <div style={{ margin: "40px 0", padding: "20px 24px", border: "1px solid #ccc", borderLeft: "4px solid #1a5276", background: "#f8fafc" }}>
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.8", ...sectionStyle }}>
                 <strong style={{ textDecoration: "underline" }}>Client</strong> : Entreprise <strong>{clientName}</strong>
                 {clientLocalisation && <span>, sis à {clientLocalisation}</span>}
               </p>
-              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.8", ...sectionStyle }}>
+                <strong style={{ textDecoration: "underline" }}>Représentant</strong> : <strong>{representant}</strong>
+              </p>
+              <p style={{ fontSize: "13px", lineHeight: "1.8", ...sectionStyle }}>
                 <strong style={{ textDecoration: "underline" }}>Projet</strong> : <strong>{chantierName}</strong>
               </p>
             </div>
 
-            <p style={{ fontSize: "11px", textAlign: "right", color: "#666", margin: "20px 0", ...sectionStyle }}>
-              Fait le {dateDoc}
-            </p>
+            {/* Date et QR code */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "auto" }}>
+              <div>
+                <p style={{ fontSize: "11px", color: "#666", ...sectionStyle }}>
+                  Fait le {dateDoc}
+                </p>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <QRCodeSVG value={qrData} size={80} level="M" />
+                <p style={{ fontSize: "8px", color: "#999", marginTop: "4px", ...sectionStyle }}>Code de vérification</p>
+              </div>
+            </div>
           </div>
 
+          {/* ============ PAGE 2 : CONTENU ============ */}
           {/* Conclue entre */}
-          <div data-pdf-section style={{ marginTop: "40px", borderTop: "2px solid #e5e7eb", paddingTop: "30px" }}>
+          <div data-pdf-section data-pdf-page-break="true" style={{ padding: "40px 50px 0" }}>
+            <div style={{ borderBottom: "2px solid #1a5276", paddingBottom: "8px", marginBottom: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <p style={{ fontSize: "10px", color: "#1a5276", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
+              {logoUrl && <img src={logoUrl} alt="Logo" style={{ height: "30px", width: "auto" }} crossOrigin="anonymous" />}
+            </div>
+
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
               Conclu entre :
             </h3>
@@ -277,7 +326,7 @@ const EngagementPreviewPage = () => {
             <p style={{ fontSize: "13px", lineHeight: "2", marginBottom: "8px", textAlign: "justify", ...sectionStyle }}>
               Laboratoire <strong>{labName}</strong>
               {labSiege && <>, {labSiege}</>}
-              , représenté par son directeur
+              , représenté par son directeur Monsieur <strong>{labRepresentant}</strong>
             </p>
             <p style={{ fontSize: "14px", fontWeight: "bold", textAlign: "right", margin: "30px 0", color: "#333", ...sectionStyle }}>
               D'autre part,
@@ -289,7 +338,7 @@ const EngagementPreviewPage = () => {
 
           {/* Articles */}
           {articleNumbers.map((num) => (
-            <div key={num} data-pdf-section style={{ marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
+            <div key={num} data-pdf-section style={{ padding: "0 50px", marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
               <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
                 ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
               </h3>
@@ -298,11 +347,12 @@ const EngagementPreviewPage = () => {
           ))}
 
           {/* VISA */}
-          <div data-pdf-section style={{ marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
+          <div data-pdf-section style={{ padding: "0 50px 50px", marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
             <div style={{ textAlign: "center", width: "40%" }}>
               <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>VISA DU LABORATOIRE</p>
               <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
                 <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
+                <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{labRepresentant}</p>
               </div>
             </div>
             <div style={{ textAlign: "center", width: "40%" }}>
