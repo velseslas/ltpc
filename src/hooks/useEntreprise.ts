@@ -13,6 +13,7 @@ export interface Entreprise {
   site_web: string | null;
   logo_url: string | null;
   cachet_url: string | null;
+  representant: string | null;
   created_at: string;
   updated_at: string;
 }

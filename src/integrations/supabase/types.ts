@@ -4373,6 +4373,7 @@ export type Database = {
           logo_url: string | null
           nom: string
           numero_autorisation: string | null
+          representant: string | null
           siege_social: string | null
           site_web: string | null
           telephone: string | null
@@ -4388,6 +4389,7 @@ export type Database = {
           logo_url?: string | null
           nom?: string
           numero_autorisation?: string | null
+          representant?: string | null
           siege_social?: string | null
           site_web?: string | null
           telephone?: string | null
@@ -4403,6 +4405,7 @@ export type Database = {
           logo_url?: string | null
           nom?: string
           numero_autorisation?: string | null
+          representant?: string | null
           siege_social?: string | null
           site_web?: string | null
           telephone?: string | null
