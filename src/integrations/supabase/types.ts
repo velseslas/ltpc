@@ -442,6 +442,7 @@ export type Database = {
         Row: {
           adresse: string | null
           client_id: string | null
+          contact: string | null
           created_at: string
           date_debut: string | null
           date_fin: string | null
@@ -449,12 +450,14 @@ export type Database = {
           id: string
           nom: string
           statut: string
+          telephone: string | null
           updated_at: string
           ville: string | null
         }
         Insert: {
           adresse?: string | null
           client_id?: string | null
+          contact?: string | null
           created_at?: string
           date_debut?: string | null
           date_fin?: string | null
@@ -462,12 +465,14 @@ export type Database = {
           id?: string
           nom: string
           statut?: string
+          telephone?: string | null
           updated_at?: string
           ville?: string | null
         }
         Update: {
           adresse?: string | null
           client_id?: string | null
+          contact?: string | null
           created_at?: string
           date_debut?: string | null
           date_fin?: string | null
@@ -475,6 +480,7 @@ export type Database = {
           id?: string
           nom?: string
           statut?: string
+          telephone?: string | null
           updated_at?: string
           ville?: string | null
         }
@@ -659,6 +665,7 @@ export type Database = {
           nif: string | null
           nis: string | null
           nom: string
+          representant: string | null
           rib: string | null
           telephone: string | null
           updated_at: string
@@ -677,6 +684,7 @@ export type Database = {
           nif?: string | null
           nis?: string | null
           nom: string
+          representant?: string | null
           rib?: string | null
           telephone?: string | null
           updated_at?: string
@@ -695,6 +703,7 @@ export type Database = {
           nif?: string | null
           nis?: string | null
           nom?: string
+          representant?: string | null
           rib?: string | null
           telephone?: string | null
           updated_at?: string
