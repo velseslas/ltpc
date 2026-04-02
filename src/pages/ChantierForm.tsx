@@ -66,6 +66,8 @@ const ChantierForm = () => {
         nom: chantier.nom || "",
         adresse: chantier.adresse || "",
         ville: chantier.ville || "",
+        contact: (chantier as any).contact || "",
+        telephone: (chantier as any).telephone || "",
         date_debut: chantier.date_debut || "",
         date_fin: chantier.date_fin || "",
         statut: chantier.statut || "planifie",
