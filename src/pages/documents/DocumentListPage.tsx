@@ -49,7 +49,7 @@ const statusBadge = (statut: string) => {
   return <Badge className={s.className}>{s.label}</Badge>;
 };
 
-const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, extraColumns }: DocumentListPageProps) => {
+const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, extraColumns, onItemClick }: DocumentListPageProps) => {
   const navigate = useNavigate();
   const { query, create, update, remove } = useHook();
   const [formOpen, setFormOpen] = useState(false);
