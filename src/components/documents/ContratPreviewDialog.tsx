@@ -291,7 +291,78 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
               </p>
             </div>
 
-            {/* Article 09 - Durée de validité */}
+            {/* Article 04 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 04 : MATÉRIEL À MOBILISER SUR SITE
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                Le laboratoire mobilisera sur le site du chantier <strong>{chantierName}</strong> le matériel nécessaire à la réalisation des essais, notamment :
+              </p>
+              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", ...sectionStyle }}>
+                <li>Moules d'éprouvettes cylindriques (16×32) et/ou cubiques (15×15×15)</li>
+                <li>Cône d'Abrams pour essai d'affaissement</li>
+                <li>Thermomètre pour mesure de la température du béton frais</li>
+                <li>Table vibrante ou aiguille vibrante</li>
+                <li>Matériel de prélèvement et d'identification des échantillons</li>
+              </ul>
+            </div>
+
+            {/* Article 05 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 05 : MISSION DU LABORATOIRE
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                La mission du laboratoire consiste à :
+              </p>
+              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", ...sectionStyle }}>
+                <li>Le contrôle de la qualité du béton frais (affaissement, température, aspect visuel)</li>
+                <li>La confection d'éprouvettes pour essais de résistance à la compression</li>
+                <li>La conservation et le transport des éprouvettes au laboratoire</li>
+                <li>L'écrasement des éprouvettes aux échéances prévues (7 jours, 28 jours)</li>
+                <li>L'établissement des procès-verbaux d'essais et rapports de contrôle</li>
+                <li>Le conseil et l'assistance technique en matière de qualité des bétons</li>
+              </ul>
+            </div>
+
+            {/* Article 06 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 06 : NOMBRE ET FRÉQUENCE DES ESSAIS À EFFECTUER
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                Le nombre et la fréquence des essais seront définis en fonction du volume de béton coulé et conformément aux normes en vigueur. En règle générale :
+              </p>
+              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", ...sectionStyle }}>
+                <li>Un prélèvement par coulage ou par fraction de 50 m³ de béton</li>
+                <li>Chaque prélèvement comprend au minimum 6 éprouvettes (3 à 7 jours et 3 à 28 jours)</li>
+                <li>Un essai d'affaissement au cône d'Abrams par prélèvement</li>
+                <li>Mesure de la température du béton frais à chaque prélèvement</li>
+              </ul>
+            </div>
+
+            {/* Article 07 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 07 : HONORAIRES DU LABORATOIRE
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                Les honoraires du laboratoire sont fixés d'un commun accord entre les deux parties selon le bordereau des prix unitaires annexé à la présente convention. Les prix sont fermes et non révisables pendant la durée de validité de la convention.
+              </p>
+            </div>
+
+            {/* Article 08 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 08 : MODALITÉ DE PAIEMENT
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                Le paiement des prestations du laboratoire s'effectuera par situations mensuelles établies sur la base des essais réellement exécutés. Le règlement sera effectué par virement bancaire dans un délai de trente (30) jours à compter de la réception de la facture.
+              </p>
+            </div>
+
+            {/* Article 09 */}
             <div data-pdf-section style={{ marginTop: "30px" }}>
               <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
                 ARTICLE 09 : DURÉE DE VALIDITÉ DE LA CONVENTION
@@ -304,7 +375,30 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 {contrat.date_fin && (
                   <> et reste valable jusqu'au <strong>{format(new Date(contrat.date_fin), "dd MMMM yyyy", { locale: fr })}</strong></>
                 )}
-                .
+                . Elle couvre la durée des travaux du chantier <strong>{chantierName}</strong>.
+              </p>
+            </div>
+
+            {/* Article 10 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 10 : RÉSILIATION DE LA CONVENTION
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                La présente convention peut être résiliée par l'une ou l'autre des parties moyennant un préavis écrit de trente (30) jours. En cas de résiliation, le laboratoire sera rémunéré pour les prestations effectivement réalisées jusqu'à la date de résiliation. Toute résiliation anticipée ne donne droit à aucune indemnité compensatoire.
+              </p>
+            </div>
+
+            {/* Article 11 */}
+            <div data-pdf-section style={{ marginTop: "30px" }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                ARTICLE 11 : ENTRÉE EN VIGUEUR
+              </h3>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
+                La présente convention entre en vigueur à compter de sa signature par les deux parties. Elle est établie en deux (02) exemplaires originaux, un pour chaque partie.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
+                Fait à {labSiege}, le {dateDoc}
               </p>
             </div>
 
