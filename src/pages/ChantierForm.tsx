@@ -24,6 +24,8 @@ const chantierSchema = z.object({
   nom: z.string().min(1, "Le nom du chantier est requis"),
   adresse: z.string().min(1, "L'adresse est requise"),
   ville: z.string().min(1, "La wilaya est requise"),
+  contact: z.string().max(100, "Maximum 100 caractères").optional(),
+  telephone: z.string().max(20, "Maximum 20 caractères").optional(),
   date_debut: z.string().min(1, "La date de début est requise"),
   date_fin: z.string().optional(),
   statut: z.string().min(1, "Le statut est requis"),
