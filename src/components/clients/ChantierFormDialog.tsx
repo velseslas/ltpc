@@ -56,6 +56,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
       nom: "",
       adresse: "",
       ville: "",
+      contact: "",
+      telephone: "",
       statut: "actif",
       date_debut: "",
       date_fin: "",
