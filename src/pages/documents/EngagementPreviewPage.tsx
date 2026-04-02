@@ -277,7 +277,7 @@ const EngagementPreviewPage = () => {
             <p style={{ fontSize: "13px", lineHeight: "2", marginBottom: "8px", textAlign: "justify", ...sectionStyle }}>
               Laboratoire <strong>{labName}</strong>
               {labSiege && <>, {labSiege}</>}
-              {entreprise?.representant && <>, représenté par son directeur <strong>{entreprise.representant}</strong></>}
+              , représenté par son directeur
             </p>
             <p style={{ fontSize: "14px", fontWeight: "bold", textAlign: "right", margin: "30px 0", color: "#333", ...sectionStyle }}>
               D'autre part,

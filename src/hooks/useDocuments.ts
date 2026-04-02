@@ -96,7 +96,22 @@ function useDocumentsCRUD<T extends DocumentBase>(tableName: TableName) {
 }
 
 export function useLettresEngagement() {
-  return useDocumentsCRUD<LettreEngagement>("lettres_engagement");
+  const queryClient = useQueryClient();
+  const base = useDocumentsCRUD<LettreEngagement>("lettres_engagement");
+
+  const query = useQuery({
+    queryKey: ["lettres_engagement"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lettres_engagement")
+        .select("*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as unknown as (LettreEngagement & { clients: { nom: string; representant: string | null; adresse: string | null; ville: string | null } | null; chantiers: { nom: string } | null })[];
+    },
+  });
+
+  return { ...base, query };
 }
 
 export function useOffresService() {
