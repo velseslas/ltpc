@@ -307,6 +307,7 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
         title={editItem ? `Modifier - ${title}` : `Nouveau - ${title}`}
         extraFields={extraFields}
         isLoading={create.isPending || update.isPending}
+        existingItems={query.data || []}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
