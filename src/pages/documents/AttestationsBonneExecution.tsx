@@ -297,8 +297,8 @@ const AttestationsBonneExecution = () => {
                     }}
                   >
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center group-hover:bg-violet-500/30 transition-colors">
-                        <MapPin className="w-6 h-6 text-violet-500" />
+                      <div className="w-12 h-12 rounded-xl bg-accent/30 flex items-center justify-center group-hover:bg-accent/50 transition-colors">
+                        <MapPin className="w-6 h-6 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="text-lg font-semibold text-foreground truncate group-hover:text-primary transition-colors">
