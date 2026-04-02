@@ -127,9 +127,9 @@ const AttestationsBonneExecution = () => {
   };
 
   // Breadcrumb
-  const breadcrumbItems = [
+  const breadcrumbItems: { label: string; path?: string }[] = [
     { label: "Documents", path: "/documents" },
-    { label: "Attestations de bonne exécution", path: viewLevel === "entreprises" ? undefined : "#" },
+    { label: "Attestations de bonne exécution" },
   ];
   if (viewLevel === "chantiers" && selectedClientId) {
     breadcrumbItems.push({ label: getClientName(selectedClientId) });

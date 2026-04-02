@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useEntreprise } from "@/hooks/useEntreprise";
-import { Building2, MapPin, User, Hash } from "lucide-react";
+import { Building2, MapPin, User, Hash, Upload, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface DocumentFormData {
   titre: string;
