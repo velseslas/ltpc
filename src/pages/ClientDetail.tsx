@@ -661,6 +661,22 @@ const ClientDetail = () => {
                       <span>{chantier.ville || chantier.adresse || "Aucune localisation"}</span>
                     </div>
 
+                    {/* Contact */}
+                    {(chantier as any).contact && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <User className="w-4 h-4 text-primary/70" />
+                        <span>{(chantier as any).contact}</span>
+                      </div>
+                    )}
+
+                    {/* Téléphone */}
+                    {(chantier as any).telephone && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <Phone className="w-4 h-4 text-primary/70" />
+                        <span>{(chantier as any).telephone}</span>
+                      </div>
+                    )}
+
                     {/* Dates */}
                     {(chantier.date_debut || chantier.date_fin) && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
