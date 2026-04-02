@@ -233,6 +233,14 @@ export function ClientFormDialog({
                     )}
                   </div>
                   <div className="space-y-2">
+                    <Label className="text-muted-foreground">Représentant</Label>
+                    <Input
+                      {...register("representant")}
+                      placeholder="Nom du représentant"
+                      className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label className="text-muted-foreground">
                       Personne de contact <span className="text-destructive">*</span>
                     </Label>
