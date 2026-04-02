@@ -20,6 +20,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom de l'entreprise est requis").max(100, "Maximum 100 caractères"),
+  representant: z.string().max(100, "Maximum 100 caractères").optional(),
   contact: z.string().max(100, "Maximum 100 caractères").optional(),
   email: z.string().email("Email invalide").max(255, "Maximum 255 caractères").optional().or(z.literal("")),
   telephone: z.string().max(20, "Maximum 20 caractères").optional(),
@@ -71,6 +72,7 @@ const ClientForm = () => {
     resolver: zodResolver(clientSchema),
     defaultValues: {
       nom: "",
+      representant: "",
       contact: "",
       email: "",
       telephone: "",
@@ -92,6 +94,7 @@ const ClientForm = () => {
       setTimeout(() => {
         form.reset({
           nom: client.nom || "",
+          representant: (client as any).representant || "",
           contact: client.contact || "",
           email: client.email || "",
           telephone: client.telephone || "",
@@ -113,6 +116,7 @@ const ClientForm = () => {
     try {
       const clientData = {
         nom: data.nom,
+        representant: data.representant || null,
         contact: data.contact || null,
         email: data.email || null,
         telephone: data.telephone || null,
@@ -200,6 +204,11 @@ const ClientForm = () => {
                     {form.formState.errors.nom.message}
                   </p>
                 )}
+              </div>
+
+              <div>
+                <Label htmlFor="representant">Représentant</Label>
+                <Input id="representant" {...form.register("representant")} className="mt-1.5" placeholder="Nom du représentant" />
               </div>
 
               <div>

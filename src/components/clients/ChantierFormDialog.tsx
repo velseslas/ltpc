@@ -26,6 +26,8 @@ const chantierSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
   adresse: z.string().optional(),
   ville: z.string().optional(),
+  contact: z.string().optional(),
+  telephone: z.string().optional(),
   statut: z.string().default("actif"),
   date_debut: z.string().optional(),
   date_fin: z.string().optional(),
@@ -54,6 +56,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
       nom: "",
       adresse: "",
       ville: "",
+      contact: "",
+      telephone: "",
       statut: "actif",
       date_debut: "",
       date_fin: "",
@@ -67,6 +71,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
         nom: data.nom,
         adresse: data.adresse || null,
         ville: data.ville || null,
+        contact: data.contact || null,
+        telephone: data.telephone || null,
         description: null,
         statut: data.statut,
         date_debut: data.date_debut || null,
@@ -116,6 +122,26 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
               placeholder="Numéro et nom de rue"
               className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
             />
+          </div>
+
+          {/* Contact & Téléphone */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Contact</Label>
+              <Input
+                {...register("contact")}
+                placeholder="Nom du contact sur site"
+                className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Téléphone</Label>
+              <Input
+                {...register("telephone")}
+                placeholder="+213 XX XXX XXXX"
+                className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
           </div>
 
           {/* Ville */}

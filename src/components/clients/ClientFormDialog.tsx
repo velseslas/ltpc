@@ -23,6 +23,7 @@ import { toast } from "sonner";
 
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom est requis").max(100, "Maximum 100 caractères"),
+  representant: z.string().max(100, "Maximum 100 caractères").optional(),
   contact: z.string().min(1, "La personne de contact est requise").max(100, "Maximum 100 caractères"),
   email: z.string().email("Email invalide").max(255, "Maximum 255 caractères").optional().or(z.literal("")),
   telephone: z.string().min(1, "Le téléphone est requis").max(20, "Maximum 20 caractères"),
@@ -83,6 +84,7 @@ export function ClientFormDialog({
     resolver: zodResolver(clientSchema),
     defaultValues: {
       nom: "",
+      representant: "",
       contact: "",
       email: "",
       telephone: "",
@@ -108,6 +110,7 @@ export function ClientFormDialog({
       setTimeout(() => {
         reset({
           nom: client.nom || "",
+          representant: (client as any).representant || "",
           contact: client.contact || "",
           email: client.email || "",
           telephone: client.telephone || "",
@@ -123,6 +126,7 @@ export function ClientFormDialog({
     } else if (!open) {
       reset({
         nom: "",
+        representant: "",
         contact: "",
         email: "",
         telephone: "",
@@ -141,6 +145,7 @@ export function ClientFormDialog({
     try {
       const clientData = {
         nom: data.nom,
+        representant: data.representant || null,
         contact: data.contact,
         email: data.email || null,
         telephone: data.telephone,
@@ -226,6 +231,14 @@ export function ClientFormDialog({
                     {errors.nom && (
                       <p className="text-sm text-destructive">{errors.nom.message}</p>
                     )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Représentant</Label>
+                    <Input
+                      {...register("representant")}
+                      placeholder="Nom du représentant"
+                      className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-muted-foreground">

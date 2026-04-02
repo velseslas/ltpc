@@ -24,6 +24,8 @@ const chantierSchema = z.object({
   nom: z.string().min(1, "Le nom du chantier est requis"),
   adresse: z.string().min(1, "L'adresse est requise"),
   ville: z.string().min(1, "La wilaya est requise"),
+  contact: z.string().max(100, "Maximum 100 caractères").optional(),
+  telephone: z.string().max(20, "Maximum 20 caractères").optional(),
   date_debut: z.string().min(1, "La date de début est requise"),
   date_fin: z.string().optional(),
   statut: z.string().min(1, "Le statut est requis"),
@@ -49,6 +51,8 @@ const ChantierForm = () => {
       nom: "",
       adresse: "",
       ville: "",
+      contact: "",
+      telephone: "",
       date_debut: "",
       date_fin: "",
       statut: "planifie",
@@ -62,6 +66,8 @@ const ChantierForm = () => {
         nom: chantier.nom || "",
         adresse: chantier.adresse || "",
         ville: chantier.ville || "",
+        contact: (chantier as any).contact || "",
+        telephone: (chantier as any).telephone || "",
         date_debut: chantier.date_debut || "",
         date_fin: chantier.date_fin || "",
         statut: chantier.statut || "planifie",
@@ -86,6 +92,8 @@ const ChantierForm = () => {
             nom: data.nom,
             adresse: data.adresse || null,
             ville: data.ville || null,
+            contact: data.contact || null,
+            telephone: data.telephone || null,
             statut: data.statut,
             date_debut: data.date_debut || null,
             date_fin: data.date_fin || null,
@@ -97,6 +105,8 @@ const ChantierForm = () => {
           nom: data.nom,
           adresse: data.adresse || null,
           ville: data.ville || null,
+          contact: data.contact || null,
+          telephone: data.telephone || null,
           description: null,
           statut: data.statut,
           client_id: targetClientId,
@@ -194,6 +204,26 @@ const ChantierForm = () => {
                     {form.formState.errors.adresse.message}
                   </p>
                 )}
+              </div>
+
+              <div>
+                <Label htmlFor="contact">Contact</Label>
+                <Input
+                  id="contact"
+                  {...form.register("contact")}
+                  className="mt-1.5"
+                  placeholder="Nom du contact sur site"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="telephone">Téléphone</Label>
+                <Input
+                  id="telephone"
+                  {...form.register("telephone")}
+                  className="mt-1.5"
+                  placeholder="+213 XX XXX XXXX"
+                />
               </div>
 
               <div className="md:col-span-2">
