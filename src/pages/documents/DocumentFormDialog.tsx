@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
+import { useEntreprise } from "@/hooks/useEntreprise";
+import { Building2, MapPin, User } from "lucide-react";
 
 export interface DocumentFormData {
   titre: string;
@@ -16,6 +18,7 @@ export interface DocumentFormData {
   chantier_id: string;
   observations: string;
   statut: string;
+  representant: string;
   // Extra fields per type
   montant?: string;
   description?: string;
@@ -46,6 +49,7 @@ const DocumentFormDialog = ({
 }: DocumentFormDialogProps) => {
   const { data: clients } = useClients();
   const { data: chantiers } = useChantiers();
+  const { data: entreprise } = useEntreprise();
 
   const [form, setForm] = useState<DocumentFormData>({
     titre: "",
@@ -55,6 +59,7 @@ const DocumentFormDialog = ({
     chantier_id: "",
     observations: "",
     statut: "brouillon",
+    representant: "",
     montant: "",
     description: "",
     montant_ht: "",
@@ -73,6 +78,7 @@ const DocumentFormDialog = ({
         chantier_id: initialData.chantier_id || "",
         observations: initialData.observations || "",
         statut: initialData.statut || "brouillon",
+        representant: initialData.representant || "",
         montant: initialData.montant?.toString() || "",
         description: initialData.description || "",
         montant_ht: initialData.montant_ht?.toString() || "",
@@ -89,6 +95,7 @@ const DocumentFormDialog = ({
         chantier_id: "",
         observations: "",
         statut: "brouillon",
+        representant: "",
         montant: "",
         description: "",
         montant_ht: "",
@@ -102,6 +109,25 @@ const DocumentFormDialog = ({
   const filteredChantiers = form.client_id
     ? chantiers?.filter((c) => c.client_id === form.client_id)
     : chantiers;
+
+  // Get unique representants from all clients
+  const representants = useMemo(() => {
+    if (!clients) return [];
+    const reps = clients
+      .map((c) => c.representant)
+      .filter((r): r is string => !!r && r.trim() !== "");
+    return [...new Set(reps)].sort();
+  }, [clients]);
+
+  // Auto-fill representant when client changes
+  useEffect(() => {
+    if (form.client_id && clients) {
+      const selectedClient = clients.find((c) => c.id === form.client_id);
+      if (selectedClient?.representant) {
+        setForm((prev) => ({ ...prev, representant: selectedClient.representant || "" }));
+      }
+    }
+  }, [form.client_id, clients]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,10 +154,15 @@ const DocumentFormDialog = ({
               <Label>Date</Label>
               <Input type="date" value={form.date_document} onChange={(e) => setForm({ ...form, date_document: e.target.value })} />
             </div>
+
+            {/* Entreprise (Client) */}
             <div>
-              <Label>Client</Label>
+              <Label className="flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-primary" />
+                Entreprise
+              </Label>
               <Select value={form.client_id} onValueChange={(v) => setForm({ ...form, client_id: v, chantier_id: "" })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Sélectionner une entreprise" /></SelectTrigger>
                 <SelectContent>
                   {clients?.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
@@ -139,10 +170,15 @@ const DocumentFormDialog = ({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Chantier */}
             <div>
-              <Label>Chantier</Label>
+              <Label className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-primary" />
+                Chantier
+              </Label>
               <Select value={form.chantier_id} onValueChange={(v) => setForm({ ...form, chantier_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Sélectionner un chantier" /></SelectTrigger>
                 <SelectContent>
                   {filteredChantiers?.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
@@ -150,6 +186,24 @@ const DocumentFormDialog = ({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Représentant */}
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-primary" />
+                Représentant
+              </Label>
+              <Select value={form.representant} onValueChange={(v) => setForm({ ...form, representant: v })}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner un représentant" /></SelectTrigger>
+                <SelectContent>
+                  {representants.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Statut */}
             <div>
               <Label>Statut</Label>
               <Select value={form.statut} onValueChange={(v) => setForm({ ...form, statut: v })}>
