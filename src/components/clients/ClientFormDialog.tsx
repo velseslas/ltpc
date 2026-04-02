@@ -23,6 +23,7 @@ import { toast } from "sonner";
 
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom est requis").max(100, "Maximum 100 caractères"),
+  representant: z.string().max(100, "Maximum 100 caractères").optional(),
   contact: z.string().min(1, "La personne de contact est requise").max(100, "Maximum 100 caractères"),
   email: z.string().email("Email invalide").max(255, "Maximum 255 caractères").optional().or(z.literal("")),
   telephone: z.string().min(1, "Le téléphone est requis").max(20, "Maximum 20 caractères"),
