@@ -84,6 +84,7 @@ export function ClientFormDialog({
     resolver: zodResolver(clientSchema),
     defaultValues: {
       nom: "",
+      representant: "",
       contact: "",
       email: "",
       telephone: "",
