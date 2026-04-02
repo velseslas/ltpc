@@ -20,6 +20,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 const clientSchema = z.object({
   nom: z.string().min(1, "Le nom de l'entreprise est requis").max(100, "Maximum 100 caractères"),
+  representant: z.string().max(100, "Maximum 100 caractères").optional(),
   contact: z.string().max(100, "Maximum 100 caractères").optional(),
   email: z.string().email("Email invalide").max(255, "Maximum 255 caractères").optional().or(z.literal("")),
   telephone: z.string().max(20, "Maximum 20 caractères").optional(),
