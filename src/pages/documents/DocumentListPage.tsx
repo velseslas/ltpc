@@ -35,6 +35,7 @@ interface DocumentListPageProps {
   };
   extraFields?: "engagement" | "service" | "prix" | "attestation";
   extraColumns?: { header: string; render: (item: any) => React.ReactNode }[];
+  onItemClick?: (item: any) => void;
 }
 
 const statusBadge = (statut: string) => {
