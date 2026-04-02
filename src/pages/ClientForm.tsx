@@ -207,6 +207,11 @@ const ClientForm = () => {
               </div>
 
               <div>
+                <Label htmlFor="representant">Représentant</Label>
+                <Input id="representant" {...form.register("representant")} className="mt-1.5" placeholder="Nom du représentant" />
+              </div>
+
+              <div>
                 <Label htmlFor="contact">Personne de contact</Label>
                 <Input id="contact" {...form.register("contact")} className="mt-1.5" placeholder="Nom du contact" />
               </div>

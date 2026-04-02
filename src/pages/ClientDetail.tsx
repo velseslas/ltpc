@@ -248,6 +248,14 @@ const ClientDetail = () => {
             <div className="flex items-center gap-2 p-2 rounded hover:bg-secondary/50 transition-colors">
               <User className="w-4 h-4 text-primary" />
               <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">Représentant:</p>
+                <p className="text-sm text-foreground font-medium">{(client as any).representant || "Non renseigné"}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-2 rounded hover:bg-secondary/50 transition-colors">
+              <User className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-2">
                 <p className="text-sm text-muted-foreground">Contact:</p>
                 <p className="text-sm text-foreground font-medium">{client.contact || "Non renseigné"}</p>
               </div>

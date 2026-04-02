@@ -124,6 +124,26 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
             />
           </div>
 
+          {/* Contact & Téléphone */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Contact</Label>
+              <Input
+                {...register("contact")}
+                placeholder="Nom du contact sur site"
+                className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Téléphone</Label>
+              <Input
+                {...register("telephone")}
+                placeholder="+213 XX XXX XXXX"
+                className="bg-secondary border-0 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+
           {/* Ville */}
           <div className="space-y-2">
             <Label className="text-muted-foreground">Wilaya</Label>

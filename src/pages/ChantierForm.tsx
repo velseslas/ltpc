@@ -206,6 +206,26 @@ const ChantierForm = () => {
                 )}
               </div>
 
+              <div>
+                <Label htmlFor="contact">Contact</Label>
+                <Input
+                  id="contact"
+                  {...form.register("contact")}
+                  className="mt-1.5"
+                  placeholder="Nom du contact sur site"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="telephone">Téléphone</Label>
+                <Input
+                  id="telephone"
+                  {...form.register("telephone")}
+                  className="mt-1.5"
+                  placeholder="+213 XX XXX XXXX"
+                />
+              </div>
+
               <div className="md:col-span-2">
                 <Label htmlFor="statut">Statut <span className="text-red-700">*</span></Label>
                 <Select

@@ -7,6 +7,8 @@ export interface Chantier {
   nom: string;
   adresse: string | null;
   ville: string | null;
+  contact: string | null;
+  telephone: string | null;
   description: string | null;
   statut: string;
   date_debut: string | null;
@@ -20,6 +22,8 @@ export interface ChantierInsert {
   nom: string;
   adresse?: string | null;
   ville?: string | null;
+  contact?: string | null;
+  telephone?: string | null;
   description?: string | null;
   statut?: string;
   date_debut?: string | null;
