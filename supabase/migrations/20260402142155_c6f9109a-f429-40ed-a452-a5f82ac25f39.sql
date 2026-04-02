@@ -1,0 +1,1 @@
+ALTER TABLE public.entreprise ADD COLUMN representant text DEFAULT NULL;
