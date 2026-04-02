@@ -305,7 +305,7 @@ const EngagementPreviewPage = () => {
 
           {/* ============ PAGE 2 : CONTENU ============ */}
           {/* Conclue entre */}
-          <div data-pdf-section data-pdf-page-break="true" style={{ padding: "40px 50px 0" }}>
+          <div data-pdf-section data-pdf-page-break="true" className="bg-white text-black shadow-xl" style={{ padding: "40px 50px 0" }}>
             <div style={{ borderBottom: "2px solid #1a5276", paddingBottom: "8px", marginBottom: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <p style={{ fontSize: "10px", color: "#1a5276", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
               {logoUrl && <img src={logoUrl} alt="Logo" style={{ height: "30px", width: "auto" }} crossOrigin="anonymous" />}
