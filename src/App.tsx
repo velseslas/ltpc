@@ -214,6 +214,8 @@ import OffresService from "./pages/documents/OffresService";
 import OffresPrix from "./pages/documents/OffresPrix";
 import AttestationsBonneExecution from "./pages/documents/AttestationsBonneExecution";
 import Contrats from "./pages/documents/Contrats";
+import ContratPreviewPage from "./pages/documents/ContratPreviewPage";
+import ContratEditPage from "./pages/documents/ContratEditPage";
 import DossierAdministratif from "./pages/documents/DossierAdministratif";
 import LaboratoiresMobiles from "./pages/laboratoires-mobiles/LaboratoiresMobiles";
 import LaboratoireMobileForm from "./pages/laboratoires-mobiles/LaboratoireMobileForm";
@@ -680,6 +682,8 @@ const AppRoutes = () => (
       <Route path="/documents/offres-prix" element={<OffresPrix />} />
       <Route path="/documents/attestations" element={<AttestationsBonneExecution />} />
       <Route path="/documents/contrats" element={<Contrats />} />
+      <Route path="/documents/contrats/:id" element={<ContratPreviewPage />} />
+      <Route path="/documents/contrats/:id/edit" element={<ContratEditPage />} />
       <Route path="/documents/dossier-administratif" element={<DossierAdministratif />} />
       <Route path="/parametres" element={<Parametres />} />
       <Route path="/parametres/entreprise" element={<Entreprise />} />
