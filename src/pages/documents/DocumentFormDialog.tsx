@@ -124,6 +124,8 @@ const DocumentFormDialog = ({
         montant_ttc: initialData.montant_ttc?.toString() || "",
         date_debut: initialData.date_debut || "",
         date_fin: initialData.date_fin || "",
+        document_url: initialData.document_url || "",
+        document_nom: initialData.document_nom || "",
       });
     } else {
       setForm({
@@ -141,9 +143,28 @@ const DocumentFormDialog = ({
         montant_ttc: "",
         date_debut: "",
         date_fin: "",
+        document_url: "",
+        document_nom: "",
       });
     }
   }, [initialData, open, autoNumero]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `attestations/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("documents-administratifs").upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("documents-administratifs").getPublicUrl(path);
+      setForm((prev) => ({ ...prev, document_url: urlData.publicUrl, document_nom: file.name }));
+    } catch {
+      // toast handled by caller
+    }
+    setUploading(false);
+  };
 
   const filteredChantiers = form.client_id
     ? chantiers?.filter((c) => c.client_id === form.client_id)
