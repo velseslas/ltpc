@@ -26,6 +26,8 @@ export interface DocumentFormData {
   montant_ttc?: string;
   date_debut?: string;
   date_fin?: string;
+  document_url?: string;
+  document_nom?: string;
 }
 
 interface DocumentFormDialogProps {
