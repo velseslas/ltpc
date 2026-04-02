@@ -72,6 +72,7 @@ const ClientForm = () => {
     resolver: zodResolver(clientSchema),
     defaultValues: {
       nom: "",
+      representant: "",
       contact: "",
       email: "",
       telephone: "",
