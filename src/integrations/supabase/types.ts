@@ -711,6 +711,44 @@ export type Database = {
         }
         Relationships: []
       }
+      contrat_articles: {
+        Row: {
+          article_number: number
+          contenu: string
+          contrat_id: string
+          created_at: string
+          id: string
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          article_number: number
+          contenu: string
+          contrat_id: string
+          created_at?: string
+          id?: string
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          article_number?: number
+          contenu?: string
+          contrat_id?: string
+          created_at?: string
+          id?: string
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contrat_articles_contrat_id_fkey"
+            columns: ["contrat_id"]
+            isOneToOne: false
+            referencedRelation: "contrats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contrats: {
         Row: {
           chantier_id: string | null
