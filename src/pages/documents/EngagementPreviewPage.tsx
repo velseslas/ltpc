@@ -226,11 +226,11 @@ const EngagementPreviewPage = () => {
       <div className="bg-secondary/30 rounded-xl p-4 sm:p-6">
         <div
           ref={reportRef}
-          className="bg-white text-black shadow-xl mx-auto"
+          className="mx-auto flex flex-col gap-8"
           style={{ maxWidth: "800px", width: "100%", ...sectionStyle }}
         >
           {/* ============ PAGE DE GARDE ============ */}
-          <div data-pdf-section style={{ padding: "50px 50px 40px", minHeight: "1050px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div data-pdf-section className="bg-white text-black shadow-xl" style={{ padding: "50px 50px 40px", minHeight: "1050px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             {/* En-tête avec logo */}
             <div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px double #1a5276", paddingBottom: "14px", marginBottom: "16px" }}>
