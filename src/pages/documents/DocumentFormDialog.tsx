@@ -326,6 +326,37 @@ const DocumentFormDialog = ({
                   <Label>Date fin</Label>
                   <Input type="date" value={form.date_fin} onChange={(e) => setForm({ ...form, date_fin: e.target.value })} />
                 </div>
+                <div className="col-span-3">
+                  <Label className="flex items-center gap-1.5">
+                    <Upload className="w-3.5 h-3.5 text-primary" />
+                    Document scanné
+                  </Label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      <Upload className="w-4 h-4" />
+                      {uploading ? "Envoi en cours..." : "Télécharger un fichier"}
+                    </Button>
+                    {form.document_nom && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <span className="truncate max-w-[200px]">{form.document_nom}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </>
             )}
 
