@@ -186,7 +186,8 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
             {paginatedData.map((item: any) => (
               <div
                 key={item.id}
-                className="rounded-xl bg-card border border-border p-6 hover:border-primary/50 transition-all duration-300 group"
+                className={`rounded-xl bg-card border border-border p-6 hover:border-primary/50 transition-all duration-300 group ${onItemClick ? "cursor-pointer" : ""}`}
+                onClick={() => onItemClick?.(item)}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
