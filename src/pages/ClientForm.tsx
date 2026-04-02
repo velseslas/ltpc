@@ -94,6 +94,7 @@ const ClientForm = () => {
       setTimeout(() => {
         form.reset({
           nom: client.nom || "",
+          representant: (client as any).representant || "",
           contact: client.contact || "",
           email: client.email || "",
           telephone: client.telephone || "",
