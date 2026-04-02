@@ -336,7 +336,7 @@ const EngagementPreviewPage = () => {
             </p>
           </div>
 
-          {/* Articles */}
+          {/* Articles + VISA */}
           {articleNumbers.map((num) => (
             <div key={num} data-pdf-section style={{ padding: "0 50px", marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
               <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
@@ -363,7 +363,7 @@ const EngagementPreviewPage = () => {
               </div>
             </div>
           </div>
-        </div>
+          </div>
       </div>
     </>
   );
