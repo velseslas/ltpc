@@ -334,35 +334,34 @@ const EngagementPreviewPage = () => {
             <p style={{ fontSize: "13px", lineHeight: "2", textAlign: "center", fontStyle: "italic", marginTop: "20px", ...sectionStyle }}>
               Il a été arrêté ce qui suit :
             </p>
-          </div>
 
-          {/* Articles + VISA */}
-          {articleNumbers.map((num) => (
-            <div key={num} data-pdf-section style={{ padding: "0 50px", marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
-                ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
-              </h3>
-              <div>{renderArticleContent(num)}</div>
-            </div>
-          ))}
+            {/* Articles */}
+            {articleNumbers.map((num) => (
+              <div key={num} data-pdf-section style={{ marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
+                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                  ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
+                </h3>
+                <div>{renderArticleContent(num)}</div>
+              </div>
+            ))}
 
-          {/* VISA */}
-          <div data-pdf-section style={{ padding: "0 50px 50px", marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
-            <div style={{ textAlign: "center", width: "40%" }}>
-              <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>VISA DU LABORATOIRE</p>
-              <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
-                <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
-                <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{labRepresentant}</p>
+            {/* VISA */}
+            <div data-pdf-section style={{ paddingBottom: "50px", marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
+              <div style={{ textAlign: "center", width: "40%" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>VISA DU LABORATOIRE</p>
+                <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
+                  <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{labRepresentant}</p>
+                </div>
+              </div>
+              <div style={{ textAlign: "center", width: "40%" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>Le Client</p>
+                <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{clientName}</p>
+                  <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{representant}</p>
+                </div>
               </div>
             </div>
-            <div style={{ textAlign: "center", width: "40%" }}>
-              <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>Le Client</p>
-              <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
-                <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{clientName}</p>
-                <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{representant}</p>
-              </div>
-            </div>
-          </div>
           </div>
       </div>
     </>
