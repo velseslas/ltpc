@@ -71,6 +71,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
         nom: data.nom,
         adresse: data.adresse || null,
         ville: data.ville || null,
+        contact: data.contact || null,
+        telephone: data.telephone || null,
         description: null,
         statut: data.statut,
         date_debut: data.date_debut || null,
