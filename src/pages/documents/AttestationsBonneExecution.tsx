@@ -161,12 +161,12 @@ const AttestationsBonneExecution = () => {
         </div>
 
         {docUrl ? (
-          <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ height: "calc(100vh - 200px)" }}>
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
             {docUrl.toLowerCase().endsWith(".pdf") || docUrl.includes("pdf") ? (
-              <iframe src={docUrl} className="w-full h-full" title="Document attestation" />
+              <iframe src={docUrl} className="w-full" style={{ height: "calc(100vh - 200px)" }} title="Document attestation" />
             ) : (
-              <div className="flex items-center justify-center h-full p-8">
-                <img src={docUrl} alt="Document attestation" className="max-w-full max-h-full object-contain rounded-lg" />
+              <div className="p-4">
+                <img src={docUrl} alt="Document attestation" className="w-full h-auto rounded-lg" />
               </div>
             )}
           </div>
