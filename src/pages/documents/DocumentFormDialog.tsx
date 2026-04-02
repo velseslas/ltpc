@@ -101,7 +101,11 @@ const DocumentFormDialog = ({
     montant_ttc: "",
     date_debut: "",
     date_fin: "",
+    document_url: "",
+    document_nom: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialData) {
