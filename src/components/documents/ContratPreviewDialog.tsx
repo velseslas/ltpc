@@ -263,10 +263,10 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 01 : OBJET DE LA CONVENTION
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                La présente convention a pour objet de définir les conditions dans lesquelles le{" "}
-                <strong>Laboratoire {labName}</strong> assure le contrôle
-                et le suivi de la qualité des bétons pour le compte de l'Entreprise <strong>{clientName}</strong>{" "}
-                sur le chantier <strong>{chantierName}</strong>.
+                La présente convention a pour objet de définir des prestations assurées par le laboratoire <strong>{labName}</strong> dans le cadre de l'assistance technique de l'entreprise <strong>{clientName}</strong>, dans le cadre du projet de la réalisation du chantier <strong>{chantierName}</strong>.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Les prestations consistent à l'assistance technique, aux travaux de laboratoire pour le contrôle et le suivi de la qualité des bétons confectionnés pour le projet.
               </p>
             </div>
 
@@ -276,7 +276,7 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 02 : MODE DE PASSATION DE LA CONVENTION
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                La présente convention est passée de gré à gré entre les deux parties conformément à la réglementation en vigueur.
+                La présente convention est passée de gré à gré conformément à la réglementation en vigueur régissant les marchés publics.
               </p>
             </div>
 
@@ -286,8 +286,30 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 03 : INTERVENTION DU LABORATOIRE
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                Le laboratoire intervient sur le chantier <strong>{chantierName}</strong> pour effectuer les essais
-                de contrôle et de suivi de la qualité des bétons selon les normes en vigueur.
+                L'intervention du laboratoire <strong>{labName}</strong> consiste, à la demande de l'entreprise <strong>{clientName}</strong>, à l'assistance, études, essais et analyses de qualité des matériaux de construction utilisés dans la réalisation du projet ainsi que le suivi et le contrôle des productions de béton.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Les travaux de laboratoire portent notamment sur ce qui suit :
+              </p>
+              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", listStyleType: "disc", ...sectionStyle }}>
+                <li>Etudes et formulations des compositions de béton.</li>
+                <li>Les essais et analyse des sables : équivalent de sable, mesure du taux d'humidité, granulométrie.</li>
+                <li>Analyse granulométrique des agrégats.</li>
+                <li>Les essais d'écrasement sur éprouvettes de béton.</li>
+                <li>Prélèvement, gâchage des éprouvettes pour essais ainsi que la conservation dans des bassins de maturation.</li>
+                <li>Vérification, contrôle et correction des compositions au niveau de la centrale à béton.</li>
+                <li>S'assurer que les moyens mis en œuvre (centrales à béton), doivent permettre de confectionner les bétons aux qualités souhaitées, conformes aux normes et études préalables de formulation de composition du béton.</li>
+                <li>Assistance technique dans le cadre des bétons prescrits.</li>
+                <li>Auto contrôle de l'entreprise pour une qualité continue des matériaux et béton.</li>
+              </ul>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Du point de vue suivi et contrôle de la qualité des matériaux, le laboratoire mettra au service de l'entreprise l'assistance technique ainsi que son expérience par le biais d'un ingénieur de laboratoire qualifié, ainsi qu'un staff technique de soutien pour rechercher les solutions aux problèmes techniques pouvant être rencontrés en cours de la réalisation des travaux.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                L'ingénieur de laboratoire sera mobilisé en permanence sur site, un ingénieur responsable qualité effectuera des visites périodiques du chantier afin de contrôler le bon déroulement du suivi de la qualité des bétons ainsi que la conformité des moyens de production.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Le directeur technique responsable, assistera aux réunions périodiques tenues au niveau du chantier, en qualité de représentant du laboratoire et de l'entreprise concernant la qualité des bétons.
               </p>
             </div>
 
@@ -296,15 +318,18 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
               <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
                 ARTICLE 04 : MATÉRIEL À MOBILISER SUR SITE
               </h3>
-              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                Le laboratoire mobilisera sur le site du chantier <strong>{chantierName}</strong> le matériel nécessaire à la réalisation des essais, notamment :
-              </p>
-              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", ...sectionStyle }}>
-                <li>Moules d'éprouvettes cylindriques (16×32) et/ou cubiques (15×15×15)</li>
-                <li>Cône d'Abrams pour essai d'affaissement</li>
-                <li>Thermomètre pour mesure de la température du béton frais</li>
-                <li>Table vibrante ou aiguille vibrante</li>
-                <li>Matériel de prélèvement et d'identification des échantillons</li>
+              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", listStyleType: "disc", ...sectionStyle }}>
+                <li>Une presse à béton de 1500 KN de type semi-automatique dûment étalonnée par un organisme qualifié.</li>
+                <li>Un dispositif d'essai d'équivalent de sable</li>
+                <li>Une balance de précision 8Kg/0.2grs</li>
+                <li>Une balance standard 30Kg/5grs</li>
+                <li>Deux cônes d'Abrams pour les mesures d'affaissement</li>
+                <li>Des thermomètres pour le béton frais</li>
+                <li>Éprouvettes cubiques 15x15x15 normalisées</li>
+                <li>01 mini compresseur pour le démoulage des éprouvettes</li>
+                <li>Deux thermoplongeurs pour le maintien de la température de conservation des éprouvettes.</li>
+                <li>Les bassins de conservation seront aménagés par l'entreprise, sur site, à proximité des locaux provisoires du laboratoire.</li>
+                <li>Une chambre de permanence est à prévoir sur site pour assurer les coulages du soir.</li>
               </ul>
             </div>
 
@@ -314,16 +339,20 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 05 : MISSION DU LABORATOIRE
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                La mission du laboratoire consiste à :
+                Le laboratoire <strong>{labName}</strong> a pour mission de procéder aux essais de laboratoire et de suivre la qualité des matériaux à mettre en œuvre, dans le cadre du projet de l'entreprise, et de contribuer avec l'entreprise, pour s'assurer que toutes les conditions sont réunies pour obtenir les performances et la régularité de la qualité des matériaux exigés par les études et le client.
               </p>
-              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", ...sectionStyle }}>
-                <li>Le contrôle de la qualité du béton frais (affaissement, température, aspect visuel)</li>
-                <li>La confection d'éprouvettes pour essais de résistance à la compression</li>
-                <li>La conservation et le transport des éprouvettes au laboratoire</li>
-                <li>L'écrasement des éprouvettes aux échéances prévues (7 jours, 28 jours)</li>
-                <li>L'établissement des procès-verbaux d'essais et rapports de contrôle</li>
-                <li>Le conseil et l'assistance technique en matière de qualité des bétons</li>
-              </ul>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Le laboratoire <strong>{labName}</strong>, en collaboration avec l'entreprise <strong>{clientName}</strong>, doit s'assurer que les constituants entrant dans les formulations et la fabrication du béton sont conformes aux prescriptions de l'étude de charge, des normes et règlements en la matière. (Normes Algériennes)
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                En particulier s'assurer que les moyens de la centrale à béton, doivent permettre de confectionner les bétons aux qualités souhaitées, conformes aux essais de convenance et étude préalables de formulation et de composition du béton.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Le laboratoire est seul responsable de la gestion technique et administrative des prestations en travaux d'analyse et contrôle des matériaux.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Pour cela le laboratoire doit disposer de tous les pouvoirs qui lui seront délégués par l'entreprise <strong>{clientName}</strong> signataire de la présente convention, pour faire respecter les recommandations relatives à la qualité des matériaux de construction mis en œuvre dans le cadre des projets visés.
+              </p>
             </div>
 
             {/* Article 06 */}
@@ -332,14 +361,8 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 06 : NOMBRE ET FRÉQUENCE DES ESSAIS À EFFECTUER
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                Le nombre et la fréquence des essais seront définis en fonction du volume de béton coulé et conformément aux normes en vigueur. En règle générale :
+                Le nombre et la fréquence des essais à effectuer seront définis en commun accord entre l'entreprise et le laboratoire <strong>{labName}</strong>, en conformité avec le cahier technique après avis de l'organisme de contrôle technique dans le cadre de la garantie décennale.
               </p>
-              <ul style={{ fontSize: "12px", lineHeight: "2", marginLeft: "20px", marginTop: "8px", ...sectionStyle }}>
-                <li>Un prélèvement par coulage ou par fraction de 50 m³ de béton</li>
-                <li>Chaque prélèvement comprend au minimum 6 éprouvettes (3 à 7 jours et 3 à 28 jours)</li>
-                <li>Un essai d'affaissement au cône d'Abrams par prélèvement</li>
-                <li>Mesure de la température du béton frais à chaque prélèvement</li>
-              </ul>
             </div>
 
             {/* Article 07 */}
@@ -348,7 +371,10 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 07 : HONORAIRES DU LABORATOIRE
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                Les honoraires du laboratoire sont fixés d'un commun accord entre les deux parties selon le bordereau des prix unitaires annexé à la présente convention. Les prix sont fermes et non révisables pendant la durée de validité de la convention.
+                Les prestations fournies pour le contrôle de la qualité des bétons produits pour le chantier et selon un programme d'essais établi en commun accord, feront l'objet d'une facturation forfaitaire mensuelle fixe quel que soit le nombre d'essais effectués.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Ce montant sera majoré d'une TVA applicable le jour de la facturation.
               </p>
             </div>
 
@@ -358,7 +384,10 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 08 : MODALITÉ DE PAIEMENT
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                Le paiement des prestations du laboratoire s'effectuera par situations mensuelles établies sur la base des essais réellement exécutés. Le règlement sera effectué par virement bancaire dans un délai de trente (30) jours à compter de la réception de la facture.
+                Le règlement des honoraires du laboratoire doit s'effectuer mensuellement dans un délai maximum de 30 jours après réception de la facture par l'entreprise.
+              </p>
+              <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", marginTop: "12px", ...sectionStyle }}>
+                Le règlement se fera par espèce ou par chèque bancaire au nom de {labName}.
               </p>
             </div>
 
@@ -368,14 +397,7 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 09 : DURÉE DE VALIDITÉ DE LA CONVENTION
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                La présente convention prend effet à compter de sa date de signature
-                {contrat.date_debut && (
-                  <> le <strong>{format(new Date(contrat.date_debut), "dd MMMM yyyy", { locale: fr })}</strong></>
-                )}
-                {contrat.date_fin && (
-                  <> et reste valable jusqu'au <strong>{format(new Date(contrat.date_fin), "dd MMMM yyyy", { locale: fr })}</strong></>
-                )}
-                . Elle couvre la durée des travaux du chantier <strong>{chantierName}</strong>.
+                La présente convention est valide jusqu'à l'achèvement total des travaux de béton.
               </p>
             </div>
 
@@ -385,7 +407,7 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 10 : RÉSILIATION DE LA CONVENTION
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                La présente convention peut être résiliée par l'une ou l'autre des parties moyennant un préavis écrit de trente (30) jours. En cas de résiliation, le laboratoire sera rémunéré pour les prestations effectivement réalisées jusqu'à la date de résiliation. Toute résiliation anticipée ne donne droit à aucune indemnité compensatoire.
+                La présente convention peut être résiliée par l'une ou l'autre des deux parties en cas de non-respect des termes du contrat.
               </p>
             </div>
 
@@ -395,7 +417,7 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
                 ARTICLE 11 : ENTRÉE EN VIGUEUR
               </h3>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "justify", ...sectionStyle }}>
-                La présente convention entre en vigueur à compter de sa signature par les deux parties. Elle est établie en deux (02) exemplaires originaux, un pour chaque partie.
+                La présente convention est valable et définitive, dès l'approbation par les deux parties. Elle prendra effet dès le démarrage des prestations du laboratoire.
               </p>
               <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
                 Fait à {labSiege}, le {dateDoc}
