@@ -140,6 +140,8 @@ export function useDossierAdministratif() {
         .insert({
           titre: doc.titre,
           client_id: doc.client_id || null,
+          document_url: doc.document_url || null,
+          document_nom: doc.document_nom || null,
         })
         .select()
         .single();

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const documentTypes = [
   {
-    title: "Dossier administratif",
+    title: "Dossier administratif LTPC BENMALEK",
     description: "Documents officiels et pièces administratives",
     icon: FolderOpen,
     path: "/documents/dossier-administratif",
