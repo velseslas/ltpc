@@ -216,6 +216,8 @@ import AttestationsBonneExecution from "./pages/documents/AttestationsBonneExecu
 import Contrats from "./pages/documents/Contrats";
 import ContratPreviewPage from "./pages/documents/ContratPreviewPage";
 import ContratEditPage from "./pages/documents/ContratEditPage";
+import EngagementPreviewPage from "./pages/documents/EngagementPreviewPage";
+import EngagementEditPage from "./pages/documents/EngagementEditPage";
 import DossierAdministratif from "./pages/documents/DossierAdministratif";
 import LaboratoiresMobiles from "./pages/laboratoires-mobiles/LaboratoiresMobiles";
 import LaboratoireMobileForm from "./pages/laboratoires-mobiles/LaboratoireMobileForm";
@@ -678,6 +680,8 @@ const AppRoutes = () => (
       <Route path="/facturation/prix-essais" element={<PrixEssaiListe />} />
       <Route path="/documents" element={<DocumentsIndex />} />
       <Route path="/documents/lettres-engagement" element={<LettresEngagement />} />
+      <Route path="/documents/lettres-engagement/:id" element={<EngagementPreviewPage />} />
+      <Route path="/documents/lettres-engagement/:id/edit" element={<EngagementEditPage />} />
       <Route path="/documents/offres-service" element={<OffresService />} />
       <Route path="/documents/offres-prix" element={<OffresPrix />} />
       <Route path="/documents/attestations" element={<AttestationsBonneExecution />} />
