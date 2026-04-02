@@ -51,6 +51,8 @@ const ChantierForm = () => {
       nom: "",
       adresse: "",
       ville: "",
+      contact: "",
+      telephone: "",
       date_debut: "",
       date_fin: "",
       statut: "planifie",
