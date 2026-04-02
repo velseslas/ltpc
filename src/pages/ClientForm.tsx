@@ -116,6 +116,7 @@ const ClientForm = () => {
     try {
       const clientData = {
         nom: data.nom,
+        representant: data.representant || null,
         contact: data.contact || null,
         email: data.email || null,
         telephone: data.telephone || null,
