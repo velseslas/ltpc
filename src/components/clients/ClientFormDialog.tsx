@@ -126,6 +126,7 @@ export function ClientFormDialog({
     } else if (!open) {
       reset({
         nom: "",
+        representant: "",
         contact: "",
         email: "",
         telephone: "",
