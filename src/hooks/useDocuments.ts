@@ -193,7 +193,7 @@ export function useContratsDocuments() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contrats")
-        .select("*, clients:client_id(nom), chantiers:chantier_id(nom)")
+        .select("*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []).map((item: any) => ({
