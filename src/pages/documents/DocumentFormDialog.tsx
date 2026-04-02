@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useEntreprise } from "@/hooks/useEntreprise";
-import { Building2, MapPin, User, Hash } from "lucide-react";
+import { Building2, MapPin, User, Hash, Upload, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface DocumentFormData {
   titre: string;
@@ -26,6 +27,8 @@ export interface DocumentFormData {
   montant_ttc?: string;
   date_debut?: string;
   date_fin?: string;
+  document_url?: string;
+  document_nom?: string;
 }
 
 interface DocumentFormDialogProps {
@@ -98,7 +101,11 @@ const DocumentFormDialog = ({
     montant_ttc: "",
     date_debut: "",
     date_fin: "",
+    document_url: "",
+    document_nom: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -117,6 +124,8 @@ const DocumentFormDialog = ({
         montant_ttc: initialData.montant_ttc?.toString() || "",
         date_debut: initialData.date_debut || "",
         date_fin: initialData.date_fin || "",
+        document_url: initialData.document_url || "",
+        document_nom: initialData.document_nom || "",
       });
     } else {
       setForm({
@@ -134,9 +143,28 @@ const DocumentFormDialog = ({
         montant_ttc: "",
         date_debut: "",
         date_fin: "",
+        document_url: "",
+        document_nom: "",
       });
     }
   }, [initialData, open, autoNumero]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `attestations/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("documents-administratifs").upload(path, file);
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("documents-administratifs").getPublicUrl(path);
+      setForm((prev) => ({ ...prev, document_url: urlData.publicUrl, document_nom: file.name }));
+    } catch {
+      // toast handled by caller
+    }
+    setUploading(false);
+  };
 
   const filteredChantiers = form.client_id
     ? chantiers?.filter((c) => c.client_id === form.client_id)
@@ -297,6 +325,37 @@ const DocumentFormDialog = ({
                 <div>
                   <Label>Date fin</Label>
                   <Input type="date" value={form.date_fin} onChange={(e) => setForm({ ...form, date_fin: e.target.value })} />
+                </div>
+                <div className="col-span-3">
+                  <Label className="flex items-center gap-1.5">
+                    <Upload className="w-3.5 h-3.5 text-primary" />
+                    Document scanné
+                  </Label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      <Upload className="w-4 h-4" />
+                      {uploading ? "Envoi en cours..." : "Télécharger un fichier"}
+                    </Button>
+                    {form.document_nom && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <span className="truncate max-w-[200px]">{form.document_nom}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             )}
