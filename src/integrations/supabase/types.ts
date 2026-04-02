@@ -4324,6 +4324,44 @@ export type Database = {
           },
         ]
       }
+      engagement_articles: {
+        Row: {
+          article_number: number
+          contenu: string
+          created_at: string
+          engagement_id: string
+          id: string
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          article_number: number
+          contenu: string
+          created_at?: string
+          engagement_id: string
+          id?: string
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          article_number?: number
+          contenu?: string
+          created_at?: string
+          engagement_id?: string
+          id?: string
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagement_articles_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "lettres_engagement"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entreprise: {
         Row: {
           annexe: string | null
