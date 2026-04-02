@@ -145,6 +145,7 @@ export function ClientFormDialog({
     try {
       const clientData = {
         nom: data.nom,
+        representant: data.representant || null,
         contact: data.contact,
         email: data.email || null,
         telephone: data.telephone,
