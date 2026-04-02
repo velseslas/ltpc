@@ -105,6 +105,8 @@ const ChantierForm = () => {
           nom: data.nom,
           adresse: data.adresse || null,
           ville: data.ville || null,
+          contact: data.contact || null,
+          telephone: data.telephone || null,
           description: null,
           statut: data.statut,
           client_id: targetClientId,
