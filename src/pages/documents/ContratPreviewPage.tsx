@@ -7,10 +7,18 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useContratsDocuments } from "@/hooks/useDocuments";
 import { useContratArticles, DEFAULT_ARTICLES } from "@/hooks/useContratArticles";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+
+const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
+const pageStyle: React.CSSProperties = {
+  padding: "40px 50px",
+  minHeight: "1100px",
+  ...sectionStyle,
+};
 
 const ContratPreviewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,8 +50,8 @@ const ContratPreviewPage = () => {
 
   const labName = entreprise?.nom || "LTPC BENMALEK";
   const labSiege = entreprise?.siege_social || "Ain Ebey Constantine";
+  const labRepresentant = entreprise?.representant || "Le Directeur";
 
-  // Merge saved articles with defaults
   const getArticleContent = (num: number) => {
     const saved = savedArticles?.find((a) => a.article_number === num);
     if (saved) return saved.contenu;
@@ -96,6 +104,7 @@ const ContratPreviewPage = () => {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', serif; }
         @page { size: A4; margin: 15mm; }
+        .page-break { page-break-before: always; }
       </style>
       </head><body>${printContent.innerHTML}</body></html>
     `);
@@ -106,8 +115,8 @@ const ContratPreviewPage = () => {
   const handleDownload = async () => {
     if (!reportRef.current) return;
     try {
-      const sections = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-section]")
+      const pages = Array.from(
+        reportRef.current.querySelectorAll("[data-pdf-page]")
       ) as HTMLElement[];
 
       const pdf = new jsPDF("p", "mm", "a4");
@@ -115,10 +124,10 @@ const ContratPreviewPage = () => {
       const pdfH = pdf.internal.pageSize.getHeight();
       const margin = 10;
       const contentW = pdfW - margin * 2;
-      let currentY = margin;
 
-      for (let i = 0; i < sections.length; i++) {
-        const canvas = await html2canvas(sections[i], {
+      for (let i = 0; i < pages.length; i++) {
+        if (i > 0) pdf.addPage();
+        const canvas = await html2canvas(pages[i], {
           scale: 3,
           useCORS: true,
           backgroundColor: "#ffffff",
@@ -126,14 +135,7 @@ const ContratPreviewPage = () => {
         const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const ratio = contentW / (canvas.width / 3);
         const imgH = (canvas.height / 3) * ratio;
-
-        if (currentY + imgH > pdfH - margin && currentY > margin) {
-          pdf.addPage();
-          currentY = margin;
-        }
-
-        pdf.addImage(imgData, "JPEG", margin, currentY, contentW, imgH);
-        currentY += imgH + 2;
+        pdf.addImage(imgData, "JPEG", margin, margin, contentW, Math.min(imgH, pdfH - margin * 2));
       }
 
       pdf.save(`${contrat.titre || "contrat"}.pdf`);
@@ -154,9 +156,8 @@ const ContratPreviewPage = () => {
     }
   };
 
-  const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
-
   const articleNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  const qrData = `Contrat: ${contrat.titre} | Client: ${clientName} | Chantier: ${chantierName} | Date: ${dateDoc}`;
 
   return (
     <>
@@ -169,12 +170,7 @@ const ContratPreviewPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-            onClick={() => navigate("/documents/contrats")}
-          >
+          <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/documents/contrats")}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -188,12 +184,7 @@ const ContratPreviewPage = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(`/documents/contrats/${id}/edit`)}
-            className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate(`/documents/contrats/${id}/edit`)} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
             <Pencil className="w-4 h-4" />
             Modifier
           </Button>
@@ -216,35 +207,22 @@ const ContratPreviewPage = () => {
       <div className="bg-secondary/30 rounded-xl p-4 sm:p-6">
         <div
           ref={reportRef}
-          className="bg-white text-black shadow-xl mx-auto"
-          style={{ maxWidth: "800px", width: "100%", padding: "40px 50px", ...sectionStyle }}
+          className="mx-auto flex flex-col gap-8"
+          style={{ maxWidth: "800px", width: "100%" }}
         >
-          {/* Couverture */}
-          <div data-pdf-section>
-            <div style={{ textAlign: "center", borderBottom: "3px double #1a5276", paddingBottom: "12px", marginBottom: "50px" }}>
-              <p style={{ fontSize: "15px", fontWeight: "bold", letterSpacing: "1.5px", color: "#1a5276", marginBottom: "3px", ...sectionStyle }}>
-                LABORATOIRE DES TRAVAUX PUBLICS ET DE CONSTRUCTION
-              </p>
-              <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1a5276", ...sectionStyle }}>
-                {labName}, SIS À {labSiege.toUpperCase()}
-              </p>
-              <p style={{ fontSize: "10px", color: "#555", marginTop: "4px", ...sectionStyle }}>
-                {entreprise?.telephone ? `TEL- FAX ${entreprise.telephone}` : "TEL- FAX 030 222 750"}
-                {" | "}
-                {entreprise?.email ? `Mail : ${entreprise.email}` : "Mail : LTPC Benmalek@gmail.com"}
-              </p>
+          {/* ============ PAGE 1 : PAGE DE GARDE ============ */}
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <DocumentPageHeader
+                entreprise={entreprise}
+                qrData={qrData}
+                title="CONVENTION D'ASSISTANCE TECHNIQUE"
+                subtitle="« CONTRÔLE ET SUIVI DE LA QUALITÉ DES BÉTONS »"
+              />
             </div>
 
-            <div style={{ textAlign: "center", margin: "60px 0" }}>
-              <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "#1a5276", marginBottom: "14px", letterSpacing: "1px", ...sectionStyle }}>
-                CONVENTION D'ASSISTANCE TECHNIQUE
-              </h2>
-              <h3 style={{ fontSize: "15px", fontWeight: "bold", color: "#2c3e50", ...sectionStyle }}>
-                « CONTRÔLE ET SUIVI DE LA QUALITÉ DES BÉTONS »
-              </h3>
-            </div>
-
-            <div style={{ margin: "50px 0", padding: "20px 24px", border: "1px solid #ccc", borderLeft: "4px solid #1a5276", background: "#f8fafc" }}>
+            {/* Info client */}
+            <div style={{ margin: "40px 0", padding: "20px 24px", border: "1px solid #ccc", borderLeft: "4px solid #1a5276", background: "#f8fafc" }}>
               <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
                 <strong style={{ textDecoration: "underline" }}>Client</strong> : Entreprise <strong>{clientName}</strong>
                 {clientLocalisation && <span>, sis à {clientLocalisation}</span>}
@@ -257,13 +235,24 @@ const ContratPreviewPage = () => {
               </p>
             </div>
 
-            <p style={{ fontSize: "11px", textAlign: "right", color: "#666", margin: "20px 0", ...sectionStyle }}>
-              Fait le {dateDoc}
-            </p>
+            {/* Date */}
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontSize: "11px", color: "#666", ...sectionStyle }}>
+                Fait le {dateDoc}
+              </p>
+            </div>
           </div>
 
-          {/* Conclue entre */}
-          <div data-pdf-section style={{ marginTop: "40px", borderTop: "2px solid #e5e7eb", paddingTop: "30px" }}>
+          {/* ============ PAGE 2 : CONCLUE ENTRE + SOMMAIRE ============ */}
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
+            <DocumentPageHeader
+              entreprise={entreprise}
+              qrData={qrData}
+              title="CONVENTION D'ASSISTANCE TECHNIQUE"
+              subtitle={contrat.titre}
+            />
+
+            {/* Conclue entre */}
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
               Conclue entre :
             </h3>
@@ -280,62 +269,71 @@ const ContratPreviewPage = () => {
             <p style={{ fontSize: "13px", lineHeight: "2", marginBottom: "8px", textAlign: "justify", ...sectionStyle }}>
               Le <strong>Laboratoire</strong> des travaux publics et de construction{" "}
               <strong>{labName}</strong>, sis à {labSiege} représenté par son Directeur{" "}
-              <strong>Benmalek Fayçal</strong>
+              <strong>{labRepresentant}</strong>
             </p>
             <p style={{ fontSize: "14px", fontWeight: "bold", textAlign: "right", margin: "30px 0", color: "#333", ...sectionStyle }}>
               D'autre part.
             </p>
-          </div>
 
-          {/* Sommaire */}
-          <div data-pdf-section style={{ marginTop: "40px", borderTop: "2px solid #e5e7eb", paddingTop: "30px" }}>
-            <h3 style={{ fontSize: "16px", fontWeight: "bold", textAlign: "center", marginBottom: "24px", color: "#1a5276", textDecoration: "underline", ...sectionStyle }}>
-              SOMMAIRE
-            </h3>
-            {articleNumbers.map((num) => (
-              <p key={num} style={{ fontSize: "12px", padding: "8px 0", borderBottom: "1px dotted #ccc", ...sectionStyle }}>
-                <strong>ARTICLE {String(num).padStart(2, "0")} - {getArticleTitle(num)}</strong>
-              </p>
-            ))}
-          </div>
-
-          {/* Articles */}
-          {articleNumbers.map((num) => (
-            <div key={num} data-pdf-section style={{ marginTop: num === 1 ? "40px" : "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
-                ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
+            {/* Sommaire */}
+            <div style={{ marginTop: "40px", borderTop: "2px solid #e5e7eb", paddingTop: "30px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: "bold", textAlign: "center", marginBottom: "24px", color: "#1a5276", textDecoration: "underline", ...sectionStyle }}>
+                SOMMAIRE
               </h3>
-              <div>{renderArticleContent(num)}</div>
-              {num === 11 && (
-                <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
-                  Fait à {labSiege}, le {dateDoc}
+              {articleNumbers.map((num) => (
+                <p key={num} style={{ fontSize: "12px", padding: "8px 0", borderBottom: "1px dotted #ccc", ...sectionStyle }}>
+                  <strong>ARTICLE {String(num).padStart(2, "0")} - {getArticleTitle(num)}</strong>
                 </p>
-              )}
+              ))}
             </div>
-          ))}
+          </div>
 
-          {/* Observations */}
-          {contrat.observations && (
-            <div data-pdf-section style={{ marginTop: "30px", padding: "16px 20px", background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: "4px" }}>
-              <h4 style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "8px", color: "#1a5276", ...sectionStyle }}>Observations :</h4>
-              <p style={{ fontSize: "12px", lineHeight: "1.8", ...sectionStyle }}>{contrat.observations}</p>
-            </div>
-          )}
+          {/* ============ PAGE 3 : ARTICLES ============ */}
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
+            <DocumentPageHeader
+              entreprise={entreprise}
+              qrData={qrData}
+              title="CONVENTION D'ASSISTANCE TECHNIQUE"
+              subtitle="Articles"
+            />
 
-          {/* Signatures */}
-          <div data-pdf-section style={{ marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
-            <div style={{ textAlign: "center", width: "40%" }}>
-              <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>Le Client</p>
-              <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
-                <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{clientName}</p>
-                <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{representant}</p>
+            {articleNumbers.map((num) => (
+              <div key={num} style={{ marginTop: num === 1 ? "10px" : "30px" }}>
+                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                  ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
+                </h3>
+                <div>{renderArticleContent(num)}</div>
+                {num === 11 && (
+                  <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
+                    Fait à {labSiege}, le {dateDoc}
+                  </p>
+                )}
               </div>
-            </div>
-            <div style={{ textAlign: "center", width: "40%" }}>
-              <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>Le Laboratoire</p>
-              <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
-                <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
-                <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>Benmalek Fayçal</p>
+            ))}
+
+            {/* Observations */}
+            {contrat.observations && (
+              <div style={{ marginTop: "30px", padding: "16px 20px", background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: "4px" }}>
+                <h4 style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "8px", color: "#1a5276", ...sectionStyle }}>Observations :</h4>
+                <p style={{ fontSize: "12px", lineHeight: "1.8", ...sectionStyle }}>{contrat.observations}</p>
+              </div>
+            )}
+
+            {/* Signatures */}
+            <div style={{ marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
+              <div style={{ textAlign: "center", width: "40%" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>Le Client</p>
+                <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{clientName}</p>
+                  <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{representant}</p>
+                </div>
+              </div>
+              <div style={{ textAlign: "center", width: "40%" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>Le Laboratoire</p>
+                <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
+                  <p style={{ fontSize: "10px", color: "#666", marginTop: "2px", ...sectionStyle }}>{labRepresentant}</p>
+                </div>
               </div>
             </div>
           </div>

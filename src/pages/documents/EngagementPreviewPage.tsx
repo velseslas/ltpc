@@ -7,11 +7,18 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useLettresEngagement } from "@/hooks/useDocuments";
 import { useEngagementArticles, DEFAULT_ENGAGEMENT_ARTICLES } from "@/hooks/useEngagementArticles";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { QRCodeSVG } from "qrcode.react";
+
+const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
+const pageStyle: React.CSSProperties = {
+  padding: "40px 50px",
+  minHeight: "1100px",
+  ...sectionStyle,
+};
 
 const EngagementPreviewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +51,6 @@ const EngagementPreviewPage = () => {
   const labName = entreprise?.nom || "LABS.CAM";
   const labSiege = entreprise?.siege_social || "";
   const labRepresentant = entreprise?.representant || "Le Directeur";
-  const logoUrl = entreprise?.logo_url || null;
 
   const getArticleContent = (num: number) => {
     const saved = savedArticles?.find((a) => a.article_number === num);
@@ -66,8 +72,6 @@ const EngagementPreviewPage = () => {
       .replace(/\{\{clientName\}\}/g, clientName)
       .replace(/\{\{chantierName\}\}/g, chantierName);
   };
-
-  const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 
   const renderArticleContent = (num: number) => {
     const raw = replaceVars(getArticleContent(num));
@@ -111,8 +115,8 @@ const EngagementPreviewPage = () => {
   const handleDownload = async () => {
     if (!reportRef.current) return;
     try {
-      const sections = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-section]")
+      const pages = Array.from(
+        reportRef.current.querySelectorAll("[data-pdf-page]")
       ) as HTMLElement[];
 
       const pdf = new jsPDF("p", "mm", "a4");
@@ -120,16 +124,10 @@ const EngagementPreviewPage = () => {
       const pdfH = pdf.internal.pageSize.getHeight();
       const margin = 10;
       const contentW = pdfW - margin * 2;
-      let currentY = margin;
 
-      for (let i = 0; i < sections.length; i++) {
-        const isPageBreak = sections[i].getAttribute("data-pdf-page-break") === "true";
-        if (isPageBreak && i > 0) {
-          pdf.addPage();
-          currentY = margin;
-        }
-
-        const canvas = await html2canvas(sections[i], {
+      for (let i = 0; i < pages.length; i++) {
+        if (i > 0) pdf.addPage();
+        const canvas = await html2canvas(pages[i], {
           scale: 3,
           useCORS: true,
           backgroundColor: "#ffffff",
@@ -137,14 +135,7 @@ const EngagementPreviewPage = () => {
         const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const ratio = contentW / (canvas.width / 3);
         const imgH = (canvas.height / 3) * ratio;
-
-        if (currentY + imgH > pdfH - margin && currentY > margin) {
-          pdf.addPage();
-          currentY = margin;
-        }
-
-        pdf.addImage(imgData, "JPEG", margin, currentY, contentW, imgH);
-        currentY += imgH + 2;
+        pdf.addImage(imgData, "JPEG", margin, margin, contentW, Math.min(imgH, pdfH - margin * 2));
       }
 
       pdf.save(`${engagement.titre || "engagement"}.pdf`);
@@ -179,12 +170,7 @@ const EngagementPreviewPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-            onClick={() => navigate("/documents/lettres-engagement")}
-          >
+          <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/documents/lettres-engagement")}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -198,12 +184,7 @@ const EngagementPreviewPage = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(`/documents/lettres-engagement/${id}/edit`)}
-            className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate(`/documents/lettres-engagement/${id}/edit`)} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
             <Pencil className="w-4 h-4" />
             Modifier
           </Button>
@@ -227,52 +208,17 @@ const EngagementPreviewPage = () => {
         <div
           ref={reportRef}
           className="mx-auto flex flex-col gap-8"
-          style={{ maxWidth: "800px", width: "100%", ...sectionStyle }}
+          style={{ maxWidth: "800px", width: "100%" }}
         >
-          {/* ============ PAGE DE GARDE ============ */}
-          <div data-pdf-section className="bg-white text-black shadow-xl" style={{ padding: "50px 50px 40px", minHeight: "1050px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            {/* En-tête avec logo */}
+          {/* ============ PAGE 1 : PAGE DE GARDE ============ */}
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px double #1a5276", paddingBottom: "14px", marginBottom: "16px" }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: "15px", fontWeight: "bold", letterSpacing: "1.5px", color: "#1a5276", marginBottom: "3px", ...sectionStyle }}>
-                    LABORATOIRE DES TRAVAUX PUBLICS ET DE CONSTRUCTION
-                  </p>
-                  <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1a5276", ...sectionStyle }}>
-                    {labName}{labSiege ? `, SIS À ${labSiege.toUpperCase()}` : ""}
-                  </p>
-                  <p style={{ fontSize: "10px", color: "#555", marginTop: "4px", ...sectionStyle }}>
-                    {entreprise?.telephone ? `TEL- FAX ${entreprise.telephone}` : ""}
-                    {entreprise?.email ? ` | Mail : ${entreprise.email}` : ""}
-                  </p>
-                  {entreprise?.numero_autorisation && (
-                    <p style={{ fontSize: "10px", color: "#555", marginTop: "2px", ...sectionStyle }}>
-                      N° Autorisation : {entreprise.numero_autorisation}
-                    </p>
-                  )}
-                </div>
-                {logoUrl && (
-                  <div style={{ marginLeft: "20px", flexShrink: 0 }}>
-                    <img src={logoUrl} alt="Logo laboratoire" style={{ height: "70px", width: "auto", objectFit: "contain" }} crossOrigin="anonymous" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Titre central */}
-            <div style={{ textAlign: "center", margin: "60px 0" }}>
-              <div style={{ border: "2px solid #1a5276", padding: "30px 40px", display: "inline-block" }}>
-                <h2 style={{ fontSize: "22px", fontWeight: "bold", color: "#1a5276", marginBottom: "14px", letterSpacing: "2px", ...sectionStyle }}>
-                  ENGAGEMENT D'ASSISTANCE TECHNIQUE
-                </h2>
-                <div style={{ width: "80px", height: "3px", background: "#1a5276", margin: "0 auto 14px" }} />
-                <h3 style={{ fontSize: "16px", fontWeight: "bold", color: "#2c3e50", ...sectionStyle }}>
-                  « TRAVAUX DE LABORATOIRE »
-                </h3>
-                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#2c3e50", marginTop: "10px", ...sectionStyle }}>
-                  CONTRÔLE ET SUIVI DE LA QUALITÉ DES BÉTONS
-                </h3>
-              </div>
+              <DocumentPageHeader
+                entreprise={entreprise}
+                qrData={qrData}
+                title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
+                subtitle="« TRAVAUX DE LABORATOIRE » — CONTRÔLE ET SUIVI DE LA QUALITÉ DES BÉTONS"
+              />
             </div>
 
             {/* Info client / projet */}
@@ -289,28 +235,24 @@ const EngagementPreviewPage = () => {
               </p>
             </div>
 
-            {/* Date et QR code */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "auto" }}>
-              <div>
-                <p style={{ fontSize: "11px", color: "#666", ...sectionStyle }}>
-                  Fait le {dateDoc}
-                </p>
-              </div>
-              <div style={{ textAlign: "center" }}>
-                <QRCodeSVG value={qrData} size={80} level="M" />
-                <p style={{ fontSize: "8px", color: "#999", marginTop: "4px", ...sectionStyle }}>Code de vérification</p>
-              </div>
+            {/* Date */}
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontSize: "11px", color: "#666", ...sectionStyle }}>
+                Fait le {dateDoc}
+              </p>
             </div>
           </div>
 
           {/* ============ PAGE 2 : CONTENU ============ */}
-          {/* Conclue entre */}
-          <div data-pdf-section data-pdf-page-break="true" className="bg-white text-black shadow-xl" style={{ padding: "40px 50px 0" }}>
-            <div style={{ borderBottom: "2px solid #1a5276", paddingBottom: "8px", marginBottom: "24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <p style={{ fontSize: "10px", color: "#1a5276", fontWeight: "bold", ...sectionStyle }}>{labName}</p>
-              {logoUrl && <img src={logoUrl} alt="Logo" style={{ height: "30px", width: "auto" }} crossOrigin="anonymous" />}
-            </div>
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
+            <DocumentPageHeader
+              entreprise={entreprise}
+              qrData={qrData}
+              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
+              subtitle={engagement.titre}
+            />
 
+            {/* Conclue entre */}
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
               Conclu entre :
             </h3>
@@ -337,7 +279,7 @@ const EngagementPreviewPage = () => {
 
             {/* Articles */}
             {articleNumbers.map((num) => (
-              <div key={num} data-pdf-section style={{ marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
+              <div key={num} style={{ marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
                 <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
                   ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
                 </h3>
@@ -346,7 +288,7 @@ const EngagementPreviewPage = () => {
             ))}
 
             {/* VISA */}
-            <div data-pdf-section style={{ paddingBottom: "50px", marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
+            <div style={{ paddingBottom: "50px", marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
               <div style={{ textAlign: "center", width: "40%" }}>
                 <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>VISA DU LABORATOIRE</p>
                 <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>

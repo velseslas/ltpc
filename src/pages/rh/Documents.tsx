@@ -493,6 +493,8 @@ export default function Documents() {
                       email: entreprise.email,
                       logo_url: entreprise.logo_url,
                       numero_autorisation: entreprise.numero_autorisation,
+                      date_autorisation: entreprise.date_autorisation,
+                      annexe: entreprise.annexe,
                     }}
                   />
                 </div>
