@@ -288,36 +288,49 @@ const ContratPreviewPage = () => {
             </div>
           </div>
 
-          {/* ============ PAGE 3 : ARTICLES ============ */}
-          <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="CONVENTION D'ASSISTANCE TECHNIQUE"
-              subtitle="Articles"
-            />
+          {/* ============ PAGES ARTICLES (groupés par pages) ============ */}
+          {[[1, 2, 3], [4, 5], [6, 7, 8], [9, 10, 11]].map((group, gi) => (
+            <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
+              <DocumentPageHeader
+                entreprise={entreprise}
+                qrData={qrData}
+                title="CONVENTION D'ASSISTANCE TECHNIQUE"
+                subtitle={`Articles ${String(group[0]).padStart(2, "0")} à ${String(group[group.length - 1]).padStart(2, "0")}`}
+              />
 
-            {articleNumbers.map((num) => (
-              <div key={num} style={{ marginTop: num === 1 ? "10px" : "30px" }}>
-                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
-                  ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
-                </h3>
-                <div>{renderArticleContent(num)}</div>
-                {num === 11 && (
-                  <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
-                    Fait à {labSiege}, le {dateDoc}
-                  </p>
-                )}
-              </div>
-            ))}
+              {group.map((num, idx) => (
+                <div key={num} style={{ marginTop: idx === 0 ? "10px" : "30px" }}>
+                  <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                    ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
+                  </h3>
+                  <div>{renderArticleContent(num)}</div>
+                  {num === 11 && (
+                    <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
+                      Fait à {labSiege}, le {dateDoc}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
 
-            {/* Observations */}
-            {contrat.observations && (
-              <div style={{ marginTop: "30px", padding: "16px 20px", background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: "4px" }}>
-                <h4 style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "8px", color: "#1a5276", ...sectionStyle }}>Observations :</h4>
-                <p style={{ fontSize: "12px", lineHeight: "1.8", ...sectionStyle }}>{contrat.observations}</p>
-              </div>
-            )}
+          {/* ============ PAGE FINALE : OBSERVATIONS + SIGNATURES ============ */}
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div>
+              <DocumentPageHeader
+                entreprise={entreprise}
+                qrData={qrData}
+                title="CONVENTION D'ASSISTANCE TECHNIQUE"
+                subtitle="Visa et Signatures"
+              />
+
+              {contrat.observations && (
+                <div style={{ marginTop: "10px", padding: "16px 20px", background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: "4px" }}>
+                  <h4 style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "8px", color: "#1a5276", ...sectionStyle }}>Observations :</h4>
+                  <p style={{ fontSize: "12px", lineHeight: "1.8", ...sectionStyle }}>{contrat.observations}</p>
+                </div>
+              )}
+            </div>
 
             {/* Signatures */}
             <div style={{ marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
