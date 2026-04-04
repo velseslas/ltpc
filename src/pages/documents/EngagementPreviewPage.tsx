@@ -278,7 +278,7 @@ const EngagementPreviewPage = () => {
           </div>
 
           {/* ============ PAGES ARTICLES (un par page ou groupés) ============ */}
-          {[[1, 2], [3], [4, 5]].map((group, gi) => (
+          {[[1, 2], [3], [4]].map((group, gi) => (
             <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
               <DocumentPageHeader
                 entreprise={entreprise}
@@ -298,16 +298,23 @@ const EngagementPreviewPage = () => {
             </div>
           ))}
 
-          {/* ============ PAGE FINALE : VISA ============ */}
+          {/* ============ PAGE FINALE : ARTICLE 05 + VISA ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-              subtitle="Visa et Signatures"
-            />
+            <div>
+              <DocumentPageHeader
+                entreprise={entreprise}
+                qrData={qrData}
+                title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
+                subtitle="Article 05 — Visa et Signatures"
+              />
 
-            <div style={{ flex: 1 }} />
+              <div style={{ marginTop: "10px", borderTop: "2px solid #e5e7eb", paddingTop: "20px" }}>
+                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                  ARTICLE 05 : {getArticleTitle(5)}
+                </h3>
+                <div>{renderArticleContent(5)}</div>
+              </div>
+            </div>
 
             <div style={{ paddingBottom: "50px", display: "flex", justifyContent: "space-between" }}>
               <div style={{ textAlign: "center", width: "40%" }}>
