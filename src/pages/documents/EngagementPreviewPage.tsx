@@ -245,12 +245,6 @@ const EngagementPreviewPage = () => {
 
           {/* ============ PAGE 2 : CONCLUE ENTRE ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-              subtitle={engagement.titre}
-            />
 
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
               Conclu entre :
@@ -280,12 +274,6 @@ const EngagementPreviewPage = () => {
           {/* ============ PAGES ARTICLES (un par page ou groupés) ============ */}
           {[[1, 2], [3], [4, 5]].map((group, gi) => (
             <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-              <DocumentPageHeader
-                entreprise={entreprise}
-                qrData={qrData}
-                title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-                subtitle={`Article${group.length > 1 ? "s" : ""} ${String(group[0]).padStart(2, "0")}${group.length > 1 ? ` à ${String(group[group.length - 1]).padStart(2, "0")}` : ""}`}
-              />
 
               {group.map((num, idx) => (
                 <div key={num} style={{ marginTop: idx === 0 ? "10px" : "30px", ...(idx === 0 ? { borderTop: "2px solid #e5e7eb", paddingTop: "20px" } : {}) }}>
@@ -300,12 +288,6 @@ const EngagementPreviewPage = () => {
 
           {/* ============ PAGE FINALE : VISA ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-              subtitle="Visa et Signatures"
-            />
 
             <div style={{ flex: 1 }} />
 

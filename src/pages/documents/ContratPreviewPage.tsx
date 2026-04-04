@@ -245,12 +245,6 @@ const ContratPreviewPage = () => {
 
           {/* ============ PAGE 2 : CONCLUE ENTRE + SOMMAIRE ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="CONVENTION D'ASSISTANCE TECHNIQUE"
-              subtitle={contrat.titre}
-            />
 
             {/* Conclue entre */}
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
@@ -291,12 +285,6 @@ const ContratPreviewPage = () => {
           {/* ============ PAGES ARTICLES (groupés par pages) ============ */}
           {[[1, 2, 3], [4, 5], [6, 7, 8], [9, 10, 11]].map((group, gi) => (
             <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-              <DocumentPageHeader
-                entreprise={entreprise}
-                qrData={qrData}
-                title="CONVENTION D'ASSISTANCE TECHNIQUE"
-                subtitle={`Articles ${String(group[0]).padStart(2, "0")} à ${String(group[group.length - 1]).padStart(2, "0")}`}
-              />
 
               {group.map((num, idx) => (
                 <div key={num} style={{ marginTop: idx === 0 ? "10px" : "30px" }}>
@@ -317,13 +305,6 @@ const ContratPreviewPage = () => {
           {/* ============ PAGE FINALE : OBSERVATIONS + SIGNATURES ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
-              <DocumentPageHeader
-                entreprise={entreprise}
-                qrData={qrData}
-                title="CONVENTION D'ASSISTANCE TECHNIQUE"
-                subtitle="Visa et Signatures"
-              />
-
               {contrat.observations && (
                 <div style={{ marginTop: "10px", padding: "16px 20px", background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: "4px" }}>
                   <h4 style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "8px", color: "#1a5276", ...sectionStyle }}>Observations :</h4>
