@@ -305,13 +305,6 @@ const ContratPreviewPage = () => {
           {/* ============ PAGE FINALE : OBSERVATIONS + SIGNATURES ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <div>
-              <DocumentPageHeader
-                entreprise={entreprise}
-                qrData={qrData}
-                title="CONVENTION D'ASSISTANCE TECHNIQUE"
-                subtitle="Visa et Signatures"
-              />
-
               {contrat.observations && (
                 <div style={{ marginTop: "10px", padding: "16px 20px", background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: "4px" }}>
                   <h4 style={{ fontSize: "13px", fontWeight: "bold", marginBottom: "8px", color: "#1a5276", ...sectionStyle }}>Observations :</h4>

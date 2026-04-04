@@ -288,12 +288,6 @@ const EngagementPreviewPage = () => {
 
           {/* ============ PAGE FINALE : VISA ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-              subtitle="Visa et Signatures"
-            />
 
             <div style={{ flex: 1 }} />
 
