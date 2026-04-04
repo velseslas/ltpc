@@ -243,7 +243,7 @@ const EngagementPreviewPage = () => {
             </div>
           </div>
 
-          {/* ============ PAGE 2 : CONTENU ============ */}
+          {/* ============ PAGE 2 : CONCLUE ENTRE ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
             <DocumentPageHeader
               entreprise={entreprise}
@@ -252,7 +252,6 @@ const EngagementPreviewPage = () => {
               subtitle={engagement.titre}
             />
 
-            {/* Conclue entre */}
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
               Conclu entre :
             </h3>
@@ -276,19 +275,41 @@ const EngagementPreviewPage = () => {
             <p style={{ fontSize: "13px", lineHeight: "2", textAlign: "center", fontStyle: "italic", marginTop: "20px", ...sectionStyle }}>
               Il a été arrêté ce qui suit :
             </p>
+          </div>
 
-            {/* Articles */}
-            {articleNumbers.map((num) => (
-              <div key={num} style={{ marginTop: "30px", ...(num === 1 ? { borderTop: "2px solid #e5e7eb", paddingTop: "30px" } : {}) }}>
-                <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
-                  ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
-                </h3>
-                <div>{renderArticleContent(num)}</div>
-              </div>
-            ))}
+          {/* ============ PAGES ARTICLES (un par page ou groupés) ============ */}
+          {[[1, 2], [3], [4, 5]].map((group, gi) => (
+            <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
+              <DocumentPageHeader
+                entreprise={entreprise}
+                qrData={qrData}
+                title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
+                subtitle={`Article${group.length > 1 ? "s" : ""} ${String(group[0]).padStart(2, "0")}${group.length > 1 ? ` à ${String(group[group.length - 1]).padStart(2, "0")}` : ""}`}
+              />
 
-            {/* VISA */}
-            <div style={{ paddingBottom: "50px", marginTop: "60px", display: "flex", justifyContent: "space-between" }}>
+              {group.map((num, idx) => (
+                <div key={num} style={{ marginTop: idx === 0 ? "10px" : "30px", ...(idx === 0 ? { borderTop: "2px solid #e5e7eb", paddingTop: "20px" } : {}) }}>
+                  <h3 style={{ fontSize: "14px", fontWeight: "bold", color: "#1a5276", marginBottom: "16px", textDecoration: "underline", ...sectionStyle }}>
+                    ARTICLE {String(num).padStart(2, "0")} : {getArticleTitle(num)}
+                  </h3>
+                  <div>{renderArticleContent(num)}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+
+          {/* ============ PAGE FINALE : VISA ============ */}
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={{ ...pageStyle, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <DocumentPageHeader
+              entreprise={entreprise}
+              qrData={qrData}
+              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
+              subtitle="Visa et Signatures"
+            />
+
+            <div style={{ flex: 1 }} />
+
+            <div style={{ paddingBottom: "50px", display: "flex", justifyContent: "space-between" }}>
               <div style={{ textAlign: "center", width: "40%" }}>
                 <p style={{ fontSize: "12px", fontWeight: "bold", marginBottom: "50px", ...sectionStyle }}>VISA DU LABORATOIRE</p>
                 <div style={{ borderTop: "1px solid #999", paddingTop: "8px" }}>
