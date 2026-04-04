@@ -274,12 +274,6 @@ const EngagementPreviewPage = () => {
           {/* ============ PAGES ARTICLES (un par page ou groupés) ============ */}
           {[[1, 2], [3], [4, 5]].map((group, gi) => (
             <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-              <DocumentPageHeader
-                entreprise={entreprise}
-                qrData={qrData}
-                title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-                subtitle={`Article${group.length > 1 ? "s" : ""} ${String(group[0]).padStart(2, "0")}${group.length > 1 ? ` à ${String(group[group.length - 1]).padStart(2, "0")}` : ""}`}
-              />
 
               {group.map((num, idx) => (
                 <div key={num} style={{ marginTop: idx === 0 ? "10px" : "30px", ...(idx === 0 ? { borderTop: "2px solid #e5e7eb", paddingTop: "20px" } : {}) }}>
