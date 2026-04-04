@@ -285,12 +285,6 @@ const ContratPreviewPage = () => {
           {/* ============ PAGES ARTICLES (groupés par pages) ============ */}
           {[[1, 2, 3], [4, 5], [6, 7, 8], [9, 10, 11]].map((group, gi) => (
             <div key={gi} data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-              <DocumentPageHeader
-                entreprise={entreprise}
-                qrData={qrData}
-                title="CONVENTION D'ASSISTANCE TECHNIQUE"
-                subtitle={`Articles ${String(group[0]).padStart(2, "0")} à ${String(group[group.length - 1]).padStart(2, "0")}`}
-              />
 
               {group.map((num, idx) => (
                 <div key={num} style={{ marginTop: idx === 0 ? "10px" : "30px" }}>
