@@ -245,12 +245,6 @@ const EngagementPreviewPage = () => {
 
           {/* ============ PAGE 2 : CONCLUE ENTRE ============ */}
           <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
-            <DocumentPageHeader
-              entreprise={entreprise}
-              qrData={qrData}
-              title="ENGAGEMENT D'ASSISTANCE TECHNIQUE"
-              subtitle={engagement.titre}
-            />
 
             <h3 style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "24px", color: "#1a5276", ...sectionStyle }}>
               Conclu entre :
