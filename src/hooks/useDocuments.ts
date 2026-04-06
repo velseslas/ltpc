@@ -44,7 +44,7 @@ function useDocumentsCRUD<T extends DocumentBase>(tableName: TableName) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from(tableName)
-        .select("*, clients:client_id(nom), chantiers:chantier_id(nom)")
+        .select("*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as unknown as (T & { clients: { nom: string } | null; chantiers: { nom: string } | null })[];

@@ -50,6 +50,8 @@ import { useAdjuvants } from "@/hooks/useAdjuvants";
 import { useSourcesEau } from "@/hooks/useSourcesEau";
 import { useProduits } from "@/hooks/useProduits";
 import { useCreateFormulation } from "@/hooks/useFormulations";
+import { useMaitresOuvrage } from "@/hooks/useMaitresOuvrage";
+import { useMaitresOeuvre } from "@/hooks/useMaitresOeuvre";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -753,6 +755,8 @@ export default function FormulationBetonWizard() {
   const [clientId, setClientId] = useState("");
   const [chantierId, setChantierId] = useState("");
   const [centraleId, setCentraleId] = useState("");
+  const [maitreOuvrageId, setMaitreOuvrageId] = useState("");
+  const [maitreOeuvreId, setMaitreOeuvreId] = useState("");
 
   // Step 3 - producteurs/produits + active toggles
   const [sable1Active, setSable1Active] = useState(true);
@@ -934,6 +938,8 @@ export default function FormulationBetonWizard() {
   const { data: adjuvants = [] } = useAdjuvants();
   const { data: sourcesEau = [] } = useSourcesEau();
   const createFormulation = useCreateFormulation();
+  const { data: maitresOuvrage = [] } = useMaitresOuvrage();
+  const { data: maitresOeuvre = [] } = useMaitresOeuvre();
 
   // Resolve product names for labels
   const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
@@ -1095,6 +1101,20 @@ export default function FormulationBetonWizard() {
               <Select value={chantierId} onValueChange={setChantierId}>
                 <SelectTrigger className={cn("bg-secondary border-border", chantierId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez un chantier" /></SelectTrigger>
                 <SelectContent>{clientChantiers.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Maître d'ouvrage</Label>
+              <Select value={maitreOuvrageId} onValueChange={setMaitreOuvrageId}>
+                <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez un maître d'ouvrage" /></SelectTrigger>
+                <SelectContent>{maitresOuvrage.map((m: any) => (<SelectItem key={m.id} value={m.id}>{m.nom}</SelectItem>))}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Maître d'œuvre</Label>
+              <Select value={maitreOeuvreId} onValueChange={setMaitreOeuvreId}>
+                <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez un maître d'œuvre" /></SelectTrigger>
+                <SelectContent>{maitresOeuvre.map((m: any) => (<SelectItem key={m.id} value={m.id}>{m.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
           </CardContent>
