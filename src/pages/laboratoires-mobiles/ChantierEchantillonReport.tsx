@@ -342,10 +342,10 @@ export default function ChantierEchantillonReport() {
       <div className="flex items-center justify-between print:hidden">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillonId}`)}
-            className="h-10 w-10"
+            className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -422,10 +422,6 @@ export default function ChantierEchantillonReport() {
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.date_essai || "-"}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>

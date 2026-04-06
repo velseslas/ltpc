@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays } from "date-fns";
+import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
@@ -241,11 +242,21 @@ export default function ChantierEchantillonDataEntry() {
 
   return (
     <div className="space-y-6">
+      <div className="print:hidden">
+        <EssaiBreadcrumb items={[
+          { label: "Laboratoires Mobiles", path: "/laboratoires-mobiles" },
+          { label: echantillon.chantier_nom, path: `/laboratoires-mobiles/chantier/${chantierId}` },
+          { label: `EC-${String(echantillon.numero_chantier).padStart(3, "0")}`, path: `/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillonId}` },
+          { label: "Saisie" },
+        ]} />
+      </div>
+
       <div className="flex items-start gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillonId}`)}
+          className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
