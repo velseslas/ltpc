@@ -429,10 +429,6 @@ const CompressionReport = () => {
                   <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
                 </tr>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.date_essai || "-"}</td>
-                </tr>
-                <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
                   <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
