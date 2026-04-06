@@ -1103,6 +1103,20 @@ export default function FormulationBetonWizard() {
                 <SelectContent>{clientChantiers.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>Maître d'ouvrage</Label>
+              <Select value={maitreOuvrageId} onValueChange={setMaitreOuvrageId}>
+                <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez un maître d'ouvrage" /></SelectTrigger>
+                <SelectContent>{maitresOuvrage.map((m: any) => (<SelectItem key={m.id} value={m.id}>{m.nom}</SelectItem>))}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Maître d'œuvre</Label>
+              <Select value={maitreOeuvreId} onValueChange={setMaitreOeuvreId}>
+                <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez un maître d'œuvre" /></SelectTrigger>
+                <SelectContent>{maitresOeuvre.map((m: any) => (<SelectItem key={m.id} value={m.id}>{m.nom}</SelectItem>))}</SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
       </div>
