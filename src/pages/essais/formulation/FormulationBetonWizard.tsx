@@ -938,6 +938,8 @@ export default function FormulationBetonWizard() {
   const { data: adjuvants = [] } = useAdjuvants();
   const { data: sourcesEau = [] } = useSourcesEau();
   const createFormulation = useCreateFormulation();
+  const { data: maitresOuvrage = [] } = useMaitresOuvrage();
+  const { data: maitresOeuvre = [] } = useMaitresOeuvre();
 
   // Resolve product names for labels
   const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
