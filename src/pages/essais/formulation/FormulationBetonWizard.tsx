@@ -50,6 +50,8 @@ import { useAdjuvants } from "@/hooks/useAdjuvants";
 import { useSourcesEau } from "@/hooks/useSourcesEau";
 import { useProduits } from "@/hooks/useProduits";
 import { useCreateFormulation } from "@/hooks/useFormulations";
+import { useMaitresOuvrage } from "@/hooks/useMaitresOuvrage";
+import { useMaitresOeuvre } from "@/hooks/useMaitresOeuvre";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -753,6 +755,8 @@ export default function FormulationBetonWizard() {
   const [clientId, setClientId] = useState("");
   const [chantierId, setChantierId] = useState("");
   const [centraleId, setCentraleId] = useState("");
+  const [maitreOuvrageId, setMaitreOuvrageId] = useState("");
+  const [maitreOeuvreId, setMaitreOeuvreId] = useState("");
 
   // Step 3 - producteurs/produits + active toggles
   const [sable1Active, setSable1Active] = useState(true);
