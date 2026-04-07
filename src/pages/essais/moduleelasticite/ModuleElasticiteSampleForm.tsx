@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useCentralesBeton } from "@/hooks/useCentralesBeton";
+import { useCentralesByClient } from "@/hooks/useCentralesByClient";
 import { useFormulations } from "@/hooks/useFormulations";
 import {
   useEchantillonModuleElasticiteById,
@@ -146,7 +146,7 @@ const ModuleElasticiteSampleForm = () => {
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
   const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(clientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centrales = [], isLoading: isLoadingCentrales } = useCentralesBeton();
+  const { data: centrales = [], isLoading: isLoadingCentrales } = useCentralesByClient(clientId);
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
 
   // Populate remaining form fields when editing
@@ -236,6 +236,8 @@ const ModuleElasticiteSampleForm = () => {
   const handleClientChange = (value: string) => {
     setClientId(value);
     setChantierId("");
+    setCentraleId("");
+    setFormulationId("");
   };
 
   // Handle centrale change

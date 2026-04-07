@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useCentralesBeton } from "@/hooks/useCentralesBeton";
+import { useCentralesByClient } from "@/hooks/useCentralesByClient";
 import { useFormulations } from "@/hooks/useFormulations";
 import { 
   useCreateEchantillonTractionFendage, 
@@ -132,7 +132,7 @@ const TractionFendageSampleForm = () => {
   const { data: clients } = useClients();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(clientId);
   const { data: intervenants } = useIntervenants();
-  const { data: centrales } = useCentralesBeton();
+  const { data: centrales } = useCentralesByClient(clientId);
   const { data: formulations, isLoading: formulationsLoading } = useFormulations(centraleId);
 
   // Second effect: Set dependent data after lists are loaded
@@ -296,7 +296,7 @@ const TractionFendageSampleForm = () => {
             {/* Client */}
             <div className="space-y-2">
               <Label>Client <span className="text-red-700">*</span></Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId} onValueChange={(v) => { setClientId(v); setChantierId(""); setCentraleId(""); setFormulationId(""); }}>
                 <SelectTrigger className={cn(submitted && !clientId && "border-red-700")}>
                   <SelectValue placeholder="Sélectionner un client" />
                 </SelectTrigger>

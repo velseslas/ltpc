@@ -38,7 +38,7 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { useCentralesBeton } from "@/hooks/useCentralesBeton";
+import { useCentralesByClient } from "@/hooks/useCentralesByClient";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import {
@@ -128,7 +128,7 @@ export default function EchantillonBetonFraisForm({
 
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
-  const { data: centrales } = useCentralesBeton();
+  
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -155,6 +155,7 @@ export default function EchantillonBetonFraisForm({
 
   const selectedClientId = form.watch("client_id");
   const selectedCentraleId = form.watch("centrale_id");
+  const { data: centrales } = useCentralesByClient(selectedClientId);
 
   const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulations, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
@@ -163,6 +164,16 @@ export default function EchantillonBetonFraisForm({
   const [isPreFilling, setIsPreFilling] = useState(false);
   const [initStep, setInitStep] = useState(0);
   const [pendingData, setPendingData] = useState<any>(null);
+
+  // Reset centrale and formulation when client changes
+  const [prevClientId, setPrevClientId] = useState(selectedClientId);
+  useEffect(() => {
+    if (isFormInitialized && selectedClientId !== prevClientId) {
+      form.setValue("centrale_id", "");
+      form.setValue("formulation_id", "");
+      setPrevClientId(selectedClientId);
+    }
+  }, [selectedClientId, prevClientId, isFormInitialized, form]);
 
   // Multi-step initialization for edit mode
   useEffect(() => {
