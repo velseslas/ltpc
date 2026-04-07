@@ -155,6 +155,7 @@ export default function EchantillonBetonFraisForm({
 
   const selectedClientId = form.watch("client_id");
   const selectedCentraleId = form.watch("centrale_id");
+  const { data: centrales } = useCentralesByClient(selectedClientId);
 
   const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulations, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
