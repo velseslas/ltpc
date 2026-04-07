@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useCentralesBeton } from "@/hooks/useCentralesBeton";
+import { useCentralesByClient } from "@/hooks/useCentralesByClient";
 import { useFormulations } from "@/hooks/useFormulations";
 import { 
   useCreateEchantillonTractionFendage, 
@@ -132,7 +132,7 @@ const TractionFendageSampleForm = () => {
   const { data: clients } = useClients();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(clientId);
   const { data: intervenants } = useIntervenants();
-  const { data: centrales } = useCentralesBeton();
+  const { data: centrales } = useCentralesByClient(clientId);
   const { data: formulations, isLoading: formulationsLoading } = useFormulations(centraleId);
 
   // Second effect: Set dependent data after lists are loaded

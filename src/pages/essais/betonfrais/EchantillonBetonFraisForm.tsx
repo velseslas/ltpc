@@ -38,7 +38,7 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { useCentralesBeton } from "@/hooks/useCentralesBeton";
+import { useCentralesByClient } from "@/hooks/useCentralesByClient";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import {
@@ -128,7 +128,7 @@ export default function EchantillonBetonFraisForm({
 
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
-  const { data: centrales } = useCentralesBeton();
+  const { data: centrales } = useCentralesByClient(form.watch("client_id"));
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
