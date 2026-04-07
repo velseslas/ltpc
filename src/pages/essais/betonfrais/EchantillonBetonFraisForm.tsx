@@ -128,7 +128,7 @@ export default function EchantillonBetonFraisForm({
 
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
-  const { data: centrales } = useCentralesByClient(form.watch("client_id"));
+  // centrales loaded below after form declaration
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
