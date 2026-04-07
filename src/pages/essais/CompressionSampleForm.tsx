@@ -281,6 +281,8 @@ const CompressionSampleForm = () => {
   const handleClientChange = (value: string) => {
     setClientId(value);
     setChantierId("");
+    setCentraleId("");
+    setFormulationId("");
   };
 
   // Handle centrale change - reset formulation
