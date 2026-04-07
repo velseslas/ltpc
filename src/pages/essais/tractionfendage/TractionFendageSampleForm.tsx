@@ -296,7 +296,7 @@ const TractionFendageSampleForm = () => {
             {/* Client */}
             <div className="space-y-2">
               <Label>Client <span className="text-red-700">*</span></Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId} onValueChange={(v) => { setClientId(v); setChantierId(""); setCentraleId(""); setFormulationId(""); }}>
                 <SelectTrigger className={cn(submitted && !clientId && "border-red-700")}>
                   <SelectValue placeholder="Sélectionner un client" />
                 </SelectTrigger>
