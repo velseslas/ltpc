@@ -160,6 +160,16 @@ export default function EchantillonBetonFraisForm({
   const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulations, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
 
+  // Reset centrale and formulation when client changes
+  const [prevClientId, setPrevClientId] = useState(selectedClientId);
+  useEffect(() => {
+    if (isFormInitialized && selectedClientId !== prevClientId) {
+      form.setValue("centrale_id", "");
+      form.setValue("formulation_id", "");
+      setPrevClientId(selectedClientId);
+    }
+  }, [selectedClientId, prevClientId, isFormInitialized, form]);
+
   const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [isPreFilling, setIsPreFilling] = useState(false);
   const [initStep, setInitStep] = useState(0);
