@@ -160,6 +160,11 @@ export default function EchantillonBetonFraisForm({
   const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulations, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
 
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
+  const [isPreFilling, setIsPreFilling] = useState(false);
+  const [initStep, setInitStep] = useState(0);
+  const [pendingData, setPendingData] = useState<any>(null);
+
   // Reset centrale and formulation when client changes
   const [prevClientId, setPrevClientId] = useState(selectedClientId);
   useEffect(() => {
@@ -169,11 +174,6 @@ export default function EchantillonBetonFraisForm({
       setPrevClientId(selectedClientId);
     }
   }, [selectedClientId, prevClientId, isFormInitialized, form]);
-
-  const [isFormInitialized, setIsFormInitialized] = useState(false);
-  const [isPreFilling, setIsPreFilling] = useState(false);
-  const [initStep, setInitStep] = useState(0);
-  const [pendingData, setPendingData] = useState<any>(null);
 
   // Multi-step initialization for edit mode
   useEffect(() => {
