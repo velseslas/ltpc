@@ -358,7 +358,9 @@ const CompressionReport = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-semibold text-foreground">Rapport de compression</h1>
+          <h1 className="text-xl font-semibold text-foreground">
+            Rapport de compression — <span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}
+          </h1>
         </div>
         <div className="flex gap-3">
           <ShareButton />
