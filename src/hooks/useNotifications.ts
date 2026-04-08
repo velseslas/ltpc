@@ -59,7 +59,7 @@ export function useNotifications() {
       // 3. Check for compression samples needing attention (based on jours_essai)
       const { data: compressionSamples, error: compressionError } = await supabase
         .from("echantillons_compression")
-        .select("id, numero, statut, date_coulage, jours_essai")
+        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, clients:client_id(nom), chantiers:chantier_id(nom)")
         .in("statut", ["a-faire", "en-cours"]);
 
       if (!compressionError && compressionSamples) {
@@ -67,6 +67,11 @@ export function useNotifications() {
           if (sample.date_coulage && sample.jours_essai) {
             const coulageDate = parseISO(sample.date_coulage);
             const joursEssaiData = sample.jours_essai as Array<{ jour: number; nombre: number }>;
+            
+            const clientNom = (sample.clients as any)?.nom || "";
+            const chantierNom = (sample.chantiers as any)?.nom || "";
+            const ouvrage = sample.ouvrage || "";
+            const detailParts = [clientNom, chantierNom, ouvrage].filter(Boolean).join(" — ");
             
             const overdueJours: { jour: number; daysSince: number }[] = [];
             const dueJours: { jour: number; daysUntil: number }[] = [];
@@ -93,7 +98,7 @@ export function useNotifications() {
                 type: "overdue_test",
                 severity: "error",
                 title: "Échantillon compression en retard",
-                message: `Échantillon N°${sample.numero} - ${joursLabel} - Échu depuis ${maxDays} jours`,
+                message: `EC-${String(sample.numero).padStart(3, "0")} — ${joursLabel} — Échu depuis ${maxDays} jours${detailParts ? `\n${detailParts}` : ""}`,
                 link: `/essais/beton/beton-durci/compression/${sample.id}`,
                 date: sample.date_coulage,
               });
@@ -108,8 +113,8 @@ export function useNotifications() {
                 id: `compression-due-${sample.id}`,
                 type: "pending_test",
                 severity: minDays <= 1 ? "warning" : "info",
-                title: `Échantillon ${joursLabel} - Échéance proche`,
-                message: `Échantillon N°${sample.numero} - ${joursLabel} - Dans ${daysText}`,
+                title: `Échantillon ${joursLabel} — Échéance proche`,
+                message: `EC-${String(sample.numero).padStart(3, "0")} — ${joursLabel} — Dans ${daysText}${detailParts ? `\n${detailParts}` : ""}`,
                 link: `/essais/beton/beton-durci/compression/${sample.id}`,
                 date: sample.date_coulage,
               });
