@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 type SeverityFilter = "all" | "error" | "warning" | "info";
 type TypeFilter = "all" | "overdue_test" | "pending_test" | "calibration_due" | "calibration_overdue";
