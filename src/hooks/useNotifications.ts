@@ -59,7 +59,7 @@ export function useNotifications() {
       // 3. Check for compression samples needing attention (based on jours_essai)
       const { data: compressionSamples, error: compressionError } = await supabase
         .from("echantillons_compression")
-        .select("id, numero, statut, date_coulage, jours_essai")
+        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, clients:client_id(nom), chantiers:chantier_id(nom)")
         .in("statut", ["a-faire", "en-cours"]);
 
       if (!compressionError && compressionSamples) {
