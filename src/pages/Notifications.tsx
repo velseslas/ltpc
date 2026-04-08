@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 type SeverityFilter = "all" | "error" | "warning" | "info";
 type TypeFilter = "all" | "overdue_test" | "pending_test" | "calibration_due" | "calibration_overdue";
@@ -115,13 +116,15 @@ export default function Notifications() {
 
   return (
     <div className="space-y-6">
+      <AppBreadcrumb items={[{ label: "Notifications" }]} />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           onClick={() => navigate(-1)}
-          className="rounded-full"
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
