@@ -36,58 +36,72 @@ interface EchantillonData {
   resultats: EprouvetteData[];
 }
 
-// Calculate density in t/m³ (= kg/dm³ = g/cm³)
-// Formula: poids(g) / volume(cm³)
+// Parse dimension string to determine shape and sizes in mm
+const parseDimension = (dimension: string): { type: 'cube' | 'cylinder'; d: number; h: number } => {
+  if (!dimension) return { type: 'cube', d: 150, h: 150 };
+  
+  const parts = dimension.match(/(\d+)\s*[x*×]\s*(\d+)(?:\s*[x*×]\s*(\d+))?/i);
+  
+  if (parts) {
+    let a = parseInt(parts[1]);
+    let b = parseInt(parts[2]);
+    let c = parts[3] ? parseInt(parts[3]) : null;
+    
+    // Convert cm to mm if needed
+    if (a < 50) { a *= 10; b *= 10; if (c) c *= 10; }
+    
+    if (c) {
+      // 3 dimensions = cube (e.g. 150x150x150)
+      return { type: 'cube', d: a, h: a };
+    } else {
+      // 2 dimensions = cylinder (e.g. 160x320 → diameter x height)
+      return { type: 'cylinder', d: a, h: b };
+    }
+  }
+  
+  // Single number = cube side
+  const match = dimension.match(/(\d+)/);
+  if (!match) return { type: 'cube', d: 150, h: 150 };
+  let side = parseInt(match[1]);
+  if (side < 50) side *= 10;
+  return { type: 'cube', d: side, h: side };
+};
+
+// Calculate density in t/m³ (= g/cm³)
 const calculateDensity = (poidsGrammes: number, dimension: string): number => {
   if (poidsGrammes <= 0) return 0;
   
-  // Extract dimension size from string like "150x150x150" or "150"
-  const match = dimension?.match(/(\d+)/);
-  if (!match) return 0;
+  const dim = parseDimension(dimension);
+  let volumeCm3: number;
   
-  let sideMm = parseInt(match[1]);
-  
-  // If dimension seems to be in cm (value < 50), convert to mm
-  // This handles cases where dimension might be stored as "15x15x15" instead of "150x150x150"
-  if (sideMm < 50) {
-    sideMm = sideMm * 10;
+  if (dim.type === 'cylinder') {
+    const rCm = dim.d / 10 / 2;
+    volumeCm3 = Math.PI * rCm * rCm * (dim.h / 10);
+  } else {
+    const sideCm = dim.d / 10;
+    volumeCm3 = sideCm * sideCm * sideCm;
   }
   
-  // Convert to cm and calculate volume
-  const sideCm = sideMm / 10;
-  const volumeCm3 = sideCm * sideCm * sideCm;
-  
   if (volumeCm3 <= 0) return 0;
-  
-  // density: poids(g) / volume(cm³) = g/cm³ = t/m³ = kg/dm³
-  // For 150mm cube: 8100g / 3375cm³ = 2.40
   return parseFloat((poidsGrammes / volumeCm3).toFixed(2));
 };
 
-// Calculate resistance in MPa (N/mm²): charge(kN) / area(cm²) * 0.1
-// For 150mm cube: charge(kN) / 22.5 = MPa
+// Calculate resistance in MPa = charge(kN) * 1000 / area(mm²)
 const calculateResistance = (chargeKN: number, dimension: string): number => {
   if (chargeKN <= 0) return 0;
   
-  const match = dimension?.match(/(\d+)/);
-  if (!match) return 0;
+  const dim = parseDimension(dimension);
+  let areaMm2: number;
   
-  let sideMm = parseInt(match[1]);
-  
-  // If dimension seems to be in cm (value < 50), convert to mm
-  if (sideMm < 50) {
-    sideMm = sideMm * 10;
+  if (dim.type === 'cylinder') {
+    areaMm2 = Math.PI * Math.pow(dim.d / 2, 2);
+  } else {
+    areaMm2 = dim.d * dim.d;
   }
   
-  // Area in cm² = (side in mm / 10)²
-  const areaCm2 = (sideMm / 10) * (sideMm / 10);
-  
-  if (areaCm2 <= 0) return 0;
-  
-  // resistance (MPa) = charge(kN) * 10 / area(cm²)
-  // For 150mm: areaCm2 = 225, so 666kN * 10 / 225 = 29.6 MPa
-  // Equivalent to charge(kN) / 22.5 for 150mm cube
-  return parseFloat((chargeKN * 10 / areaCm2).toFixed(2));
+  if (areaMm2 <= 0) return 0;
+  // 1 kN = 1000 N, 1 MPa = 1 N/mm²
+  return parseFloat((chargeKN * 1000 / areaMm2).toFixed(2));
 };
 
 const CompressionDataEntry = () => {
