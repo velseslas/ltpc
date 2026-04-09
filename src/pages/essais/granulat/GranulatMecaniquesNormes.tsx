@@ -1,9 +1,10 @@
-import { ArrowLeft, Printer, Download, ChevronDown, FileText, Target, Settings, ListOrdered, Calculator } from "lucide-react";
+import { ArrowLeft, Printer, Download, ChevronDown, FileText, Target, Settings, ListOrdered, Calculator, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
+import FeuilleEssaiDialog from "@/components/essais/FeuilleEssaiDialog";
 import jsPDF from "jspdf";
 
 interface NormeData {
