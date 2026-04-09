@@ -122,6 +122,7 @@ const normesData: NormeData[] = [
 const GranulatPhysiquesNormes = () => {
   const navigate = useNavigate();
   const [openItems, setOpenItems] = useState<string[]>([]);
+  const [feuilleNorme, setFeuilleNorme] = useState<NormeData | null>(null);
 
   const toggleItem = (id: string) => {
     setOpenItems(prev => 
@@ -315,6 +316,10 @@ const GranulatPhysiquesNormes = () => {
               <CollapsibleContent>
                 <div className="px-6 pb-6 space-y-6 border-t border-border/50 pt-6">
                   <div className="flex gap-3 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => setFeuilleNorme(norme)}>
+                      <ClipboardList className="h-4 w-4 mr-2" />
+                      Feuille d'essai
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handlePrint(norme)}>
                       <Printer className="h-4 w-4 mr-2" />
                       Imprimer
@@ -385,6 +390,12 @@ const GranulatPhysiquesNormes = () => {
           </Collapsible>
         ))}
       </div>
+      <FeuilleEssaiDialog
+        open={!!feuilleNorme}
+        onOpenChange={(open) => !open && setFeuilleNorme(null)}
+        normeTitle={feuilleNorme?.title || ""}
+        normeNumber={feuilleNorme?.normeNumber || ""}
+      />
     </>
   );
 };
