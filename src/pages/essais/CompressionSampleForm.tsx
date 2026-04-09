@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,24 +172,25 @@ const CompressionSampleForm = () => {
   const [etuvage, setEtuvage] = useState("non");
   const [submitted, setSubmitted] = useState(false);
 
-  // Initialize clientId and centraleId first for dependent hooks
+  const editInitialized = useRef(false);
+
+  // Use existingEchantillon values directly for dependent hooks before state is initialized
+  const effectiveClientId = (!editInitialized.current && existingEchantillon?.client_id) ? existingEchantillon.client_id : clientId;
+  const effectiveCentraleId = (!editInitialized.current && existingEchantillon?.centrale_id) ? existingEchantillon.centrale_id : centraleId;
+
+  // Data fetching
+  const { data: clients = [], isLoading: isLoadingClients } = useClients();
+  const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(effectiveClientId);
+  const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
+  const { data: centrales = [], isLoading: isLoadingCentrales } = useCentralesByClient(effectiveClientId);
+  const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId);
+
+  // Initialize all form fields when editing (single consolidated effect)
   useEffect(() => {
-    if (existingEchantillon) {
+    if (existingEchantillon && !editInitialized.current) {
+      editInitialized.current = true;
       setClientId(existingEchantillon.client_id || "");
       setCentraleId(existingEchantillon.centrale_id || "");
-    }
-  }, [existingEchantillon]);
-
-  // Data fetching - these depend on clientId and centraleId
-  const { data: clients = [], isLoading: isLoadingClients } = useClients();
-  const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(clientId);
-  const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centrales = [], isLoading: isLoadingCentrales } = useCentralesByClient(clientId);
-  const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
-
-  // Populate remaining form fields when editing (after clientId/centraleId are set)
-  useEffect(() => {
-    if (existingEchantillon) {
       setOperateurId(existingEchantillon.operateur_id || "");
       setOuvrage(existingEchantillon.ouvrage || "");
       setDestinationBeton(existingEchantillon.destination_beton || "");
@@ -207,7 +208,6 @@ const CompressionSampleForm = () => {
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionInfoClient((existingEchantillon as { mention_info_client?: boolean }).mention_info_client || false);
       setMentionEprouvetteClient((existingEchantillon as { mention_eprouvette_client?: boolean }).mention_eprouvette_client || false);
-      
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai
@@ -224,7 +224,6 @@ const CompressionSampleForm = () => {
         });
         setJoursEssai(updatedJoursEssai);
         
-        // Check for custom day
         const autreJourData = savedJours.find((sj) => !standardJours.includes(sj.jour));
         if (autreJourData) {
           setAutreJourSelected(true);
@@ -235,28 +234,22 @@ const CompressionSampleForm = () => {
     }
   }, [existingEchantillon]);
 
-  // Set chantierId after chantiers are loaded (to avoid empty field issue)
+  // Set chantierId after chantiers are loaded
   useEffect(() => {
-    if (existingEchantillon && !isLoadingChantiers && chantiers.length > 0) {
+    if (existingEchantillon && !isLoadingChantiers && chantiers.length > 0 && !chantierId) {
       const savedChantierId = existingEchantillon.chantier_id || "";
-      if (savedChantierId) {
-        const chantierExists = chantiers.some(c => c.id === savedChantierId);
-        if (chantierExists) {
-          setChantierId(savedChantierId);
-        }
+      if (savedChantierId && chantiers.some(c => c.id === savedChantierId)) {
+        setChantierId(savedChantierId);
       }
     }
   }, [existingEchantillon, chantiers, isLoadingChantiers]);
 
-  // Set formulationId after formulations are loaded (to avoid empty field issue)
+  // Set formulationId after formulations are loaded
   useEffect(() => {
-    if (existingEchantillon && !isLoadingFormulations && formulations.length > 0) {
+    if (existingEchantillon && !isLoadingFormulations && formulations.length > 0 && !formulationId) {
       const savedFormulationId = existingEchantillon.formulation_id || "";
-      if (savedFormulationId) {
-        const formulationExists = formulations.some(f => f.id === savedFormulationId);
-        if (formulationExists) {
-          setFormulationId(savedFormulationId);
-        }
+      if (savedFormulationId && formulations.some(f => f.id === savedFormulationId)) {
+        setFormulationId(savedFormulationId);
       }
     }
   }, [existingEchantillon, formulations, isLoadingFormulations]);
