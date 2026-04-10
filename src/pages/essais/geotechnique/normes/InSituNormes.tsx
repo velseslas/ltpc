@@ -128,6 +128,7 @@ const InSituNormes = () => {
           </Collapsible>
         ))}
       </div>
+      <FeuilleEssaiDialog open={!!feuilleNorme} onOpenChange={() => setFeuilleNorme(null)} normeTitle={feuilleNorme?.title || ""} normeNumber={feuilleNorme?.normeNumber || ""} />
     </>
   );
 };
