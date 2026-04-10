@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Printer, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Download, Printer, FileText, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import jsPDF from "jspdf";
+import FeuilleEssaiDialog from "@/components/essais/FeuilleEssaiDialog";
 
 interface NormeData {
   id: string;
@@ -131,6 +132,7 @@ const normesData: NormeData[] = [
 export default function BetonFraisNormes() {
   const navigate = useNavigate();
   const [openNormes, setOpenNormes] = useState<string[]>([]);
+  const [feuilleNorme, setFeuilleNorme] = useState<NormeData | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
   const toggleNorme = (id: string) => {
@@ -411,6 +413,15 @@ export default function BetonFraisNormes() {
                     <Button 
                       variant="outline" 
                       size="sm"
+                      onClick={() => setFeuilleNorme(norme)}
+                      className="flex items-center gap-2"
+                    >
+                      <ClipboardList className="h-4 w-4" />
+                      Feuille d'essai
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
                       onClick={() => handlePrint(norme.id)}
                       className="flex items-center gap-2"
                     >
@@ -432,6 +443,7 @@ export default function BetonFraisNormes() {
           </Card>
         ))}
       </div>
+      <FeuilleEssaiDialog open={!!feuilleNorme} onOpenChange={() => setFeuilleNorme(null)} normeTitle={feuilleNorme?.title || ""} normeNumber={feuilleNorme?.normeNumber || ""} />
     </>
   );
 }
