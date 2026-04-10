@@ -132,6 +132,7 @@ const normesData: NormeData[] = [
 export default function BetonFraisNormes() {
   const navigate = useNavigate();
   const [openNormes, setOpenNormes] = useState<string[]>([]);
+  const [feuilleNorme, setFeuilleNorme] = useState<NormeData | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
   const toggleNorme = (id: string) => {
@@ -409,6 +410,15 @@ export default function BetonFraisNormes() {
 
                   {/* Actions */}
                   <div className="flex gap-3 pt-4 border-t border-border">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setFeuilleNorme(norme)}
+                      className="flex items-center gap-2"
+                    >
+                      <ClipboardList className="h-4 w-4" />
+                      Feuille d'essai
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
