@@ -5,6 +5,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import jsPDF from "jspdf";
+import FeuilleEssaiDialog from "@/components/essais/FeuilleEssaiDialog";
 
 interface NormeData {
   id: string;
@@ -125,6 +126,7 @@ const normesData: NormeData[] = [
 const IdentificationNormes = () => {
   const navigate = useNavigate();
   const [openItems, setOpenItems] = useState<string[]>([]);
+  const [feuilleNorme, setFeuilleNorme] = useState<NormeData | null>(null);
 
   const toggleItem = (id: string) => {
     setOpenItems(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
@@ -207,6 +209,7 @@ const IdentificationNormes = () => {
               <CollapsibleContent>
                 <div className="px-6 pb-6 space-y-6 border-t border-border/50 pt-6">
                   <div className="flex gap-3 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => setFeuilleNorme(norme)}><ClipboardList className="h-4 w-4 mr-2" />Feuille d'essai</Button>
                     <Button variant="outline" size="sm" onClick={() => handlePrint(norme)}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
                     <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(norme)}><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
                   </div>
