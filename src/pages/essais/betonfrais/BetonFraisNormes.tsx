@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Printer, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Download, Printer, FileText, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import jsPDF from "jspdf";
+import FeuilleEssaiDialog from "@/components/essais/FeuilleEssaiDialog";
 
 interface NormeData {
   id: string;
