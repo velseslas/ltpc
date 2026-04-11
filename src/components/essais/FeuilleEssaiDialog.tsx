@@ -621,7 +621,7 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between text-black">
             <span>Feuille d'essai - {normeTitle}</span>
-            <Button variant="outline" size="sm" onClick={handlePrint} className="mr-6">
+            <Button size="sm" onClick={handlePrint} className="mr-6 bg-primary hover:bg-primary/90 text-primary-foreground">
               <Printer className="h-4 w-4 mr-2" />
               Imprimer
             </Button>

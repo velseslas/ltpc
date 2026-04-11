@@ -9,7 +9,7 @@ const EssaiInSitu = () => {
   const inSituTypes = [
     {
       id: "normes",
-      title: "Normes",
+      title: "Normes et Feuilles d'essais",
       description: "Références normatives et modes opératoires",
       icon: FileText,
       gradient: "from-purple-500/20 to-violet-500/10",

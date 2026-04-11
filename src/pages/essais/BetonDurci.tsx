@@ -9,7 +9,7 @@ const BetonDurci = () => {
   const essaisTypes = [
     {
       id: "normes",
-      title: "Normes",
+      title: "Normes et Feuilles d'essais",
       norme: "Références",
       description: "Références normatives et modes opératoires",
       icon: FileText,

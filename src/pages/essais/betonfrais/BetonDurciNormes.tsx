@@ -264,7 +264,7 @@ const BetonDurciNormes = () => {
         items={[
           { label: "Béton", path: "/essais/beton" },
           { label: "Béton Durci", path: "/essais/beton/beton-durci" },
-          { label: "Normes" }
+          { label: "Normes et Feuilles d'essais" }
         ]} 
       />
       

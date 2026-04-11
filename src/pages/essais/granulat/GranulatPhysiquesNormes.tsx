@@ -267,7 +267,7 @@ const GranulatPhysiquesNormes = () => {
         items={[
           { label: "Granulat", path: "/essais/granulat" },
           { label: "Physiques", path: "/essais/granulat/physiques" },
-          { label: "Normes" }
+          { label: "Normes et Feuilles d'essais" }
         ]} 
       />
       

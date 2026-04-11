@@ -8,7 +8,7 @@ const EssaiProprete = () => {
   const navigate = useNavigate();
 
   const propreteTypes = [
-    { id: "normes", title: "Normes", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/proprete/normes" },
+    { id: "normes", title: "Normes et Feuilles d'essais", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/proprete/normes" },
     { id: "equivalent-sable", title: "Équivalent de Sable", description: "Détermination de la propreté des sables par l'essai d'équivalent de sable", icon: ClipboardList, gradient: "from-sky-500/20 to-blue-500/10", iconColor: "text-sky-500", essaiCount: 15, path: "/essais/granulat/proprete/equivalent-sable" },
     { id: "bleu-methylene", title: "Essai au Bleu de Méthylène", description: "Détermination de la valeur au bleu de méthylène des granulats fins", icon: FlaskConical, gradient: "from-indigo-500/20 to-violet-500/10", iconColor: "text-indigo-500", essaiCount: 12, path: "/essais/granulat/proprete/bleu-methylene" },
     { id: "matiere-organique", title: "Teneur en Matière Organique", description: "Détermination qualitative de la teneur en matière organique des sables", icon: Leaf, gradient: "from-emerald-500/20 to-green-500/10", iconColor: "text-emerald-500", essaiCount: 8, path: "/essais/granulat/proprete/matiere-organique" },
