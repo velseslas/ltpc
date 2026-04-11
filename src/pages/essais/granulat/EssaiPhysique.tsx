@@ -8,7 +8,7 @@ const EssaiPhysique = () => {
   const navigate = useNavigate();
 
   const physiqueTypes = [
-    { id: "normes", title: "Normes", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/physiques/normes" },
+    { id: "normes", title: "Normes et Feuilles d'essais", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/physiques/normes" },
     { id: "granulometrie", title: "Analyse Granulométrique", description: "Détermination de la distribution granulométrique par tamisage", icon: Box, gradient: "from-amber-500/20 to-orange-500/10", iconColor: "text-amber-500", essaiCount: 22, path: "/essais/granulat/physiques/granulometrie" },
     { id: "masse-volumique", title: "Masse Volumique et Absorption", description: "Détermination de la masse volumique et du coefficient d'absorption (NF EN 1097-6)", icon: Scale, gradient: "from-sky-500/20 to-blue-500/10", iconColor: "text-sky-500", essaiCount: 15, path: "/essais/granulat/physiques/masse-volumique" },
     { id: "forme", title: "Coefficient d'Aplatissement", description: "Détermination du coefficient d'aplatissement par tamisage sur grilles à fentes (NF EN 933-3)", icon: Shapes, gradient: "from-emerald-500/20 to-green-500/10", iconColor: "text-emerald-500", essaiCount: 18, path: "/essais/granulat/physiques/forme" },
