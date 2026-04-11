@@ -248,7 +248,7 @@ const DestructifNormes = () => {
         items={[
           { label: "Béton", path: "/essais/beton" },
           { label: "Destructif", path: "/essais/beton/destructif" },
-          { label: "Normes" }
+          { label: "Normes et Feuilles d'essais" }
         ]} 
       />
       

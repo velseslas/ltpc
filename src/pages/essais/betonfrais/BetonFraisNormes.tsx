@@ -292,7 +292,7 @@ export default function BetonFraisNormes() {
         items={[
           { label: "Béton", path: "/essais/beton" },
           { label: "Béton Frais", path: "/essais/beton/beton-frais" },
-          { label: "Normes" }
+          { label: "Normes et Feuilles d'essais" }
         ]} 
       />
       

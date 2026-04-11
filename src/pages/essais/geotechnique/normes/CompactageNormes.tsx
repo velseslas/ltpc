@@ -142,7 +142,7 @@ const CompactageNormes = () => {
 
   return (
     <>
-      <EssaiBreadcrumb items={[{label:"Géotechnique",path:"/essais/geotechnique"},{label:"Compactage",path:"/essais/geotechnique/compactage"},{label:"Normes"}]} />
+      <EssaiBreadcrumb items={[{label:"Géotechnique",path:"/essais/geotechnique"},{label:"Compactage",path:"/essais/geotechnique/compactage"},{label:"Normes et Feuilles d'essais"}]} />
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-2">
           <Button variant="outline" size="icon" onClick={() => navigate("/essais/geotechnique/compactage")} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"><ArrowLeft className="h-5 w-5" /></Button>

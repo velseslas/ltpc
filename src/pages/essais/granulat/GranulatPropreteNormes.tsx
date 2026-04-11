@@ -248,7 +248,7 @@ const GranulatPropreteNormes = () => {
         items={[
           { label: "Granulat", path: "/essais/granulat" },
           { label: "Propreté", path: "/essais/granulat/proprete" },
-          { label: "Normes" }
+          { label: "Normes et Feuilles d'essais" }
         ]} 
       />
       

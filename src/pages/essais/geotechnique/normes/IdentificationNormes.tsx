@@ -177,7 +177,7 @@ const IdentificationNormes = () => {
       <EssaiBreadcrumb items={[
         { label: "Géotechnique", path: "/essais/geotechnique" },
         { label: "Identification", path: "/essais/geotechnique/identification" },
-        { label: "Normes" }
+        { label: "Normes et Feuilles d'essais" }
       ]} />
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-2">
