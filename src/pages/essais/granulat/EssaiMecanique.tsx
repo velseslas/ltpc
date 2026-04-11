@@ -8,7 +8,7 @@ const EssaiMecanique = () => {
   const navigate = useNavigate();
 
   const mecaniqueTypes = [
-    { id: "normes", title: "Normes", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/mecaniques/normes" },
+    { id: "normes", title: "Normes et Feuilles d'essais", description: "Références normatives et modes opératoires", icon: FileText, gradient: "from-purple-500/20 to-violet-500/10", iconColor: "text-purple-500", essaiCount: null, path: "/essais/granulat/mecaniques/normes" },
     { id: "los-angeles", title: "Essai Los Angeles", description: "Résistance à la fragmentation par chocs et à l'usure par frottements mutuels", icon: Zap, gradient: "from-rose-500/20 to-red-500/10", iconColor: "text-rose-500", essaiCount: 12, path: "/essais/granulat/mecaniques/los-angeles" },
     { id: "micro-deval", title: "Essai Micro-Deval", description: "Résistance à l'usure par attrition", icon: Shield, gradient: "from-amber-500/20 to-orange-500/10", iconColor: "text-amber-500", essaiCount: 8, path: "/essais/granulat/mecaniques/micro-deval" },
     { id: "ecrasement", title: "Essai de Résistance à l'Écrasement", description: "Résistance à l'écrasement des granulats", icon: Hammer, gradient: "from-violet-500/20 to-purple-500/10", iconColor: "text-violet-500", essaiCount: 6, path: "/essais/granulat/mecaniques/ecrasement" },
