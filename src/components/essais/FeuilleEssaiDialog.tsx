@@ -21,6 +21,7 @@ interface FieldConfig {
   rows?: number;
   tableHeaders?: string[];
   tableRows?: number;
+  tableData?: string[][];
 }
 
 const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
