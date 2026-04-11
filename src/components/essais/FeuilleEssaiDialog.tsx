@@ -24,6 +24,9 @@ interface FieldConfig {
   tableData?: string[][];
 }
 
+const TAMIS_GRANULAT = ["40", "31.5", "25", "20", "16", "12.5", "10", "8", "6.3", "5", "4", "2", "1", "0.5", "0.25", "0.125", "0.063"];
+const TAMIS_SOL = ["125", "100", "80", "63", "50", "40", "31.5", "25", "20", "16", "12.5", "10", "8", "6.3", "5", "4", "2", "1", "0.5", "0.25", "0.125", "0.08", "0.063"];
+
 const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Analyse Granulométrique": [
     { label: "N° Échantillon" },
@@ -36,7 +39,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
     { label: "Masse sèche initiale M1 (g)" },
     { label: "Masse après lavage M2 (g)" },
     { label: "Observations", colSpan: 2, rows: 2 },
-    { label: "Résultats de tamisage", type: "table", colSpan: 2, tableHeaders: ["Tamis (mm)", "Refus partiel (g)", "Refus cumulé (g)", "Refus cumulé (%)", "Passant (%)"], tableRows: 12 },
+    { label: "Résultats de tamisage", type: "table", colSpan: 2, tableHeaders: ["Tamis (mm)", "Refus partiel (g)", "Refus cumulé (g)", "Refus cumulé (%)", "Passant (%)"], tableRows: TAMIS_GRANULAT.length + 1, tableData: [...TAMIS_GRANULAT.map(t => [t, "", "", "", ""]), ["Fond P", "", "", "", ""]] },
   ],
   "Forme des Granulats": [
     { label: "N° Échantillon" },
