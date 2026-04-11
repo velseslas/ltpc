@@ -597,7 +597,13 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: field.tableRows || 5 }).map((_, r) => (
+              {field.tableData ? field.tableData.map((row, r) => (
+                <tr key={r}>
+                  {row.map((cell, c) => (
+                    <td key={c} style={c === 0 && cell ? { fontWeight: "bold", textAlign: "center", fontSize: "10px" } : {}}>{cell || "\u00A0"}</td>
+                  ))}
+                </tr>
+              )) : Array.from({ length: field.tableRows || 5 }).map((_, r) => (
                 <tr key={r}>
                   {field.tableHeaders?.map((_, c) => (
                     <td key={c}>&nbsp;</td>
