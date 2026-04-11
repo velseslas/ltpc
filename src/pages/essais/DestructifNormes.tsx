@@ -263,7 +263,7 @@ const DestructifNormes = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-3xl font-display font-bold text-foreground">
-            Normes <span className="text-primary text-glow">Essais Destructifs</span>
+            Normes et Feuilles d'essais <span className="text-primary text-glow">Essais Destructifs</span>
           </h1>
         </div>
         <p className="text-muted-foreground mt-2 ml-14">

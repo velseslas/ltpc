@@ -263,7 +263,7 @@ const GranulatPropreteNormes = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-3xl font-display font-bold text-foreground">
-            Normes <span className="text-primary text-glow">Essais de Propreté</span>
+            Normes et Feuilles d'essais <span className="text-primary text-glow">Essais de Propreté</span>
           </h1>
         </div>
         <p className="text-muted-foreground mt-2 ml-14">

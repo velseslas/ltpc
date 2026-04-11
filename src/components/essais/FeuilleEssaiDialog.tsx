@@ -1,8 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Printer, X } from "lucide-react";
+import { Printer } from "lucide-react";
 import { useEntreprise } from "@/hooks/useEntreprise";
+import { QRCodeSVG } from "qrcode.react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface FeuilleEssaiDialogProps {
   open: boolean;
@@ -535,30 +538,32 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
           <title>Feuille d'essai - ${normeTitle}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: Arial, sans-serif; padding: 15mm; font-size: 11px; }
-            .header { display: flex; align-items: center; border: 2px solid #333; margin-bottom: 12px; }
-            .header-logo { width: 100px; padding: 8px; display: flex; align-items: center; justify-content: center; border-right: 2px solid #333; }
-            .header-logo img { max-width: 80px; max-height: 60px; }
-            .header-info { flex: 1; padding: 8px 12px; }
-            .header-info h1 { font-size: 16px; color: #1a365d; margin-bottom: 2px; }
-            .header-info p { font-size: 10px; color: #555; }
-            .header-meta { padding: 8px 12px; border-left: 2px solid #333; text-align: center; min-width: 140px; }
-            .header-meta .norme { font-size: 14px; font-weight: bold; color: #0369a1; }
-            .header-meta .date-label { font-size: 9px; color: #888; margin-top: 4px; }
-            .title-bar { background: #1a365d; color: white; padding: 8px 15px; text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 12px; border-radius: 4px; }
+            body { font-family: 'Times New Roman', Georgia, serif; padding: 15mm; font-size: 11px; background: #fff; color: #000; }
+            .header-box { border: 1px solid #000; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+            .header-flex { display: flex; align-items: flex-start; justify-content: space-between; }
+            .logo-box { width: 96px; height: 96px; border: 1px solid #d1d5db; display: flex; align-items: center; justify-content: center; background: #d4e5f7; border-radius: 6px; flex-shrink: 0; }
+            .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            .info-center { flex: 1; text-align: center; padding: 0 12px; }
+            .info-center h1 { font-size: 16px; font-weight: bold; color: #1e5a7a; margin-bottom: 4px; }
+            .info-center p { font-size: 11px; color: #000; margin-bottom: 2px; }
+            .info-center .auth { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+            .separator { border-top: 2px solid #1e5a7a; margin-bottom: 16px; }
+            .title-section { text-align: center; margin-bottom: 20px; }
+            .title-section h2 { font-size: 18px; font-weight: bold; color: #1e5a7a; margin-bottom: 4px; }
+            .title-section p { font-size: 13px; color: #000; }
             .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #ccc; margin-bottom: 12px; }
-            .field { border: 1px solid #ccc; padding: 6px 8px; }
+            .field { border: 1px solid #ccc; padding: 6px 8px; background: #fff; }
             .field.col-span-2 { grid-column: span 2; }
             .field-label { font-size: 9px; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 3px; }
             .field-value { min-height: 20px; border-bottom: 1px dotted #ccc; }
             .field-value.tall { min-height: 40px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-            table th { background: #f0f4f8; border: 1px solid #ccc; padding: 5px 6px; font-size: 9px; text-align: center; font-weight: bold; }
-            table td { border: 1px solid #ccc; padding: 5px 6px; min-height: 22px; height: 22px; }
-            .table-title { font-size: 10px; font-weight: bold; color: #1a365d; margin-bottom: 4px; padding: 4px 8px; background: #f0f4f8; border: 1px solid #ccc; border-bottom: none; }
+            table th { background: #f0f4f8; border: 1px solid #ccc; padding: 5px 6px; font-size: 9px; text-align: center; font-weight: bold; color: #000; }
+            table td { border: 1px solid #ccc; padding: 5px 6px; min-height: 22px; height: 22px; background: #fff; }
+            .table-title { font-size: 10px; font-weight: bold; color: #1e5a7a; margin-bottom: 4px; padding: 4px 8px; background: #f0f4f8; border: 1px solid #ccc; border-bottom: none; }
             .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-            .signature-box { border: 1px solid #ccc; padding: 8px; text-align: center; }
-            .signature-box .label { font-size: 9px; color: #666; font-weight: bold; margin-bottom: 30px; }
+            .signature-box { border: 1px solid #ccc; padding: 8px; text-align: center; background: #fff; }
+            .signature-box .label { font-size: 9px; color: #666; font-weight: bold; margin-bottom: 40px; }
             @media print { body { padding: 10mm; } }
           </style>
         </head>
@@ -608,11 +613,13 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
     );
   };
 
+  const verificationUrl = `${window.location.origin}/feuille-essai/${normeNumber}`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center justify-between text-black">
             <span>Feuille d'essai - {normeTitle}</span>
             <Button variant="outline" size="sm" onClick={handlePrint} className="mr-6">
               <Printer className="h-4 w-4 mr-2" />
@@ -621,37 +628,69 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
           </DialogTitle>
         </DialogHeader>
 
-        <div ref={printRef}>
-          {/* Header entreprise */}
-          <div className="header" style={{ display: "flex", alignItems: "center", border: "2px solid #333", marginBottom: "12px" }}>
-            <div className="header-logo" style={{ width: "100px", padding: "8px", display: "flex", alignItems: "center", justifyContent: "center", borderRight: "2px solid #333" }}>
-              {entreprise?.logo_url ? (
-                <img src={entreprise.logo_url} alt="Logo" style={{ maxWidth: "80px", maxHeight: "60px" }} />
-              ) : (
-                <div style={{ width: "60px", height: "40px", background: "#f0f4f8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px", color: "#999" }}>LOGO</div>
-              )}
-            </div>
-            <div className="header-info" style={{ flex: 1, padding: "8px 12px" }}>
-              <h1 style={{ fontSize: "16px", color: "#1a365d", marginBottom: "2px" }}>{entreprise?.nom || "Laboratoire"}</h1>
-              {entreprise?.siege_social && <p style={{ fontSize: "10px", color: "#555" }}>{entreprise.siege_social}</p>}
-              {entreprise?.telephone && <p style={{ fontSize: "10px", color: "#555" }}>Tél: {entreprise.telephone}</p>}
-              {entreprise?.email && <p style={{ fontSize: "10px", color: "#555" }}>Email: {entreprise.email}</p>}
-            </div>
-            <div className="header-meta" style={{ padding: "8px 12px", borderLeft: "2px solid #333", textAlign: "center", minWidth: "140px" }}>
-              <div className="norme" style={{ fontSize: "14px", fontWeight: "bold", color: "#0369a1" }}>{normeNumber}</div>
-              <div className="date-label" style={{ fontSize: "9px", color: "#888", marginTop: "4px" }}>
-                {entreprise?.numero_autorisation && <div>Agr. N° {entreprise.numero_autorisation}</div>}
+        <div ref={printRef} style={{ background: "#fff", color: "#000", fontFamily: "'Times New Roman', Georgia, serif" }}>
+          {/* En-tête identique aux rapports */}
+          <div style={{ border: "1px solid #000", borderRadius: "8px", padding: "16px", marginBottom: "24px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+              {/* Logo */}
+              <div style={{ width: "96px", height: "96px", border: "1px solid #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", background: "#d4e5f7", borderRadius: "6px", flexShrink: 0 }}>
+                {entreprise?.logo_url ? (
+                  <img src={entreprise.logo_url} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} crossOrigin="anonymous" />
+                ) : (
+                  <span style={{ fontSize: "12px", color: "#6b7280" }}>LOGO</span>
+                )}
+              </div>
+
+              {/* Informations entreprise */}
+              <div style={{ flex: 1, textAlign: "center", padding: "0 12px" }}>
+                <p style={{ fontSize: "16px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "4px" }}>
+                  {entreprise?.nom || "Laboratoire de Travaux Publics & de Construction"}
+                </p>
+                <p style={{ fontSize: "12px", fontWeight: 600, color: "#000", marginBottom: "4px" }}>
+                  Autorisation N° {entreprise?.numero_autorisation || "—"}
+                  {entreprise?.date_autorisation && (
+                    <> Du {format(new Date(entreprise.date_autorisation), "dd/MM/yyyy", { locale: fr })}</>
+                  )}
+                </p>
+                {entreprise?.siege_social && (
+                  <p style={{ fontSize: "11px", color: "#000", marginBottom: "2px", whiteSpace: "nowrap" }}>
+                    <span style={{ fontWeight: 500 }}>Siège Social : </span>{entreprise.siege_social}
+                  </p>
+                )}
+                {entreprise?.annexe && (
+                  <p style={{ fontSize: "11px", color: "#000", marginBottom: "2px", whiteSpace: "nowrap" }}>
+                    <span style={{ fontWeight: 500 }}>Annexe : </span>{entreprise.annexe}
+                  </p>
+                )}
+                <p style={{ fontSize: "11px", color: "#000", marginTop: "4px" }}>
+                  <span style={{ fontWeight: 500 }}>Mobile : </span>{entreprise?.telephone || ""}
+                  {" - "}
+                  <span style={{ fontWeight: 500 }}>Mail : </span>{entreprise?.email || ""}
+                </p>
+              </div>
+
+              {/* QR Code */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                <QRCodeSVG value={verificationUrl} size={60} />
               </div>
             </div>
           </div>
 
+          {/* Ligne de séparation */}
+          <div style={{ borderTop: "2px solid #1e5a7a", marginBottom: "16px" }} />
+
           {/* Title */}
-          <div className="title-bar" style={{ background: "#1a365d", color: "white", padding: "8px 15px", textAlign: "center", fontSize: "14px", fontWeight: "bold", marginBottom: "12px", borderRadius: "4px" }}>
-            FEUILLE D'ESSAI — {normeTitle.toUpperCase()}
+          <div style={{ textAlign: "center", marginBottom: "20px" }}>
+            <p style={{ fontSize: "18px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "4px" }}>
+              FEUILLE D'ESSAI — {normeTitle.toUpperCase()}
+            </p>
+            <p style={{ fontSize: "13px", color: "#000" }}>
+              {normeNumber}
+            </p>
           </div>
 
           {/* Fields */}
-          <div className="fields-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0", border: "1px solid #ccc", marginBottom: "12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0", border: "1px solid #ccc", marginBottom: "12px" }}>
             {fields.filter(f => f.type !== "table").map((field, i) => (
               <div
                 key={i}
@@ -659,6 +698,7 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
                   gridColumn: field.colSpan === 2 ? "span 2" : undefined,
                   border: "1px solid #ccc",
                   padding: "6px 8px",
+                  background: "#fff",
                 }}
               >
                 <div style={{ fontSize: "9px", color: "#666", fontWeight: "bold", textTransform: "uppercase", marginBottom: "3px" }}>{field.label}</div>
@@ -670,12 +710,12 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
           {/* Tables */}
           {fields.filter(f => f.type === "table").map((field, i) => (
             <div key={i} style={{ marginBottom: "12px" }}>
-              <div style={{ fontSize: "10px", fontWeight: "bold", color: "#1a365d", marginBottom: "4px", padding: "4px 8px", background: "#f0f4f8", border: "1px solid #ccc", borderBottom: "none" }}>{field.label}</div>
+              <div style={{ fontSize: "10px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "4px", padding: "4px 8px", background: "#f0f4f8", border: "1px solid #ccc", borderBottom: "none" }}>{field.label}</div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     {field.tableHeaders?.map((h, j) => (
-                      <th key={j} style={{ background: "#f0f4f8", border: "1px solid #ccc", padding: "5px 6px", fontSize: "9px", textAlign: "center", fontWeight: "bold" }}>{h}</th>
+                      <th key={j} style={{ background: "#f0f4f8", border: "1px solid #ccc", padding: "5px 6px", fontSize: "9px", textAlign: "center", fontWeight: "bold", color: "#000" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -683,7 +723,7 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
                   {Array.from({ length: field.tableRows || 5 }).map((_, r) => (
                     <tr key={r}>
                       {field.tableHeaders?.map((_, c) => (
-                        <td key={c} style={{ border: "1px solid #ccc", padding: "5px 6px", height: "22px" }}>&nbsp;</td>
+                        <td key={c} style={{ border: "1px solid #ccc", padding: "5px 6px", height: "22px", background: "#fff" }}>&nbsp;</td>
                       ))}
                     </tr>
                   ))}
@@ -694,10 +734,10 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
 
           {/* Signatures */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "20px" }}>
-            <div style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+            <div style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", background: "#fff" }}>
               <div style={{ fontSize: "9px", color: "#666", fontWeight: "bold", marginBottom: "40px" }}>OPÉRATEUR</div>
             </div>
-            <div style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+            <div style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", background: "#fff" }}>
               <div style={{ fontSize: "9px", color: "#666", fontWeight: "bold", marginBottom: "40px" }}>RESPONSABLE LABORATOIRE</div>
             </div>
           </div>
