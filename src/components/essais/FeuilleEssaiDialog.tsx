@@ -313,7 +313,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
     { label: "Chantier" },
     { label: "Profondeur (m)" },
     { label: "Masse sèche initiale (g)" },
-    { label: "Tamisage", type: "table", colSpan: 2, tableHeaders: ["Tamis (mm)", "Refus partiel (g)", "Refus cumulé (g)", "Refus cumulé (%)", "Passant (%)"], tableRows: 14 },
+    { label: "Tamisage", type: "table", colSpan: 2, tableHeaders: ["Tamis (mm)", "Refus partiel (g)", "Refus cumulé (g)", "Refus cumulé (%)", "Passant (%)"], tableRows: TAMIS_SOL.length + 1, tableData: [...TAMIS_SOL.map(t => [t, "", "", "", ""]), ["Fond P", "", "", "", ""]] },
     { label: "Observations", colSpan: 2, rows: 2 },
   ],
   "Teneur en Eau Pondérale": [
