@@ -217,6 +217,34 @@ export function useDeletePaiementEspece() {
   });
 }
 
+export function usePaiementEspece(id: string | undefined) {
+  return useQuery({
+    queryKey: ["paiements-espece", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("paiements_espece")
+        .select("*, clients(id, nom), chantiers(id, nom)")
+        .eq("id", id!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useUpdatePaiementEspece() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...item }: any) => {
+      const { data, error } = await supabase.from("paiements_espece").update(item).eq("id", id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["paiements-espece"] }),
+  });
+}
+
 // ---- Paiements Virement ----
 export function usePaiementsVirement() {
   return useQuery({

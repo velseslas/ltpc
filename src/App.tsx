@@ -240,6 +240,7 @@ import BonCommandeForm from "./pages/facturation/BonCommandeForm";
 import EspeceListe from "./pages/facturation/EspeceListe";
 import EspeceForm from "./pages/facturation/EspeceForm";
 import EtatPaiementsEspece from "./pages/facturation/EtatPaiementsEspece";
+import EspeceEdit from "./pages/facturation/EspeceEdit";
 import VirementListe from "./pages/facturation/VirementListe";
 import VirementForm from "./pages/facturation/VirementForm";
 import RecapitulatifPaiements from "./pages/facturation/RecapitulatifPaiements";
@@ -676,6 +677,7 @@ const AppRoutes = () => (
       <Route path="/facturation/espece" element={<EspeceListe />} />
       <Route path="/facturation/espece/nouveau" element={<EspeceForm />} />
       <Route path="/facturation/espece/etat" element={<EtatPaiementsEspece />} />
+      <Route path="/facturation/espece/:id/modifier" element={<EspeceEdit />} />
       <Route path="/facturation/virements" element={<VirementListe />} />
       <Route path="/facturation/virements/nouveau" element={<VirementForm />} />
       <Route path="/facturation/recapitulatif" element={<RecapitulatifPaiements />} />

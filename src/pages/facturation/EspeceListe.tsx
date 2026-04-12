@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Banknote, Eye, Search, FileBarChart } from "lucide-react";
+import { Plus, Trash2, Banknote, Eye, Search, FileBarChart, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { usePaiementsEspece, useDeletePaiementEspece } from "@/hooks/useFacturation";
 import { toast } from "sonner";
@@ -129,16 +130,26 @@ export default function EspeceListe() {
                     <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
                     <TableCell>{statutBadge(e.statut)}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        {e.recu_url && (
-                          <Button variant="ghost" size="icon" onClick={() => setPreviewUrl(e.recu_url)} title="Voir le reçu">
-                            <Eye className="h-4 w-4 text-primary" />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
-                        )}
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(e.id)}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/espece/${e.id}/modifier`)}>
+                            <Pencil className="h-4 w-4 mr-2" />Modifier
+                          </DropdownMenuItem>
+                          {e.recu_url && (
+                            <DropdownMenuItem onClick={() => setPreviewUrl(e.recu_url)}>
+                              <Eye className="h-4 w-4 mr-2" />Voir le reçu
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(e.id)}>
+                            <Trash2 className="h-4 w-4 mr-2" />Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
