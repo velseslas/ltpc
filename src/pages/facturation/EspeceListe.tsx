@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Banknote } from "lucide-react";
+import { Plus, Trash2, Banknote, Eye, Search, FileBarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { usePaiementsEspece, useDeletePaiementEspece } from "@/hooks/useFacturation";
 import { toast } from "sonner";
@@ -15,11 +18,22 @@ export default function EspeceListe() {
   const navigate = useNavigate();
   const { data, isLoading } = usePaiementsEspece();
   const deleteMutation = useDeletePaiementEspece();
+  const [search, setSearch] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer ce paiement ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
+
+  const filtered = data?.filter((e: any) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (e.numero_recu?.toLowerCase().includes(s) ||
+      e.clients?.nom?.toLowerCase().includes(s) ||
+      e.chantiers?.nom?.toLowerCase().includes(s) ||
+      e.montant?.toString().includes(s));
+  });
 
   const statutBadge = (s: string) => {
     switch (s) {
@@ -27,6 +41,29 @@ export default function EspeceListe() {
       case "en_attente": return <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">En attente</Badge>;
       default: return <Badge variant="outline">{s}</Badge>;
     }
+  };
+
+  const handlePrintPreview = () => {
+    if (!previewUrl) return;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    const isPdf = previewUrl.toLowerCase().endsWith(".pdf");
+    if (isPdf) {
+      w.location.href = previewUrl;
+    } else {
+      w.document.write(`<html><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f5f5f5"><img src="${previewUrl}" style="max-width:100%;max-height:100vh" /></body></html>`);
+      w.document.close();
+      w.print();
+    }
+  };
+
+  const handleDownloadPreview = () => {
+    if (!previewUrl) return;
+    const a = document.createElement("a");
+    a.href = previewUrl;
+    a.download = `recu-${Date.now()}`;
+    a.target = "_blank";
+    a.click();
   };
 
   return (
@@ -44,15 +81,33 @@ export default function EspeceListe() {
             <p className="text-muted-foreground">Suivi des paiements en espèce</p>
           </div>
         </div>
-        <Button className="gap-2" onClick={() => navigate("/facturation/espece/nouveau")}><Plus className="h-4 w-4" />Nouveau paiement</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => navigate("/facturation/espece/etat")}>
+            <FileBarChart className="h-4 w-4" />État des paiements
+          </Button>
+          <Button className="gap-2" onClick={() => navigate("/facturation/espece/nouveau")}>
+            <Plus className="h-4 w-4" />Nouveau paiement
+          </Button>
+        </div>
+      </div>
+
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Rechercher par N° reçu, client, chantier, montant..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="pl-10 h-11 bg-card border-border"
+        />
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><Banknote className="h-5 w-5" />Espèces ({data?.length || 0})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Banknote className="h-5 w-5" />Espèces ({filtered?.length || 0})</CardTitle></CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
-          ) : !data?.length ? (
+          ) : !filtered?.length ? (
             <div className="text-center py-12 text-muted-foreground"><Banknote className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Aucun paiement enregistré</p></div>
           ) : (
             <Table>
@@ -60,6 +115,7 @@ export default function EspeceListe() {
                 <TableRow>
                   <TableHead>N° Reçu</TableHead>
                   <TableHead>Client</TableHead>
+                  <TableHead>Chantier</TableHead>
                   <TableHead>Montant</TableHead>
                   <TableHead>Date paiement</TableHead>
                   <TableHead>Statut</TableHead>
@@ -67,14 +123,26 @@ export default function EspeceListe() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((e: any) => (
+                {filtered.map((e: any) => (
                   <TableRow key={e.id}>
                     <TableCell className="font-medium">{e.numero_recu || "—"}</TableCell>
                     <TableCell>{e.clients?.nom || "—"}</TableCell>
+                    <TableCell>{e.chantiers?.nom || "—"}</TableCell>
                     <TableCell>{e.montant?.toLocaleString()} DA</TableCell>
                     <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
                     <TableCell>{statutBadge(e.statut)}</TableCell>
-                    <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => handleDelete(e.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        {e.recu_url && (
+                          <Button variant="ghost" size="icon" onClick={() => setPreviewUrl(e.recu_url)} title="Voir le reçu">
+                            <Eye className="h-4 w-4 text-primary" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(e.id)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -82,6 +150,26 @@ export default function EspeceListe() {
           )}
         </CardContent>
       </Card>
+
+      {/* Receipt Preview Dialog */}
+      <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Aperçu du reçu</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mb-2">
+            <Button variant="outline" size="sm" onClick={handlePrintPreview}>Imprimer</Button>
+            <Button variant="outline" size="sm" onClick={handleDownloadPreview}>Télécharger</Button>
+          </div>
+          {previewUrl && (
+            previewUrl.toLowerCase().endsWith(".pdf") ? (
+              <iframe src={previewUrl} className="w-full h-[60vh] rounded border" />
+            ) : (
+              <img src={previewUrl} alt="Reçu" className="w-full max-h-[60vh] object-contain rounded" />
+            )
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
