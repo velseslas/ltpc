@@ -5536,6 +5536,7 @@ export type Database = {
       }
       paiements_espece: {
         Row: {
+          chantier_id: string | null
           client_id: string | null
           created_at: string
           date_paiement: string
@@ -5544,10 +5545,12 @@ export type Database = {
           montant: number
           numero_recu: string | null
           observations: string | null
+          recu_url: string | null
           statut: string
           updated_at: string
         }
         Insert: {
+          chantier_id?: string | null
           client_id?: string | null
           created_at?: string
           date_paiement?: string
@@ -5556,10 +5559,12 @@ export type Database = {
           montant?: number
           numero_recu?: string | null
           observations?: string | null
+          recu_url?: string | null
           statut?: string
           updated_at?: string
         }
         Update: {
+          chantier_id?: string | null
           client_id?: string | null
           created_at?: string
           date_paiement?: string
@@ -5568,10 +5573,18 @@ export type Database = {
           montant?: number
           numero_recu?: string | null
           observations?: string | null
+          recu_url?: string | null
           statut?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "paiements_espece_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "paiements_espece_client_id_fkey"
             columns: ["client_id"]
