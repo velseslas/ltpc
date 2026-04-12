@@ -73,33 +73,30 @@ export default function EspeceListe() {
         { label: "Espèce" },
       ]} />
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <BackButton to="/facturation" />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Paiements en Espèce</h1>
-            <p className="text-muted-foreground">Suivi des paiements en espèce</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => navigate("/facturation/espece/etat")}>
-            <FileBarChart className="h-4 w-4" />État des paiements
-          </Button>
-          <Button className="gap-2" onClick={() => navigate("/facturation/espece/nouveau")}>
-            <Plus className="h-4 w-4" />Nouveau paiement
-          </Button>
+      <div className="flex items-center gap-3">
+        <BackButton to="/facturation" />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Paiements en Espèce</h1>
+          <p className="text-muted-foreground">Suivi des paiements en espèce</p>
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Rechercher par N° reçu, client, chantier, montant..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="pl-10 h-11 bg-card border-border"
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par N° reçu, client, chantier, montant..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-10 h-11 bg-card border-border"
+          />
+        </div>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => navigate("/facturation/espece/etat")}>
+          <FileBarChart className="h-4 w-4" />État des paiements
+        </Button>
+        <Button className="gap-2 shrink-0" onClick={() => navigate("/facturation/espece/nouveau")}>
+          <Plus className="h-4 w-4" />Nouveau paiement
+        </Button>
       </div>
 
       <Card>
