@@ -240,6 +240,7 @@ import BonCommandeForm from "./pages/facturation/BonCommandeForm";
 import EspeceListe from "./pages/facturation/EspeceListe";
 import EspeceForm from "./pages/facturation/EspeceForm";
 import EtatPaiementsEspece from "./pages/facturation/EtatPaiementsEspece";
+import EspeceEdit from "./pages/facturation/EspeceEdit";
 import VirementListe from "./pages/facturation/VirementListe";
 import VirementForm from "./pages/facturation/VirementForm";
 import RecapitulatifPaiements from "./pages/facturation/RecapitulatifPaiements";
