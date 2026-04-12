@@ -186,7 +186,7 @@ export function usePaiementsEspece() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("paiements_espece")
-        .select("*, clients(id, nom)")
+        .select("*, clients(id, nom), chantiers(id, nom)")
         .order("date_paiement", { ascending: false });
       if (error) throw error;
       return data;
