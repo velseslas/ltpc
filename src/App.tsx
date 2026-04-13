@@ -670,6 +670,9 @@ const AppRoutes = () => (
       <Route path="/facturation" element={<FacturationDashboard />} />
       <Route path="/facturation/factures" element={<FactureListe />} />
       <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
+      <Route path="/facturation/factures/:id" element={<FactureDetail />} />
+      <Route path="/facturation/factures/:id/saisie" element={<FactureDataEntry />} />
+      <Route path="/facturation/factures/:id/modifier" element={<FactureEdit />} />
       <Route path="/facturation/devis" element={<DevisListe />} />
       <Route path="/facturation/devis/nouveau" element={<DevisForm />} />
       <Route path="/facturation/bons-commande" element={<BonCommandeListe />} />
