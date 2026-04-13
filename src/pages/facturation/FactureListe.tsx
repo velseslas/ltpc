@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, FileText } from "lucide-react";
+import { Plus, FileText, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useFactures, useDeleteFacture } from "@/hooks/useFacturation";
 import { toast } from "sonner";
@@ -67,14 +68,32 @@ export default function FactureListe() {
               </TableHeader>
               <TableBody>
                 {data.map((f: any) => (
-                  <TableRow key={f.id} className="cursor-pointer" onClick={() => navigate(`/facturation/factures/${f.id}`)}>
+                  <TableRow key={f.id}>
                     <TableCell className="font-medium">{f.numero}</TableCell>
                     <TableCell>{(f.clients as any)?.nom || "—"}</TableCell>
                     <TableCell>{format(new Date(f.date_emission), "dd/MM/yyyy", { locale: fr })}</TableCell>
                     <TableCell>{Number(f.montant_ttc).toLocaleString()} DA</TableCell>
                     <TableCell>{statutBadge(f.statut)}</TableCell>
-                    <TableCell className="text-right" onClick={e => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(f.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/factures/${f.id}/saisie`)}>
+                            <ClipboardEdit className="h-4 w-4 mr-2" />Saisie de données
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/factures/${f.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" />Détails
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/factures/${f.id}/modifier`)}>
+                            <Pencil className="h-4 w-4 mr-2" />Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(f.id)}>
+                            <Trash2 className="h-4 w-4 mr-2" />Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
