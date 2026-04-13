@@ -233,6 +233,9 @@ import { UserCog, Truck, Microscope, Receipt, FileText } from "lucide-react";
 import FacturationDashboard from "./pages/facturation/FacturationDashboard";
 import FactureListe from "./pages/facturation/FactureListe";
 import FactureForm from "./pages/facturation/FactureForm";
+import FactureDetail from "./pages/facturation/FactureDetail";
+import FactureDataEntry from "./pages/facturation/FactureDataEntry";
+import FactureEdit from "./pages/facturation/FactureEdit";
 import DevisListe from "./pages/facturation/DevisListe";
 import DevisForm from "./pages/facturation/DevisForm";
 import BonCommandeListe from "./pages/facturation/BonCommandeListe";
@@ -670,6 +673,9 @@ const AppRoutes = () => (
       <Route path="/facturation" element={<FacturationDashboard />} />
       <Route path="/facturation/factures" element={<FactureListe />} />
       <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
+      <Route path="/facturation/factures/:id" element={<FactureDetail />} />
+      <Route path="/facturation/factures/:id/saisie" element={<FactureDataEntry />} />
+      <Route path="/facturation/factures/:id/modifier" element={<FactureEdit />} />
       <Route path="/facturation/devis" element={<DevisListe />} />
       <Route path="/facturation/devis/nouveau" element={<DevisForm />} />
       <Route path="/facturation/bons-commande" element={<BonCommandeListe />} />
