@@ -60,8 +60,8 @@ export default function FactureDataEntry() {
     const essai = prixEssais?.find((e: any) => e.id === essaiId);
     if (!essai) return;
     const updated = [...lignes];
-    updated[idx].code_essai = essai.code || "";
-    updated[idx].description = essai.essai || "";
+    updated[idx].code_essai = essai.code_essai || "";
+    updated[idx].description = essai.nom_essai || "";
     updated[idx].prix_unitaire = Number(essai.prix_unitaire) || 0;
     updated[idx].montant = Math.round(updated[idx].quantite * updated[idx].prix_unitaire * 100) / 100;
     setLignes(updated);
