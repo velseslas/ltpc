@@ -3,16 +3,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Save, Loader2, Plus, Trash2 } from "lucide-react";
-import { useFacture, useUpdateFacture, useCreateLigneFacture, useDeleteLigneFacture } from "@/hooks/useFacturation";
+import { useFacture, useUpdateFacture } from "@/hooks/useFacturation";
+import { usePrixEssais } from "@/hooks/usePrixEssais";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useQueryClient } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type LigneFacture = {
   id?: string;
+  code_essai: string;
   description: string;
   quantite: number;
   prix_unitaire: number;
@@ -23,11 +25,12 @@ export default function FactureDataEntry() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data: facture, isLoading } = useFacture(id);
+  const { data: prixEssais } = usePrixEssais();
   const updateFacture = useUpdateFacture();
   const qc = useQueryClient();
 
   const [lignes, setLignes] = useState<LigneFacture[]>([
-    { description: "", quantite: 1, prix_unitaire: 0, montant: 0 },
+    { code_essai: "", description: "", quantite: 1, prix_unitaire: 0, montant: 0 },
   ]);
   const [tauxTva, setTauxTva] = useState(19);
   const [saving, setSaving] = useState(false);
@@ -42,6 +45,7 @@ export default function FactureDataEntry() {
             .sort((a: any, b: any) => a.ordre - b.ordre)
             .map((l: any) => ({
               id: l.id,
+              code_essai: l.code_essai || "",
               description: l.description,
               quantite: Number(l.quantite),
               prix_unitaire: Number(l.prix_unitaire),
@@ -51,6 +55,17 @@ export default function FactureDataEntry() {
       }
     }
   }, [facture]);
+
+  const handleSelectEssai = (idx: number, essaiId: string) => {
+    const essai = prixEssais?.find((e: any) => e.id === essaiId);
+    if (!essai) return;
+    const updated = [...lignes];
+    updated[idx].code_essai = essai.code || "";
+    updated[idx].description = essai.essai || "";
+    updated[idx].prix_unitaire = Number(essai.prix_unitaire) || 0;
+    updated[idx].montant = Math.round(updated[idx].quantite * updated[idx].prix_unitaire * 100) / 100;
+    setLignes(updated);
+  };
 
   const updateLigne = (idx: number, field: keyof LigneFacture, value: string | number) => {
     const updated = [...lignes];
@@ -62,7 +77,7 @@ export default function FactureDataEntry() {
   };
 
   const addLigne = () => {
-    setLignes([...lignes, { description: "", quantite: 1, prix_unitaire: 0, montant: 0 }]);
+    setLignes([...lignes, { code_essai: "", description: "", quantite: 1, prix_unitaire: 0, montant: 0 }]);
   };
 
   const removeLigne = (idx: number) => {
@@ -78,7 +93,6 @@ export default function FactureDataEntry() {
     if (!id) return;
     setSaving(true);
     try {
-      // Delete old lines
       const { data: oldLines } = await supabase
         .from("lignes_facture")
         .select("id")
@@ -89,7 +103,6 @@ export default function FactureDataEntry() {
         }
       }
 
-      // Insert new lines
       for (let i = 0; i < lignes.length; i++) {
         const l = lignes[i];
         await supabase.from("lignes_facture").insert({
@@ -102,7 +115,6 @@ export default function FactureDataEntry() {
         });
       }
 
-      // Update facture totals
       await updateFacture.mutateAsync({
         id,
         montant_ht: montantHT,
@@ -144,54 +156,96 @@ export default function FactureDataEntry() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6 space-y-6">
-        {/* Invoice lines */}
+      <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+        {/* Header row */}
+        <div className="hidden md:grid md:grid-cols-12 gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
+          <div className="col-span-3">Code essai</div>
+          <div className="col-span-3">Désignation</div>
+          <div className="col-span-1 text-center">Qté</div>
+          <div className="col-span-2 text-center">Prix unit. (DA)</div>
+          <div className="col-span-2 text-center">Total HT (DA)</div>
+          <div className="col-span-1"></div>
+        </div>
+
         {lignes.map((ligne, idx) => (
-          <div key={idx} className="space-y-4">
-            {idx > 0 && <div className="border-t border-border" />}
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Ligne {idx + 1}</h2>
-              {lignes.length > 1 && (
-                <Button variant="outline" size="sm" onClick={() => removeLigne(idx)} className="flex items-center gap-1 text-destructive border-destructive/30 hover:bg-destructive/10">
-                  <Trash2 className="h-4 w-4" />Supprimer
-                </Button>
-              )}
+          <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end rounded-lg border border-border p-3 bg-muted/30">
+            {/* Code essai dropdown */}
+            <div className="md:col-span-3 space-y-1">
+              <Label className="md:hidden text-xs">Code essai</Label>
+              <Select
+                value={prixEssais?.find((e: any) => e.code === ligne.code_essai)?.id || ""}
+                onValueChange={(val) => handleSelectEssai(idx, val)}
+              >
+                <SelectTrigger className="w-full text-xs">
+                  <SelectValue placeholder="Sélectionner un essai" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {prixEssais?.map((e: any) => (
+                    <SelectItem key={e.id} value={e.id} className="text-xs">
+                      <span className="font-mono font-semibold">{e.code}</span>
+                      <span className="text-muted-foreground ml-1">– {e.essai}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2 space-y-2">
-                <Label>Désignation</Label>
-                <Textarea
-                  placeholder="Description de la prestation ou du produit..."
-                  value={ligne.description}
-                  onChange={(e) => updateLigne(idx, "description", e.target.value)}
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Quantité</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={ligne.quantite || ""}
-                  onChange={(e) => updateLigne(idx, "quantite", parseFloat(e.target.value) || 0)}
-                  className="text-center"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Prix unitaire (DA)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={ligne.prix_unitaire || ""}
-                  onChange={(e) => updateLigne(idx, "prix_unitaire", parseFloat(e.target.value) || 0)}
-                  className="text-center"
-                />
-              </div>
+
+            {/* Désignation */}
+            <div className="md:col-span-3 space-y-1">
+              <Label className="md:hidden text-xs">Désignation</Label>
+              <Input
+                value={ligne.description}
+                onChange={(e) => updateLigne(idx, "description", e.target.value)}
+                placeholder="Désignation"
+                className="text-xs"
+              />
             </div>
-            <div className="flex justify-end">
-              <div className="rounded-lg border border-border px-4 py-2 text-sm">
-                Montant : <span className="font-bold">{ligne.montant.toLocaleString()} DA</span>
-              </div>
+
+            {/* Quantité */}
+            <div className="md:col-span-1 space-y-1">
+              <Label className="md:hidden text-xs">Qté</Label>
+              <Input
+                type="number"
+                min={1}
+                value={ligne.quantite || ""}
+                onChange={(e) => updateLigne(idx, "quantite", parseFloat(e.target.value) || 0)}
+                className="text-center text-xs"
+              />
+            </div>
+
+            {/* Prix unitaire */}
+            <div className="md:col-span-2 space-y-1">
+              <Label className="md:hidden text-xs">Prix unit.</Label>
+              <Input
+                type="number"
+                min={0}
+                value={ligne.prix_unitaire || ""}
+                onChange={(e) => updateLigne(idx, "prix_unitaire", parseFloat(e.target.value) || 0)}
+                className="text-center text-xs"
+              />
+            </div>
+
+            {/* Total HT */}
+            <div className="md:col-span-2 space-y-1">
+              <Label className="md:hidden text-xs">Total HT</Label>
+              <Input
+                value={ligne.montant.toLocaleString()}
+                readOnly
+                className="text-center text-xs font-semibold bg-muted/50"
+              />
+            </div>
+
+            {/* Delete */}
+            <div className="md:col-span-1 flex justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeLigne(idx)}
+                disabled={lignes.length <= 1}
+                className="text-destructive hover:bg-destructive/10 h-8 w-8"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         ))}
@@ -200,42 +254,35 @@ export default function FactureDataEntry() {
           <Plus className="h-4 w-4" />Ajouter une ligne
         </Button>
 
-        {/* TVA */}
-        <div className="border-t border-border pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label>Taux TVA (%)</Label>
+        {/* TVA + Totals */}
+        <div className="border-t border-border pt-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="rounded-lg border border-border p-4 text-center">
+              <span className="text-xs text-muted-foreground">Nb lignes</span>
+              <p className="text-xl font-bold">{lignes.length}</p>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center">
+              <span className="text-xs text-muted-foreground">Montant HT</span>
+              <p className="text-xl font-bold">{montantHT.toLocaleString()} DA</p>
+            </div>
+            <div className="rounded-lg border border-border p-4 text-center space-y-1">
+              <span className="text-xs text-muted-foreground">Taux TVA</span>
               <Input
                 type="number"
                 min={0}
                 max={100}
                 value={tauxTva || ""}
                 onChange={(e) => setTauxTva(parseFloat(e.target.value) || 0)}
-                className="text-center"
+                className="text-center text-sm h-8"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Totals */}
-        <div className="border-t border-border pt-6">
-          <h2 className="text-lg font-semibold mb-4">Récapitulatif</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="rounded-lg border border-border p-4 text-center">
-              <span className="text-sm text-muted-foreground">Nb lignes</span>
-              <p className="text-2xl font-bold">{lignes.length}</p>
-            </div>
-            <div className="rounded-lg border border-border p-4 text-center">
-              <span className="text-sm text-muted-foreground">Montant HT</span>
-              <p className="text-2xl font-bold">{montantHT.toLocaleString()} DA</p>
-            </div>
             <div className="rounded-lg bg-primary/10 border border-primary/30 p-4 text-center">
-              <span className="text-sm text-muted-foreground">TVA ({tauxTva}%)</span>
-              <p className="text-2xl font-bold text-primary">{montantTVA.toLocaleString()} DA</p>
+              <span className="text-xs text-muted-foreground">TVA ({tauxTva}%)</span>
+              <p className="text-xl font-bold text-primary">{montantTVA.toLocaleString()} DA</p>
             </div>
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4 text-center">
-              <span className="text-sm text-muted-foreground">Montant TTC</span>
-              <p className="text-2xl font-bold text-emerald-500">{montantTTC.toLocaleString()} DA</p>
+              <span className="text-xs text-muted-foreground">Montant TTC</span>
+              <p className="text-xl font-bold text-emerald-500">{montantTTC.toLocaleString()} DA</p>
             </div>
           </div>
         </div>
