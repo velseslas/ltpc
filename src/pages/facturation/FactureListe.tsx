@@ -80,6 +80,9 @@ export default function FactureListe() {
                           <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/factures/${f.id}/apercu`)}>
+                            <FileOutput className="h-4 w-4 mr-2" />Facture
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => navigate(`/facturation/factures/${f.id}/saisie`)}>
                             <ClipboardEdit className="h-4 w-4 mr-2" />Saisie de données
                           </DropdownMenuItem>
