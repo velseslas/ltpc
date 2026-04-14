@@ -23,7 +23,7 @@ export function useFacture(id: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("factures")
-        .select("*, clients(id, nom), chantiers(id, nom), lignes_facture(*)")
+        .select("*, clients(id, nom, adresse, ville, telephone, email, nif, nis, ice, article_imposition, banque, rib, agence, representant), chantiers(id, nom), lignes_facture(*)")
         .eq("id", id!)
         .single();
       if (error) throw error;

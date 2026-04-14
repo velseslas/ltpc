@@ -1,0 +1,315 @@
+import { useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Printer, Download, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useEntreprise } from "@/hooks/useEntreprise";
+import { useFacture } from "@/hooks/useFacturation";
+import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { Loader2 } from "lucide-react";
+
+const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
+const pageStyle: React.CSSProperties = {
+  padding: "40px 50px",
+  minHeight: "1100px",
+  ...sectionStyle,
+};
+
+// Convert number to French words for invoice totals
+function numberToFrenchWords(n: number): string {
+  if (n === 0) return "zéro";
+  const units = ["", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"];
+  const tens = ["", "", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante", "quatre-vingt", "quatre-vingt"];
+
+  function convertHundreds(num: number): string {
+    if (num === 0) return "";
+    if (num < 20) return units[num];
+    if (num < 70) {
+      const t = Math.floor(num / 10);
+      const u = num % 10;
+      if (u === 0) return tens[t];
+      if (u === 1 && t > 1) return tens[t] + " et un";
+      return tens[t] + "-" + units[u];
+    }
+    if (num < 80) {
+      const u = num - 60;
+      if (u === 1) return "soixante et onze";
+      return "soixante-" + units[u];
+    }
+    if (num < 100) {
+      const u = num - 80;
+      if (u === 0) return "quatre-vingts";
+      return "quatre-vingt-" + units[u];
+    }
+    const h = Math.floor(num / 100);
+    const rest = num % 100;
+    let result = h === 1 ? "cent" : units[h] + " cent";
+    if (rest === 0 && h > 1) result += "s";
+    if (rest > 0) result += " " + convertHundreds(rest);
+    return result;
+  }
+
+  const parts: string[] = [];
+  const millions = Math.floor(n / 1000000);
+  const thousands = Math.floor((n % 1000000) / 1000);
+  const remainder = n % 1000;
+
+  if (millions > 0) {
+    parts.push(millions === 1 ? "un million" : convertHundreds(millions) + " millions");
+  }
+  if (thousands > 0) {
+    parts.push(thousands === 1 ? "mille" : convertHundreds(thousands) + " mille");
+  }
+  if (remainder > 0) {
+    parts.push(convertHundreds(remainder));
+  }
+
+  return parts.join(" ") || "zéro";
+}
+
+export default function FacturePreview() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const reportRef = useRef<HTMLDivElement>(null);
+  const { data: entreprise } = useEntreprise();
+  const { data: facture, isLoading } = useFacture(id);
+
+  if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+  if (!facture) return <div className="text-center py-12 text-muted-foreground">Facture introuvable</div>;
+
+  const client = (facture as any).clients || {};
+  const chantier = (facture as any).chantiers || {};
+  const lignes = ((facture as any).lignes_facture || []).sort((a: any, b: any) => a.ordre - b.ordre);
+
+  const dateEmission = format(new Date(facture.date_emission), "dd/MM/yyyy", { locale: fr });
+  const dateEcheance = facture.date_echeance ? format(new Date(facture.date_echeance), "dd/MM/yyyy", { locale: fr }) : null;
+
+  const qrData = `Facture: ${facture.numero} | Client: ${client.nom || "—"} | Montant: ${Number(facture.montant_ttc).toLocaleString()} DA | Date: ${dateEmission}`;
+
+  const montantTTCEntier = Math.floor(Number(facture.montant_ttc));
+  const montantEnLettres = numberToFrenchWords(montantTTCEntier);
+
+  const handlePrint = () => {
+    const printContent = reportRef.current;
+    if (!printContent) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html><head><title>Facture ${facture.numero}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', serif; }
+        @page { size: A4; margin: 10mm; }
+        @media print { .page-break { page-break-before: always; } }
+      </style>
+      </head><body>${printContent.innerHTML}</body></html>
+    `);
+    printWindow.document.close();
+    printWindow.onload = () => { printWindow.print(); printWindow.close(); };
+  };
+
+  const handleDownload = async () => {
+    if (!reportRef.current) return;
+    try {
+      const pages = Array.from(reportRef.current.querySelectorAll("[data-pdf-page]")) as HTMLElement[];
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const contentW = pdfW - margin * 2;
+
+      for (let i = 0; i < pages.length; i++) {
+        if (i > 0) pdf.addPage();
+        const canvas = await html2canvas(pages[i], {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+        });
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
+        const ratio = contentW / (canvas.width / 3);
+        const imgH = (canvas.height / 3) * ratio;
+        pdf.addImage(imgData, "JPEG", margin, margin, contentW, Math.min(imgH, pdfH - margin * 2));
+      }
+
+      pdf.save(`Facture_${facture.numero}.pdf`);
+      toast.success("PDF téléchargé avec succès");
+    } catch {
+      toast.error("Erreur lors du téléchargement");
+    }
+  };
+
+  const cellStyle: React.CSSProperties = {
+    border: "1px solid #000",
+    padding: "6px 10px",
+    fontSize: "11px",
+    verticalAlign: "middle",
+    ...sectionStyle,
+  };
+
+  const headerCellStyle: React.CSSProperties = {
+    ...cellStyle,
+    backgroundColor: "#1e5a7a",
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: "11px",
+  };
+
+  return (
+    <>
+      <AppBreadcrumb items={[
+        { label: "Facturation", path: "/facturation" },
+        { label: "Factures", path: "/facturation/factures" },
+        { label: facture.numero },
+      ]} />
+
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/facturation/factures")}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Facture {facture.numero}</h1>
+            <p className="text-muted-foreground text-sm">Aperçu du document</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handlePrint} className="gap-2">
+            <Printer className="h-4 w-4" /> Imprimer
+          </Button>
+          <Button onClick={handleDownload} className="gap-2">
+            <Download className="h-4 w-4" /> Télécharger PDF
+          </Button>
+        </div>
+      </div>
+
+      {/* Invoice document */}
+      <div className="flex justify-center">
+        <div ref={reportRef} style={{ width: "210mm" }}>
+          <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
+            {/* Header */}
+            <DocumentPageHeader
+              entreprise={entreprise}
+              qrData={qrData}
+              title={`FACTURE N° ${facture.numero}`}
+              subtitle={`Date d'émission : ${dateEmission}`}
+            />
+
+            {/* Client & Chantier info */}
+            <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+              {/* Client box */}
+              <div style={{ flex: 1, border: "1px solid #000", borderRadius: "6px", padding: "12px" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "8px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>CLIENT</p>
+                <p style={{ fontSize: "12px", fontWeight: "bold", ...sectionStyle }}>{client.nom || "—"}</p>
+                {client.adresse && <p style={{ fontSize: "11px", ...sectionStyle }}>{client.adresse}{client.ville ? `, ${client.ville}` : ""}</p>}
+                {client.telephone && <p style={{ fontSize: "11px", ...sectionStyle }}>Tél : {client.telephone}</p>}
+                {client.email && <p style={{ fontSize: "11px", ...sectionStyle }}>Email : {client.email}</p>}
+                {client.nif && <p style={{ fontSize: "11px", ...sectionStyle }}>NIF : {client.nif}</p>}
+                {client.nis && <p style={{ fontSize: "11px", ...sectionStyle }}>NIS : {client.nis}</p>}
+                {client.ice && <p style={{ fontSize: "11px", ...sectionStyle }}>ICE : {client.ice}</p>}
+                {client.article_imposition && <p style={{ fontSize: "11px", ...sectionStyle }}>Art. Imp. : {client.article_imposition}</p>}
+              </div>
+
+              {/* Facture info box */}
+              <div style={{ width: "220px", border: "1px solid #000", borderRadius: "6px", padding: "12px" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "8px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>DÉTAILS</p>
+                <p style={{ fontSize: "11px", ...sectionStyle }}><strong>N° :</strong> {facture.numero}</p>
+                <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Date :</strong> {dateEmission}</p>
+                {dateEcheance && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Échéance :</strong> {dateEcheance}</p>}
+                {chantier.nom && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Chantier :</strong> {chantier.nom}</p>}
+              </div>
+            </div>
+
+            {/* Lines table */}
+            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+              <thead>
+                <tr>
+                  <th style={{ ...headerCellStyle, width: "40px" }}>N°</th>
+                  <th style={headerCellStyle}>Désignation</th>
+                  <th style={{ ...headerCellStyle, width: "60px" }}>Qté</th>
+                  <th style={{ ...headerCellStyle, width: "110px" }}>Prix Unit. (DA)</th>
+                  <th style={{ ...headerCellStyle, width: "120px" }}>Montant (DA)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lignes.length > 0 ? lignes.map((l: any, i: number) => (
+                  <tr key={l.id}>
+                    <td style={{ ...cellStyle, textAlign: "center" }}>{i + 1}</td>
+                    <td style={cellStyle}>{l.description}</td>
+                    <td style={{ ...cellStyle, textAlign: "center" }}>{l.quantite}</td>
+                    <td style={{ ...cellStyle, textAlign: "right" }}>{Number(l.prix_unitaire).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}</td>
+                    <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold" }}>{Number(l.montant).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={5} style={{ ...cellStyle, textAlign: "center", color: "#999", padding: "20px" }}>Aucune ligne de facturation</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Totals */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+              <table style={{ borderCollapse: "collapse", width: "300px" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ ...cellStyle, fontWeight: "bold", backgroundColor: "#f0f4f8" }}>Total HT</td>
+                    <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold" }}>{Number(facture.montant_ht).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} DA</td>
+                  </tr>
+                  <tr>
+                    <td style={{ ...cellStyle, backgroundColor: "#f0f4f8" }}>TVA ({facture.taux_tva}%)</td>
+                    <td style={{ ...cellStyle, textAlign: "right" }}>{Number(facture.montant_tva).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} DA</td>
+                  </tr>
+                  <tr>
+                    <td style={{ ...cellStyle, fontWeight: "bold", backgroundColor: "#1e5a7a", color: "#fff", fontSize: "13px" }}>Total TTC</td>
+                    <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold", fontSize: "14px", backgroundColor: "#e8f4f8" }}>{Number(facture.montant_ttc).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} DA</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Amount in words */}
+            <div style={{ border: "1px solid #000", borderRadius: "6px", padding: "10px 14px", marginBottom: "24px", backgroundColor: "#f9fafb" }}>
+              <p style={{ fontSize: "11px", ...sectionStyle }}>
+                <strong>Arrêtée la présente facture à la somme de :</strong>{" "}
+                <span style={{ textTransform: "capitalize" }}>{montantEnLettres} Dinars Algériens</span>
+              </p>
+            </div>
+
+            {/* Payment info */}
+            {(client.banque || client.rib) && (
+              <div style={{ border: "1px solid #ccc", borderRadius: "6px", padding: "10px 14px", marginBottom: "24px" }}>
+                <p style={{ fontSize: "11px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "4px", ...sectionStyle }}>COORDONNÉES BANCAIRES</p>
+                {client.banque && <p style={{ fontSize: "11px", ...sectionStyle }}>Banque : {client.banque}{client.agence ? ` - Agence : ${client.agence}` : ""}</p>}
+                {client.rib && <p style={{ fontSize: "11px", ...sectionStyle }}>RIB : {client.rib}</p>}
+              </div>
+            )}
+
+            {/* Observations */}
+            {facture.observations && (
+              <div style={{ marginBottom: "24px" }}>
+                <p style={{ fontSize: "11px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "4px", ...sectionStyle }}>OBSERVATIONS</p>
+                <p style={{ fontSize: "11px", ...sectionStyle }}>{facture.observations}</p>
+              </div>
+            )}
+
+            {/* Signature area */}
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px" }}>
+              <div style={{ textAlign: "center", width: "200px" }}>
+                <p style={{ fontSize: "11px", fontWeight: "bold", borderBottom: "1px solid #000", paddingBottom: "60px", ...sectionStyle }}>Le Client</p>
+              </div>
+              <div style={{ textAlign: "center", width: "200px" }}>
+                <p style={{ fontSize: "11px", fontWeight: "bold", borderBottom: "1px solid #000", paddingBottom: "60px", ...sectionStyle }}>Le Directeur</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

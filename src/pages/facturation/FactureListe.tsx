@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, FileText, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit } from "lucide-react";
+import { Plus, FileText, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
