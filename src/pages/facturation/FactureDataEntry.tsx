@@ -173,7 +173,7 @@ export default function FactureDataEntry() {
             <div className="md:col-span-3 space-y-1">
               <Label className="md:hidden text-xs">Code essai</Label>
               <Select
-                value={prixEssais?.find((e: any) => e.code === ligne.code_essai)?.id || ""}
+                value={prixEssais?.find((e: any) => e.code_essai === ligne.code_essai)?.id || ""}
                 onValueChange={(val) => handleSelectEssai(idx, val)}
               >
                 <SelectTrigger className="w-full text-xs">
@@ -182,8 +182,8 @@ export default function FactureDataEntry() {
                 <SelectContent className="max-h-60">
                   {prixEssais?.map((e: any) => (
                     <SelectItem key={e.id} value={e.id} className="text-xs">
-                      <span className="font-mono font-semibold">{e.code}</span>
-                      <span className="text-muted-foreground ml-1">– {e.essai}</span>
+                      <span className="font-mono font-semibold">{e.code_essai}</span>
+                      <span className="text-muted-foreground ml-1">– {e.nom_essai}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
