@@ -236,6 +236,7 @@ import FactureForm from "./pages/facturation/FactureForm";
 import FactureDetail from "./pages/facturation/FactureDetail";
 import FactureDataEntry from "./pages/facturation/FactureDataEntry";
 import FactureEdit from "./pages/facturation/FactureEdit";
+import FacturePreview from "./pages/facturation/FacturePreview";
 import DevisListe from "./pages/facturation/DevisListe";
 import DevisForm from "./pages/facturation/DevisForm";
 import BonCommandeListe from "./pages/facturation/BonCommandeListe";
@@ -676,6 +677,7 @@ const AppRoutes = () => (
       <Route path="/facturation/factures/:id" element={<FactureDetail />} />
       <Route path="/facturation/factures/:id/saisie" element={<FactureDataEntry />} />
       <Route path="/facturation/factures/:id/modifier" element={<FactureEdit />} />
+      <Route path="/facturation/factures/:id/apercu" element={<FacturePreview />} />
       <Route path="/facturation/devis" element={<DevisListe />} />
       <Route path="/facturation/devis/nouveau" element={<DevisForm />} />
       <Route path="/facturation/bons-commande" element={<BonCommandeListe />} />
