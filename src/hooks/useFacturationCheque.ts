@@ -7,8 +7,8 @@ export function usePaiementsCheque() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("paiements_cheque")
-        .select("*, clients(id, nom), chantiers(id, nom)")
-        .order("date_paiement", { ascending: false });
+        .select("*, clients(id, nom)")
+        .order("date_emission", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -22,7 +22,7 @@ export function usePaiementCheque(id: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("paiements_cheque")
-        .select("*, clients(id, nom), chantiers(id, nom)")
+        .select("*, clients(id, nom)")
         .eq("id", id!)
         .single();
       if (error) throw error;
