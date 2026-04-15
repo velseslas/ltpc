@@ -247,6 +247,9 @@ import EtatPaiementsEspece from "./pages/facturation/EtatPaiementsEspece";
 import EspeceEdit from "./pages/facturation/EspeceEdit";
 import VirementListe from "./pages/facturation/VirementListe";
 import VirementForm from "./pages/facturation/VirementForm";
+import ChequeListe from "./pages/facturation/ChequeListe";
+import ChequeForm from "./pages/facturation/ChequeForm";
+import ChequeEdit from "./pages/facturation/ChequeEdit";
 import RecapitulatifPaiements from "./pages/facturation/RecapitulatifPaiements";
 import PrixEssaiListe from "./pages/facturation/PrixEssaiListe";
 import PrestataireListe from "./pages/prestataires/PrestataireListe";
@@ -686,6 +689,9 @@ const AppRoutes = () => (
       <Route path="/facturation/espece/nouveau" element={<EspeceForm />} />
       <Route path="/facturation/espece/etat" element={<EtatPaiementsEspece />} />
       <Route path="/facturation/espece/:id/modifier" element={<EspeceEdit />} />
+      <Route path="/facturation/cheque" element={<ChequeListe />} />
+      <Route path="/facturation/cheque/nouveau" element={<ChequeForm />} />
+      <Route path="/facturation/cheque/:id/modifier" element={<ChequeEdit />} />
       <Route path="/facturation/virements" element={<VirementListe />} />
       <Route path="/facturation/virements/nouveau" element={<VirementForm />} />
       <Route path="/facturation/recapitulatif" element={<RecapitulatifPaiements />} />

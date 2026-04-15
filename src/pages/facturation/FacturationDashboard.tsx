@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FileText, Receipt, ShoppingCart, Banknote, ArrowUpRight, Wallet, TrendingUp, AlertTriangle, BarChart3, FlaskConical } from "lucide-react";
+import { FileText, Receipt, ShoppingCart, Banknote, ArrowUpRight, Wallet, TrendingUp, AlertTriangle, BarChart3, FlaskConical, CreditCard } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
@@ -34,6 +34,13 @@ const widgets = [
     icon: Banknote,
     path: "/facturation/espece",
     color: { bg: "bg-emerald-500/10", icon: "text-emerald-500" },
+  },
+  {
+    title: "Paiements Chèque",
+    description: "Suivi des paiements par chèque",
+    icon: CreditCard,
+    path: "/facturation/cheque",
+    color: { bg: "bg-indigo-500/10", icon: "text-indigo-500" },
   },
   {
     title: "Virements bancaires",
