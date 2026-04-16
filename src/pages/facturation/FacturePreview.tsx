@@ -200,6 +200,23 @@ export default function FacturePreview() {
               subtitle={`Date d'émission : ${dateEmission}`}
             />
 
+            {/* Entreprise: Informations fiscales & bancaires */}
+            <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+              <div style={{ flex: 1, border: "1px solid #000", borderRadius: "6px", padding: "10px 12px" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "6px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>INFORMATIONS FISCALES</p>
+                {entreprise?.rc && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>RC :</strong> {entreprise.rc}</p>}
+                {entreprise?.nif && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>NIF :</strong> {entreprise.nif}</p>}
+                {entreprise?.nis && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>NIS :</strong> {entreprise.nis}</p>}
+                {entreprise?.ai && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Article d'imposition :</strong> {entreprise.ai}</p>}
+              </div>
+              <div style={{ flex: 1, border: "1px solid #000", borderRadius: "6px", padding: "10px 12px" }}>
+                <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "6px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>INFORMATIONS BANCAIRES</p>
+                {entreprise?.banque && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Banque :</strong> {entreprise.banque}</p>}
+                {entreprise?.agence && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Agence :</strong> {entreprise.agence}</p>}
+                {entreprise?.rib && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>RIB :</strong> {entreprise.rib}</p>}
+              </div>
+            </div>
+
             {/* Client & Chantier info */}
             <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
               {/* Client box */}
