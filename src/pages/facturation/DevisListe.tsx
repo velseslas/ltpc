@@ -1,15 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Receipt } from "lucide-react";
+import { Plus, Receipt, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit, FileOutput, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useDevis, useDeleteDevis } from "@/hooks/useFacturation";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useState } from "react";
 
 const statutBadge = (s: string) => {
   const map: Record<string, { label: string; cls: string }> = {
@@ -27,10 +30,64 @@ export default function DevisListe() {
   const navigate = useNavigate();
   const { data, isLoading } = useDevis();
   const deleteMutation = useDeleteDevis();
+  const [converting, setConverting] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer ce devis ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Devis supprimé"); } catch { toast.error("Erreur"); }
+  };
+
+  const handleConvertToFacture = async (devisId: string) => {
+    setConverting(devisId);
+    try {
+      const { data: devis, error } = await supabase
+        .from("devis")
+        .select("*, lignes_devis(*)")
+        .eq("id", devisId)
+        .single();
+      if (error || !devis) throw error;
+
+      const year = new Date().getFullYear();
+      const prefix = `FAC-${year}-`;
+      const { data: factures } = await supabase.from("factures").select("numero").like("numero", `${prefix}%`);
+      const existing = (factures || []).map((f: any) => parseInt(f.numero.replace(prefix, "")) || 0);
+      const next = (existing.length > 0 ? Math.max(...existing) : 0) + 1;
+      const numero = `${prefix}${String(next).padStart(3, "0")}`;
+
+      const { data: newFacture, error: facErr } = await supabase.from("factures").insert({
+        numero,
+        client_id: devis.client_id,
+        chantier_id: devis.chantier_id,
+        date_emission: new Date().toISOString().split("T")[0],
+        statut: "brouillon",
+        observations: devis.observations,
+        montant_ht: devis.montant_ht,
+        taux_tva: devis.taux_tva,
+        montant_tva: devis.montant_tva,
+        montant_ttc: devis.montant_ttc,
+      }).select().single();
+      if (facErr) throw facErr;
+
+      const lignes = ((devis as any).lignes_devis || []).sort((a: any, b: any) => a.ordre - b.ordre);
+      for (let i = 0; i < lignes.length; i++) {
+        const l = lignes[i];
+        await supabase.from("lignes_facture").insert({
+          facture_id: newFacture.id,
+          description: l.description,
+          quantite: l.quantite,
+          prix_unitaire: l.prix_unitaire,
+          montant: l.montant,
+          ordre: i + 1,
+        });
+      }
+
+      toast.success(`Facture ${numero} créée depuis le devis`);
+      navigate(`/facturation/factures/${newFacture.id}/apercu`);
+    } catch {
+      toast.error("Erreur lors de la conversion");
+    } finally {
+      setConverting(null);
+    }
   };
 
   return (
@@ -75,7 +132,33 @@ export default function DevisListe() {
                     <TableCell>{d.date_validite ? format(new Date(d.date_validite), "dd/MM/yyyy", { locale: fr }) : "—"}</TableCell>
                     <TableCell>{Number(d.montant_ttc).toLocaleString()} DA</TableCell>
                     <TableCell>{statutBadge(d.statut)}</TableCell>
-                    <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => handleDelete(d.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" disabled={converting === d.id}><MoreHorizontal className="h-4 w-4" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/devis/${d.id}/apercu`)}>
+                            <FileOutput className="h-4 w-4 mr-2" />Devis
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/devis/${d.id}/saisie`)}>
+                            <ClipboardEdit className="h-4 w-4 mr-2" />Saisie de données
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/devis/${d.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" />Détails
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/facturation/devis/${d.id}/modifier`)}>
+                            <Pencil className="h-4 w-4 mr-2" />Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleConvertToFacture(d.id)} disabled={converting === d.id}>
+                            <FileText className="h-4 w-4 mr-2" />Convertir en facture
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(d.id)}>
+                            <Trash2 className="h-4 w-4 mr-2" />Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

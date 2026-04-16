@@ -106,6 +106,22 @@ export function useDevis() {
   });
 }
 
+export function useDevisDetail(id: string | undefined) {
+  return useQuery({
+    queryKey: ["devis", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("devis")
+        .select("*, clients(id, nom, adresse, ville, telephone, email, nif, nis, ice, rc, article_imposition, banque, rib, agence, representant), chantiers(id, nom), lignes_devis(*)")
+        .eq("id", id!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useCreateDevis() {
   const qc = useQueryClient();
   return useMutation({
