@@ -239,6 +239,10 @@ import FactureEdit from "./pages/facturation/FactureEdit";
 import FacturePreview from "./pages/facturation/FacturePreview";
 import DevisListe from "./pages/facturation/DevisListe";
 import DevisForm from "./pages/facturation/DevisForm";
+import DevisDetail from "./pages/facturation/DevisDetail";
+import DevisEdit from "./pages/facturation/DevisEdit";
+import DevisPreview from "./pages/facturation/DevisPreview";
+import DevisDataEntry from "./pages/facturation/DevisDataEntry";
 import BonCommandeListe from "./pages/facturation/BonCommandeListe";
 import BonCommandeForm from "./pages/facturation/BonCommandeForm";
 import EspeceListe from "./pages/facturation/EspeceListe";
@@ -683,6 +687,10 @@ const AppRoutes = () => (
       <Route path="/facturation/factures/:id/apercu" element={<FacturePreview />} />
       <Route path="/facturation/devis" element={<DevisListe />} />
       <Route path="/facturation/devis/nouveau" element={<DevisForm />} />
+      <Route path="/facturation/devis/:id" element={<DevisDetail />} />
+      <Route path="/facturation/devis/:id/saisie" element={<DevisDataEntry />} />
+      <Route path="/facturation/devis/:id/modifier" element={<DevisEdit />} />
+      <Route path="/facturation/devis/:id/apercu" element={<DevisPreview />} />
       <Route path="/facturation/bons-commande" element={<BonCommandeListe />} />
       <Route path="/facturation/bons-commande/nouveau" element={<BonCommandeForm />} />
       <Route path="/facturation/espece" element={<EspeceListe />} />
