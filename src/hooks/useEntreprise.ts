@@ -14,6 +14,13 @@ export interface Entreprise {
   logo_url: string | null;
   cachet_url: string | null;
   representant: string | null;
+  rib: string | null;
+  banque: string | null;
+  agence: string | null;
+  rc: string | null;
+  nif: string | null;
+  nis: string | null;
+  ai: string | null;
   created_at: string;
   updated_at: string;
 }
