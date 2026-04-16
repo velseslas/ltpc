@@ -207,12 +207,11 @@ export default function FacturePreview() {
                 <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "8px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>CLIENT</p>
                 <p style={{ fontSize: "12px", fontWeight: "bold", ...sectionStyle }}>{client.nom || "—"}</p>
                 {client.adresse && <p style={{ fontSize: "11px", ...sectionStyle }}>{client.adresse}{client.ville ? `, ${client.ville}` : ""}</p>}
-                {client.telephone && <p style={{ fontSize: "11px", ...sectionStyle }}>Tél : {client.telephone}</p>}
-                {client.email && <p style={{ fontSize: "11px", ...sectionStyle }}>Email : {client.email}</p>}
+                {chantier.nom && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Chantier :</strong> {chantier.nom}</p>}
+                {client.rc && <p style={{ fontSize: "11px", ...sectionStyle }}>RC : {client.rc}</p>}
                 {client.nif && <p style={{ fontSize: "11px", ...sectionStyle }}>NIF : {client.nif}</p>}
                 {client.nis && <p style={{ fontSize: "11px", ...sectionStyle }}>NIS : {client.nis}</p>}
-                {client.ice && <p style={{ fontSize: "11px", ...sectionStyle }}>ICE : {client.ice}</p>}
-                {client.article_imposition && <p style={{ fontSize: "11px", ...sectionStyle }}>Art. Imp. : {client.article_imposition}</p>}
+                {client.article_imposition && <p style={{ fontSize: "11px", ...sectionStyle }}>Article d'imposition : {client.article_imposition}</p>}
               </div>
 
               {/* Facture info box */}
@@ -221,7 +220,6 @@ export default function FacturePreview() {
                 <p style={{ fontSize: "11px", ...sectionStyle }}><strong>N° :</strong> {facture.numero}</p>
                 <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Date :</strong> {dateEmission}</p>
                 {dateEcheance && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Échéance :</strong> {dateEcheance}</p>}
-                {chantier.nom && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Chantier :</strong> {chantier.nom}</p>}
               </div>
             </div>
 
