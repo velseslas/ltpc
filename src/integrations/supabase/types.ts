@@ -4364,48 +4364,69 @@ export type Database = {
       }
       entreprise: {
         Row: {
+          agence: string | null
+          ai: string | null
           annexe: string | null
+          banque: string | null
           cachet_url: string | null
           created_at: string
           date_autorisation: string | null
           email: string | null
           id: string
           logo_url: string | null
+          nif: string | null
+          nis: string | null
           nom: string
           numero_autorisation: string | null
+          rc: string | null
           representant: string | null
+          rib: string | null
           siege_social: string | null
           site_web: string | null
           telephone: string | null
           updated_at: string
         }
         Insert: {
+          agence?: string | null
+          ai?: string | null
           annexe?: string | null
+          banque?: string | null
           cachet_url?: string | null
           created_at?: string
           date_autorisation?: string | null
           email?: string | null
           id?: string
           logo_url?: string | null
+          nif?: string | null
+          nis?: string | null
           nom?: string
           numero_autorisation?: string | null
+          rc?: string | null
           representant?: string | null
+          rib?: string | null
           siege_social?: string | null
           site_web?: string | null
           telephone?: string | null
           updated_at?: string
         }
         Update: {
+          agence?: string | null
+          ai?: string | null
           annexe?: string | null
+          banque?: string | null
           cachet_url?: string | null
           created_at?: string
           date_autorisation?: string | null
           email?: string | null
           id?: string
           logo_url?: string | null
+          nif?: string | null
+          nis?: string | null
           nom?: string
           numero_autorisation?: string | null
+          rc?: string | null
           representant?: string | null
+          rib?: string | null
           siege_social?: string | null
           site_web?: string | null
           telephone?: string | null

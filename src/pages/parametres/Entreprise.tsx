@@ -25,6 +25,13 @@ const Entreprise = () => {
     site_web: "",
     logo_url: "",
     cachet_url: "",
+    rib: "",
+    banque: "",
+    agence: "",
+    rc: "",
+    nif: "",
+    nis: "",
+    ai: "",
   });
   
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
@@ -43,6 +50,13 @@ const Entreprise = () => {
         site_web: entreprise.site_web || "",
         logo_url: entreprise.logo_url || "",
         cachet_url: entreprise.cachet_url || "",
+        rib: (entreprise as any).rib || "",
+        banque: (entreprise as any).banque || "",
+        agence: (entreprise as any).agence || "",
+        rc: (entreprise as any).rc || "",
+        nif: (entreprise as any).nif || "",
+        nis: (entreprise as any).nis || "",
+        ai: (entreprise as any).ai || "",
       });
     }
   }, [entreprise]);
@@ -359,6 +373,108 @@ const Entreprise = () => {
                     className="bg-muted/30 border-border"
                   />
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Informations bancaires */}
+        <Card className="border-border bg-card mt-6 animate-fade-in [animation-delay:150ms]">
+          <CardContent className="p-6 space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">
+                Informations <span className="text-primary">bancaires</span>
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Coordonnées bancaires de l'entreprise
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="banque">Banque</Label>
+                <Input
+                  id="banque"
+                  value={formData.banque}
+                  onChange={(e) => handleChange("banque", e.target.value)}
+                  placeholder="Nom de la banque"
+                  className="bg-muted/30 border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="agence">Agence</Label>
+                <Input
+                  id="agence"
+                  value={formData.agence}
+                  onChange={(e) => handleChange("agence", e.target.value)}
+                  placeholder="Nom / N° de l'agence"
+                  className="bg-muted/30 border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="rib">RIB</Label>
+                <Input
+                  id="rib"
+                  value={formData.rib}
+                  onChange={(e) => handleChange("rib", e.target.value)}
+                  placeholder="00000 00000 00000000000 00"
+                  className="bg-muted/30 border-border"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Informations fiscales */}
+        <Card className="border-border bg-card mt-6 animate-fade-in [animation-delay:200ms]">
+          <CardContent className="p-6 space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">
+                Informations <span className="text-primary">fiscales</span>
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Identifiants fiscaux et registre de commerce
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="rc">RC (Registre de Commerce)</Label>
+                <Input
+                  id="rc"
+                  value={formData.rc}
+                  onChange={(e) => handleChange("rc", e.target.value)}
+                  placeholder="00/00-0000000 X00"
+                  className="bg-muted/30 border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nif">NIF</Label>
+                <Input
+                  id="nif"
+                  value={formData.nif}
+                  onChange={(e) => handleChange("nif", e.target.value)}
+                  placeholder="Numéro d'Identification Fiscale"
+                  className="bg-muted/30 border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nis">NIS</Label>
+                <Input
+                  id="nis"
+                  value={formData.nis}
+                  onChange={(e) => handleChange("nis", e.target.value)}
+                  placeholder="Numéro d'Identification Statistique"
+                  className="bg-muted/30 border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ai">AI (Article d'Imposition)</Label>
+                <Input
+                  id="ai"
+                  value={formData.ai}
+                  onChange={(e) => handleChange("ai", e.target.value)}
+                  placeholder="Article d'imposition"
+                  className="bg-muted/30 border-border"
+                />
               </div>
             </div>
           </CardContent>
