@@ -665,6 +665,7 @@ export type Database = {
           nif: string | null
           nis: string | null
           nom: string
+          rc: string | null
           representant: string | null
           rib: string | null
           telephone: string | null
@@ -684,6 +685,7 @@ export type Database = {
           nif?: string | null
           nis?: string | null
           nom: string
+          rc?: string | null
           representant?: string | null
           rib?: string | null
           telephone?: string | null
@@ -703,6 +705,7 @@ export type Database = {
           nif?: string | null
           nis?: string | null
           nom?: string
+          rc?: string | null
           representant?: string | null
           rib?: string | null
           telephone?: string | null
