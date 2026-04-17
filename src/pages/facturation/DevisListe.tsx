@@ -116,6 +116,7 @@ export default function DevisListe() {
                 <TableRow>
                   <TableHead>N° Devis</TableHead>
                   <TableHead>Client</TableHead>
+                  <TableHead>Chantier</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Validité</TableHead>
                   <TableHead>Montant TTC</TableHead>
@@ -128,6 +129,7 @@ export default function DevisListe() {
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">{d.numero}</TableCell>
                     <TableCell>{(d.clients as any)?.nom || "—"}</TableCell>
+                    <TableCell>{(d.chantiers as any)?.nom || "—"}</TableCell>
                     <TableCell>{format(new Date(d.date_emission), "dd/MM/yyyy", { locale: fr })}</TableCell>
                     <TableCell>{d.date_validite ? format(new Date(d.date_validite), "dd/MM/yyyy", { locale: fr }) : "—"}</TableCell>
                     <TableCell>{Number(d.montant_ttc).toLocaleString()} DA</TableCell>
