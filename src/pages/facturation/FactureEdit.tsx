@@ -25,7 +25,7 @@ export default function FactureEdit() {
   const [form, setForm] = useState({
     numero: "", client_id: "", chantier_id: "",
     date_emission: "", date_echeance: "",
-    statut: "brouillon", observations: ""
+    statut: "impayee", observations: ""
   });
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function FactureEdit() {
         chantier_id: facture.chantier_id || "",
         date_emission: facture.date_emission || "",
         date_echeance: facture.date_echeance || "",
-        statut: facture.statut || "brouillon",
+        statut: facture.statut || "impayee",
         observations: facture.observations || "",
       });
     }
@@ -79,11 +79,8 @@ export default function FactureEdit() {
               <Select value={form.statut} onValueChange={v => setForm(p => ({ ...p, statut: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="brouillon">Brouillon</SelectItem>
-                  <SelectItem value="envoyee">Envoyée</SelectItem>
-                  <SelectItem value="en_attente">En attente</SelectItem>
                   <SelectItem value="payee">Payée</SelectItem>
-                  <SelectItem value="annulee">Annulée</SelectItem>
+                  <SelectItem value="impayee">Impayée</SelectItem>
                 </SelectContent>
               </Select>
             </div>
