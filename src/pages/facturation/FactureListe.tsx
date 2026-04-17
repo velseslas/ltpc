@@ -60,6 +60,7 @@ export default function FactureListe() {
                 <TableRow>
                   <TableHead>N° Facture</TableHead>
                   <TableHead>Client</TableHead>
+                  <TableHead>Chantier</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Montant TTC</TableHead>
                   <TableHead>Statut</TableHead>
@@ -71,6 +72,7 @@ export default function FactureListe() {
                   <TableRow key={f.id}>
                     <TableCell className="font-medium">{f.numero}</TableCell>
                     <TableCell>{(f.clients as any)?.nom || "—"}</TableCell>
+                    <TableCell>{(f.chantiers as any)?.nom || "—"}</TableCell>
                     <TableCell>{format(new Date(f.date_emission), "dd/MM/yyyy", { locale: fr })}</TableCell>
                     <TableCell>{Number(f.montant_ttc).toLocaleString()} DA</TableCell>
                     <TableCell>{statutBadge(f.statut)}</TableCell>
