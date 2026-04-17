@@ -22,7 +22,7 @@ export default function FactureForm() {
   const [form, setForm] = useState({
     numero: "", client_id: "", chantier_id: "",
     date_emission: new Date().toISOString().split("T")[0],
-    date_echeance: "", statut: "brouillon", observations: ""
+    date_echeance: "", statut: "impayee", observations: ""
   });
 
   // Auto-generate numero
@@ -72,11 +72,8 @@ export default function FactureForm() {
               <Select value={form.statut} onValueChange={v => setForm(p => ({ ...p, statut: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="brouillon">Brouillon</SelectItem>
-                  <SelectItem value="envoyee">Envoyée</SelectItem>
-                  <SelectItem value="en_attente">En attente</SelectItem>
                   <SelectItem value="payee">Payée</SelectItem>
-                  <SelectItem value="annulee">Annulée</SelectItem>
+                  <SelectItem value="impayee">Impayée</SelectItem>
                 </SelectContent>
               </Select>
             </div>

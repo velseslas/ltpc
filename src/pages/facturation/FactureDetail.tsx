@@ -9,13 +9,10 @@ import { Badge } from "@/components/ui/badge";
 
 const statutBadge = (s: string) => {
   const map: Record<string, { label: string; cls: string }> = {
-    brouillon: { label: "Brouillon", cls: "bg-muted text-muted-foreground border-border" },
-    envoyee: { label: "Envoyée", cls: "bg-blue-500/20 text-blue-500 border-blue-500/30" },
-    en_attente: { label: "En attente", cls: "bg-amber-500/20 text-amber-500 border-amber-500/30" },
     payee: { label: "Payée", cls: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" },
-    annulee: { label: "Annulée", cls: "bg-red-500/20 text-red-500 border-red-500/30" },
+    impayee: { label: "Impayée", cls: "bg-red-500/20 text-red-500 border-red-500/30" },
   };
-  const m = map[s] || { label: s, cls: "" };
+  const m = map[s] || { label: "Impayée", cls: "bg-red-500/20 text-red-500 border-red-500/30" };
   return <Badge className={m.cls}>{m.label}</Badge>;
 };
 
