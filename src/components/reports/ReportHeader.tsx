@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { normalizeQRValue } from "@/lib/qrContent";
 
 interface EntrepriseData {
   nom?: string | null;
@@ -84,9 +85,13 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
             </p>
           </div>
 
-          {/* QR Code */}
+          {/* QR Code — contenu lisible (détails du rapport) */}
           <div className="flex flex-col items-center">
-            <QRCodeSVG value={verificationUrl} size={60} />
+            <QRCodeSVG
+              value={normalizeQRValue(verificationUrl, { entreprise: entreprise?.nom, title, subtitle })}
+              size={60}
+              level="M"
+            />
           </div>
         </div>
       </div>

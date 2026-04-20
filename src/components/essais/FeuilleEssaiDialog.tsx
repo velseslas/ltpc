@@ -6,6 +6,7 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { normalizeQRValue } from "@/lib/qrContent";
 
 interface FeuilleEssaiDialogProps {
   open: boolean;
@@ -679,9 +680,17 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
                 </p>
               </div>
 
-              {/* QR Code */}
+              {/* QR Code — contenu lisible */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                <QRCodeSVG value={verificationUrl} size={60} />
+                <QRCodeSVG
+                  value={normalizeQRValue(verificationUrl, {
+                    entreprise: entreprise?.nom,
+                    title: `Feuille d'essai — ${normeTitle}`,
+                    subtitle: normeNumber,
+                  })}
+                  size={60}
+                  level="M"
+                />
               </div>
             </div>
           </div>

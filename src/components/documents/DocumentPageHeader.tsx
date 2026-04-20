@@ -1,6 +1,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { normalizeQRValue } from "@/lib/qrContent";
 
 interface DocumentPageHeaderProps {
   entreprise?: {
@@ -63,9 +64,13 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
             </p>
           </div>
 
-          {/* QR Code */}
+          {/* QR Code — contenu lisible (détails du document) */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-            <QRCodeSVG value={qrData} size={60} />
+            <QRCodeSVG
+              value={normalizeQRValue(qrData, { entreprise: entreprise?.nom, title, subtitle })}
+              size={60}
+              level="M"
+            />
           </div>
         </div>
       </div>
