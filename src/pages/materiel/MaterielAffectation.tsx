@@ -317,6 +317,8 @@ export default function MaterielAffectation() {
         { label: "Affectation Matériel" },
       ]} />
 
+      <EntrepriseListHeader />
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <BackButton to="/materiel" />

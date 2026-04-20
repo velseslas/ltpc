@@ -108,6 +108,8 @@ export default function MaterielInventaire() {
         { label: "Inventaire" },
       ]} />
 
+      <EntrepriseListHeader />
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <BackButton to="/materiel/liste" />
