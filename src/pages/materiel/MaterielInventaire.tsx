@@ -128,71 +128,67 @@ export default function MaterielInventaire() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            </div>
-          ) : (
-            <div ref={printRef} style={{ padding: "16px", background: "#fff", color: "#111" }}>
-              <div style={{ textAlign: "center", marginBottom: "16px" }}>
-                {entreprise?.nom && (
-                  <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>
-                )}
-                {entreprise?.numero_autorisation && (
-                  <p style={{ fontSize: "11px", margin: "0 0 2px", color: "#555" }}>
-                    Agrément N° {entreprise.numero_autorisation}
-                  </p>
-                )}
-                <h3 style={{ fontSize: "14px", fontWeight: 600, margin: "12px 0 4px", textDecoration: "underline" }}>
-                  INVENTAIRE DU MATÉRIEL DE LABORATOIRE
-                </h3>
-                <p style={{ fontSize: "11px", color: "#555" }}>Date : {today}</p>
-              </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : (
+        <div data-ref="report" ref={printRef} style={{ padding: "24px", background: "#fff", color: "#111", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", borderRadius: "4px" }}>
+          <div style={{ textAlign: "center", marginBottom: "16px" }}>
+            {entreprise?.nom && (
+              <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>
+            )}
+            {entreprise?.numero_autorisation && (
+              <p style={{ fontSize: "11px", margin: "0 0 2px", color: "#555" }}>
+                Agrément N° {entreprise.numero_autorisation}
+              </p>
+            )}
+            <h3 style={{ fontSize: "14px", fontWeight: 600, margin: "12px 0 4px", textDecoration: "underline" }}>
+              INVENTAIRE DU MATÉRIEL DE LABORATOIRE
+            </h3>
+            <p style={{ fontSize: "11px", color: "#555" }}>Date : {today}</p>
+          </div>
 
-              <div style={{ display: "flex", gap: "16px", marginBottom: "12px", fontSize: "12px", flexWrap: "wrap" }}>
-                <span><strong>Total :</strong> {stats.total}</span>
-                <span style={{ color: "#16a34a" }}>● Opérationnel : {stats.operationnel}</span>
-                <span style={{ color: "#ef4444" }}>● Hors service : {stats.hors_service}</span>
-                <span style={{ color: "#f59e0b" }}>● En réparation : {stats.en_reparation}</span>
-              </div>
+          <div style={{ display: "flex", gap: "16px", marginBottom: "12px", fontSize: "12px", flexWrap: "wrap" }}>
+            <span><strong>Total :</strong> {stats.total}</span>
+            <span style={{ color: "#16a34a" }}>● Opérationnel : {stats.operationnel}</span>
+            <span style={{ color: "#ef4444" }}>● Hors service : {stats.hors_service}</span>
+            <span style={{ color: "#f59e0b" }}>● En réparation : {stats.en_reparation}</span>
+          </div>
 
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
-                <thead>
-                  <tr>
-                    {["N°", "Désignation", "Référence", "Catégorie", "Marque", "Modèle", "N° Série", "État", "Localisation"].map(h => (
-                      <th key={h} style={{ border: "1px solid #444", padding: "6px 8px", background: "#f1f5f9", fontWeight: 600, textAlign: "left" }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.map((m, i) => (
-                    <tr key={m.id}>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px", textAlign: "center" }}>{i + 1}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px", fontWeight: 500 }}>{m.nom}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.reference || "—"}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px", textTransform: "capitalize" }}>{m.categorie?.replace("_", " ") || "—"}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.marque || "—"}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.modele || "—"}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.numero_serie || "—"}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{etatLabel(m.etat)}</td>
-                      <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.localisation || "—"}</td>
-                    </tr>
-                  ))}
-                  {data.length === 0 && (
-                    <tr>
-                      <td colSpan={9} style={{ border: "1px solid #ccc", padding: "16px", textAlign: "center", color: "#888" }}>
-                        Aucun matériel enregistré
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
+            <thead>
+              <tr>
+                {["N°", "Désignation", "Référence", "Catégorie", "Marque", "Modèle", "N° Série", "État", "Localisation"].map(h => (
+                  <th key={h} style={{ border: "1px solid #444", padding: "6px 8px", background: "#f1f5f9", fontWeight: 600, textAlign: "left" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((m, i) => (
+                <tr key={m.id}>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px", textAlign: "center" }}>{i + 1}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px", fontWeight: 500 }}>{m.nom}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.reference || "—"}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px", textTransform: "capitalize" }}>{m.categorie?.replace("_", " ") || "—"}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.marque || "—"}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.modele || "—"}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.numero_serie || "—"}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{etatLabel(m.etat)}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{m.localisation || "—"}</td>
+                </tr>
+              ))}
+              {data.length === 0 && (
+                <tr>
+                  <td colSpan={9} style={{ border: "1px solid #ccc", padding: "16px", textAlign: "center", color: "#888" }}>
+                    Aucun matériel enregistré
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
