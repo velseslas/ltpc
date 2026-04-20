@@ -32,6 +32,7 @@ import {
   useCreateEchantillonPermeabilite,
   useUpdateEchantillonPermeabilite,
 } from "@/hooks/useEchantillonsPermeabilite";
+import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -146,10 +147,14 @@ const PermeabiliteSampleForm = () => {
 
   // Data fetching
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
-  const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(clientId);
+  const { data: chantiersBase = [], isLoading: isLoadingChantiers } = useChantiersByClient(clientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centrales = [], isLoading: isLoadingCentrales } = useCentralesByClient(clientId);
-  const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
+  const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesByClient(clientId);
+  const { data: formulationsBase = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
+
+  const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);
+  const formulations = useMergedById("formulations", existingEchantillon?.formulation_id, formulationsBase as any);
+  const chantiers = useMergedById("chantiers", existingEchantillon?.chantier_id, chantiersBase as any);
 
   // Populate remaining form fields when editing
   useEffect(() => {
