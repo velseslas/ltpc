@@ -61,35 +61,34 @@ const Auth = () => {
     try {
       const trimmed = username.trim().toLowerCase();
       const matchedUser = utilisateurs.find(
-        (u) => u.nom.toLowerCase() === trimmed
+        (u) => u.nom.trim().toLowerCase() === trimmed || u.email.trim().toLowerCase() === trimmed
       );
 
       if (!matchedUser) {
-        setError("Utilisateur introuvable");
-        setIsLoading(false);
+        setError("Utilisateur ou email introuvable");
         return;
       }
 
       if (matchedUser.statut !== "actif") {
         setError("Ce compte utilisateur est inactif");
-        setIsLoading(false);
         return;
       }
 
-      const { error } = await signIn(matchedUser.email, password);
+      const { error } = await signIn(matchedUser.email.trim().toLowerCase(), password);
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
           setError("Mot de passe incorrect");
         } else {
           setError(error.message);
         }
-      } else {
-        toast({
-          title: "Connexion réussie",
-          description: `Bienvenue ${matchedUser.nom}`,
-        });
-        navigate("/");
+        return;
       }
+
+      toast({
+        title: "Connexion réussie",
+        description: `Bienvenue ${matchedUser.nom}`,
+      });
+      navigate("/");
     } catch {
       setError("Une erreur est survenue");
     } finally {
@@ -151,12 +150,12 @@ const Auth = () => {
             )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label>Utilisateur</Label>
+                <Label>Utilisateur ou email</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Entrez votre nom d'utilisateur"
+                    placeholder="Entrez votre nom d'utilisateur ou email"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-10 bg-secondary border-border"
