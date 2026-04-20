@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { EntrepriseListHeader } from "@/components/materiel/EntrepriseListHeader";
 import { useMaterielList, useDeleteMateriel } from "@/hooks/useMaterielLaboratoire";
 import { toast } from "sonner";
 import {
@@ -75,6 +76,8 @@ export default function MaterielListe() {
         { label: "Matériel Laboratoire", path: "/materiel" },
         { label: "Liste Matériel" },
       ]} />
+
+      <EntrepriseListHeader />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
