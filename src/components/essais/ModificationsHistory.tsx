@@ -83,30 +83,38 @@ export function ModificationsHistory({ tableName, recordId }: Props) {
                 </span>
               </div>
             </div>
-            {isAdmin && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Undo2 className="h-4 w-4" />
-                    Restaurer
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Restaurer la modification ?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Le champ <strong>{entry.field_name}</strong> reprendra la valeur :{" "}
-                      <em>{formatValue(entry.old_value)}</em>
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => restore.mutate(entry)}>
+            {entry.restored_at ? (
+              <Badge variant="secondary" className="gap-1 whitespace-nowrap">
+                <Undo2 className="h-3 w-3" />
+                Restauré le {format(new Date(entry.restored_at), "dd/MM/yy HH:mm", { locale: fr })}
+                {entry.restored_by_name ? ` par ${entry.restored_by_name}` : ""}
+              </Badge>
+            ) : (
+              isAdmin && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-1">
+                      <Undo2 className="h-4 w-4" />
                       Restaurer
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Restaurer la modification ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Le champ <strong>{entry.field_name}</strong> reprendra la valeur :{" "}
+                        <em>{formatValue(entry.old_value)}</em>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => restore.mutate(entry)}>
+                        Restaurer
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )
             )}
           </div>
         ))}

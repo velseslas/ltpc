@@ -4526,6 +4526,9 @@ export type Database = {
           new_value: Json | null
           old_value: Json | null
           record_id: string
+          restored_at: string | null
+          restored_by: string | null
+          restored_by_name: string | null
           table_name: string
         }
         Insert: {
@@ -4537,6 +4540,9 @@ export type Database = {
           new_value?: Json | null
           old_value?: Json | null
           record_id: string
+          restored_at?: string | null
+          restored_by?: string | null
+          restored_by_name?: string | null
           table_name: string
         }
         Update: {
@@ -4548,6 +4554,9 @@ export type Database = {
           new_value?: Json | null
           old_value?: Json | null
           record_id?: string
+          restored_at?: string | null
+          restored_by?: string | null
+          restored_by_name?: string | null
           table_name?: string
         }
         Relationships: []
