@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { QRCodeSVG } from "qrcode.react";
+import { buildQRContent } from "@/lib/qrContent";
 
 interface DocumentPreviewProps {
   type: "attestation" | "certificat";
@@ -42,11 +43,16 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       ? format(new Date(dateFin), "dd MMMM yyyy", { locale: fr })
       : today;
 
-    const qrData = JSON.stringify({
-      type: type === "attestation" ? "Attestation de Travail" : "Certificat de Travail",
-      employe: `${employe.prenom} ${employe.nom}`,
+    const qrData = buildQRContent({
       entreprise: entreprise.nom,
+      type: type === "attestation" ? "Attestation de Travail" : "Certificat de Travail",
+      titre: `${employe.prenom} ${employe.nom}`,
       date: today,
+      extra: {
+        Poste: employe.poste ?? null,
+        CIN: employe.cin ?? null,
+        "Date d'embauche": dateEmbauche,
+      },
     });
 
     const title = type === "attestation" ? "Attestation de Travail" : "Certificat de Travail";

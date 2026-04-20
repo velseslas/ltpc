@@ -16,10 +16,13 @@ import { ArrowLeft, QrCode, Save, Loader2, FileText, Link2, Eye } from "lucide-r
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { QRCodeSVG } from "qrcode.react";
 import { useParametresQRCode, useUpsertParametresQRCode } from "@/hooks/useParametres";
+import { useEntreprise } from "@/hooks/useEntreprise";
+import { buildQRContent } from "@/lib/qrContent";
 
 const QRCodeSettings = () => {
   const navigate = useNavigate();
   const { data: parametres, isLoading } = useParametresQRCode();
+  const { data: entreprise } = useEntreprise();
   const upsertParametres = useUpsertParametresQRCode();
 
   const [formData, setFormData] = useState({
@@ -64,8 +67,18 @@ const QRCodeSettings = () => {
     }
   };
 
-  const generatePreviewUrl = () => {
-    return formData.url_base ? `${formData.url_base}EC-001` : "https://exemple.dz/rapport/EC-001";
+  const generatePreviewContent = () => {
+    return buildQRContent({
+      entreprise: entreprise?.nom,
+      type: "Rapport d'essai",
+      titre: "Exemple de document",
+      numero: "EC-001",
+      client: "Client Exemple",
+      chantier: "Chantier Démonstration",
+      date: new Date().toISOString(),
+      montantHT: 125000,
+      montantTTC: 148750,
+    });
   };
 
   if (isLoading) {
@@ -136,17 +149,10 @@ const QRCodeSettings = () => {
               </div>
 
               {formData.activer_qrcode && (
-                <div className="space-y-2">
-                  <Label htmlFor="url_base">URL de base</Label>
-                  <Input
-                    id="url_base"
-                    value={formData.url_base}
-                    onChange={(e) => handleChange("url_base", e.target.value)}
-                    placeholder="https://laboratoire.dz/rapports/"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    L'URL complète sera: {generatePreviewUrl()}
-                  </p>
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">Mode lecture directe</p>
+                  Au scan, le QR code affiche directement les <strong>détails du document</strong>
+                  (numéro, client, chantier, date, montants…) — aucune redirection vers un site web.
                 </div>
               )}
             </CardContent>
@@ -252,22 +258,23 @@ const QRCodeSettings = () => {
             <CardContent>
               {formData.activer_qrcode ? (
                 <div className="flex flex-col items-center">
-                  <div 
-                    className="p-4 rounded-lg border bg-white"
-                  >
+                  <div className="p-4 rounded-lg border bg-white">
                     <QRCodeSVG
-                      value={generatePreviewUrl()}
+                      value={generatePreviewContent()}
                       size={getQRSize()}
                       bgColor="#FFFFFF"
                       fgColor={formData.couleur_qrcode}
                       level="M"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-4 text-center break-all">
-                    {generatePreviewUrl()}
+                  <p className="text-xs text-muted-foreground mt-4 text-center">
+                    Aperçu du contenu encodé :
                   </p>
+                  <pre className="mt-2 w-full text-[10px] bg-muted/50 border border-border rounded p-2 whitespace-pre-wrap break-words font-mono text-foreground">
+{generatePreviewContent()}
+                  </pre>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Position: {formData.position_qrcode.replace("-", " ")}
+                    Position : {formData.position_qrcode.replace("-", " ")}
                   </p>
                 </div>
               ) : (
