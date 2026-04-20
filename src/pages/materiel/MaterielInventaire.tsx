@@ -11,6 +11,7 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 
 const etatLabel = (etat: string) => {
   switch (etat) {
@@ -135,20 +136,7 @@ export default function MaterielInventaire() {
         </div>
       ) : (
         <div data-ref="report" ref={printRef} style={{ padding: "24px", background: "#fff", color: "#111", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", borderRadius: "4px" }}>
-          <div style={{ textAlign: "center", marginBottom: "16px" }}>
-            {entreprise?.nom && (
-              <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>
-            )}
-            {entreprise?.numero_autorisation && (
-              <p style={{ fontSize: "11px", margin: "0 0 2px", color: "#555" }}>
-                Agrément N° {entreprise.numero_autorisation}
-              </p>
-            )}
-            <h3 style={{ fontSize: "14px", fontWeight: 600, margin: "12px 0 4px", textDecoration: "underline" }}>
-              INVENTAIRE DU MATÉRIEL DE LABORATOIRE
-            </h3>
-            <p style={{ fontSize: "11px", color: "#555" }}>Date : {today}</p>
-          </div>
+          <EntrepriseHeader title="INVENTAIRE DU MATÉRIEL DE LABORATOIRE" subtitle={`Date : ${today}`} />
 
           <div style={{ display: "flex", gap: "16px", marginBottom: "12px", fontSize: "12px", flexWrap: "wrap" }}>
             <span><strong>Total :</strong> {stats.total}</span>
