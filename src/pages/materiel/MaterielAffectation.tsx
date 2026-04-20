@@ -163,7 +163,9 @@ export default function MaterielAffectation() {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <BackButton onClick={() => setReportMode(false)} />
+            <Button variant="outline" size="icon" className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => setReportMode(false)}>
+              <X className="h-4 w-4" />
+            </Button>
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <ClipboardList className="h-6 w-6" />
