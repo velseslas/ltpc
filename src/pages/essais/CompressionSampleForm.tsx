@@ -182,8 +182,49 @@ const CompressionSampleForm = () => {
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
   const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(effectiveClientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centrales = [], isLoading: isLoadingCentrales } = useCentralesByClient(effectiveClientId);
-  const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId);
+  const { data: centralesFromClient = [], isLoading: isLoadingCentrales } = useCentralesByClient(effectiveClientId);
+  const { data: formulationsFromCentrale = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId);
+
+  // Fallback: load existing centrale/formulation by id (in case they aren't linked to current client/centrale)
+  const existingCentraleId = existingEchantillon?.centrale_id || null;
+  const existingFormulationId = existingEchantillon?.formulation_id || null;
+
+  const { data: existingCentrale } = useQuery({
+    queryKey: ["centrale-by-id", existingCentraleId],
+    queryFn: async () => {
+      if (!existingCentraleId) return null;
+      const { data } = await supabase.from("centrales_beton").select("id, nom, ville").eq("id", existingCentraleId).maybeSingle();
+      return data;
+    },
+    enabled: !!existingCentraleId,
+  });
+
+  const { data: existingFormulation } = useQuery({
+    queryKey: ["formulation-by-id", existingFormulationId],
+    queryFn: async () => {
+      if (!existingFormulationId) return null;
+      const { data } = await supabase.from("formulations").select("id, nom, centrale_id").eq("id", existingFormulationId).maybeSingle();
+      return data;
+    },
+    enabled: !!existingFormulationId,
+  });
+
+  // Merge existing centrale/formulation into select lists if missing
+  const centrales = useMemo(() => {
+    const list = [...centralesFromClient];
+    if (existingCentrale && !list.some((c) => c.id === existingCentrale.id)) {
+      list.push(existingCentrale as any);
+    }
+    return list;
+  }, [centralesFromClient, existingCentrale]);
+
+  const formulations = useMemo(() => {
+    const list = [...formulationsFromCentrale];
+    if (existingFormulation && !list.some((f) => f.id === existingFormulation.id)) {
+      list.push(existingFormulation as any);
+    }
+    return list;
+  }, [formulationsFromCentrale, existingFormulation]);
 
   // Initialize all form fields when editing (single consolidated effect)
   useEffect(() => {
