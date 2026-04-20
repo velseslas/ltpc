@@ -1,5 +1,5 @@
 import { useModificationsHistory, useRestoreField, ModificationEntry } from "@/hooks/useModificationsHistory";
-import { useIsAdmin } from "@/hooks/useCurrentUserRole";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
