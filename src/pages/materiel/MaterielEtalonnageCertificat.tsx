@@ -58,43 +58,36 @@ export default function MaterielEtalonnageCertificat() {
         )}
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          {isLoading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            </div>
-          ) : !certificatUrl ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Aucun certificat disponible pour cet étalonnage</p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => navigate(`/materiel/etalonnage/${id}/modifier`)}
-              >
-                Téléverser un certificat
-              </Button>
-            </div>
-          ) : isPdf ? (
-            <div className="w-full" style={{ height: "calc(100vh - 280px)" }}>
-              <iframe
-                src={certificatUrl}
-                className="w-full h-full border rounded-lg bg-white"
-                title="Certificat"
-              />
-            </div>
-          ) : (
-            <div className="flex justify-center bg-muted/30 rounded-lg p-4">
-              <img
-                src={certificatUrl}
-                alt={certificatNom || "Certificat"}
-                className="max-w-full h-auto rounded shadow-sm"
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      ) : !certificatUrl ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <p>Aucun certificat disponible pour cet étalonnage</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => navigate(`/materiel/etalonnage/${id}/modifier`)}
+          >
+            Téléverser un certificat
+          </Button>
+        </div>
+      ) : isPdf ? (
+        <iframe
+          src={`${certificatUrl}#toolbar=0&navpanes=0&view=FitH`}
+          className="w-full border-0"
+          style={{ height: "calc(100vh - 200px)" }}
+          title="Certificat"
+        />
+      ) : (
+        <img
+          src={certificatUrl}
+          alt={certificatNom || "Certificat"}
+          className="w-full h-auto block"
+        />
+      )}
     </div>
   );
 }
