@@ -492,7 +492,7 @@ const CompressionSampleForm = () => {
                   <SelectTrigger className={cn(submitted && !clientId && "border-red-700")}>
                     <SelectValue placeholder="Sélectionnez un client" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" className="max-h-[300px] overflow-y-auto bg-popover">
                     {clients.map((client) => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.nom}
