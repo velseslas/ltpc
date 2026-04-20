@@ -45,35 +45,52 @@ const formatDate = (v: string | null | undefined) => {
 };
 
 /**
- * Génère le texte multi-lignes encodé dans le QR code.
+ * Génère un contenu vCard 3.0 encodé dans le QR code.
+ *
+ * Le format vCard est reconnu nativement par la plupart des scanners
+ * (caméra iPhone, Google Lens, scanners Android), qui affichent
+ * automatiquement les informations sous forme de fiche structurée
+ * — sans bouton "Copier" intermédiaire.
+ *
+ * Les détails du document (numéro, client, chantier, date, montants)
+ * sont placés dans le champ NOTE de la vCard pour rester lisibles.
  */
 export function buildQRContent(info: QRDocumentInfo): string {
-  const lines: string[] = [];
+  const escape = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 
-  if (info.entreprise) lines.push(info.entreprise);
-  if (info.type || info.titre) {
-    const head = [info.type, info.titre].filter(Boolean).join(" — ");
-    if (head) lines.push(head);
-  }
-  if (info.sousTitre) lines.push(info.sousTitre);
-  if (info.numero) lines.push(`N° : ${info.numero}`);
-  if (info.client) lines.push(`Client : ${info.client}`);
-  if (info.chantier) lines.push(`Chantier : ${info.chantier}`);
+  const orgName = info.entreprise || "Document";
+  const fullName = [info.type, info.numero].filter(Boolean).join(" ") || info.titre || "Document";
+
+  const noteLines: string[] = [];
+  if (info.titre) noteLines.push(info.titre);
+  if (info.sousTitre) noteLines.push(info.sousTitre);
+  if (info.numero) noteLines.push(`N°: ${info.numero}`);
+  if (info.client) noteLines.push(`Client: ${info.client}`);
+  if (info.chantier) noteLines.push(`Chantier: ${info.chantier}`);
   const date = formatDate(info.date ?? null);
-  if (date) lines.push(`Date : ${date}`);
+  if (date) noteLines.push(`Date: ${date}`);
   const ht = formatMontant(info.montantHT);
-  if (ht) lines.push(`Montant HT : ${ht}`);
+  if (ht) noteLines.push(`Montant HT: ${ht}`);
   const ttc = formatMontant(info.montantTTC);
-  if (ttc) lines.push(`Montant TTC : ${ttc}`);
-
+  if (ttc) noteLines.push(`Montant TTC: ${ttc}`);
   if (info.extra) {
     for (const [k, v] of Object.entries(info.extra)) {
       if (v === null || v === undefined || v === "") continue;
-      lines.push(`${k} : ${v}`);
+      noteLines.push(`${k}: ${v}`);
     }
   }
 
-  return lines.join("\n");
+  const vcard = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${escape(fullName)}`,
+    `ORG:${escape(orgName)}`,
+    info.titre ? `TITLE:${escape(info.titre)}` : null,
+    noteLines.length > 0 ? `NOTE:${escape(noteLines.join("\n"))}` : null,
+    "END:VCARD",
+  ].filter(Boolean).join("\n");
+
+  return vcard;
 }
 
 /**
