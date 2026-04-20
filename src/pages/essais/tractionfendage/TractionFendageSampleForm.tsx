@@ -31,6 +31,7 @@ import {
   useUpdateEchantillonTractionFendage,
   useEchantillonTractionFendageById 
 } from "@/hooks/useEchantillonsTractionFendage";
+import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -130,10 +131,14 @@ const TractionFendageSampleForm = () => {
 
   // Data fetching
   const { data: clients } = useClients();
-  const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(clientId);
+  const { data: chantiersBase, isLoading: chantiersLoading } = useChantiersByClient(clientId);
   const { data: intervenants } = useIntervenants();
-  const { data: centrales } = useCentralesByClient(clientId);
-  const { data: formulations, isLoading: formulationsLoading } = useFormulations(centraleId);
+  const { data: centralesBase } = useCentralesByClient(clientId);
+  const { data: formulationsBase, isLoading: formulationsLoading } = useFormulations(centraleId);
+
+  const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);
+  const formulations = useMergedById("formulations", existingEchantillon?.formulation_id, formulationsBase as any);
+  const chantiers = useMergedById("chantiers", existingEchantillon?.chantier_id, chantiersBase as any);
 
   // Second effect: Set dependent data after lists are loaded
   useEffect(() => {

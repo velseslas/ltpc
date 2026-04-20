@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -155,10 +157,62 @@ export default function EchantillonBetonFraisForm({
 
   const selectedClientId = form.watch("client_id");
   const selectedCentraleId = form.watch("centrale_id");
-  const { data: centrales } = useCentralesByClient(selectedClientId);
+  const { data: centralesFromClient } = useCentralesByClient(selectedClientId);
+  const { data: chantiersFromClient, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
+  const { data: formulationsFromCentrale, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
 
-  const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
-  const { data: formulations, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
+  // Fallback fetch by ID so saved values remain available even if filters changed
+  const existingCentraleId = (echantillon as any)?.centrale_id || null;
+  const existingFormulationId = (echantillon as any)?.formulation_id || null;
+  const existingChantierId = (echantillon as any)?.chantier_id || null;
+
+  const { data: existingCentrale } = useQuery({
+    queryKey: ["centrale-by-id", existingCentraleId],
+    queryFn: async () => {
+      if (!existingCentraleId) return null;
+      const { data } = await supabase.from("centrales_beton").select("id, nom, ville").eq("id", existingCentraleId).maybeSingle();
+      return data;
+    },
+    enabled: !!existingCentraleId,
+  });
+
+  const { data: existingFormulation } = useQuery({
+    queryKey: ["formulation-by-id", existingFormulationId],
+    queryFn: async () => {
+      if (!existingFormulationId) return null;
+      const { data } = await supabase.from("formulations").select("id, nom, centrale_id").eq("id", existingFormulationId).maybeSingle();
+      return data;
+    },
+    enabled: !!existingFormulationId,
+  });
+
+  const { data: existingChantier } = useQuery({
+    queryKey: ["chantier-by-id", existingChantierId],
+    queryFn: async () => {
+      if (!existingChantierId) return null;
+      const { data } = await supabase.from("chantiers").select("id, nom, client_id").eq("id", existingChantierId).maybeSingle();
+      return data;
+    },
+    enabled: !!existingChantierId,
+  });
+
+  const centrales = useMemo(() => {
+    const list = [...(centralesFromClient || [])];
+    if (existingCentrale && !list.some((c: any) => c.id === existingCentrale.id)) list.push(existingCentrale as any);
+    return list;
+  }, [centralesFromClient, existingCentrale]);
+
+  const formulations = useMemo(() => {
+    const list = [...(formulationsFromCentrale || [])];
+    if (existingFormulation && !list.some((f: any) => f.id === existingFormulation.id)) list.push(existingFormulation as any);
+    return list;
+  }, [formulationsFromCentrale, existingFormulation]);
+
+  const chantiers = useMemo(() => {
+    const list = [...(chantiersFromClient || [])];
+    if (existingChantier && !list.some((c: any) => c.id === existingChantier.id)) list.push(existingChantier as any);
+    return list;
+  }, [chantiersFromClient, existingChantier]);
 
   const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [isPreFilling, setIsPreFilling] = useState(false);
