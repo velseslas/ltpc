@@ -4,7 +4,6 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
-import { EntrepriseListHeader } from "@/components/materiel/EntrepriseListHeader";
 import { useEtalonnageMateriel, useDeleteEtalonnageMateriel, useMaterielList } from "@/hooks/useMaterielLaboratoire";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
@@ -288,7 +287,6 @@ export default function MaterielEtalonnage() {
         { label: "Étalonnage Matériel" },
       ]} />
 
-      <EntrepriseListHeader />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

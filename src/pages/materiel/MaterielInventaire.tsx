@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/ui/back-button";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
-import { EntrepriseListHeader } from "@/components/materiel/EntrepriseListHeader";
 import { useMaterielList } from "@/hooks/useMaterielLaboratoire";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
@@ -108,7 +107,6 @@ export default function MaterielInventaire() {
         { label: "Inventaire" },
       ]} />
 
-      <EntrepriseListHeader />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
