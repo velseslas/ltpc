@@ -4,7 +4,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
-import { useMaintenanceMateriel, useDeleteMaintenanceMateriel, useMaterielLaboratoire } from "@/hooks/useMaterielLaboratoire";
+import { useMaintenanceMateriel, useDeleteMaintenanceMateriel, useMaterielList } from "@/hooks/useMaterielLaboratoire";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -36,7 +36,7 @@ export default function MaterielMaintenance() {
   const navigate = useNavigate();
   const { data, isLoading } = useMaintenanceMateriel();
   const { data: entreprise } = useEntreprise();
-  const { data: materiels } = useMaterielLaboratoire();
+  const { data: materiels } = useMaterielList();
   const deleteMutation = useDeleteMaintenanceMateriel();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
