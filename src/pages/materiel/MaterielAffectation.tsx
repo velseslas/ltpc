@@ -157,6 +157,10 @@ export default function MaterielAffectation() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher une affectation..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <Button variant="outline" className="gap-2" onClick={() => setFilterOpen(true)}>
+          <ClipboardList className="h-4 w-4" />
+          Liste affectation
+        </Button>
         <Button className="gap-2" onClick={() => navigate("/materiel/affectation/nouveau")}>
           <Plus className="h-4 w-4" />
           Nouveau
