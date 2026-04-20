@@ -44,20 +44,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
       authEventReceived = true;
       applySession(nextSession);
+      // Force redirect to /auth on token refresh failure or sign out
+      if (event === "TOKEN_REFRESHED" && !nextSession) {
+        void supabase.auth.signOut();
+      }
     });
 
     void supabase.auth
       .getSession()
-      .then(({ data: { session: initialSession } }) => {
+      .then(async ({ data: { session: initialSession }, error }) => {
         if (authEventReceived) return;
+        // If session is expired, try to refresh; if it fails, sign out
+        if (initialSession) {
+          const expiresAt = initialSession.expires_at ?? 0;
+          const nowSec = Math.floor(Date.now() / 1000);
+          if (expiresAt <= nowSec) {
+            const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError || !refreshed.session) {
+              await supabase.auth.signOut();
+              applySession(null);
+              return;
+            }
+            applySession(refreshed.session);
+            return;
+          }
+        }
+        if (error) {
+          await supabase.auth.signOut();
+          applySession(null);
+          return;
+        }
         applySession(initialSession);
       })
-      .catch(() => {
+      .catch(async () => {
+        await supabase.auth.signOut().catch(() => {});
         if (mounted) {
-          setIsLoading(false);
+          applySession(null);
         }
       });
 
