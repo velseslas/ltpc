@@ -6,6 +6,7 @@ import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 
 const CarottageDetail = () => {
   const { id } = useParams();
@@ -90,6 +91,12 @@ const CarottageDetail = () => {
           <div className="rounded-xl border border-border bg-card p-6 lg:col-span-2">
             <h2 className="text-lg font-semibold mb-3">Observations</h2>
             <p className="text-foreground text-sm">{echantillon.observations}</p>
+          </div>
+        )}
+
+        {id && (
+          <div className="lg:col-span-2">
+            <ModificationsHistory tableName="echantillons_carottage" recordId={id} />
           </div>
         )}
       </div>

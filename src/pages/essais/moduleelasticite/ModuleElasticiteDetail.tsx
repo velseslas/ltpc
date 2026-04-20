@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 import { useEchantillonModuleElasticiteById } from "@/hooks/useEchantillonsModuleElasticite";
 
 const getStatutBadge = (statut: string) => {
@@ -173,6 +174,8 @@ const ModuleElasticiteDetail = () => {
           </CardContent>
         </Card>
       )}
+
+      {id && <ModificationsHistory tableName="echantillons_module_elasticite" recordId={id} />}
     </div>
   );
 };

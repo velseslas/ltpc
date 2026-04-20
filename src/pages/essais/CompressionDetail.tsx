@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
-import { EchantillonHistorique } from "@/components/essais/EchantillonHistorique";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 
 interface EchantillonData {
   id: string;
@@ -428,7 +428,7 @@ const CompressionDetail = () => {
         )}
 
         {/* Historique des modifications */}
-        <EchantillonHistorique echantillonId={id} />
+        {id && <ModificationsHistory tableName="echantillons_compression" recordId={id} />}
       </div>
   );
 };

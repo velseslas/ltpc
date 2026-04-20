@@ -6,10 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadcrumb";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 import {
   useEchantillonBetonFraisById,
   getPrefix,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
+
+const TABLE_BY_TYPE: Record<string, string> = {
+  "affaissement": "echantillons_affaissement",
+  "temperature": "echantillons_temperature",
+  "temps-prise": "echantillons_temps_prise",
+  "teneur-air": "echantillons_teneur_air",
+};
 
 // Import result components
 import AffaissementResults from "./resultats/AffaissementResults";
@@ -245,6 +253,12 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
               <p className="text-foreground">{echantillon.observations}</p>
             </CardContent>
           </Card>
+        )}
+
+        {id && TABLE_BY_TYPE[essaiType] && (
+          <div className="lg:col-span-2">
+            <ModificationsHistory tableName={TABLE_BY_TYPE[essaiType]} recordId={id} />
+          </div>
         )}
       </div>
     </>
