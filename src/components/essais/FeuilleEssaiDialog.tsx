@@ -688,8 +688,9 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
                     title: `Feuille d'essai — ${normeTitle}`,
                     subtitle: normeNumber,
                   })}
-                  size={60}
-                  level="M"
+                  size={96}
+                  level="L"
+                  marginSize={2}
                 />
               </div>
             </div>

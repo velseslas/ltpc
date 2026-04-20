@@ -68,8 +68,9 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
             <QRCodeSVG
               value={normalizeQRValue(qrData, { entreprise: entreprise?.nom, title, subtitle })}
-              size={60}
-              level="M"
+              size={96}
+              level="L"
+              marginSize={2}
             />
           </div>
         </div>
