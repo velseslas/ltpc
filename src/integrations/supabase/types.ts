@@ -6381,6 +6381,16 @@ export type Database = {
         }
         Returns: string
       }
+      restore_essai_field: {
+        Args: {
+          _field_name: string
+          _history_id: string
+          _old_value: Json
+          _record_id: string
+          _table_name: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:

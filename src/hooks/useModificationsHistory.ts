@@ -35,21 +35,14 @@ export function useRestoreField() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (entry: ModificationEntry) => {
-      // Restaurer la valeur ancienne sur le champ
-      const updatePayload: Record<string, any> = {
-        [entry.field_name]: entry.old_value,
-      };
-      const { error } = await (supabase as any)
-        .from(entry.table_name)
-        .update(updatePayload)
-        .eq("id", entry.record_id);
+      const { error } = await (supabase as any).rpc("restore_essai_field", {
+        _table_name: entry.table_name,
+        _record_id: entry.record_id,
+        _field_name: entry.field_name,
+        _old_value: entry.old_value,
+        _history_id: entry.id,
+      });
       if (error) throw error;
-
-      // Supprimer l'entrée d'historique restaurée pour éviter le doublon
-      await supabase
-        .from("essais_modifications_history")
-        .delete()
-        .eq("id", entry.id);
     },
     onSuccess: (_d, entry) => {
       qc.invalidateQueries({ queryKey: ["modifications_history", entry.table_name, entry.record_id] });
