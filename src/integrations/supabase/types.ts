@@ -4518,6 +4518,8 @@ export type Database = {
       }
       etalonnage_materiel: {
         Row: {
+          certificat_nom: string | null
+          certificat_url: string | null
           created_at: string
           date_etalonnage: string
           date_prochain_etalonnage: string | null
@@ -4530,6 +4532,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          certificat_nom?: string | null
+          certificat_url?: string | null
           created_at?: string
           date_etalonnage?: string
           date_prochain_etalonnage?: string | null
@@ -4542,6 +4546,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          certificat_nom?: string | null
+          certificat_url?: string | null
           created_at?: string
           date_etalonnage?: string
           date_prochain_etalonnage?: string | null
