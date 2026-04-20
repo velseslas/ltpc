@@ -7,12 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
  * so that previously-saved foreign-key values stay visible inside Select dropdowns
  * even when the filtered list (by client / centrale) no longer contains them.
  */
-export function useMergedById<T extends { id: string }>(
+export function useMergedById<T = any>(
   table: "centrales_beton" | "formulations" | "chantiers" | "intervenants",
   id: string | null | undefined,
   baseList: T[] | undefined,
   selectColumns = "id, nom"
-) {
+): T[] {
   const { data: existing } = useQuery({
     queryKey: [`${table}-by-id`, id],
     queryFn: async () => {
