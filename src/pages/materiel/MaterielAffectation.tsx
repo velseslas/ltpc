@@ -255,6 +255,134 @@ export default function MaterielAffectation() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Filter dialog */}
+      <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ClipboardList className="h-5 w-5" />
+              Filtres - Liste des affectations
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label>Statut</Label>
+              <Select value={fStatut} onValueChange={setFStatut}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="en_cours">En cours</SelectItem>
+                  <SelectItem value="terminee">Terminée</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Chantier</Label>
+              <Input placeholder="Nom du chantier..." value={fChantier} onChange={e => setFChantier(e.target.value)} />
+            </div>
+            <div className="grid gap-2">
+              <Label>Technicien</Label>
+              <Input placeholder="Nom ou prénom..." value={fTechnicien} onChange={e => setFTechnicien(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-2">
+                <Label>Date début (après)</Label>
+                <Input type="date" value={fDateDebut} onChange={e => setFDateDebut(e.target.value)} />
+              </div>
+              <div className="grid gap-2">
+                <Label>Date fin (avant)</Label>
+                <Input type="date" value={fDateFin} onChange={e => setFDateFin(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={handleResetFilters}>
+              <X className="h-4 w-4 mr-2" />
+              Réinitialiser
+            </Button>
+            <Button onClick={handleApplyFilters}>Afficher la liste</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report dialog */}
+      <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-4">
+              <span className="flex items-center gap-2">
+                <ClipboardList className="h-5 w-5" />
+                Liste des affectations ({reportData.length})
+              </span>
+              <div className="flex gap-2 mr-6">
+                <Button variant="outline" size="sm" className="gap-2" onClick={handlePrintReport}>
+                  <Printer className="h-4 w-4" /> Imprimer
+                </Button>
+                <Button variant="outline" size="sm" className="gap-2" onClick={handleDownloadReport}>
+                  <Download className="h-4 w-4" /> PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { setReportOpen(false); setFilterOpen(true); }}>
+                  Modifier filtres
+                </Button>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div data-ref="report" ref={reportRef} style={{ padding: "24px", background: "#fff", color: "#111", borderRadius: "4px" }}>
+            <div style={{ textAlign: "center", marginBottom: "16px" }}>
+              {entreprise?.nom && <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>}
+              {entreprise?.numero_autorisation && (
+                <p style={{ fontSize: "11px", margin: "0 0 2px", color: "#555" }}>Agrément N° {entreprise.numero_autorisation}</p>
+              )}
+              <h3 style={{ fontSize: "14px", fontWeight: 600, margin: "12px 0 4px", textDecoration: "underline" }}>
+                LISTE DES AFFECTATIONS DE MATÉRIEL
+              </h3>
+              <p style={{ fontSize: "11px", color: "#555" }}>Date d'édition : {format(new Date(), "dd MMMM yyyy", { locale: fr })}</p>
+            </div>
+
+            <div style={{ marginBottom: "12px", fontSize: "11px", color: "#444" }}>
+              <strong>Filtres :</strong>{" "}
+              Statut : {fStatut === "all" ? "Tous" : statutLabel(fStatut)}
+              {fChantier && ` • Chantier : ${fChantier}`}
+              {fTechnicien && ` • Technicien : ${fTechnicien}`}
+              {fDateDebut && ` • Du : ${format(new Date(fDateDebut), "dd/MM/yyyy")}`}
+              {fDateFin && ` • Au : ${format(new Date(fDateFin), "dd/MM/yyyy")}`}
+            </div>
+
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
+              <thead>
+                <tr>
+                  {["N°", "Matériel", "Chantier", "Technicien", "Date début", "Date fin", "Statut", "Observations"].map(h => (
+                    <th key={h} style={{ border: "1px solid #444", padding: "6px 8px", background: "#f1f5f9", fontWeight: 600, textAlign: "left" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {reportData.map((a: any, i) => (
+                  <tr key={a.id}>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px", textAlign: "center" }}>{i + 1}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px", fontWeight: 500 }}>{a.materiel_laboratoire?.nom || "—"}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.chantiers?.nom || "—"}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{format(new Date(a.date_debut), "dd/MM/yyyy", { locale: fr })}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.date_fin ? format(new Date(a.date_fin), "dd/MM/yyyy", { locale: fr }) : "—"}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{statutLabel(a.statut)}</td>
+                    <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.observations || "—"}</td>
+                  </tr>
+                ))}
+                {reportData.length === 0 && (
+                  <tr>
+                    <td colSpan={8} style={{ border: "1px solid #ccc", padding: "16px", textAlign: "center", color: "#888" }}>
+                      Aucune affectation correspondant aux filtres
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
