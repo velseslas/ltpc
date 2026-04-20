@@ -262,6 +262,7 @@ import PrestataireDetail from "./pages/prestataires/PrestataireDetail";
 import BonCommandePrestataireForm from "./pages/prestataires/BonCommandePrestataireForm";
 import MaterielDashboard from "./pages/materiel/MaterielDashboard";
 import MaterielListe from "./pages/materiel/MaterielListe";
+import MaterielInventaire from "./pages/materiel/MaterielInventaire";
 import MaterielDetail from "./pages/materiel/MaterielDetail";
 import MaterielListeForm from "./pages/materiel/MaterielListeForm";
 import MaterielAffectation from "./pages/materiel/MaterielAffectation";
@@ -660,6 +661,7 @@ const AppRoutes = () => (
       <Route path="/laboratoires-mobiles/chantier/:chantierId/etat-coulages" element={<EtatCoulages />} />
       <Route path="/materiel" element={<MaterielDashboard />} />
       <Route path="/materiel/liste" element={<MaterielListe />} />
+      <Route path="/materiel/inventaire" element={<MaterielInventaire />} />
       <Route path="/materiel/liste/nouveau" element={<MaterielListeForm />} />
       <Route path="/materiel/liste/:id" element={<MaterielDetail />} />
       <Route path="/materiel/liste/:id/modifier" element={<MaterielListeForm />} />
