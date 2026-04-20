@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useCreateEtalonnageMateriel, useUpdateEtalonnageMateriel, useEtalonnageMaterielItem, useMaterielList } from "@/hooks/useMaterielLaboratoire";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, FileText, X } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function MaterielEtalonnageForm() {
   const navigate = useNavigate();
@@ -24,10 +25,13 @@ export default function MaterielEtalonnageForm() {
   const updateMutation = useUpdateEtalonnageMateriel();
 
   const [isInitialized, setIsInitialized] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     materiel_id: "", date_etalonnage: new Date().toISOString().split("T")[0],
     date_prochain_etalonnage: "", organisme: "", numero_certificat: "",
-    resultat: "conforme", observations: ""
+    resultat: "conforme", observations: "",
+    certificat_url: "" as string | null, certificat_nom: "" as string | null,
   });
 
   useEffect(() => {
@@ -40,14 +44,47 @@ export default function MaterielEtalonnageForm() {
         numero_certificat: existingEtalonnage.numero_certificat || "",
         resultat: existingEtalonnage.resultat || "conforme",
         observations: existingEtalonnage.observations || "",
+        certificat_url: (existingEtalonnage as any).certificat_url || "",
+        certificat_nom: (existingEtalonnage as any).certificat_nom || "",
       });
       setIsInitialized(true);
     }
   }, [existingEtalonnage, isInitialized]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `certificat-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("certificats-etalonnage")
+        .upload(fileName, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from("certificats-etalonnage").getPublicUrl(fileName);
+      setForm(p => ({ ...p, certificat_url: data.publicUrl, certificat_nom: file.name }));
+      toast.success("Certificat téléversé");
+    } catch (err: any) {
+      toast.error("Erreur lors du téléversement : " + (err.message || "inconnue"));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveCertificat = () => {
+    setForm(p => ({ ...p, certificat_url: "", certificat_nom: "" }));
+  };
+
   const handleSubmit = async () => {
     if (!form.materiel_id) { toast.error("Sélectionnez un matériel"); return; }
-    const payload = { ...form, date_prochain_etalonnage: form.date_prochain_etalonnage || null };
+    const payload = {
+      ...form,
+      date_prochain_etalonnage: form.date_prochain_etalonnage || null,
+      certificat_url: form.certificat_url || null,
+      certificat_nom: form.certificat_nom || null,
+    };
     try {
       if (isEditing && id) {
         await updateMutation.mutateAsync({ id, ...payload });
@@ -106,6 +143,47 @@ export default function MaterielEtalonnageForm() {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="grid gap-2">
+            <Label>Certificat (PDF, image)</Label>
+            {form.certificat_url ? (
+              <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
+                <FileText className="h-5 w-5 text-primary shrink-0" />
+                <a
+                  href={form.certificat_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-sm text-primary hover:underline truncate"
+                >
+                  {form.certificat_nom || "Certificat"}
+                </a>
+                <Button type="button" variant="ghost" size="icon" onClick={handleRemoveCertificat}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="gap-2"
+                >
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading ? "Téléversement..." : "Téléverser un certificat"}
+                </Button>
+              </div>
+            )}
+          </div>
+
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4 justify-end">
             <Button variant="outline" onClick={() => navigate("/materiel/etalonnage")}>Annuler</Button>
