@@ -89,8 +89,9 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
           <div className="flex flex-col items-center">
             <QRCodeSVG
               value={normalizeQRValue(verificationUrl, { entreprise: entreprise?.nom, title, subtitle })}
-              size={60}
-              level="M"
+              size={96}
+              level="L"
+              marginSize={2}
             />
           </div>
         </div>
