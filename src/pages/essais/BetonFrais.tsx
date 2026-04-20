@@ -89,7 +89,7 @@ const BetonFrais = () => {
             </div>
             <div>
               <h2 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                Normes
+                Normes et feuille d'essai
               </h2>
               <span className="inline-block text-xs font-medium bg-muted px-2 py-1 rounded-full text-muted-foreground mt-1 mb-2">
                 Références
