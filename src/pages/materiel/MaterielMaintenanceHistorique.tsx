@@ -12,6 +12,7 @@ import { fr } from "date-fns/locale";
 import { useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 
 export default function MaterielMaintenanceHistorique() {
   const navigate = useNavigate();
@@ -123,6 +124,7 @@ export default function MaterielMaintenanceHistorique() {
       </div>
 
       <div ref={printRef}>
+        <EntrepriseHeader title="Historique des Maintenances Matériel" subtitle={`Édité le ${format(new Date(), "dd/MM/yyyy", { locale: fr })}`} />
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
