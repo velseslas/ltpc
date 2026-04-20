@@ -250,16 +250,7 @@ export default function MaterielAffectation() {
 
         {/* Rapport (sans wrapper Card) */}
         <div data-ref="report" ref={reportRef} style={{ padding: "24px", background: "#fff", color: "#111", borderRadius: "4px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
-          <div style={{ textAlign: "center", marginBottom: "16px" }}>
-            {entreprise?.nom && <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>}
-            {entreprise?.numero_autorisation && (
-              <p style={{ fontSize: "11px", margin: "0 0 2px", color: "#555" }}>Agrément N° {entreprise.numero_autorisation}</p>
-            )}
-            <h3 style={{ fontSize: "14px", fontWeight: 600, margin: "12px 0 4px", textDecoration: "underline" }}>
-              LISTE DES AFFECTATIONS DE MATÉRIEL
-            </h3>
-            <p style={{ fontSize: "11px", color: "#555" }}>Date d'édition : {format(new Date(), "dd MMMM yyyy", { locale: fr })}</p>
-          </div>
+          <EntrepriseHeader title="LISTE DES AFFECTATIONS DE MATÉRIEL" subtitle={`Date d'édition : ${format(new Date(), "dd MMMM yyyy", { locale: fr })}`} />
 
           <div style={{ marginBottom: "12px", fontSize: "11px", color: "#444" }}>
             <strong>Filtres :</strong>{" "}
