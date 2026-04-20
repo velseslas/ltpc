@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, ArrowLeftRight, Pencil, MoreHorizontal, Eye, History, Search } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Pencil, MoreHorizontal, Eye, History, Search, ClipboardList, Printer, Download, X } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useAffectationMateriel, useDeleteAffectationMateriel } from "@/hooks/useMaterielLaboratoire";
+import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +38,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function MaterielAffectation() {
   const navigate = useNavigate();
