@@ -74,7 +74,7 @@ export function useAffectationMateriel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("affectation_materiel")
-        .select("*, materiel_laboratoire(id, nom, reference), chantiers(id, nom), intervenants(id, nom, prenom)")
+        .select("*, materiel_laboratoire(id, nom, reference), chantiers(id, nom, client_id, clients(id, nom)), intervenants(id, nom, prenom)")
         .order("date_debut", { ascending: false });
       if (error) throw error;
       return data;
