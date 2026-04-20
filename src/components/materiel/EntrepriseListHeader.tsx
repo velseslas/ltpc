@@ -11,9 +11,9 @@ export function EntrepriseListHeader() {
           Agrément N° {entreprise.numero_autorisation}
         </p>
       )}
-      {(entreprise.adresse || entreprise.ville) && (
+      {(entreprise.siege_social || entreprise.annexe) && (
         <p className="text-xs text-muted-foreground">
-          {[entreprise.adresse, entreprise.ville].filter(Boolean).join(" — ")}
+          {[entreprise.siege_social, entreprise.annexe].filter(Boolean).join(" — ")}
         </p>
       )}
       {(entreprise.telephone || entreprise.email) && (
