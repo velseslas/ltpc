@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import MaterielInventaireDialog from "@/components/materiel/MaterielInventaireDialog";
+
 const etatBadge = (etat: string) => {
   switch (etat) {
     case "operationnel": return <Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">Opérationnel</Badge>;
@@ -42,7 +42,7 @@ export default function MaterielListe() {
   const deleteMutation = useDeleteMateriel();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [inventaireOpen, setInventaireOpen] = useState(false);
+  
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -91,7 +91,7 @@ export default function MaterielListe() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher un matériel..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
-        <Button variant="outline" className="gap-2" onClick={() => setInventaireOpen(true)}>
+        <Button variant="outline" className="gap-2" onClick={() => navigate("/materiel/inventaire")}>
           <ClipboardList className="h-4 w-4" />
           Inventaire
         </Button>
@@ -182,11 +182,6 @@ export default function MaterielListe() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <MaterielInventaireDialog
-        open={inventaireOpen}
-        onOpenChange={setInventaireOpen}
-        data={data || []}
-      />
     </div>
   );
 }
