@@ -12,6 +12,9 @@ export interface ModificationEntry {
   modified_by: string | null;
   modified_by_name: string | null;
   modified_at: string;
+  restored_at: string | null;
+  restored_by: string | null;
+  restored_by_name: string | null;
 }
 
 export function useModificationsHistory(tableName: string, recordId?: string) {
