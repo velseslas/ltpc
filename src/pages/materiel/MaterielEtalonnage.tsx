@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 
 export default function MaterielEtalonnage() {
   const navigate = useNavigate();

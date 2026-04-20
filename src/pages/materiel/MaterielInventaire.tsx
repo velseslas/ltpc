@@ -11,6 +11,7 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 
 const etatLabel = (etat: string) => {
   switch (etat) {
