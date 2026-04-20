@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useEchantillonTractionFendageById } from "@/hooks/useEchantillonsTractionFendage";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 
 const TractionFendageDetail = () => {
   const navigate = useNavigate();
@@ -224,6 +225,8 @@ const TractionFendageDetail = () => {
           </CardContent>
         </Card>
       </div>
+
+      {id && <ModificationsHistory tableName="echantillons_traction_fendage" recordId={id} />}
     </div>
   );
 };

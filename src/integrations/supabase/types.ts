@@ -4516,6 +4516,42 @@ export type Database = {
           },
         ]
       }
+      essais_modifications_history: {
+        Row: {
+          field_name: string
+          id: string
+          modified_at: string
+          modified_by: string | null
+          modified_by_name: string | null
+          new_value: Json | null
+          old_value: Json | null
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          field_name: string
+          id?: string
+          modified_at?: string
+          modified_by?: string | null
+          modified_by_name?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          field_name?: string
+          id?: string
+          modified_at?: string
+          modified_by?: string | null
+          modified_by_name?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       etalonnage_materiel: {
         Row: {
           certificat_nom: string | null

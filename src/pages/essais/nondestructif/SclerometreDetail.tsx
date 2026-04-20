@@ -5,6 +5,7 @@ import { useEchantillonSclerometre } from "@/hooks/useEchantillonsSclerometre";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 import { Badge } from "@/components/ui/badge";
 
 const SclerometreDetail = () => {
@@ -94,6 +95,8 @@ const SclerometreDetail = () => {
           <p className="text-muted-foreground">{echantillon.observations}</p>
         </div>
       )}
+
+      {id && <ModificationsHistory tableName="echantillons_sclerometre" recordId={id} />}
     </div>
   );
 };
