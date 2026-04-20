@@ -273,6 +273,7 @@ import MaterielMaintenance from "./pages/materiel/MaterielMaintenance";
 import MaterielMaintenanceForm from "./pages/materiel/MaterielMaintenanceForm";
 import MaterielAffectationHistorique from "./pages/materiel/MaterielAffectationHistorique";
 import MaterielEtalonnageHistorique from "./pages/materiel/MaterielEtalonnageHistorique";
+import MaterielEtalonnageCertificat from "./pages/materiel/MaterielEtalonnageCertificat";
 import MaterielMaintenanceHistorique from "./pages/materiel/MaterielMaintenanceHistorique";
 import MaterielAffectationDetail from "./pages/materiel/MaterielAffectationDetail";
 import MaterielEtalonnageDetail from "./pages/materiel/MaterielEtalonnageDetail";
@@ -674,6 +675,7 @@ const AppRoutes = () => (
       <Route path="/materiel/etalonnage/nouveau" element={<MaterielEtalonnageForm />} />
       <Route path="/materiel/etalonnage/historique" element={<MaterielEtalonnageHistorique />} />
       <Route path="/materiel/etalonnage/:id" element={<MaterielEtalonnageDetail />} />
+      <Route path="/materiel/etalonnage/:id/certificat" element={<MaterielEtalonnageCertificat />} />
       <Route path="/materiel/etalonnage/:id/modifier" element={<MaterielEtalonnageForm />} />
       <Route path="/materiel/maintenance" element={<MaterielMaintenance />} />
       <Route path="/materiel/maintenance/nouveau" element={<MaterielMaintenanceForm />} />

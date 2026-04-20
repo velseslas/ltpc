@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, Gauge, Pencil, MoreHorizontal, Eye, History, Search, ClipboardList, Printer, Download, X, Filter } from "lucide-react";
+import { Plus, Trash2, Gauge, Pencil, MoreHorizontal, Eye, History, Search, ClipboardList, Printer, Download, X, Filter, FileText } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -349,6 +349,13 @@ export default function MaterielEtalonnage() {
                             <DropdownMenuItem onClick={() => navigate(`/materiel/etalonnage/${e.id}`)}>
                               <Eye className="w-4 h-4 mr-2" />
                               Détails
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => navigate(`/materiel/etalonnage/${e.id}/certificat`)}
+                              disabled={!e.certificat_url}
+                            >
+                              <FileText className="w-4 h-4 mr-2" />
+                              {e.certificat_url ? "Voir certificat" : "Pas de certificat"}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/materiel/etalonnage/${e.id}/modifier`)}>
                               <Pencil className="w-4 h-4 mr-2" />
