@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FileText, Download, ExternalLink } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useEtalonnageMaterielItem } from "@/hooks/useMaterielLaboratoire";
 import { format } from "date-fns";
