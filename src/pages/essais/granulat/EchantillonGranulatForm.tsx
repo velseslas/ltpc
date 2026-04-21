@@ -101,6 +101,11 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
 
   const selectedClientId = form.watch("client_id");
   const selectedCarriereId = form.watch("carriere_id");
+  const operateurValue = form.watch("operateur_id");
+  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(
+    operateurValue ?? "",
+    (id) => form.setValue("operateur_id", id),
+  );
   const { data: chantiers } = useChantiersByClient(selectedClientId || "");
   const { data: produits, isLoading: produitsLoading } = useProduits(selectedCarriereId, "carriere");
   
@@ -377,9 +382,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="operateur_id"
-                  render={({ field }) => {
-                    const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(field.value, field.onChange);
-                    return (
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>Technicien</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
