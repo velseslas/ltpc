@@ -26,6 +26,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDeletedEssais, useRestoreDeletedEssai, DeletedEssaiEntry } from "@/hooks/useDeletedEssais";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { AuditEssaiViewer } from "@/components/audit/AuditEssaiViewer";
 
 type ModuleKey = "beton" | "granulat" | "geotechnique" | "formulation";
 
@@ -93,21 +94,6 @@ function formatNumero(entry: DeletedEssaiEntry) {
   const num = entry.numero ?? entry.record_data?.numero;
   if (!num) return meta.prefix;
   return `${meta.prefix}-${String(num).padStart(3, "0")}`;
-}
-
-// Pretty label for record_data fields
-function humanizeKey(key: string) {
-  return key
-    .replace(/_/g, " ")
-    .replace(/\bid\b/gi, "ID")
-    .replace(/^./, (c) => c.toUpperCase());
-}
-
-function renderValue(value: any): string {
-  if (value === null || value === undefined || value === "") return "—";
-  if (typeof value === "boolean") return value ? "Oui" : "Non";
-  if (typeof value === "object") return JSON.stringify(value, null, 2);
-  return String(value);
 }
 
 const HIDDEN_FIELDS = new Set(["id", "created_at", "updated_at"]);
@@ -211,10 +197,6 @@ const EssaisAudit = () => {
   };
 
   const viewingMeta = viewing ? metaFor(viewing.table_name) : null;
-  const viewingData = viewing?.record_data || {};
-  const viewingFields = Object.keys(viewingData)
-    .filter((k) => !HIDDEN_FIELDS.has(k))
-    .sort();
 
   return (
     <>
@@ -436,32 +418,7 @@ const EssaisAudit = () => {
           </SheetHeader>
 
           <ScrollArea className="flex-1 mt-4 pr-4">
-            <div className="space-y-2">
-              {viewingFields.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucune donnée à afficher.</p>
-              ) : (
-                viewingFields.map((key) => {
-                  const value = viewingData[key];
-                  const isObject = value && typeof value === "object";
-                  return (
-                    <div key={key} className="grid grid-cols-3 gap-2 py-2 border-b border-border/40">
-                      <div className="text-xs font-medium text-muted-foreground col-span-1">
-                        {humanizeKey(key)}
-                      </div>
-                      <div className="col-span-2 text-sm break-words">
-                        {isObject ? (
-                          <pre className="bg-muted/40 rounded p-2 text-xs overflow-x-auto">
-                            {renderValue(value)}
-                          </pre>
-                        ) : (
-                          renderValue(value)
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            {viewing && <AuditEssaiViewer recordData={viewing.record_data || {}} />}
           </ScrollArea>
 
           {viewing && !viewing.restored_at && (
