@@ -659,6 +659,10 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
       {echantillon.resultats && (
         <ResultatsSection essaiType={essaiType} resultats={echantillon.resultats as Record<string, unknown>} />
       )}
+
+      {id && (
+        <ModificationsHistory tableName={getGeoTableName(essaiType)} recordId={id} />
+      )}
     </div>
   );
 }
