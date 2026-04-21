@@ -212,6 +212,8 @@ import NotFound from "./pages/NotFound";
 import DocumentsIndex from "./pages/documents/DocumentsIndex";
 import LettresEngagement from "./pages/documents/LettresEngagement";
 import OffresService from "./pages/documents/OffresService";
+import OffreServicePreviewPage from "./pages/documents/OffreServicePreviewPage";
+import OffreServiceEditPage from "./pages/documents/OffreServiceEditPage";
 import OffresPrix from "./pages/documents/OffresPrix";
 import AttestationsBonneExecution from "./pages/documents/AttestationsBonneExecution";
 import Contrats from "./pages/documents/Contrats";
