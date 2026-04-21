@@ -128,16 +128,6 @@ const EssaisAudit = () => {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [viewing, setViewing] = useState<DeletedEssaiEntry | null>(null);
 
-  if (!isAdmin) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center text-muted-foreground">
-          Accès réservé aux administrateurs.
-        </CardContent>
-      </Card>
-    );
-  }
-
   const tableOptions = useMemo(() => {
     const set = new Set<string>();
     (entries || []).forEach((e) => {
