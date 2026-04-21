@@ -135,21 +135,25 @@ const Authentification = () => {
 
   const handleSaveEdit = async () => {
     if (!editingUser) return;
+    const newPassword = editFormData.mot_de_passe?.trim() || "";
+    const passwordChanged = !!newPassword && newPassword !== (editingUser.mot_de_passe || "");
+    if (passwordChanged && newPassword.length < 6) {
+      toast.error("Le mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
     setIsSaving(true);
     try {
-      const updateData: any = {
-        role: editFormData.role,
-        statut: editFormData.statut,
-        poste_id: editFormData.poste_id || null,
-      };
-      if (editFormData.mot_de_passe && editFormData.mot_de_passe !== editingUser.mot_de_passe) {
-        updateData.mot_de_passe = editFormData.mot_de_passe;
-      }
-      const { error } = await supabase
-        .from("utilisateurs")
-        .update(updateData)
-        .eq("id", editingUser.id);
+      const { data, error } = await supabase.functions.invoke("update-user", {
+        body: {
+          utilisateur_id: editingUser.id,
+          password: passwordChanged ? newPassword : undefined,
+          role: editFormData.role,
+          statut: editFormData.statut,
+          poste_id: editFormData.poste_id || null,
+        },
+      });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       toast.success("Utilisateur modifié avec succès");
       setIsEditDialogOpen(false);
       setEditingUser(null);
