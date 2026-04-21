@@ -401,8 +401,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                       </Select>
                       <FormMessage />
                     </FormItem>
-                    );
-                  }}
+                  )}
                 />
 
                 <FormField

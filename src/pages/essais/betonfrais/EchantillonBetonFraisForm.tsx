@@ -587,8 +587,7 @@ export default function EchantillonBetonFraisForm({
                     </Select>
                     <FormMessage />
                   </FormItem>
-                  );
-                }}
+                )}
               />
 
               <FormField
