@@ -8,6 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { cn } from "@/lib/utils";
 
 interface ChantierCardProps {
@@ -68,10 +70,19 @@ export function ChantierCard({ nom, adresse, statut, colorIndex, onClick, showAc
                   <Pencil className="h-4 w-4" />
                   Modifier
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 text-destructive" onClick={onDelete}>
-                  <Trash2 className="h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
+                <AdminOnly>
+                  <ConfirmDelete
+                    trigger={
+                      <DropdownMenuItem className="flex items-center gap-2 text-destructive" onSelect={(ev) => ev.preventDefault()}>
+                        <Trash2 className="h-4 w-4" />
+                        Supprimer
+                      </DropdownMenuItem>
+                    }
+                    onConfirm={() => onDelete?.()}
+                    description={`Supprimer le chantier « ${nom} » ? Cette action est irréversible.`}
+                    adminOnly={false}
+                  />
+                </AdminOnly>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
