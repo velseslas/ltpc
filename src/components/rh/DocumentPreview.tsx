@@ -38,7 +38,7 @@ interface DocumentPreviewProps {
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 
 export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
-  ({ type, employe, entreprise, dateFin }, ref) => {
+  ({ type, employe, entreprise, dateFin, motifAvertissement, dateFaits, niveauAvertissement, typeContrat, dureeContrat, lieuTravail }, ref) => {
     const today = format(new Date(), "dd MMMM yyyy", { locale: fr });
     const dateEmbauche = employe.date_embauche
       ? format(new Date(employe.date_embauche), "dd MMMM yyyy", { locale: fr })
@@ -49,10 +49,21 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
     const dateFinFormatted = dateFin
       ? format(new Date(dateFin), "dd MMMM yyyy", { locale: fr })
       : today;
+    const dateFaitsFormatted = dateFaits
+      ? format(new Date(dateFaits), "dd MMMM yyyy", { locale: fr })
+      : "_______________";
+
+    const titleMap = {
+      attestation: "Attestation de Travail",
+      certificat: "Certificat de Travail",
+      avertissement: "Lettre d'Avertissement",
+      contrat: "Contrat de Travail",
+    } as const;
+    const title = titleMap[type];
 
     const qrData = buildQRContent({
       entreprise: entreprise.nom,
-      type: type === "attestation" ? "Attestation de Travail" : "Certificat de Travail",
+      type: title,
       titre: `${employe.prenom} ${employe.nom}`,
       date: today,
       extra: {
@@ -61,8 +72,6 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
         "Date d'embauche": dateEmbauche,
       },
     });
-
-    const title = type === "attestation" ? "Attestation de Travail" : "Certificat de Travail";
 
     const containerStyle: React.CSSProperties = {
       backgroundColor: "#ffffff",
