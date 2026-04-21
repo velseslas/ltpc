@@ -562,10 +562,12 @@ export default function EchantillonBetonFraisForm({
               <FormField
                 control={form.control}
                 name="operateur_id"
-                render={({ field }) => (
+                render={({ field }) => {
+                  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(field.value, field.onChange);
+                  return (
                   <FormItem>
                     <FormLabel>Technicien <span className="text-red-700">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner un technicien" />
@@ -581,7 +583,8 @@ export default function EchantillonBetonFraisForm({
                     </Select>
                     <FormMessage />
                   </FormItem>
-                )}
+                  );
+                }}
               />
 
               <FormField

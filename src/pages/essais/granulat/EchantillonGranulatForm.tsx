@@ -376,10 +376,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="operateur_id"
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(field.value, field.onChange);
+                    return (
                     <FormItem>
                       <FormLabel>Technicien</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
                         <FormControl>
                           <SelectTrigger className="bg-background border-border">
                             <SelectValue placeholder="Sélectionnez un technicien" />
@@ -395,7 +397,8 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                       </Select>
                       <FormMessage />
                     </FormItem>
-                  )}
+                    );
+                  }}
                 />
 
                 <FormField
