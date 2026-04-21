@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import {
+import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -107,7 +108,7 @@ export default function MaterielDetail() {
                 <Pencil className="w-4 h-4 mr-2" />
                 Modifier
               </Button>
-              <AlertDialog>
+              <AdminOnly><AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="text-destructive border-destructive/50 hover:bg-destructive/10">
                     <Trash2 className="w-4 h-4 mr-2" />
@@ -131,7 +132,7 @@ export default function MaterielDetail() {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog></AdminOnly>
             </div>
           </CardHeader>
           <CardContent>

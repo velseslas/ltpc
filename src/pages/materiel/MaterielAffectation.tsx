@@ -35,6 +35,7 @@ import {
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 export default function MaterielAffectation() {
   const navigate = useNavigate();

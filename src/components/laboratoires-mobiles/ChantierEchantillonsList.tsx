@@ -34,6 +34,7 @@ import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { 
+import { AdminOnly } from "@/components/common/AdminOnly";
   useChantierEchantillons, 
   useDeleteChantierEchantillon,
   EchantillonChantier 

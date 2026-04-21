@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
+import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -101,7 +102,7 @@ export default function LaboratoireMobileDetail() {
             <Edit className="h-4 w-4 mr-2" />
             Modifier
           </Button>
-          <AlertDialog>
+          <AdminOnly><AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -122,7 +123,7 @@ export default function LaboratoireMobileDetail() {
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
+          </AlertDialog></AdminOnly>
         </div>
       </div>
 

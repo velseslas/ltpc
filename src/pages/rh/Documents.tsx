@@ -54,6 +54,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const typesDocument = [
   "Contrat de travail",

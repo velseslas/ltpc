@@ -20,6 +20,7 @@ import { MoeFormDialog } from "@/components/clients/MoeFormDialog";
 import { toast } from "sonner";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import {
+import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,

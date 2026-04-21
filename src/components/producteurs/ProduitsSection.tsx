@@ -6,6 +6,7 @@ import { useProduits, useDeleteProduit } from "@/hooks/useProduits";
 import { ProduitFormDialog } from "./ProduitFormDialog";
 import { toast } from "sonner";
 import {
+import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -77,7 +78,7 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <AlertDialog>
+                  <AdminOnly><AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="ghost"
@@ -104,7 +105,7 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
-                  </AlertDialog>
+                  </AlertDialog></AdminOnly>
                 </div>
               </CardHeader>
               <CardContent>

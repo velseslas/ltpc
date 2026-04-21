@@ -9,6 +9,7 @@ import { usePostes, useDeletePoste } from "@/hooks/usePostes";
 import { useToast } from "@/hooks/use-toast";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import {
+import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -140,7 +141,7 @@ export default function Postes() {
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <AlertDialog>
+                        <AdminOnly><AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               variant="ghost"
@@ -168,7 +169,7 @@ export default function Postes() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog></AdminOnly>
                       </div>
                     </div>
                     <p className="text-sm text-primary">

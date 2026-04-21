@@ -10,6 +10,7 @@ import { format, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import {
+import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
@@ -103,7 +104,7 @@ export default function MaterielEtalonnageDetail() {
                 <Pencil className="w-4 h-4" />
                 Modifier
               </Button>
-              <AlertDialog>
+              <AdminOnly><AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="border-border text-destructive hover:bg-destructive/10 hover:border-destructive/50"><Trash2 className="w-4 h-4" />Supprimer</Button>
                 </AlertDialogTrigger>
@@ -117,7 +118,7 @@ export default function MaterielEtalonnageDetail() {
                     <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog></AdminOnly>
             </div>
           </CardHeader>
           <CardContent>
