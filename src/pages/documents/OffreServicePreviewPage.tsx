@@ -424,7 +424,7 @@ const OffreServicePreviewPage = () => {
                         ...sectionStyle,
                       }}
                     >
-                      Fait à {labSiege}, le {dateDoc}
+                      Fait le {dateDoc}
                     </p>
 
                     <div style={{ display: "flex", justifyContent: "flex-end" }}>

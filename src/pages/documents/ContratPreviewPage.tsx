@@ -327,7 +327,7 @@ const ContratPreviewPage = () => {
                   <div>{renderArticleContent(num)}</div>
                   {num === 11 && (
                     <p style={{ fontSize: "12px", lineHeight: "2", textAlign: "right", marginTop: "16px", ...sectionStyle }}>
-                      Fait à {labSiege}, le {dateDoc}
+                      Fait le {dateDoc}
                     </p>
                   )}
                 </div>
