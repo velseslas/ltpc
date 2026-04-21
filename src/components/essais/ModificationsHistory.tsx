@@ -98,15 +98,32 @@ export function ModificationsHistory({ tableName, recordId }: Props) {
                   {format(new Date(entry.modified_at), "dd MMM yyyy à HH:mm", { locale: fr })}
                 </span>
               </div>
-              <div className="text-sm flex items-start gap-2 flex-wrap min-w-0">
-                <span className="px-2 py-0.5 rounded bg-destructive/10 text-destructive line-through max-w-full break-all whitespace-pre-wrap">
-                  {formatValue(entry.old_value)}
-                </span>
-                <span className="text-muted-foreground">→</span>
-                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary max-w-full break-all whitespace-pre-wrap">
-                  {formatValue(entry.new_value)}
-                </span>
-              </div>
+              {(() => {
+                const diffs = getJsonDiff(entry.old_value, entry.new_value);
+                if (diffs) {
+                  return (
+                    <div className="text-sm space-y-1 min-w-0">
+                      {diffs.map((d) => (
+                        <div key={d.key} className="flex items-start gap-2 flex-wrap min-w-0">
+                          <Badge variant="secondary" className="font-mono text-[10px] mt-0.5">
+                            {d.key}
+                          </Badge>
+                          <ValueBadge value={d.oldV} variant="old" />
+                          <span className="text-muted-foreground">→</span>
+                          <ValueBadge value={d.newV} variant="new" />
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+                return (
+                  <div className="text-sm flex items-start gap-2 flex-wrap min-w-0">
+                    <ValueBadge value={entry.old_value} variant="old" />
+                    <span className="text-muted-foreground">→</span>
+                    <ValueBadge value={entry.new_value} variant="new" />
+                  </div>
+                );
+              })()}
             </div>
             {entry.restored_at ? (
               <Badge variant="secondary" className="gap-1 whitespace-nowrap">
@@ -128,7 +145,7 @@ export function ModificationsHistory({ tableName, recordId }: Props) {
                       <AlertDialogTitle>Restaurer la modification ?</AlertDialogTitle>
                       <AlertDialogDescription>
                         Le champ <strong>{entry.field_name}</strong> reprendra la valeur :{" "}
-                        <em>{formatValue(entry.old_value)}</em>
+                        <em>{formatScalar(entry.old_value)}</em>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
