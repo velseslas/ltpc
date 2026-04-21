@@ -295,6 +295,10 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
             </CardContent>
           </Card>
         )}
+
+        {id && (
+          <ModificationsHistory tableName={getTableName(essaiType)} recordId={id} />
+        )}
       </div>
     </>
   );
