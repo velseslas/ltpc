@@ -4516,6 +4516,51 @@ export type Database = {
           },
         ]
       }
+      essais_deleted: {
+        Row: {
+          deleted_at: string
+          deleted_by: string | null
+          deleted_by_name: string | null
+          essai_label: string | null
+          id: string
+          numero: number | null
+          record_data: Json
+          record_id: string
+          restored_at: string | null
+          restored_by: string | null
+          restored_by_name: string | null
+          table_name: string
+        }
+        Insert: {
+          deleted_at?: string
+          deleted_by?: string | null
+          deleted_by_name?: string | null
+          essai_label?: string | null
+          id?: string
+          numero?: number | null
+          record_data: Json
+          record_id: string
+          restored_at?: string | null
+          restored_by?: string | null
+          restored_by_name?: string | null
+          table_name: string
+        }
+        Update: {
+          deleted_at?: string
+          deleted_by?: string | null
+          deleted_by_name?: string | null
+          essai_label?: string | null
+          id?: string
+          numero?: number | null
+          record_data?: Json
+          record_id?: string
+          restored_at?: string | null
+          restored_by?: string | null
+          restored_by_name?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       essais_modifications_history: {
         Row: {
           field_name: string
@@ -6390,6 +6435,7 @@ export type Database = {
         }
         Returns: string
       }
+      restore_deleted_essai: { Args: { _deleted_id: string }; Returns: string }
       restore_essai_field: {
         Args: {
           _field_name: string
