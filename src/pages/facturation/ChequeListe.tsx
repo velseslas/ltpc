@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { usePaiementsCheque, useDeletePaiementCheque } from "@/hooks/useFacturationCheque";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -21,7 +23,6 @@ export default function ChequeListe() {
   const [search, setSearch] = useState("");
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce paiement ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
 
@@ -115,9 +116,18 @@ export default function ChequeListe() {
                           <DropdownMenuItem onClick={() => navigate(`/facturation/cheque/${e.id}/modifier`)}>
                             <Pencil className="h-4 w-4 mr-2" />Modifier
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(e.id)}>
-                            <Trash2 className="h-4 w-4 mr-2" />Supprimer
-                          </DropdownMenuItem>
+                          <AdminOnly>
+                            <ConfirmDelete
+                              trigger={
+                                <DropdownMenuItem className="text-destructive" onSelect={(ev) => ev.preventDefault()}>
+                                  <Trash2 className="h-4 w-4 mr-2" />Supprimer
+                                </DropdownMenuItem>
+                              }
+                              onConfirm={() => handleDelete(e.id)}
+                              description={`Supprimer le paiement ${e.numero_cheque || ""} ? Cette action est irréversible.`}
+                              adminOnly={false}
+                            />
+                          </AdminOnly>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
