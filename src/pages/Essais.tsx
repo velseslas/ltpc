@@ -1,9 +1,11 @@
-import { Box, Gem, Landmark, Hammer } from "lucide-react";
+import { Box, Gem, Landmark, Hammer, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const Essais = () => {
   const navigate = useNavigate();
+  const isAdmin = useIsAdmin();
 
   const essaiTypes = [
     {
@@ -43,6 +45,18 @@ const Essais = () => {
       path: "/essais/acier"
     },
   ];
+
+  if (isAdmin) {
+    essaiTypes.push({
+      id: "audit",
+      title: "Audit",
+      description: "Historique des essais supprimés et restauration administrateur",
+      icon: ShieldAlert,
+      gradient: "from-destructive/20 to-destructive/5",
+      iconColor: "text-destructive",
+      path: "/essais/audit"
+    });
+  }
 
   return (
     <>

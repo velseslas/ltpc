@@ -32,6 +32,7 @@ import CentraleBetonForm from "./pages/producteurs/CentraleBetonForm";
 import CentraleBetonDetail from "./pages/producteurs/CentraleBetonDetail";
 import FormulationForm from "./pages/producteurs/FormulationForm";
 import Essais from "./pages/Essais";
+import EssaisAudit from "./pages/essais/EssaisAudit";
 import EssaiBeton from "./pages/essais/EssaiBeton";
 import EssaiGranulat from "./pages/essais/EssaiGranulat";
 import EssaiGeotechnique from "./pages/essais/EssaiGeotechnique";
@@ -373,6 +374,7 @@ const AppRoutes = () => (
       <Route path="/rh/techniciens/:id" element={<TechnicienDetail />} />
       <Route path="/rh/documents" element={<Documents />} />
       <Route path="/essais" element={<Essais />} />
+      <Route path="/essais/audit" element={<EssaisAudit />} />
       <Route path="/essais/granulat" element={<EssaiGranulat />} />
       <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
       <Route path="/essais/granulat/proprete" element={<EssaiProprete />} />
