@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { usePaiementsEspece, useDeletePaiementEspece } from "@/hooks/useFacturation";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -23,7 +25,6 @@ export default function EspeceListe() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce paiement ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
 
