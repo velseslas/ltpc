@@ -96,21 +96,6 @@ function formatNumero(entry: DeletedEssaiEntry) {
   return `${meta.prefix}-${String(num).padStart(3, "0")}`;
 }
 
-// Pretty label for record_data fields
-function humanizeKey(key: string) {
-  return key
-    .replace(/_/g, " ")
-    .replace(/\bid\b/gi, "ID")
-    .replace(/^./, (c) => c.toUpperCase());
-}
-
-function renderValue(value: any): string {
-  if (value === null || value === undefined || value === "") return "—";
-  if (typeof value === "boolean") return value ? "Oui" : "Non";
-  if (typeof value === "object") return JSON.stringify(value, null, 2);
-  return String(value);
-}
-
 const HIDDEN_FIELDS = new Set(["id", "created_at", "updated_at"]);
 
 const EssaisAudit = () => {
