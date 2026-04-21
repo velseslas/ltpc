@@ -30,6 +30,7 @@ import { useProduits } from "@/hooks/useProduits";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
+import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { 
   useEchantillonGranulatById,
   useCreateEchantillonGranulatByType, 
