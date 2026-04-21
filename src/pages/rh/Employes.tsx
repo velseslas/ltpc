@@ -44,6 +44,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const Employes = () => {
   const navigate = useNavigate();
@@ -288,7 +289,7 @@ const Employes = () => {
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <AlertDialog>
+                        <AdminOnly><AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               variant="ghost"
@@ -316,7 +317,7 @@ const Employes = () => {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog></AdminOnly>
                       </div>
                     </div>
                   </div>

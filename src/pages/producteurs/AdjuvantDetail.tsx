@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const AdjuvantDetail = () => {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ const AdjuvantDetail = () => {
               >
                 <Pencil className="w-3.5 h-3.5" />
               </Button>
-              <AlertDialog>
+              <AdminOnly><AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive">
                     <Trash2 className="w-3.5 h-3.5" />
@@ -126,7 +127,7 @@ const AdjuvantDetail = () => {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog></AdminOnly>
             </div>
           </div>
 

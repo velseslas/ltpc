@@ -40,6 +40,7 @@ import {
   getPrefix,
   EchantillonBetonFraisBase,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const getStatusBadge = (statut: string) => {
   switch (statut) {

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useMaitresOuvrage, useDeleteMaitreOuvrage } from "@/hooks/useMaitresOuvrage";
 import { toast } from "sonner";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 export default function MaitreOuvrageListe() {
   const navigate = useNavigate();
@@ -97,7 +98,7 @@ export default function MaitreOuvrageListe() {
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigate(`/intervenant/maitres-ouvrage/${p.id}/modifier`)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <AlertDialog>
+                      <AdminOnly><AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </AlertDialogTrigger>
@@ -111,7 +112,7 @@ export default function MaitreOuvrageListe() {
                             <AlertDialogAction onClick={() => handleDelete(p.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
-                      </AlertDialog>
+                      </AlertDialog></AdminOnly>
                     </div>
                   </div>
                 </div>

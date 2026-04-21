@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { usePrixEssais, useCreatePrixEssai, useUpdatePrixEssai, useDeletePrixEssai } from "@/hooks/usePrixEssais";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
 import { toast } from "sonner";
 
 const categories = [
@@ -60,7 +61,6 @@ export default function PrixEssaiListe() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce prix ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
 
@@ -147,7 +147,11 @@ export default function PrixEssaiListe() {
                     <TableCell className="capitalize">{p.unite}</TableCell>
                     <TableCell className="text-right space-x-1">
                       <Button variant="ghost" size="icon" onClick={() => handleOpen(p)}><Edit className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                      <ConfirmDelete
+                        trigger={<Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-red-500" /></Button>}
+                        onConfirm={() => handleDelete(p.id)}
+                        description={`Supprimer le prix « ${p.nom_essai} » ? Cette action est irréversible.`}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

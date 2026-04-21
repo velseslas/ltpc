@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePrestataire, useBonsCommandePrestataire, useDeleteBonCommandePrestataire } from "@/hooks/usePrestataires";
 import { toast } from "sonner";
@@ -35,7 +36,6 @@ export default function PrestataireDetail() {
   const bons = allBons?.filter((b: any) => b.prestataire_id === id) || [];
 
   const handleDeleteBon = async (bonId: string) => {
-    if (!confirm("Supprimer ce bon de commande ?")) return;
     try { await deleteBon.mutateAsync(bonId); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
 
@@ -119,7 +119,11 @@ export default function PrestataireDetail() {
                     <TableCell>{Number(b.montant_ttc).toLocaleString()} DA</TableCell>
                     <TableCell>{statutBadge(b.statut)}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteBon(b.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                      <ConfirmDelete
+                        trigger={<Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-red-500" /></Button>}
+                        onConfirm={() => handleDeleteBon(b.id)}
+                        description={`Supprimer le bon de commande ${b.numero} ? Cette action est irréversible.`}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

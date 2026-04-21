@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { useDevis, useDeleteDevis } from "@/hooks/useFacturation";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -33,7 +35,6 @@ export default function DevisListe() {
   const [converting, setConverting] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce devis ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Devis supprimé"); } catch { toast.error("Erreur"); }
   };
 
@@ -155,9 +156,18 @@ export default function DevisListe() {
                           <DropdownMenuItem onClick={() => handleConvertToFacture(d.id)} disabled={converting === d.id}>
                             <FileText className="h-4 w-4 mr-2" />Convertir en facture
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(d.id)}>
-                            <Trash2 className="h-4 w-4 mr-2" />Supprimer
-                          </DropdownMenuItem>
+                          <AdminOnly>
+                            <ConfirmDelete
+                              trigger={
+                                <DropdownMenuItem className="text-destructive" onSelect={(ev) => ev.preventDefault()}>
+                                  <Trash2 className="h-4 w-4 mr-2" />Supprimer
+                                </DropdownMenuItem>
+                              }
+                              onConfirm={() => handleDelete(d.id)}
+                              description={`Supprimer le devis ${d.numero} ? Cette action est irréversible.`}
+                              adminOnly={false}
+                            />
+                          </AdminOnly>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

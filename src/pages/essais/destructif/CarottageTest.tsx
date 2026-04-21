@@ -13,6 +13,8 @@ import { useEchantillonsCarottage, useDeleteEchantillonCarottage, CarottageWithR
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import { AdminOnly } from "@/components/common/AdminOnly";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
@@ -144,9 +146,18 @@ const CarottageTest = () => {
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/modifier`)}>
                           <Pencil className="h-4 w-4" /> Modifier
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2 text-destructive" onClick={() => handleDelete(e.id)}>
+                        <AdminOnly>
+                          <ConfirmDelete
+                            trigger={
+                              <DropdownMenuItem className="flex items-center gap-2 text-destructive" onSelect={(ev) => ev.preventDefault()}>
                           <Trash2 className="h-4 w-4" /> Supprimer
                         </DropdownMenuItem>
+                            }
+                            onConfirm={() => handleDelete(e.id)}
+                            description="Supprimer cet échantillon ? Cette action est irréversible."
+                            adminOnly={false}
+                          />
+                        </AdminOnly>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

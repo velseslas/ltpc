@@ -22,6 +22,7 @@ import { DossierFormDialog } from "@/components/documents/DossierFormDialog";
 import { DocumentViewerDialog } from "@/components/documents/DocumentViewerDialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const DossierAdministratif = () => {
   const navigate = useNavigate();

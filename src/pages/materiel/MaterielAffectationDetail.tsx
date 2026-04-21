@@ -13,6 +13,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const statutBadge = (s: string) => {
   switch (s) {
@@ -95,7 +96,7 @@ export default function MaterielAffectationDetail() {
                 <Pencil className="w-4 h-4" />
                 Modifier
               </Button>
-              <AlertDialog>
+              <AdminOnly><AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="border-border text-destructive hover:bg-destructive/10 hover:border-destructive/50"><Trash2 className="w-4 h-4" />Supprimer</Button>
                 </AlertDialogTrigger>
@@ -109,7 +110,7 @@ export default function MaterielAffectationDetail() {
                     <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog></AdminOnly>
             </div>
           </CardHeader>
           <CardContent>

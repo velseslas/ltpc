@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 type ViewLevel = "entreprises" | "chantiers" | "document";
 

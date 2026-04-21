@@ -38,6 +38,7 @@ import {
   useDeleteChantierEchantillon,
   EchantillonChantier 
 } from "@/hooks/useChantierEchantillons";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const getStatutBadge = (statut: string) => {
   switch (statut) {

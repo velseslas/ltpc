@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 interface ProduitsSectionProps {
   producteurId: string;
@@ -77,7 +78,7 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <AlertDialog>
+                  <AdminOnly><AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="ghost"
@@ -104,7 +105,7 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
-                  </AlertDialog>
+                  </AlertDialog></AdminOnly>
                 </div>
               </CardHeader>
               <CardContent>

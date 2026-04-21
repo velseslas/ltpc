@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 export default function LaboratoireMobileDetail() {
   const navigate = useNavigate();
@@ -101,7 +102,7 @@ export default function LaboratoireMobileDetail() {
             <Edit className="h-4 w-4 mr-2" />
             Modifier
           </Button>
-          <AlertDialog>
+          <AdminOnly><AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -122,7 +123,7 @@ export default function LaboratoireMobileDetail() {
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
+          </AlertDialog></AdminOnly>
         </div>
       </div>
 

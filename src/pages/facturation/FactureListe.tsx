@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { useFactures, useDeleteFacture } from "@/hooks/useFacturation";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -27,7 +29,6 @@ export default function FactureListe() {
   const deleteMutation = useDeleteFacture();
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cette facture ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Facture supprimée"); } catch { toast.error("Erreur"); }
   };
 

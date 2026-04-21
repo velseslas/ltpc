@@ -26,6 +26,7 @@ import { EssaiBreadcrumb, BreadcrumbItem as BreadcrumbItemType } from "@/compone
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 interface EchantillonGeotechniqueListProps {
   title: string;

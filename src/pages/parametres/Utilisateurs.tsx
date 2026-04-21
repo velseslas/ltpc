@@ -36,6 +36,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Users, Plus, Search, MoreHorizontal, Shield, Clock, Loader2 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -144,9 +146,7 @@ const Utilisateurs = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
-      await deleteUtilisateur.mutateAsync(id);
-    }
+    await deleteUtilisateur.mutateAsync(id);
   };
 
   const handleToggleStatus = async (user: Utilisateur) => {
@@ -353,12 +353,21 @@ const Utilisateurs = () => {
                           <DropdownMenuItem onClick={() => handleToggleStatus(user)}>
                             {user.statut === "actif" ? "Désactiver" : "Activer"}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDelete(user.id)}
-                          >
-                            Supprimer
-                          </DropdownMenuItem>
+                          <AdminOnly>
+                            <ConfirmDelete
+                              trigger={
+                                <DropdownMenuItem
+                                  className="text-destructive"
+                                  onSelect={(ev) => ev.preventDefault()}
+                                >
+                                  Supprimer
+                                </DropdownMenuItem>
+                              }
+                              onConfirm={() => handleDelete(user.id)}
+                              description={`Supprimer l'utilisateur « ${user.nom} » ? Cette action est irréversible.`}
+                              adminOnly={false}
+                            />
+                          </AdminOnly>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

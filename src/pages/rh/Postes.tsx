@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 export default function Postes() {
   const navigate = useNavigate();
@@ -140,7 +141,7 @@ export default function Postes() {
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <AlertDialog>
+                        <AdminOnly><AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               variant="ghost"
@@ -168,7 +169,7 @@ export default function Postes() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog></AdminOnly>
                       </div>
                     </div>
                     <p className="text-sm text-primary">

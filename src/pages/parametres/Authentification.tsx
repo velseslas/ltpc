@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowLeft, KeyRound, Plus, MoreHorizontal, Users, Loader2, Eye, EyeOff } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { usePostes } from "@/hooks/usePostes";
@@ -166,7 +168,6 @@ const Authentification = () => {
   };
 
   const handleDeleteUser = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) return;
     await supabase.from("utilisateurs").delete().eq("id", id);
     setUtilisateurs((prev) => prev.filter((u) => u.id !== id));
     toast.success("Utilisateur supprimé");
@@ -310,12 +311,21 @@ const Authentification = () => {
                           <DropdownMenuItem onClick={() => handleEditUser(user)}>
                             Modifier
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDeleteUser(user.id)}
-                          >
-                            Supprimer
-                          </DropdownMenuItem>
+                          <AdminOnly>
+                            <ConfirmDelete
+                              trigger={
+                                <DropdownMenuItem
+                                  className="text-destructive"
+                                  onSelect={(ev) => ev.preventDefault()}
+                                >
+                                  Supprimer
+                                </DropdownMenuItem>
+                              }
+                              onConfirm={() => handleDeleteUser(user.id)}
+                              description={`Supprimer l'utilisateur « ${user.nom} » ? Cette action est irréversible.`}
+                              adminOnly={false}
+                            />
+                          </AdminOnly>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
