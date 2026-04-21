@@ -158,6 +158,11 @@ export default function EchantillonBetonFraisForm({
 
   const selectedClientId = form.watch("client_id");
   const selectedCentraleId = form.watch("centrale_id");
+  const operateurValue = form.watch("operateur_id");
+  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(
+    operateurValue ?? "",
+    (id) => form.setValue("operateur_id", id),
+  );
   const { data: centralesFromClient } = useCentralesByClient(selectedClientId);
   const { data: chantiersFromClient, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulationsFromCentrale, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
@@ -563,9 +568,7 @@ export default function EchantillonBetonFraisForm({
               <FormField
                 control={form.control}
                 name="operateur_id"
-                render={({ field }) => {
-                  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(field.value, field.onChange);
-                  return (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Technicien <span className="text-red-700">*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
@@ -584,8 +587,7 @@ export default function EchantillonBetonFraisForm({
                     </Select>
                     <FormMessage />
                   </FormItem>
-                  );
-                }}
+                )}
               />
 
               <FormField
