@@ -26,6 +26,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDeletedEssais, useRestoreDeletedEssai, DeletedEssaiEntry } from "@/hooks/useDeletedEssais";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { AuditEssaiViewer } from "@/components/audit/AuditEssaiViewer";
 
 type ModuleKey = "beton" | "granulat" | "geotechnique" | "formulation";
 
