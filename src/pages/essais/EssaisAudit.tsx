@@ -437,32 +437,7 @@ const EssaisAudit = () => {
           </SheetHeader>
 
           <ScrollArea className="flex-1 mt-4 pr-4">
-            <div className="space-y-2">
-              {viewingFields.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucune donnée à afficher.</p>
-              ) : (
-                viewingFields.map((key) => {
-                  const value = viewingData[key];
-                  const isObject = value && typeof value === "object";
-                  return (
-                    <div key={key} className="grid grid-cols-3 gap-2 py-2 border-b border-border/40">
-                      <div className="text-xs font-medium text-muted-foreground col-span-1">
-                        {humanizeKey(key)}
-                      </div>
-                      <div className="col-span-2 text-sm break-words">
-                        {isObject ? (
-                          <pre className="bg-muted/40 rounded p-2 text-xs overflow-x-auto">
-                            {renderValue(value)}
-                          </pre>
-                        ) : (
-                          renderValue(value)
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+            {viewing && <AuditEssaiViewer recordData={viewing.record_data || {}} />}
           </ScrollArea>
 
           {viewing && !viewing.restored_at && (
