@@ -225,11 +225,19 @@ export default function Documents() {
   };
 
   const isDocumentPreviewable = (type: string) => {
-    return type === "Attestation de travail" || type === "Certificat de travail";
+    return (
+      type === "Attestation de travail" ||
+      type === "Certificat de travail" ||
+      type === "Avertissement" ||
+      type === "Contrat de travail"
+    );
   };
 
-  const getDocumentType = (type: string): "attestation" | "certificat" => {
-    return type === "Attestation de travail" ? "attestation" : "certificat";
+  const getDocumentType = (type: string): "attestation" | "certificat" | "avertissement" | "contrat" => {
+    if (type === "Attestation de travail") return "attestation";
+    if (type === "Certificat de travail") return "certificat";
+    if (type === "Avertissement") return "avertissement";
+    return "contrat";
   };
 
   return (
@@ -514,7 +522,7 @@ export default function Documents() {
               <CardContent className="p-6 space-y-4">
                 <div className="text-center py-8 text-muted-foreground">
                   <p>L'aperçu n'est pas disponible pour ce type de document.</p>
-                  <p className="text-sm mt-2">Types supportés: Attestation de travail, Certificat de travail</p>
+                  <p className="text-sm mt-2">Types supportés: Attestation, Certificat, Avertissement, Contrat de travail</p>
                 </div>
                 <div className="border-t pt-4 grid grid-cols-3 gap-4">
                   <div>
