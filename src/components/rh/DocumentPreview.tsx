@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { buildQRContent } from "@/lib/qrContent";
 
 interface DocumentPreviewProps {
-  type: "attestation" | "certificat";
+  type: "attestation" | "certificat" | "avertissement" | "contrat";
   employe: {
     nom: string;
     prenom: string;
@@ -14,6 +14,7 @@ interface DocumentPreviewProps {
     poste?: string | null;
     cin?: string | null;
     adresse?: string | null;
+    salaire?: number | null;
   };
   entreprise: {
     nom: string;
@@ -26,6 +27,12 @@ interface DocumentPreviewProps {
     annexe?: string | null;
   };
   dateFin?: string;
+  motifAvertissement?: string;
+  dateFaits?: string;
+  niveauAvertissement?: "1er avertissement" | "2ème avertissement" | "Dernier avertissement";
+  typeContrat?: "CDI" | "CDD" | "Période d'essai";
+  dureeContrat?: string;
+  lieuTravail?: string;
 }
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
