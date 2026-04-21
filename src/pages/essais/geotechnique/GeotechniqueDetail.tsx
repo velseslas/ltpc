@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Pencil, ClipboardEdit, FileText } from "lucide-react";
 import { ClassificationBadge, AbaqueButton } from "@/components/essais/geotechnique/CasagrandeAbaque";
-import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
+import { useEchantillonGeotechniqueById, getGeoPrefix, getGeoTableName } from "@/hooks/useEchantillonsGeotechniqueFactory";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -657,6 +658,10 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
 
       {echantillon.resultats && (
         <ResultatsSection essaiType={essaiType} resultats={echantillon.resultats as Record<string, unknown>} />
+      )}
+
+      {id && (
+        <ModificationsHistory tableName={getGeoTableName(essaiType)} recordId={id} />
       )}
     </div>
   );

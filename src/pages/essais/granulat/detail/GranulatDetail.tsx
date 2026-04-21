@@ -7,8 +7,10 @@ import {
   useEchantillonGranulatById,
   formatNumero,
   getPrefix,
+  getTableName,
   EchantillonGranulatBase
 } from "@/hooks/useEchantillonsGranulatFactory";
+import { ModificationsHistory } from "@/components/essais/ModificationsHistory";
 
 const TYPE_ESSAI_SUFFIX: Record<string, string> = {
   beton: "B",
@@ -292,6 +294,10 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
               </Button>
             </CardContent>
           </Card>
+        )}
+
+        {id && (
+          <ModificationsHistory tableName={getTableName(essaiType)} recordId={id} />
         )}
       </div>
     </>
