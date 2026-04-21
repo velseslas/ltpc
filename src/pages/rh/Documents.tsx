@@ -473,8 +473,16 @@ export default function Documents() {
 
           {isDocumentPreviewable(selectedDocument.type_document) && selectedIntervenant && entreprise ? (
             <Card>
-              <CardContent className="p-6 overflow-auto bg-muted/30 rounded-lg">
-                <div className="transform scale-[0.6] origin-top">
+              <CardContent className="p-6 overflow-auto bg-muted/30 rounded-lg flex justify-center">
+                <div
+                  style={{
+                    width: "210mm",
+                    transform: "scale(var(--doc-scale, 0.85))",
+                    transformOrigin: "top center",
+                    marginBottom: "calc((1 - var(--doc-scale, 0.85)) * -297mm)",
+                  }}
+                  className="[--doc-scale:0.6] sm:[--doc-scale:0.75] lg:[--doc-scale:0.9]"
+                >
                   <DocumentPreview
                     ref={documentRef}
                     type={getDocumentType(selectedDocument.type_document)}
