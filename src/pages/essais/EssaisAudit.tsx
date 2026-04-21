@@ -114,7 +114,7 @@ const EssaisAudit = () => {
 
   return (
     <>
-      <AppBreadcrumb items={[{ label: "Essais", href: "/essais" }, { label: "Audit" }]} />
+      <AppBreadcrumb items={[{ label: "Essais", path: "/essais" }, { label: "Audit" }]} />
 
       <div className="mb-6 flex items-center gap-3">
         <BackButton to="/essais" />
