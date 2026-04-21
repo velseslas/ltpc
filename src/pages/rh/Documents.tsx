@@ -522,7 +522,7 @@ export default function Documents() {
               <CardContent className="p-6 space-y-4">
                 <div className="text-center py-8 text-muted-foreground">
                   <p>L'aperçu n'est pas disponible pour ce type de document.</p>
-                  <p className="text-sm mt-2">Types supportés: Attestation de travail, Certificat de travail</p>
+                  <p className="text-sm mt-2">Types supportés: Attestation, Certificat, Avertissement, Contrat de travail</p>
                 </div>
                 <div className="border-t pt-4 grid grid-cols-3 gap-4">
                   <div>
