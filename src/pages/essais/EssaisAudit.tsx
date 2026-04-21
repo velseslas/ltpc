@@ -179,6 +179,16 @@ const EssaisAudit = () => {
     return list;
   }, [entries, showRestored, moduleFilter, tableFilter, dateFrom, dateTo, search, sortKey, sortDir]);
 
+  if (!isAdmin) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          Accès réservé aux administrateurs.
+        </CardContent>
+      </Card>
+    );
+  }
+
   const activeCount = (entries || []).filter((e) => !e.restored_at).length;
 
   const toggleSort = (key: typeof sortKey) => {
