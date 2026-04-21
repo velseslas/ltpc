@@ -17,15 +17,36 @@ interface Props {
   recordId: string;
 }
 
-function formatValue(v: any): string {
-  if (v === null || v === undefined) return "—";
-  if (typeof v === "object") {
-    const str = JSON.stringify(v);
-    return str.length > 120 ? str.slice(0, 120) + "…" : str;
-  }
+function formatScalar(v: any): string {
+  if (v === null || v === undefined || v === "") return "—";
   if (typeof v === "boolean") return v ? "Oui" : "Non";
+  if (typeof v === "object") {
+    const s = JSON.stringify(v);
+    return s.length > 80 ? s.slice(0, 80) + "…" : s;
+  }
   const s = String(v);
-  return s.length > 200 ? s.slice(0, 200) + "…" : s;
+  return s.length > 120 ? s.slice(0, 120) + "…" : s;
+}
+
+function isPlainObject(v: any): boolean {
+  return v !== null && typeof v === "object" && !Array.isArray(v);
+}
+
+function getJsonDiff(oldVal: any, newVal: any): { key: string; oldV: any; newV: any }[] | null {
+  if (!isPlainObject(oldVal) || !isPlainObject(newVal)) return null;
+  const keys = Array.from(new Set([...Object.keys(oldVal), ...Object.keys(newVal)]));
+  const diffs = keys
+    .filter((k) => JSON.stringify(oldVal[k]) !== JSON.stringify(newVal[k]))
+    .map((k) => ({ key: k, oldV: oldVal[k], newV: newVal[k] }));
+  return diffs.length > 0 ? diffs : null;
+}
+
+function ValueBadge({ value, variant }: { value: any; variant: "old" | "new" }) {
+  const cls =
+    variant === "old"
+      ? "px-2 py-0.5 rounded bg-destructive/10 text-destructive line-through max-w-full break-all whitespace-pre-wrap"
+      : "px-2 py-0.5 rounded bg-primary/10 text-primary max-w-full break-all whitespace-pre-wrap";
+  return <span className={cls}>{formatScalar(value)}</span>;
 }
 
 export function ModificationsHistory({ tableName, recordId }: Props) {
