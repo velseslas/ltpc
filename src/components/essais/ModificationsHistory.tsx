@@ -19,9 +19,13 @@ interface Props {
 
 function formatValue(v: any): string {
   if (v === null || v === undefined) return "—";
-  if (typeof v === "object") return JSON.stringify(v);
+  if (typeof v === "object") {
+    const str = JSON.stringify(v);
+    return str.length > 120 ? str.slice(0, 120) + "…" : str;
+  }
   if (typeof v === "boolean") return v ? "Oui" : "Non";
-  return String(v);
+  const s = String(v);
+  return s.length > 200 ? s.slice(0, 200) + "…" : s;
 }
 
 export function ModificationsHistory({ tableName, recordId }: Props) {
@@ -61,9 +65,9 @@ export function ModificationsHistory({ tableName, recordId }: Props) {
         {entries.map((entry: ModificationEntry) => (
           <div
             key={entry.id}
-            className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg border border-border bg-muted/30"
+            className="flex flex-col md:flex-row md:items-start gap-3 p-3 rounded-lg border border-border bg-muted/30 min-w-0"
           >
-            <div className="flex-1 space-y-1">
+            <div className="flex-1 min-w-0 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="font-mono text-xs">
                   {entry.field_name}
@@ -73,12 +77,12 @@ export function ModificationsHistory({ tableName, recordId }: Props) {
                   {format(new Date(entry.modified_at), "dd MMM yyyy à HH:mm", { locale: fr })}
                 </span>
               </div>
-              <div className="text-sm flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 rounded bg-destructive/10 text-destructive line-through">
+              <div className="text-sm flex items-start gap-2 flex-wrap min-w-0">
+                <span className="px-2 py-0.5 rounded bg-destructive/10 text-destructive line-through max-w-full break-all whitespace-pre-wrap">
                   {formatValue(entry.old_value)}
                 </span>
                 <span className="text-muted-foreground">→</span>
-                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary">
+                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary max-w-full break-all whitespace-pre-wrap">
                   {formatValue(entry.new_value)}
                 </span>
               </div>
