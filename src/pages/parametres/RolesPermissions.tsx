@@ -627,7 +627,7 @@ const RolesPermissions = () => {
                                     </Button>
                                   }
                                   onConfirm={() => deletePermission.mutate(perm.id)}
-                                  description={`Supprimer la permission « ${perm.label || perm.code} » ? Cette action est irréversible.`}
+                                  description={`Supprimer la permission « ${perm.code} » ? Cette action est irréversible.`}
                                 />
                               </TableCell>
                             </TableRow>

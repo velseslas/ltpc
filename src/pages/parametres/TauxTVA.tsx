@@ -211,7 +211,7 @@ const TauxTVAPage = () => {
                             </Button>
                           }
                           onConfirm={() => handleDelete(taux.id)}
-                          description={`Supprimer le taux de TVA « ${taux.libelle || taux.taux + "%"} » ? Cette action est irréversible.`}
+                          description={`Supprimer le taux de TVA « ${taux.taux}% » ? Cette action est irréversible.`}
                         />
                       </div>
                     </TableCell>
