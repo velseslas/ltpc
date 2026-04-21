@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Shield, Users, Lock, Plus, Trash2, Check, X, Info, Search } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { Button } from "@/components/ui/button";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -615,14 +616,19 @@ const RolesPermissions = () => {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon"
-                                  onClick={() => deletePermission.mutate(perm.id)}
-                                  disabled={deletePermission.isPending}
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                                <ConfirmDelete
+                                  trigger={
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      disabled={deletePermission.isPending}
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  }
+                                  onConfirm={() => deletePermission.mutate(perm.id)}
+                                  description={`Supprimer la permission « ${perm.label || perm.code} » ? Cette action est irréversible.`}
+                                />
                               </TableCell>
                             </TableRow>
                           );

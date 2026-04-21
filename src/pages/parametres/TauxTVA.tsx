@@ -23,6 +23,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ArrowLeft, Percent, Plus, Pencil, Trash2, Save, Loader2 } from "lucide-react";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { 
   useTauxTVA, 
@@ -198,15 +199,20 @@ const TauxTVAPage = () => {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(taux.id)}
-                          disabled={deleteTaux.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <ConfirmDelete
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive hover:text-destructive"
+                              disabled={deleteTaux.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          }
+                          onConfirm={() => handleDelete(taux.id)}
+                          description={`Supprimer le taux de TVA « ${taux.libelle || taux.taux + "%"} » ? Cette action est irréversible.`}
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
