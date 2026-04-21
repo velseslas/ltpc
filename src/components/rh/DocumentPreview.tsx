@@ -112,12 +112,12 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
                 )}
               </p>
               {entreprise.siege_social && (
-                <p style={{ fontSize: "11px", color: "#000", marginBottom: "2px", whiteSpace: "nowrap", ...sectionStyle }}>
+                <p style={{ fontSize: "11px", color: "#000", marginBottom: "2px", ...sectionStyle }}>
                   <span style={{ fontWeight: 500 }}>Siège Social : </span>{entreprise.siege_social}
                 </p>
               )}
               {entreprise.annexe && (
-                <p style={{ fontSize: "11px", color: "#000", marginBottom: "2px", whiteSpace: "nowrap", ...sectionStyle }}>
+                <p style={{ fontSize: "11px", color: "#000", marginBottom: "2px", ...sectionStyle }}>
                   <span style={{ fontWeight: 500 }}>Annexe : </span>{entreprise.annexe}
                 </p>
               )}
