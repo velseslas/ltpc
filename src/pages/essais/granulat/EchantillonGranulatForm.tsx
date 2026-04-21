@@ -30,6 +30,7 @@ import { useProduits } from "@/hooks/useProduits";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
+import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { 
   useEchantillonGranulatById,
   useCreateEchantillonGranulatByType, 
@@ -376,10 +377,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="operateur_id"
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(field.value, field.onChange);
+                    return (
                     <FormItem>
                       <FormLabel>Technicien</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
                         <FormControl>
                           <SelectTrigger className="bg-background border-border">
                             <SelectValue placeholder="Sélectionnez un technicien" />
@@ -395,7 +398,8 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                       </Select>
                       <FormMessage />
                     </FormItem>
-                  )}
+                    );
+                  }}
                 />
 
                 <FormField

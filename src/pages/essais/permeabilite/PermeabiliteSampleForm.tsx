@@ -33,6 +33,7 @@ import {
   useUpdateEchantillonPermeabilite,
 } from "@/hooks/useEchantillonsPermeabilite";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
+import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -107,6 +108,7 @@ const PermeabiliteSampleForm = () => {
   const [clientId, setClientId] = useState("");
   const [chantierId, setChantierId] = useState("");
   const [operateurId, setOperateurId] = useState("");
+  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(operateurId, setOperateurId);
   const [centraleId, setCentraleId] = useState("");
   const [formulationId, setFormulationId] = useState("");
   const [ouvrage, setOuvrage] = useState("");
@@ -399,7 +401,7 @@ const PermeabiliteSampleForm = () => {
 
             <div className="space-y-2">
               <Label htmlFor="operateur">Technicien <span className="text-red-700">*</span></Label>
-              <Select value={operateurId} onValueChange={setOperateurId}>
+              <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
                 <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}>
                   <SelectValue placeholder="Sélectionnez un technicien" />
                 </SelectTrigger>

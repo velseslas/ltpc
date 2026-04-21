@@ -18,6 +18,7 @@ import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useCreateEchantillonCarottage, useUpdateEchantillonCarottage, useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
+import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
@@ -59,6 +60,7 @@ const CarottageSampleForm = () => {
   const [clientId, setClientId] = useState<string>("");
   const [chantierId, setChantierId] = useState<string>("");
   const [operateurId, setOperateurId] = useState<string>("");
+  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(operateurId, setOperateurId);
   const [datePrelevement, setDatePrelevement] = useState<Date>(new Date());
   const [ouvrage, setOuvrage] = useState("");
   const [partieOuvrage, setPartieOuvrage] = useState("");
@@ -172,7 +174,7 @@ const CarottageSampleForm = () => {
             </div>
             <div className="space-y-2">
               <Label>Opérateur</Label>
-              <Select value={operateurId} onValueChange={setOperateurId}>
+              <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
                 <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{intervenants?.map(i => <SelectItem key={i.id} value={i.id}>{i.nom} {i.prenom || ""}</SelectItem>)}</SelectContent>
               </Select>
