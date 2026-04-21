@@ -717,6 +717,8 @@ const AppRoutes = () => (
       <Route path="/documents/lettres-engagement/:id" element={<EngagementPreviewPage />} />
       <Route path="/documents/lettres-engagement/:id/edit" element={<EngagementEditPage />} />
       <Route path="/documents/offres-service" element={<OffresService />} />
+      <Route path="/documents/offres-service/:id" element={<OffreServicePreviewPage />} />
+      <Route path="/documents/offres-service/:id/edit" element={<OffreServiceEditPage />} />
       <Route path="/documents/offres-prix" element={<OffresPrix />} />
       <Route path="/documents/attestations" element={<AttestationsBonneExecution />} />
       <Route path="/documents/contrats" element={<Contrats />} />
