@@ -32,6 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { logEchantillonHistory, getChangedFields } from "@/hooks/useHistoriqueEchantillons";
+import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CONDITIONS_CURE = [
@@ -140,6 +141,7 @@ const CompressionSampleForm = () => {
   const [clientId, setClientId] = useState("");
   const [chantierId, setChantierId] = useState("");
   const [operateurId, setOperateurId] = useState("");
+  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(operateurId, setOperateurId);
   const [centraleId, setCentraleId] = useState("");
   const [formulationId, setFormulationId] = useState("");
   const [ouvrage, setOuvrage] = useState("");
@@ -547,7 +549,7 @@ const CompressionSampleForm = () => {
               {/* Technicien */}
               <div className="space-y-2">
                 <Label htmlFor="operateur">Technicien <span className="text-red-700">*</span></Label>
-                <Select value={operateurId} onValueChange={setOperateurId}>
+                <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
                   <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}>
                     <SelectValue placeholder="Sélectionnez un technicien" />
                   </SelectTrigger>

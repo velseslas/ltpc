@@ -32,6 +32,7 @@ import {
   useEchantillonTractionFendageById 
 } from "@/hooks/useEchantillonsTractionFendage";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
+import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -98,6 +99,7 @@ const TractionFendageSampleForm = () => {
   const [clientId, setClientId] = useState("");
   const [chantierId, setChantierId] = useState("");
   const [operateurId, setOperateurId] = useState("");
+  const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(operateurId, setOperateurId);
   const [centraleId, setCentraleId] = useState("");
   const [formulationId, setFormulationId] = useState("");
   const [ouvrage, setOuvrage] = useState("");
@@ -429,7 +431,7 @@ const TractionFendageSampleForm = () => {
             {/* Opérateur */}
             <div className="space-y-2">
               <Label>Technicien <span className="text-red-700">*</span></Label>
-              <Select value={operateurId} onValueChange={setOperateurId}>
+              <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
                 <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}>
                   <SelectValue placeholder="Sélectionner un technicien" />
                 </SelectTrigger>
