@@ -5475,6 +5475,44 @@ export type Database = {
         }
         Relationships: []
       }
+      offre_service_articles: {
+        Row: {
+          article_number: number
+          contenu: string
+          created_at: string
+          id: string
+          offre_service_id: string
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          article_number: number
+          contenu: string
+          created_at?: string
+          id?: string
+          offre_service_id: string
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          article_number?: number
+          contenu?: string
+          created_at?: string
+          id?: string
+          offre_service_id?: string
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offre_service_articles_offre_service_id_fkey"
+            columns: ["offre_service_id"]
+            isOneToOne: false
+            referencedRelation: "offres_service"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       offres_prix: {
         Row: {
           chantier_id: string | null

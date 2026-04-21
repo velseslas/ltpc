@@ -212,6 +212,8 @@ import NotFound from "./pages/NotFound";
 import DocumentsIndex from "./pages/documents/DocumentsIndex";
 import LettresEngagement from "./pages/documents/LettresEngagement";
 import OffresService from "./pages/documents/OffresService";
+import OffreServicePreviewPage from "./pages/documents/OffreServicePreviewPage";
+import OffreServiceEditPage from "./pages/documents/OffreServiceEditPage";
 import OffresPrix from "./pages/documents/OffresPrix";
 import AttestationsBonneExecution from "./pages/documents/AttestationsBonneExecution";
 import Contrats from "./pages/documents/Contrats";
@@ -715,6 +717,8 @@ const AppRoutes = () => (
       <Route path="/documents/lettres-engagement/:id" element={<EngagementPreviewPage />} />
       <Route path="/documents/lettres-engagement/:id/edit" element={<EngagementEditPage />} />
       <Route path="/documents/offres-service" element={<OffresService />} />
+      <Route path="/documents/offres-service/:id" element={<OffreServicePreviewPage />} />
+      <Route path="/documents/offres-service/:id/edit" element={<OffreServiceEditPage />} />
       <Route path="/documents/offres-prix" element={<OffresPrix />} />
       <Route path="/documents/attestations" element={<AttestationsBonneExecution />} />
       <Route path="/documents/contrats" element={<Contrats />} />
