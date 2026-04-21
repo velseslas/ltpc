@@ -197,10 +197,6 @@ const EssaisAudit = () => {
   };
 
   const viewingMeta = viewing ? metaFor(viewing.table_name) : null;
-  const viewingData = viewing?.record_data || {};
-  const viewingFields = Object.keys(viewingData)
-    .filter((k) => !HIDDEN_FIELDS.has(k))
-    .sort();
 
   return (
     <>
