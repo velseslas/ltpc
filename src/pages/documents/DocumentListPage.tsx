@@ -13,7 +13,6 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import DocumentFormDialog, { type DocumentFormData } from "./DocumentFormDialog";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,6 +22,7 @@ import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 interface DocumentListPageProps {
   title: string;

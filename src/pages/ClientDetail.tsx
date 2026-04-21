@@ -20,7 +20,6 @@ import { MoeFormDialog } from "@/components/clients/MoeFormDialog";
 import { toast } from "sonner";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -30,6 +29,7 @@ import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const ClientDetail = () => {
   const { id } = useParams<{ id: string }>();

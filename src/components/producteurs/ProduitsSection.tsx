@@ -6,7 +6,6 @@ import { useProduits, useDeleteProduit } from "@/hooks/useProduits";
 import { ProduitFormDialog } from "./ProduitFormDialog";
 import { toast } from "sonner";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -17,6 +16,7 @@ import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 interface ProduitsSectionProps {
   producteurId: string;

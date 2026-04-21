@@ -10,10 +10,10 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const typeBadge = (t: string) => {
   switch (t) {

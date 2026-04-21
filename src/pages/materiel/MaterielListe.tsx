@@ -17,7 +17,6 @@ import {
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -27,6 +26,7 @@ import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const etatBadge = (etat: string) => {
   switch (etat) {

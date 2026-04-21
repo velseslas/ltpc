@@ -6,7 +6,6 @@ import { useCentraleBeton, useDeleteCentraleBeton } from "@/hooks/useCentralesBe
 import { useToast } from "@/hooks/use-toast";
 import { FormulationsSection } from "@/components/producteurs/FormulationsSection";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -17,6 +16,7 @@ import { AdminOnly } from "@/components/common/AdminOnly";
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const CentraleBetonDetail = () => {
   const navigate = useNavigate();

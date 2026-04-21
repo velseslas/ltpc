@@ -35,12 +35,12 @@ import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import {
-import { AdminOnly } from "@/components/common/AdminOnly";
   useEchantillonsBetonFraisByType,
   useDeleteEchantillonBetonFraisByType,
   getPrefix,
   EchantillonBetonFraisBase,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
+import { AdminOnly } from "@/components/common/AdminOnly";
 
 const getStatusBadge = (statut: string) => {
   switch (statut) {
