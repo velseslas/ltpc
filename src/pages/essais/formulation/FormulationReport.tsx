@@ -287,6 +287,37 @@ export default function FormulationReport() {
   const sablesList = granulatsList.filter((x) => x.key.startsWith("sable"));
   const graviersList = granulatsList.filter((x) => !x.key.startsWith("sable"));
 
+  // ----- Données pour la courbe granulométrique du mélange -----
+  const getQty = (key: string) => {
+    switch (key) {
+      case "sable_concasse": return formulation.sable_concasse_quantite || 0;
+      case "sable_fin": return formulation.sable_fin_quantite || 0;
+      case "gravillons1": return formulation.gravillons1_quantite || 0;
+      case "gravier2": return formulation.gravier2_quantite || 0;
+      case "gravier3": return formulation.gravier3_quantite || 0;
+      default: return 0;
+    }
+  };
+
+  const courbeData = TAMIS_STD.slice().sort((a, b) => a - b).map((ouv) => {
+    const row: any = { ouverture: ouv, label: String(ouv) };
+    let melange = 0;
+    let totalPct = 0;
+    granulatsList.forEach((g) => {
+      const pct = totalGranulats > 0 ? (getQty(g.key) / totalGranulats) * 100 : 0;
+      const passant = getPassant(g.g?.granulometrie, ouv);
+      if (passant !== null) {
+        row[g.key] = passant;
+        melange += (passant * pct) / 100;
+        totalPct += pct;
+      }
+    });
+    row.melange = totalPct > 0 ? Number(melange.toFixed(1)) : null;
+    return row;
+  });
+
+  const colors = ["#1e5a7a", "#d97706", "#16a34a", "#dc2626", "#7c3aed"];
+
   return (
     <div className="space-y-6">
       <EssaiBreadcrumb items={breadcrumbItems} />
