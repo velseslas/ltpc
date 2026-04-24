@@ -689,6 +689,10 @@ function EssaiStep({
 
 export default function FormulationBetonWizard() {
   const navigate = useNavigate();
+  const { formulationId } = useParams<{ formulationId?: string }>();
+  const isEdit = !!formulationId;
+  const { data: existingFormulation } = useFormulation(formulationId || "");
+  const editInitialized = useRef(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [errorSteps, setErrorSteps] = useState<number[]>([]);
   // Step 1
