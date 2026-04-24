@@ -18,6 +18,16 @@ import {
   useFormulationGranulatsEssais,
   GranulatEssais,
 } from "@/hooks/useFormulationGranulatsEssais";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 // ---------- Helpers ----------
 const fmt = (v: number | null | undefined, digits = 2) =>
