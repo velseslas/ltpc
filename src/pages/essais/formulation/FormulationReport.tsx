@@ -1136,7 +1136,7 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-black">
                       <strong>{r.code}</strong> — {r.label}
                     </td>
-                    <td className="border border-black px-2 py-1 text-black">—</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
                     <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(r.quantite)}</td>
                     <td className="border border-black px-2 py-1 text-center text-black">kg</td>
                   </tr>
