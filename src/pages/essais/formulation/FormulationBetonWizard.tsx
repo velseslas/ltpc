@@ -1053,20 +1053,27 @@ export default function FormulationBetonWizard() {
     if (f.gravier2_producteur_id || f.gravier2_quantite) setGravier2Active(true);
     if (f.gravier3_producteur_id || f.gravier3_quantite) setGravier3Active(true);
 
-    setResistance28j(f.resistance_28j != null ? String(f.resistance_28j) : "");
-    setSlumpSouhaite(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
-    setClasseExposition(f.classe_exposition || "");
-    setAffaissementCible(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
-    setResistanceCible(f.resistance_28j != null ? String(f.resistance_28j) : "");
+    const initialEau = formatNumberInput(f.eau_calculee) || formatNumberInput(f.eau_quantite);
+    const initialCiment = formatNumberInput(f.ciment_calcule) || formatNumberInput(f.ciment_quantite);
+    const initialRatioGS = formatNumberInput(f.ratio_gs) || deriveRatioGSFromFormulation(f);
+    const initialResistance = formatNumberInput(f.resistance_28j) || deriveResistanceFromNameOrCement(f);
+    const initialSlump = formatNumberInput(f.slump_souhaite) || "70";
+    const initialClasseExposition = f.classe_exposition || "XC1";
+    const initialDmax = formatNumberInput(f.dmax_utilisateur) || String(deriveDmaxFromFormulation(f));
 
-    setCalcEau(f.eau_calculee != null ? String(f.eau_calculee) : (f.eau_quantite != null ? String(f.eau_quantite) : ""));
-    setCalcCiment(f.ciment_calcule != null ? String(f.ciment_calcule) : (f.ciment_quantite != null ? String(f.ciment_quantite) : ""));
-    setCalcRatioGS(f.ratio_gs != null ? String(f.ratio_gs) : "");
-    
+    setResistance28j(initialResistance);
+    setSlumpSouhaite(initialSlump);
+    setClasseExposition(initialClasseExposition);
+    setAffaissementCible(initialSlump);
+    setResistanceCible(initialResistance);
 
-    setCoefficientGranulaire(f.coefficient_granulaire != null ? String(f.coefficient_granulaire) : "");
-    setCoefficientCompacite(f.coefficient_compacite != null ? String(f.coefficient_compacite) : "");
-    setDmaxUtilisateur(f.dmax_utilisateur != null ? String(f.dmax_utilisateur) : "");
+    setCalcEau(initialEau);
+    setCalcCiment(initialCiment);
+    setCalcRatioGS(initialRatioGS);
+
+    setCoefficientGranulaire(formatNumberInput(f.coefficient_granulaire) || deriveDefaultCoefficientGranulaire(Number(initialDmax)));
+    setCoefficientCompacite(formatNumberInput(f.coefficient_compacite) || deriveDefaultCoefficientCompacite(Number(initialDmax)));
+    setDmaxUtilisateur(initialDmax);
 
     setVibrationAE(f.vibration_ae || "");
     setFormeAE(f.forme_ae || "");
