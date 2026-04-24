@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, Plus, Loader2, Search, Building2, FileText } from "lucide-react";
+import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
