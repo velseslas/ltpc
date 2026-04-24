@@ -820,7 +820,50 @@ export default function FormulationReport() {
           />
 
           <div className="text-sm text-black space-y-4">
-            <p className="font-bold">Tableau : Proportions des différents constituants</p>
+            {/* Paramètres saisis dans le wizard (étapes 2, 5, 6) */}
+            <p className="font-bold">III.0 Paramètres de formulation</p>
+            <table className="w-full border-collapse border border-black text-sm">
+              <tbody>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Résistance visée à 28j</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.resistance_28j ? `${fmt(formulation.resistance_28j, 1)} MPa` : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Affaissement souhaité</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.slump_souhaite ? `${fmt(formulation.slump_souhaite, 0)} mm` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Classe d'exposition</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.classe_exposition || "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dmax granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.dmax_utilisateur ? `${fmt(formulation.dmax_utilisateur, 1)} mm` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Coef. granulaire (G)</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.coefficient_granulaire, 2)}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Coef. compacité (γ)</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.coefficient_compacite, 3)}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Type de vibration</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.vibration_ae || "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Forme des granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.forme_ae || "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Coefficient Kp</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.kp_ae, 2)}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Module de finesse idéal</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.mf_ideal, 2)}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Eau calculée (E)</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.eau_calculee ? `${fmt(formulation.eau_calculee, 1)} l/m³` : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Ciment calculé (C)</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.ciment_calcule ? `${fmt(formulation.ciment_calcule, 1)} kg/m³` : "—"}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p className="font-bold mt-4">III.1 Proportions des différents constituants</p>
             <table className="w-full border-collapse border border-black text-sm">
               <thead>
                 <tr className="bg-gray-100">
