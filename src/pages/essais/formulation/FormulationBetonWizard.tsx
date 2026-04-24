@@ -1092,13 +1092,13 @@ export default function FormulationBetonWizard() {
       <EssaiBreadcrumb items={[
         { label: "Béton", path: "/essais/beton" },
         { label: "Formulation", path: "/essais/beton/formulation" },
-        { label: "Nouvelle formulation de béton" },
+        { label: isEdit ? "Modifier l'étude" : "Nouvelle formulation de béton" },
       ]} />
 
       <div className="flex items-center gap-4">
         <BackButton to="/essais/beton/formulation" />
         <h1 className="text-3xl font-display font-bold text-foreground">
-          Nouvelle <span className="text-primary text-glow">Formulation de Béton</span>
+          {isEdit ? <>Modifier l'<span className="text-primary text-glow">étude de formulation</span></> : <>Nouvelle <span className="text-primary text-glow">Formulation de Béton</span></>}
         </h1>
       </div>
 
