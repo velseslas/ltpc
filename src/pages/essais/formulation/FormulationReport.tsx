@@ -647,11 +647,11 @@ export default function FormulationReport() {
             </table>
 
             <h3 className="text-base font-bold underline mt-6">ESSAIS RÉALISÉS SUR GRANULATS ET BÉTON</h3>
-            <table className="w-full border-collapse border border-black text-sm">
-              <thead>
+            <table className="w-full border-collapse border border-black text-xs" style={{ pageBreakInside: 'auto' }}>
+              <thead style={{ display: 'table-header-group' }}>
                 <tr className="bg-gray-100">
-                  <th className="border border-black px-2 py-1 text-left text-black">Essais</th>
-                  <th className="border border-black px-2 py-1 text-left text-black">Norme de référence</th>
+                  <th className="border border-black px-2 py-0.5 text-left text-black">Essais</th>
+                  <th className="border border-black px-2 py-0.5 text-left text-black">Norme de référence</th>
                 </tr>
               </thead>
               <tbody>
