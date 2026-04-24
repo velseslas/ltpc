@@ -232,7 +232,7 @@ export function EchantillonBetonFraisList({
                           }}
                         >
                           <Eye className="w-4 h-4 mr-2" />
-                          Voir
+                          Détails
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e) => {
