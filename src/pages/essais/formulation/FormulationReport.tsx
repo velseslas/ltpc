@@ -156,6 +156,8 @@ export default function FormulationReport() {
     try {
       toast.info("Génération du PDF en cours…");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageWidthMm = 210;
+      const pageHeightMm = 297;
       const pages = reportRef.current.querySelectorAll<HTMLDivElement>(".report-page");
       for (let i = 0; i < pages.length; i++) {
         const canvas = await html2canvas(pages[i], {
@@ -163,12 +165,16 @@ export default function FormulationReport() {
           useCORS: true,
           logging: false,
           backgroundColor: "#ffffff",
+          windowWidth: pages[i].scrollWidth,
+          windowHeight: pages[i].scrollHeight,
         });
         const imgData = canvas.toDataURL("image/png");
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Conserver le ratio A4 : on dimensionne sur la largeur et on laisse la hauteur s'adapter,
+        // sans dépasser la page.
+        const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
+        const finalHeight = Math.min(imgHeightMm, pageHeightMm);
         if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, 297));
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, finalHeight);
       }
       pdf.save(`formulation-${formulation?.nom || id}.pdf`);
       toast.success("PDF téléchargé avec succès");
