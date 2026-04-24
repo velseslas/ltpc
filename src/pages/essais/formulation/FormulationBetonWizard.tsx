@@ -1012,7 +1012,7 @@ export default function FormulationBetonWizard() {
     })();
   }, [isEdit, formulationToEdit, centraleId, clientId, chantierId]);
 
-  // Auto-deduce maître d'ouvrage / maître d'œuvre from client links
+  // Auto-deduce maître d'ouvrage / maître d'œuvre from client links (with fallback to first available)
   useEffect(() => {
     if (!isEdit || !clientId) return;
     if (!autoDeducedRefs.current.moa && !maitreOuvrageId) {
@@ -1024,7 +1024,11 @@ export default function FormulationBetonWizard() {
           .eq("client_id", clientId)
           .limit(1)
           .maybeSingle();
-        if (data?.maitre_ouvrage_id) setMaitreOuvrageId(data.maitre_ouvrage_id);
+        if (data?.maitre_ouvrage_id) {
+          setMaitreOuvrageId(data.maitre_ouvrage_id);
+        } else if (maitresOuvrage.length > 0) {
+          setMaitreOuvrageId(maitresOuvrage[0].id);
+        }
         autoDeducedRefs.current.moa = true;
       })();
     }
@@ -1037,11 +1041,15 @@ export default function FormulationBetonWizard() {
           .eq("client_id", clientId)
           .limit(1)
           .maybeSingle();
-        if (data?.maitre_oeuvre_id) setMaitreOeuvreId(data.maitre_oeuvre_id);
+        if (data?.maitre_oeuvre_id) {
+          setMaitreOeuvreId(data.maitre_oeuvre_id);
+        } else if (maitresOeuvre.length > 0) {
+          setMaitreOeuvreId(maitresOeuvre[0].id);
+        }
         autoDeducedRefs.current.moe = true;
       })();
     }
-  }, [isEdit, clientId, maitreOuvrageId, maitreOeuvreId]);
+  }, [isEdit, clientId, maitreOuvrageId, maitreOeuvreId, maitresOuvrage, maitresOeuvre]);
 
   // Resolve product names for labels
   const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
