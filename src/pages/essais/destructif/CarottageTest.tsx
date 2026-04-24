@@ -137,7 +137,7 @@ const CarottageTest = () => {
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}`)}>
                           <Eye className="h-4 w-4" /> Voir détails
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/saisie`)}>
+                        <DropdownMenuItem className="flex items-center gap-2 text-white focus:text-white" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/saisie`)}>
                           <ClipboardEdit className="h-4 w-4" /> Saisie de données
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/rapport`)}>

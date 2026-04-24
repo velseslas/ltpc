@@ -77,7 +77,7 @@ const PermeabiliteDetail = () => {
             <Edit className="h-4 w-4 mr-2" />
             Modifier
           </Button>
-          <Button onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${id}/saisie`)}>
+          <Button onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${id}/saisie`)} className="text-white hover:text-white">
             <Plus className="h-4 w-4 mr-2" />
             Saisie de données
           </Button>

@@ -231,9 +231,10 @@ const CompressionDetail = () => {
             <Button 
               variant="outline"
               onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}/saisie`)}
+              className="text-white hover:text-white"
             >
               <ClipboardEdit className="h-4 w-4 mr-2" />
-              Saisie données
+              Saisie de données
             </Button>
             <Button 
               variant="outline"
