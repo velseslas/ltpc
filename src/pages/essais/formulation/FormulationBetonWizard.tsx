@@ -692,6 +692,10 @@ export default function FormulationBetonWizard() {
   const { formulationId } = useParams<{ formulationId?: string }>();
   const isEdit = !!formulationId;
   const { data: existingFormulation, isLoading: isLoadingFormulation, error: formulationError, refetch: refetchFormulation } = useFormulation(formulationId || "");
+  const formulationToEdit = useMemo(() => {
+    if (!existingFormulation) return null;
+    return Array.isArray(existingFormulation) ? existingFormulation[0] ?? null : existingFormulation;
+  }, [existingFormulation]);
   const editInitialized = useRef(false);
 
   // Log + retry on auth errors when editing
@@ -896,8 +900,8 @@ export default function FormulationBetonWizard() {
 
   // Pre-fill state when editing an existing formulation
   useEffect(() => {
-    if (!existingFormulation || editInitialized.current) return;
-    const f: any = existingFormulation;
+    if (!formulationToEdit || editInitialized.current) return;
+    const f: any = formulationToEdit;
     setNom(f.nom || "");
     setClientId(f.client_id || "");
     setChantierId(f.chantier_id || "");
@@ -959,7 +963,7 @@ export default function FormulationBetonWizard() {
     if (f.granulat_module_finesse) setGranulatModuleFinesse(f.granulat_module_finesse);
 
     editInitialized.current = true;
-  }, [existingFormulation]);
+  }, [formulationToEdit]);
 
   const { data: maitresOuvrage = [] } = useMaitresOuvrage();
   const { data: maitresOeuvre = [] } = useMaitresOeuvre();
@@ -1104,7 +1108,7 @@ export default function FormulationBetonWizard() {
 
 
   // Block UI in edit mode until the formulation is loaded so all fields can be pre-filled
-  if (isEdit && (isLoadingFormulation || (!existingFormulation && !formulationError))) {
+  if (isEdit && (isLoadingFormulation || (!formulationToEdit && !formulationError))) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-3">
