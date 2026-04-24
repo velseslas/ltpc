@@ -235,52 +235,64 @@ export default function FormulationReport() {
   type CompoRow = {
     code: string;
     label: string;
+    producteur: string | null;
     quantite: number;
     densite: number | null;
     isLiquid?: boolean;
   };
 
   const compoRows: CompoRow[] = [];
-  const pushIf = (qty: number | null | undefined, code: string, label: string, dens: number | null) => {
-    if (qty && qty > 0) compoRows.push({ code, label, quantite: qty, densite: dens });
+  const pushIf = (
+    qty: number | null | undefined,
+    code: string,
+    label: string,
+    producteur: string | null,
+    dens: number | null
+  ) => {
+    if (qty && qty > 0) compoRows.push({ code, label, producteur, quantite: qty, densite: dens });
   };
   pushIf(
     formulation.gravier3_quantite,
     "GIII",
-    `${gEssais?.gravier3?.produit_nom || "Gravier 3"}${gEssais?.gravier3?.carriere_nom ? ` ${gEssais.gravier3.carriere_nom}` : ""}`,
+    gEssais?.gravier3?.produit_nom || "Gravier 3",
+    gEssais?.gravier3?.carriere_nom ?? null,
     gEssais?.gravier3?.densite_absolue ?? null
   );
   pushIf(
     formulation.gravier2_quantite,
     "GII",
-    `${gEssais?.gravier2?.produit_nom || "Gravier 2"}${gEssais?.gravier2?.carriere_nom ? ` ${gEssais.gravier2.carriere_nom}` : ""}`,
+    gEssais?.gravier2?.produit_nom || "Gravier 2",
+    gEssais?.gravier2?.carriere_nom ?? null,
     gEssais?.gravier2?.densite_absolue ?? null
   );
   pushIf(
     formulation.gravillons1_quantite,
     "GI",
-    `${gEssais?.gravillons1?.produit_nom || "Gravillons 1"}${gEssais?.gravillons1?.carriere_nom ? ` ${gEssais.gravillons1.carriere_nom}` : ""}`,
+    gEssais?.gravillons1?.produit_nom || "Gravillons 1",
+    gEssais?.gravillons1?.carriere_nom ?? null,
     gEssais?.gravillons1?.densite_absolue ?? null
   );
   pushIf(
     formulation.sable_concasse_quantite,
     "SI",
-    `${gEssais?.sable_concasse?.produit_nom || "Sable concassé"}${gEssais?.sable_concasse?.carriere_nom ? ` ${gEssais.sable_concasse.carriere_nom}` : ""}`,
+    gEssais?.sable_concasse?.produit_nom || "Sable concassé",
+    gEssais?.sable_concasse?.carriere_nom ?? null,
     gEssais?.sable_concasse?.densite_absolue ?? null
   );
   pushIf(
     formulation.sable_fin_quantite,
     "SII",
-    `${gEssais?.sable_fin?.produit_nom || "Sable fin"}${gEssais?.sable_fin?.carriere_nom ? ` ${gEssais.sable_fin.carriere_nom}` : ""}`,
+    gEssais?.sable_fin?.produit_nom || "Sable fin",
+    gEssais?.sable_fin?.carriere_nom ?? null,
     gEssais?.sable_fin?.densite_absolue ?? null
   );
 
-  const cimentNom = details?.ciment.produit_nom
-    ? `${details.ciment.produit_nom}${details.ciment.producteur_nom ? ` — ${details.ciment.producteur_nom}` : ""}`
-    : "Ciment";
-  const adjuvantNom = details?.adjuvant.produit_nom
-    ? `${details.adjuvant.produit_nom}${details.adjuvant.producteur_nom ? ` — ${details.adjuvant.producteur_nom}` : ""}`
-    : "Adjuvant";
+  const cimentNom = details?.ciment.produit_nom || "Ciment";
+  const cimentProducteur = details?.ciment.producteur_nom || null;
+  const adjuvantNom = details?.adjuvant.produit_nom || "Adjuvant";
+  const adjuvantProducteur = details?.adjuvant.producteur_nom || null;
+  const eauNom = details?.eau.produit_nom || "Eau";
+  const eauProducteur = details?.eau.producteur_nom || null;
 
   // Granulats array for granulométrie + tableaux
   const granulatsList = [
