@@ -675,62 +675,6 @@ function EssaiStep({
         </Card>
       )}
 
-      {/* Ciment */}
-      {cimentActive && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-         <CardContent className="p-6 space-y-5">
-            <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
-            {cimentProducteurId && cimentProduitId ? (
-              <>
-                <h3 className="text-sm font-semibold text-primary">
-                  Ciment ({cimentProduitNom}) — {cimentProducteurNom}
-                </h3>
-                <Separator className="bg-border/50" />
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  
-                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Résistance du Ciment" /></SelectTrigger>
-                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Rapport</Button>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  
-                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
-                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Rapport</Button>
-                </div>
-              </>
-            ) : (
-              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Eau */}
-      {eauActive && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardContent className="p-6 space-y-5">
-            <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
-            {eauProducteurId && eauProduitId ? (
-              <>
-                <h3 className="text-sm font-semibold text-primary">
-                  Eau ({eauProduitNom}) — {eauProducteurNom}
-                </h3>
-                <Separator className="bg-border/50" />
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  
-                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Analyse Chimique de l'Eau" /></SelectTrigger>
-                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Rapport</Button>
-                </div>
-              </>
-            ) : (
-              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
       {granulatMaterials.length === 0 && !cimentActive && !eauActive && (
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
           <CardContent className="p-6 text-center text-muted-foreground">
