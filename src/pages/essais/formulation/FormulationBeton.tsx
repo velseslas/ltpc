@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, Plus, Loader2, Search, Building2, FileText } from "lucide-react";
+import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -234,18 +234,32 @@ const FormulationBeton = () => {
                       <p className="text-[11px] text-muted-foreground">
                         Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
                       </p>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/essais/beton/formulation/${f.id}/rapport`);
-                        }}
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        Rapport
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/intervenant/producteurs/centrale/${f.centrale_id}/formulation/${f.id}/modifier`);
+                          }}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          Modifier étude
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/essais/beton/formulation/${f.id}/rapport`);
+                          }}
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Rapport
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
