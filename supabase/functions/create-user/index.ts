@@ -5,15 +5,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return { error: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
+  }
+  const userClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await userClient.auth.getClaims(token);
+  if (error || !data?.claims) {
+    return { error: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
+  }
+  const userId = data.claims.sub as string;
+
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const isAdmin = (roles ?? []).some((r: any) => r.role === "admin" || r.role === "super_admin");
+  if (!isAdmin) {
+    return { error: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
+  }
+  return { supabaseAdmin };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    const guard = await requireAdmin(req);
+    if ("error" in guard) return guard.error;
+    const supabaseAdmin = guard.supabaseAdmin;
 
     const { nom, email, password, role, statut, poste_id, intervenant_id } = await req.json();
 
@@ -24,7 +54,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Try to create auth user, or find existing one
     let authUserId: string;
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
@@ -35,7 +64,6 @@ Deno.serve(async (req) => {
 
     if (authError) {
       if (authError.message.includes("already been registered")) {
-        // User exists in auth - find their ID and update password
         const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
         if (listError) {
           return new Response(
@@ -51,7 +79,6 @@ Deno.serve(async (req) => {
           );
         }
         authUserId = existingUser.id;
-        // Update password
         await supabaseAdmin.auth.admin.updateUserById(authUserId, { password });
       } else {
         return new Response(
@@ -63,7 +90,6 @@ Deno.serve(async (req) => {
       authUserId = authData.user.id;
     }
 
-    // Check if utilisateur record already exists for this email
     const { data: existingUtil } = await supabaseAdmin
       .from("utilisateurs")
       .select("id")
@@ -71,7 +97,6 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (existingUtil) {
-      // Update existing record
       const { data: utilisateur, error: utilError } = await supabaseAdmin
         .from("utilisateurs")
         .update({
@@ -81,7 +106,6 @@ Deno.serve(async (req) => {
           statut: statut || "actif",
           poste_id: poste_id || null,
           intervenant_id: intervenant_id || null,
-          mot_de_passe: password,
         })
         .eq("id", existingUtil.id)
         .select()
@@ -94,7 +118,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Upsert user_roles
       await supabaseAdmin
         .from("user_roles")
         .upsert(
@@ -108,7 +131,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create new utilisateur record
     const { data: utilisateur, error: utilError } = await supabaseAdmin
       .from("utilisateurs")
       .insert({
@@ -119,13 +141,11 @@ Deno.serve(async (req) => {
         statut: statut || "actif",
         poste_id: poste_id || null,
         intervenant_id: intervenant_id || null,
-        mot_de_passe: password,
       })
       .select()
       .single();
 
     if (utilError) {
-      // Rollback: delete auth user if utilisateur creation fails
       await supabaseAdmin.auth.admin.deleteUser(authUserId);
       return new Response(
         JSON.stringify({ error: utilError.message }),
@@ -133,7 +153,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Insert into user_roles
     const { error: roleError } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: authUserId, role: role || "technicien" });
@@ -148,7 +167,7 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

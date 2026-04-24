@@ -5,15 +5,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return { error: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
+  }
+  const userClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await userClient.auth.getClaims(token);
+  if (error || !data?.claims) {
+    return { error: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
+  }
+  const userId = data.claims.sub as string;
+
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const isAdmin = (roles ?? []).some((r: any) => r.role === "admin" || r.role === "super_admin");
+  if (!isAdmin) {
+    return { error: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
+  }
+  return { supabaseAdmin };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    const guard = await requireAdmin(req);
+    if ("error" in guard) return guard.error;
+    const supabaseAdmin = guard.supabaseAdmin;
 
     const { utilisateur_id, password, role, statut, poste_id } = await req.json();
 
@@ -24,7 +54,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get the utilisateur record
     const { data: util, error: utilFetchErr } = await supabaseAdmin
       .from("utilisateurs")
       .select("id, email, user_id")
@@ -40,10 +69,8 @@ Deno.serve(async (req) => {
 
     let authUserId: string | null = util.user_id;
 
-    // If a password change is requested, ensure auth user exists and update password
     if (password && password.length >= 6) {
       if (!authUserId) {
-        // Try to find by email
         const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
         if (listError) {
           return new Response(
@@ -55,7 +82,6 @@ Deno.serve(async (req) => {
         if (existingUser) {
           authUserId = existingUser.id;
         } else {
-          // Create the auth user
           const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: util.email,
             password,
@@ -72,7 +98,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Update password in auth
       const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId!, { password });
       if (pwdErr) {
         return new Response(
@@ -82,12 +107,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Build update payload for utilisateurs
     const updateData: Record<string, unknown> = {};
     if (role !== undefined) updateData.role = role;
     if (statut !== undefined) updateData.statut = statut;
     if (poste_id !== undefined) updateData.poste_id = poste_id || null;
-    if (password && password.length >= 6) updateData.mot_de_passe = password;
     if (authUserId && authUserId !== util.user_id) updateData.user_id = authUserId;
 
     if (Object.keys(updateData).length > 0) {
@@ -103,7 +126,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Sync user_roles
     if (authUserId && role) {
       await supabaseAdmin
         .from("user_roles")

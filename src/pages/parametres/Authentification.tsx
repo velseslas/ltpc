@@ -35,7 +35,6 @@ interface UtilisateurRow {
   statut: string;
   poste_id: string | null;
   intervenant_id: string | null;
-  mot_de_passe: string | null;
 }
 
 const Authentification = () => {
@@ -76,7 +75,7 @@ const Authentification = () => {
     setIsLoadingUsers(true);
     const { data } = await supabase
       .from("utilisateurs")
-      .select("id, nom, email, role, statut, poste_id, intervenant_id, mot_de_passe")
+      .select("id, nom, email, role, statut, poste_id, intervenant_id")
       .order("nom");
     if (data) setUtilisateurs(data as UtilisateurRow[]);
     setIsLoadingUsers(false);
@@ -127,7 +126,7 @@ const Authentification = () => {
   const handleEditUser = (user: UtilisateurRow) => {
     setEditingUser(user);
     setEditFormData({
-      mot_de_passe: user.mot_de_passe || "",
+      mot_de_passe: "",
       statut: user.statut,
       role: user.role,
       poste_id: user.poste_id || "",
@@ -138,7 +137,7 @@ const Authentification = () => {
   const handleSaveEdit = async () => {
     if (!editingUser) return;
     const newPassword = editFormData.mot_de_passe?.trim() || "";
-    const passwordChanged = !!newPassword && newPassword !== (editingUser.mot_de_passe || "");
+    const passwordChanged = !!newPassword;
     if (passwordChanged && newPassword.length < 6) {
       toast.error("Le mot de passe doit contenir au moins 6 caractères");
       return;
@@ -297,7 +296,7 @@ const Authentification = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getPosteName(user.poste_id)}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">{user.mot_de_passe || "••••••"}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">••••••</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     <TableCell>{getStatutBadge(user.statut)}</TableCell>
                     <TableCell className="text-right">
