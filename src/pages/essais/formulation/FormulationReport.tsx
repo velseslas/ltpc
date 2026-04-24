@@ -521,17 +521,67 @@ export default function FormulationReport() {
           />
 
           <div className="text-sm text-black space-y-4" style={{ lineHeight: 1.6 }}>
+            {/* Bloc identification du projet */}
+            {(ctx?.client_nom || ctx?.chantier_nom || ctx?.maitre_ouvrage_nom || ctx?.maitre_oeuvre_nom) && (
+              <table className="w-full border-collapse border border-black text-sm mb-4">
+                <tbody>
+                  {ctx?.client_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100 w-1/4">Client</td>
+                      <td className="border border-black px-2 py-1 text-black">{ctx.client_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.chantier_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Chantier</td>
+                      <td className="border border-black px-2 py-1 text-black">
+                        {ctx.chantier_nom}
+                        {ctx.chantier_ville ? ` — ${ctx.chantier_ville}` : ""}
+                        {ctx.chantier_adresse ? `, ${ctx.chantier_adresse}` : ""}
+                      </td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_ouvrage_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Maître d'ouvrage</td>
+                      <td className="border border-black px-2 py-1 text-black">{ctx.maitre_ouvrage_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_oeuvre_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Maître d'œuvre</td>
+                      <td className="border border-black px-2 py-1 text-black">{ctx.maitre_oeuvre_nom}</td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Centrale à béton</td>
+                    <td className="border border-black px-2 py-1 text-black">
+                      {centrale?.nom || "—"}
+                      {centrale?.ville ? ` — ${centrale.ville}` : ""}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+
             <h3 className="text-base font-bold underline">I — INTRODUCTION</h3>
             <p>
               Le {entreprise?.nom || "Laboratoire"} a procédé à des analyses spécifiques sur des
               échantillons de granulats courants de différentes classes granulaires. Ces matériaux
               ont été prélevés en vue de leur utilisation pour la fabrication du béton hydraulique
-              destiné à la centrale&nbsp;: <strong>{centrale?.nom || "—"}</strong>.
+              {ctx?.chantier_nom ? <> destiné au chantier&nbsp;: <strong>{ctx.chantier_nom}</strong></> : <> destiné à la centrale&nbsp;: <strong>{centrale?.nom || "—"}</strong></>}
+              {ctx?.client_nom && <> — Client&nbsp;: <strong>{ctx.client_nom}</strong></>}.
             </p>
             <p>
               Le présent rapport a pour objet de déterminer les caractéristiques de ces matériaux
               et de vérifier leurs conformités aux spécifications des normes en vigueur, et de
-              formuler le mélange selon la méthode <strong>Dreux-Gorisse</strong>.
+              formuler le mélange selon la méthode <strong>Dreux-Gorisse</strong>
+              {formulation.resistance_28j && (
+                <> pour atteindre une résistance caractéristique à 28 jours de <strong>{fmt(formulation.resistance_28j, 1)} MPa</strong></>
+              )}
+              {formulation.classe_exposition && (
+                <> en classe d'exposition <strong>{formulation.classe_exposition}</strong></>
+              )}.
             </p>
 
             <h3 className="text-base font-bold underline mt-6">PROVENANCE DES MATÉRIAUX</h3>
