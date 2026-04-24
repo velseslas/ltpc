@@ -697,6 +697,7 @@ export default function FormulationBetonWizard() {
     return Array.isArray(existingFormulation) ? existingFormulation[0] ?? null : existingFormulation;
   }, [existingFormulation]);
   const editInitialized = useRef(false);
+  const [debugOpen, setDebugOpen] = useState(true);
 
   // Log + retry on auth errors when editing
   useEffect(() => {
@@ -1135,6 +1136,58 @@ export default function FormulationBetonWizard() {
       </div>
 
       <Stepper currentStep={currentStep} onStepClick={(step) => { setCurrentStep(step); window.scrollTo({ top: 0, behavior: 'smooth' }); }} errorSteps={allErrorSteps} />
+
+      {isEdit && (
+        <Card className="border-amber-500/40 bg-amber-500/5">
+          <CardHeader className="py-3 flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm font-mono text-amber-700 dark:text-amber-400">
+              🐞 Debug — Données chargées
+            </CardTitle>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setDebugOpen(v => !v)}>
+              {debugOpen ? "Masquer" : "Afficher"}
+            </Button>
+          </CardHeader>
+          {debugOpen && (
+            <CardContent className="pt-0 space-y-3">
+              <div className="text-xs font-mono space-y-1">
+                <div><span className="text-muted-foreground">formulationId (URL):</span> <span className="text-foreground">{formulationId}</span></div>
+                <div><span className="text-muted-foreground">isLoading:</span> {String(isLoadingFormulation)} — <span className="text-muted-foreground">error:</span> {formulationError ? String((formulationError as any).message || formulationError) : "null"}</div>
+                <div><span className="text-muted-foreground">editInitialized:</span> {String(editInitialized.current)}</div>
+              </div>
+              <Separator />
+              <div>
+                <div className="text-xs font-semibold mb-1 text-foreground">Valeurs pré-remplies dans l'état du wizard</div>
+                <pre className="text-[11px] font-mono bg-muted/40 border border-border rounded p-3 overflow-auto max-h-80">
+{JSON.stringify({
+  step1: { nom, centraleId, clientId, chantierId, maitreOuvrageId, maitreOeuvreId },
+  step2: { calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition },
+  step3_actives: { sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, cimentActive, adjuvantActive, eauActive },
+  step3_producteurs_produits: {
+    sableConcasse: { producteurId: sableConcasseProducteurId, produitId: sableConcasseProduitId, qte: sableConcasseQte },
+    sableFin: { producteurId: sableFinProducteurId, produitId: sableFinProduitId, qte: sableFinQte },
+    gravillons1: { producteurId: gravillons1ProducteurId, produitId: gravillons1ProduitId, qte: gravillons1Qte },
+    gravier2: { producteurId: gravier2ProducteurId, produitId: gravier2ProduitId, qte: gravier2Qte },
+    gravier3: { producteurId: gravier3ProducteurId, produitId: gravier3ProduitId, qte: gravier3Qte },
+    ciment: { producteurId: cimentProducteurId, produitId: cimentProduitId, qte: cimentQte },
+    adjuvant: { producteurId: adjuvantProducteurId, produitId: adjuvantProduitId, qte: adjuvantQte },
+    eau: { producteurId: eauProducteurId, produitId: eauProduitId, qte: eauQte },
+  },
+  step5: { coefficientGranulaire, coefficientCompacite, dmaxUtilisateur },
+  step6: { vibrationAE, formeAE, kpAE, mfIdeal, affaissementCible, resistanceCible },
+  step7: { granulatDensites, granulatModuleFinesse },
+}, null, 2)}
+                </pre>
+              </div>
+              <div>
+                <div className="text-xs font-semibold mb-1 text-foreground">Enregistrement brut récupéré (DB)</div>
+                <pre className="text-[11px] font-mono bg-muted/40 border border-border rounded p-3 overflow-auto max-h-80">
+{JSON.stringify(formulationToEdit, null, 2)}
+                </pre>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
 
       {/* Step 1 */}
       <div className={currentStep === 1 ? "" : "hidden"}>
