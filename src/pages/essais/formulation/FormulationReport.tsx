@@ -952,7 +952,7 @@ export default function FormulationReport() {
                   <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(eau)}</td>
                   <td className="border border-black px-2 py-1 text-center font-bold text-black">{ec}</td>
                   <td className="border border-black px-2 py-1 text-center font-bold text-black">{gs}</td>
-                  <td className="border border-black px-2 py-1 text-center text-black">Vibration (aiguille vibrante)</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">{formulation.vibration_ae || "Vibration"}</td>
                 </tr>
               </tbody>
             </table>
@@ -961,6 +961,24 @@ export default function FormulationReport() {
               III.3 Résistance à la compression : les éprouvettes destinées à cet essai sont
               testées à 7 et 28 jours, conservées après démoulage en chambre humide à 20 °C ± 2.
             </p>
+
+            {ctx?.essai_compression && (
+              <div className="mt-4 border border-black p-3 bg-gray-50">
+                <p className="font-bold text-black">III.4 Essai de convenance associé</p>
+                <p className="text-sm text-black mt-1">
+                  Numéro essai : <strong>EC-{ctx.essai_compression.numero}</strong>
+                  {ctx.essai_compression.classe_resistance && (
+                    <> — Classe : <strong>{ctx.essai_compression.classe_resistance}</strong></>
+                  )}
+                  {ctx.essai_compression.ouvrage && (
+                    <> — Ouvrage : <strong>{ctx.essai_compression.ouvrage}</strong></>
+                  )}
+                  {ctx.essai_compression.date_coulage && (
+                    <> — Coulé le : <strong>{format(new Date(ctx.essai_compression.date_coulage), "dd/MM/yyyy", { locale: fr })}</strong></>
+                  )}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-12 grid grid-cols-2 gap-8 text-black text-sm">
