@@ -1024,7 +1024,6 @@ export default function FormulationBetonWizard() {
       return;
     }
 
-    try {
     const payload = {
       centrale_id: centraleId,
       nom: nom.trim(),
