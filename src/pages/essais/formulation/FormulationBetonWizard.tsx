@@ -935,7 +935,7 @@ export default function FormulationBetonWizard() {
     setCalcEau(f.eau_calculee != null ? String(f.eau_calculee) : (f.eau_quantite != null ? String(f.eau_quantite) : ""));
     setCalcCiment(f.ciment_calcule != null ? String(f.ciment_calcule) : (f.ciment_quantite != null ? String(f.ciment_quantite) : ""));
     setCalcRatioGS(f.ratio_gs != null ? String(f.ratio_gs) : "");
-    if (f.essai_compression_id) setSelectedRapport(f.essai_compression_id);
+    
 
     setCoefficientGranulaire(f.coefficient_granulaire != null ? String(f.coefficient_granulaire) : "");
     setCoefficientCompacite(f.coefficient_compacite != null ? String(f.coefficient_compacite) : "");
