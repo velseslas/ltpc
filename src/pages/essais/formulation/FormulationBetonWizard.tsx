@@ -883,6 +883,68 @@ export default function FormulationBetonWizard() {
   const { data: adjuvants = [] } = useAdjuvants();
   const { data: sourcesEau = [] } = useSourcesEau();
   const createFormulation = useCreateFormulation();
+  const updateFormulation = useUpdateFormulation();
+
+  // Pre-fill state when editing an existing formulation
+  useEffect(() => {
+    if (!existingFormulation || editInitialized.current) return;
+    const f: any = existingFormulation;
+    setNom(f.nom || "");
+    setClientId(f.client_id || "");
+    setChantierId(f.chantier_id || "");
+    setCentraleId(f.centrale_id || "");
+    setMaitreOuvrageId(f.maitre_ouvrage_id || "");
+    setMaitreOeuvreId(f.maitre_oeuvre_id || "");
+
+    setSableConcasseProducteurId(f.sable_concasse_producteur_id || "");
+    setSableConcasseProduitId(f.sable_concasse_produit_id || "");
+    setSableConcasseQte(f.sable_concasse_quantite != null ? String(f.sable_concasse_quantite) : "");
+    setSableFinProducteurId(f.sable_fin_producteur_id || "");
+    setSableFinProduitId(f.sable_fin_produit_id || "");
+    setSableFinQte(f.sable_fin_quantite != null ? String(f.sable_fin_quantite) : "");
+    setGravillons1ProducteurId(f.gravillons1_producteur_id || "");
+    setGravillons1ProduitId(f.gravillons1_produit_id || "");
+    setGravillons1Qte(f.gravillons1_quantite != null ? String(f.gravillons1_quantite) : "");
+    setGravier2ProducteurId(f.gravier2_producteur_id || "");
+    setGravier2ProduitId(f.gravier2_produit_id || "");
+    setGravier2Qte(f.gravier2_quantite != null ? String(f.gravier2_quantite) : "");
+    setGravier3ProducteurId(f.gravier3_producteur_id || "");
+    setGravier3ProduitId(f.gravier3_produit_id || "");
+    setGravier3Qte(f.gravier3_quantite != null ? String(f.gravier3_quantite) : "");
+    setCimentProducteurId(f.ciment_producteur_id || "");
+    setCimentProduitId(f.ciment_produit_id || "");
+    setCimentQte(f.ciment_quantite != null ? String(f.ciment_quantite) : "");
+    setAdjuvantProducteurId(f.adjuvant_producteur_id || "");
+    setAdjuvantProduitId(f.adjuvant_produit_id || "");
+    setAdjuvantQte(f.adjuvant_quantite != null ? String(f.adjuvant_quantite) : "");
+    setEauProducteurId(f.eau_producteur_id || "");
+    setEauProduitId(f.eau_produit_id || "");
+    setEauQte(f.eau_quantite != null ? String(f.eau_quantite) : "");
+
+    // Activate sections that have data
+    if (f.sable_fin_producteur_id || f.sable_fin_quantite) setSable2Active(true);
+    if (f.gravier2_producteur_id || f.gravier2_quantite) setGravier2Active(true);
+    if (f.gravier3_producteur_id || f.gravier3_quantite) setGravier3Active(true);
+
+    setResistance28j(f.resistance_28j != null ? String(f.resistance_28j) : "");
+    setSlumpSouhaite(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
+    setClasseExposition(f.classe_exposition || "");
+
+    setCoefficientGranulaire(f.coefficient_granulaire != null ? String(f.coefficient_granulaire) : "");
+    setCoefficientCompacite(f.coefficient_compacite != null ? String(f.coefficient_compacite) : "");
+    setDmaxUtilisateur(f.dmax_utilisateur != null ? String(f.dmax_utilisateur) : "");
+
+    setVibrationAE(f.vibration_ae || "");
+    setFormeAE(f.forme_ae || "");
+    setKpAE(f.kp_ae != null ? String(f.kp_ae) : "10");
+    setMfIdeal(f.mf_ideal != null ? String(f.mf_ideal) : "");
+
+    if (f.granulat_densites) setGranulatDensites(f.granulat_densites);
+    if (f.granulat_module_finesse) setGranulatModuleFinesse(f.granulat_module_finesse);
+
+    editInitialized.current = true;
+  }, [existingFormulation]);
+
   const { data: maitresOuvrage = [] } = useMaitresOuvrage();
   const { data: maitresOeuvre = [] } = useMaitresOeuvre();
 
