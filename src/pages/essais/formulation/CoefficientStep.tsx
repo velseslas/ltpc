@@ -129,6 +129,17 @@ export default function CoefficientStep({
     }
   }, [dmaxValue]);
 
+  useEffect(() => {
+    if (!dmaxValue) return;
+    const dmax = parseFloat(dmaxValue);
+    if (!qualiteG && coefficientGranulaire) {
+      setQualiteG(inferQualiteFromCoefficient(dmax, coefficientGranulaire));
+    }
+    if (!serrage && coefficientCompacite) {
+      setSerrage(inferSerrageFromCoefficient(dmax, coefficientCompacite));
+    }
+  }, [dmaxValue, coefficientGranulaire, coefficientCompacite, qualiteG, serrage]);
+
   // Auto-compute G'
   const computedG = useMemo(() => {
     const d = parseFloat(dmaxG);
