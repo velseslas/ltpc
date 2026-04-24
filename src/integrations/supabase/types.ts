@@ -6389,7 +6389,6 @@ export type Database = {
           email: string
           id: string
           intervenant_id: string | null
-          mot_de_passe: string | null
           nom: string
           poste_id: string | null
           role: string
@@ -6403,7 +6402,6 @@ export type Database = {
           email: string
           id?: string
           intervenant_id?: string | null
-          mot_de_passe?: string | null
           nom: string
           poste_id?: string | null
           role?: string
@@ -6417,7 +6415,6 @@ export type Database = {
           email?: string
           id?: string
           intervenant_id?: string | null
-          mot_de_passe?: string | null
           nom?: string
           poste_id?: string | null
           role?: string
