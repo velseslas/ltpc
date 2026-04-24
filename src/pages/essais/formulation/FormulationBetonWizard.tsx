@@ -691,8 +691,17 @@ export default function FormulationBetonWizard() {
   const navigate = useNavigate();
   const { formulationId } = useParams<{ formulationId?: string }>();
   const isEdit = !!formulationId;
-  const { data: existingFormulation } = useFormulation(formulationId || "");
+  const { data: existingFormulation, isLoading: isLoadingFormulation, error: formulationError, refetch: refetchFormulation } = useFormulation(formulationId || "");
   const editInitialized = useRef(false);
+
+  // Log + retry on auth errors when editing
+  useEffect(() => {
+    if (isEdit && formulationError) {
+      console.error("[FormulationWizard] Erreur chargement formulation:", formulationError);
+      const timer = setTimeout(() => refetchFormulation(), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isEdit, formulationError, refetchFormulation]);
   const [currentStep, setCurrentStep] = useState(1);
   const [errorSteps, setErrorSteps] = useState<number[]>([]);
   // Step 1
@@ -1093,6 +1102,18 @@ export default function FormulationBetonWizard() {
     }
   };
 
+
+  // Block UI in edit mode until the formulation is loaded so all fields can be pre-filled
+  if (isEdit && (isLoadingFormulation || (!existingFormulation && !formulationError))) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-muted-foreground">Chargement de la formulation…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
