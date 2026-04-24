@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEchantillonGranulatById, getPrefix as getGranulatPrefix } from "@/hooks/useEchantillonsGranulatFactory";
@@ -49,7 +49,7 @@ import { useCimenteries } from "@/hooks/useCimenteries";
 import { useAdjuvants } from "@/hooks/useAdjuvants";
 import { useSourcesEau } from "@/hooks/useSourcesEau";
 import { useProduits } from "@/hooks/useProduits";
-import { useCreateFormulation } from "@/hooks/useFormulations";
+import { useCreateFormulation, useUpdateFormulation, useFormulation } from "@/hooks/useFormulations";
 import { useMaitresOuvrage } from "@/hooks/useMaitresOuvrage";
 import { useMaitresOeuvre } from "@/hooks/useMaitresOeuvre";
 import { supabase } from "@/integrations/supabase/client";
@@ -689,6 +689,10 @@ function EssaiStep({
 
 export default function FormulationBetonWizard() {
   const navigate = useNavigate();
+  const { formulationId } = useParams<{ formulationId?: string }>();
+  const isEdit = !!formulationId;
+  const { data: existingFormulation } = useFormulation(formulationId || "");
+  const editInitialized = useRef(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [errorSteps, setErrorSteps] = useState<number[]>([]);
   // Step 1
@@ -879,6 +883,68 @@ export default function FormulationBetonWizard() {
   const { data: adjuvants = [] } = useAdjuvants();
   const { data: sourcesEau = [] } = useSourcesEau();
   const createFormulation = useCreateFormulation();
+  const updateFormulation = useUpdateFormulation();
+
+  // Pre-fill state when editing an existing formulation
+  useEffect(() => {
+    if (!existingFormulation || editInitialized.current) return;
+    const f: any = existingFormulation;
+    setNom(f.nom || "");
+    setClientId(f.client_id || "");
+    setChantierId(f.chantier_id || "");
+    setCentraleId(f.centrale_id || "");
+    setMaitreOuvrageId(f.maitre_ouvrage_id || "");
+    setMaitreOeuvreId(f.maitre_oeuvre_id || "");
+
+    setSableConcasseProducteurId(f.sable_concasse_producteur_id || "");
+    setSableConcasseProduitId(f.sable_concasse_produit_id || "");
+    setSableConcasseQte(f.sable_concasse_quantite != null ? String(f.sable_concasse_quantite) : "");
+    setSableFinProducteurId(f.sable_fin_producteur_id || "");
+    setSableFinProduitId(f.sable_fin_produit_id || "");
+    setSableFinQte(f.sable_fin_quantite != null ? String(f.sable_fin_quantite) : "");
+    setGravillons1ProducteurId(f.gravillons1_producteur_id || "");
+    setGravillons1ProduitId(f.gravillons1_produit_id || "");
+    setGravillons1Qte(f.gravillons1_quantite != null ? String(f.gravillons1_quantite) : "");
+    setGravier2ProducteurId(f.gravier2_producteur_id || "");
+    setGravier2ProduitId(f.gravier2_produit_id || "");
+    setGravier2Qte(f.gravier2_quantite != null ? String(f.gravier2_quantite) : "");
+    setGravier3ProducteurId(f.gravier3_producteur_id || "");
+    setGravier3ProduitId(f.gravier3_produit_id || "");
+    setGravier3Qte(f.gravier3_quantite != null ? String(f.gravier3_quantite) : "");
+    setCimentProducteurId(f.ciment_producteur_id || "");
+    setCimentProduitId(f.ciment_produit_id || "");
+    setCimentQte(f.ciment_quantite != null ? String(f.ciment_quantite) : "");
+    setAdjuvantProducteurId(f.adjuvant_producteur_id || "");
+    setAdjuvantProduitId(f.adjuvant_produit_id || "");
+    setAdjuvantQte(f.adjuvant_quantite != null ? String(f.adjuvant_quantite) : "");
+    setEauProducteurId(f.eau_producteur_id || "");
+    setEauProduitId(f.eau_produit_id || "");
+    setEauQte(f.eau_quantite != null ? String(f.eau_quantite) : "");
+
+    // Activate sections that have data
+    if (f.sable_fin_producteur_id || f.sable_fin_quantite) setSable2Active(true);
+    if (f.gravier2_producteur_id || f.gravier2_quantite) setGravier2Active(true);
+    if (f.gravier3_producteur_id || f.gravier3_quantite) setGravier3Active(true);
+
+    setResistance28j(f.resistance_28j != null ? String(f.resistance_28j) : "");
+    setSlumpSouhaite(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
+    setClasseExposition(f.classe_exposition || "");
+
+    setCoefficientGranulaire(f.coefficient_granulaire != null ? String(f.coefficient_granulaire) : "");
+    setCoefficientCompacite(f.coefficient_compacite != null ? String(f.coefficient_compacite) : "");
+    setDmaxUtilisateur(f.dmax_utilisateur != null ? String(f.dmax_utilisateur) : "");
+
+    setVibrationAE(f.vibration_ae || "");
+    setFormeAE(f.forme_ae || "");
+    setKpAE(f.kp_ae != null ? String(f.kp_ae) : "10");
+    setMfIdeal(f.mf_ideal != null ? String(f.mf_ideal) : "");
+
+    if (f.granulat_densites) setGranulatDensites(f.granulat_densites);
+    if (f.granulat_module_finesse) setGranulatModuleFinesse(f.granulat_module_finesse);
+
+    editInitialized.current = true;
+  }, [existingFormulation]);
+
   const { data: maitresOuvrage = [] } = useMaitresOuvrage();
   const { data: maitresOeuvre = [] } = useMaitresOeuvre();
 
@@ -958,64 +1024,65 @@ export default function FormulationBetonWizard() {
       return;
     }
 
-    try {
-      await createFormulation.mutateAsync({
-        centrale_id: centraleId,
-        nom: nom.trim(),
-        sable_concasse_producteur_id: sableConcasseProducteurId || null,
-        sable_concasse_produit_id: sableConcasseProduitId || null,
-        sable_concasse_quantite: sableConcasseQte ? parseFloat(sableConcasseQte) : null,
-        sable_fin_producteur_id: sableFinProducteurId || null,
-        sable_fin_produit_id: sableFinProduitId || null,
-        sable_fin_quantite: sableFinQte ? parseFloat(sableFinQte) : null,
-        gravillons1_producteur_id: gravillons1ProducteurId || null,
-        gravillons1_produit_id: gravillons1ProduitId || null,
-        gravillons1_quantite: gravillons1Qte ? parseFloat(gravillons1Qte) : null,
-        gravier2_producteur_id: gravier2ProducteurId || null,
-        gravier2_produit_id: gravier2ProduitId || null,
-        gravier2_quantite: gravier2Qte ? parseFloat(gravier2Qte) : null,
-        gravier3_producteur_id: gravier3ProducteurId || null,
-        gravier3_produit_id: gravier3ProduitId || null,
-        gravier3_quantite: gravier3Qte ? parseFloat(gravier3Qte) : null,
-        ciment_producteur_id: cimentProducteurId || null,
-        ciment_produit_id: cimentProduitId || null,
-        ciment_quantite: cimentQte ? parseFloat(cimentQte) : null,
-        adjuvant_producteur_id: adjuvantProducteurId || null,
-        adjuvant_produit_id: adjuvantProduitId || null,
-        adjuvant_quantite: adjuvantQte ? parseFloat(adjuvantQte) : null,
-        eau_producteur_id: eauProducteurId || null,
-        eau_produit_id: eauProduitId || null,
-        eau_quantite: eauQte ? parseFloat(eauQte) : null,
-        // --- Étape 1 ---
-        client_id: clientId || null,
-        chantier_id: chantierId || null,
-        maitre_ouvrage_id: maitreOuvrageId || null,
-        maitre_oeuvre_id: maitreOeuvreId || null,
-        // --- Étape 2 ---
-        resistance_28j: resistance28j ? parseFloat(resistance28j) : null,
-        slump_souhaite: slumpSouhaite ? parseFloat(slumpSouhaite) : null,
-        classe_exposition: classeExposition || null,
-        eau_calculee: calcEau ? parseFloat(calcEau) : null,
-        ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
-        ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
-        // --- Étape 5 ---
-        coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
-        coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
-        dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
-        // --- Étape 6 ---
-        vibration_ae: vibrationAE || null,
-        forme_ae: formeAE || null,
-        kp_ae: kpAE ? parseFloat(kpAE) : null,
-        mf_ideal: mfIdeal ? parseFloat(mfIdeal) : null,
-        // --- Étape 7 ---
-        granulat_densites: Object.keys(granulatDensites).length > 0 ? granulatDensites : null,
-        granulat_module_finesse: Object.keys(granulatModuleFinesse).length > 0 ? granulatModuleFinesse : null,
-      });
+    const payload = {
+      centrale_id: centraleId,
+      nom: nom.trim(),
+      sable_concasse_producteur_id: sableConcasseProducteurId || null,
+      sable_concasse_produit_id: sableConcasseProduitId || null,
+      sable_concasse_quantite: sableConcasseQte ? parseFloat(sableConcasseQte) : null,
+      sable_fin_producteur_id: sableFinProducteurId || null,
+      sable_fin_produit_id: sableFinProduitId || null,
+      sable_fin_quantite: sableFinQte ? parseFloat(sableFinQte) : null,
+      gravillons1_producteur_id: gravillons1ProducteurId || null,
+      gravillons1_produit_id: gravillons1ProduitId || null,
+      gravillons1_quantite: gravillons1Qte ? parseFloat(gravillons1Qte) : null,
+      gravier2_producteur_id: gravier2ProducteurId || null,
+      gravier2_produit_id: gravier2ProduitId || null,
+      gravier2_quantite: gravier2Qte ? parseFloat(gravier2Qte) : null,
+      gravier3_producteur_id: gravier3ProducteurId || null,
+      gravier3_produit_id: gravier3ProduitId || null,
+      gravier3_quantite: gravier3Qte ? parseFloat(gravier3Qte) : null,
+      ciment_producteur_id: cimentProducteurId || null,
+      ciment_produit_id: cimentProduitId || null,
+      ciment_quantite: cimentQte ? parseFloat(cimentQte) : null,
+      adjuvant_producteur_id: adjuvantProducteurId || null,
+      adjuvant_produit_id: adjuvantProduitId || null,
+      adjuvant_quantite: adjuvantQte ? parseFloat(adjuvantQte) : null,
+      eau_producteur_id: eauProducteurId || null,
+      eau_produit_id: eauProduitId || null,
+      eau_quantite: eauQte ? parseFloat(eauQte) : null,
+      client_id: clientId || null,
+      chantier_id: chantierId || null,
+      maitre_ouvrage_id: maitreOuvrageId || null,
+      maitre_oeuvre_id: maitreOeuvreId || null,
+      resistance_28j: resistance28j ? parseFloat(resistance28j) : null,
+      slump_souhaite: slumpSouhaite ? parseFloat(slumpSouhaite) : null,
+      classe_exposition: classeExposition || null,
+      eau_calculee: calcEau ? parseFloat(calcEau) : null,
+      ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
+      ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
+      coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
+      coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
+      dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
+      vibration_ae: vibrationAE || null,
+      forme_ae: formeAE || null,
+      kp_ae: kpAE ? parseFloat(kpAE) : null,
+      mf_ideal: mfIdeal ? parseFloat(mfIdeal) : null,
+      granulat_densites: Object.keys(granulatDensites).length > 0 ? granulatDensites : null,
+      granulat_module_finesse: Object.keys(granulatModuleFinesse).length > 0 ? granulatModuleFinesse : null,
+    };
 
-      toast.success("Formulation créée avec succès");
+    try {
+      if (isEdit && formulationId) {
+        await updateFormulation.mutateAsync({ id: formulationId, ...payload });
+        toast.success("Formulation modifiée avec succès");
+      } else {
+        await createFormulation.mutateAsync(payload);
+        toast.success("Formulation créée avec succès");
+      }
       navigate("/essais/beton/formulation");
     } catch {
-      toast.error("Erreur lors de la création");
+      toast.error(isEdit ? "Erreur lors de la modification" : "Erreur lors de la création");
     }
   };
 
@@ -1025,13 +1092,13 @@ export default function FormulationBetonWizard() {
       <EssaiBreadcrumb items={[
         { label: "Béton", path: "/essais/beton" },
         { label: "Formulation", path: "/essais/beton/formulation" },
-        { label: "Nouvelle formulation de béton" },
+        { label: isEdit ? "Modifier l'étude" : "Nouvelle formulation de béton" },
       ]} />
 
       <div className="flex items-center gap-4">
         <BackButton to="/essais/beton/formulation" />
         <h1 className="text-3xl font-display font-bold text-foreground">
-          Nouvelle <span className="text-primary text-glow">Formulation de Béton</span>
+          {isEdit ? <>Modifier l'<span className="text-primary text-glow">étude de formulation</span></> : <>Nouvelle <span className="text-primary text-glow">Formulation de Béton</span></>}
         </h1>
       </div>
 
@@ -1421,10 +1488,12 @@ export default function FormulationBetonWizard() {
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={createFormulation.isPending}
+            disabled={createFormulation.isPending || updateFormulation.isPending}
             className="gap-2 gradient-primary text-primary-foreground"
           >
-            {createFormulation.isPending ? "Création..." : "Créer la formulation"}
+            {isEdit
+              ? (updateFormulation.isPending ? "Modification..." : "Enregistrer les modifications")
+              : (createFormulation.isPending ? "Création..." : "Créer la formulation")}
           </Button>
         )}
       </div>

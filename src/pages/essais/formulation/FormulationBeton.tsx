@@ -241,7 +241,7 @@ const FormulationBeton = () => {
                           className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/intervenant/producteurs/centrale/${f.centrale_id}/formulation/${f.id}/modifier`);
+                            navigate(`/essais/beton/formulation/${f.id}/modifier-etude`);
                           }}
                         >
                           <Pencil className="w-3.5 h-3.5" />
