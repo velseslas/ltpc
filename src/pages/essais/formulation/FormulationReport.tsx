@@ -408,13 +408,37 @@ export default function FormulationReport() {
               </h3>
             </div>
 
-            <div className="border-2 border-black rounded p-6 mx-auto my-8" style={{ maxWidth: "500px" }}>
-              <table className="w-full text-base">
+            <div className="border-2 border-black rounded p-6 mx-auto my-6" style={{ maxWidth: "560px" }}>
+              <table className="w-full text-sm">
                 <tbody>
                   <tr>
-                    <td className="font-bold py-1 text-black">Formulation :</td>
+                    <td className="font-bold py-1 text-black w-1/2">Formulation :</td>
                     <td className="py-1 text-black">{formulation.nom}</td>
                   </tr>
+                  {ctx?.client_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Client :</td>
+                      <td className="py-1 text-black">{ctx.client_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.chantier_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Chantier :</td>
+                      <td className="py-1 text-black">{ctx.chantier_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_ouvrage_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Maître d'ouvrage :</td>
+                      <td className="py-1 text-black">{ctx.maitre_ouvrage_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_oeuvre_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Maître d'œuvre :</td>
+                      <td className="py-1 text-black">{ctx.maitre_oeuvre_nom}</td>
+                    </tr>
+                  )}
                   {details?.ciment.produit_nom && (
                     <tr>
                       <td className="font-bold py-1 text-black">Type de ciment :</td>
@@ -425,6 +449,24 @@ export default function FormulationReport() {
                     <td className="font-bold py-1 text-black">Dosage ciment :</td>
                     <td className="py-1 text-black">{ciment} kg/m³</td>
                   </tr>
+                  {formulation.resistance_28j && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Résistance visée (28j) :</td>
+                      <td className="py-1 text-black">{fmt(formulation.resistance_28j, 1)} MPa</td>
+                    </tr>
+                  )}
+                  {formulation.slump_souhaite && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Affaissement souhaité :</td>
+                      <td className="py-1 text-black">{fmt(formulation.slump_souhaite, 0)} mm</td>
+                    </tr>
+                  )}
+                  {formulation.classe_exposition && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Classe d'exposition :</td>
+                      <td className="py-1 text-black">{formulation.classe_exposition}</td>
+                    </tr>
+                  )}
                   <tr>
                     <td className="font-bold py-1 text-black">Rapport E/C :</td>
                     <td className="py-1 text-black">{ec}</td>
