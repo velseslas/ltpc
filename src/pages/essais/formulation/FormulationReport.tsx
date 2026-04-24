@@ -18,6 +18,16 @@ import {
   useFormulationGranulatsEssais,
   GranulatEssais,
 } from "@/hooks/useFormulationGranulatsEssais";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 // ---------- Helpers ----------
 const fmt = (v: number | null | undefined, digits = 2) =>
@@ -51,11 +61,12 @@ function ReportPage({ children, last = false }: { children: React.ReactNode; las
       className={`report-page bg-white p-8 ${!last ? "page-break" : ""}`}
       style={{
         width: "210mm",
-        minHeight: "297mm",
+        height: "297mm",
         boxSizing: "border-box",
-        margin: "0 auto",
+        margin: "0 auto 8mm auto",
         fontFamily: "'Times New Roman', Georgia, serif",
         color: "#000",
+        overflow: "hidden",
       }}
     >
       {children}
@@ -146,6 +157,8 @@ export default function FormulationReport() {
     try {
       toast.info("Génération du PDF en cours…");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageWidthMm = 210;
+      const pageHeightMm = 297;
       const pages = reportRef.current.querySelectorAll<HTMLDivElement>(".report-page");
       for (let i = 0; i < pages.length; i++) {
         const canvas = await html2canvas(pages[i], {
@@ -153,12 +166,16 @@ export default function FormulationReport() {
           useCORS: true,
           logging: false,
           backgroundColor: "#ffffff",
+          windowWidth: pages[i].scrollWidth,
+          windowHeight: pages[i].scrollHeight,
         });
         const imgData = canvas.toDataURL("image/png");
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Conserver le ratio A4 : on dimensionne sur la largeur et on laisse la hauteur s'adapter,
+        // sans dépasser la page.
+        const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
+        const finalHeight = Math.min(imgHeightMm, pageHeightMm);
         if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, 297));
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, finalHeight);
       }
       pdf.save(`formulation-${formulation?.nom || id}.pdf`);
       toast.success("PDF téléchargé avec succès");
@@ -269,6 +286,37 @@ export default function FormulationReport() {
   // Sables only
   const sablesList = granulatsList.filter((x) => x.key.startsWith("sable"));
   const graviersList = granulatsList.filter((x) => !x.key.startsWith("sable"));
+
+  // ----- Données pour la courbe granulométrique du mélange -----
+  const getQty = (key: string) => {
+    switch (key) {
+      case "sable_concasse": return formulation.sable_concasse_quantite || 0;
+      case "sable_fin": return formulation.sable_fin_quantite || 0;
+      case "gravillons1": return formulation.gravillons1_quantite || 0;
+      case "gravier2": return formulation.gravier2_quantite || 0;
+      case "gravier3": return formulation.gravier3_quantite || 0;
+      default: return 0;
+    }
+  };
+
+  const courbeData = TAMIS_STD.slice().sort((a, b) => a - b).map((ouv) => {
+    const row: any = { ouverture: ouv, label: String(ouv) };
+    let melange = 0;
+    let totalPct = 0;
+    granulatsList.forEach((g) => {
+      const pct = totalGranulats > 0 ? (getQty(g.key) / totalGranulats) * 100 : 0;
+      const passant = getPassant(g.g?.granulometrie, ouv);
+      if (passant !== null) {
+        row[g.key] = passant;
+        melange += (passant * pct) / 100;
+        totalPct += pct;
+      }
+    });
+    row.melange = totalPct > 0 ? Number(melange.toFixed(1)) : null;
+    return row;
+  });
+
+  const colors = ["#1e5a7a", "#d97706", "#16a34a", "#dc2626", "#7c3aed"];
 
   return (
     <div className="space-y-6">
@@ -941,12 +989,81 @@ export default function FormulationReport() {
         </ReportPage>
 
         {/* ============== PAGE 9 — Courbe granulométrique du mélange ============== */}
+        <ReportPage>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="COURBE GRANULOMÉTRIQUE DU MÉLANGE"
+            subtitle={`Méthode Dreux-Gorisse — Réf : Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-3">
+            <p>
+              Représentation graphique des courbes de passants des constituants granulaires et de
+              la <strong>courbe résultante du mélange</strong> (calculée selon les proportions
+              massiques de la formulation).
+            </p>
+
+            <div style={{ width: "100%", height: "400px", background: "#fff" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={courbeData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                  <CartesianGrid stroke="#cbd5e1" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="ouverture"
+                    type="number"
+                    scale="log"
+                    domain={[0.063, 40]}
+                    ticks={[0.063, 0.125, 0.25, 0.5, 1, 2, 4, 5, 8, 10, 12.5, 16, 20, 25, 31.5, 40]}
+                    tick={{ fill: "#000", fontSize: 10 }}
+                    label={{ value: "Ouverture des tamis (mm) — échelle log", position: "insideBottom", offset: -10, fill: "#000", fontSize: 11 }}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+                    tick={{ fill: "#000", fontSize: 10 }}
+                    label={{ value: "Passants (%)", angle: -90, position: "insideLeft", fill: "#000", fontSize: 11 }}
+                  />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  {granulatsList.map((g, idx) => (
+                    <Line
+                      key={g.key}
+                      type="monotone"
+                      dataKey={g.key}
+                      name={g.g?.produit_nom || g.label}
+                      stroke={colors[idx % colors.length]}
+                      strokeWidth={1.5}
+                      dot={{ r: 2 }}
+                      connectNulls
+                    />
+                  ))}
+                  <Line
+                    type="monotone"
+                    dataKey="melange"
+                    name="Mélange (résultante)"
+                    stroke="#000"
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: "#000" }}
+                    connectNulls
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <p className="text-xs italic mt-2 text-black">
+              La courbe « Mélange » est obtenue par pondération massique des passants de chaque
+              constituant selon les proportions de la formulation.
+            </p>
+          </div>
+        </ReportPage>
+
+        {/* ============== PAGE 10 — Tableau des passants ============== */}
         <ReportPage last>
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
             title="COURBE GRANULOMÉTRIQUE DU MÉLANGE"
-            subtitle={`Réf : Rapport N° ${numeroRapport}`}
+            subtitle={`Tableau des passants — Réf : Rapport N° ${numeroRapport}`}
           />
 
           <div className="text-sm text-black space-y-4">
