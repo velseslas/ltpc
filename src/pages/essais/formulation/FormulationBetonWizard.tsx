@@ -990,6 +990,59 @@ export default function FormulationBetonWizard() {
   const { data: maitresOuvrage = [] } = useMaitresOuvrage();
   const { data: maitresOeuvre = [] } = useMaitresOeuvre();
 
+  // Auto-deduce client/chantier from centrale when missing in edit mode
+  const autoDeducedRefs = useRef({ clientChantier: false, moa: false, moe: false });
+  useEffect(() => {
+    if (!isEdit || !formulationToEdit || !centraleId) return;
+    if (autoDeducedRefs.current.clientChantier) return;
+    if (clientId && chantierId) { autoDeducedRefs.current.clientChantier = true; return; }
+    (async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase
+        .from("client_centrales")
+        .select("client_id, chantier_id")
+        .eq("centrale_id", centraleId)
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        if (!clientId && data.client_id) setClientId(data.client_id);
+        if (!chantierId && data.chantier_id) setChantierId(data.chantier_id);
+      }
+      autoDeducedRefs.current.clientChantier = true;
+    })();
+  }, [isEdit, formulationToEdit, centraleId, clientId, chantierId]);
+
+  // Auto-deduce maître d'ouvrage / maître d'œuvre from client links
+  useEffect(() => {
+    if (!isEdit || !clientId) return;
+    if (!autoDeducedRefs.current.moa && !maitreOuvrageId) {
+      (async () => {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase
+          .from("client_maitres_ouvrage")
+          .select("maitre_ouvrage_id")
+          .eq("client_id", clientId)
+          .limit(1)
+          .maybeSingle();
+        if (data?.maitre_ouvrage_id) setMaitreOuvrageId(data.maitre_ouvrage_id);
+        autoDeducedRefs.current.moa = true;
+      })();
+    }
+    if (!autoDeducedRefs.current.moe && !maitreOeuvreId) {
+      (async () => {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase
+          .from("client_maitres_oeuvre")
+          .select("maitre_oeuvre_id")
+          .eq("client_id", clientId)
+          .limit(1)
+          .maybeSingle();
+        if (data?.maitre_oeuvre_id) setMaitreOeuvreId(data.maitre_oeuvre_id);
+        autoDeducedRefs.current.moe = true;
+      })();
+    }
+  }, [isEdit, clientId, maitreOuvrageId, maitreOeuvreId]);
+
   // Resolve product names for labels
   const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
   const { data: sable2ProduitsWiz = [] } = useProduits(sableFinProducteurId, "carriere");
