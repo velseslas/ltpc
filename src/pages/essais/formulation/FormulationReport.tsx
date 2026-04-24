@@ -18,6 +18,7 @@ import {
   useFormulationGranulatsEssais,
   GranulatEssais,
 } from "@/hooks/useFormulationGranulatsEssais";
+import { useFormulationContext } from "@/hooks/useFormulationContext";
 import {
   LineChart,
   Line,
@@ -149,6 +150,13 @@ export default function FormulationReport() {
   const { data: entreprise } = useEntreprise();
   const { data: centrale } = useCentraleBeton(formulation?.centrale_id || "");
   const { data: gEssais } = useFormulationGranulatsEssais(id);
+  const { data: ctx } = useFormulationContext(
+    formulation?.client_id,
+    formulation?.chantier_id,
+    formulation?.maitre_ouvrage_id,
+    formulation?.maitre_oeuvre_id,
+    formulation?.essai_compression_id
+  );
 
   const handlePrint = () => window.print();
 
@@ -400,13 +408,37 @@ export default function FormulationReport() {
               </h3>
             </div>
 
-            <div className="border-2 border-black rounded p-6 mx-auto my-8" style={{ maxWidth: "500px" }}>
-              <table className="w-full text-base">
+            <div className="border-2 border-black rounded p-6 mx-auto my-6" style={{ maxWidth: "560px" }}>
+              <table className="w-full text-sm">
                 <tbody>
                   <tr>
-                    <td className="font-bold py-1 text-black">Formulation :</td>
+                    <td className="font-bold py-1 text-black w-1/2">Formulation :</td>
                     <td className="py-1 text-black">{formulation.nom}</td>
                   </tr>
+                  {ctx?.client_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Client :</td>
+                      <td className="py-1 text-black">{ctx.client_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.chantier_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Chantier :</td>
+                      <td className="py-1 text-black">{ctx.chantier_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_ouvrage_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Maître d'ouvrage :</td>
+                      <td className="py-1 text-black">{ctx.maitre_ouvrage_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_oeuvre_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Maître d'œuvre :</td>
+                      <td className="py-1 text-black">{ctx.maitre_oeuvre_nom}</td>
+                    </tr>
+                  )}
                   {details?.ciment.produit_nom && (
                     <tr>
                       <td className="font-bold py-1 text-black">Type de ciment :</td>
@@ -417,6 +449,24 @@ export default function FormulationReport() {
                     <td className="font-bold py-1 text-black">Dosage ciment :</td>
                     <td className="py-1 text-black">{ciment} kg/m³</td>
                   </tr>
+                  {formulation.resistance_28j && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Résistance visée (28j) :</td>
+                      <td className="py-1 text-black">{fmt(formulation.resistance_28j, 1)} MPa</td>
+                    </tr>
+                  )}
+                  {formulation.slump_souhaite && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Affaissement souhaité :</td>
+                      <td className="py-1 text-black">{fmt(formulation.slump_souhaite, 0)} mm</td>
+                    </tr>
+                  )}
+                  {formulation.classe_exposition && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Classe d'exposition :</td>
+                      <td className="py-1 text-black">{formulation.classe_exposition}</td>
+                    </tr>
+                  )}
                   <tr>
                     <td className="font-bold py-1 text-black">Rapport E/C :</td>
                     <td className="py-1 text-black">{ec}</td>
@@ -471,17 +521,67 @@ export default function FormulationReport() {
           />
 
           <div className="text-sm text-black space-y-4" style={{ lineHeight: 1.6 }}>
+            {/* Bloc identification du projet */}
+            {(ctx?.client_nom || ctx?.chantier_nom || ctx?.maitre_ouvrage_nom || ctx?.maitre_oeuvre_nom) && (
+              <table className="w-full border-collapse border border-black text-sm mb-4">
+                <tbody>
+                  {ctx?.client_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100 w-1/4">Client</td>
+                      <td className="border border-black px-2 py-1 text-black">{ctx.client_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.chantier_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Chantier</td>
+                      <td className="border border-black px-2 py-1 text-black">
+                        {ctx.chantier_nom}
+                        {ctx.chantier_ville ? ` — ${ctx.chantier_ville}` : ""}
+                        {ctx.chantier_adresse ? `, ${ctx.chantier_adresse}` : ""}
+                      </td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_ouvrage_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Maître d'ouvrage</td>
+                      <td className="border border-black px-2 py-1 text-black">{ctx.maitre_ouvrage_nom}</td>
+                    </tr>
+                  )}
+                  {ctx?.maitre_oeuvre_nom && (
+                    <tr>
+                      <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Maître d'œuvre</td>
+                      <td className="border border-black px-2 py-1 text-black">{ctx.maitre_oeuvre_nom}</td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td className="border border-black px-2 py-1 font-bold text-black bg-gray-100">Centrale à béton</td>
+                    <td className="border border-black px-2 py-1 text-black">
+                      {centrale?.nom || "—"}
+                      {centrale?.ville ? ` — ${centrale.ville}` : ""}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+
             <h3 className="text-base font-bold underline">I — INTRODUCTION</h3>
             <p>
               Le {entreprise?.nom || "Laboratoire"} a procédé à des analyses spécifiques sur des
               échantillons de granulats courants de différentes classes granulaires. Ces matériaux
               ont été prélevés en vue de leur utilisation pour la fabrication du béton hydraulique
-              destiné à la centrale&nbsp;: <strong>{centrale?.nom || "—"}</strong>.
+              {ctx?.chantier_nom ? <> destiné au chantier&nbsp;: <strong>{ctx.chantier_nom}</strong></> : <> destiné à la centrale&nbsp;: <strong>{centrale?.nom || "—"}</strong></>}
+              {ctx?.client_nom && <> — Client&nbsp;: <strong>{ctx.client_nom}</strong></>}.
             </p>
             <p>
               Le présent rapport a pour objet de déterminer les caractéristiques de ces matériaux
               et de vérifier leurs conformités aux spécifications des normes en vigueur, et de
-              formuler le mélange selon la méthode <strong>Dreux-Gorisse</strong>.
+              formuler le mélange selon la méthode <strong>Dreux-Gorisse</strong>
+              {formulation.resistance_28j && (
+                <> pour atteindre une résistance caractéristique à 28 jours de <strong>{fmt(formulation.resistance_28j, 1)} MPa</strong></>
+              )}
+              {formulation.classe_exposition && (
+                <> en classe d'exposition <strong>{formulation.classe_exposition}</strong></>
+              )}.
             </p>
 
             <h3 className="text-base font-bold underline mt-6">PROVENANCE DES MATÉRIAUX</h3>
@@ -770,7 +870,50 @@ export default function FormulationReport() {
           />
 
           <div className="text-sm text-black space-y-4">
-            <p className="font-bold">Tableau : Proportions des différents constituants</p>
+            {/* Paramètres saisis dans le wizard (étapes 2, 5, 6) */}
+            <p className="font-bold">III.0 Paramètres de formulation</p>
+            <table className="w-full border-collapse border border-black text-sm">
+              <tbody>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Résistance visée à 28j</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.resistance_28j ? `${fmt(formulation.resistance_28j, 1)} MPa` : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Affaissement souhaité</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.slump_souhaite ? `${fmt(formulation.slump_souhaite, 0)} mm` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Classe d'exposition</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.classe_exposition || "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dmax granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.dmax_utilisateur ? `${fmt(formulation.dmax_utilisateur, 1)} mm` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Coef. granulaire (G)</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.coefficient_granulaire, 2)}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Coef. compacité (γ)</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.coefficient_compacite, 3)}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Type de vibration</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.vibration_ae || "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Forme des granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.forme_ae || "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Coefficient Kp</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.kp_ae, 2)}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Module de finesse idéal</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmt(formulation.mf_ideal, 2)}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Eau calculée (E)</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.eau_calculee ? `${fmt(formulation.eau_calculee, 1)} l/m³` : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Ciment calculé (C)</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.ciment_calcule ? `${fmt(formulation.ciment_calcule, 1)} kg/m³` : "—"}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p className="font-bold mt-4">III.1 Proportions des différents constituants</p>
             <table className="w-full border-collapse border border-black text-sm">
               <thead>
                 <tr className="bg-gray-100">
@@ -859,7 +1002,7 @@ export default function FormulationReport() {
                   <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(eau)}</td>
                   <td className="border border-black px-2 py-1 text-center font-bold text-black">{ec}</td>
                   <td className="border border-black px-2 py-1 text-center font-bold text-black">{gs}</td>
-                  <td className="border border-black px-2 py-1 text-center text-black">Vibration (aiguille vibrante)</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">{formulation.vibration_ae || "Vibration"}</td>
                 </tr>
               </tbody>
             </table>
@@ -868,6 +1011,24 @@ export default function FormulationReport() {
               III.3 Résistance à la compression : les éprouvettes destinées à cet essai sont
               testées à 7 et 28 jours, conservées après démoulage en chambre humide à 20 °C ± 2.
             </p>
+
+            {ctx?.essai_compression && (
+              <div className="mt-4 border border-black p-3 bg-gray-50">
+                <p className="font-bold text-black">III.4 Essai de convenance associé</p>
+                <p className="text-sm text-black mt-1">
+                  Numéro essai : <strong>EC-{ctx.essai_compression.numero}</strong>
+                  {ctx.essai_compression.classe_resistance && (
+                    <> — Classe : <strong>{ctx.essai_compression.classe_resistance}</strong></>
+                  )}
+                  {ctx.essai_compression.ouvrage && (
+                    <> — Ouvrage : <strong>{ctx.essai_compression.ouvrage}</strong></>
+                  )}
+                  {ctx.essai_compression.date_coulage && (
+                    <> — Coulé le : <strong>{format(new Date(ctx.essai_compression.date_coulage), "dd/MM/yyyy", { locale: fr })}</strong></>
+                  )}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-12 grid grid-cols-2 gap-8 text-black text-sm">

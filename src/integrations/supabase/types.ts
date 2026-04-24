@@ -4734,13 +4734,25 @@ export type Database = {
           adjuvant_produit_id: string | null
           adjuvant_quantite: number | null
           centrale_id: string
+          chantier_id: string | null
+          ciment_calcule: number | null
           ciment_producteur_id: string | null
           ciment_produit_id: string | null
           ciment_quantite: number | null
+          classe_exposition: string | null
+          client_id: string | null
+          coefficient_compacite: number | null
+          coefficient_granulaire: number | null
           created_at: string
+          dmax_utilisateur: number | null
+          eau_calculee: number | null
           eau_producteur_id: string | null
           eau_produit_id: string | null
           eau_quantite: number | null
+          essai_compression_id: string | null
+          forme_ae: string | null
+          granulat_densites: Json | null
+          granulat_module_finesse: Json | null
           gravier2_producteur_id: string | null
           gravier2_produit_id: string | null
           gravier2_quantite: number | null
@@ -4751,27 +4763,47 @@ export type Database = {
           gravillons1_produit_id: string | null
           gravillons1_quantite: number | null
           id: string
+          kp_ae: number | null
+          maitre_oeuvre_id: string | null
+          maitre_ouvrage_id: string | null
+          mf_ideal: number | null
           nom: string
+          ratio_gs: number | null
+          resistance_28j: number | null
           sable_concasse_producteur_id: string | null
           sable_concasse_produit_id: string | null
           sable_concasse_quantite: number | null
           sable_fin_producteur_id: string | null
           sable_fin_produit_id: string | null
           sable_fin_quantite: number | null
+          slump_souhaite: number | null
           updated_at: string
+          vibration_ae: string | null
         }
         Insert: {
           adjuvant_producteur_id?: string | null
           adjuvant_produit_id?: string | null
           adjuvant_quantite?: number | null
           centrale_id: string
+          chantier_id?: string | null
+          ciment_calcule?: number | null
           ciment_producteur_id?: string | null
           ciment_produit_id?: string | null
           ciment_quantite?: number | null
+          classe_exposition?: string | null
+          client_id?: string | null
+          coefficient_compacite?: number | null
+          coefficient_granulaire?: number | null
           created_at?: string
+          dmax_utilisateur?: number | null
+          eau_calculee?: number | null
           eau_producteur_id?: string | null
           eau_produit_id?: string | null
           eau_quantite?: number | null
+          essai_compression_id?: string | null
+          forme_ae?: string | null
+          granulat_densites?: Json | null
+          granulat_module_finesse?: Json | null
           gravier2_producteur_id?: string | null
           gravier2_produit_id?: string | null
           gravier2_quantite?: number | null
@@ -4782,27 +4814,47 @@ export type Database = {
           gravillons1_produit_id?: string | null
           gravillons1_quantite?: number | null
           id?: string
+          kp_ae?: number | null
+          maitre_oeuvre_id?: string | null
+          maitre_ouvrage_id?: string | null
+          mf_ideal?: number | null
           nom: string
+          ratio_gs?: number | null
+          resistance_28j?: number | null
           sable_concasse_producteur_id?: string | null
           sable_concasse_produit_id?: string | null
           sable_concasse_quantite?: number | null
           sable_fin_producteur_id?: string | null
           sable_fin_produit_id?: string | null
           sable_fin_quantite?: number | null
+          slump_souhaite?: number | null
           updated_at?: string
+          vibration_ae?: string | null
         }
         Update: {
           adjuvant_producteur_id?: string | null
           adjuvant_produit_id?: string | null
           adjuvant_quantite?: number | null
           centrale_id?: string
+          chantier_id?: string | null
+          ciment_calcule?: number | null
           ciment_producteur_id?: string | null
           ciment_produit_id?: string | null
           ciment_quantite?: number | null
+          classe_exposition?: string | null
+          client_id?: string | null
+          coefficient_compacite?: number | null
+          coefficient_granulaire?: number | null
           created_at?: string
+          dmax_utilisateur?: number | null
+          eau_calculee?: number | null
           eau_producteur_id?: string | null
           eau_produit_id?: string | null
           eau_quantite?: number | null
+          essai_compression_id?: string | null
+          forme_ae?: string | null
+          granulat_densites?: Json | null
+          granulat_module_finesse?: Json | null
           gravier2_producteur_id?: string | null
           gravier2_produit_id?: string | null
           gravier2_quantite?: number | null
@@ -4813,14 +4865,22 @@ export type Database = {
           gravillons1_produit_id?: string | null
           gravillons1_quantite?: number | null
           id?: string
+          kp_ae?: number | null
+          maitre_oeuvre_id?: string | null
+          maitre_ouvrage_id?: string | null
+          mf_ideal?: number | null
           nom?: string
+          ratio_gs?: number | null
+          resistance_28j?: number | null
           sable_concasse_producteur_id?: string | null
           sable_concasse_produit_id?: string | null
           sable_concasse_quantite?: number | null
           sable_fin_producteur_id?: string | null
           sable_fin_produit_id?: string | null
           sable_fin_quantite?: number | null
+          slump_souhaite?: number | null
           updated_at?: string
+          vibration_ae?: string | null
         }
         Relationships: [
           {
@@ -4828,6 +4888,41 @@ export type Database = {
             columns: ["centrale_id"]
             isOneToOne: false
             referencedRelation: "centrales_beton"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulations_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulations_essai_compression_id_fkey"
+            columns: ["essai_compression_id"]
+            isOneToOne: false
+            referencedRelation: "echantillons_compression"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulations_maitre_oeuvre_id_fkey"
+            columns: ["maitre_oeuvre_id"]
+            isOneToOne: false
+            referencedRelation: "maitres_oeuvre"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulations_maitre_ouvrage_id_fkey"
+            columns: ["maitre_ouvrage_id"]
+            isOneToOne: false
+            referencedRelation: "maitres_ouvrage"
             referencedColumns: ["id"]
           },
         ]
