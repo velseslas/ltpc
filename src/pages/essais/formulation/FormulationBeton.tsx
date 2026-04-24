@@ -229,11 +229,23 @@ const FormulationBeton = () => {
                       )}
                     </div>
 
-                    {/* Date */}
-                    <div className="mt-3 pt-3 border-t border-border/50">
+                    {/* Date + Action */}
+                    <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
                       <p className="text-[11px] text-muted-foreground">
                         Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
                       </p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/essais/beton/formulation/${f.id}/rapport`);
+                        }}
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        Rapport
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
