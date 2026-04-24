@@ -61,11 +61,12 @@ function ReportPage({ children, last = false }: { children: React.ReactNode; las
       className={`report-page bg-white p-8 ${!last ? "page-break" : ""}`}
       style={{
         width: "210mm",
-        minHeight: "297mm",
+        height: "297mm",
         boxSizing: "border-box",
-        margin: "0 auto",
+        margin: "0 auto 8mm auto",
         fontFamily: "'Times New Roman', Georgia, serif",
         color: "#000",
+        overflow: "hidden",
       }}
     >
       {children}
