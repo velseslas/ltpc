@@ -929,6 +929,13 @@ export default function FormulationBetonWizard() {
     setResistance28j(f.resistance_28j != null ? String(f.resistance_28j) : "");
     setSlumpSouhaite(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
     setClasseExposition(f.classe_exposition || "");
+    setAffaissementCible(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
+    setResistanceCible(f.resistance_28j != null ? String(f.resistance_28j) : "");
+
+    setCalcEau(f.eau_calculee != null ? String(f.eau_calculee) : (f.eau_quantite != null ? String(f.eau_quantite) : ""));
+    setCalcCiment(f.ciment_calcule != null ? String(f.ciment_calcule) : (f.ciment_quantite != null ? String(f.ciment_quantite) : ""));
+    setCalcRatioGS(f.ratio_gs != null ? String(f.ratio_gs) : "");
+    
 
     setCoefficientGranulaire(f.coefficient_granulaire != null ? String(f.coefficient_granulaire) : "");
     setCoefficientCompacite(f.coefficient_compacite != null ? String(f.coefficient_compacite) : "");
