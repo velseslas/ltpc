@@ -301,7 +301,16 @@ export default function FormulationReport() {
     { key: "gravillons1", label: "Gravillon", g: gEssais?.gravillons1 },
     { key: "gravier2", label: "Gravier", g: gEssais?.gravier2 },
     { key: "gravier3", label: "Gravier", g: gEssais?.gravier3 },
-  ].filter((x) => x.g && (x.g.granulometrie || x.g.es_moyen !== null || x.g.valeur_mb !== null));
+  ].filter(
+    (x) =>
+      x.g &&
+      (x.g.granulometrie ||
+        x.g.es_moyen !== null ||
+        x.g.valeur_mb !== null ||
+        x.g.densite_absolue !== null ||
+        x.g.densite_apparente !== null ||
+        x.g.coefficient_la !== null)
+  );
 
   // Sables only
   const sablesList = granulatsList.filter((x) => x.key.startsWith("sable"));
