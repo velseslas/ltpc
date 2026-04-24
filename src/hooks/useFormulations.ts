@@ -29,6 +29,32 @@ export interface Formulation {
   eau_producteur_id: string | null;
   eau_produit_id: string | null;
   eau_quantite: number | null;
+  // --- Étape 1 ---
+  client_id?: string | null;
+  chantier_id?: string | null;
+  maitre_ouvrage_id?: string | null;
+  maitre_oeuvre_id?: string | null;
+  // --- Étape 2 ---
+  resistance_28j?: number | null;
+  slump_souhaite?: number | null;
+  classe_exposition?: string | null;
+  eau_calculee?: number | null;
+  ciment_calcule?: number | null;
+  ratio_gs?: number | null;
+  // --- Étape 4 ---
+  essai_compression_id?: string | null;
+  // --- Étape 5 ---
+  coefficient_granulaire?: number | null;
+  coefficient_compacite?: number | null;
+  dmax_utilisateur?: number | null;
+  // --- Étape 6 ---
+  vibration_ae?: string | null;
+  forme_ae?: string | null;
+  kp_ae?: number | null;
+  mf_ideal?: number | null;
+  // --- Étape 7 ---
+  granulat_densites?: any | null;
+  granulat_module_finesse?: any | null;
   created_at: string;
   updated_at: string;
 }
