@@ -653,6 +653,7 @@ export default function FormulationReport() {
             <p className="text-xs italic mt-4 text-black">
               * La production de ce rapport d'essais n'est autorisée que sous sa forme intégrale.
             </p>
+            </div>
           </div>
         </ReportPage>
 
