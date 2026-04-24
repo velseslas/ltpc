@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Printer, Download, Loader2, FlaskConical } from "lucide-react";
+import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -14,13 +14,118 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulation } from "@/hooks/useFormulations";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
 import { useCentraleBeton } from "@/hooks/useCentralesBeton";
+import {
+  useFormulationGranulatsEssais,
+  GranulatEssais,
+} from "@/hooks/useFormulationGranulatsEssais";
 
-interface IngredientRow {
+// ---------- Helpers ----------
+const fmt = (v: number | null | undefined, digits = 2) =>
+  v === null || v === undefined || Number.isNaN(v) ? "—" : Number(v).toFixed(digits);
+
+const fmtInt = (v: number | null | undefined) =>
+  v === null || v === undefined || Number.isNaN(v) ? "—" : Math.round(Number(v)).toString();
+
+// Standard tamis used in the model
+const TAMIS_STD = [40, 31.5, 25, 20, 16, 12.5, 10, 8, 6.3, 5, 4, 2, 1, 0.5, 0.25, 0.125, 0.063];
+
+function getPassant(granulo: any, ouverture: number): number | null {
+  if (!granulo?.tamis) return null;
+  const t = granulo.tamis.find((x: any) => Number(x.ouverture) === ouverture);
+  return t?.passant ?? null;
+}
+
+// MF category
+function mfCategory(mf: number | null): string {
+  if (mf === null || mf === undefined) return "—";
+  if (mf >= 2.4 && mf <= 4) return "CF (Sable grossier)";
+  if (mf >= 1.5 && mf < 2.8) return "MF (Sable moyen)";
+  if (mf >= 0.6 && mf < 2.1) return "FF (Sable fin)";
+  return "Hors catégorie";
+}
+
+// ---------- Page wrapper ----------
+function ReportPage({ children, last = false }: { children: React.ReactNode; last?: boolean }) {
+  return (
+    <div
+      className={`report-page bg-white p-8 ${!last ? "page-break" : ""}`}
+      style={{
+        width: "210mm",
+        minHeight: "297mm",
+        boxSizing: "border-box",
+        margin: "0 auto",
+        fontFamily: "'Times New Roman', Georgia, serif",
+        color: "#000",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface GranuloRowProps {
   label: string;
-  unite: string;
-  quantite: number | null | undefined;
-  produit?: string | null;
-  producteur?: string | null;
+  granulat: GranulatEssais | null;
+  numero?: number;
+}
+
+function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
+  const tamis = granulat?.granulometrie?.tamis || [];
+  if (!tamis.length) return null;
+
+  return (
+    <div className="mb-4">
+      <p className="text-sm font-bold mb-1 text-black">
+        {numero ? `Tableau ${numero}: ` : ""}Analyse granulométrique de {label}
+        {granulat?.produit_nom ? ` : ${granulat.produit_nom}` : ""}
+        {granulat?.carriere_nom ? ` (${granulat.carriere_nom})` : ""}
+      </p>
+      <table className="w-full border-collapse border border-black text-xs">
+        <thead>
+          <tr className="bg-gray-100">
+            <th rowSpan={2} className="border border-black px-1 py-1 text-black">
+              Ouverture<br />tamis (mm)
+            </th>
+            <th colSpan={2} className="border border-black px-1 py-1 text-black">
+              Poids [gr]
+            </th>
+            <th colSpan={2} className="border border-black px-1 py-1 text-black">
+              Poids [%]
+            </th>
+          </tr>
+          <tr className="bg-gray-100">
+            <th className="border border-black px-1 py-1 text-black">Refus partiels</th>
+            <th className="border border-black px-1 py-1 text-black">Refus Cumulés</th>
+            <th className="border border-black px-1 py-1 text-black">% Refus Cum.</th>
+            <th className="border border-black px-1 py-1 text-black">% Passants</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tamis
+            .filter((t: any) => Number(t.refus) > 0 || Number(t.refusCumule) > 0 || Number(t.passant) < 100)
+            .map((t: any, i: number) => (
+              <tr key={i}>
+                <td className="border border-black px-1 py-0.5 text-center text-black">{t.ouverture}</td>
+                <td className="border border-black px-1 py-0.5 text-center text-black">{fmt(t.refus, 1)}</td>
+                <td className="border border-black px-1 py-0.5 text-center text-black">{fmt(t.refusCumule, 1)}</td>
+                <td className="border border-black px-1 py-0.5 text-center text-black">{fmt(t.pourcentageRefusCumule, 1)}</td>
+                <td className="border border-black px-1 py-0.5 text-center font-medium text-black">{fmt(t.passant, 1)}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+      {granulat?.granulometrie?.module_finesse !== null &&
+        granulat?.granulometrie?.module_finesse !== undefined && (
+          <p className="text-xs mt-1 text-black">
+            <span className="font-medium">Module de finesse :</span>{" "}
+            {fmt(granulat.granulometrie.module_finesse, 2)}
+            {" — "}
+            <span className="font-medium">Teneur en fines (f) :</span>{" "}
+            {fmt(granulat.granulometrie.teneur_fines_f, 2)} %
+          </p>
+        )}
+    </div>
+  );
 }
 
 export default function FormulationReport() {
@@ -32,28 +137,33 @@ export default function FormulationReport() {
   const { data: details } = useFormulationDetails(id);
   const { data: entreprise } = useEntreprise();
   const { data: centrale } = useCentraleBeton(formulation?.centrale_id || "");
+  const { data: gEssais } = useFormulationGranulatsEssais(id);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
-      const imgData = canvas.toDataURL("image/png");
+      toast.info("Génération du PDF en cours…");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      const pages = reportRef.current.querySelectorAll<HTMLDivElement>(".report-page");
+      for (let i = 0; i < pages.length; i++) {
+        const canvas = await html2canvas(pages[i], {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#ffffff",
+        });
+        const imgData = canvas.toDataURL("image/png");
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, 297));
+      }
       pdf.save(`formulation-${formulation?.nom || id}.pdf`);
       toast.success("PDF téléchargé avec succès");
-    } catch (error) {
+    } catch (e) {
+      console.error(e);
       toast.error("Erreur lors de la génération du PDF");
     }
   };
@@ -70,32 +180,20 @@ export default function FormulationReport() {
     return <div className="text-center py-8 text-muted-foreground">Formulation non trouvée</div>;
   }
 
-  // Build ingredient rows
-  const granulats: IngredientRow[] = [
-    { label: "Sable concassé", unite: "kg", quantite: details?.sable_concasse.quantite, produit: details?.sable_concasse.produit_nom, producteur: details?.sable_concasse.producteur_nom },
-    { label: "Sable fin", unite: "kg", quantite: details?.sable_fin.quantite, produit: details?.sable_fin.produit_nom, producteur: details?.sable_fin.producteur_nom },
-    { label: "Gravillons 1", unite: "kg", quantite: details?.gravillons1.quantite, produit: details?.gravillons1.produit_nom, producteur: details?.gravillons1.producteur_nom },
-    { label: "Gravier 2", unite: "kg", quantite: details?.gravier2.quantite, produit: details?.gravier2.produit_nom, producteur: details?.gravier2.producteur_nom },
-    { label: "Gravier 3", unite: "kg", quantite: details?.gravier3.quantite, produit: details?.gravier3.produit_nom, producteur: details?.gravier3.producteur_nom },
-  ].filter(r => r.quantite && r.quantite > 0);
-
-  const liants: IngredientRow[] = [
-    { label: "Ciment", unite: "kg", quantite: details?.ciment.quantite, produit: details?.ciment.produit_nom, producteur: details?.ciment.producteur_nom },
-    { label: "Adjuvant", unite: "kg", quantite: details?.adjuvant.quantite, produit: details?.adjuvant.produit_nom, producteur: details?.adjuvant.producteur_nom },
-    { label: "Eau", unite: "L", quantite: details?.eau.quantite, produit: details?.eau.produit_nom, producteur: details?.eau.producteur_nom },
-  ].filter(r => r.quantite && r.quantite > 0);
-
-  // Calculations
+  // ---------- Calculations ----------
   const sables = (formulation.sable_concasse_quantite || 0) + (formulation.sable_fin_quantite || 0);
-  const graviers = (formulation.gravillons1_quantite || 0) + (formulation.gravier2_quantite || 0) + (formulation.gravier3_quantite || 0);
+  const graviers =
+    (formulation.gravillons1_quantite || 0) +
+    (formulation.gravier2_quantite || 0) +
+    (formulation.gravier3_quantite || 0);
   const eau = formulation.eau_quantite || 0;
   const ciment = formulation.ciment_quantite || 0;
-  const total =
-    sables + graviers + ciment + (formulation.adjuvant_quantite || 0) + eau;
+  const adjuvant = formulation.adjuvant_quantite || 0;
+  const totalGranulats = sables + graviers;
+  const total = totalGranulats + ciment + adjuvant + eau;
 
-  const gs = sables > 0 ? (graviers / sables).toFixed(2) : "-";
-  const ec = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
-  const dosageCiment = ciment > 0 ? `${ciment} kg/m³` : "-";
+  const gs = sables > 0 ? (graviers / sables).toFixed(2) : "—";
+  const ec = ciment > 0 ? (eau / ciment).toFixed(2) : "—";
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Béton", path: "/essais/beton" },
@@ -105,6 +203,72 @@ export default function FormulationReport() {
   ];
 
   const verificationUrl = `${window.location.origin}/essais/beton/formulation/${id}/rapport`;
+  const dateRapport = format(new Date(formulation.updated_at), "dd MMMM yyyy", { locale: fr });
+  const numeroRapport = `F-${formulation.nom}/${new Date(formulation.created_at).getFullYear()}`;
+
+  // Build composition rows (granulats + binders) with densities
+  type CompoRow = {
+    code: string;
+    label: string;
+    quantite: number;
+    densite: number | null;
+    isLiquid?: boolean;
+  };
+
+  const compoRows: CompoRow[] = [];
+  const pushIf = (qty: number | null | undefined, code: string, label: string, dens: number | null) => {
+    if (qty && qty > 0) compoRows.push({ code, label, quantite: qty, densite: dens });
+  };
+  pushIf(
+    formulation.gravier3_quantite,
+    "GIII",
+    `${gEssais?.gravier3?.produit_nom || "Gravier 3"}${gEssais?.gravier3?.carriere_nom ? ` ${gEssais.gravier3.carriere_nom}` : ""}`,
+    gEssais?.gravier3?.densite_absolue ?? null
+  );
+  pushIf(
+    formulation.gravier2_quantite,
+    "GII",
+    `${gEssais?.gravier2?.produit_nom || "Gravier 2"}${gEssais?.gravier2?.carriere_nom ? ` ${gEssais.gravier2.carriere_nom}` : ""}`,
+    gEssais?.gravier2?.densite_absolue ?? null
+  );
+  pushIf(
+    formulation.gravillons1_quantite,
+    "GI",
+    `${gEssais?.gravillons1?.produit_nom || "Gravillons 1"}${gEssais?.gravillons1?.carriere_nom ? ` ${gEssais.gravillons1.carriere_nom}` : ""}`,
+    gEssais?.gravillons1?.densite_absolue ?? null
+  );
+  pushIf(
+    formulation.sable_concasse_quantite,
+    "SI",
+    `${gEssais?.sable_concasse?.produit_nom || "Sable concassé"}${gEssais?.sable_concasse?.carriere_nom ? ` ${gEssais.sable_concasse.carriere_nom}` : ""}`,
+    gEssais?.sable_concasse?.densite_absolue ?? null
+  );
+  pushIf(
+    formulation.sable_fin_quantite,
+    "SII",
+    `${gEssais?.sable_fin?.produit_nom || "Sable fin"}${gEssais?.sable_fin?.carriere_nom ? ` ${gEssais.sable_fin.carriere_nom}` : ""}`,
+    gEssais?.sable_fin?.densite_absolue ?? null
+  );
+
+  const cimentNom = details?.ciment.produit_nom
+    ? `${details.ciment.produit_nom}${details.ciment.producteur_nom ? ` — ${details.ciment.producteur_nom}` : ""}`
+    : "Ciment";
+  const adjuvantNom = details?.adjuvant.produit_nom
+    ? `${details.adjuvant.produit_nom}${details.adjuvant.producteur_nom ? ` — ${details.adjuvant.producteur_nom}` : ""}`
+    : "Adjuvant";
+
+  // Granulats array for granulométrie + tableaux
+  const granulatsList = [
+    { key: "sable_concasse", label: "Sable", g: gEssais?.sable_concasse },
+    { key: "sable_fin", label: "Sable fin", g: gEssais?.sable_fin },
+    { key: "gravillons1", label: "Gravillon", g: gEssais?.gravillons1 },
+    { key: "gravier2", label: "Gravier", g: gEssais?.gravier2 },
+    { key: "gravier3", label: "Gravier", g: gEssais?.gravier3 },
+  ].filter((x) => x.g && (x.g.granulometrie || x.g.es_moyen !== null || x.g.valeur_mb !== null));
+
+  // Sables only
+  const sablesList = granulatsList.filter((x) => x.key.startsWith("sable"));
+  const graviersList = granulatsList.filter((x) => !x.key.startsWith("sable"));
 
   return (
     <div className="space-y-6">
@@ -124,7 +288,7 @@ export default function FormulationReport() {
             <h1 className="text-3xl font-display font-bold text-foreground">
               Rapport - <span className="text-primary">{formulation.nom}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">Formulation de béton</p>
+            <p className="text-muted-foreground mt-1">Étude de composition de béton</p>
           </div>
         </div>
 
@@ -144,188 +308,733 @@ export default function FormulationReport() {
       <div
         ref={reportRef}
         data-ref="report"
-        className="report-table bg-white p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-0"
+        className="report-table mx-auto print:p-0"
+        style={{ width: "210mm" }}
       >
-        <ReportHeader
-          entreprise={entreprise}
-          verificationUrl={verificationUrl}
-          title="Fiche de formulation de béton"
-          subtitle="Méthode Dreux-Gorisse"
-        />
-
-        {/* Identification */}
-        <div className="mb-6 mt-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Identification</h3>
-          <table className="w-full border-collapse border border-black text-sm">
-            <tbody>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">Nom de la formulation</td>
-                <td className="border border-black px-3 py-1.5 text-black">{formulation.nom}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Centrale à béton</td>
-                <td className="border border-black px-3 py-1.5 text-black">{centrale?.nom || "-"}</td>
-              </tr>
-              {centrale?.ville && (
-                <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Localisation</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{centrale.ville}</td>
-                </tr>
+        {/* ============== PAGE 1 — Page de garde ============== */}
+        <ReportPage>
+          <div className="flex flex-col h-full" style={{ minHeight: "265mm" }}>
+            {/* Header company */}
+            <div className="text-center mb-8">
+              {entreprise?.logo_url && (
+                <img
+                  src={entreprise.logo_url}
+                  alt="Logo"
+                  className="mx-auto mb-4"
+                  style={{ maxHeight: "120px", objectFit: "contain" }}
+                  crossOrigin="anonymous"
+                />
               )}
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de création</td>
-                <td className="border border-black px-3 py-1.5 text-black">
-                  {format(new Date(formulation.created_at), "dd/MM/yyyy", { locale: fr })}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Dernière mise à jour</td>
-                <td className="border border-black px-3 py-1.5 text-black">
-                  {format(new Date(formulation.updated_at), "dd/MM/yyyy", { locale: fr })}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              <h1 className="text-2xl font-bold text-[#1e5a7a]">
+                {entreprise?.nom || "Laboratoire"}
+              </h1>
+              <p className="text-sm mt-1 text-black">
+                Autorisation N° {entreprise?.numero_autorisation || "—"}
+                {entreprise?.date_autorisation && (
+                  <> du {format(new Date(entreprise.date_autorisation), "dd/MM/yyyy", { locale: fr })}</>
+                )}
+              </p>
+            </div>
 
-        {/* Caractéristiques principales */}
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Caractéristiques principales</h3>
-          <table className="w-full border-collapse border border-black text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Rapport G/S</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Rapport E/C</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Dosage en ciment</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Masse totale</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-black px-3 py-2 text-center font-bold text-black">{gs}</td>
-                <td className="border border-black px-3 py-2 text-center font-bold text-black">{ec}</td>
-                <td className="border border-black px-3 py-2 text-center font-bold text-black">{dosageCiment}</td>
-                <td className="border border-black px-3 py-2 text-center font-bold text-black">{total.toFixed(1)} kg</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            <div className="text-right text-sm mb-12 text-black">
+              <p>
+                <span className="font-bold">Dossier N° :</span>{" "}
+                {format(new Date(formulation.created_at), "MM/yy", { locale: fr })}
+              </p>
+            </div>
 
-        {/* Granulats */}
-        {granulats.length > 0 && (
-          <div className="mb-6">
-            <h3 className="font-bold text-sm mb-2 underline text-black">Granulats</h3>
+            <div className="text-center my-12">
+              <h2 className="text-3xl font-bold text-black mb-4 underline">
+                ÉTUDE DE COMPOSITION DE BÉTON
+              </h2>
+              <h3 className="text-2xl font-bold text-[#1e5a7a]">
+                RAPPORT N° {numeroRapport}
+              </h3>
+            </div>
+
+            <div className="border-2 border-black rounded p-6 mx-auto my-8" style={{ maxWidth: "500px" }}>
+              <table className="w-full text-base">
+                <tbody>
+                  <tr>
+                    <td className="font-bold py-1 text-black">Formulation :</td>
+                    <td className="py-1 text-black">{formulation.nom}</td>
+                  </tr>
+                  {details?.ciment.produit_nom && (
+                    <tr>
+                      <td className="font-bold py-1 text-black">Type de ciment :</td>
+                      <td className="py-1 text-black">{cimentNom}</td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td className="font-bold py-1 text-black">Dosage ciment :</td>
+                    <td className="py-1 text-black">{ciment} kg/m³</td>
+                  </tr>
+                  <tr>
+                    <td className="font-bold py-1 text-black">Rapport E/C :</td>
+                    <td className="py-1 text-black">{ec}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-bold py-1 text-black">Rapport G/S :</td>
+                    <td className="py-1 text-black">{gs}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-auto text-sm text-black">
+              <p className="mb-1">
+                <span className="font-bold">Centrale à béton :</span>{" "}
+                {centrale?.nom || "—"}
+                {centrale?.ville ? ` — ${centrale.ville}` : ""}
+              </p>
+              {entreprise?.siege_social && (
+                <p className="mb-1">
+                  <span className="font-bold">Siège Social :</span> {entreprise.siege_social}
+                </p>
+              )}
+              {entreprise?.annexe && (
+                <p className="mb-1">
+                  <span className="font-bold">Laboratoire :</span> {entreprise.annexe}
+                </p>
+              )}
+              {entreprise?.telephone && (
+                <p className="mb-1">
+                  <span className="font-bold">Tél :</span> {entreprise.telephone}
+                  {entreprise?.email && (
+                    <>
+                      {" — "}
+                      <span className="font-bold">E-mail :</span> {entreprise.email}
+                    </>
+                  )}
+                </p>
+              )}
+              <p className="text-center font-bold mt-6 text-base">{dateRapport.toUpperCase()}</p>
+            </div>
+          </div>
+        </ReportPage>
+
+        {/* ============== PAGE 2 — Introduction ============== */}
+        <ReportPage>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="ÉTUDE DE COMPOSITION DE BÉTON"
+            subtitle={`Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-4" style={{ lineHeight: 1.6 }}>
+            <h3 className="text-base font-bold underline">I — INTRODUCTION</h3>
+            <p>
+              Le {entreprise?.nom || "Laboratoire"} a procédé à des analyses spécifiques sur des
+              échantillons de granulats courants de différentes classes granulaires. Ces matériaux
+              ont été prélevés en vue de leur utilisation pour la fabrication du béton hydraulique
+              destiné à la centrale&nbsp;: <strong>{centrale?.nom || "—"}</strong>.
+            </p>
+            <p>
+              Le présent rapport a pour objet de déterminer les caractéristiques de ces matériaux
+              et de vérifier leurs conformités aux spécifications des normes en vigueur, et de
+              formuler le mélange selon la méthode <strong>Dreux-Gorisse</strong>.
+            </p>
+
+            <h3 className="text-base font-bold underline mt-6">PROVENANCE DES MATÉRIAUX</h3>
             <table className="w-full border-collapse border border-black text-sm">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Constituant</th>
-                  <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Producteur</th>
-                  <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Produit</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Quantité</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">% du total</th>
+                  <th className="border border-black px-2 py-1 text-left text-black">Code</th>
+                  <th className="border border-black px-2 py-1 text-left text-black">Constituant</th>
+                  <th className="border border-black px-2 py-1 text-left text-black">Producteur / Carrière</th>
                 </tr>
               </thead>
               <tbody>
-                {granulats.map((row) => (
-                  <tr key={row.label}>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">{row.label}</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{row.producteur || "-"}</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{row.produit || "-"}</td>
-                    <td className="border border-black px-3 py-1.5 text-center text-black">{row.quantite} {row.unite}</td>
-                    <td className="border border-black px-3 py-1.5 text-center text-black">
-                      {total > 0 ? `${(((row.quantite || 0) / total) * 100).toFixed(1)}%` : "-"}
-                    </td>
+                {compoRows.map((r) => (
+                  <tr key={r.code}>
+                    <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.label}</td>
+                    <td className="border border-black px-2 py-1 text-black">—</td>
                   </tr>
                 ))}
-                <tr className="bg-gray-100 font-bold">
-                  <td className="border border-black px-3 py-1.5 text-black" colSpan={3}>Sous-total granulats</td>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{(sables + graviers).toFixed(1)} kg</td>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">
-                    {total > 0 ? `${(((sables + graviers) / total) * 100).toFixed(1)}%` : "-"}
+                {ciment > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 font-bold text-black">C</td>
+                    <td className="border border-black px-2 py-1 text-black">Ciment</td>
+                    <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                  </tr>
+                )}
+                {adjuvant > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
+                    <td className="border border-black px-2 py-1 text-black">Adjuvant</td>
+                    <td className="border border-black px-2 py-1 text-black">{adjuvantNom}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            <h3 className="text-base font-bold underline mt-6">ESSAIS RÉALISÉS SUR GRANULATS ET BÉTON</h3>
+            <table className="w-full border-collapse border border-black text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-black px-2 py-1 text-left text-black">Essais</th>
+                  <th className="border border-black px-2 py-1 text-left text-black">Norme de référence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td className="border border-black px-2 py-1 text-black">Analyse granulométrique, teneur en fines</td><td className="border border-black px-2 py-1 text-black">NF EN 933-1</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique apparente et absolue</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-3 / 1097-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Équivalent de sable (SE)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-8 / NF P 18-597</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Bleu de méthylène (MB)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-9</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Los-Angeles (LA)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Plasticité au cône d'Abrams (slump)</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Résistance à la compression</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-3</td></tr>
+              </tbody>
+            </table>
+
+            <p className="text-xs italic mt-4 text-black">
+              * La production de ce rapport d'essais n'est autorisée que sous sa forme intégrale.
+            </p>
+          </div>
+        </ReportPage>
+
+        {/* ============== PAGE 3 — Granulométries Sables ============== */}
+        {sablesList.length > 0 && (
+          <ReportPage>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle="II.1 Sables — Analyses granulométriques"
+            />
+            {sablesList.map((s, i) => (
+              <GranulometrieTable
+                key={s.key}
+                label={s.label}
+                granulat={s.g!}
+                numero={i + 1}
+              />
+            ))}
+
+            {sablesList.some((s) => s.g?.granulometrie?.module_finesse !== null) && (
+              <div className="mb-4 mt-4">
+                <p className="text-sm font-bold mb-1 text-black">Tableau : Module de finesse</p>
+                <table className="w-full border-collapse border border-black text-sm">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                      <th className="border border-black px-2 py-1 text-black">Module de finesse FM</th>
+                      <th className="border border-black px-2 py-1 text-black">Catégorie</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sablesList.map((s) => (
+                      <tr key={s.key}>
+                        <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                        <td className="border border-black px-2 py-1 text-center text-black">
+                          {fmt(s.g?.granulometrie?.module_finesse, 2)}
+                        </td>
+                        <td className="border border-black px-2 py-1 text-center text-black">
+                          {mfCategory(s.g?.granulometrie?.module_finesse ?? null)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </ReportPage>
+        )}
+
+        {/* ============== PAGE 4 — Propreté des sables (ES + MB) ============== */}
+        {sablesList.length > 0 && (
+          <ReportPage>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle="II.1.3 Propreté des sables (ES & MB)"
+            />
+
+            <div className="text-sm text-black space-y-4">
+              <p>
+                La conformité des sables est acceptée si les valeurs spécifiées <strong>SE</strong>{" "}
+                ou <strong>MB</strong> sont respectées (NF EN 12620 & XP P 18-545).
+              </p>
+
+              <p className="font-bold">Tableau : Équivalent de sable (SE)</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">SE moyen (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">SE visuel (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">Spécification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sablesList.map((s) => (
+                    <tr key={s.key}>
+                      <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(s.g?.es_moyen, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(s.g?.esv_moyen, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">SE ≥ 60</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p className="font-bold mt-4">Tableau : Valeur de bleu (MB)</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">MB (g/kg)</th>
+                    <th className="border border-black px-2 py-1 text-black">Spécification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sablesList.map((s) => (
+                    <tr key={s.key}>
+                      <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(s.g?.valeur_mb, 2)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">MB ≤ 1,5</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p className="font-bold mt-4">Tableau : Masse volumique des sables</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">Densité absolue (T/m³)</th>
+                    <th className="border border-black px-2 py-1 text-black">Densité apparente (T/m³)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sablesList.map((s) => (
+                    <tr key={s.key}>
+                      <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(s.g?.densite_absolue, 3)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(s.g?.densite_apparente, 3)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </ReportPage>
+        )}
+
+        {/* ============== PAGE 5 — Granulométries Graviers ============== */}
+        {graviersList.length > 0 && (
+          <ReportPage>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle="II.2 Gravillons & graviers — Analyses granulométriques"
+            />
+            {graviersList.map((g, i) => (
+              <GranulometrieTable
+                key={g.key}
+                label={g.label}
+                granulat={g.g!}
+                numero={i + 1}
+              />
+            ))}
+          </ReportPage>
+        )}
+
+        {/* ============== PAGE 6 — Dureté graviers (LA + densité) ============== */}
+        {graviersList.length > 0 && (
+          <ReportPage>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle="II.2.4 Dureté & masse volumique des gravillons"
+            />
+
+            <div className="text-sm text-black space-y-4">
+              <p>
+                <strong>Résistance à la fragmentation par chocs (Los-Angeles, LA)</strong> : essai
+                qui consiste à mesurer la quantité d'éléments inférieurs à 1,6 mm produits en
+                soumettant le matériau aux chocs de boulets d'acier (NF EN 1097-2).
+              </p>
+
+              <p className="font-bold">Tableau : Coefficient Los-Angeles</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">LA (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">Spécification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {graviersList.map((g) => (
+                    <tr key={g.key}>
+                      <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_la, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p className="font-bold mt-4">Tableau : Masse volumique des gravillons</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">Densité absolue (T/m³)</th>
+                    <th className="border border-black px-2 py-1 text-black">Densité apparente (T/m³)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {graviersList.map((g) => (
+                    <tr key={g.key}>
+                      <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.densite_absolue, 3)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.densite_apparente, 3)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <h3 className="font-bold underline mt-6">INTERPRÉTATION DES RÉSULTATS</h3>
+              <p>
+                À la lumière des essais réalisés sur les fractions des agrégats (sables et
+                gravillons), les granulats étudiés respectent globalement les spécifications des
+                normes en vigueur pour la fabrication d'un béton hydraulique de qualité courante.
+                Ils peuvent donc être retenus pour la formulation présentée ci-après.
+              </p>
+            </div>
+          </ReportPage>
+        )}
+
+        {/* ============== PAGE 7 — Composition Dreux-Gorisse ============== */}
+        <ReportPage>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="III — COMPOSITION DU BÉTON"
+            subtitle="Méthode Dreux-Gorisse — Proportions des constituants"
+          />
+
+          <div className="text-sm text-black space-y-4">
+            <p className="font-bold">Tableau : Proportions des différents constituants</p>
+            <table className="w-full border-collapse border border-black text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-black px-2 py-1 text-black">Composant</th>
+                  <th className="border border-black px-2 py-1 text-black">% du mélange granulaire</th>
+                  <th className="border border-black px-2 py-1 text-black">Densité (T/m³)</th>
+                  <th className="border border-black px-2 py-1 text-black">Poids (Kg/m³)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {compoRows.map((r) => {
+                  const pct = totalGranulats > 0 ? ((r.quantite / totalGranulats) * 100) : 0;
+                  return (
+                    <tr key={r.code}>
+                      <td className="border border-black px-2 py-1 text-black">
+                        <strong>{r.code} :</strong> {r.label}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {fmt(pct, 1)}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {fmt(r.densite, 2)}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center font-medium text-black">
+                        {fmtInt(r.quantite)}
+                      </td>
+                    </tr>
+                  );
+                })}
+                <tr className="bg-gray-50 font-bold">
+                  <td className="border border-black px-2 py-1 text-black" colSpan={2}>
+                    Total granulats
+                  </td>
+                  <td className="border border-black px-2 py-1 text-black"></td>
+                  <td className="border border-black px-2 py-1 text-center text-black">
+                    {fmtInt(totalGranulats)}
                   </td>
                 </tr>
+                {ciment > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-black"><strong>C :</strong> {cimentNom}</td>
+                    <td className="border border-black px-2 py-1 text-black"></td>
+                    <td className="border border-black px-2 py-1 text-center text-black">3,10</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(ciment)}</td>
+                  </tr>
+                )}
+                {eau > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-black"><strong>E :</strong> Eau</td>
+                    <td className="border border-black px-2 py-1 text-black"></td>
+                    <td className="border border-black px-2 py-1 text-center text-black">1,00</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(eau)}</td>
+                  </tr>
+                )}
+                {adjuvant > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-black"><strong>Adj :</strong> {adjuvantNom}</td>
+                    <td className="border border-black px-2 py-1 text-black"></td>
+                    <td className="border border-black px-2 py-1 text-center text-black">1,15</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmt(adjuvant, 2)}</td>
+                  </tr>
+                )}
+                <tr className="bg-gray-100 font-bold">
+                  <td className="border border-black px-2 py-1 text-black" colSpan={3}>TOTAL (1 m³)</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(total)}</td>
+                </tr>
               </tbody>
             </table>
-          </div>
-        )}
 
-        {/* Liants & Eau */}
-        {liants.length > 0 && (
-          <div className="mb-6">
-            <h3 className="font-bold text-sm mb-2 underline text-black">Liants, adjuvants et eau</h3>
+            <p className="font-bold mt-6">III.2 Caractéristiques du béton frais</p>
             <table className="w-full border-collapse border border-black text-sm">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Constituant</th>
-                  <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Producteur</th>
-                  <th className="border border-black px-3 py-1.5 text-left font-medium text-black">Produit</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Quantité</th>
+                  <th className="border border-black px-2 py-1 text-black">Granulats (Kg/m³)</th>
+                  <th className="border border-black px-2 py-1 text-black">Ciment (Kg/m³)</th>
+                  <th className="border border-black px-2 py-1 text-black">Eau (l/m³)</th>
+                  <th className="border border-black px-2 py-1 text-black">E/C</th>
+                  <th className="border border-black px-2 py-1 text-black">G/S</th>
+                  <th className="border border-black px-2 py-1 text-black">Mise en place</th>
                 </tr>
               </thead>
               <tbody>
-                {liants.map((row) => (
-                  <tr key={row.label}>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">{row.label}</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{row.producteur || "-"}</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{row.produit || "-"}</td>
-                    <td className="border border-black px-3 py-1.5 text-center text-black">{row.quantite} {row.unite}</td>
+                <tr>
+                  <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(totalGranulats)}</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(ciment)}</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(eau)}</td>
+                  <td className="border border-black px-2 py-1 text-center font-bold text-black">{ec}</td>
+                  <td className="border border-black px-2 py-1 text-center font-bold text-black">{gs}</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">Vibration (aiguille vibrante)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p className="text-xs italic mt-4 text-black">
+              III.3 Résistance à la compression : les éprouvettes destinées à cet essai sont
+              testées à 7 et 28 jours, conservées après démoulage en chambre humide à 20 °C ± 2.
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-2 gap-8 text-black text-sm">
+            <div className="text-center">
+              <p className="font-medium mb-12">Le Technicien Formulateur</p>
+              <p>_________________</p>
+            </div>
+            <div className="text-center">
+              <p className="font-medium mb-12">L'Ingénieur d'Études</p>
+              <p>{entreprise?.representant || "_________________"}</p>
+            </div>
+          </div>
+        </ReportPage>
+
+        {/* ============== PAGE 8 — Fiche Technique ============== */}
+        <ReportPage>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="FICHE TECHNIQUE DE LA COMPOSITION DU BÉTON"
+            subtitle={`Méthode Dreux-Gorisse — Réf : Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-4">
+            <p className="font-bold underline">I — Données de base</p>
+            <table className="w-full border-collapse border border-black text-sm">
+              <tbody>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Type et classe de ciment</td>
+                  <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Dosage en ciment</td>
+                  <td className="border border-black px-2 py-1 text-black">{ciment} kg/m³</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Adjuvant</td>
+                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? adjuvantNom : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dosage adjuvant</td>
+                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? `${adjuvant} kg/m³` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Eau de gâchage</td>
+                  <td className="border border-black px-2 py-1 text-black">{eau} l/m³</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Rapport E/C</td>
+                  <td className="border border-black px-2 py-1 font-bold text-black">{ec}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Total granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmtInt(totalGranulats)} kg/m³</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Rapport G/S</td>
+                  <td className="border border-black px-2 py-1 font-bold text-black">{gs}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p className="font-bold underline mt-4">II — Composition pour 1 m³</p>
+            <table className="w-full border-collapse border border-black text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-black px-2 py-1 text-black">Constituant</th>
+                  <th className="border border-black px-2 py-1 text-black">Producteur / Carrière</th>
+                  <th className="border border-black px-2 py-1 text-black">Quantité</th>
+                  <th className="border border-black px-2 py-1 text-black">Unité</th>
+                </tr>
+              </thead>
+              <tbody>
+                {compoRows.map((r) => (
+                  <tr key={r.code}>
+                    <td className="border border-black px-2 py-1 text-black">
+                      <strong>{r.code}</strong> — {r.label}
+                    </td>
+                    <td className="border border-black px-2 py-1 text-black">—</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(r.quantite)}</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">kg</td>
                   </tr>
                 ))}
+                {ciment > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-black"><strong>C</strong> — {cimentNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{details?.ciment.producteur_nom || "—"}</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(ciment)}</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">kg</td>
+                  </tr>
+                )}
+                {eau > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-black"><strong>E</strong> — Eau</td>
+                    <td className="border border-black px-2 py-1 text-black">{details?.eau.producteur_nom || "—"}</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(eau)}</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">L</td>
+                  </tr>
+                )}
+                {adjuvant > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 text-black"><strong>Adj</strong> — {adjuvantNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{details?.adjuvant.producteur_nom || "—"}</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmt(adjuvant, 2)}</td>
+                    <td className="border border-black px-2 py-1 text-center text-black">kg</td>
+                  </tr>
+                )}
+                <tr className="bg-gray-100 font-bold">
+                  <td className="border border-black px-2 py-1 text-black" colSpan={2}>TOTAL</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(total)}</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">kg</td>
+                </tr>
               </tbody>
             </table>
           </div>
-        )}
 
-        {/* Récapitulatif */}
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Récapitulatif (composition pour 1 m³)</h3>
-          <table className="w-full border-collapse border border-black text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Ciment</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Eau</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Adjuvant</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Sable C.</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Sable F.</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Gravillons</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Gravier 2</th>
-                <th className="border border-black px-2 py-1.5 text-center font-medium text-black">Gravier 3</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.ciment_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.eau_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.adjuvant_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.sable_concasse_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.sable_fin_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.gravillons1_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.gravier2_quantite ?? 0}</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{formulation.gravier3_quantite ?? 0}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="text-[11px] text-black mt-1 italic">Quantités exprimées en kg, sauf l'eau en litres.</p>
-        </div>
+          <div className="mt-8 grid grid-cols-2 gap-8 text-black text-sm">
+            <div className="text-center">
+              <p className="font-medium mb-12">Le Technicien Formulateur</p>
+              <p>_________________</p>
+            </div>
+            <div className="text-center">
+              <p className="font-medium mb-12">Établi le {format(new Date(formulation.updated_at), "dd/MM/yyyy", { locale: fr })}</p>
+              <p>{entreprise?.representant || "_________________"}</p>
+            </div>
+          </div>
+        </ReportPage>
 
-        {/* Footer signatures */}
-        <div className="mt-12 grid grid-cols-2 gap-8 text-black">
-          <div className="text-center">
-            <p className="text-sm font-medium mb-12">Le Technicien Formulateur</p>
-            <p className="text-sm">_________________</p>
+        {/* ============== PAGE 9 — Courbe granulométrique du mélange ============== */}
+        <ReportPage last>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="COURBE GRANULOMÉTRIQUE DU MÉLANGE"
+            subtitle={`Réf : Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-4">
+            <p className="font-bold">Tableau : Passants (%) par tamis</p>
+            <table className="w-full border-collapse border border-black text-xs">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th rowSpan={2} className="border border-black px-1 py-1 text-black">Tamis<br />(mm)</th>
+                  {granulatsList.map((g) => (
+                    <th key={g.key} className="border border-black px-1 py-1 text-black">
+                      {g.g?.produit_nom || g.label}
+                    </th>
+                  ))}
+                  <th className="border border-black px-1 py-1 text-black bg-yellow-50">Mélange</th>
+                </tr>
+                <tr className="bg-gray-100">
+                  {granulatsList.map((g) => (
+                    <th key={g.key + "p"} className="border border-black px-1 py-1 text-black">Passant %</th>
+                  ))}
+                  <th className="border border-black px-1 py-1 text-black bg-yellow-50">Passant %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {TAMIS_STD.map((ouv) => {
+                  // mélange = somme(passant_i × pct_i / 100)
+                  let melange = 0;
+                  let totalPct = 0;
+                  granulatsList.forEach((g) => {
+                    const qty =
+                      g.key === "sable_concasse" ? formulation.sable_concasse_quantite || 0 :
+                      g.key === "sable_fin" ? formulation.sable_fin_quantite || 0 :
+                      g.key === "gravillons1" ? formulation.gravillons1_quantite || 0 :
+                      g.key === "gravier2" ? formulation.gravier2_quantite || 0 :
+                      g.key === "gravier3" ? formulation.gravier3_quantite || 0 : 0;
+                    const pct = totalGranulats > 0 ? (qty / totalGranulats) * 100 : 0;
+                    const passant = getPassant(g.g?.granulometrie, ouv);
+                    if (passant !== null) {
+                      melange += (passant * pct) / 100;
+                      totalPct += pct;
+                    }
+                  });
+                  return (
+                    <tr key={ouv}>
+                      <td className="border border-black px-1 py-0.5 text-center font-medium text-black">{ouv}</td>
+                      {granulatsList.map((g) => {
+                        const p = getPassant(g.g?.granulometrie, ouv);
+                        return (
+                          <td key={g.key + ouv} className="border border-black px-1 py-0.5 text-center text-black">
+                            {p === null ? "—" : fmt(p, 1)}
+                          </td>
+                        );
+                      })}
+                      <td className="border border-black px-1 py-0.5 text-center font-bold text-black bg-yellow-50">
+                        {totalPct === 0 ? "—" : fmt(melange, 1)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            <p className="text-xs italic mt-4 text-black">
+              La reproduction de ce rapport n'est autorisée que sous sa forme intégrale. Les
+              résultats ne se rapportent qu'aux échantillons soumis aux essais.
+            </p>
           </div>
-          <div className="text-center">
-            <p className="text-sm font-medium mb-12">Le Directeur du Laboratoire</p>
-            <p className="text-sm">{entreprise?.representant || "_________________"}</p>
+
+          <div className="mt-12 grid grid-cols-2 gap-8 text-black text-sm">
+            <div className="text-center">
+              <p className="font-medium mb-12">Le Technicien Formulateur</p>
+              <p>_________________</p>
+            </div>
+            <div className="text-center">
+              <p className="font-medium mb-12">L'Ingénieur d'Études</p>
+              <p>{entreprise?.representant || "_________________"}</p>
+            </div>
           </div>
-        </div>
+        </ReportPage>
       </div>
 
       <style>{`
+        .page-break { page-break-after: always; }
         @media print {
           body * { visibility: hidden; }
-          #root { visibility: visible; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
+          [data-ref="report"] { position: absolute; left: 0; top: 0; }
           .print\\:hidden { display: none !important; }
+          .report-page { box-shadow: none !important; border: none !important; }
         }
       `}</style>
     </div>
