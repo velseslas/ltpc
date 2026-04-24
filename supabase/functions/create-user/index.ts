@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: ReturnType<typeof createClient> }> {
+async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const authHeader = req.headers.get("Authorization");
