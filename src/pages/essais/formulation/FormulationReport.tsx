@@ -1068,15 +1068,6 @@ export default function FormulationReport() {
 
           <div className="text-sm text-black space-y-4">
             <p className="font-bold">Tableau : Passants (%) par tamis</p>
-          <ReportHeader
-            entreprise={entreprise}
-            verificationUrl={verificationUrl}
-            title="COURBE GRANULOMÉTRIQUE DU MÉLANGE"
-            subtitle={`Réf : Rapport N° ${numeroRapport}`}
-          />
-
-          <div className="text-sm text-black space-y-4">
-            <p className="font-bold">Tableau : Passants (%) par tamis</p>
             <table className="w-full border-collapse border border-black text-xs">
               <thead>
                 <tr className="bg-gray-100">
