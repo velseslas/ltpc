@@ -367,7 +367,7 @@ function formatNumberInput(value: unknown): string {
 }
 
 function sumNumbers(values: unknown[]): number {
-  return values.reduce((total, value) => total + (asFiniteNumber(value) ?? 0), 0);
+  return values.reduce<number>((total, value) => total + (asFiniteNumber(value) ?? 0), 0);
 }
 
 function deriveRatioGSFromFormulation(f: any): string {
