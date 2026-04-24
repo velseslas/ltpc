@@ -235,52 +235,64 @@ export default function FormulationReport() {
   type CompoRow = {
     code: string;
     label: string;
+    producteur: string | null;
     quantite: number;
     densite: number | null;
     isLiquid?: boolean;
   };
 
   const compoRows: CompoRow[] = [];
-  const pushIf = (qty: number | null | undefined, code: string, label: string, dens: number | null) => {
-    if (qty && qty > 0) compoRows.push({ code, label, quantite: qty, densite: dens });
+  const pushIf = (
+    qty: number | null | undefined,
+    code: string,
+    label: string,
+    producteur: string | null,
+    dens: number | null
+  ) => {
+    if (qty && qty > 0) compoRows.push({ code, label, producteur, quantite: qty, densite: dens });
   };
   pushIf(
     formulation.gravier3_quantite,
     "GIII",
-    `${gEssais?.gravier3?.produit_nom || "Gravier 3"}${gEssais?.gravier3?.carriere_nom ? ` ${gEssais.gravier3.carriere_nom}` : ""}`,
+    gEssais?.gravier3?.produit_nom || "Gravier 3",
+    gEssais?.gravier3?.carriere_nom ?? null,
     gEssais?.gravier3?.densite_absolue ?? null
   );
   pushIf(
     formulation.gravier2_quantite,
     "GII",
-    `${gEssais?.gravier2?.produit_nom || "Gravier 2"}${gEssais?.gravier2?.carriere_nom ? ` ${gEssais.gravier2.carriere_nom}` : ""}`,
+    gEssais?.gravier2?.produit_nom || "Gravier 2",
+    gEssais?.gravier2?.carriere_nom ?? null,
     gEssais?.gravier2?.densite_absolue ?? null
   );
   pushIf(
     formulation.gravillons1_quantite,
     "GI",
-    `${gEssais?.gravillons1?.produit_nom || "Gravillons 1"}${gEssais?.gravillons1?.carriere_nom ? ` ${gEssais.gravillons1.carriere_nom}` : ""}`,
+    gEssais?.gravillons1?.produit_nom || "Gravillons 1",
+    gEssais?.gravillons1?.carriere_nom ?? null,
     gEssais?.gravillons1?.densite_absolue ?? null
   );
   pushIf(
     formulation.sable_concasse_quantite,
     "SI",
-    `${gEssais?.sable_concasse?.produit_nom || "Sable concassé"}${gEssais?.sable_concasse?.carriere_nom ? ` ${gEssais.sable_concasse.carriere_nom}` : ""}`,
+    gEssais?.sable_concasse?.produit_nom || "Sable concassé",
+    gEssais?.sable_concasse?.carriere_nom ?? null,
     gEssais?.sable_concasse?.densite_absolue ?? null
   );
   pushIf(
     formulation.sable_fin_quantite,
     "SII",
-    `${gEssais?.sable_fin?.produit_nom || "Sable fin"}${gEssais?.sable_fin?.carriere_nom ? ` ${gEssais.sable_fin.carriere_nom}` : ""}`,
+    gEssais?.sable_fin?.produit_nom || "Sable fin",
+    gEssais?.sable_fin?.carriere_nom ?? null,
     gEssais?.sable_fin?.densite_absolue ?? null
   );
 
-  const cimentNom = details?.ciment.produit_nom
-    ? `${details.ciment.produit_nom}${details.ciment.producteur_nom ? ` — ${details.ciment.producteur_nom}` : ""}`
-    : "Ciment";
-  const adjuvantNom = details?.adjuvant.produit_nom
-    ? `${details.adjuvant.produit_nom}${details.adjuvant.producteur_nom ? ` — ${details.adjuvant.producteur_nom}` : ""}`
-    : "Adjuvant";
+  const cimentNom = details?.ciment.produit_nom || "Ciment";
+  const cimentProducteur = details?.ciment.producteur_nom || null;
+  const adjuvantNom = details?.adjuvant.produit_nom || "Adjuvant";
+  const adjuvantProducteur = details?.adjuvant.producteur_nom || null;
+  const eauNom = details?.eau.produit_nom || "Eau";
+  const eauProducteur = details?.eau.producteur_nom || null;
 
   // Granulats array for granulométrie + tableaux
   const granulatsList = [
@@ -289,7 +301,16 @@ export default function FormulationReport() {
     { key: "gravillons1", label: "Gravillon", g: gEssais?.gravillons1 },
     { key: "gravier2", label: "Gravier", g: gEssais?.gravier2 },
     { key: "gravier3", label: "Gravier", g: gEssais?.gravier3 },
-  ].filter((x) => x.g && (x.g.granulometrie || x.g.es_moyen !== null || x.g.valeur_mb !== null));
+  ].filter(
+    (x) =>
+      x.g &&
+      (x.g.granulometrie ||
+        x.g.es_moyen !== null ||
+        x.g.valeur_mb !== null ||
+        x.g.densite_absolue !== null ||
+        x.g.densite_apparente !== null ||
+        x.g.coefficient_la !== null)
+  );
 
   // Sables only
   const sablesList = granulatsList.filter((x) => x.key.startsWith("sable"));
@@ -598,21 +619,28 @@ export default function FormulationReport() {
                   <tr key={r.code}>
                     <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
                     <td className="border border-black px-2 py-1 text-black">{r.label}</td>
-                    <td className="border border-black px-2 py-1 text-black">—</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
                   </tr>
                 ))}
                 {ciment > 0 && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">C</td>
-                    <td className="border border-black px-2 py-1 text-black">Ciment</td>
                     <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
                   </tr>
                 )}
                 {adjuvant > 0 && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
-                    <td className="border border-black px-2 py-1 text-black">Adjuvant</td>
                     <td className="border border-black px-2 py-1 text-black">{adjuvantNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{adjuvantProducteur || "—"}</td>
+                  </tr>
+                )}
+                {eau > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 font-bold text-black">E</td>
+                    <td className="border border-black px-2 py-1 text-black">{eauNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{eauProducteur || "—"}</td>
                   </tr>
                 )}
               </tbody>
@@ -628,12 +656,21 @@ export default function FormulationReport() {
               </thead>
               <tbody>
                 <tr><td className="border border-black px-2 py-1 text-black">Analyse granulométrique, teneur en fines</td><td className="border border-black px-2 py-1 text-black">NF EN 933-1</td></tr>
-                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique apparente et absolue</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-3 / 1097-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Module de finesse des sables</td><td className="border border-black px-2 py-1 text-black">NF EN 12620 / NF P 18-545</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Équivalent de sable (SE)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-8 / NF P 18-597</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Bleu de méthylène (MB)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-9</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Coefficient d'aplatissement</td><td className="border border-black px-2 py-1 text-black">NF EN 933-3</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Los-Angeles (LA)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Micro-Deval (MDE)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-1</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique réelle et absorption</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique apparente (vrac)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-3</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Friabilité des sables</td><td className="border border-black px-2 py-1 text-black">NF P 18-576</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Plasticité au cône d'Abrams (slump)</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique du béton frais</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Confection des éprouvettes d'essai</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-2</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Résistance à la compression</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-3</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Résistance à la traction par fendage</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Formulation Dreux-Gorisse</td><td className="border border-black px-2 py-1 text-black">Méthode pratique Dreux-Gorisse</td></tr>
               </tbody>
             </table>
 
