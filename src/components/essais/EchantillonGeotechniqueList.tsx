@@ -171,11 +171,11 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-popover border-border">
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/saisie`); }} className="text-white focus:text-white">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/saisie`); }} className="">
                           <ClipboardEdit className="w-4 h-4 mr-2" />Saisie de données
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}`); }}>
-                          <Eye className="w-4 h-4 mr-2" />Voir détails
+                          <Eye className="w-4 h-4 mr-2" />Détails
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/modifier`); }}>
                           <Pencil className="w-4 h-4 mr-2" />Modifier

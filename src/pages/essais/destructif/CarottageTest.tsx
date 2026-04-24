@@ -135,9 +135,9 @@ const CarottageTest = () => {
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}`)}>
-                          <Eye className="h-4 w-4" /> Voir détails
+                          <Eye className="h-4 w-4" /> Détails
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2 text-white focus:text-white" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/saisie`)}>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/saisie`)}>
                           <ClipboardEdit className="h-4 w-4" /> Saisie de données
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/rapport`)}>

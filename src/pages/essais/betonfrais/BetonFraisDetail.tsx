@@ -128,7 +128,7 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)} className="text-white hover:text-white">
+            <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)} className="">
               <ClipboardEdit className="h-4 w-4 mr-2" />
               Saisie de données
             </Button>
@@ -236,7 +236,7 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
           <Card className="border-border bg-card lg:col-span-2">
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground mb-4">Aucun résultat disponible</p>
-              <Button onClick={() => navigate(`${basePath}/${id}/saisie`)} className="text-white hover:text-white">
+              <Button onClick={() => navigate(`${basePath}/${id}/saisie`)} className="">
                 <ClipboardEdit className="h-4 w-4 mr-2" />
                 Saisie de données
               </Button>

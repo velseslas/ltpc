@@ -216,10 +216,10 @@ const CompressionTest = () => {
                             onClick={() => navigate(`/essais/beton/beton-durci/compression/${echantillon.id}`)}
                           >
                             <Eye className="h-4 w-4" />
-                            Voir détails
+                            Détails
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            className="flex items-center gap-2 text-white focus:text-white"
+                            className="flex items-center gap-2"
                             onClick={() => navigate(`/essais/beton/beton-durci/compression/${echantillon.id}/saisie`)}
                           >
                             <ClipboardEdit className="h-4 w-4" />
@@ -237,7 +237,7 @@ const CompressionTest = () => {
                             onClick={() => navigate(`/essais/beton/beton-durci/compression/${echantillon.id}/rapport`)}
                           >
                             <FileBarChart className="h-4 w-4" />
-                            Afficher rapport
+                            Rapport
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="flex items-center gap-2"
