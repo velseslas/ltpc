@@ -605,6 +605,7 @@ export default function FormulationReport() {
               </tbody>
             </table>
 
+            <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }} />
             <h3 className="text-base font-bold underline mt-6">ESSAIS RÉALISÉS SUR GRANULATS ET BÉTON</h3>
             <table className="w-full border-collapse border border-black text-xs" style={{ pageBreakInside: 'auto' }}>
               <thead style={{ display: 'table-header-group' }}>
