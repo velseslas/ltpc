@@ -670,6 +670,22 @@ export default function FormulationReport() {
                 <tr><td className="border border-black px-2 py-1 text-black">Confection des éprouvettes d'essai</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-2</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Résistance à la compression</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-3</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Résistance à la traction par fendage</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Propreté superficielle des gravillons</td><td className="border border-black px-2 py-1 text-black">NF EN 933-7</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Indice de continuité (forme des granulats)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-4</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Analyse chimique du ciment</td><td className="border border-black px-2 py-1 text-black">NF EN 196-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Résistance mécanique du ciment</td><td className="border border-black px-2 py-1 text-black">NF EN 196-1</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Temps de prise et stabilité du ciment</td><td className="border border-black px-2 py-1 text-black">NF EN 196-3</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Composition du ciment</td><td className="border border-black px-2 py-1 text-black">NF EN 197-1</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Qualité de l'eau de gâchage</td><td className="border border-black px-2 py-1 text-black">NF EN 1008</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Adjuvants pour béton — Définitions, exigences</td><td className="border border-black px-2 py-1 text-black">NF EN 934-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Teneur en air du béton frais</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-7</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Température du béton frais</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-1</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Conservation et cure des éprouvettes</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique du béton durci</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-7</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Résistance à la flexion sur éprouvettes</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-5</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Profondeur de pénétration d'eau sous pression</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-8</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Spécifications, performances, production et conformité du béton</td><td className="border border-black px-2 py-1 text-black">NF EN 206/CN</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Granulats pour béton — Spécifications</td><td className="border border-black px-2 py-1 text-black">NF EN 12620</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Formulation Dreux-Gorisse</td><td className="border border-black px-2 py-1 text-black">Méthode pratique Dreux-Gorisse</td></tr>
               </tbody>
             </table>
