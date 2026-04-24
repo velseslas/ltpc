@@ -1025,63 +1025,65 @@ export default function FormulationBetonWizard() {
     }
 
     try {
-      await createFormulation.mutateAsync({
-        centrale_id: centraleId,
-        nom: nom.trim(),
-        sable_concasse_producteur_id: sableConcasseProducteurId || null,
-        sable_concasse_produit_id: sableConcasseProduitId || null,
-        sable_concasse_quantite: sableConcasseQte ? parseFloat(sableConcasseQte) : null,
-        sable_fin_producteur_id: sableFinProducteurId || null,
-        sable_fin_produit_id: sableFinProduitId || null,
-        sable_fin_quantite: sableFinQte ? parseFloat(sableFinQte) : null,
-        gravillons1_producteur_id: gravillons1ProducteurId || null,
-        gravillons1_produit_id: gravillons1ProduitId || null,
-        gravillons1_quantite: gravillons1Qte ? parseFloat(gravillons1Qte) : null,
-        gravier2_producteur_id: gravier2ProducteurId || null,
-        gravier2_produit_id: gravier2ProduitId || null,
-        gravier2_quantite: gravier2Qte ? parseFloat(gravier2Qte) : null,
-        gravier3_producteur_id: gravier3ProducteurId || null,
-        gravier3_produit_id: gravier3ProduitId || null,
-        gravier3_quantite: gravier3Qte ? parseFloat(gravier3Qte) : null,
-        ciment_producteur_id: cimentProducteurId || null,
-        ciment_produit_id: cimentProduitId || null,
-        ciment_quantite: cimentQte ? parseFloat(cimentQte) : null,
-        adjuvant_producteur_id: adjuvantProducteurId || null,
-        adjuvant_produit_id: adjuvantProduitId || null,
-        adjuvant_quantite: adjuvantQte ? parseFloat(adjuvantQte) : null,
-        eau_producteur_id: eauProducteurId || null,
-        eau_produit_id: eauProduitId || null,
-        eau_quantite: eauQte ? parseFloat(eauQte) : null,
-        // --- Étape 1 ---
-        client_id: clientId || null,
-        chantier_id: chantierId || null,
-        maitre_ouvrage_id: maitreOuvrageId || null,
-        maitre_oeuvre_id: maitreOeuvreId || null,
-        // --- Étape 2 ---
-        resistance_28j: resistance28j ? parseFloat(resistance28j) : null,
-        slump_souhaite: slumpSouhaite ? parseFloat(slumpSouhaite) : null,
-        classe_exposition: classeExposition || null,
-        eau_calculee: calcEau ? parseFloat(calcEau) : null,
-        ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
-        ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
-        // --- Étape 5 ---
-        coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
-        coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
-        dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
-        // --- Étape 6 ---
-        vibration_ae: vibrationAE || null,
-        forme_ae: formeAE || null,
-        kp_ae: kpAE ? parseFloat(kpAE) : null,
-        mf_ideal: mfIdeal ? parseFloat(mfIdeal) : null,
-        // --- Étape 7 ---
-        granulat_densites: Object.keys(granulatDensites).length > 0 ? granulatDensites : null,
-        granulat_module_finesse: Object.keys(granulatModuleFinesse).length > 0 ? granulatModuleFinesse : null,
-      });
+    const payload = {
+      centrale_id: centraleId,
+      nom: nom.trim(),
+      sable_concasse_producteur_id: sableConcasseProducteurId || null,
+      sable_concasse_produit_id: sableConcasseProduitId || null,
+      sable_concasse_quantite: sableConcasseQte ? parseFloat(sableConcasseQte) : null,
+      sable_fin_producteur_id: sableFinProducteurId || null,
+      sable_fin_produit_id: sableFinProduitId || null,
+      sable_fin_quantite: sableFinQte ? parseFloat(sableFinQte) : null,
+      gravillons1_producteur_id: gravillons1ProducteurId || null,
+      gravillons1_produit_id: gravillons1ProduitId || null,
+      gravillons1_quantite: gravillons1Qte ? parseFloat(gravillons1Qte) : null,
+      gravier2_producteur_id: gravier2ProducteurId || null,
+      gravier2_produit_id: gravier2ProduitId || null,
+      gravier2_quantite: gravier2Qte ? parseFloat(gravier2Qte) : null,
+      gravier3_producteur_id: gravier3ProducteurId || null,
+      gravier3_produit_id: gravier3ProduitId || null,
+      gravier3_quantite: gravier3Qte ? parseFloat(gravier3Qte) : null,
+      ciment_producteur_id: cimentProducteurId || null,
+      ciment_produit_id: cimentProduitId || null,
+      ciment_quantite: cimentQte ? parseFloat(cimentQte) : null,
+      adjuvant_producteur_id: adjuvantProducteurId || null,
+      adjuvant_produit_id: adjuvantProduitId || null,
+      adjuvant_quantite: adjuvantQte ? parseFloat(adjuvantQte) : null,
+      eau_producteur_id: eauProducteurId || null,
+      eau_produit_id: eauProduitId || null,
+      eau_quantite: eauQte ? parseFloat(eauQte) : null,
+      client_id: clientId || null,
+      chantier_id: chantierId || null,
+      maitre_ouvrage_id: maitreOuvrageId || null,
+      maitre_oeuvre_id: maitreOeuvreId || null,
+      resistance_28j: resistance28j ? parseFloat(resistance28j) : null,
+      slump_souhaite: slumpSouhaite ? parseFloat(slumpSouhaite) : null,
+      classe_exposition: classeExposition || null,
+      eau_calculee: calcEau ? parseFloat(calcEau) : null,
+      ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
+      ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
+      coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
+      coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
+      dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
+      vibration_ae: vibrationAE || null,
+      forme_ae: formeAE || null,
+      kp_ae: kpAE ? parseFloat(kpAE) : null,
+      mf_ideal: mfIdeal ? parseFloat(mfIdeal) : null,
+      granulat_densites: Object.keys(granulatDensites).length > 0 ? granulatDensites : null,
+      granulat_module_finesse: Object.keys(granulatModuleFinesse).length > 0 ? granulatModuleFinesse : null,
+    };
 
-      toast.success("Formulation créée avec succès");
+    try {
+      if (isEdit && formulationId) {
+        await updateFormulation.mutateAsync({ id: formulationId, ...payload });
+        toast.success("Formulation modifiée avec succès");
+      } else {
+        await createFormulation.mutateAsync(payload);
+        toast.success("Formulation créée avec succès");
+      }
       navigate("/essais/beton/formulation");
     } catch {
-      toast.error("Erreur lors de la création");
+      toast.error(isEdit ? "Erreur lors de la modification" : "Erreur lors de la création");
     }
   };
 
