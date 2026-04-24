@@ -296,7 +296,7 @@ const Authentification = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getPosteName(user.poste_id)}</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">{user.mot_de_passe || "••••••"}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">••••••</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     <TableCell>{getStatutBadge(user.statut)}</TableCell>
                     <TableCell className="text-right">
