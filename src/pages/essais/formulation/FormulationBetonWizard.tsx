@@ -352,6 +352,98 @@ function extractModuleFinesseFromReport(resultats: Record<string, unknown>): Pic
   return null;
 }
 
+function asFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value.replace(",", "."));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function formatNumberInput(value: unknown): string {
+  const parsed = asFiniteNumber(value);
+  return parsed == null ? "" : String(parsed);
+}
+
+function sumNumbers(values: unknown[]): number {
+  return values.reduce<number>((total, value) => total + (asFiniteNumber(value) ?? 0), 0);
+}
+
+function deriveRatioGSFromFormulation(f: any): string {
+  const sableTotal = sumNumbers([f.sable_concasse_quantite, f.sable_fin_quantite]);
+  const gravierTotal = sumNumbers([f.gravillons1_quantite, f.gravier2_quantite, f.gravier3_quantite]);
+  return sableTotal > 0 && gravierTotal > 0 ? (gravierTotal / sableTotal).toFixed(2) : "";
+}
+
+function deriveResistanceFromNameOrCement(f: any): string {
+  const name = String(f.nom || "");
+  const classMatch = name.match(/C\s*(\d{2})\s*\/\s*(\d{2})/i);
+  if (classMatch?.[2]) return classMatch[2];
+
+  const dosageFromName = asFiniteNumber(name.match(/(\d{3})\s*(?:kg|kilos?)/i)?.[1]);
+  const dosageCiment = asFiniteNumber(f.ciment_calcule) ?? asFiniteNumber(f.ciment_quantite) ?? dosageFromName;
+  if (dosageCiment == null) return "25";
+  if (dosageCiment >= 380) return "35";
+  if (dosageCiment >= 340) return "30";
+  if (dosageCiment >= 300) return "25";
+  if (dosageCiment >= 250) return "20";
+  return "18";
+}
+
+function hasSlotData(f: any, prefix: string): boolean {
+  return Boolean(f[`${prefix}_producteur_id`] || f[`${prefix}_produit_id`] || asFiniteNumber(f[`${prefix}_quantite`]) != null);
+}
+
+function deriveDmaxFromFormulation(f: any): number {
+  if (hasSlotData(f, "gravier3")) return 25;
+  if (hasSlotData(f, "gravier2")) return 15;
+  if (hasSlotData(f, "gravillons1")) return 8;
+  if (hasSlotData(f, "sable_concasse")) return 4;
+  if (hasSlotData(f, "sable_fin")) return 1;
+  return 20;
+}
+
+function deriveDmaxFromProductName(name?: string | null): number | null {
+  const values = String(name || "")
+    .match(/\d+(?:[,.]\d+)?/g)
+    ?.map((value) => Number(value.replace(",", ".")))
+    .filter((value) => Number.isFinite(value));
+  return values?.length ? Math.max(...values) : null;
+}
+
+function deriveDefaultCoefficientGranulaire(dmax: number): string {
+  if (dmax < 12.5) return "0.45";
+  if (dmax < 20) return "0.50";
+  return "0.55";
+}
+
+function deriveDefaultCoefficientCompacite(dmax: number): string {
+  const table = [
+    { dmax: 4, value: 0.76 },
+    { dmax: 6.3, value: 0.77 },
+    { dmax: 8, value: 0.775 },
+    { dmax: 10, value: 0.78 },
+    { dmax: 12.5, value: 0.785 },
+    { dmax: 16, value: 0.79 },
+    { dmax: 20, value: 0.795 },
+    { dmax: 25, value: 0.8 },
+    { dmax: 31.5, value: 0.805 },
+    { dmax: 40, value: 0.81 },
+  ];
+
+  if (dmax <= table[0].dmax) return table[0].value.toFixed(3);
+  for (let i = 0; i < table.length - 1; i++) {
+    const current = table[i];
+    const next = table[i + 1];
+    if (dmax >= current.dmax && dmax <= next.dmax) {
+      const ratio = (dmax - current.dmax) / (next.dmax - current.dmax);
+      return (current.value + ratio * (next.value - current.value)).toFixed(3);
+    }
+  }
+  return table[table.length - 1].value.toFixed(3);
+}
+
 function RapportMessageDialog({ open, onClose, message, type }: { open: boolean; onClose: () => void; message: string; type: "warning" | "info" }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -961,20 +1053,27 @@ export default function FormulationBetonWizard() {
     if (f.gravier2_producteur_id || f.gravier2_quantite) setGravier2Active(true);
     if (f.gravier3_producteur_id || f.gravier3_quantite) setGravier3Active(true);
 
-    setResistance28j(f.resistance_28j != null ? String(f.resistance_28j) : "");
-    setSlumpSouhaite(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
-    setClasseExposition(f.classe_exposition || "");
-    setAffaissementCible(f.slump_souhaite != null ? String(f.slump_souhaite) : "");
-    setResistanceCible(f.resistance_28j != null ? String(f.resistance_28j) : "");
+    const initialEau = formatNumberInput(f.eau_calculee) || formatNumberInput(f.eau_quantite);
+    const initialCiment = formatNumberInput(f.ciment_calcule) || formatNumberInput(f.ciment_quantite);
+    const initialRatioGS = formatNumberInput(f.ratio_gs) || deriveRatioGSFromFormulation(f);
+    const initialResistance = formatNumberInput(f.resistance_28j) || deriveResistanceFromNameOrCement(f);
+    const initialSlump = formatNumberInput(f.slump_souhaite) || "70";
+    const initialClasseExposition = f.classe_exposition || "XC1";
+    const initialDmax = formatNumberInput(f.dmax_utilisateur) || String(deriveDmaxFromFormulation(f));
 
-    setCalcEau(f.eau_calculee != null ? String(f.eau_calculee) : (f.eau_quantite != null ? String(f.eau_quantite) : ""));
-    setCalcCiment(f.ciment_calcule != null ? String(f.ciment_calcule) : (f.ciment_quantite != null ? String(f.ciment_quantite) : ""));
-    setCalcRatioGS(f.ratio_gs != null ? String(f.ratio_gs) : "");
-    
+    setResistance28j(initialResistance);
+    setSlumpSouhaite(initialSlump);
+    setClasseExposition(initialClasseExposition);
+    setAffaissementCible(initialSlump);
+    setResistanceCible(initialResistance);
 
-    setCoefficientGranulaire(f.coefficient_granulaire != null ? String(f.coefficient_granulaire) : "");
-    setCoefficientCompacite(f.coefficient_compacite != null ? String(f.coefficient_compacite) : "");
-    setDmaxUtilisateur(f.dmax_utilisateur != null ? String(f.dmax_utilisateur) : "");
+    setCalcEau(initialEau);
+    setCalcCiment(initialCiment);
+    setCalcRatioGS(initialRatioGS);
+
+    setCoefficientGranulaire(formatNumberInput(f.coefficient_granulaire) || deriveDefaultCoefficientGranulaire(Number(initialDmax)));
+    setCoefficientCompacite(formatNumberInput(f.coefficient_compacite) || deriveDefaultCoefficientCompacite(Number(initialDmax)));
+    setDmaxUtilisateur(initialDmax);
 
     setVibrationAE(f.vibration_ae || "");
     setFormeAE(f.forme_ae || "");

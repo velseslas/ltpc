@@ -75,6 +75,24 @@ function interpolateCompacite(dmax: number, serrage: SerrageType): number {
   return 0;
 }
 
+function inferQualiteFromCoefficient(dmax: number, coefficient: string): QualiteType {
+  const value = parseFloat(coefficient);
+  const candidates: QualiteType[] = ["passable", "bonne", "excellente"];
+  if (isNaN(dmax) || dmax <= 0 || isNaN(value)) return "bonne";
+  return candidates.reduce((best, current) =>
+    Math.abs(lookupG(dmax, current) - value) < Math.abs(lookupG(dmax, best) - value) ? current : best
+  , "bonne" as QualiteType);
+}
+
+function inferSerrageFromCoefficient(dmax: number, coefficient: string): SerrageType {
+  const value = parseFloat(coefficient);
+  const candidates: SerrageType[] = ["piquage", "vibrationFaible", "vibrationNormale", "vibrationPuissante"];
+  if (isNaN(dmax) || dmax <= 0 || isNaN(value)) return "vibrationNormale";
+  return candidates.reduce((best, current) =>
+    Math.abs(interpolateCompacite(dmax, current) - value) < Math.abs(interpolateCompacite(dmax, best) - value) ? current : best
+  , "vibrationNormale" as SerrageType);
+}
+
 interface CoefficientStepProps {
   coefficientGranulaire: string;
   onCoefficientGranulaireChange: (v: string) => void;
@@ -110,6 +128,17 @@ export default function CoefficientStep({
       setDmaxC(dmaxValue);
     }
   }, [dmaxValue]);
+
+  useEffect(() => {
+    if (!dmaxValue) return;
+    const dmax = parseFloat(dmaxValue);
+    if (!qualiteG && coefficientGranulaire) {
+      setQualiteG(inferQualiteFromCoefficient(dmax, coefficientGranulaire));
+    }
+    if (!serrage && coefficientCompacite) {
+      setSerrage(inferSerrageFromCoefficient(dmax, coefficientCompacite));
+    }
+  }, [dmaxValue, coefficientGranulaire, coefficientCompacite, qualiteG, serrage]);
 
   // Auto-compute G'
   const computedG = useMemo(() => {
