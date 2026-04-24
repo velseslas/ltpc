@@ -206,10 +206,10 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
                           onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillon.id}`)}
                         >
                           <Eye className="h-4 w-4" />
-                          Voir détails
+                          Détails
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="flex items-center gap-2 text-white focus:text-white"
+                          className="flex items-center gap-2"
                           onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillon.id}/saisie`)}
                         >
                           <ClipboardEdit className="h-4 w-4" />
@@ -227,7 +227,7 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
                           onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillon.id}/rapport`)}
                         >
                           <FileBarChart className="h-4 w-4" />
-                          Afficher rapport
+                          Rapport
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="flex items-center gap-2"

@@ -101,9 +101,9 @@ const UltrasonTest = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}`)}><Eye className="h-4 w-4" />Voir détails</DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2 text-white focus:text-white" onClick={() => navigate(`${basePath}/${e.id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie de données</DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/rapport`)}><FileBarChart className="h-4 w-4" />Afficher rapport</DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}`)}><Eye className="h-4 w-4" />Détails</DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie de données</DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/rapport`)}><FileBarChart className="h-4 w-4" />Rapport</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/modifier`)}><Pencil className="h-4 w-4" />Modifier</DropdownMenuItem>
                         <AdminOnly>
                           <ConfirmDelete

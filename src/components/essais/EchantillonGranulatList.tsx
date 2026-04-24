@@ -266,7 +266,7 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                           }}
                         >
                           <Eye className="w-4 h-4 mr-2" />
-                          Voir détails
+                          Détails
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={(e) => {

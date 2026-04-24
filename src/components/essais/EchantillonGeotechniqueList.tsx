@@ -175,7 +175,7 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                           <ClipboardEdit className="w-4 h-4 mr-2" />Saisie de données
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}`); }}>
-                          <Eye className="w-4 h-4 mr-2" />Voir détails
+                          <Eye className="w-4 h-4 mr-2" />Détails
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/modifier`); }}>
                           <Pencil className="w-4 h-4 mr-2" />Modifier
