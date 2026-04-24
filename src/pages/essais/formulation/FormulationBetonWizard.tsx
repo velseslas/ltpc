@@ -277,15 +277,12 @@ function getNameById(list: { id: string; nom: string }[], id: string) {
 // Granulat test types
 const GRANULAT_ESSAIS = [
   { nom: "Analyse Granulométrique", table: "echantillons_granulometrie" as const, filter: "all" as const, essaiType: "granulometrie", basePath: "/essais/granulat/physiques/granulometrie" },
+  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const, essaiType: "masse-volumique", basePath: "/essais/granulat/physiques/masse-volumique" },
   { nom: "Équivalent de Sable", table: "echantillons_equivalent_sable" as const, filter: "sable" as const, essaiType: "equivalent-sable", basePath: "/essais/granulat/proprete/equivalent-sable" },
   { nom: "Valeur au Bleu de Méthylène", table: "echantillons_bleu_methylene" as const, filter: "sable" as const, essaiType: "bleu-methylene", basePath: "/essais/granulat/proprete/bleu-methylene" },
-  { nom: "Matière Organique", table: "echantillons_matiere_organique" as const, filter: "sable" as const, essaiType: "matiere-organique", basePath: "/essais/granulat/proprete/matiere-organique" },
-  { nom: "Masse Volumique", table: "echantillons_masse_volumique" as const, filter: "all" as const, essaiType: "masse-volumique", basePath: "/essais/granulat/physiques/masse-volumique" },
   { nom: "Los Angeles", table: "echantillons_los_angeles" as const, filter: "gravier" as const, essaiType: "los-angeles", basePath: "/essais/granulat/mecaniques/los-angeles" },
   { nom: "Micro-Deval", table: "echantillons_micro_deval" as const, filter: "gravier" as const, essaiType: "micro-deval", basePath: "/essais/granulat/mecaniques/micro-deval" },
   { nom: "Coefficient d'Aplatissement", table: "echantillons_forme_granulats" as const, filter: "gravier" as const, essaiType: "forme-granulats", basePath: "/essais/granulat/physiques/forme-granulats" },
-  { nom: "Coefficient d'Écrasement", table: "echantillons_ecrasement" as const, filter: "gravier" as const, essaiType: "ecrasement", basePath: "/essais/granulat/mecaniques/ecrasement" },
-  { nom: "Friabilité", table: "echantillons_friabilite" as const, filter: "sable" as const, essaiType: "friabilite", basePath: "/essais/granulat/mecaniques/friabilite" },
 ];
 
 type GranulatTable = typeof GRANULAT_ESSAIS[number]["table"];
@@ -673,62 +670,6 @@ function EssaiStep({
                   </div>
                 );
               })
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Ciment */}
-      {cimentActive && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-         <CardContent className="p-6 space-y-5">
-            <h2 className="text-lg font-bold text-foreground">Essais sur le Ciment</h2>
-            {cimentProducteurId && cimentProduitId ? (
-              <>
-                <h3 className="text-sm font-semibold text-primary">
-                  Ciment ({cimentProduitNom}) — {cimentProducteurNom}
-                </h3>
-                <Separator className="bg-border/50" />
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  
-                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Résistance du Ciment" /></SelectTrigger>
-                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Rapport</Button>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  
-                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Temps de Prise" /></SelectTrigger>
-                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Rapport</Button>
-                </div>
-              </>
-            ) : (
-              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une cimenterie et un produit à l'étape 3.</p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Eau */}
-      {eauActive && (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-          <CardContent className="p-6 space-y-5">
-            <h2 className="text-lg font-bold text-foreground">Essais sur l'Eau</h2>
-            {eauProducteurId && eauProduitId ? (
-              <>
-                <h3 className="text-sm font-semibold text-primary">
-                  Eau ({eauProduitNom}) — {eauProducteurNom}
-                </h3>
-                <Separator className="bg-border/50" />
-                <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-                  
-                  <Select><SelectTrigger className="bg-secondary border-border flex-1"><SelectValue placeholder="Analyse Chimique de l'Eau" /></SelectTrigger>
-                    <SelectContent><SelectItem value="__none" disabled>Aucun rapport disponible</SelectItem></SelectContent></Select>
-                  <Button variant="outline" size="sm" className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap" onClick={() => setStaticDialogOpen(true)}>Rapport</Button>
-                </div>
-              </>
-            ) : (
-              <p className="text-xs italic p-3 text-muted-foreground">Veuillez sélectionner une source d'eau et un produit à l'étape 3.</p>
             )}
           </CardContent>
         </Card>
