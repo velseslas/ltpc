@@ -388,6 +388,27 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
   const [dialogMsg, setDialogMsg] = useState("");
   const [dialogType, setDialogType] = useState<"warning" | "info">("info");
   const [showRapport, setShowRapport] = useState(false);
+  const autoSelected = useRef(false);
+
+  // Auto-select most recent completed report (with results) so values import automatically
+  useEffect(() => {
+    if (autoSelected.current || selectedRapport || filtered.length === 0) return;
+    const best = filtered.find((s: any) => s.resultats && s.statut === "termine") || filtered.find((s: any) => s.resultats);
+    if (best) {
+      autoSelected.current = true;
+      setSelectedRapport(best.id);
+      if (granulatKey && best.resultats) {
+        if (essaiType === "masse-volumique" && onDensityExtracted) {
+          const mvData = extractMvDataFromReport(best.resultats as Record<string, unknown>);
+          if (mvData?.densiteEffective) onDensityExtracted(granulatKey, mvData.densiteEffective);
+        }
+        if (essaiType === "granulometrie" && onModuleFinesseExtracted) {
+          const mfData = extractModuleFinesseFromReport(best.resultats as Record<string, unknown>);
+          if (mfData?.moduleFinesse) onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
+        }
+      }
+    }
+  }, [filtered, selectedRapport, granulatKey, essaiType, onDensityExtracted, onModuleFinesseExtracted]);
 
   // When a MV report is selected, extract density and call back
   const handleReportSelect = (reportId: string) => {
