@@ -610,21 +610,28 @@ export default function FormulationReport() {
                   <tr key={r.code}>
                     <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
                     <td className="border border-black px-2 py-1 text-black">{r.label}</td>
-                    <td className="border border-black px-2 py-1 text-black">—</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
                   </tr>
                 ))}
                 {ciment > 0 && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">C</td>
-                    <td className="border border-black px-2 py-1 text-black">Ciment</td>
                     <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
                   </tr>
                 )}
                 {adjuvant > 0 && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
-                    <td className="border border-black px-2 py-1 text-black">Adjuvant</td>
                     <td className="border border-black px-2 py-1 text-black">{adjuvantNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{adjuvantProducteur || "—"}</td>
+                  </tr>
+                )}
+                {eau > 0 && (
+                  <tr>
+                    <td className="border border-black px-2 py-1 font-bold text-black">E</td>
+                    <td className="border border-black px-2 py-1 text-black">{eauNom}</td>
+                    <td className="border border-black px-2 py-1 text-black">{eauProducteur || "—"}</td>
                   </tr>
                 )}
               </tbody>
@@ -640,12 +647,21 @@ export default function FormulationReport() {
               </thead>
               <tbody>
                 <tr><td className="border border-black px-2 py-1 text-black">Analyse granulométrique, teneur en fines</td><td className="border border-black px-2 py-1 text-black">NF EN 933-1</td></tr>
-                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique apparente et absolue</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-3 / 1097-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Module de finesse des sables</td><td className="border border-black px-2 py-1 text-black">NF EN 12620 / NF P 18-545</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Équivalent de sable (SE)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-8 / NF P 18-597</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Bleu de méthylène (MB)</td><td className="border border-black px-2 py-1 text-black">NF EN 933-9</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Coefficient d'aplatissement</td><td className="border border-black px-2 py-1 text-black">NF EN 933-3</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Los-Angeles (LA)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Micro-Deval (MDE)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-1</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique réelle et absorption</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique apparente (vrac)</td><td className="border border-black px-2 py-1 text-black">NF EN 1097-3</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Friabilité des sables</td><td className="border border-black px-2 py-1 text-black">NF P 18-576</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Plasticité au cône d'Abrams (slump)</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-2</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Masse volumique du béton frais</td><td className="border border-black px-2 py-1 text-black">NF EN 12350-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Confection des éprouvettes d'essai</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-2</td></tr>
                 <tr><td className="border border-black px-2 py-1 text-black">Résistance à la compression</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-3</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Résistance à la traction par fendage</td><td className="border border-black px-2 py-1 text-black">NF EN 12390-6</td></tr>
+                <tr><td className="border border-black px-2 py-1 text-black">Formulation Dreux-Gorisse</td><td className="border border-black px-2 py-1 text-black">Méthode pratique Dreux-Gorisse</td></tr>
               </tbody>
             </table>
 
