@@ -691,8 +691,17 @@ export default function FormulationBetonWizard() {
   const navigate = useNavigate();
   const { formulationId } = useParams<{ formulationId?: string }>();
   const isEdit = !!formulationId;
-  const { data: existingFormulation } = useFormulation(formulationId || "");
+  const { data: existingFormulation, isLoading: isLoadingFormulation, error: formulationError, refetch: refetchFormulation } = useFormulation(formulationId || "");
   const editInitialized = useRef(false);
+
+  // Log + retry on auth errors when editing
+  useEffect(() => {
+    if (isEdit && formulationError) {
+      console.error("[FormulationWizard] Erreur chargement formulation:", formulationError);
+      const timer = setTimeout(() => refetchFormulation(), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isEdit, formulationError, refetchFormulation]);
   const [currentStep, setCurrentStep] = useState(1);
   const [errorSteps, setErrorSteps] = useState<number[]>([]);
   // Step 1
