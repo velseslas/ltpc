@@ -148,6 +148,7 @@ import PermeabiliteReport from "./pages/essais/permeabilite/PermeabiliteReport";
 
 import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
+import FormulationReport from "./pages/essais/formulation/FormulationReport";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
 // Destructif - Carottage
 import CarottageTest from "./pages/essais/destructif/CarottageTest";
