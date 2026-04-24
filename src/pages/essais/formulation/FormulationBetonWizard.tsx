@@ -1488,10 +1488,12 @@ export default function FormulationBetonWizard() {
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={createFormulation.isPending}
+            disabled={createFormulation.isPending || updateFormulation.isPending}
             className="gap-2 gradient-primary text-primary-foreground"
           >
-            {createFormulation.isPending ? "Création..." : "Créer la formulation"}
+            {isEdit
+              ? (updateFormulation.isPending ? "Modification..." : "Enregistrer les modifications")
+              : (createFormulation.isPending ? "Création..." : "Créer la formulation")}
           </Button>
         )}
       </div>
