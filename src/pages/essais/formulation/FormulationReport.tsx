@@ -150,6 +150,13 @@ export default function FormulationReport() {
   const { data: entreprise } = useEntreprise();
   const { data: centrale } = useCentraleBeton(formulation?.centrale_id || "");
   const { data: gEssais } = useFormulationGranulatsEssais(id);
+  const { data: ctx } = useFormulationContext(
+    formulation?.client_id,
+    formulation?.chantier_id,
+    formulation?.maitre_ouvrage_id,
+    formulation?.maitre_oeuvre_id,
+    formulation?.essai_compression_id
+  );
 
   const handlePrint = () => window.print();
 
