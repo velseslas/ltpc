@@ -989,7 +989,85 @@ export default function FormulationReport() {
         </ReportPage>
 
         {/* ============== PAGE 9 — Courbe granulométrique du mélange ============== */}
+        <ReportPage>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="COURBE GRANULOMÉTRIQUE DU MÉLANGE"
+            subtitle={`Méthode Dreux-Gorisse — Réf : Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-3">
+            <p>
+              Représentation graphique des courbes de passants des constituants granulaires et de
+              la <strong>courbe résultante du mélange</strong> (calculée selon les proportions
+              massiques de la formulation).
+            </p>
+
+            <div style={{ width: "100%", height: "400px", background: "#fff" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={courbeData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                  <CartesianGrid stroke="#cbd5e1" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="ouverture"
+                    type="number"
+                    scale="log"
+                    domain={[0.063, 40]}
+                    ticks={[0.063, 0.125, 0.25, 0.5, 1, 2, 4, 5, 8, 10, 12.5, 16, 20, 25, 31.5, 40]}
+                    tick={{ fill: "#000", fontSize: 10 }}
+                    label={{ value: "Ouverture des tamis (mm) — échelle log", position: "insideBottom", offset: -10, fill: "#000", fontSize: 11 }}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+                    tick={{ fill: "#000", fontSize: 10 }}
+                    label={{ value: "Passants (%)", angle: -90, position: "insideLeft", fill: "#000", fontSize: 11 }}
+                  />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  {granulatsList.map((g, idx) => (
+                    <Line
+                      key={g.key}
+                      type="monotone"
+                      dataKey={g.key}
+                      name={g.g?.produit_nom || g.label}
+                      stroke={colors[idx % colors.length]}
+                      strokeWidth={1.5}
+                      dot={{ r: 2 }}
+                      connectNulls
+                    />
+                  ))}
+                  <Line
+                    type="monotone"
+                    dataKey="melange"
+                    name="Mélange (résultante)"
+                    stroke="#000"
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: "#000" }}
+                    connectNulls
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <p className="text-xs italic mt-2 text-black">
+              La courbe « Mélange » est obtenue par pondération massique des passants de chaque
+              constituant selon les proportions de la formulation.
+            </p>
+          </div>
+        </ReportPage>
+
+        {/* ============== PAGE 10 — Tableau des passants ============== */}
         <ReportPage last>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="COURBE GRANULOMÉTRIQUE DU MÉLANGE"
+            subtitle={`Tableau des passants — Réf : Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-4">
+            <p className="font-bold">Tableau : Passants (%) par tamis</p>
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
