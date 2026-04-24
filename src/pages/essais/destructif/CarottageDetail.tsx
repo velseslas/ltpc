@@ -53,7 +53,7 @@ const CarottageDetail = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/saisie`)} className="text-white hover:text-white">
+          <Button variant="outline" size="sm" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/saisie`)} className="">
             <ClipboardEdit className="h-4 w-4 mr-1" /> Saisie de données
           </Button>
           <Button variant="outline" size="sm" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/rapport`)}>

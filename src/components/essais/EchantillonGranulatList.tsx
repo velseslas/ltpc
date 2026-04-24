@@ -254,7 +254,7 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                             e.stopPropagation();
                             navigate(`${basePath}/${echantillon.id}/saisie`);
                           }}
-                          className="text-white focus:text-white"
+                          className=""
                         >
                           <ClipboardEdit className="w-4 h-4 mr-2" />
                           Saisie de données
