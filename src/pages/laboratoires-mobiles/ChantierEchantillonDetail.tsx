@@ -177,7 +177,7 @@ export default function ChantierEchantillonDetail() {
           </Button>
           <Button variant="outline" onClick={() => navigate(`${basePath}/saisie`)}>
             <ClipboardEdit className="h-4 w-4 mr-2" />
-            Saisie données
+            Saisie de données
           </Button>
           <Button variant="outline" onClick={() => navigate(`${basePath}/rapport`)}>
             <FileBarChart className="h-4 w-4 mr-2" />
