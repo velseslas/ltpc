@@ -49,7 +49,7 @@ import { useCimenteries } from "@/hooks/useCimenteries";
 import { useAdjuvants } from "@/hooks/useAdjuvants";
 import { useSourcesEau } from "@/hooks/useSourcesEau";
 import { useProduits } from "@/hooks/useProduits";
-import { useCreateFormulation } from "@/hooks/useFormulations";
+import { useCreateFormulation, useUpdateFormulation, useFormulation } from "@/hooks/useFormulations";
 import { useMaitresOuvrage } from "@/hooks/useMaitresOuvrage";
 import { useMaitresOeuvre } from "@/hooks/useMaitresOeuvre";
 import { supabase } from "@/integrations/supabase/client";
