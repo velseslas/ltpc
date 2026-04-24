@@ -39,7 +39,7 @@ const UltrasonDetail = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie</Button>
+          <Button variant="outline" className="flex items-center gap-2 text-white hover:text-white" onClick={() => navigate(`${basePath}/${id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie de données</Button>
           <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${id}/rapport`)}><FileBarChart className="h-4 w-4" />Rapport</Button>
           <Button className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${id}/modifier`)}><Pencil className="h-4 w-4" />Modifier</Button>
         </div>

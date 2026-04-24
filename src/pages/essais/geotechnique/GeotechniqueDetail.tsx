@@ -580,8 +580,8 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)}>
-            <ClipboardEdit className="w-4 h-4 mr-2" />Saisie
+          <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)} className="text-white hover:text-white">
+            <ClipboardEdit className="w-4 h-4 mr-2" />Saisie de données
           </Button>
           {echantillon.statut === "termine" && (
             <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/rapport`)}>

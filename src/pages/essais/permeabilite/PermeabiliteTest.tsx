@@ -230,7 +230,7 @@ const PermeabiliteTest = () => {
                           Voir détails
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 text-white focus:text-white"
                           onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${echantillon.id}/saisie`)}
                         >
                           <ClipboardEdit className="h-4 w-4" />

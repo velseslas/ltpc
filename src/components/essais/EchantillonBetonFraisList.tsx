@@ -220,9 +220,10 @@ export function EchantillonBetonFraisList({
                             e.stopPropagation();
                             navigate(`${basePath}/${echantillon.id}/saisie`);
                           }}
+                          className="text-white focus:text-white"
                         >
                           <ClipboardEdit className="w-4 h-4 mr-2" />
-                          Saisie
+                          Saisie de données
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e) => {

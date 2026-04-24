@@ -183,7 +183,7 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
             <Button
               variant="outline"
               onClick={() => navigate(`${basePath}/${id}/saisie`)}
-              className="border-border"
+              className="border-border text-white hover:text-white"
             >
               <ClipboardEdit className="h-4 w-4 mr-2" />
               Saisie de données
@@ -287,10 +287,10 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
               </div>
               <Button
                 onClick={() => navigate(`${basePath}/${id}/saisie`)}
-                className="gradient-primary text-primary-foreground mt-4"
+                className="gradient-primary text-white hover:text-white mt-4"
               >
                 <ClipboardEdit className="h-4 w-4 mr-2" />
-                Saisir les résultats
+                Saisie de données
               </Button>
             </CardContent>
           </Card>
