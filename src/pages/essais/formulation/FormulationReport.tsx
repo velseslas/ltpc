@@ -18,6 +18,7 @@ import {
   useFormulationGranulatsEssais,
   GranulatEssais,
 } from "@/hooks/useFormulationGranulatsEssais";
+import { useFormulationContext } from "@/hooks/useFormulationContext";
 import {
   LineChart,
   Line,
