@@ -10,14 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { supabase } from "@/integrations/supabase/client";
 
-interface UtilisateurRow {
-  id: string;
-  nom: string;
-  email: string;
-  role: string;
-  statut: string;
-}
-
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -30,28 +22,7 @@ const Auth = () => {
   const { toast } = useToast();
   const { data: entreprise, isLoading: isEntrepriseLoading } = useEntreprise();
 
-  const [utilisateurs, setUtilisateurs] = useState<UtilisateurRow[]>([]);
-  const [isUsersLoading, setIsUsersLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsUsersLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from("utilisateurs")
-          .select("id, nom, email, role, statut")
-          .order("nom");
-        console.log("Fetched utilisateurs:", data, "error:", error);
-        if (data) setUtilisateurs(data as UtilisateurRow[]);
-        if (error) console.error("Error fetching utilisateurs:", error);
-      } catch (err) {
-        console.error("Exception fetching utilisateurs:", err);
-      } finally {
-        setIsUsersLoading(false);
-      }
-    };
-    fetchUsers();
-  }, []);
+  const isUsersLoading = false;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,24 +31,33 @@ const Auth = () => {
 
     try {
       const trimmed = username.trim().toLowerCase();
-      const matchedUser = utilisateurs.find(
-        (u) => u.nom.trim().toLowerCase() === trimmed || u.email.trim().toLowerCase() === trimmed
-      );
-
-      if (!matchedUser) {
-        setError("Utilisateur ou email introuvable");
+      if (!trimmed) {
+        setError("Identifiant requis");
         return;
       }
 
-      if (matchedUser.statut !== "actif") {
-        setError("Ce compte utilisateur est inactif");
-        return;
+      // Resolve username/email -> email via secure edge function (no PII exposed)
+      let emailToUse = trimmed;
+      if (!trimmed.includes("@")) {
+        const { data: lookup, error: lookupError } = await supabase.functions.invoke(
+          "lookup-user-email",
+          { body: { identifier: trimmed } }
+        );
+        if (lookupError || !lookup?.found) {
+          setError("Identifiants incorrects");
+          return;
+        }
+        if (lookup.statut && lookup.statut !== "actif") {
+          setError("Ce compte utilisateur est inactif");
+          return;
+        }
+        emailToUse = (lookup.email as string).trim().toLowerCase();
       }
 
-      const { error } = await signIn(matchedUser.email.trim().toLowerCase(), password);
+      const { error } = await signIn(emailToUse, password);
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
-          setError("Mot de passe incorrect");
+          setError("Identifiants incorrects");
         } else {
           setError(error.message);
         }
@@ -86,7 +66,7 @@ const Auth = () => {
 
       toast({
         title: "Connexion réussie",
-        description: `Bienvenue ${matchedUser.nom}`,
+        description: `Bienvenue`,
       });
       navigate("/");
     } catch {
