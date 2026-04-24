@@ -986,6 +986,30 @@ export default function FormulationBetonWizard() {
         eau_producteur_id: eauProducteurId || null,
         eau_produit_id: eauProduitId || null,
         eau_quantite: eauQte ? parseFloat(eauQte) : null,
+        // --- Étape 1 ---
+        client_id: clientId || null,
+        chantier_id: chantierId || null,
+        maitre_ouvrage_id: maitreOuvrageId || null,
+        maitre_oeuvre_id: maitreOeuvreId || null,
+        // --- Étape 2 ---
+        resistance_28j: resistance28j ? parseFloat(resistance28j) : null,
+        slump_souhaite: slumpSouhaite ? parseFloat(slumpSouhaite) : null,
+        classe_exposition: classeExposition || null,
+        eau_calculee: calcEau ? parseFloat(calcEau) : null,
+        ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
+        ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
+        // --- Étape 5 ---
+        coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
+        coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
+        dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
+        // --- Étape 6 ---
+        vibration_ae: vibrationAE || null,
+        forme_ae: formeAE || null,
+        kp_ae: kpAE ? parseFloat(kpAE) : null,
+        mf_ideal: mfIdeal ? parseFloat(mfIdeal) : null,
+        // --- Étape 7 ---
+        granulat_densites: Object.keys(granulatDensites).length > 0 ? granulatDensites : null,
+        granulat_module_finesse: Object.keys(granulatModuleFinesse).length > 0 ? granulatModuleFinesse : null,
       });
 
       toast.success("Formulation créée avec succès");
