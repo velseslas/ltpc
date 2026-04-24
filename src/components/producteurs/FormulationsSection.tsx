@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, FlaskConical, Trash2, Loader2, Pencil } from "lucide-react";
+import { Plus, FlaskConical, Trash2, Loader2, Pencil, FileText } from "lucide-react";
 import { useFormulations, useDeleteFormulation, FormulationWithDetails } from "@/hooks/useFormulations";
 import {
   AlertDialog,
@@ -162,7 +162,17 @@ export function FormulationsSection({ centraleId }: FormulationsSectionProps) {
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7 text-muted-foreground hover:text-primary"
+                          onClick={() => navigate(`/essais/beton/formulation/${formulation.id}/rapport`)}
+                          title="Rapport"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-primary"
                           onClick={() => navigate(`/intervenant/producteurs/centrale/${centraleId}/formulation/${formulation.id}/modifier`)}
+                          title="Modifier"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>

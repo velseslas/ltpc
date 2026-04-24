@@ -148,6 +148,7 @@ import PermeabiliteReport from "./pages/essais/permeabilite/PermeabiliteReport";
 
 import FormulationBeton from "./pages/essais/formulation/FormulationBeton";
 import FormulationBetonWizard from "./pages/essais/formulation/FormulationBetonWizard";
+import FormulationReport from "./pages/essais/formulation/FormulationReport";
 import EssaiDestructif from "./pages/essais/EssaiDestructif";
 // Destructif - Carottage
 import CarottageTest from "./pages/essais/destructif/CarottageTest";
@@ -564,6 +565,7 @@ const AppRoutes = () => (
       <Route path="/essais/beton" element={<EssaiBeton />} />
       <Route path="/essais/beton/formulation" element={<FormulationBeton />} />
       <Route path="/essais/beton/formulation/nouveau" element={<FormulationBetonWizard />} />
+      <Route path="/essais/beton/formulation/:id/rapport" element={<FormulationReport />} />
       <Route path="/essais/beton/beton-frais" element={<BetonFrais />} />
       <Route path="/essais/beton/beton-frais/etat-essais" element={<EtatEssaisBetonFrais />} />
       <Route path="/essais/beton/beton-frais/normes" element={<BetonFraisNormes />} />
