@@ -11,6 +11,9 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
+
+const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 
 interface EprouvetteData {
   numero: number;
