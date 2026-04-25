@@ -495,63 +495,6 @@ export default function FormulationReport() {
               </p>
             </div>
 
-            {/* Caractéristiques techniques */}
-            <div
-              style={{
-                margin: "0 auto 24px auto",
-                padding: "16px 24px",
-                border: "1px solid #ccc",
-                borderLeft: "4px solid #1a5276",
-                background: "#ffffff",
-                maxWidth: "560px",
-                width: "100%",
-              }}
-            >
-              <h4 style={{ fontSize: "13px", fontWeight: "bold", color: "#1a5276", marginBottom: "10px", textDecoration: "underline" }}>
-                Caractéristiques de la formulation
-              </h4>
-              <table className="w-full text-sm">
-                <tbody>
-                  {details?.ciment.produit_nom && (
-                    <tr>
-                      <td className="font-bold py-1 text-black w-1/2">Type de ciment :</td>
-                      <td className="py-1 text-black">{cimentNom}</td>
-                    </tr>
-                  )}
-                  <tr>
-                    <td className="font-bold py-1 text-black w-1/2">Dosage ciment :</td>
-                    <td className="py-1 text-black">{ciment} kg/m³</td>
-                  </tr>
-                  {formulation.resistance_28j && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Résistance visée (28j) :</td>
-                      <td className="py-1 text-black">{fmt(formulation.resistance_28j, 1)} MPa</td>
-                    </tr>
-                  )}
-                  {formulation.slump_souhaite && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Affaissement souhaité :</td>
-                      <td className="py-1 text-black">{fmt(formulation.slump_souhaite, 0)} mm</td>
-                    </tr>
-                  )}
-                  {formulation.classe_exposition && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Classe d'exposition :</td>
-                      <td className="py-1 text-black">{formulation.classe_exposition}</td>
-                    </tr>
-                  )}
-                  <tr>
-                    <td className="font-bold py-1 text-black">Rapport E/C :</td>
-                    <td className="py-1 text-black">{ec}</td>
-                  </tr>
-                  <tr>
-                    <td className="font-bold py-1 text-black">Rapport G/S :</td>
-                    <td className="py-1 text-black">{gs}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
             {/* Date à droite — style document */}
             <div className="mt-auto" style={{ textAlign: "right" }}>
               <p style={{ fontSize: "11px", color: "#666" }}>
