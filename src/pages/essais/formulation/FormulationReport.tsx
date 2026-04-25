@@ -160,22 +160,44 @@ export default function FormulationReport() {
     formulation?.essai_compression_id
   );
 
-  // Charge l'essai de convenance complet (Étape 8) pour l'intégrer au rapport
+  // Charge l'essai de convenance complet (Étape 8) pour l'intégrer au rapport.
+  // Fallback automatique : si la formulation n'a pas d'essai_compression_id explicite,
+  // on prend le premier échantillon de compression marqué comme essai de convenance
+  // lié à cette formulation, afin que la page apparaisse toujours dans le rapport.
+  const SELECT_COLS = `
+    id, numero, ouvrage, date_coulage, date_essai, classe_resistance, classe_consistance,
+    dimension_eprouvette, type_eprouvette, condition_cure, etuvage, nombre_eprouvettes,
+    essai_convenance, essai_convenance_details, resultats, jours_essai,
+    temperature_air, temperature_beton,
+    clients(nom), chantiers(nom),
+    intervenants:operateur_id(nom, prenom)
+  `;
   const { data: convenance } = useQuery({
-    queryKey: ["formulation-convenance-full", formulation?.essai_compression_id],
-    enabled: !!formulation?.essai_compression_id,
+    queryKey: [
+      "formulation-convenance-full",
+      formulation?.id,
+      formulation?.essai_compression_id,
+    ],
+    enabled: !!formulation?.id,
     queryFn: async () => {
+      // 1) Essai explicitement lié
+      if (formulation?.essai_compression_id) {
+        const { data, error } = await supabase
+          .from("echantillons_compression")
+          .select(SELECT_COLS)
+          .eq("id", formulation.essai_compression_id)
+          .maybeSingle();
+        if (error) throw error;
+        if (data) return data;
+      }
+      // 2) Fallback : premier essai de convenance lié à la formulation
       const { data, error } = await supabase
         .from("echantillons_compression")
-        .select(`
-          id, numero, ouvrage, date_coulage, date_essai, classe_resistance, classe_consistance,
-          dimension_eprouvette, type_eprouvette, condition_cure, etuvage, nombre_eprouvettes,
-          essai_convenance, essai_convenance_details, resultats, jours_essai,
-          temperature_air, temperature_beton,
-          clients(nom), chantiers(nom),
-          intervenants:operateur_id(nom, prenom)
-        `)
-        .eq("id", formulation!.essai_compression_id!)
+        .select(SELECT_COLS)
+        .eq("formulation_id", formulation!.id)
+        .eq("essai_convenance", true)
+        .order("numero", { ascending: true })
+        .limit(1)
         .maybeSingle();
       if (error) throw error;
       return data;
