@@ -36,14 +36,20 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
       if (!formulationId) return [];
       const { data, error } = await supabase
         .from("echantillons_compression")
-        .select(`id, numero, ouvrage, date_coulage, statut, clients(nom), chantiers(nom)`)
+        .select(`id, numero, ouvrage, date_coulage, statut, essai_convenance, essai_convenance_details, formulation_id, clients(nom), chantiers(nom)`)
         .eq("formulation_id", formulationId)
         .eq("essai_convenance", true)
         .order("numero", { ascending: true });
-      if (error) throw error;
+      if (error) {
+        console.error("[ConvenanceStep] query error", error);
+        throw error;
+      }
+      console.log("[ConvenanceStep] formulationId=", formulationId, "rows=", data?.length, data);
       return data || [];
     },
     enabled: !!formulationId,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   // Auto-select first available
