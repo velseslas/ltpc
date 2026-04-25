@@ -128,7 +128,7 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
             Rapport d'essai de convenance
           </span>
           <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-            <Select value={selectedId} onValueChange={setSelectedId} disabled={!formulationId || isLoading}>
+            <Select value={selectedId} onValueChange={handleSelect} disabled={!formulationId || isLoading}>
               <SelectTrigger className="bg-secondary border-border flex-1">
                 <SelectValue
                   placeholder={
