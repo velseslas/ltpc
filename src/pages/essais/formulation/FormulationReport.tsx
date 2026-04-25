@@ -651,9 +651,21 @@ export default function FormulationReport() {
               </tbody>
             </table>
 
-            <div className="mt-6">
-              <h3 className="text-base font-bold underline">ESSAIS RÉALISÉS SUR GRANULATS ET BÉTON</h3>
-              <table className="w-full border-collapse border border-black text-xs mt-2" style={{ pageBreakInside: 'auto' }}>
+          </div>
+        </ReportPage>
+
+        {/* ============== PAGE 3 — Essais réalisés ============== */}
+        <ReportPage>
+          <ReportHeader
+            entreprise={entreprise}
+            verificationUrl={verificationUrl}
+            title="ÉTUDE DE COMPOSITION DE BÉTON"
+            subtitle={`Rapport N° ${numeroRapport}`}
+          />
+
+          <div className="text-sm text-black space-y-4" style={{ lineHeight: 1.6 }}>
+            <h3 className="text-base font-bold underline">ESSAIS RÉALISÉS SUR GRANULATS ET BÉTON</h3>
+            <table className="w-full border-collapse border border-black text-xs mt-2" style={{ pageBreakInside: 'auto' }}>
               <thead style={{ display: 'table-header-group' }}>
                 <tr className="bg-gray-100">
                   <th className="border border-black px-2 py-0.5 text-left text-black">Essais</th>
@@ -699,7 +711,6 @@ export default function FormulationReport() {
             <p className="text-xs italic mt-4 text-black">
               * La production de ce rapport d'essais n'est autorisée que sous sa forme intégrale.
             </p>
-            </div>
           </div>
         </ReportPage>
 
