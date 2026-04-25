@@ -29,6 +29,22 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
   const [selectedId, setSelectedId] = useState("");
   const [showRapport, setShowRapport] = useState(false);
   const [dialogMsg, setDialogMsg] = useState("");
+  const [savedHint, setSavedHint] = useState("");
+
+  // Charge la valeur actuellement persistée
+  const { data: currentFormulation } = useQuery({
+    queryKey: ["formulation-essai-compression", formulationId],
+    enabled: !!formulationId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("formulations")
+        .select("essai_compression_id")
+        .eq("id", formulationId!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: echantillons = [], isLoading } = useQuery({
     queryKey: ["echantillons-compression-convenance", formulationId],
@@ -44,7 +60,6 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
         console.error("[ConvenanceStep] query error", error);
         throw error;
       }
-      console.log("[ConvenanceStep] formulationId=", formulationId, "rows=", data?.length, data);
       return data || [];
     },
     enabled: !!formulationId,
@@ -52,12 +67,33 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
     refetchOnMount: "always",
   });
 
-  // Auto-select first available
+  // Initialise depuis la valeur persistée OU auto-select premier
   useEffect(() => {
-    if (!selectedId && echantillons.length > 0) {
+    if (selectedId) return;
+    const persisted = (currentFormulation as any)?.essai_compression_id;
+    if (persisted && echantillons.some((e: any) => e.id === persisted)) {
+      setSelectedId(persisted);
+    } else if (echantillons.length > 0) {
       setSelectedId(echantillons[0].id);
     }
-  }, [echantillons, selectedId]);
+  }, [echantillons, selectedId, currentFormulation]);
+
+  // Persiste à chaque changement
+  const handleSelect = async (id: string) => {
+    setSelectedId(id);
+    if (!formulationId || !id) return;
+    const { error } = await supabase
+      .from("formulations")
+      .update({ essai_compression_id: id })
+      .eq("id", formulationId);
+    if (error) {
+      console.error("[ConvenanceStep] save error", error);
+      setSavedHint("Erreur d'enregistrement");
+    } else {
+      setSavedHint("✓ Enregistré");
+      setTimeout(() => setSavedHint(""), 1500);
+    }
+  };
 
   const handleVoirRapport = () => {
     if (!formulationId) {
