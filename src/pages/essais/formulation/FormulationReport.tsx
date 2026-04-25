@@ -437,84 +437,89 @@ export default function FormulationReport() {
       >
         {/* ============== PAGE 1 — Page de garde ============== */}
         <ReportPage>
-          <div className="flex flex-col h-full" style={{ minHeight: "265mm" }}>
-            {/* Header company */}
-            <div className="text-center mb-8">
-              {entreprise?.logo_url && (
-                <img
-                  src={entreprise.logo_url}
-                  alt="Logo"
-                  className="mx-auto mb-4"
-                  style={{ maxHeight: "120px", objectFit: "contain" }}
-                  crossOrigin="anonymous"
-                />
-              )}
-              <h1 className="text-2xl font-bold text-[#1e5a7a]">
-                {entreprise?.nom || "Laboratoire"}
-              </h1>
-              <p className="text-sm mt-1 text-black">
-                Autorisation N° {entreprise?.numero_autorisation || "—"}
-                {entreprise?.date_autorisation && (
-                  <> du {format(new Date(entreprise.date_autorisation), "dd/MM/yyyy", { locale: fr })}</>
-                )}
-              </p>
-            </div>
+          <div className="flex flex-col h-full" style={{ minHeight: "265mm", fontFamily: "'Times New Roman', Georgia, serif" }}>
+            {/* En-tête style document */}
+            <DocumentPageHeader
+              entreprise={entreprise as any}
+              qrData={verificationUrl}
+              title="ÉTUDE DE COMPOSITION DE BÉTON"
+              subtitle={`Rapport N° ${numeroRapport}`}
+            />
 
-            <div className="text-right text-sm mb-12 text-black">
+            {/* Dossier N° à droite */}
+            <div className="text-right text-sm text-black mb-6">
               <p>
                 <span className="font-bold">Dossier N° :</span>{" "}
                 {format(new Date(formulation.created_at), "MM/yy", { locale: fr })}
               </p>
             </div>
 
-            <div className="text-center my-12">
-              <h2 className="text-3xl font-bold text-black mb-4 underline">
-                ÉTUDE DE COMPOSITION DE BÉTON
-              </h2>
-              <h3 className="text-2xl font-bold text-[#1e5a7a]">
-                RAPPORT N° {numeroRapport}
-              </h3>
+            {/* Bloc d'information principal — style document (encadré, bordure gauche colorée) */}
+            <div
+              style={{
+                margin: "20px auto 32px auto",
+                padding: "20px 24px",
+                border: "1px solid #ccc",
+                borderLeft: "4px solid #1a5276",
+                background: "#f8fafc",
+                maxWidth: "560px",
+                width: "100%",
+              }}
+            >
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                <strong style={{ textDecoration: "underline" }}>Formulation</strong> : <strong>{formulation.nom}</strong>
+              </p>
+              {ctx?.client_nom && (
+                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                  <strong style={{ textDecoration: "underline" }}>Client</strong> : Entreprise <strong>{ctx.client_nom}</strong>
+                </p>
+              )}
+              {ctx?.chantier_nom && (
+                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                  <strong style={{ textDecoration: "underline" }}>Chantier</strong> : <strong>{ctx.chantier_nom}</strong>
+                </p>
+              )}
+              {ctx?.maitre_ouvrage_nom && (
+                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                  <strong style={{ textDecoration: "underline" }}>Maître d'ouvrage</strong> : <strong>{ctx.maitre_ouvrage_nom}</strong>
+                </p>
+              )}
+              {ctx?.maitre_oeuvre_nom && (
+                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                  <strong style={{ textDecoration: "underline" }}>Maître d'œuvre</strong> : <strong>{ctx.maitre_oeuvre_nom}</strong>
+                </p>
+              )}
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                <strong style={{ textDecoration: "underline" }}>Centrale à béton</strong> : <strong>{centrale?.nom || "—"}</strong>
+                {centrale?.ville ? ` — ${centrale.ville}` : ""}
+              </p>
             </div>
 
-            <div className="border-2 border-black rounded p-6 mx-auto my-6" style={{ maxWidth: "560px" }}>
+            {/* Caractéristiques techniques */}
+            <div
+              style={{
+                margin: "0 auto 24px auto",
+                padding: "16px 24px",
+                border: "1px solid #ccc",
+                borderLeft: "4px solid #1a5276",
+                background: "#ffffff",
+                maxWidth: "560px",
+                width: "100%",
+              }}
+            >
+              <h4 style={{ fontSize: "13px", fontWeight: "bold", color: "#1a5276", marginBottom: "10px", textDecoration: "underline" }}>
+                Caractéristiques de la formulation
+              </h4>
               <table className="w-full text-sm">
                 <tbody>
-                  <tr>
-                    <td className="font-bold py-1 text-black w-1/2">Formulation :</td>
-                    <td className="py-1 text-black">{formulation.nom}</td>
-                  </tr>
-                  {ctx?.client_nom && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Client :</td>
-                      <td className="py-1 text-black">{ctx.client_nom}</td>
-                    </tr>
-                  )}
-                  {ctx?.chantier_nom && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Chantier :</td>
-                      <td className="py-1 text-black">{ctx.chantier_nom}</td>
-                    </tr>
-                  )}
-                  {ctx?.maitre_ouvrage_nom && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Maître d'ouvrage :</td>
-                      <td className="py-1 text-black">{ctx.maitre_ouvrage_nom}</td>
-                    </tr>
-                  )}
-                  {ctx?.maitre_oeuvre_nom && (
-                    <tr>
-                      <td className="font-bold py-1 text-black">Maître d'œuvre :</td>
-                      <td className="py-1 text-black">{ctx.maitre_oeuvre_nom}</td>
-                    </tr>
-                  )}
                   {details?.ciment.produit_nom && (
                     <tr>
-                      <td className="font-bold py-1 text-black">Type de ciment :</td>
+                      <td className="font-bold py-1 text-black w-1/2">Type de ciment :</td>
                       <td className="py-1 text-black">{cimentNom}</td>
                     </tr>
                   )}
                   <tr>
-                    <td className="font-bold py-1 text-black">Dosage ciment :</td>
+                    <td className="font-bold py-1 text-black w-1/2">Dosage ciment :</td>
                     <td className="py-1 text-black">{ciment} kg/m³</td>
                   </tr>
                   {formulation.resistance_28j && (
@@ -547,34 +552,11 @@ export default function FormulationReport() {
               </table>
             </div>
 
-            <div className="mt-auto text-sm text-black">
-              <p className="mb-1">
-                <span className="font-bold">Centrale à béton :</span>{" "}
-                {centrale?.nom || "—"}
-                {centrale?.ville ? ` — ${centrale.ville}` : ""}
+            {/* Date à droite — style document */}
+            <div className="mt-auto" style={{ textAlign: "right" }}>
+              <p style={{ fontSize: "11px", color: "#666" }}>
+                Fait le {dateRapport}
               </p>
-              {entreprise?.siege_social && (
-                <p className="mb-1">
-                  <span className="font-bold">Siège Social :</span> {entreprise.siege_social}
-                </p>
-              )}
-              {entreprise?.annexe && (
-                <p className="mb-1">
-                  <span className="font-bold">Laboratoire :</span> {entreprise.annexe}
-                </p>
-              )}
-              {entreprise?.telephone && (
-                <p className="mb-1">
-                  <span className="font-bold">Tél :</span> {entreprise.telephone}
-                  {entreprise?.email && (
-                    <>
-                      {" — "}
-                      <span className="font-bold">E-mail :</span> {entreprise.email}
-                    </>
-                  )}
-                </p>
-              )}
-              <p className="text-center font-bold mt-6 text-base">{dateRapport.toUpperCase()}</p>
             </div>
           </div>
         </ReportPage>
