@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
@@ -73,6 +73,8 @@ interface EchantillonData {
 const CompressionReport = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const embed = searchParams.get("embed") === "1";
   const reportRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
@@ -335,45 +337,48 @@ const CompressionReport = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header avec actions - Caché à l'impression */}
-      <div className="print:hidden">
-        <EssaiBreadcrumb 
-          items={[
-            { label: "Béton", path: "/essais/beton" },
-            { label: "Béton Durci", path: "/essais/beton/beton-durci" },
-            { label: "Compression", path: "/essais/beton/beton-durci/compression" },
-            { label: <><span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}</>, path: `/essais/beton/beton-durci/compression/${id}` },
-            { label: "Rapport" }
-          ]} 
-        />
-      </div>
-      
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}`)}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-semibold text-foreground">
-            Rapport de compression — <span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}
-          </h1>
-        </div>
-        <div className="flex gap-3">
-          <ShareButton />
-          <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
-            <Printer className="h-4 w-4" />
-            Imprimer
-          </Button>
-          <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Télécharger PDF
-          </Button>
-        </div>
-      </div>
+      {!embed && (
+        <>
+          <div className="print:hidden">
+            <EssaiBreadcrumb 
+              items={[
+                { label: "Béton", path: "/essais/beton" },
+                { label: "Béton Durci", path: "/essais/beton/beton-durci" },
+                { label: "Compression", path: "/essais/beton/beton-durci/compression" },
+                { label: <><span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}</>, path: `/essais/beton/beton-durci/compression/${id}` },
+                { label: "Rapport" }
+              ]} 
+            />
+          </div>
+          
+          <div className="flex items-center justify-between print:hidden">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}`)}
+                className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-semibold text-foreground">
+                Rapport de compression — <span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}
+              </h1>
+            </div>
+            <div className="flex gap-3">
+              <ShareButton />
+              <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
+                <Printer className="h-4 w-4" />
+                Imprimer
+              </Button>
+              <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Télécharger PDF
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Rapport */}
       <div 

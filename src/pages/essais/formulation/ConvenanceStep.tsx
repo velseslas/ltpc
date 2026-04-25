@@ -136,6 +136,17 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
           )}
         </div>
 
+        {/* Préchargement masqué pour accélérer l'affichage du rapport */}
+        {selectedId && (
+          <iframe
+            src={`/essais/beton/beton-durci/compression/${selectedId}/rapport?embed=1`}
+            title="Préchargement rapport"
+            aria-hidden="true"
+            tabIndex={-1}
+            style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", border: 0 }}
+          />
+        )}
+
         <Dialog open={showRapport} onOpenChange={setShowRapport}>
           <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 flex flex-col">
             <DialogHeader className="p-4 border-b border-border">
@@ -149,6 +160,7 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
                   src={`/essais/beton/beton-durci/compression/${selectedId}/rapport?embed=1`}
                   className="w-full h-full border-0"
                   title="Rapport essai de convenance"
+                  loading="eager"
                 />
               )}
             </div>
