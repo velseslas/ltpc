@@ -40,6 +40,7 @@ import { Separator } from "@/components/ui/separator";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import ProportionsStep from "./ProportionsStep";
 import PointAEStep from "./PointAEStep";
+import ConvenanceStep from "./ConvenanceStep";
 import CoefficientStep from "./CoefficientStep";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
@@ -86,6 +87,7 @@ const STEPS = [
   { number: 5, label: "Coefficients" },
   { number: 6, label: "Calcul A et E" },
   { number: 7, label: "Calcul proportions" },
+  { number: 8, label: "Essai de convenance" },
 ];
 
 // Stepper component
@@ -1210,12 +1212,13 @@ export default function FormulationBetonWizard() {
       case 5: return coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0;
       case 6: return vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfIdeal.trim().length > 0;
       case 7: return true;
+      case 8: return true;
       default: return false;
     }
   };
 
   const handleNext = () => {
-    if (currentStep < 7) {
+    if (currentStep < 8) {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1686,6 +1689,11 @@ export default function FormulationBetonWizard() {
         />
       </div>
 
+      {/* Step 8 - Essai de convenance */}
+      <div className={currentStep === 8 ? "" : "hidden"}>
+        <ConvenanceStep formulationId={formulationId} clientId={clientId} chantierId={chantierId} />
+      </div>
+
       {/* Navigation */}
       <div className="flex justify-between pt-2">
         <Button
@@ -1707,15 +1715,33 @@ export default function FormulationBetonWizard() {
             Suivant
             <ArrowRight className="w-4 h-4" />
           </Button>
+        ) : currentStep === 7 ? (
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSubmit}
+              disabled={createFormulation.isPending || updateFormulation.isPending}
+              className="gap-2 gradient-primary text-primary-foreground"
+            >
+              {isEdit
+                ? (updateFormulation.isPending ? "Modification..." : "Enregistrer les modifications")
+                : (createFormulation.isPending ? "Création..." : "Créer la formulation")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleNext}
+              className="gap-2"
+            >
+              Suivant
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
         ) : (
           <Button
-            onClick={handleSubmit}
-            disabled={createFormulation.isPending || updateFormulation.isPending}
-            className="gap-2 gradient-primary text-primary-foreground"
+            variant="outline"
+            onClick={() => navigate("/essais/beton/formulation")}
+            className="gap-2"
           >
-            {isEdit
-              ? (updateFormulation.isPending ? "Modification..." : "Enregistrer les modifications")
-              : (createFormulation.isPending ? "Création..." : "Créer la formulation")}
+            Terminer
           </Button>
         )}
       </div>
