@@ -1211,6 +1211,7 @@ export default function FormulationBetonWizard() {
       case 5: return coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0;
       case 6: return vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfIdeal.trim().length > 0;
       case 7: return true;
+      case 8: return true;
       default: return false;
     }
   };
