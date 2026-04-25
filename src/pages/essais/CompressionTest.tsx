@@ -190,7 +190,11 @@ const CompressionTest = () => {
                       {echantillon.chantiers?.nom ?? "-"}
                     </TableCell>
                     <TableCell className="text-foreground">
-                      {echantillon.ouvrage ?? "-"}
+                      {echantillon.essai_convenance ? (
+                        <span className="text-primary font-medium">Essai de convenance</span>
+                      ) : (
+                        echantillon.ouvrage ?? "-"
+                      )}
                     </TableCell>
                     <TableCell className="text-foreground">
                       {echantillon.usage ?? "-"}
