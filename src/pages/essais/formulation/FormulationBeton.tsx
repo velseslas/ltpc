@@ -259,6 +259,18 @@ const FormulationBeton = () => {
                           <FileText className="w-3.5 h-3.5" />
                           Rapport
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/essais/beton/formulation/${f.id}/convenance`);
+                          }}
+                        >
+                          <ClipboardCheck className="w-3.5 h-3.5" />
+                          Convenance
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
