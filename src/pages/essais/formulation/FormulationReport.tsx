@@ -11,6 +11,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import ShareButton from "@/components/reports/ShareButton";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulation } from "@/hooks/useFormulations";
