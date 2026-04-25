@@ -778,6 +778,8 @@ const CompressionReport = () => {
             </div>
           </div>
         </div>
+        {/* Fin page 2+ */}
+      </div>
       {/* Styles d'impression */}
       <style>{`
         @media print {
