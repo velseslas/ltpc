@@ -1475,7 +1475,15 @@ export default function FormulationReport() {
                           <td className="border border-black px-2 py-1 text-center text-black">{r.numero}</td>
                           <td className="border border-black px-2 py-1 text-center text-black">{r.joursEssai}</td>
                           <td className="border border-black px-2 py-1 text-center text-black">
-                            {r.dateEssai ? format(new Date(r.dateEssai), "dd/MM/yyyy", { locale: fr }) : "—"}
+                            {(() => {
+                              if (!r.dateEssai) return "—";
+                              // Si déjà au format dd/MM/yyyy, afficher tel quel
+                              if (typeof r.dateEssai === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(r.dateEssai)) {
+                                return r.dateEssai;
+                              }
+                              const d = new Date(r.dateEssai);
+                              return isNaN(d.getTime()) ? String(r.dateEssai) : format(d, "dd/MM/yyyy", { locale: fr });
+                            })()}
                           </td>
                           <td className="border border-black px-2 py-1 text-center text-black">{fmt(r.poids, 3)}</td>
                           <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(r.densite)}</td>
