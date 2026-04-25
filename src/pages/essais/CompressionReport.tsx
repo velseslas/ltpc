@@ -386,6 +386,7 @@ const CompressionReport = () => {
       {/* Rapport */}
       <div 
         ref={reportRef}
+        data-ref="report"
         className="report-table max-w-4xl mx-auto"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
