@@ -11,6 +11,9 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
+
+const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 
 interface EprouvetteData {
   numero: number;
@@ -383,15 +386,105 @@ const CompressionReport = () => {
       {/* Rapport */}
       <div 
         ref={reportRef}
-        className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4"
+        data-ref="report"
+        className="report-table max-w-4xl mx-auto"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
+        {/* ============ PAGE DE GARDE (style document) ============ */}
+        <div
+          data-pdf-page
+          className="bg-white text-black shadow-xl print:shadow-none mb-8 print:mb-0 print:break-after-page"
+          style={{
+            padding: "32px 40px",
+            minHeight: "1123px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <DocumentPageHeader
+              entreprise={entreprise}
+              qrData={verificationUrl}
+              title="RAPPORT D'ESSAI DE COMPRESSION"
+              subtitle={
+                echantillon.essai_convenance
+                  ? "« Essai de convenance — Résistance à la compression du béton »"
+                  : "« Résistance à la compression du béton — Norme NF EN 12390-3 »"
+              }
+            />
+
+            {/* Numéro de rapport */}
+            <div style={{ textAlign: "center", margin: "32px 0" }}>
+              <p style={{ fontSize: "13px", color: "#666", marginBottom: "6px", ...sectionStyle }}>
+                Référence du rapport
+              </p>
+              <p style={{ fontSize: "22px", fontWeight: "bold", color: "#1a5276", letterSpacing: "2px", ...sectionStyle }}>
+                EC-{String(echantillon.numero).padStart(3, "0")}
+              </p>
+            </div>
+          </div>
+
+          {/* Bloc d'identification du projet */}
+          <div
+            style={{
+              margin: "24px 0",
+              padding: "20px 24px",
+              border: "1px solid #ccc",
+              borderLeft: "4px solid #1a5276",
+              background: "#f8fafc",
+            }}
+          >
+            <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
+              <strong style={{ textDecoration: "underline" }}>Client</strong> : Entreprise{" "}
+              <strong>{echantillon.client_nom}</strong>
+            </p>
+            <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
+              <strong style={{ textDecoration: "underline" }}>Chantier</strong> :{" "}
+              <strong>{echantillon.chantier_nom}</strong>
+            </p>
+            {echantillon.ouvrage && echantillon.ouvrage !== "-" && (
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
+                <strong style={{ textDecoration: "underline" }}>Ouvrage</strong> :{" "}
+                <strong>{echantillon.ouvrage}</strong>
+              </p>
+            )}
+            {echantillon.essai_convenance && (
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: "1.6", ...sectionStyle }}>
+                <strong style={{ textDecoration: "underline" }}>Type d'essai</strong> :{" "}
+                <strong>Essai de convenance</strong>
+                {echantillon.essai_convenance_details ? ` — ${echantillon.essai_convenance_details}` : ""}
+              </p>
+            )}
+            <p style={{ fontSize: "13px", lineHeight: "1.6", ...sectionStyle }}>
+              <strong style={{ textDecoration: "underline" }}>Date de coulage</strong> :{" "}
+              <strong>{echantillon.date_coulage}</strong>
+            </p>
+          </div>
+
+          {/* Pied de page */}
+          <div style={{ textAlign: "right", borderTop: "1px solid #e5e7eb", paddingTop: "12px" }}>
+            <p style={{ fontSize: "11px", color: "#666", ...sectionStyle }}>
+              Fait le {format(new Date(), "dd/MM/yyyy", { locale: fr })}
+            </p>
+            <p style={{ fontSize: "11px", color: "#666", marginTop: "4px", ...sectionStyle }}>
+              Technicien : <strong>{echantillon.operateur_nom}</strong>
+            </p>
+          </div>
+        </div>
+
+        {/* ============ PAGE 2+ : RAPPORT DÉTAILLÉ ============ */}
+        <div
+          data-pdf-page
+          className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 print:rounded-none"
+        >
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
             title="RAPPORT D'ESSAI DE COMPRESSION"
             subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
           />
+
 
           {/* Identification de l'échantillon */}
           {/* Identification de l'échantillon */}
@@ -686,6 +779,8 @@ const CompressionReport = () => {
             </div>
           </div>
         </div>
+        {/* Fin page 2+ */}
+      </div>
       {/* Styles d'impression */}
       <style>{`
         @media print {
