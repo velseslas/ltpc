@@ -86,6 +86,7 @@ const STEPS = [
   { number: 5, label: "Coefficients" },
   { number: 6, label: "Calcul A et E" },
   { number: 7, label: "Calcul proportions" },
+  { number: 8, label: "Essai de convenance" },
 ];
 
 // Stepper component
