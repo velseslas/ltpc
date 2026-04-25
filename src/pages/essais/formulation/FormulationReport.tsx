@@ -160,6 +160,28 @@ export default function FormulationReport() {
     formulation?.essai_compression_id
   );
 
+  // Charge l'essai de convenance complet (Étape 8) pour l'intégrer au rapport
+  const { data: convenance } = useQuery({
+    queryKey: ["formulation-convenance-full", formulation?.essai_compression_id],
+    enabled: !!formulation?.essai_compression_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("echantillons_compression")
+        .select(`
+          id, numero, ouvrage, date_coulage, date_essai, classe_resistance, classe_consistance,
+          dimension_eprouvette, type_eprouvette, condition_cure, etuvage, nombre_eprouvettes,
+          essai_convenance, essai_convenance_details, resultats, jours_essai,
+          temperature_air, temperature_beton,
+          clients(nom), chantiers(nom),
+          intervenants:operateur_id(nom, prenom)
+        `)
+        .eq("id", formulation!.essai_compression_id!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
