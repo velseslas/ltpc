@@ -1,18 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { FileBarChart, Loader2, Plus, ClipboardList } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -22,29 +25,18 @@ interface ConvenanceStepProps {
   chantierId?: string;
 }
 
-const getStatutBadge = (statut: string) => {
-  switch (statut) {
-    case "en-cours":
-      return <Badge variant="outline" className="border-yellow-500/50 text-yellow-500 bg-yellow-500/10">En cours</Badge>;
-    case "termine":
-      return <Badge variant="outline" className="border-emerald-500/50 text-emerald-500 bg-emerald-500/10">Terminé</Badge>;
-    case "a-faire":
-      return <Badge variant="outline" className="border-sky-500/50 text-sky-500 bg-sky-500/10">À faire</Badge>;
-    default:
-      return <Badge variant="outline" className="border-muted-foreground/50 text-muted-foreground">{statut}</Badge>;
-  }
-};
+export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
+  const [selectedId, setSelectedId] = useState("");
+  const [showRapport, setShowRapport] = useState(false);
+  const [dialogMsg, setDialogMsg] = useState("");
 
-export function ConvenanceStep({ formulationId, clientId, chantierId }: ConvenanceStepProps) {
-  const navigate = useNavigate();
-
-  const { data: echantillons, isLoading } = useQuery({
+  const { data: echantillons = [], isLoading } = useQuery({
     queryKey: ["echantillons-compression-convenance", formulationId],
     queryFn: async () => {
       if (!formulationId) return [];
       const { data, error } = await supabase
         .from("echantillons_compression")
-        .select(`*, clients(id, nom), chantiers(id, nom)`)
+        .select(`id, numero, ouvrage, date_coulage, statut, clients(nom), chantiers(nom)`)
         .eq("formulation_id", formulationId)
         .eq("essai_convenance", true)
         .order("numero", { ascending: true });
@@ -54,104 +46,107 @@ export function ConvenanceStep({ formulationId, clientId, chantierId }: Convenan
     enabled: !!formulationId,
   });
 
-  const handleCreate = () => {
-    const params = new URLSearchParams();
-    params.set("convenance", "1");
-    if (formulationId) params.set("formulationId", formulationId);
-    if (clientId) params.set("clientId", clientId);
-    if (chantierId) params.set("chantierId", chantierId);
-    navigate(`/essais/beton/beton-durci/compression/nouveau?${params.toString()}`);
+  // Auto-select first available
+  useEffect(() => {
+    if (!selectedId && echantillons.length > 0) {
+      setSelectedId(echantillons[0].id);
+    }
+  }, [echantillons, selectedId]);
+
+  const handleVoirRapport = () => {
+    if (!formulationId) {
+      setDialogMsg("Enregistrez d'abord la formulation.");
+      return;
+    }
+    if (echantillons.length === 0) {
+      setDialogMsg("Aucun essai de convenance disponible pour cette formulation.");
+      return;
+    }
+    if (!selectedId) {
+      setDialogMsg("Veuillez sélectionner un rapport avant de le consulter.");
+      return;
+    }
+    setShowRapport(true);
   };
+
+  const selected = echantillons.find((e: any) => e.id === selectedId);
 
   return (
     <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
       <CardContent className="p-6 space-y-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Essai de convenance</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Liste des essais de compression marqués comme essai de convenance pour cette formulation.
-            </p>
-          </div>
-          <Button onClick={handleCreate} className="gap-2 gradient-primary text-primary-foreground" disabled={!formulationId}>
-            <Plus className="w-4 h-4" />
-            Nouveau essai de convenance
-          </Button>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Essai de convenance</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Sélectionnez un rapport d'essai de compression marqué comme convenance pour cette formulation.
+          </p>
         </div>
 
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-medium">N°</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Client</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Chantier</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
-                <TableHead className="text-muted-foreground font-medium">Date de coulage</TableHead>
-                <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
-                <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {!formulationId ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    Enregistrez d'abord la formulation pour pouvoir associer des essais de convenance.
-                  </TableCell>
-                </TableRow>
-              ) : isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
-              ) : !echantillons || echantillons.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    Aucun essai de convenance pour cette formulation
-                  </TableCell>
-                </TableRow>
-              ) : (
-                echantillons.map((e: any) => (
-                  <TableRow key={e.id} className="border-border">
-                    <TableCell className="font-medium text-foreground">
-                      <span className="text-primary">EC</span>-{String(e.numero).padStart(3, "0")}
-                    </TableCell>
-                    <TableCell className="text-foreground">{e.clients?.nom ?? "-"}</TableCell>
-                    <TableCell className="text-foreground">{e.chantiers?.nom ?? "-"}</TableCell>
-                    <TableCell className="text-foreground">{e.ouvrage ?? "-"}</TableCell>
-                    <TableCell className="text-foreground">
-                      {e.date_coulage ? format(new Date(e.date_coulage), "dd/MM/yyyy", { locale: fr }) : "-"}
-                    </TableCell>
-                    <TableCell className="text-center">{getStatutBadge(e.statut)}</TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1.5 text-primary hover:bg-primary/10"
-                          onClick={() => navigate(`/essais/beton/beton-durci/compression/${e.id}`)}
-                        >
-                          <ClipboardList className="w-3.5 h-3.5" />
-                          Détails
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="gap-1.5 text-primary hover:bg-primary/10"
-                          onClick={() => navigate(`/essais/beton/beton-durci/compression/${e.id}/rapport`)}
-                        >
-                          <FileBarChart className="w-3.5 h-3.5" />
-                          Rapport
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <div className="space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground ml-1">
+            Rapport d'essai de convenance
+          </span>
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
+            <Select value={selectedId} onValueChange={setSelectedId} disabled={!formulationId || isLoading}>
+              <SelectTrigger className="bg-secondary border-border flex-1">
+                <SelectValue
+                  placeholder={
+                    !formulationId
+                      ? "Enregistrez la formulation pour activer la sélection"
+                      : isLoading
+                      ? "Chargement..."
+                      : "Sélectionner rapport"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {echantillons.length === 0 ? (
+                  <SelectItem value="__none" disabled>
+                    Aucun rapport disponible
+                  </SelectItem>
+                ) : (
+                  echantillons.map((e: any) => (
+                    <SelectItem key={e.id} value={e.id}>
+                      EC-{String(e.numero).padStart(3, "0")}
+                      {e.clients?.nom ? ` — ${e.clients.nom}` : ""}
+                      {e.chantiers?.nom ? ` — ${e.chantiers.nom}` : ""}
+                      {e.date_coulage ? ` — ${format(new Date(e.date_coulage), "dd/MM/yyyy", { locale: fr })}` : ""}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap"
+              onClick={handleVoirRapport}
+            >
+              Voir rapport
+            </Button>
+          </div>
+          {dialogMsg && (
+            <p className="text-xs text-destructive ml-1">{dialogMsg}</p>
+          )}
         </div>
+
+        <Dialog open={showRapport} onOpenChange={setShowRapport}>
+          <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 flex flex-col">
+            <DialogHeader className="p-4 border-b border-border">
+              <DialogTitle>
+                Rapport {selected ? `EC-${String(selected.numero).padStart(3, "0")}` : ""} — Essai de convenance
+              </DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-hidden">
+              {selectedId && showRapport && (
+                <iframe
+                  src={`/essais/beton/beton-durci/compression/${selectedId}/rapport`}
+                  className="w-full h-full border-0"
+                  title="Rapport essai de convenance"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
