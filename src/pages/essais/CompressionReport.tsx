@@ -73,6 +73,8 @@ interface EchantillonData {
 const CompressionReport = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const embed = searchParams.get("embed") === "1";
   const reportRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
