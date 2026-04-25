@@ -337,8 +337,6 @@ const CompressionReport = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header avec actions - Caché à l'impression */}
-      <div className="print:hidden">
       {!embed && (
         <>
           <div className="print:hidden">
