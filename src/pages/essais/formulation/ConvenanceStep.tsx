@@ -144,11 +144,12 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
               </DialogTitle>
             </DialogHeader>
             <div className="flex-1 overflow-hidden">
-              {selectedId && showRapport && (
+              {selectedId && (
                 <iframe
                   src={`/essais/beton/beton-durci/compression/${selectedId}/rapport?embed=1`}
                   className="w-full h-full border-0"
                   title="Rapport essai de convenance"
+                  loading="eager"
                 />
               )}
             </div>
