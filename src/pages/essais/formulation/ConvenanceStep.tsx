@@ -170,6 +170,9 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
           {dialogMsg && (
             <p className="text-xs text-destructive ml-1">{dialogMsg}</p>
           )}
+          {savedHint && (
+            <p className="text-xs text-primary ml-1">{savedHint}</p>
+          )}
         </div>
 
         {/* Préchargement masqué pour accélérer l'affichage du rapport */}
