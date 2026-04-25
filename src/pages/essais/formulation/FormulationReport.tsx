@@ -682,17 +682,17 @@ export default function FormulationReport() {
                 <tr><td className="border border-black px-2 py-0.5 text-black">Micro-Deval (MDE)</td><td className="border border-black px-2 py-0.5 text-black">NF EN 1097-1</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Masse volumique réelle et absorption</td><td className="border border-black px-2 py-0.5 text-black">NF EN 1097-6</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Masse volumique apparente (vrac)</td><td className="border border-black px-2 py-0.5 text-black">NF EN 1097-3</td></tr>
-                <tr><td className="border border-black px-2 py-0.5 text-black">Friabilité des sables</td><td className="border border-black px-2 py-0.5 text-black">NF P 18-576</td></tr>
+                
                 <tr><td className="border border-black px-2 py-0.5 text-black">Plasticité au cône d'Abrams (slump)</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12350-2</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Masse volumique du béton frais</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12350-6</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Confection des éprouvettes d'essai</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12390-2</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Résistance à la compression</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12390-3</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Propreté superficielle des gravillons</td><td className="border border-black px-2 py-0.5 text-black">NF EN 933-7</td></tr>
-                <tr><td className="border border-black px-2 py-0.5 text-black">Indice de continuité (forme des granulats)</td><td className="border border-black px-2 py-0.5 text-black">NF EN 933-4</td></tr>
+                
                 <tr><td className="border border-black px-2 py-0.5 text-black">Température du béton frais</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12350-1</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Conservation et cure des éprouvettes</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12390-2</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Masse volumique du béton durci</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12390-7</td></tr>
-                <tr><td className="border border-black px-2 py-0.5 text-black">Profondeur de pénétration d'eau sous pression</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12390-8</td></tr>
+                
                 <tr><td className="border border-black px-2 py-0.5 text-black">Spécifications, performances, production et conformité du béton</td><td className="border border-black px-2 py-0.5 text-black">NF EN 206/CN</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Granulats pour béton — Spécifications</td><td className="border border-black px-2 py-0.5 text-black">NF EN 12620</td></tr>
                 <tr><td className="border border-black px-2 py-0.5 text-black">Formulation Dreux-Gorisse</td><td className="border border-black px-2 py-0.5 text-black">Méthode pratique Dreux-Gorisse</td></tr>
