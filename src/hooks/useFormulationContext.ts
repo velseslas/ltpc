@@ -19,6 +19,10 @@ export interface FormulationContext {
 /**
  * Récupère les libellés des entités liées à une formulation
  * (client, chantier, MOA, MOE, essai de convenance) à partir des IDs stockés.
+ *
+ * Fallback: si la formulation ne référence pas directement client/chantier/MOA/MOE,
+ * on déduit ces informations via l'essai de compression de convenance lié, puis
+ * via les tables de liaison client_maitres_ouvrage / client_maitres_oeuvre.
  */
 export function useFormulationContext(
   clientId: string | null | undefined,
@@ -37,53 +41,86 @@ export function useFormulationContext(
       essaiCompressionId,
     ],
     queryFn: async (): Promise<FormulationContext> => {
-      const [client, chantier, moa, moe, essai] = await Promise.all([
-        clientId
-          ? supabase.from("clients").select("nom").eq("id", clientId).maybeSingle()
-          : Promise.resolve({ data: null }),
-        chantierId
+      // 1) Charger l'essai de compression (sert aussi de fallback pour client/chantier)
+      const essaiRes = essaiCompressionId
+        ? await supabase
+            .from("echantillons_compression")
+            .select("numero, date_coulage, classe_resistance, ouvrage, client_id, chantier_id")
+            .eq("id", essaiCompressionId)
+            .maybeSingle()
+        : { data: null as any };
+
+      const essaiData: any = essaiRes.data || null;
+
+      // 2) Résoudre client_id / chantier_id avec fallback via l'essai
+      const effectiveClientId = clientId || essaiData?.client_id || null;
+      const effectiveChantierId = chantierId || essaiData?.chantier_id || null;
+
+      // 3) Récupérer client + chantier
+      const [client, chantier] = await Promise.all([
+        effectiveClientId
+          ? supabase.from("clients").select("nom").eq("id", effectiveClientId).maybeSingle()
+          : Promise.resolve({ data: null as any }),
+        effectiveChantierId
           ? supabase
               .from("chantiers")
               .select("nom, adresse, ville")
-              .eq("id", chantierId)
+              .eq("id", effectiveChantierId)
               .maybeSingle()
-          : Promise.resolve({ data: null }),
-        maitreOuvrageId
-          ? supabase
-              .from("maitres_ouvrage")
-              .select("nom")
-              .eq("id", maitreOuvrageId)
-              .maybeSingle()
-          : Promise.resolve({ data: null }),
-        maitreOeuvreId
-          ? supabase
-              .from("maitres_oeuvre")
-              .select("nom")
-              .eq("id", maitreOeuvreId)
-              .maybeSingle()
-          : Promise.resolve({ data: null }),
-        essaiCompressionId
-          ? supabase
-              .from("echantillons_compression")
-              .select("numero, date_coulage, classe_resistance, ouvrage")
-              .eq("id", essaiCompressionId)
-              .maybeSingle()
-          : Promise.resolve({ data: null }),
+          : Promise.resolve({ data: null as any }),
       ]);
+
+      // 4) MOA / MOE : direct ou fallback via tables de liaison du client
+      let moaNom: string | null = null;
+      let moeNom: string | null = null;
+
+      if (maitreOuvrageId) {
+        const { data } = await supabase
+          .from("maitres_ouvrage")
+          .select("nom")
+          .eq("id", maitreOuvrageId)
+          .maybeSingle();
+        moaNom = (data as any)?.nom || null;
+      } else if (effectiveClientId) {
+        const { data } = await supabase
+          .from("client_maitres_ouvrage")
+          .select("maitres_ouvrage(nom)")
+          .eq("client_id", effectiveClientId)
+          .limit(1)
+          .maybeSingle();
+        moaNom = (data as any)?.maitres_ouvrage?.nom || null;
+      }
+
+      if (maitreOeuvreId) {
+        const { data } = await supabase
+          .from("maitres_oeuvre")
+          .select("nom")
+          .eq("id", maitreOeuvreId)
+          .maybeSingle();
+        moeNom = (data as any)?.nom || null;
+      } else if (effectiveClientId) {
+        const { data } = await supabase
+          .from("client_maitres_oeuvre")
+          .select("maitres_oeuvre(nom)")
+          .eq("client_id", effectiveClientId)
+          .limit(1)
+          .maybeSingle();
+        moeNom = (data as any)?.maitres_oeuvre?.nom || null;
+      }
 
       return {
         client_nom: (client.data as any)?.nom || null,
         chantier_nom: (chantier.data as any)?.nom || null,
         chantier_adresse: (chantier.data as any)?.adresse || null,
         chantier_ville: (chantier.data as any)?.ville || null,
-        maitre_ouvrage_nom: (moa.data as any)?.nom || null,
-        maitre_oeuvre_nom: (moe.data as any)?.nom || null,
-        essai_compression: essai.data
+        maitre_ouvrage_nom: moaNom,
+        maitre_oeuvre_nom: moeNom,
+        essai_compression: essaiData
           ? {
-              numero: (essai.data as any).numero,
-              date_coulage: (essai.data as any).date_coulage,
-              classe_resistance: (essai.data as any).classe_resistance,
-              ouvrage: (essai.data as any).ouvrage,
+              numero: essaiData.numero,
+              date_coulage: essaiData.date_coulage,
+              classe_resistance: essaiData.classe_resistance,
+              ouvrage: essaiData.ouvrage,
             }
           : null,
       };
