@@ -1,4 +1,6 @@
 import { useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -157,6 +159,28 @@ export default function FormulationReport() {
     formulation?.maitre_oeuvre_id,
     formulation?.essai_compression_id
   );
+
+  // Charge l'essai de convenance complet (Étape 8) pour l'intégrer au rapport
+  const { data: convenance } = useQuery({
+    queryKey: ["formulation-convenance-full", formulation?.essai_compression_id],
+    enabled: !!formulation?.essai_compression_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("echantillons_compression")
+        .select(`
+          id, numero, ouvrage, date_coulage, date_essai, classe_resistance, classe_consistance,
+          dimension_eprouvette, type_eprouvette, condition_cure, etuvage, nombre_eprouvettes,
+          essai_convenance, essai_convenance_details, resultats, jours_essai,
+          temperature_air, temperature_beton,
+          clients(nom), chantiers(nom),
+          intervenants:operateur_id(nom, prenom)
+        `)
+        .eq("id", formulation!.essai_compression_id!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handlePrint = () => window.print();
 
@@ -1233,7 +1257,7 @@ export default function FormulationReport() {
         </ReportPage>
 
         {/* ============== PAGE 10 — Tableau des passants ============== */}
-        <ReportPage last>
+        <ReportPage last={!convenance}>
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
@@ -1317,6 +1341,171 @@ export default function FormulationReport() {
             </div>
           </div>
         </ReportPage>
+
+        {/* ============== PAGE 11 — Essai de convenance (Étape 8) ============== */}
+        {convenance && (() => {
+          const resultats = (Array.isArray((convenance as any).resultats)
+            ? (convenance as any).resultats
+            : []) as Array<{
+              numero: number; joursEssai: number; dateEssai: string;
+              poids: number; densite: number; charge: number; resistance: number;
+            }>;
+          const sorted = [...resultats].sort((a, b) => a.joursEssai - b.joursEssai);
+          const groups: Record<number, typeof sorted> = {};
+          sorted.forEach((r) => {
+            (groups[r.joursEssai] = groups[r.joursEssai] || []).push(r);
+          });
+          const moyennes = Object.entries(groups).map(([j, items]) => {
+            const valid = items.map((i) => i.resistance).filter((v) => v > 0);
+            const moy = valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : 0;
+            return { jours: Number(j), moyenne: moy };
+          });
+          const tech = (convenance as any).intervenants
+            ? `${(convenance as any).intervenants.prenom || ""} ${(convenance as any).intervenants.nom || ""}`.trim()
+            : "—";
+
+          return (
+            <ReportPage last>
+              <ReportHeader
+                entreprise={entreprise}
+                verificationUrl={verificationUrl}
+                title="ESSAI DE CONVENANCE"
+                subtitle={`Résistance à la compression — Réf : EC-${String((convenance as any).numero).padStart(3, "0")}`}
+              />
+
+              {/* Identification */}
+              <div className="mb-4">
+                <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'essai</h3>
+                <table className="w-full border-collapse border border-black text-sm">
+                  <tbody>
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium w-1/3 text-black">N° Échantillon</td>
+                      <td className="border border-black px-3 py-1 text-black">EC-{String((convenance as any).numero).padStart(3, "0")}</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Client</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).clients?.nom || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Chantier</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).chantiers?.nom || "—"}</td>
+                    </tr>
+                    {(convenance as any).essai_convenance_details && (
+                      <tr>
+                        <td className="border border-black px-3 py-1 font-medium text-black">Désignation</td>
+                        <td className="border border-black px-3 py-1 text-black">{(convenance as any).essai_convenance_details}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Date de coulage</td>
+                      <td className="border border-black px-3 py-1 text-black">
+                        {(convenance as any).date_coulage
+                          ? format(new Date((convenance as any).date_coulage), "dd/MM/yyyy", { locale: fr })
+                          : "—"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Classe de résistance</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).classe_resistance || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Type / Dimension éprouvette</td>
+                      <td className="border border-black px-3 py-1 text-black">
+                        {(convenance as any).type_eprouvette || "—"} — {(convenance as any).dimension_eprouvette || "—"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Cure / Étuvage</td>
+                      <td className="border border-black px-3 py-1 text-black">
+                        {(convenance as any).condition_cure || "—"}
+                        {(convenance as any).etuvage ? ` — Étuvage : ${(convenance as any).etuvage}` : ""}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Résultats */}
+              <div className="mb-4">
+                <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des essais de compression</h3>
+                <table className="w-full border-collapse border border-black text-xs">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border border-black px-2 py-1 text-black">N°</th>
+                      <th className="border border-black px-2 py-1 text-black">Échéance (j)</th>
+                      <th className="border border-black px-2 py-1 text-black">Date d'essai</th>
+                      <th className="border border-black px-2 py-1 text-black">Poids (kg)</th>
+                      <th className="border border-black px-2 py-1 text-black">Densité (kg/m³)</th>
+                      <th className="border border-black px-2 py-1 text-black">Charge (kN)</th>
+                      <th className="border border-black px-2 py-1 text-black">Rc (MPa)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sorted.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="border border-black px-2 py-3 text-center text-black">
+                          Aucun résultat saisi
+                        </td>
+                      </tr>
+                    ) : (
+                      sorted.map((r, i) => (
+                        <tr key={i}>
+                          <td className="border border-black px-2 py-1 text-center text-black">{r.numero}</td>
+                          <td className="border border-black px-2 py-1 text-center text-black">{r.joursEssai}</td>
+                          <td className="border border-black px-2 py-1 text-center text-black">
+                            {r.dateEssai ? format(new Date(r.dateEssai), "dd/MM/yyyy", { locale: fr }) : "—"}
+                          </td>
+                          <td className="border border-black px-2 py-1 text-center text-black">{fmt(r.poids, 3)}</td>
+                          <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(r.densite)}</td>
+                          <td className="border border-black px-2 py-1 text-center text-black">{fmt(r.charge, 1)}</td>
+                          <td className="border border-black px-2 py-1 text-center font-bold text-black">{fmt(r.resistance, 2)}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Synthèse moyennes par échéance */}
+              {moyennes.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="font-bold text-sm mb-2 underline text-black">Synthèse — Résistance moyenne par échéance</h3>
+                  <table className="w-full border-collapse border border-black text-sm">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="border border-black px-3 py-1 text-black">Échéance</th>
+                        <th className="border border-black px-3 py-1 text-black">Rc moyenne (MPa)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {moyennes.map((m) => (
+                        <tr key={m.jours}>
+                          <td className="border border-black px-3 py-1 text-center text-black">{m.jours} jours</td>
+                          <td className="border border-black px-3 py-1 text-center font-bold text-black">{fmt(m.moyenne, 2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <p className="text-xs italic mt-4 text-black">
+                Cet essai de convenance valide la formulation au regard des performances mécaniques attendues.
+              </p>
+
+              <div className="mt-10 grid grid-cols-2 gap-8 text-black text-sm">
+                <div className="text-center">
+                  <p className="font-medium mb-12">Le Technicien</p>
+                  <p>{tech || "_________________"}</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-medium mb-12">L'Ingénieur d'Études</p>
+                  <p>{entreprise?.representant || "_________________"}</p>
+                </div>
+              </div>
+            </ReportPage>
+          );
+        })()}
       </div>
 
       <style>{`
