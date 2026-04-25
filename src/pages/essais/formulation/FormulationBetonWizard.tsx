@@ -40,6 +40,7 @@ import { Separator } from "@/components/ui/separator";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import ProportionsStep from "./ProportionsStep";
 import PointAEStep from "./PointAEStep";
+import ConvenanceStep from "./ConvenanceStep";
 import CoefficientStep from "./CoefficientStep";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
