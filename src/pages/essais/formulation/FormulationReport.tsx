@@ -1257,7 +1257,7 @@ export default function FormulationReport() {
         </ReportPage>
 
         {/* ============== PAGE 10 — Tableau des passants ============== */}
-        <ReportPage last>
+        <ReportPage last={!convenance}>
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
