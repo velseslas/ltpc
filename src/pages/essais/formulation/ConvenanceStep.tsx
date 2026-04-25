@@ -113,6 +113,7 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
                   echantillons.map((e: any) => (
                     <SelectItem key={e.id} value={e.id}>
                       EC-{String(e.numero).padStart(3, "0")}
+                      {e.essai_convenance_details ? ` — ${e.essai_convenance_details}` : ""}
                       {e.clients?.nom ? ` — ${e.clients.nom}` : ""}
                       {e.chantiers?.nom ? ` — ${e.chantiers.nom}` : ""}
                       {e.date_coulage ? ` — ${format(new Date(e.date_coulage), "dd/MM/yyyy", { locale: fr })}` : ""}
