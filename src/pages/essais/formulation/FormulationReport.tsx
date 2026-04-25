@@ -469,26 +469,18 @@ export default function FormulationReport() {
               <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
                 <strong style={{ textDecoration: "underline" }}>Formulation</strong> : <strong>{formulation.nom}</strong>
               </p>
-              {ctx?.client_nom && (
-                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
-                  <strong style={{ textDecoration: "underline" }}>Client</strong> : Entreprise <strong>{ctx.client_nom}</strong>
-                </p>
-              )}
-              {ctx?.chantier_nom && (
-                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
-                  <strong style={{ textDecoration: "underline" }}>Chantier</strong> : <strong>{ctx.chantier_nom}</strong>
-                </p>
-              )}
-              {ctx?.maitre_ouvrage_nom && (
-                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
-                  <strong style={{ textDecoration: "underline" }}>Maître d'ouvrage</strong> : <strong>{ctx.maitre_ouvrage_nom}</strong>
-                </p>
-              )}
-              {ctx?.maitre_oeuvre_nom && (
-                <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
-                  <strong style={{ textDecoration: "underline" }}>Maître d'œuvre</strong> : <strong>{ctx.maitre_oeuvre_nom}</strong>
-                </p>
-              )}
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                <strong style={{ textDecoration: "underline" }}>Entreprise</strong> : <strong>{ctx?.client_nom || "—"}</strong>
+              </p>
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                <strong style={{ textDecoration: "underline" }}>Chantier</strong> : <strong>{ctx?.chantier_nom || "—"}</strong>
+              </p>
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                <strong style={{ textDecoration: "underline" }}>Maître d'ouvrage</strong> : <strong>{ctx?.maitre_ouvrage_nom || "—"}</strong>
+              </p>
+              <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
+                <strong style={{ textDecoration: "underline" }}>Maître d'œuvre</strong> : <strong>{ctx?.maitre_oeuvre_nom || "—"}</strong>
+              </p>
               <p style={{ fontSize: "13px", marginBottom: "10px", lineHeight: 1.6 }}>
                 <strong style={{ textDecoration: "underline" }}>Centrale à béton</strong> : <strong>{centrale?.nom || "—"}</strong>
                 {centrale?.ville ? ` — ${centrale.ville}` : ""}
