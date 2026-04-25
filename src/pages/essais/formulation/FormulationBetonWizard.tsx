@@ -1075,10 +1075,18 @@ export default function FormulationBetonWizard() {
     setCoefficientCompacite(formatNumberInput(f.coefficient_compacite) || deriveDefaultCoefficientCompacite(Number(initialDmax)));
     setDmaxUtilisateur(initialDmax);
 
-    setVibrationAE(f.vibration_ae || "");
-    setFormeAE(f.forme_ae || "");
-    setKpAE(f.kp_ae != null ? String(f.kp_ae) : "10");
-    setMfIdeal(f.mf_ideal != null ? String(f.mf_ideal) : "");
+    setVibrationAE(f.vibration_ae || "normale");
+    setFormeAE(f.forme_ae || "concasse");
+    setKpAE(f.kp_ae != null ? String(f.kp_ae) : "0");
+    const sableMfFallback = (() => {
+      const mfRaw = f.granulat_module_finesse;
+      if (mfRaw && typeof mfRaw === "object") {
+        const candidates = [mfRaw.sableConcasse, mfRaw.sableFin].map(asFiniteNumber).filter((v): v is number => v != null && v > 0);
+        if (candidates.length) return candidates.reduce((a, b) => a + b, 0) / candidates.length;
+      }
+      return 2.5;
+    })();
+    setMfIdeal(formatNumberInput(f.mf_ideal) || sableMfFallback.toFixed(2));
 
     if (f.granulat_densites) setGranulatDensites(f.granulat_densites);
     if (f.granulat_module_finesse) setGranulatModuleFinesse(f.granulat_module_finesse);
