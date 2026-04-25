@@ -1688,6 +1688,11 @@ export default function FormulationBetonWizard() {
         />
       </div>
 
+      {/* Step 8 - Essai de convenance */}
+      <div className={currentStep === 8 ? "" : "hidden"}>
+        <ConvenanceStep formulationId={formulationId} clientId={clientId} chantierId={chantierId} />
+      </div>
+
       {/* Navigation */}
       <div className="flex justify-between pt-2">
         <Button
@@ -1709,15 +1714,33 @@ export default function FormulationBetonWizard() {
             Suivant
             <ArrowRight className="w-4 h-4" />
           </Button>
+        ) : currentStep === 7 ? (
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSubmit}
+              disabled={createFormulation.isPending || updateFormulation.isPending}
+              className="gap-2 gradient-primary text-primary-foreground"
+            >
+              {isEdit
+                ? (updateFormulation.isPending ? "Modification..." : "Enregistrer les modifications")
+                : (createFormulation.isPending ? "Création..." : "Créer la formulation")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleNext}
+              className="gap-2"
+            >
+              Suivant
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
         ) : (
           <Button
-            onClick={handleSubmit}
-            disabled={createFormulation.isPending || updateFormulation.isPending}
-            className="gap-2 gradient-primary text-primary-foreground"
+            variant="outline"
+            onClick={() => navigate("/essais/beton/formulation")}
+            className="gap-2"
           >
-            {isEdit
-              ? (updateFormulation.isPending ? "Modification..." : "Enregistrer les modifications")
-              : (createFormulation.isPending ? "Création..." : "Créer la formulation")}
+            Terminer
           </Button>
         )}
       </div>
