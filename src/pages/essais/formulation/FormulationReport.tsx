@@ -294,44 +294,53 @@ export default function FormulationReport() {
     code: string,
     label: string,
     producteur: string | null,
-    dens: number | null
+    dens: number | null,
+    forceShow = false
   ) => {
-    if (qty && qty > 0) compoRows.push({ code, label, producteur, quantite: qty, densite: dens });
+    if (forceShow || (qty && qty > 0)) {
+      compoRows.push({ code, label, producteur, quantite: qty || 0, densite: dens });
+    }
   };
+  // Force show if granulat is configured (produit_nom present), even if quantite = 0
   pushIf(
     formulation.gravier3_quantite,
     "GIII",
     gEssais?.gravier3?.produit_nom || "Gravier 3",
     gEssais?.gravier3?.carriere_nom ?? null,
-    gEssais?.gravier3?.densite_absolue ?? null
+    gEssais?.gravier3?.densite_absolue ?? null,
+    !!gEssais?.gravier3?.produit_nom
   );
   pushIf(
     formulation.gravier2_quantite,
     "GII",
     gEssais?.gravier2?.produit_nom || "Gravier 2",
     gEssais?.gravier2?.carriere_nom ?? null,
-    gEssais?.gravier2?.densite_absolue ?? null
+    gEssais?.gravier2?.densite_absolue ?? null,
+    !!gEssais?.gravier2?.produit_nom
   );
   pushIf(
     formulation.gravillons1_quantite,
     "GI",
     gEssais?.gravillons1?.produit_nom || "Gravillons 1",
     gEssais?.gravillons1?.carriere_nom ?? null,
-    gEssais?.gravillons1?.densite_absolue ?? null
+    gEssais?.gravillons1?.densite_absolue ?? null,
+    !!gEssais?.gravillons1?.produit_nom
   );
   pushIf(
     formulation.sable_concasse_quantite,
     "SI",
     gEssais?.sable_concasse?.produit_nom || "Sable concassé",
     gEssais?.sable_concasse?.carriere_nom ?? null,
-    gEssais?.sable_concasse?.densite_absolue ?? null
+    gEssais?.sable_concasse?.densite_absolue ?? null,
+    !!gEssais?.sable_concasse?.produit_nom
   );
   pushIf(
     formulation.sable_fin_quantite,
     "SII",
     gEssais?.sable_fin?.produit_nom || "Sable fin",
     gEssais?.sable_fin?.carriere_nom ?? null,
-    gEssais?.sable_fin?.densite_absolue ?? null
+    gEssais?.sable_fin?.densite_absolue ?? null,
+    !!gEssais?.sable_fin?.produit_nom
   );
 
   const cimentNom = details?.ciment.produit_nom || "Ciment";
