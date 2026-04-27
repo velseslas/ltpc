@@ -215,11 +215,23 @@ const FormulationBeton = () => {
             </Card>
           </div>
 
-          {/* Formulation Widgets Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Formulation Widgets Grid - 2 par ligne */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filtered.map((f: any) => {
               const total = calculateTotals(f);
               const { gs, ec } = calculateRatios(f);
+              const d = f.details || {};
+
+              const ingredients = [
+                { key: "sable_concasse", label: "SABLE CONCASSÉ", qty: f.sable_concasse_quantite, unit: "kg", info: d.sable_concasse },
+                { key: "sable_fin", label: "SABLE FIN", qty: f.sable_fin_quantite, unit: "kg", info: d.sable_fin },
+                { key: "gravillons1", label: "GRAVILLONS 1", qty: f.gravillons1_quantite, unit: "kg", info: d.gravillons1 },
+                { key: "gravier2", label: "GRAVIER 2", qty: f.gravier2_quantite, unit: "kg", info: d.gravier2 },
+                { key: "gravier3", label: "GRAVIER 3", qty: f.gravier3_quantite, unit: "kg", info: d.gravier3 },
+                { key: "ciment", label: "CIMENT", qty: f.ciment_quantite, unit: "kg", info: d.ciment },
+                { key: "eau", label: "EAU", qty: f.eau_quantite, unit: "L", info: d.eau },
+                { key: "adjuvant", label: "ADJUVANT", qty: f.adjuvant_quantite, unit: "kg", info: d.adjuvant },
+              ].filter((i) => i.qty);
 
               return (
                 <Card
@@ -228,116 +240,115 @@ const FormulationBeton = () => {
                   onClick={() => navigate(`/intervenant/producteurs/centrale/${f.centrale_id}/formulation/${f.id}/modifier`)}
                 >
                   <CardContent className="p-5">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    {/* Header : Icône + Nom + Date | Ratios à droite */}
+                    <div className="flex items-start justify-between gap-4 mb-5">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                           <FlaskConical className="w-5 h-5 text-primary" />
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-foreground text-base">{f.nom}</h3>
-                          <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-foreground text-lg leading-tight truncate">{f.nom}</h3>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-1">
                             <Building2 className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">{f.centrale_nom}</span>
+                            <span className="text-xs text-muted-foreground truncate">{f.centrale_nom}</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Ratios */}
-                    <div className="flex gap-2 mb-3">
-                      <div className="flex-1 bg-primary/10 rounded-lg px-3 py-2 text-center">
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">G/S</div>
-                        <div className="text-sm font-bold text-primary">{gs}</div>
-                      </div>
-                      <div className="flex-1 bg-primary/10 rounded-lg px-3 py-2 text-center">
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">E/C</div>
-                        <div className="text-sm font-bold text-primary">{ec}</div>
-                      </div>
-                      <div className="flex-1 bg-accent/50 rounded-lg px-3 py-2 text-center">
-                        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</div>
-                        <div className="text-sm font-bold text-foreground">{total.toFixed(1)} kg</div>
+                      <div className="flex gap-2 shrink-0">
+                        <div className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-center min-w-[60px]">
+                          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">G/S</div>
+                          <div className="text-sm font-bold text-primary">{gs}</div>
+                        </div>
+                        <div className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-center min-w-[60px]">
+                          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">E/C</div>
+                          <div className="text-sm font-bold text-primary">{ec}</div>
+                        </div>
+                        <div className="bg-primary/20 border border-primary/40 rounded-lg px-3 py-1.5 text-center min-w-[80px]">
+                          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Total</div>
+                          <div className="text-sm font-bold text-primary">{total.toFixed(1)} kg</div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Key ingredients summary */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {f.ciment_quantite && (
-                        <Badge variant="secondary" className="text-[10px] font-normal">
-                          Ciment: {f.ciment_quantite} kg
-                        </Badge>
-                      )}
-                      {f.eau_quantite && (
-                        <Badge variant="secondary" className="text-[10px] font-normal">
-                          Eau: {f.eau_quantite} L
-                        </Badge>
-                      )}
-                      {f.adjuvant_quantite && (
-                        <Badge variant="secondary" className="text-[10px] font-normal">
-                          Adj: {f.adjuvant_quantite} kg
-                        </Badge>
-                      )}
+                    {/* Ingrédients - tuiles sombres */}
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {ingredients.map((ing) => (
+                        <div key={ing.key} className="rounded-lg bg-muted/40 border border-border/40 p-3 text-center">
+                          <div className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">{ing.label}</div>
+                          <div className="text-base font-bold text-foreground mt-0.5">
+                            {Number(ing.qty).toFixed(1)} {ing.unit}
+                          </div>
+                          {ing.info?.producteur && (
+                            <div className="text-[10px] text-muted-foreground uppercase tracking-wide mt-1.5 truncate">
+                              {ing.info.producteur}
+                            </div>
+                          )}
+                          {ing.info?.produit && (
+                            <div className="text-[10px] text-primary font-medium mt-0.5 truncate">
+                              {ing.info.produit}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
 
-                    {/* Date + Action */}
-                    <div className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
-                      <p className="text-[11px] text-muted-foreground">
-                        Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
-                      </p>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/essais/beton/formulation/${f.id}/modifier-etude`);
-                          }}
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                          Modifier étude
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/essais/beton/formulation/${f.id}/rapport`);
-                          }}
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                          Rapport
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/essais/beton/formulation/${f.id}/convenance`);
-                          }}
-                        >
-                          <ClipboardCheck className="w-3.5 h-3.5" />
-                          Convenance
-                        </Button>
-                        <ConfirmDelete
-                          trigger={
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              Supprimer
-                            </Button>
-                          }
-                          title="Supprimer la formulation"
-                          description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
-                          onConfirm={() => handleDelete(f.id)}
-                        />
-                      </div>
+                    {/* Actions */}
+                    <div className="pt-3 border-t border-border/50 flex items-center justify-end flex-wrap gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/essais/beton/formulation/${f.id}/modifier-etude`);
+                        }}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        Modifier étude
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/essais/beton/formulation/${f.id}/rapport`);
+                        }}
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        Rapport
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/essais/beton/formulation/${f.id}/convenance`);
+                        }}
+                      >
+                        <ClipboardCheck className="w-3.5 h-3.5" />
+                        Convenance
+                      </Button>
+                      <ConfirmDelete
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Supprimer
+                          </Button>
+                        }
+                        title="Supprimer la formulation"
+                        description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
+                        onConfirm={() => handleDelete(f.id)}
+                      />
                     </div>
                   </CardContent>
                 </Card>
