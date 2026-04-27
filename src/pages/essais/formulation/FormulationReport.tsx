@@ -575,7 +575,7 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
                   </tr>
                 )}
-                {adjuvant > 0 && (
+                {hasAdjuvant && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
                     <td className="border border-black px-2 py-1 text-black">{adjuvantNom}</td>
