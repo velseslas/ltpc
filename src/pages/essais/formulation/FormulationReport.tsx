@@ -686,6 +686,30 @@ export default function FormulationReport() {
                         </td>
                       </tr>
                     ))}
+                    {(() => {
+                      let totalQty = 0;
+                      let weighted = 0;
+                      sablesList.forEach((s) => {
+                        const qty = getQty(s.key);
+                        const mf = s.g?.granulometrie?.module_finesse;
+                        if (qty > 0 && mf !== null && mf !== undefined) {
+                          weighted += mf * qty;
+                          totalQty += qty;
+                        }
+                      });
+                      const mfMix = totalQty > 0 ? weighted / totalQty : null;
+                      return (
+                        <tr className="bg-yellow-50 font-bold">
+                          <td className="border border-black px-2 py-1 text-black">MF Mélange (sables pondérés)</td>
+                          <td className="border border-black px-2 py-1 text-center text-black">
+                            {fmt(mfMix, 2)}
+                          </td>
+                          <td className="border border-black px-2 py-1 text-center text-black">
+                            {mfCategory(mfMix)}
+                          </td>
+                        </tr>
+                      );
+                    })()}
                   </tbody>
                 </table>
               </div>
