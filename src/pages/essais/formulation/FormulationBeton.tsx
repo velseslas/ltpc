@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil, ClipboardCheck } from "lucide-react";
+import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil, ClipboardCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/ui/back-button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
