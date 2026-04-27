@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil, ClipboardCheck } from "lucide-react";
+import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil, ClipboardCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/ui/back-button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -71,10 +74,21 @@ function calculateRatios(f: any) {
 
 const FormulationBeton = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: formulations = [], isLoading } = useAllFormulationsWithDetails();
   const { data: centrales = [] } = useCentralesBeton();
   const [search, setSearch] = useState("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("all");
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("formulations").delete().eq("id", id);
+    if (error) {
+      toast.error("Erreur lors de la suppression : " + error.message);
+      return;
+    }
+    toast.success("Formulation supprimée");
+    queryClient.invalidateQueries({ queryKey: ["formulations-all-details"] });
+  };
 
   const filtered = formulations.filter((f: any) => {
     const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
@@ -271,6 +285,22 @@ const FormulationBeton = () => {
                           <ClipboardCheck className="w-3.5 h-3.5" />
                           Convenance
                         </Button>
+                        <ConfirmDelete
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Supprimer
+                            </Button>
+                          }
+                          title="Supprimer la formulation"
+                          description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
+                          onConfirm={() => handleDelete(f.id)}
+                        />
                       </div>
                     </div>
                   </CardContent>
