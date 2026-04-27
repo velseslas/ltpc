@@ -86,7 +86,18 @@ interface GranuloRowProps {
 
 function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
   const tamis = granulat?.granulometrie?.tamis || [];
-  if (!tamis.length) return null;
+  if (!tamis.length) {
+    return (
+      <div className="mb-4">
+        <p className="text-sm font-bold mb-1 text-black">
+          {numero ? `Tableau ${numero}: ` : ""}Analyse granulométrique de {label}
+          {granulat?.produit_nom ? ` : ${granulat.produit_nom}` : ""}
+          {granulat?.carriere_nom ? ` (${granulat.carriere_nom})` : ""}
+        </p>
+        <p className="text-xs italic text-black">Aucune analyse granulométrique disponible.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-4">
@@ -294,44 +305,53 @@ export default function FormulationReport() {
     code: string,
     label: string,
     producteur: string | null,
-    dens: number | null
+    dens: number | null,
+    forceShow = false
   ) => {
-    if (qty && qty > 0) compoRows.push({ code, label, producteur, quantite: qty, densite: dens });
+    if (forceShow || (qty && qty > 0)) {
+      compoRows.push({ code, label, producteur, quantite: qty || 0, densite: dens });
+    }
   };
+  // Force show if granulat is configured (produit_nom present), even if quantite = 0
   pushIf(
     formulation.gravier3_quantite,
     "GIII",
     gEssais?.gravier3?.produit_nom || "Gravier 3",
     gEssais?.gravier3?.carriere_nom ?? null,
-    gEssais?.gravier3?.densite_absolue ?? null
+    gEssais?.gravier3?.densite_absolue ?? null,
+    !!gEssais?.gravier3?.produit_nom
   );
   pushIf(
     formulation.gravier2_quantite,
     "GII",
     gEssais?.gravier2?.produit_nom || "Gravier 2",
     gEssais?.gravier2?.carriere_nom ?? null,
-    gEssais?.gravier2?.densite_absolue ?? null
+    gEssais?.gravier2?.densite_absolue ?? null,
+    !!gEssais?.gravier2?.produit_nom
   );
   pushIf(
     formulation.gravillons1_quantite,
     "GI",
     gEssais?.gravillons1?.produit_nom || "Gravillons 1",
     gEssais?.gravillons1?.carriere_nom ?? null,
-    gEssais?.gravillons1?.densite_absolue ?? null
+    gEssais?.gravillons1?.densite_absolue ?? null,
+    !!gEssais?.gravillons1?.produit_nom
   );
   pushIf(
     formulation.sable_concasse_quantite,
     "SI",
     gEssais?.sable_concasse?.produit_nom || "Sable concassé",
     gEssais?.sable_concasse?.carriere_nom ?? null,
-    gEssais?.sable_concasse?.densite_absolue ?? null
+    gEssais?.sable_concasse?.densite_absolue ?? null,
+    !!gEssais?.sable_concasse?.produit_nom
   );
   pushIf(
     formulation.sable_fin_quantite,
     "SII",
     gEssais?.sable_fin?.produit_nom || "Sable fin",
     gEssais?.sable_fin?.carriere_nom ?? null,
-    gEssais?.sable_fin?.densite_absolue ?? null
+    gEssais?.sable_fin?.densite_absolue ?? null,
+    !!gEssais?.sable_fin?.produit_nom
   );
 
   const cimentNom = details?.ciment.produit_nom || "Ciment";
@@ -351,12 +371,14 @@ export default function FormulationReport() {
   ].filter(
     (x) =>
       x.g &&
-      (x.g.granulometrie ||
+      (x.g.produit_nom ||
+        x.g.granulometrie ||
         x.g.es_moyen !== null ||
         x.g.valeur_mb !== null ||
         x.g.densite_absolue !== null ||
         x.g.densite_apparente !== null ||
-        x.g.coefficient_la !== null)
+        x.g.coefficient_la !== null ||
+        x.g.coefficient_mde !== null)
   );
 
   // Sables only
@@ -664,6 +686,30 @@ export default function FormulationReport() {
                         </td>
                       </tr>
                     ))}
+                    {(() => {
+                      let totalQty = 0;
+                      let weighted = 0;
+                      sablesList.forEach((s) => {
+                        const qty = getQty(s.key);
+                        const mf = s.g?.granulometrie?.module_finesse;
+                        if (qty > 0 && mf !== null && mf !== undefined) {
+                          weighted += mf * qty;
+                          totalQty += qty;
+                        }
+                      });
+                      const mfMix = totalQty > 0 ? weighted / totalQty : null;
+                      return (
+                        <tr className="bg-yellow-50 font-bold">
+                          <td className="border border-black px-2 py-1 text-black">MF Mélange (sables pondérés)</td>
+                          <td className="border border-black px-2 py-1 text-center text-black">
+                            {fmt(mfMix, 2)}
+                          </td>
+                          <td className="border border-black px-2 py-1 text-center text-black">
+                            {mfCategory(mfMix)}
+                          </td>
+                        </tr>
+                      );
+                    })()}
                   </tbody>
                 </table>
               </div>
@@ -789,12 +835,13 @@ export default function FormulationReport() {
                 soumettant le matériau aux chocs de boulets d'acier (NF EN 1097-2).
               </p>
 
-              <p className="font-bold">Tableau : Coefficient Los-Angeles</p>
+              <p className="font-bold">Tableau : Coefficient Los-Angeles & Micro-Deval</p>
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
                     <th className="border border-black px-2 py-1 text-black">LA (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">MDE (%)</th>
                     <th className="border border-black px-2 py-1 text-black">Spécification</th>
                   </tr>
                 </thead>
@@ -803,7 +850,8 @@ export default function FormulationReport() {
                     <tr key={g.key}>
                       <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
                       <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_la, 1)}</td>
-                      <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_mde, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30 ; MDE ≤ 25</td>
                     </tr>
                   ))}
                 </tbody>

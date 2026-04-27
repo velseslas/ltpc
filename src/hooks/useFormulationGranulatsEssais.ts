@@ -15,6 +15,8 @@ export interface GranulatEssais {
   valeur_mb: number | null;
   // LA
   coefficient_la: number | null;
+  // MDE (Micro-Deval)
+  coefficient_mde: number | null;
   // Masse volumique (densité absolue)
   densite_absolue: number | null;
   densite_apparente: number | null;
@@ -63,11 +65,12 @@ async function buildGranulat(
     fetchCarriere(carriere_id),
   ]);
 
-  const [granulo, es, mb, la, mv] = await Promise.all([
+  const [granulo, es, mb, la, mde, mv] = await Promise.all([
     fetchLatest("echantillons_granulometrie", carriere_id, produit_nom),
     fetchLatest("echantillons_equivalent_sable", carriere_id, produit_nom),
     fetchLatest("echantillons_bleu_methylene", carriere_id, produit_nom),
     fetchLatest("echantillons_los_angeles", carriere_id, produit_nom),
+    fetchLatest("echantillons_micro_deval", carriere_id, produit_nom),
     fetchLatest("echantillons_masse_volumique", carriere_id, produit_nom),
   ]);
 
@@ -83,6 +86,7 @@ async function buildGranulat(
     esv_moyen: es?.esv_moyen ?? null,
     valeur_mb: mb?.valeur_mb ?? null,
     coefficient_la: la?.coefficient_la ?? null,
+    coefficient_mde: mde?.coefficient_mde ?? null,
     densite_absolue: mvNode?.densite_seche ?? mvNode?.densite_absolue ?? null,
     densite_apparente: mvNode?.densite_humide ?? mvNode?.densite_apparente ?? null,
   };
