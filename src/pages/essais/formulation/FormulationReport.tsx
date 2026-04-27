@@ -86,7 +86,18 @@ interface GranuloRowProps {
 
 function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
   const tamis = granulat?.granulometrie?.tamis || [];
-  if (!tamis.length) return null;
+  if (!tamis.length) {
+    return (
+      <div className="mb-4">
+        <p className="text-sm font-bold mb-1 text-black">
+          {numero ? `Tableau ${numero}: ` : ""}Analyse granulométrique de {label}
+          {granulat?.produit_nom ? ` : ${granulat.produit_nom}` : ""}
+          {granulat?.carriere_nom ? ` (${granulat.carriere_nom})` : ""}
+        </p>
+        <p className="text-xs italic text-black">Aucune analyse granulométrique disponible.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-4">
