@@ -15,6 +15,8 @@ export interface GranulatEssais {
   valeur_mb: number | null;
   // LA
   coefficient_la: number | null;
+  // MDE (Micro-Deval)
+  coefficient_mde: number | null;
   // Masse volumique (densité absolue)
   densite_absolue: number | null;
   densite_apparente: number | null;
