@@ -811,12 +811,13 @@ export default function FormulationReport() {
                 soumettant le matériau aux chocs de boulets d'acier (NF EN 1097-2).
               </p>
 
-              <p className="font-bold">Tableau : Coefficient Los-Angeles</p>
+              <p className="font-bold">Tableau : Coefficient Los-Angeles & Micro-Deval</p>
               <table className="w-full border-collapse border border-black text-sm">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
                     <th className="border border-black px-2 py-1 text-black">LA (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">MDE (%)</th>
                     <th className="border border-black px-2 py-1 text-black">Spécification</th>
                   </tr>
                 </thead>
@@ -825,7 +826,8 @@ export default function FormulationReport() {
                     <tr key={g.key}>
                       <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
                       <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_la, 1)}</td>
-                      <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_mde, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30 ; MDE ≤ 25</td>
                     </tr>
                   ))}
                 </tbody>
