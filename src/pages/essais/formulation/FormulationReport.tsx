@@ -128,7 +128,7 @@ function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
         </thead>
         <tbody>
           {tamis
-            .filter((t: any) => Number(t.refus) > 0 || Number(t.refusCumule) > 0 || Number(t.passant) < 100)
+            .filter((t: any) => t?.ouverture !== undefined && t?.ouverture !== null)
             .map((t: any, i: number) => (
               <tr key={i}>
                 <td className="border border-black px-1 py-0.5 text-center text-black">{t.ouverture}</td>
