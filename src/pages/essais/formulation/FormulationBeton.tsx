@@ -74,10 +74,21 @@ function calculateRatios(f: any) {
 
 const FormulationBeton = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: formulations = [], isLoading } = useAllFormulationsWithDetails();
   const { data: centrales = [] } = useCentralesBeton();
   const [search, setSearch] = useState("");
   const [selectedCentrale, setSelectedCentrale] = useState<string>("all");
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("formulations").delete().eq("id", id);
+    if (error) {
+      toast.error("Erreur lors de la suppression : " + error.message);
+      return;
+    }
+    toast.success("Formulation supprimée");
+    queryClient.invalidateQueries({ queryKey: ["formulations-all-details"] });
+  };
 
   const filtered = formulations.filter((f: any) => {
     const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
