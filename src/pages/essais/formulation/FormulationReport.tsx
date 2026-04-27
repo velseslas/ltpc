@@ -360,12 +360,14 @@ export default function FormulationReport() {
   ].filter(
     (x) =>
       x.g &&
-      (x.g.granulometrie ||
+      (x.g.produit_nom ||
+        x.g.granulometrie ||
         x.g.es_moyen !== null ||
         x.g.valeur_mb !== null ||
         x.g.densite_absolue !== null ||
         x.g.densite_apparente !== null ||
-        x.g.coefficient_la !== null)
+        x.g.coefficient_la !== null ||
+        x.g.coefficient_mde !== null)
   );
 
   // Sables only
