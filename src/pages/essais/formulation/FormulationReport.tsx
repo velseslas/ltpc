@@ -128,7 +128,7 @@ function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
         </thead>
         <tbody>
           {tamis
-            .filter((t: any) => Number(t.refus) > 0 || Number(t.refusCumule) > 0 || Number(t.passant) < 100)
+            .filter((t: any) => t?.ouverture !== undefined && t?.ouverture !== null)
             .map((t: any, i: number) => (
               <tr key={i}>
                 <td className="border border-black px-1 py-0.5 text-center text-black">{t.ouverture}</td>
@@ -358,6 +358,7 @@ export default function FormulationReport() {
   const cimentProducteur = details?.ciment.producteur_nom || null;
   const adjuvantNom = details?.adjuvant.produit_nom || "Adjuvant";
   const adjuvantProducteur = details?.adjuvant.producteur_nom || null;
+  const hasAdjuvant = !!details?.adjuvant.produit_nom || !!details?.adjuvant.producteur_nom || (formulation.adjuvant_quantite || 0) > 0;
   const eauNom = details?.eau.produit_nom || "Eau";
   const eauProducteur = details?.eau.producteur_nom || null;
 
@@ -574,7 +575,7 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
                   </tr>
                 )}
-                {adjuvant > 0 && (
+                {hasAdjuvant && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
                     <td className="border border-black px-2 py-1 text-black">{adjuvantNom}</td>
