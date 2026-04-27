@@ -358,6 +358,7 @@ export default function FormulationReport() {
   const cimentProducteur = details?.ciment.producteur_nom || null;
   const adjuvantNom = details?.adjuvant.produit_nom || "Adjuvant";
   const adjuvantProducteur = details?.adjuvant.producteur_nom || null;
+  const hasAdjuvant = !!details?.adjuvant.produit_nom || !!details?.adjuvant.producteur_nom || (formulation.adjuvant_quantite || 0) > 0;
   const eauNom = details?.eau.produit_nom || "Eau";
   const eauProducteur = details?.eau.producteur_nom || null;
 
