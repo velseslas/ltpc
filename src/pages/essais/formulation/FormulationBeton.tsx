@@ -32,17 +32,53 @@ function useAllFormulationsWithDetails() {
 
       if (error) throw error;
 
-      const centraleIds = [...new Set(data.map((f: any) => f.centrale_id))];
-      const { data: centrales } = await supabase
-        .from("centrales_beton")
-        .select("id, nom")
-        .in("id", centraleIds);
+      const centraleIds = [...new Set(data.map((f: any) => f.centrale_id).filter(Boolean))];
+      const produitIds = [...new Set(
+        data.flatMap((f: any) => [
+          f.ciment_produit_id, f.eau_produit_id, f.adjuvant_produit_id,
+          f.sable_concasse_produit_id, f.sable_fin_produit_id,
+          f.gravillons1_produit_id, f.gravier2_produit_id, f.gravier3_produit_id,
+        ]).filter(Boolean)
+      )];
+      const carriereIds = [...new Set(
+        data.flatMap((f: any) => [
+          f.sable_concasse_producteur_id, f.sable_fin_producteur_id,
+          f.gravillons1_producteur_id, f.gravier2_producteur_id, f.gravier3_producteur_id,
+        ]).filter(Boolean)
+      )];
+      const cimenterieIds = [...new Set(data.map((f: any) => f.ciment_producteur_id).filter(Boolean))];
+      const sourceEauIds = [...new Set(data.map((f: any) => f.eau_producteur_id).filter(Boolean))];
+      const adjuvantIds = [...new Set(data.map((f: any) => f.adjuvant_producteur_id).filter(Boolean))];
 
-      const centraleMap = new Map((centrales || []).map((c: any) => [c.id, c.nom]));
+      const [centrales, produits, carrieres, cimenteries, sourcesEau, adjuvants] = await Promise.all([
+        centraleIds.length ? supabase.from("centrales_beton").select("id, nom").in("id", centraleIds) : Promise.resolve({ data: [] as any[] }),
+        produitIds.length ? supabase.from("produits").select("id, nom").in("id", produitIds) : Promise.resolve({ data: [] as any[] }),
+        carriereIds.length ? supabase.from("carrieres").select("id, nom").in("id", carriereIds) : Promise.resolve({ data: [] as any[] }),
+        cimenterieIds.length ? supabase.from("cimenteries").select("id, nom").in("id", cimenterieIds) : Promise.resolve({ data: [] as any[] }),
+        sourceEauIds.length ? supabase.from("sources_eau").select("id, nom").in("id", sourceEauIds) : Promise.resolve({ data: [] as any[] }),
+        adjuvantIds.length ? supabase.from("adjuvants").select("id, nom").in("id", adjuvantIds) : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      const centraleMap = new Map((centrales.data || []).map((c: any) => [c.id, c.nom]));
+      const produitMap = new Map((produits.data || []).map((c: any) => [c.id, c.nom]));
+      const carriereMap = new Map((carrieres.data || []).map((c: any) => [c.id, c.nom]));
+      const cimenterieMap = new Map((cimenteries.data || []).map((c: any) => [c.id, c.nom]));
+      const sourceEauMap = new Map((sourcesEau.data || []).map((c: any) => [c.id, c.nom]));
+      const adjuvantMap = new Map((adjuvants.data || []).map((c: any) => [c.id, c.nom]));
 
       return data.map((f: any) => ({
         ...f,
         centrale_nom: centraleMap.get(f.centrale_id) || "Centrale inconnue",
+        details: {
+          ciment: { producteur: cimenterieMap.get(f.ciment_producteur_id) || null, produit: produitMap.get(f.ciment_produit_id) || null },
+          eau: { producteur: sourceEauMap.get(f.eau_producteur_id) || null, produit: produitMap.get(f.eau_produit_id) || null },
+          adjuvant: { producteur: adjuvantMap.get(f.adjuvant_producteur_id) || null, produit: produitMap.get(f.adjuvant_produit_id) || null },
+          sable_concasse: { producteur: carriereMap.get(f.sable_concasse_producteur_id) || null, produit: produitMap.get(f.sable_concasse_produit_id) || null },
+          sable_fin: { producteur: carriereMap.get(f.sable_fin_producteur_id) || null, produit: produitMap.get(f.sable_fin_produit_id) || null },
+          gravillons1: { producteur: carriereMap.get(f.gravillons1_producteur_id) || null, produit: produitMap.get(f.gravillons1_produit_id) || null },
+          gravier2: { producteur: carriereMap.get(f.gravier2_producteur_id) || null, produit: produitMap.get(f.gravier2_produit_id) || null },
+          gravier3: { producteur: carriereMap.get(f.gravier3_producteur_id) || null, produit: produitMap.get(f.gravier3_produit_id) || null },
+        },
       }));
     },
   });
