@@ -561,20 +561,16 @@ export default function FormulationReport() {
                 </tr>
               </thead>
               <tbody>
-                {compoRows.map((r) => (
-                  <tr key={r.code}>
-                    <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
-                    <td className="border border-black px-2 py-1 text-black">{r.label}</td>
-                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
-                  </tr>
-                ))}
-                {ciment > 0 && (
-                  <tr>
-                    <td className="border border-black px-2 py-1 font-bold text-black">C</td>
-                    <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
-                    <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
-                  </tr>
-                )}
+                <tr>
+                  <td className="border border-black px-2 py-1 font-bold text-black">C</td>
+                  <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                  <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-bold text-black">E</td>
+                  <td className="border border-black px-2 py-1 text-black">{eauNom}</td>
+                  <td className="border border-black px-2 py-1 text-black">{eauProducteur || "—"}</td>
+                </tr>
                 {hasAdjuvant && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
@@ -582,13 +578,13 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-black">{adjuvantProducteur || "—"}</td>
                   </tr>
                 )}
-                {eau > 0 && (
-                  <tr>
-                    <td className="border border-black px-2 py-1 font-bold text-black">E</td>
-                    <td className="border border-black px-2 py-1 text-black">{eauNom}</td>
-                    <td className="border border-black px-2 py-1 text-black">{eauProducteur || "—"}</td>
+                {compoRows.map((r) => (
+                  <tr key={r.code}>
+                    <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.label}</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
 
@@ -646,75 +642,81 @@ export default function FormulationReport() {
           </div>
         </ReportPage>
 
-        {/* ============== PAGE 3 — Granulométries Sables ============== */}
-        {sablesList.length > 0 && (
+        {/* ============== PAGE — Granulométries Sables (1 sable / page) ============== */}
+        {sablesList.map((s, i) => (
+          <ReportPage key={`gran-sable-${s.key}`}>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle={`II.1 Sables — Analyse granulométrique (${i + 1}/${sablesList.length})`}
+            />
+            <GranulometrieTable
+              label={s.label}
+              granulat={s.g!}
+              numero={i + 1}
+            />
+          </ReportPage>
+        ))}
+
+        {/* ============== Module de finesse (sables) ============== */}
+        {sablesList.length > 0 && sablesList.some((s) => s.g?.granulometrie?.module_finesse !== null) && (
           <ReportPage>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={verificationUrl}
               title="II — IDENTIFICATIONS DES GRANULATS"
-              subtitle="II.1 Sables — Analyses granulométriques"
+              subtitle="II.1.2 Module de finesse des sables"
             />
-            {sablesList.map((s, i) => (
-              <GranulometrieTable
-                key={s.key}
-                label={s.label}
-                granulat={s.g!}
-                numero={i + 1}
-              />
-            ))}
-
-            {sablesList.some((s) => s.g?.granulometrie?.module_finesse !== null) && (
-              <div className="mb-4 mt-4">
-                <p className="text-sm font-bold mb-1 text-black">Tableau : Module de finesse</p>
-                <table className="w-full border-collapse border border-black text-sm">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
-                      <th className="border border-black px-2 py-1 text-black">Module de finesse FM</th>
-                      <th className="border border-black px-2 py-1 text-black">Catégorie</th>
+            <div className="mb-4 mt-4">
+              <p className="text-sm font-bold mb-1 text-black">Tableau : Module de finesse</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">Module de finesse FM</th>
+                    <th className="border border-black px-2 py-1 text-black">Catégorie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sablesList.map((s) => (
+                    <tr key={s.key}>
+                      <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {fmt(s.g?.granulometrie?.module_finesse, 2)}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {mfCategory(s.g?.granulometrie?.module_finesse ?? null)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {sablesList.map((s) => (
-                      <tr key={s.key}>
-                        <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                  ))}
+                  {(() => {
+                    let totalQty = 0;
+                    let weighted = 0;
+                    sablesList.forEach((s) => {
+                      const qty = getQty(s.key);
+                      const mf = s.g?.granulometrie?.module_finesse;
+                      if (qty > 0 && mf !== null && mf !== undefined) {
+                        weighted += mf * qty;
+                        totalQty += qty;
+                      }
+                    });
+                    const mfMix = totalQty > 0 ? weighted / totalQty : null;
+                    return (
+                      <tr className="bg-yellow-50 font-bold">
+                        <td className="border border-black px-2 py-1 text-black">MF Mélange (sables pondérés)</td>
                         <td className="border border-black px-2 py-1 text-center text-black">
-                          {fmt(s.g?.granulometrie?.module_finesse, 2)}
+                          {fmt(mfMix, 2)}
                         </td>
                         <td className="border border-black px-2 py-1 text-center text-black">
-                          {mfCategory(s.g?.granulometrie?.module_finesse ?? null)}
+                          {mfCategory(mfMix)}
                         </td>
                       </tr>
-                    ))}
-                    {(() => {
-                      let totalQty = 0;
-                      let weighted = 0;
-                      sablesList.forEach((s) => {
-                        const qty = getQty(s.key);
-                        const mf = s.g?.granulometrie?.module_finesse;
-                        if (qty > 0 && mf !== null && mf !== undefined) {
-                          weighted += mf * qty;
-                          totalQty += qty;
-                        }
-                      });
-                      const mfMix = totalQty > 0 ? weighted / totalQty : null;
-                      return (
-                        <tr className="bg-yellow-50 font-bold">
-                          <td className="border border-black px-2 py-1 text-black">MF Mélange (sables pondérés)</td>
-                          <td className="border border-black px-2 py-1 text-center text-black">
-                            {fmt(mfMix, 2)}
-                          </td>
-                          <td className="border border-black px-2 py-1 text-center text-black">
-                            {mfCategory(mfMix)}
-                          </td>
-                        </tr>
-                      );
-                    })()}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    );
+                  })()}
+                </tbody>
+              </table>
+            </div>
           </ReportPage>
         )}
 
@@ -799,25 +801,22 @@ export default function FormulationReport() {
           </ReportPage>
         )}
 
-        {/* ============== PAGE 5 — Granulométries Graviers ============== */}
-        {graviersList.length > 0 && (
-          <ReportPage>
+        {/* ============== PAGE — Granulométries Graviers (1 gravier / page) ============== */}
+        {graviersList.map((g, i) => (
+          <ReportPage key={`gran-grav-${g.key}`}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={verificationUrl}
               title="II — IDENTIFICATIONS DES GRANULATS"
-              subtitle="II.2 Gravillons & graviers — Analyses granulométriques"
+              subtitle={`II.2 Gravillons & graviers — Analyse granulométrique (${i + 1}/${graviersList.length})`}
             />
-            {graviersList.map((g, i) => (
-              <GranulometrieTable
-                key={g.key}
-                label={g.label}
-                granulat={g.g!}
-                numero={i + 1}
-              />
-            ))}
+            <GranulometrieTable
+              label={g.label}
+              granulat={g.g!}
+              numero={i + 1}
+            />
           </ReportPage>
-        )}
+        ))}
 
         {/* ============== PAGE 6 — Dureté graviers (LA + densité) ============== */}
         {graviersList.length > 0 && (
@@ -1086,28 +1085,52 @@ export default function FormulationReport() {
             <table className="w-full border-collapse border border-black text-sm">
               <tbody>
                 <tr>
-                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Type et classe de ciment</td>
-                  <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Ciment</td>
+                  <td className="border border-black px-2 py-1 text-black">
+                    {cimentNom}{cimentProducteur ? ` — ${cimentProducteur}` : ""}
+                  </td>
                   <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Dosage en ciment</td>
-                  <td className="border border-black px-2 py-1 text-black">{ciment} kg/m³</td>
+                  <td className="border border-black px-2 py-1 text-black">{ciment > 0 ? `${fmtInt(ciment)} kg/m³` : "—"}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Adjuvant</td>
-                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? adjuvantNom : "—"}</td>
+                  <td className="border border-black px-2 py-1 text-black">
+                    {hasAdjuvant ? `${adjuvantNom}${adjuvantProducteur ? ` — ${adjuvantProducteur}` : ""}` : "—"}
+                  </td>
                   <td className="border border-black px-2 py-1 font-medium text-black">Dosage adjuvant</td>
-                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? `${adjuvant} kg/m³` : "—"}</td>
+                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? `${fmt(adjuvant, 2)} kg/m³` : "—"}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Eau de gâchage</td>
-                  <td className="border border-black px-2 py-1 text-black">{eau} l/m³</td>
+                  <td className="border border-black px-2 py-1 text-black">
+                    {eauNom}{eauProducteur ? ` — ${eauProducteur}` : ""}
+                  </td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dosage eau</td>
+                  <td className="border border-black px-2 py-1 text-black">{eau > 0 ? `${fmtInt(eau)} l/m³` : "—"}</td>
+                </tr>
+                <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Rapport E/C</td>
                   <td className="border border-black px-2 py-1 font-bold text-black">{ec}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Rapport G/S</td>
+                  <td className="border border-black px-2 py-1 font-bold text-black">{gs}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Total granulats</td>
                   <td className="border border-black px-2 py-1 text-black">{fmtInt(totalGranulats)} kg/m³</td>
-                  <td className="border border-black px-2 py-1 font-medium text-black">Rapport G/S</td>
-                  <td className="border border-black px-2 py-1 font-bold text-black">{gs}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Masse volumique théorique</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmtInt(total)} kg/m³</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Résistance visée à 28j</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.resistance_28j ? `${fmt(formulation.resistance_28j, 1)} MPa` : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Affaissement souhaité</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.slump_souhaite ? `${fmt(formulation.slump_souhaite, 0)} mm` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Classe d'exposition</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.classe_exposition || "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dmax granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.dmax_utilisateur ? `${fmt(formulation.dmax_utilisateur, 1)} mm` : "—"}</td>
                 </tr>
               </tbody>
             </table>
