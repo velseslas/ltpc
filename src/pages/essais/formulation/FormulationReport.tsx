@@ -235,20 +235,39 @@ export default function FormulationReport() {
   // Numérotation des pages : "Page X / Y" injecté dans chaque .report-page-footer
   useEffect(() => {
     if (!reportRef.current) return;
+    let scheduled = false;
+    let updating = false;
     const update = () => {
+      scheduled = false;
       const root = reportRef.current;
       if (!root) return;
+      updating = true;
       const footers = root.querySelectorAll<HTMLDivElement>(".report-page-footer");
       const total = footers.length;
       footers.forEach((f, i) => {
-        f.textContent = `Page ${i + 1} / ${total}`;
+        const next = `Page ${i + 1} / ${total}`;
+        if (f.textContent !== next) f.textContent = next;
       });
+      // Laisse les mutations déclenchées par nous-mêmes se vider avant de réécouter
+      requestAnimationFrame(() => { updating = false; });
+    };
+    const schedule = () => {
+      if (scheduled || updating) return;
+      scheduled = true;
+      requestAnimationFrame(update);
     };
     update();
-    const obs = new MutationObserver(update);
+    const obs = new MutationObserver((mutations) => {
+      if (updating) return;
+      // Ignore les mutations qui ne concernent que les footers (notre propre écriture)
+      const relevant = mutations.some(
+        (m) => !(m.target as HTMLElement)?.classList?.contains("report-page-footer")
+      );
+      if (relevant) schedule();
+    });
     obs.observe(reportRef.current, { childList: true, subtree: true });
     return () => obs.disconnect();
-  });
+  }, []);
 
 
   const handleDownloadPDF = async () => {
