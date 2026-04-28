@@ -801,25 +801,22 @@ export default function FormulationReport() {
           </ReportPage>
         )}
 
-        {/* ============== PAGE 5 — Granulométries Graviers ============== */}
-        {graviersList.length > 0 && (
-          <ReportPage>
+        {/* ============== PAGE — Granulométries Graviers (1 gravier / page) ============== */}
+        {graviersList.map((g, i) => (
+          <ReportPage key={`gran-grav-${g.key}`}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={verificationUrl}
               title="II — IDENTIFICATIONS DES GRANULATS"
-              subtitle="II.2 Gravillons & graviers — Analyses granulométriques"
+              subtitle={`II.2 Gravillons & graviers — Analyse granulométrique (${i + 1}/${graviersList.length})`}
             />
-            {graviersList.map((g, i) => (
-              <GranulometrieTable
-                key={g.key}
-                label={g.label}
-                granulat={g.g!}
-                numero={i + 1}
-              />
-            ))}
+            <GranulometrieTable
+              label={g.label}
+              granulat={g.g!}
+              numero={i + 1}
+            />
           </ReportPage>
-        )}
+        ))}
 
         {/* ============== PAGE 6 — Dureté graviers (LA + densité) ============== */}
         {graviersList.length > 0 && (
