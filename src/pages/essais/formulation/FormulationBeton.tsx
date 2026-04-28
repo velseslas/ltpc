@@ -333,22 +333,23 @@ const FormulationBeton = () => {
                         <ClipboardCheck className="w-3.5 h-3.5" />
                         Convenance
                       </Button>
-                      <ConfirmDelete
-                        trigger={
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            Supprimer
-                          </Button>
-                        }
-                        title="Supprimer la formulation"
-                        description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
-                        onConfirm={() => handleDelete(f.id)}
-                      />
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <ConfirmDelete
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Supprimer
+                            </Button>
+                          }
+                          title="Supprimer la formulation"
+                          description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
+                          onConfirm={() => handleDelete(f.id)}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
