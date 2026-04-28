@@ -1546,6 +1546,12 @@ export default function FormulationReport() {
 
       <style>{`
         .page-break { page-break-after: always; }
+        [data-ref="report"] { counter-reset: page; }
+        .report-page { counter-increment: page; }
+        .report-page-footer::after {
+          content: "Page " counter(page) " / " counter(pages-total);
+        }
+        [data-ref="report"] { counter-reset: page 0 pages-total var(--pages-total, 0); }
         @media print {
           body * { visibility: hidden; }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
