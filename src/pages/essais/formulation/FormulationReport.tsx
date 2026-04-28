@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useParams } from "react-router-dom";
@@ -71,9 +71,23 @@ function ReportPage({ children, last = false }: { children: React.ReactNode; las
         fontFamily: "'Times New Roman', Georgia, serif",
         color: "#000",
         overflow: "hidden",
+        position: "relative",
       }}
     >
-      {children}
+      <div style={{ height: "calc(100% - 10mm)", overflow: "hidden" }}>{children}</div>
+      <div
+        className="report-page-footer"
+        style={{
+          position: "absolute",
+          bottom: "6mm",
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontSize: "10px",
+          color: "#555",
+          fontFamily: "'Times New Roman', Georgia, serif",
+        }}
+      />
     </div>
   );
 }
@@ -217,6 +231,25 @@ export default function FormulationReport() {
   });
 
   const handlePrint = () => window.print();
+
+  // Numérotation des pages : "Page X / Y" injecté dans chaque .report-page-footer
+  useEffect(() => {
+    if (!reportRef.current) return;
+    const update = () => {
+      const root = reportRef.current;
+      if (!root) return;
+      const footers = root.querySelectorAll<HTMLDivElement>(".report-page-footer");
+      const total = footers.length;
+      footers.forEach((f, i) => {
+        f.textContent = `Page ${i + 1} / ${total}`;
+      });
+    };
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(reportRef.current, { childList: true, subtree: true });
+    return () => obs.disconnect();
+  });
+
 
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
