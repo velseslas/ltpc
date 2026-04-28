@@ -345,11 +345,14 @@ const FormulationBeton = () => {
                               Supprimer
                             </Button>
                           }
-                        title="Supprimer la formulation"
-                        description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
-                        onConfirm={() => handleDelete(f.id)}
-                      />
+                          title="Supprimer la formulation"
+                          description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
+                          onConfirm={() => handleDelete(f.id)}
+                        />
+                      </div>
                     </div>
+                  </CardContent>
+                </Card>
                   </CardContent>
                 </Card>
               );
