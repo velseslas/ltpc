@@ -232,6 +232,25 @@ export default function FormulationReport() {
 
   const handlePrint = () => window.print();
 
+  // Numérotation des pages : "Page X / Y" injecté dans chaque .report-page-footer
+  useEffect(() => {
+    if (!reportRef.current) return;
+    const update = () => {
+      const root = reportRef.current;
+      if (!root) return;
+      const footers = root.querySelectorAll<HTMLDivElement>(".report-page-footer");
+      const total = footers.length;
+      footers.forEach((f, i) => {
+        f.textContent = `Page ${i + 1} / ${total}`;
+      });
+    };
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(reportRef.current, { childList: true, subtree: true });
+    return () => obs.disconnect();
+  });
+
+
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
     try {
