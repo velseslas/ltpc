@@ -1573,13 +1573,6 @@ export default function FormulationReport() {
           .report-page { box-shadow: none !important; border: none !important; }
         }
       `}</style>
-          body * { visibility: hidden; }
-          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
-          [data-ref="report"] { position: absolute; left: 0; top: 0; }
-          .print\\:hidden { display: none !important; }
-          .report-page { box-shadow: none !important; border: none !important; }
-        }
-      `}</style>
     </div>
   );
 }
