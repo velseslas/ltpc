@@ -353,8 +353,6 @@ const FormulationBeton = () => {
                     </div>
                   </CardContent>
                 </Card>
-                  </CardContent>
-                </Card>
               );
             })}
           </div>
