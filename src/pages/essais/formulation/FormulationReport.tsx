@@ -71,9 +71,23 @@ function ReportPage({ children, last = false }: { children: React.ReactNode; las
         fontFamily: "'Times New Roman', Georgia, serif",
         color: "#000",
         overflow: "hidden",
+        position: "relative",
       }}
     >
-      {children}
+      <div style={{ height: "calc(100% - 10mm)", overflow: "hidden" }}>{children}</div>
+      <div
+        className="report-page-footer"
+        style={{
+          position: "absolute",
+          bottom: "6mm",
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontSize: "10px",
+          color: "#555",
+          fontFamily: "'Times New Roman', Georgia, serif",
+        }}
+      />
     </div>
   );
 }
