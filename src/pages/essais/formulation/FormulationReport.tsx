@@ -642,75 +642,81 @@ export default function FormulationReport() {
           </div>
         </ReportPage>
 
-        {/* ============== PAGE 3 — Granulométries Sables ============== */}
-        {sablesList.length > 0 && (
+        {/* ============== PAGE — Granulométries Sables (1 sable / page) ============== */}
+        {sablesList.map((s, i) => (
+          <ReportPage key={`gran-sable-${s.key}`}>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle={`II.1 Sables — Analyse granulométrique (${i + 1}/${sablesList.length})`}
+            />
+            <GranulometrieTable
+              label={s.label}
+              granulat={s.g!}
+              numero={i + 1}
+            />
+          </ReportPage>
+        ))}
+
+        {/* ============== Module de finesse (sables) ============== */}
+        {sablesList.length > 0 && sablesList.some((s) => s.g?.granulometrie?.module_finesse !== null) && (
           <ReportPage>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={verificationUrl}
               title="II — IDENTIFICATIONS DES GRANULATS"
-              subtitle="II.1 Sables — Analyses granulométriques"
+              subtitle="II.1.2 Module de finesse des sables"
             />
-            {sablesList.map((s, i) => (
-              <GranulometrieTable
-                key={s.key}
-                label={s.label}
-                granulat={s.g!}
-                numero={i + 1}
-              />
-            ))}
-
-            {sablesList.some((s) => s.g?.granulometrie?.module_finesse !== null) && (
-              <div className="mb-4 mt-4">
-                <p className="text-sm font-bold mb-1 text-black">Tableau : Module de finesse</p>
-                <table className="w-full border-collapse border border-black text-sm">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
-                      <th className="border border-black px-2 py-1 text-black">Module de finesse FM</th>
-                      <th className="border border-black px-2 py-1 text-black">Catégorie</th>
+            <div className="mb-4 mt-4">
+              <p className="text-sm font-bold mb-1 text-black">Tableau : Module de finesse</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">Module de finesse FM</th>
+                    <th className="border border-black px-2 py-1 text-black">Catégorie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sablesList.map((s) => (
+                    <tr key={s.key}>
+                      <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {fmt(s.g?.granulometrie?.module_finesse, 2)}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {mfCategory(s.g?.granulometrie?.module_finesse ?? null)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {sablesList.map((s) => (
-                      <tr key={s.key}>
-                        <td className="border border-black px-2 py-1 text-black">{s.g?.produit_nom || s.label}</td>
+                  ))}
+                  {(() => {
+                    let totalQty = 0;
+                    let weighted = 0;
+                    sablesList.forEach((s) => {
+                      const qty = getQty(s.key);
+                      const mf = s.g?.granulometrie?.module_finesse;
+                      if (qty > 0 && mf !== null && mf !== undefined) {
+                        weighted += mf * qty;
+                        totalQty += qty;
+                      }
+                    });
+                    const mfMix = totalQty > 0 ? weighted / totalQty : null;
+                    return (
+                      <tr className="bg-yellow-50 font-bold">
+                        <td className="border border-black px-2 py-1 text-black">MF Mélange (sables pondérés)</td>
                         <td className="border border-black px-2 py-1 text-center text-black">
-                          {fmt(s.g?.granulometrie?.module_finesse, 2)}
+                          {fmt(mfMix, 2)}
                         </td>
                         <td className="border border-black px-2 py-1 text-center text-black">
-                          {mfCategory(s.g?.granulometrie?.module_finesse ?? null)}
+                          {mfCategory(mfMix)}
                         </td>
                       </tr>
-                    ))}
-                    {(() => {
-                      let totalQty = 0;
-                      let weighted = 0;
-                      sablesList.forEach((s) => {
-                        const qty = getQty(s.key);
-                        const mf = s.g?.granulometrie?.module_finesse;
-                        if (qty > 0 && mf !== null && mf !== undefined) {
-                          weighted += mf * qty;
-                          totalQty += qty;
-                        }
-                      });
-                      const mfMix = totalQty > 0 ? weighted / totalQty : null;
-                      return (
-                        <tr className="bg-yellow-50 font-bold">
-                          <td className="border border-black px-2 py-1 text-black">MF Mélange (sables pondérés)</td>
-                          <td className="border border-black px-2 py-1 text-center text-black">
-                            {fmt(mfMix, 2)}
-                          </td>
-                          <td className="border border-black px-2 py-1 text-center text-black">
-                            {mfCategory(mfMix)}
-                          </td>
-                        </tr>
-                      );
-                    })()}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    );
+                  })()}
+                </tbody>
+              </table>
+            </div>
           </ReportPage>
         )}
 
