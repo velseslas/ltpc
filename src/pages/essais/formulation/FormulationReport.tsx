@@ -1085,28 +1085,52 @@ export default function FormulationReport() {
             <table className="w-full border-collapse border border-black text-sm">
               <tbody>
                 <tr>
-                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Type et classe de ciment</td>
-                  <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Ciment</td>
+                  <td className="border border-black px-2 py-1 text-black">
+                    {cimentNom}{cimentProducteur ? ` — ${cimentProducteur}` : ""}
+                  </td>
                   <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Dosage en ciment</td>
-                  <td className="border border-black px-2 py-1 text-black">{ciment} kg/m³</td>
+                  <td className="border border-black px-2 py-1 text-black">{ciment > 0 ? `${fmtInt(ciment)} kg/m³` : "—"}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Adjuvant</td>
-                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? adjuvantNom : "—"}</td>
+                  <td className="border border-black px-2 py-1 text-black">
+                    {hasAdjuvant ? `${adjuvantNom}${adjuvantProducteur ? ` — ${adjuvantProducteur}` : ""}` : "—"}
+                  </td>
                   <td className="border border-black px-2 py-1 font-medium text-black">Dosage adjuvant</td>
-                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? `${adjuvant} kg/m³` : "—"}</td>
+                  <td className="border border-black px-2 py-1 text-black">{adjuvant > 0 ? `${fmt(adjuvant, 2)} kg/m³` : "—"}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Eau de gâchage</td>
-                  <td className="border border-black px-2 py-1 text-black">{eau} l/m³</td>
+                  <td className="border border-black px-2 py-1 text-black">
+                    {eauNom}{eauProducteur ? ` — ${eauProducteur}` : ""}
+                  </td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dosage eau</td>
+                  <td className="border border-black px-2 py-1 text-black">{eau > 0 ? `${fmtInt(eau)} l/m³` : "—"}</td>
+                </tr>
+                <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Rapport E/C</td>
                   <td className="border border-black px-2 py-1 font-bold text-black">{ec}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Rapport G/S</td>
+                  <td className="border border-black px-2 py-1 font-bold text-black">{gs}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black">Total granulats</td>
                   <td className="border border-black px-2 py-1 text-black">{fmtInt(totalGranulats)} kg/m³</td>
-                  <td className="border border-black px-2 py-1 font-medium text-black">Rapport G/S</td>
-                  <td className="border border-black px-2 py-1 font-bold text-black">{gs}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Masse volumique théorique</td>
+                  <td className="border border-black px-2 py-1 text-black">{fmtInt(total)} kg/m³</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Résistance visée à 28j</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.resistance_28j ? `${fmt(formulation.resistance_28j, 1)} MPa` : "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Affaissement souhaité</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.slump_souhaite ? `${fmt(formulation.slump_souhaite, 0)} mm` : "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Classe d'exposition</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.classe_exposition || "—"}</td>
+                  <td className="border border-black px-2 py-1 font-medium text-black">Dmax granulats</td>
+                  <td className="border border-black px-2 py-1 text-black">{formulation.dmax_utilisateur ? `${fmt(formulation.dmax_utilisateur, 1)} mm` : "—"}</td>
                 </tr>
               </tbody>
             </table>
