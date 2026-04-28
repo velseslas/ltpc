@@ -561,20 +561,16 @@ export default function FormulationReport() {
                 </tr>
               </thead>
               <tbody>
-                {compoRows.map((r) => (
-                  <tr key={r.code}>
-                    <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
-                    <td className="border border-black px-2 py-1 text-black">{r.label}</td>
-                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
-                  </tr>
-                ))}
-                {ciment > 0 && (
-                  <tr>
-                    <td className="border border-black px-2 py-1 font-bold text-black">C</td>
-                    <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
-                    <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
-                  </tr>
-                )}
+                <tr>
+                  <td className="border border-black px-2 py-1 font-bold text-black">C</td>
+                  <td className="border border-black px-2 py-1 text-black">{cimentNom}</td>
+                  <td className="border border-black px-2 py-1 text-black">{cimentProducteur || "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-2 py-1 font-bold text-black">E</td>
+                  <td className="border border-black px-2 py-1 text-black">{eauNom}</td>
+                  <td className="border border-black px-2 py-1 text-black">{eauProducteur || "—"}</td>
+                </tr>
                 {hasAdjuvant && (
                   <tr>
                     <td className="border border-black px-2 py-1 font-bold text-black">Adj</td>
@@ -582,13 +578,13 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-black">{adjuvantProducteur || "—"}</td>
                   </tr>
                 )}
-                {eau > 0 && (
-                  <tr>
-                    <td className="border border-black px-2 py-1 font-bold text-black">E</td>
-                    <td className="border border-black px-2 py-1 text-black">{eauNom}</td>
-                    <td className="border border-black px-2 py-1 text-black">{eauProducteur || "—"}</td>
+                {compoRows.map((r) => (
+                  <tr key={r.code}>
+                    <td className="border border-black px-2 py-1 font-bold text-black">{r.code}</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.label}</td>
+                    <td className="border border-black px-2 py-1 text-black">{r.producteur || "—"}</td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
 
