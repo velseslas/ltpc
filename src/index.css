@@ -193,8 +193,8 @@
 
 .report-table table th,
 .report-table table td {
-  border-top: 0.75pt solid #000000 !important;
-  border-left: 0.75pt solid #000000 !important;
+  border-top: 0.5pt solid #000000 !important;
+  border-left: 0.5pt solid #000000 !important;
   border-right: 0 !important;
   border-bottom: 0 !important;
   vertical-align: middle !important;
@@ -211,14 +211,14 @@
 
 .report-table table tr > th:last-child,
 .report-table table tr > td:last-child {
-  border-right: 0.75pt solid #000000 !important;
+  border-right: 0.5pt solid #000000 !important;
 }
 
 .report-table table tr:last-child > th,
 .report-table table tr:last-child > td,
 .report-table table tbody:last-child tr:last-child > th,
 .report-table table tbody:last-child tr:last-child > td {
-  border-bottom: 0.75pt solid #000000 !important;
+  border-bottom: 0.5pt solid #000000 !important;
 }
 
 .report-table table th {
@@ -253,8 +253,8 @@
   }
   .report-table table th,
   .report-table table td {
-    border-top: 0.75pt solid #000000 !important;
-    border-left: 0.75pt solid #000000 !important;
+    border-top: 0.5pt solid #000000 !important;
+    border-left: 0.5pt solid #000000 !important;
     border-right: 0 !important;
     border-bottom: 0 !important;
     vertical-align: middle !important;
@@ -267,13 +267,13 @@
   }
   .report-table table tr > th:last-child,
   .report-table table tr > td:last-child {
-    border-right: 0.75pt solid #000000 !important;
+    border-right: 0.5pt solid #000000 !important;
   }
   .report-table table tr:last-child > th,
   .report-table table tr:last-child > td,
   .report-table table tbody:last-child tr:last-child > th,
   .report-table table tbody:last-child tr:last-child > td {
-    border-bottom: 0.75pt solid #000000 !important;
+    border-bottom: 0.5pt solid #000000 !important;
   }
   .report-table table thead {
     display: table-header-group;
