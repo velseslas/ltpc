@@ -231,12 +231,7 @@
   font-weight: 500;
 }
 
-/* Override Tailwind border utilities inside report tables — neutralize to let our cell borders win */
-.report-table .border,
-.report-table .border-black,
-.report-table .border.border-black {
-  border: 0 !important;
-}
+
 
 /* Print / PDF rendering — wkhtmltopdf compatible */
 @media print {
