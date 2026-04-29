@@ -1651,6 +1651,27 @@ export default function FormulationReport() {
 
       <style>{`
         .page-break { page-break-after: always; }
+
+        /* Mise en forme uniforme des tableaux du rapport (écran + PDF + impression) */
+        .report-page table {
+          border-collapse: collapse !important;
+          width: 100%;
+        }
+        .report-page table,
+        .report-page table th,
+        .report-page table td {
+          border: 1px solid #000000 !important;
+        }
+        .report-page table th,
+        .report-page table td {
+          vertical-align: middle !important;
+          padding: 4px 6px;
+          color: #000000;
+        }
+        /* Préserve l'alignement horizontal explicite ; centre par défaut */
+        .report-page table th { text-align: center; }
+        .report-page table td:not(.text-left):not(.text-right) { text-align: center; }
+
         @media print {
           body * { visibility: hidden; }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
