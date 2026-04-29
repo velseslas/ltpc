@@ -292,60 +292,14 @@ const CompressionReport = () => {
 
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
-
-    // A4 portrait in mm
+    
+    const canvas = await html2canvas(reportRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
-    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
-    const margin = 8; // mm — small print margin
-    const contentWidth = pdfWidth - margin * 2;
-    const contentHeight = pdfHeight - margin * 2;
-
-    // Render the entire report in one high-resolution canvas
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      windowWidth: reportRef.current.scrollWidth,
-    });
-
-    const imgWidthPx = canvas.width;
-    const imgHeightPx = canvas.height;
-
-    // How many CSS pixels of source image fit per A4 page
-    const pxPerMm = imgWidthPx / contentWidth;
-    const pageHeightPx = Math.floor(contentHeight * pxPerMm);
-
-    let renderedHeightPx = 0;
-    let pageIndex = 0;
-
-    // Slice the source canvas vertically into A4-sized chunks
-    while (renderedHeightPx < imgHeightPx) {
-      const sliceHeightPx = Math.min(pageHeightPx, imgHeightPx - renderedHeightPx);
-
-      const pageCanvas = document.createElement("canvas");
-      pageCanvas.width = imgWidthPx;
-      pageCanvas.height = sliceHeightPx;
-      const ctx = pageCanvas.getContext("2d");
-      if (!ctx) break;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-      ctx.drawImage(
-        canvas,
-        0, renderedHeightPx, imgWidthPx, sliceHeightPx,
-        0, 0, imgWidthPx, sliceHeightPx
-      );
-
-      const sliceHeightMm = sliceHeightPx / pxPerMm;
-      const imgData = pageCanvas.toDataURL("image/jpeg", 0.95);
-
-      if (pageIndex > 0) pdf.addPage();
-      pdf.addImage(imgData, "JPEG", margin, margin, contentWidth, sliceHeightMm);
-
-      renderedHeightPx += sliceHeightPx;
-      pageIndex += 1;
-    }
-
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
   };
 
