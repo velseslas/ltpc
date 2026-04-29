@@ -173,28 +173,33 @@
   background: hsl(var(--primary) / 0.5);
 }
 
-/* Report table styles - thin black borders, vertically centered, uniform */
+/* ============================================================
+   Report tables — PDF compatible (wkhtmltopdf / html2pdf / print)
+   - Thin black borders (1px), no double borders (border-collapse)
+   - Content vertically centered in every cell
+   - Clean uniform rendering on screen and print
+   ============================================================ */
 .report-table table {
   border-collapse: collapse !important;
   border-spacing: 0 !important;
   width: 100%;
   border: 1px solid #000000 !important;
   box-sizing: border-box !important;
+  /* Avoid double borders in PDF engines that ignore border-collapse */
+  border-style: solid !important;
 }
 
-.report-table table,
 .report-table table th,
 .report-table table td {
   border: 1px solid #000000 !important;
-}
-
-.report-table table th,
-.report-table table td {
+  border-style: solid !important;
   vertical-align: middle !important;
   text-align: center !important;
   padding: 4px 6px;
   box-sizing: border-box !important;
   line-height: 1.25 !important;
+  /* Prevent transparent overlays that can create faux double borders */
+  background-clip: padding-box !important;
 }
 
 .report-table table td.font-medium {
@@ -203,13 +208,42 @@
 
 .report-table table th {
   background-color: #f1f5f9;
-  text-align: center;
+  text-align: center !important;
+  vertical-align: middle !important;
 }
 
-/* Override Tailwind border-black utility used in markup to keep borders fine and black */
+/* Override Tailwind border-black utility used in markup */
 .report-table .border-black,
 .report-table .border.border-black {
   border-color: #000000 !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+/* Print / PDF rendering — wkhtmltopdf compatible */
+@media print {
+  .report-table table {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    border: 1px solid #000000 !important;
+    page-break-inside: auto;
+  }
+  .report-table table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  .report-table table th,
+  .report-table table td {
+    border: 1px solid #000000 !important;
+    border-style: solid !important;
+    vertical-align: middle !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  .report-table table thead {
+    display: table-header-group;
+  }
 }
 
 /* Blinking red border for validation errors */
