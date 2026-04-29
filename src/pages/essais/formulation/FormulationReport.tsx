@@ -276,6 +276,14 @@ export default function FormulationReport() {
       return;
     }
     const loadingId = toast.loading("Génération du PDF en cours…");
+
+    // Helper : timeout pour ne jamais rester bloqué sur une page
+    const withTimeout = <T,>(p: Promise<T>, ms: number, label: string): Promise<T> =>
+      Promise.race([
+        p,
+        new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`Timeout ${label}`)), ms)),
+      ]);
+
     try {
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageWidthMm = 210;
@@ -291,10 +299,10 @@ export default function FormulationReport() {
 
       let added = 0;
       let failed = 0;
+
       for (let i = 0; i < pages.length; i++) {
         const el = pages[i];
         try {
-          // Force le layout pour obtenir de vraies dimensions
           const w = el.offsetWidth || el.scrollWidth;
           const h = el.offsetHeight || el.scrollHeight;
           if (!w || !h) {
@@ -303,27 +311,31 @@ export default function FormulationReport() {
             continue;
           }
 
-          const canvas = await html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            backgroundColor: "#ffffff",
-            width: w,
-            height: h,
-            windowWidth: w,
-            windowHeight: h,
-          });
+          // Mise à jour visuelle de la progression
+          toast.loading(`Génération PDF… page ${i + 1}/${pages.length}`, { id: loadingId });
 
-          const imgData = canvas.toDataURL("image/png");
+          const canvas = await withTimeout(
+            html2canvas(el, {
+              scale: 1.5,
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              backgroundColor: "#ffffff",
+              imageTimeout: 5000,
+              removeContainer: true,
+            }),
+            20000,
+            `page ${i + 1}`
+          );
+
+          const imgData = canvas.toDataURL("image/jpeg", 0.92);
           const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
           const finalHeight = Math.min(imgHeightMm, pageHeightMm);
           if (added > 0) pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, finalHeight);
+          pdf.addImage(imgData, "JPEG", 0, 0, pageWidthMm, finalHeight);
           added++;
-          // Laisse le navigateur respirer entre les pages (évite le blocage)
-          await new Promise((r) => setTimeout(r, 30));
-        } catch (pageErr) {
+          await new Promise((r) => setTimeout(r, 50));
+        } catch (pageErr: any) {
           console.error(`[PDF] Erreur page ${i + 1}:`, pageErr);
           failed++;
         }
@@ -331,7 +343,17 @@ export default function FormulationReport() {
 
       if (added === 0) throw new Error("Aucune page n'a pu être rendue");
 
-      pdf.save(`formulation-${formulation?.nom || id}.pdf`);
+      // Téléchargement robuste : blob + lien <a> (évite blocages de pdf.save)
+      const blob = pdf.output("blob");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `formulation-${formulation?.nom || id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
       toast.dismiss(loadingId);
       if (failed > 0) {
         toast.warning(`PDF téléchargé (${added} page(s), ${failed} ignorée(s))`);
