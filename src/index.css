@@ -175,11 +175,16 @@
 
 /* ============================================================
    Report tables — PDF optimized (wkhtmltopdf compatible)
-   - 1px solid black borders, no double borders
+   - 0.5pt pure black borders, no double borders
    - Vertical & horizontal centering
    - No shadows, no border-spacing, no transparency artifacts
    - Stable, crisp print rendering
    ============================================================ */
+.report-table :where(table, th, td) {
+  border: 0 !important;
+  border-color: #000000 !important;
+}
+
 .report-table table {
   border-collapse: collapse !important;
   border-spacing: 0 !important;
@@ -235,6 +240,11 @@
 
 /* Print / PDF rendering — wkhtmltopdf compatible */
 @media print {
+  .report-table :where(table, th, td) {
+    border: 0 !important;
+    border-color: #000000 !important;
+  }
+
   .report-table,
   .report-table * {
     box-shadow: none !important;
