@@ -173,14 +173,22 @@
   background: hsl(var(--primary) / 0.5);
 }
 
-/* Report table print styles - lighter borders and cell fills */
-.report-table .border-black {
-  border-color: #444444 !important;
+/* Report table styles - thin black borders, vertically centered, uniform */
+.report-table table {
+  border-collapse: collapse !important;
+  width: 100%;
 }
 
-.report-table table td,
-.report-table table th {
+.report-table table,
+.report-table table th,
+.report-table table td {
+  border: 1px solid #000000 !important;
+}
+
+.report-table table th,
+.report-table table td {
   vertical-align: middle !important;
+  padding: 4px 6px;
 }
 
 .report-table table td.font-medium {
@@ -189,11 +197,13 @@
 
 .report-table table th {
   background-color: #f1f5f9;
+  text-align: center;
 }
 
-/* Ensure header border also matches */
+/* Override Tailwind border-black utility used in markup to keep borders fine and black */
+.report-table .border-black,
 .report-table .border.border-black {
-  border-color: #444444 !important;
+  border-color: #000000 !important;
 }
 
 /* Blinking red border for validation errors */
