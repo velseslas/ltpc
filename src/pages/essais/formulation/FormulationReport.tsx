@@ -263,6 +263,7 @@ export default function FormulationReport() {
       const root = reportRef.current;
       if (!root) return;
       updating = true;
+      applyUniformReportTableStyles(root);
       const footers = root.querySelectorAll<HTMLDivElement>(".report-page-footer");
       const total = footers.length;
       footers.forEach((f, i) => {
@@ -306,6 +307,7 @@ export default function FormulationReport() {
       ]);
 
     try {
+      applyUniformReportTableStyles(reportRef.current);
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageWidthMm = 210;
       const pageHeightMm = 297;
@@ -344,6 +346,10 @@ export default function FormulationReport() {
               backgroundColor: "#ffffff",
               imageTimeout: 15000,
               removeContainer: true,
+              onclone: (doc) => {
+                const clonedPage = doc.body.querySelectorAll<HTMLElement>(".report-page")[i];
+                if (clonedPage) applyUniformReportTableStyles(clonedPage);
+              },
             }),
             60000,
             `page ${i + 1}`
