@@ -1682,7 +1682,10 @@ export default function FormulationReport() {
         /* Mise en forme uniforme des tableaux du rapport (écran + PDF + impression) */
         .report-page table {
           border-collapse: collapse !important;
+          border-spacing: 0 !important;
           width: 100%;
+          border: 1px solid #000000 !important;
+          box-sizing: border-box !important;
         }
         .report-page table,
         .report-page table th,
@@ -1692,12 +1695,12 @@ export default function FormulationReport() {
         .report-page table th,
         .report-page table td {
           vertical-align: middle !important;
+          text-align: center !important;
           padding: 4px 6px;
           color: #000000;
+          box-sizing: border-box !important;
+          line-height: 1.25 !important;
         }
-        /* Préserve l'alignement horizontal explicite ; centre par défaut */
-        .report-page table th { text-align: center; }
-        .report-page table td:not(.text-left):not(.text-right) { text-align: center; }
 
         @media print {
           body * { visibility: hidden; }
