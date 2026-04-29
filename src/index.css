@@ -174,10 +174,11 @@
 }
 
 /* ============================================================
-   Report tables — PDF compatible (wkhtmltopdf / html2pdf / print)
-   - Thin black borders (1px), no double borders (border-collapse)
-   - Content vertically centered in every cell
-   - Clean uniform rendering on screen and print
+   Report tables — PDF optimized (wkhtmltopdf compatible)
+   - 1px solid black borders, no double borders
+   - Vertical & horizontal centering
+   - No shadows, no border-spacing, no transparency artifacts
+   - Stable, crisp print rendering
    ============================================================ */
 .report-table table {
   border-collapse: collapse !important;
@@ -185,34 +186,38 @@
   width: 100%;
   border: 1px solid #000000 !important;
   box-sizing: border-box !important;
-  /* Avoid double borders in PDF engines that ignore border-collapse */
-  border-style: solid !important;
+  background-color: #ffffff !important;
+  box-shadow: none !important;
+  table-layout: auto;
 }
 
 .report-table table th,
 .report-table table td {
   border: 1px solid #000000 !important;
-  border-style: solid !important;
   vertical-align: middle !important;
   text-align: center !important;
-  padding: 4px 6px;
+  padding: 5px 8px !important;
   box-sizing: border-box !important;
-  line-height: 1.25 !important;
-  /* Prevent transparent overlays that can create faux double borders */
+  line-height: 1.3 !important;
+  color: #000000 !important;
   background-clip: padding-box !important;
-}
-
-.report-table table td.font-medium {
-  background-color: #f8fafc;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  outline: none !important;
 }
 
 .report-table table th {
   background-color: #f1f5f9;
-  text-align: center !important;
-  vertical-align: middle !important;
+  font-weight: 600;
 }
 
-/* Override Tailwind border-black utility used in markup */
+.report-table table td.font-medium {
+  background-color: #f8fafc;
+  font-weight: 500;
+}
+
+/* Override Tailwind border utilities inside report tables */
+.report-table .border,
 .report-table .border-black,
 .report-table .border.border-black {
   border-color: #000000 !important;
@@ -222,11 +227,17 @@
 
 /* Print / PDF rendering — wkhtmltopdf compatible */
 @media print {
+  .report-table,
+  .report-table * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
   .report-table table {
     border-collapse: collapse !important;
     border-spacing: 0 !important;
     border: 1px solid #000000 !important;
     page-break-inside: auto;
+    background-color: #ffffff !important;
   }
   .report-table table tr {
     page-break-inside: avoid;
@@ -235,14 +246,19 @@
   .report-table table th,
   .report-table table td {
     border: 1px solid #000000 !important;
-    border-style: solid !important;
     vertical-align: middle !important;
+    text-align: center !important;
+    padding: 5px 8px !important;
+    color: #000000 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
   .report-table table thead {
     display: table-header-group;
+  }
+  .report-table table tfoot {
+    display: table-footer-group;
   }
 }
 
