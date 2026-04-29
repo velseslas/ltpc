@@ -176,7 +176,10 @@
 /* Report table styles - thin black borders, vertically centered, uniform */
 .report-table table {
   border-collapse: collapse !important;
+  border-spacing: 0 !important;
   width: 100%;
+  border: 1px solid #000000 !important;
+  box-sizing: border-box !important;
 }
 
 .report-table table,
@@ -188,7 +191,10 @@
 .report-table table th,
 .report-table table td {
   vertical-align: middle !important;
+  text-align: center !important;
   padding: 4px 6px;
+  box-sizing: border-box !important;
+  line-height: 1.25 !important;
 }
 
 .report-table table td.font-medium {
