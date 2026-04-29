@@ -184,7 +184,7 @@
   border-collapse: collapse !important;
   border-spacing: 0 !important;
   width: 100%;
-  border: 0.75pt solid #000000 !important;
+  border: 0 !important;
   box-sizing: border-box !important;
   background-color: #ffffff !important;
   box-shadow: none !important;
@@ -193,7 +193,10 @@
 
 .report-table table th,
 .report-table table td {
-  border: 0.75pt solid #000000 !important;
+  border-top: 0.75pt solid #000000 !important;
+  border-left: 0.75pt solid #000000 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
   vertical-align: middle !important;
   text-align: center !important;
   padding: 5px 8px !important;
@@ -206,6 +209,18 @@
   outline: none !important;
 }
 
+.report-table table tr > th:last-child,
+.report-table table tr > td:last-child {
+  border-right: 0.75pt solid #000000 !important;
+}
+
+.report-table table tr:last-child > th,
+.report-table table tr:last-child > td,
+.report-table table tbody:last-child tr:last-child > th,
+.report-table table tbody:last-child tr:last-child > td {
+  border-bottom: 0.75pt solid #000000 !important;
+}
+
 .report-table table th {
   background-color: #f1f5f9;
   font-weight: 600;
@@ -216,13 +231,11 @@
   font-weight: 500;
 }
 
-/* Override Tailwind border utilities inside report tables */
+/* Override Tailwind border utilities inside report tables — neutralize to let our cell borders win */
 .report-table .border,
 .report-table .border-black,
 .report-table .border.border-black {
-  border-color: #000000 !important;
-  border-width: 0.75pt !important;
-  border-style: solid !important;
+  border: 0 !important;
 }
 
 /* Print / PDF rendering — wkhtmltopdf compatible */
@@ -235,7 +248,7 @@
   .report-table table {
     border-collapse: collapse !important;
     border-spacing: 0 !important;
-    border: 0.75pt solid #000000 !important;
+    border: 0 !important;
     page-break-inside: auto;
     background-color: #ffffff !important;
   }
@@ -245,7 +258,10 @@
   }
   .report-table table th,
   .report-table table td {
-    border: 0.75pt solid #000000 !important;
+    border-top: 0.75pt solid #000000 !important;
+    border-left: 0.75pt solid #000000 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
     vertical-align: middle !important;
     text-align: center !important;
     padding: 5px 8px !important;
@@ -253,6 +269,16 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+  }
+  .report-table table tr > th:last-child,
+  .report-table table tr > td:last-child {
+    border-right: 0.75pt solid #000000 !important;
+  }
+  .report-table table tr:last-child > th,
+  .report-table table tr:last-child > td,
+  .report-table table tbody:last-child tr:last-child > th,
+  .report-table table tbody:last-child tr:last-child > td {
+    border-bottom: 0.75pt solid #000000 !important;
   }
   .report-table table thead {
     display: table-header-group;
