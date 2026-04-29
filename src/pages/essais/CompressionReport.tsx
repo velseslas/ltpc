@@ -293,42 +293,57 @@ const CompressionReport = () => {
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
 
-    // A4 dimensions in mm
+    // A4 portrait in mm
     const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+    const margin = 8; // mm — small print margin
+    const contentWidth = pdfWidth - margin * 2;
+    const contentHeight = pdfHeight - margin * 2;
 
-    // Find every logical page (data-pdf-page) inside the report container.
-    // Falls back to the whole container if none found.
-    const pageNodes = Array.from(
-      reportRef.current.querySelectorAll<HTMLElement>("[data-pdf-page]")
-    );
-    const nodes: HTMLElement[] = pageNodes.length > 0 ? pageNodes : [reportRef.current];
+    // Render the entire report in one high-resolution canvas
+    const canvas = await html2canvas(reportRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      windowWidth: reportRef.current.scrollWidth,
+    });
 
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i];
-      // High scale = crisp 1px borders in PDF
-      const canvas = await html2canvas(node, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        windowWidth: node.scrollWidth,
-      });
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+    const imgWidthPx = canvas.width;
+    const imgHeightPx = canvas.height;
 
-      // Fit width to page, keep aspect ratio; clamp height to one A4 page max.
-      const ratio = canvas.height / canvas.width;
-      let imgWidth = pdfWidth;
-      let imgHeight = imgWidth * ratio;
-      if (imgHeight > pdfHeight) {
-        imgHeight = pdfHeight;
-        imgWidth = imgHeight / ratio;
-      }
-      const offsetX = (pdfWidth - imgWidth) / 2;
-      const offsetY = (pdfHeight - imgHeight) / 2;
+    // How many CSS pixels of source image fit per A4 page
+    const pxPerMm = imgWidthPx / contentWidth;
+    const pageHeightPx = Math.floor(contentHeight * pxPerMm);
 
-      if (i > 0) pdf.addPage();
-      pdf.addImage(imgData, "JPEG", offsetX, offsetY, imgWidth, imgHeight);
+    let renderedHeightPx = 0;
+    let pageIndex = 0;
+
+    // Slice the source canvas vertically into A4-sized chunks
+    while (renderedHeightPx < imgHeightPx) {
+      const sliceHeightPx = Math.min(pageHeightPx, imgHeightPx - renderedHeightPx);
+
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = imgWidthPx;
+      pageCanvas.height = sliceHeightPx;
+      const ctx = pageCanvas.getContext("2d");
+      if (!ctx) break;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      ctx.drawImage(
+        canvas,
+        0, renderedHeightPx, imgWidthPx, sliceHeightPx,
+        0, 0, imgWidthPx, sliceHeightPx
+      );
+
+      const sliceHeightMm = sliceHeightPx / pxPerMm;
+      const imgData = pageCanvas.toDataURL("image/jpeg", 0.95);
+
+      if (pageIndex > 0) pdf.addPage();
+      pdf.addImage(imgData, "JPEG", margin, margin, contentWidth, sliceHeightMm);
+
+      renderedHeightPx += sliceHeightPx;
+      pageIndex += 1;
     }
 
     pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
