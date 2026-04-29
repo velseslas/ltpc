@@ -321,23 +321,26 @@ export default function FormulationReport() {
               allowTaint: true,
               logging: false,
               backgroundColor: "#ffffff",
-              imageTimeout: 5000,
+              imageTimeout: 15000,
               removeContainer: true,
             }),
-            20000,
+            60000,
             `page ${i + 1}`
           );
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.92);
+          const imgData = canvas.toDataURL("image/jpeg", 0.9);
           const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
           const finalHeight = Math.min(imgHeightMm, pageHeightMm);
           if (added > 0) pdf.addPage();
           pdf.addImage(imgData, "JPEG", 0, 0, pageWidthMm, finalHeight);
           added++;
-          await new Promise((r) => setTimeout(r, 50));
+          // Yield au navigateur pour libérer la mémoire entre pages
+          await new Promise((r) => setTimeout(r, 100));
         } catch (pageErr: any) {
-          console.error(`[PDF] Erreur page ${i + 1}:`, pageErr);
+          console.error(`[PDF] Erreur page ${i + 1}:`, pageErr?.message || pageErr);
           failed++;
+          // Continue malgré l'erreur sur une page
+          await new Promise((r) => setTimeout(r, 50));
         }
       }
 
@@ -1648,6 +1651,27 @@ export default function FormulationReport() {
 
       <style>{`
         .page-break { page-break-after: always; }
+
+        /* Mise en forme uniforme des tableaux du rapport (écran + PDF + impression) */
+        .report-page table {
+          border-collapse: collapse !important;
+          width: 100%;
+        }
+        .report-page table,
+        .report-page table th,
+        .report-page table td {
+          border: 1px solid #000000 !important;
+        }
+        .report-page table th,
+        .report-page table td {
+          vertical-align: middle !important;
+          padding: 4px 6px;
+          color: #000000;
+        }
+        /* Préserve l'alignement horizontal explicite ; centre par défaut */
+        .report-page table th { text-align: center; }
+        .report-page table td:not(.text-left):not(.text-right) { text-align: center; }
+
         @media print {
           body * { visibility: hidden; }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
