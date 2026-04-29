@@ -271,35 +271,77 @@ export default function FormulationReport() {
 
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
+    if (!reportRef.current) {
+      toast.error("Rapport introuvable");
+      return;
+    }
+    const loadingId = toast.loading("Génération du PDF en cours…");
     try {
-      toast.info("Génération du PDF en cours…");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageWidthMm = 210;
       const pageHeightMm = 297;
-      const pages = reportRef.current.querySelectorAll<HTMLDivElement>(".report-page");
-      for (let i = 0; i < pages.length; i++) {
-        const canvas = await html2canvas(pages[i], {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: "#ffffff",
-          windowWidth: pages[i].scrollWidth,
-          windowHeight: pages[i].scrollHeight,
-        });
-        const imgData = canvas.toDataURL("image/png");
-        // Conserver le ratio A4 : on dimensionne sur la largeur et on laisse la hauteur s'adapter,
-        // sans dépasser la page.
-        const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
-        const finalHeight = Math.min(imgHeightMm, pageHeightMm);
-        if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, finalHeight);
+      const pages = Array.from(
+        reportRef.current.querySelectorAll<HTMLDivElement>(".report-page")
+      );
+      if (pages.length === 0) {
+        toast.dismiss(loadingId);
+        toast.error("Aucune page à exporter");
+        return;
       }
+
+      let added = 0;
+      let failed = 0;
+      for (let i = 0; i < pages.length; i++) {
+        const el = pages[i];
+        try {
+          // Force le layout pour obtenir de vraies dimensions
+          const w = el.offsetWidth || el.scrollWidth;
+          const h = el.offsetHeight || el.scrollHeight;
+          if (!w || !h) {
+            console.warn(`[PDF] Page ${i + 1} ignorée (dimensions 0)`);
+            failed++;
+            continue;
+          }
+
+          const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: "#ffffff",
+            width: w,
+            height: h,
+            windowWidth: w,
+            windowHeight: h,
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
+          const finalHeight = Math.min(imgHeightMm, pageHeightMm);
+          if (added > 0) pdf.addPage();
+          pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, finalHeight);
+          added++;
+          // Laisse le navigateur respirer entre les pages (évite le blocage)
+          await new Promise((r) => setTimeout(r, 30));
+        } catch (pageErr) {
+          console.error(`[PDF] Erreur page ${i + 1}:`, pageErr);
+          failed++;
+        }
+      }
+
+      if (added === 0) throw new Error("Aucune page n'a pu être rendue");
+
       pdf.save(`formulation-${formulation?.nom || id}.pdf`);
-      toast.success("PDF téléchargé avec succès");
-    } catch (e) {
-      console.error(e);
-      toast.error("Erreur lors de la génération du PDF");
+      toast.dismiss(loadingId);
+      if (failed > 0) {
+        toast.warning(`PDF téléchargé (${added} page(s), ${failed} ignorée(s))`);
+      } else {
+        toast.success("PDF téléchargé avec succès");
+      }
+    } catch (e: any) {
+      console.error("[PDF] Échec génération:", e);
+      toast.dismiss(loadingId);
+      toast.error(`Erreur PDF : ${e?.message || "inconnue"}`);
     }
   };
 
