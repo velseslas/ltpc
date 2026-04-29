@@ -184,7 +184,7 @@
   border-collapse: collapse !important;
   border-spacing: 0 !important;
   width: 100%;
-  border: 1px solid #000000 !important;
+  border: 0.75pt solid #000000 !important;
   box-sizing: border-box !important;
   background-color: #ffffff !important;
   box-shadow: none !important;
@@ -193,7 +193,7 @@
 
 .report-table table th,
 .report-table table td {
-  border: 1px solid #000000 !important;
+  border: 0.75pt solid #000000 !important;
   vertical-align: middle !important;
   text-align: center !important;
   padding: 5px 8px !important;
@@ -221,7 +221,7 @@
 .report-table .border-black,
 .report-table .border.border-black {
   border-color: #000000 !important;
-  border-width: 1px !important;
+  border-width: 0.75pt !important;
   border-style: solid !important;
 }
 
@@ -235,7 +235,7 @@
   .report-table table {
     border-collapse: collapse !important;
     border-spacing: 0 !important;
-    border: 1px solid #000000 !important;
+    border: 0.75pt solid #000000 !important;
     page-break-inside: auto;
     background-color: #ffffff !important;
   }
@@ -245,7 +245,7 @@
   }
   .report-table table th,
   .report-table table td {
-    border: 1px solid #000000 !important;
+    border: 0.75pt solid #000000 !important;
     vertical-align: middle !important;
     text-align: center !important;
     padding: 5px 8px !important;
