@@ -168,6 +168,27 @@ function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
   );
 }
 
+function applyUniformReportTableStyles(root: HTMLElement) {
+  const tables = root.querySelectorAll<HTMLTableElement>("table");
+  tables.forEach((table) => {
+    table.style.setProperty("border-collapse", "collapse", "important");
+    table.style.setProperty("border-spacing", "0", "important");
+    table.style.setProperty("width", "100%", "important");
+    table.style.setProperty("border", "1px solid #000000", "important");
+    table.style.setProperty("box-sizing", "border-box", "important");
+
+    table.querySelectorAll<HTMLTableCellElement>("th, td").forEach((cell) => {
+      cell.style.setProperty("border", "1px solid #000000", "important");
+      cell.style.setProperty("vertical-align", "middle", "important");
+      cell.style.setProperty("text-align", "center", "important");
+      cell.style.setProperty("padding", "4px 6px", "important");
+      cell.style.setProperty("box-sizing", "border-box", "important");
+      cell.style.setProperty("line-height", "1.25", "important");
+      cell.style.setProperty("color", "#000000", "important");
+    });
+  });
+}
+
 export default function FormulationReport() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -242,6 +263,7 @@ export default function FormulationReport() {
       const root = reportRef.current;
       if (!root) return;
       updating = true;
+      applyUniformReportTableStyles(root);
       const footers = root.querySelectorAll<HTMLDivElement>(".report-page-footer");
       const total = footers.length;
       footers.forEach((f, i) => {
@@ -285,6 +307,7 @@ export default function FormulationReport() {
       ]);
 
     try {
+      applyUniformReportTableStyles(reportRef.current);
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageWidthMm = 210;
       const pageHeightMm = 297;
@@ -323,6 +346,10 @@ export default function FormulationReport() {
               backgroundColor: "#ffffff",
               imageTimeout: 15000,
               removeContainer: true,
+              onclone: (doc) => {
+                const clonedPage = doc.body.querySelectorAll<HTMLElement>(".report-page")[i];
+                if (clonedPage) applyUniformReportTableStyles(clonedPage);
+              },
             }),
             60000,
             `page ${i + 1}`
@@ -1655,7 +1682,10 @@ export default function FormulationReport() {
         /* Mise en forme uniforme des tableaux du rapport (écran + PDF + impression) */
         .report-page table {
           border-collapse: collapse !important;
+          border-spacing: 0 !important;
           width: 100%;
+          border: 1px solid #000000 !important;
+          box-sizing: border-box !important;
         }
         .report-page table,
         .report-page table th,
@@ -1665,12 +1695,12 @@ export default function FormulationReport() {
         .report-page table th,
         .report-page table td {
           vertical-align: middle !important;
+          text-align: center !important;
           padding: 4px 6px;
           color: #000000;
+          box-sizing: border-box !important;
+          line-height: 1.25 !important;
         }
-        /* Préserve l'alignement horizontal explicite ; centre par défaut */
-        .report-page table th { text-align: center; }
-        .report-page table td:not(.text-left):not(.text-right) { text-align: center; }
 
         @media print {
           body * { visibility: hidden; }
