@@ -168,6 +168,27 @@ function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
   );
 }
 
+function applyUniformReportTableStyles(root: HTMLElement) {
+  const tables = root.querySelectorAll<HTMLTableElement>("table");
+  tables.forEach((table) => {
+    table.style.setProperty("border-collapse", "collapse", "important");
+    table.style.setProperty("border-spacing", "0", "important");
+    table.style.setProperty("width", "100%", "important");
+    table.style.setProperty("border", "1px solid #000000", "important");
+    table.style.setProperty("box-sizing", "border-box", "important");
+
+    table.querySelectorAll<HTMLTableCellElement>("th, td").forEach((cell) => {
+      cell.style.setProperty("border", "1px solid #000000", "important");
+      cell.style.setProperty("vertical-align", "middle", "important");
+      cell.style.setProperty("text-align", "center", "important");
+      cell.style.setProperty("padding", "4px 6px", "important");
+      cell.style.setProperty("box-sizing", "border-box", "important");
+      cell.style.setProperty("line-height", "1.25", "important");
+      cell.style.setProperty("color", "#000000", "important");
+    });
+  });
+}
+
 export default function FormulationReport() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
