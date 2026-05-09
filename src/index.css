@@ -319,15 +319,18 @@
     vertical-align: middle !important;
   }
   .report-table .identification-table tr {
-    height: 32px !important;
+    height: 28px !important;
   }
   .report-table .identification-table th,
   .report-table .identification-table td {
-    height: 32px !important;
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-    line-height: 1.2 !important;
+    height: 28px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    line-height: 28px !important;
     vertical-align: middle !important;
+    white-space: nowrap;
     mso-line-height-rule: exactly;
   }
   .report-table table th.text-right,
