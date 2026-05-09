@@ -219,6 +219,13 @@
 .report-table .identification-table th,
 .report-table .identification-table td {
   text-align: left !important;
+  vertical-align: middle !important;
+}
+.report-table .identification-table th,
+.report-table .identification-table td {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  line-height: 1.4 !important;
 }
 .report-table table th.text-right,
 .report-table table td.text-right {
