@@ -223,9 +223,11 @@
 }
 .report-table .identification-table th,
 .report-table .identification-table td {
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
-  line-height: 1.4 !important;
+  height: 30px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 30px !important;
+  vertical-align: middle !important;
 }
 .report-table table th.text-right,
 .report-table table td.text-right {
@@ -315,9 +317,11 @@
   }
   .report-table .identification-table th,
   .report-table .identification-table td {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-    line-height: 1.4 !important;
+    height: 30px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 30px !important;
+    vertical-align: middle !important;
   }
   .report-table table th.text-right,
   .report-table table td.text-right {
