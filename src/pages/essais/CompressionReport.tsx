@@ -410,21 +410,21 @@ const CompressionReport = () => {
             <table className="w-full border-collapse border border-black text-sm">
               <tbody>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                  <td className="border border-black px-3 py-1.5 text-black">EC-{String(echantillon.numero).padStart(3, "0")}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black text-left align-middle">N° Échantillon</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">EC-{String(echantillon.numero).padStart(3, "0")}</td>
                 </tr>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.client_nom}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Client</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.client_nom}</td>
                 </tr>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantier_nom}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Chantier</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.chantier_nom}</td>
                 </tr>
                 {echantillon.essai_convenance && (
                   <tr>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">Essai de convenance</td>
-                    <td className="border border-black px-3 py-1.5 text-black">
+                    <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Essai de convenance</td>
+                    <td className="border border-black px-3 py-1.5 text-black text-left align-middle">
                       {echantillon.essai_convenance_details || "-"}
                     </td>
                   </tr>
@@ -432,22 +432,22 @@ const CompressionReport = () => {
                 {!echantillon.essai_convenance && (
                   <>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage}</td>
+                      <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Ouvrage</td>
+                      <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.ouvrage}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{echantillon.destination_beton}</td>
+                      <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Partie de l'ouvrage</td>
+                      <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.destination_beton}</td>
                     </tr>
                   </>
                 )}
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Mode de conservation</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.condition_cure}</td>
                 </tr>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
               </tbody>
             </table>
