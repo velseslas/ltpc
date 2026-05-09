@@ -292,14 +292,35 @@ const CompressionReport = () => {
 
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
-    
-    const canvas = await html2canvas(reportRef.current, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
+
+    const canvas = await html2canvas(reportRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      windowWidth: reportRef.current.scrollWidth,
+    });
+
     const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+    const imgData = canvas.toDataURL("image/png");
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight; // negative offset to shift image up
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+
     pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
   };
 
