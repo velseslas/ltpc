@@ -316,6 +316,20 @@
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
+  .report-table table th::before,
+  .report-table table td::before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    min-height: 26px;
+    width: 0;
+    vertical-align: middle;
+  }
+
+  .report-table table th > *,
+  .report-table table td > * {
+    vertical-align: middle !important;
+  }
   .report-table table tr > th:last-child,
   .report-table table tr > td:last-child {
     border-right: 0.5pt solid #000000 !important;
@@ -343,7 +357,7 @@
     padding-bottom: 0 !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
-    line-height: 28px !important;
+    line-height: 1.2 !important;
     vertical-align: middle !important;
     white-space: nowrap;
     mso-line-height-rule: exactly;
