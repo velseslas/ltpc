@@ -374,6 +374,28 @@
   }
 }
 
+/* Force PDF/html2canvas vertical centering for every /essais report identification table. */
+#root .report-table table.identification-table > tbody > tr {
+  height: 30px !important;
+}
+
+#root .report-table table.identification-table > tbody > tr > th,
+#root .report-table table.identification-table > tbody > tr > td {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 8px !important;
+  line-height: 30px !important;
+  vertical-align: middle !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+#root .report-table table.identification-table > tbody > tr > th::before,
+#root .report-table table.identification-table > tbody > tr > td::before {
+  content: none !important;
+  display: none !important;
+}
+
 /* Blinking red border for validation errors */
 @keyframes border-blink {
   0%, 100% { 
