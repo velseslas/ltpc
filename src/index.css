@@ -214,6 +214,21 @@
   outline: none !important;
 }
 
+.report-table table th::before,
+.report-table table td::before {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  min-height: 26px;
+  width: 0;
+  vertical-align: middle;
+}
+
+.report-table table th > *,
+.report-table table td > * {
+  vertical-align: middle !important;
+}
+
 .report-table table th.text-left,
 .report-table table td.text-left,
 .report-table .identification-table th,
@@ -228,7 +243,7 @@
   padding-bottom: 0 !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
-  line-height: 28px !important;
+  line-height: 1.2 !important;
   vertical-align: middle !important;
   white-space: nowrap;
 }
@@ -301,6 +316,20 @@
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
+  .report-table table th::before,
+  .report-table table td::before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    min-height: 26px;
+    width: 0;
+    vertical-align: middle;
+  }
+
+  .report-table table th > *,
+  .report-table table td > * {
+    vertical-align: middle !important;
+  }
   .report-table table tr > th:last-child,
   .report-table table tr > td:last-child {
     border-right: 0.5pt solid #000000 !important;
@@ -328,7 +357,7 @@
     padding-bottom: 0 !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
-    line-height: 28px !important;
+    line-height: 1.2 !important;
     vertical-align: middle !important;
     white-space: nowrap;
     mso-line-height-rule: exactly;
@@ -343,6 +372,28 @@
   .report-table table tfoot {
     display: table-footer-group;
   }
+}
+
+/* Force PDF/html2canvas vertical centering for every /essais report identification table. */
+#root .report-table table.identification-table > tbody > tr {
+  height: 30px !important;
+}
+
+#root .report-table table.identification-table > tbody > tr > th,
+#root .report-table table.identification-table > tbody > tr > td {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 8px !important;
+  line-height: 30px !important;
+  vertical-align: middle !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+#root .report-table table.identification-table > tbody > tr > th::before,
+#root .report-table table.identification-table > tbody > tr > td::before {
+  content: none !important;
+  display: none !important;
 }
 
 /* Blinking red border for validation errors */
