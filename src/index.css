@@ -215,7 +215,9 @@
 }
 
 .report-table table th.text-left,
-.report-table table td.text-left {
+.report-table table td.text-left,
+.report-table .identification-table th,
+.report-table .identification-table td {
   text-align: left !important;
 }
 .report-table table th.text-right,
