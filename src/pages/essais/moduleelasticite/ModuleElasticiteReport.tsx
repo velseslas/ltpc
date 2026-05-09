@@ -100,7 +100,7 @@ const ModuleElasticiteReport = () => {
 
         <div className="mb-6 mt-6">
           <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
-          <table className="w-full border-collapse border border-black text-sm">
+          <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr><td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td><td className="border border-black px-3 py-1.5 text-black">ME-{String(echantillon.numero).padStart(3, "0")}</td></tr>
               <tr><td className="border border-black px-3 py-1.5 font-medium text-black">Client</td><td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom || "-"}</td></tr>
