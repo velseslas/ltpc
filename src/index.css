@@ -396,6 +396,114 @@
   display: none !important;
 }
 
+/* ============================================================
+   Unified report style — applies to ALL essais reports
+   (downloadable PDF via html2canvas + printable @media print)
+   Spec: Arial body, 1px borders, 14px text, blue h1, etc.
+   ============================================================ */
+#root .report-table,
+#root .report-table * {
+  font-family: Arial, sans-serif !important;
+  color: #111 !important;
+}
+
+#root .report-table table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border: 1px solid #333 !important;
+}
+
+#root .report-table table th,
+#root .report-table table td {
+  border: 1px solid #444 !important;
+  padding: 10px 8px !important;
+  font-size: 14px !important;
+  vertical-align: middle !important;
+  line-height: 1.3 !important;
+}
+
+#root .report-table table th {
+  background: #dfe3e6 !important;
+  font-weight: bold !important;
+  color: #111 !important;
+}
+
+#root .report-table h1 {
+  font-size: 32px !important;
+  color: #1f567d !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+
+#root .report-table .section-title,
+#root .report-table h3 {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  text-decoration: underline !important;
+  color: #111 !important;
+}
+
+#root .report-table .header-box {
+  border: 1px solid #444 !important;
+  border-radius: 14px !important;
+  padding: 18px !important;
+}
+
+/* Identification table: keep compact vertical-centered rows */
+#root .report-table table.identification-table th,
+#root .report-table table.identification-table td {
+  height: 30px !important;
+  padding: 6px 8px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+@media print {
+  #root .report-table,
+  #root .report-table * {
+    font-family: Arial, sans-serif !important;
+    color: #111 !important;
+  }
+  #root .report-table table {
+    border: 1px solid #333 !important;
+    border-collapse: collapse !important;
+  }
+  #root .report-table table th,
+  #root .report-table table td {
+    border: 1px solid #444 !important;
+    padding: 10px 8px !important;
+    font-size: 14px !important;
+    vertical-align: middle !important;
+  }
+  #root .report-table table th {
+    background: #dfe3e6 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-weight: bold !important;
+  }
+  #root .report-table h1 {
+    font-size: 32px !important;
+    color: #1f567d !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #root .report-table .section-title,
+  #root .report-table h3 {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    text-decoration: underline !important;
+  }
+  #root .report-table .header-box {
+    border: 1px solid #444 !important;
+    border-radius: 14px !important;
+    padding: 18px !important;
+  }
+}
+
 /* Blinking red border for validation errors */
 @keyframes border-blink {
   0%, 100% { 
