@@ -214,6 +214,15 @@
   outline: none !important;
 }
 
+.report-table table th.text-left,
+.report-table table td.text-left {
+  text-align: left !important;
+}
+.report-table table th.text-right,
+.report-table table td.text-right {
+  text-align: right !important;
+}
+
 .report-table table tr > th:last-child,
 .report-table table tr > td:last-child {
   border-right: 0.5pt solid #000000 !important;
