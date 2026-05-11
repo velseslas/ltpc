@@ -724,15 +724,15 @@ const CompressionReport = () => {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 8mm;
           }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
-            width: 210mm !important;
-            min-height: 297mm !important;
+            width: auto !important;
+            min-height: auto !important;
             background: #ffffff !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
@@ -745,28 +745,29 @@ const CompressionReport = () => {
           #root {
             padding: 0 !important;
             margin: 0 !important;
-            width: 210mm !important;
-            min-height: 297mm !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            min-height: auto !important;
+            overflow: visible !important;
           }
           [data-ref="report"], [data-ref="report"] * {
             visibility: visible;
           }
           [data-ref="report"] {
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
+            width: 100% !important;
+            max-width: 100% !important;
             margin: 0 !important;
-            padding: 5mm !important;
+            padding: 0 !important;
             box-sizing: border-box !important;
             transform: none !important;
           }
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
-            width: 200mm !important;
+            width: 100% !important;
+            max-width: 100% !important;
             min-height: auto !important;
             padding: 0 !important;
             margin: 0 !important;
