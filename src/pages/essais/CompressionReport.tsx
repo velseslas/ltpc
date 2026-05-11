@@ -724,12 +724,15 @@ const CompressionReport = () => {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 8mm;
+            margin: 0;
           }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
+            width: 210mm !important;
+            min-height: 297mm !important;
             background: #ffffff !important;
+            overflow: hidden !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
@@ -742,30 +745,36 @@ const CompressionReport = () => {
           #root {
             padding: 0 !important;
             margin: 0 !important;
+            width: 210mm !important;
+            min-height: 297mm !important;
+            overflow: hidden !important;
           }
           [data-ref="report"], [data-ref="report"] * {
             visibility: visible;
           }
           [data-ref="report"] {
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 5mm !important;
+            box-sizing: border-box !important;
+            transform: none !important;
           }
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
+            width: 200mm !important;
+            min-height: auto !important;
             padding: 0 !important;
             margin: 0 !important;
-            page-break-after: always;
-            break-after: page;
-          }
-          [data-ref="report"] [data-pdf-page]:last-child {
-            page-break-after: auto;
-            break-after: auto;
+            box-sizing: border-box !important;
+            page-break-after: auto !important;
+            break-after: auto !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
           [data-ref="report"] table {
             page-break-inside: auto;
