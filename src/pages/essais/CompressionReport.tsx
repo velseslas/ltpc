@@ -199,6 +199,12 @@ const CompressionReport = () => {
           };
         }
 
+        const extendedData = data as typeof data & {
+          mention_info_client?: boolean | null;
+          mention_eprouvette_client?: boolean | null;
+          etuvage?: string | null;
+        };
+
         setEchantillon({
           id: data.id,
           numero: data.numero,
@@ -227,10 +233,10 @@ const CompressionReport = () => {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
-          mention_info_client: (data as any).mention_info_client || false,
-          mention_eprouvette_client: (data as any).mention_eprouvette_client || false,
+          mention_info_client: extendedData.mention_info_client || false,
+          mention_eprouvette_client: extendedData.mention_eprouvette_client || false,
           date_essai: data.date_essai || null,
-          etuvage: (data as any).etuvage || null,
+          etuvage: extendedData.etuvage || null,
         });
       } catch (error) {
         console.error("Error fetching echantillon:", error);
