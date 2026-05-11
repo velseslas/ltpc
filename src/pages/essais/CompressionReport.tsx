@@ -722,6 +722,17 @@ const CompressionReport = () => {
       {/* Styles d'impression */}
       <style>{`
         @media print {
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body * {
             visibility: hidden;
           }
@@ -730,9 +741,42 @@ const CompressionReport = () => {
           }
           #root {
             padding: 0 !important;
+            margin: 0 !important;
           }
           [data-ref="report"], [data-ref="report"] * {
             visibility: visible;
+          }
+          [data-ref="report"] {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          [data-ref="report"] [data-pdf-page] {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            page-break-after: always;
+            break-after: page;
+          }
+          [data-ref="report"] [data-pdf-page]:last-child {
+            page-break-after: auto;
+            break-after: auto;
+          }
+          [data-ref="report"] table {
+            page-break-inside: auto;
+            break-inside: auto;
+          }
+          [data-ref="report"] tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          [data-ref="report"] thead {
+            display: table-header-group;
           }
         }
       `}</style>
