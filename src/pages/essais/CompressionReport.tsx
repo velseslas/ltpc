@@ -760,23 +760,23 @@ const CompressionReport = () => {
           }
           [data-ref="report"] {
             position: absolute !important;
-            left: 0 !important;
+            left: 50% !important;
             top: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
+            transform: translateX(-50%) !important;
+            width: 194mm !important;
+            max-width: 194mm !important;
+            margin: 0 auto !important;
             padding: 0 !important;
             box-sizing: border-box !important;
-            transform: none !important;
           }
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
+            width: 194mm !important;
+            max-width: 194mm !important;
             min-height: auto !important;
             padding: 0 !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
             break-after: auto !important;
