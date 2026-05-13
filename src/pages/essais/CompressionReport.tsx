@@ -488,81 +488,49 @@ const CompressionReport = () => {
               <span className="mx-4">|</span>
               <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
             </div>
-            <table className="w-full border-collapse border border-black">
+            <table className="w-full border-collapse border border-black formulation-table">
               <thead>
                 <tr>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Ciment
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Eau
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Adjuvant
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Sable 1
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Sable 2
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Gravier 1
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Gravier 2
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center font-medium text-xs text-black">
-                    Gravier 3
-                  </th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Ciment</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Eau</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Adjuvant</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Sable 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Sable 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Gravier 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Gravier 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[9px] text-black">Gravier 3</th>
                 </tr>
                 <tr>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.ciment.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.eau.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.adjuvant.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.sable_concasse.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.sable_fin.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.gravillons1.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.gravier2.producteur_nom || "-"}
-                  </th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">
-                    {echantillon.formulation?.gravier3.producteur_nom || "-"}
-                  </th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
                 </tr>
                 <tr>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.eau.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
-                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.eau.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[9px] text-black font-normal">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.ciment.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.eau.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.adjuvant.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.sable_fin.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.gravillons1.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.gravier2.quantite ?? 0}</td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{echantillon.formulation?.gravier3.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.ciment.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.eau.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.adjuvant.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.sable_fin.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.gravillons1.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.gravier2.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[10px] font-medium text-black">{echantillon.formulation?.gravier3.quantite ?? 0}</td>
                 </tr>
               </tbody>
             </table>
@@ -779,13 +747,13 @@ const CompressionReport = () => {
           }
           [data-ref="report"] {
             position: absolute !important;
-            left: 0 !important;
+            left: 10mm !important;
             top: 0 !important;
             right: auto !important;
             transform: none !important;
             width: 210mm !important;
             max-width: 210mm !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
             padding: 0 !important;
             box-sizing: border-box !important;
           }
@@ -796,7 +764,7 @@ const CompressionReport = () => {
             max-width: 210mm !important;
             min-height: auto !important;
             padding: 8mm !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
             break-after: auto !important;
@@ -814,6 +782,18 @@ const CompressionReport = () => {
           [data-ref="report"] thead {
             display: table-header-group;
           }
+          [data-ref="report"] .formulation-table th,
+          [data-ref="report"] .formulation-table td {
+            font-size: 8px !important;
+            padding: 2px 3px !important;
+            line-height: 1.1 !important;
+          }
+        }
+        .formulation-table th,
+        .formulation-table td {
+          font-size: 10px !important;
+          line-height: 1.2 !important;
+        }
         }
       `}</style>
     </div>
