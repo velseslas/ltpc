@@ -747,9 +747,9 @@ const CompressionReport = () => {
           }
           [data-ref="report"] {
             position: absolute !important;
-            left: 10mm !important;
+            left: 0 !important;
             top: 0 !important;
-            right: auto !important;
+            right: 0 !important;
             transform: none !important;
             width: 210mm !important;
             max-width: 210mm !important;
@@ -763,7 +763,7 @@ const CompressionReport = () => {
             width: 210mm !important;
             max-width: 210mm !important;
             min-height: auto !important;
-            padding: 8mm !important;
+            padding: 6mm 2mm 6mm 6mm !important;
             margin: 0 !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
