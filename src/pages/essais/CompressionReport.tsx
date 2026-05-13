@@ -730,17 +730,20 @@ const CompressionReport = () => {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 8mm;
+            margin: 0;
           }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
-            width: auto !important;
-            min-height: auto !important;
+            width: 210mm !important;
+            min-height: 297mm !important;
             background: #ffffff !important;
             overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          body {
+            position: relative !important;
           }
           body * {
             visibility: hidden;
@@ -751,7 +754,8 @@ const CompressionReport = () => {
           #root {
             padding: 0 !important;
             margin: 0 !important;
-            width: 100% !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
             min-height: auto !important;
             overflow: visible !important;
           }
@@ -760,11 +764,12 @@ const CompressionReport = () => {
           }
           [data-ref="report"] {
             position: absolute !important;
-            left: 50% !important;
+            left: 0 !important;
             top: 0 !important;
-            transform: translateX(-50%) !important;
-            width: 194mm !important;
-            max-width: 194mm !important;
+            right: auto !important;
+            transform: none !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
             margin: 0 auto !important;
             padding: 0 !important;
             box-sizing: border-box !important;
@@ -772,10 +777,10 @@ const CompressionReport = () => {
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
-            width: 194mm !important;
-            max-width: 194mm !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
             min-height: auto !important;
-            padding: 0 !important;
+            padding: 8mm !important;
             margin: 0 auto !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
