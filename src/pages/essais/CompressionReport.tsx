@@ -747,13 +747,13 @@ const CompressionReport = () => {
           }
           [data-ref="report"] {
             position: absolute !important;
-            left: 0 !important;
+            left: 10mm !important;
             top: 0 !important;
             right: auto !important;
             transform: none !important;
             width: 210mm !important;
             max-width: 210mm !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
             padding: 0 !important;
             box-sizing: border-box !important;
           }
@@ -764,7 +764,7 @@ const CompressionReport = () => {
             max-width: 210mm !important;
             min-height: auto !important;
             padding: 8mm !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
             break-after: auto !important;
@@ -782,6 +782,18 @@ const CompressionReport = () => {
           [data-ref="report"] thead {
             display: table-header-group;
           }
+          [data-ref="report"] .formulation-table th,
+          [data-ref="report"] .formulation-table td {
+            font-size: 8px !important;
+            padding: 2px 3px !important;
+            line-height: 1.1 !important;
+          }
+        }
+        .formulation-table th,
+        .formulation-table td {
+          font-size: 10px !important;
+          line-height: 1.2 !important;
+        }
         }
       `}</style>
     </div>
