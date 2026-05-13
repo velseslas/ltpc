@@ -751,6 +751,21 @@ const CompressionReport = () => {
           .print\\:hidden {
             display: none !important;
           }
+          /* Masquer tous les éléments liés à la preview Lovable */
+          [data-lov-id],
+          [data-lovable],
+          [data-lovable-badge],
+          [id*="lovable"],
+          [class*="lovable"],
+          [id*="id-preview"],
+          [class*="id-preview"],
+          iframe,
+          header, nav, aside, footer {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            height: 0 !important;
+          }
           #root {
             padding: 0 !important;
             margin: 0 !important;
