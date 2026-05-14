@@ -761,45 +761,58 @@ const CompressionReport = () => {
             border-radius: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             min-height: auto !important;
-            padding: 4mm 4mm 4mm 4mm !important;
+            padding: 3mm 3mm 2mm 3mm !important;
             margin: 0 !important;
             box-sizing: border-box !important;
             page-break-after: avoid !important;
             break-after: avoid !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            overflow: visible !important;
+            overflow: hidden !important;
           }
           /* Compact section spacing */
-          [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 8px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 4px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 4px !important; }
-          [data-ref="report"] .pt-3 { padding-top: 3px !important; }
-          [data-ref="report"] h3 { font-size: 11px !important; margin-bottom: 3px !important; }
+          [data-ref="report"] .p-8 { padding: 0 !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 4px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 3px !important; }
+          [data-ref="report"] .mb-2 { margin-bottom: 2px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 5px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 3px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 3px !important; }
+          [data-ref="report"] .pt-3 { padding-top: 2px !important; }
+          [data-ref="report"] h3 { font-size: 9px !important; margin-bottom: 2px !important; }
           /* Compact table cells globally inside report */
           [data-ref="report"] table { page-break-inside: avoid; break-inside: avoid; font-size: 10px !important; }
           [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] thead { display: table-header-group; }
           [data-ref="report"] th,
           [data-ref="report"] td {
-            padding: 2px 4px !important;
-            font-size: 10px !important;
-            line-height: 1.15 !important;
+            padding: 1px 3px !important;
+            font-size: 8.5px !important;
+            line-height: 1.05 !important;
           }
           [data-ref="report"] .formulation-table th,
           [data-ref="report"] .formulation-table td {
-            font-size: 7px !important;
-            padding: 1px 2px !important;
-            line-height: 1.0 !important;
+            font-size: 6px !important;
+            padding: 0.5px 1px !important;
+            line-height: 0.95 !important;
           }
           /* Shrink header block */
-          [data-ref="report"] [data-report-header] { margin-bottom: 4px !important; }
-          [data-ref="report"] [data-report-header] img { max-height: 50px !important; }
+          [data-ref="report"] [data-report-header] { margin-bottom: 2px !important; }
+          [data-ref="report"] [data-report-header] img { max-height: 34px !important; }
+          [data-ref="report"] [data-report-header] svg { width: 44px !important; height: 44px !important; }
+          [data-ref="report"] [data-report-header] h1 { font-size: 13px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
+          [data-ref="report"] [data-report-header] p { font-size: 8px !important; line-height: 1.05 !important; margin: 0 !important; }
+          [data-ref="report"] h2 { font-size: 12px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
+          [data-ref="report"] .border-t-2 { margin-bottom: 3px !important; }
+          [data-ref="report"] .text-center.mb-6 { margin-bottom: 4px !important; }
+          [data-ref="report"] .text-sm { font-size: 8.5px !important; line-height: 1.05 !important; }
+          [data-ref="report"] .text-xs { font-size: 7px !important; line-height: 1.05 !important; }
           /* Signature images */
-          [data-ref="report"] img.max-h-16 { max-height: 40px !important; }
+          [data-ref="report"] img.max-h-16 { max-height: 26px !important; }
+          [data-ref="report"] img.max-h-20 { max-height: 32px !important; }
         }
         .formulation-table th,
         .formulation-table td {
