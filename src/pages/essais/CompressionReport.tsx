@@ -791,10 +791,17 @@ const CompressionReport = () => {
             border-radius: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             padding: 32px !important;
+            overflow: hidden !important;
             box-sizing: border-box !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid-page !important;
+          }
+          [data-ref="report"] [data-pdf-content] {
+            transform: scale(var(--report-print-scale, 1)) !important;
+            transform-origin: top left !important;
           }
           [data-ref="report"] table {
             border-collapse: collapse !important;
@@ -812,12 +819,19 @@ const CompressionReport = () => {
         /* Mode export PDF (html2canvas) — calque exact de l'aperçu sur format A4 */
         .pdf-export-mode [data-pdf-page] {
           width: 210mm !important;
+          height: 297mm !important;
           min-height: 297mm !important;
+          max-height: 297mm !important;
           padding: 32px !important;
           margin: 0 !important;
           border-radius: 0 !important;
           box-shadow: none !important;
+          overflow: hidden !important;
           box-sizing: border-box !important;
+        }
+        .pdf-export-mode [data-pdf-content] {
+          transform: scale(var(--report-print-scale, 1)) !important;
+          transform-origin: top left !important;
         }
         .pdf-export-mode table {
           border-collapse: collapse !important;
