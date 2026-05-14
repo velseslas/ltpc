@@ -293,6 +293,23 @@ const CompressionReport = () => {
   };
 
   const handlePrint = () => {
+    if (!reportRef.current) {
+      window.print();
+      return;
+    }
+
+    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
+    const content = reportRef.current.querySelector("[data-pdf-content]") as HTMLElement | null;
+    if (!page || !content) {
+      window.print();
+      return;
+    }
+
+    const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
+    const availableHeightPx = pageHeightPx - 64;
+    const scale = Math.min(1, availableHeightPx / content.scrollHeight);
+    page.style.setProperty("--report-print-scale", scale.toFixed(4));
+
     window.print();
   };
 
@@ -314,6 +331,7 @@ const CompressionReport = () => {
     exportRoot.style.pointerEvents = "none";
 
     const clonedPage = page.cloneNode(true) as HTMLElement;
+    const clonedContent = clonedPage.querySelector("[data-pdf-content]") as HTMLElement | null;
     exportRoot.appendChild(clonedPage);
     document.body.appendChild(exportRoot);
 
@@ -328,6 +346,13 @@ const CompressionReport = () => {
         )
       );
 
+      if (clonedContent) {
+        const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
+        const availableHeightPx = pageHeightPx - 64;
+        const scale = Math.min(1, availableHeightPx / clonedContent.scrollHeight);
+        clonedPage.style.setProperty("--report-print-scale", scale.toFixed(4));
+      }
+
       const canvas = await html2canvas(clonedPage, {
         scale: 3,
         useCORS: true,
@@ -335,7 +360,7 @@ const CompressionReport = () => {
         width: clonedPage.offsetWidth,
         height: clonedPage.offsetHeight,
         windowWidth: clonedPage.scrollWidth,
-        windowHeight: clonedPage.scrollHeight,
+        windowHeight: clonedPage.offsetHeight,
         logging: false,
       });
 
@@ -440,12 +465,13 @@ const CompressionReport = () => {
           data-pdf-page
           className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:rounded-none"
         >
-          <ReportHeader
-            entreprise={entreprise}
-            verificationUrl={verificationUrl}
-            title="RAPPORT D'ESSAI DE COMPRESSION"
-            subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
-          />
+          <div data-pdf-content>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="RAPPORT D'ESSAI DE COMPRESSION"
+              subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
+            />
 
 
           {/* Identification de l'échantillon */}
@@ -707,6 +733,7 @@ const CompressionReport = () => {
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
         {/* Fin page 2+ */}
@@ -722,6 +749,9 @@ const CompressionReport = () => {
             margin: 0 !important;
             padding: 0 !important;
             width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
             background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -745,17 +775,22 @@ const CompressionReport = () => {
             margin: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
-            overflow: visible !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
           }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] {
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: hidden !important;
             box-sizing: border-box !important;
           }
           /* Conserve exactement le rendu de l'aperçu (p-8 = 32px, bordures simples) */
@@ -764,12 +799,20 @@ const CompressionReport = () => {
             border-radius: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             padding: 32px !important;
+            overflow: hidden !important;
             box-sizing: border-box !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid-page !important;
+          }
+          [data-ref="report"] [data-pdf-content] {
+            transform: scale(var(--report-print-scale, 1)) !important;
+            transform-origin: top left !important;
           }
           [data-ref="report"] table {
+            border: 0 !important;
             border-collapse: collapse !important;
             border-spacing: 0 !important;
             page-break-inside: avoid;
@@ -785,14 +828,22 @@ const CompressionReport = () => {
         /* Mode export PDF (html2canvas) — calque exact de l'aperçu sur format A4 */
         .pdf-export-mode [data-pdf-page] {
           width: 210mm !important;
+          height: 297mm !important;
           min-height: 297mm !important;
+          max-height: 297mm !important;
           padding: 32px !important;
           margin: 0 !important;
           border-radius: 0 !important;
           box-shadow: none !important;
+          overflow: hidden !important;
           box-sizing: border-box !important;
         }
+        .pdf-export-mode [data-pdf-content] {
+          transform: scale(var(--report-print-scale, 1)) !important;
+          transform-origin: top left !important;
+        }
         .pdf-export-mode table {
+          border: 0 !important;
           border-collapse: collapse !important;
           border-spacing: 0 !important;
         }
