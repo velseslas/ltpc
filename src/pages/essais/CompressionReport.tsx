@@ -347,7 +347,7 @@ const CompressionReport = () => {
       );
 
       if (clonedContent) {
-        const pageHeightPx = clonedPage.getBoundingClientRect().width * (297 / 210);
+        const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
         const availableHeightPx = pageHeightPx - 64;
         const scale = Math.min(1, availableHeightPx / clonedContent.scrollHeight);
         clonedPage.style.setProperty("--report-print-scale", scale.toFixed(4));
