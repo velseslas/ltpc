@@ -465,12 +465,13 @@ const CompressionReport = () => {
           data-pdf-page
           className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:rounded-none"
         >
-          <ReportHeader
-            entreprise={entreprise}
-            verificationUrl={verificationUrl}
-            title="RAPPORT D'ESSAI DE COMPRESSION"
-            subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
-          />
+          <div data-pdf-content>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="RAPPORT D'ESSAI DE COMPRESSION"
+              subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
+            />
 
 
           {/* Identification de l'échantillon */}
@@ -731,6 +732,7 @@ const CompressionReport = () => {
                   )}
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
