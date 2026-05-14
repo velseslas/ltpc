@@ -299,34 +299,53 @@ const CompressionReport = () => {
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
 
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      windowWidth: reportRef.current.scrollWidth,
-    });
+    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
+    if (!page) return;
 
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
-    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+    const exportRoot = document.createElement("div");
+    exportRoot.className = "pdf-export-mode";
+    exportRoot.style.position = "fixed";
+    exportRoot.style.left = "-10000px";
+    exportRoot.style.top = "0";
+    exportRoot.style.width = "210mm";
+    exportRoot.style.height = "297mm";
+    exportRoot.style.background = "#ffffff";
+    exportRoot.style.overflow = "hidden";
+    exportRoot.style.pointerEvents = "none";
 
-    // Marges PDF (mm) — équilibrées
-    const marginX = 10;
-    const marginY = 8;
-    const usableW = pdfWidth - 2 * marginX;
-    const usableH = pdfHeight - 2 * marginY;
+    const clonedPage = page.cloneNode(true) as HTMLElement;
+    exportRoot.appendChild(clonedPage);
+    document.body.appendChild(exportRoot);
 
-    // Ratio pour faire tenir tout le rapport sur UNE seule page
-    const ratio = Math.min(usableW / canvas.width, usableH / canvas.height);
-    const imgWidth = canvas.width * ratio;
-    const imgHeight = canvas.height * ratio;
-    const x = (pdfWidth - imgWidth) / 2;
-    const y = marginY;
-    const imgData = canvas.toDataURL("image/png");
+    try {
+      await document.fonts?.ready;
+      await Promise.all(
+        Array.from(clonedPage.querySelectorAll("img")).map(
+          (img) => img.complete ? Promise.resolve() : new Promise<void>((resolve) => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          })
+        )
+      );
 
-    pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      const canvas = await html2canvas(clonedPage, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: clonedPage.offsetWidth,
+        height: clonedPage.offsetHeight,
+        windowWidth: clonedPage.scrollWidth,
+        windowHeight: clonedPage.scrollHeight,
+        logging: false,
+      });
 
-    pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
+      pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
+      pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+    } finally {
+      document.body.removeChild(exportRoot);
+    }
   };
 
   const results = calculateResults();
