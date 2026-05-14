@@ -293,6 +293,23 @@ const CompressionReport = () => {
   };
 
   const handlePrint = () => {
+    if (!reportRef.current) {
+      window.print();
+      return;
+    }
+
+    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
+    const content = reportRef.current.querySelector("[data-pdf-content]") as HTMLElement | null;
+    if (!page || !content) {
+      window.print();
+      return;
+    }
+
+    const pageHeightPx = page.getBoundingClientRect().width * (297 / 210);
+    const availableHeightPx = pageHeightPx - 64;
+    const scale = Math.min(1, availableHeightPx / content.scrollHeight);
+    page.style.setProperty("--report-print-scale", scale.toFixed(4));
+
     window.print();
   };
 
@@ -314,6 +331,7 @@ const CompressionReport = () => {
     exportRoot.style.pointerEvents = "none";
 
     const clonedPage = page.cloneNode(true) as HTMLElement;
+    const clonedContent = clonedPage.querySelector("[data-pdf-content]") as HTMLElement | null;
     exportRoot.appendChild(clonedPage);
     document.body.appendChild(exportRoot);
 
@@ -328,6 +346,13 @@ const CompressionReport = () => {
         )
       );
 
+      if (clonedContent) {
+        const pageHeightPx = clonedPage.getBoundingClientRect().width * (297 / 210);
+        const availableHeightPx = pageHeightPx - 64;
+        const scale = Math.min(1, availableHeightPx / clonedContent.scrollHeight);
+        clonedPage.style.setProperty("--report-print-scale", scale.toFixed(4));
+      }
+
       const canvas = await html2canvas(clonedPage, {
         scale: 3,
         useCORS: true,
@@ -335,7 +360,7 @@ const CompressionReport = () => {
         width: clonedPage.offsetWidth,
         height: clonedPage.offsetHeight,
         windowWidth: clonedPage.scrollWidth,
-        windowHeight: clonedPage.scrollHeight,
+        windowHeight: clonedPage.offsetHeight,
         logging: false,
       });
 
