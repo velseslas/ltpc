@@ -839,7 +839,7 @@ const CompressionReport = () => {
           box-sizing: border-box !important;
         }
         .pdf-export-mode [data-pdf-content] {
-          transform: scale(var(--report-print-scale, 1)) !important;
+          zoom: var(--report-print-scale, 1);
           transform-origin: top left !important;
         }
         .pdf-export-mode table {
