@@ -48,7 +48,7 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
   return (
     <>
       {/* En-tête */}
-      <div className="border border-black rounded-lg p-4 mb-6">
+      <div data-report-header className="border border-black rounded-lg p-4 mb-6">
         <div className="flex items-start justify-between">
           {/* Logo */}
           <div className="w-24 h-24 border border-gray-300 flex items-center justify-center bg-[#d4e5f7] rounded">
