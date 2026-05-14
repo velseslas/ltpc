@@ -305,7 +305,7 @@ const CompressionReport = () => {
       return;
     }
 
-    const pageHeightPx = page.getBoundingClientRect().width * (297 / 210);
+    const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
     const availableHeightPx = pageHeightPx - 64;
     const scale = Math.min(1, availableHeightPx / content.scrollHeight);
     page.style.setProperty("--report-print-scale", scale.toFixed(4));
