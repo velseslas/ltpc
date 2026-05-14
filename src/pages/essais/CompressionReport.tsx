@@ -772,7 +772,6 @@ const CompressionReport = () => {
             width: 210mm !important;
             max-width: 210mm !important;
             min-height: auto !important;
-            max-height: 297mm !important;
             padding: 4mm 4mm 4mm 4mm !important;
             margin: 0 !important;
             box-sizing: border-box !important;
@@ -780,7 +779,7 @@ const CompressionReport = () => {
             break-after: avoid !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            overflow: hidden !important;
+            overflow: visible !important;
           }
           /* Compact section spacing */
           [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
@@ -802,9 +801,9 @@ const CompressionReport = () => {
           }
           [data-ref="report"] .formulation-table th,
           [data-ref="report"] .formulation-table td {
-            font-size: 8px !important;
+            font-size: 7px !important;
             padding: 1px 2px !important;
-            line-height: 1.05 !important;
+            line-height: 1.0 !important;
           }
           /* Shrink header block */
           [data-ref="report"] [data-report-header] { margin-bottom: 4px !important; }
