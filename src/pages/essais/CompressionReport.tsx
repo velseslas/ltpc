@@ -870,15 +870,17 @@ const CompressionReport = () => {
         .pdf-export-mode tr { page-break-inside: avoid; break-inside: avoid; }
         .pdf-export-mode th,
         .pdf-export-mode td {
-          padding: 1px 3px !important;
+          padding: 2px 3px !important;
           font-size: 8.5px !important;
-          line-height: 1.05 !important;
+          line-height: 1.3 !important;
+          vertical-align: middle !important;
         }
         .pdf-export-mode .formulation-table th,
         .pdf-export-mode .formulation-table td {
-          font-size: 5.5px !important;
-          padding: 0.5px 1px !important;
-          line-height: 0.95 !important;
+          font-size: 6px !important;
+          padding: 1.5px 1px !important;
+          line-height: 1.25 !important;
+          vertical-align: middle !important;
         }
         .pdf-export-mode [data-report-header] { margin-bottom: 2px !important; }
         .pdf-export-mode [data-report-header] img { max-height: 34px !important; }
