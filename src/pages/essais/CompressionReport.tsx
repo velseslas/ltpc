@@ -761,14 +761,8 @@ const CompressionReport = () => {
           }
           body * { visibility: hidden; }
           .print\\:hidden { display: none !important; }
-          [data-lov-id],
-          [data-lovable],
-          [data-lovable-badge],
-          [id*="lovable"],
-          [class*="lovable"],
-          [id*="id-preview"],
-          [class*="id-preview"],
-          iframe,
+          body > iframe,
+          body > [data-lovable-badge],
           header, nav, aside, footer {
             display: none !important;
             visibility: hidden !important;
