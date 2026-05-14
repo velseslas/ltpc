@@ -742,6 +742,15 @@ const CompressionReport = () => {
             min-height: auto !important;
             overflow: visible !important;
           }
+          #root > div,
+          #root main {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
+            min-height: auto !important;
+            overflow: visible !important;
+          }
           [data-ref="report"], [data-ref="report"] * {
             visibility: visible;
           }
@@ -763,7 +772,7 @@ const CompressionReport = () => {
             width: 210mm !important;
             max-width: 210mm !important;
             min-height: auto !important;
-            padding: 6mm 2mm 6mm 6mm !important;
+            padding: 5mm 2mm 5mm 2mm !important;
             margin: 0 !important;
             box-sizing: border-box !important;
             page-break-after: auto !important;
