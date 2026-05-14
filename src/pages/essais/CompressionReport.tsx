@@ -299,34 +299,53 @@ const CompressionReport = () => {
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
 
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      windowWidth: reportRef.current.scrollWidth,
-    });
+    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
+    if (!page) return;
 
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
-    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+    const exportRoot = document.createElement("div");
+    exportRoot.className = "pdf-export-mode";
+    exportRoot.style.position = "fixed";
+    exportRoot.style.left = "-10000px";
+    exportRoot.style.top = "0";
+    exportRoot.style.width = "210mm";
+    exportRoot.style.height = "297mm";
+    exportRoot.style.background = "#ffffff";
+    exportRoot.style.overflow = "hidden";
+    exportRoot.style.pointerEvents = "none";
 
-    // Marges PDF (mm) — équilibrées
-    const marginX = 10;
-    const marginY = 8;
-    const usableW = pdfWidth - 2 * marginX;
-    const usableH = pdfHeight - 2 * marginY;
+    const clonedPage = page.cloneNode(true) as HTMLElement;
+    exportRoot.appendChild(clonedPage);
+    document.body.appendChild(exportRoot);
 
-    // Ratio pour faire tenir tout le rapport sur UNE seule page
-    const ratio = Math.min(usableW / canvas.width, usableH / canvas.height);
-    const imgWidth = canvas.width * ratio;
-    const imgHeight = canvas.height * ratio;
-    const x = (pdfWidth - imgWidth) / 2;
-    const y = marginY;
-    const imgData = canvas.toDataURL("image/png");
+    try {
+      await document.fonts?.ready;
+      await Promise.all(
+        Array.from(clonedPage.querySelectorAll("img")).map(
+          (img) => img.complete ? Promise.resolve() : new Promise<void>((resolve) => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          })
+        )
+      );
 
-    pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
+      const canvas = await html2canvas(clonedPage, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: clonedPage.offsetWidth,
+        height: clonedPage.offsetHeight,
+        windowWidth: clonedPage.scrollWidth,
+        windowHeight: clonedPage.scrollHeight,
+        logging: false,
+      });
 
-    pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
+      pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
+      pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+    } finally {
+      document.body.removeChild(exportRoot);
+    }
   };
 
   const results = calculateResults();
@@ -783,7 +802,7 @@ const CompressionReport = () => {
             overflow: hidden !important;
           }
           /* Compact section spacing */
-          [data-ref="report"] .p-8 { padding: 0 !important; }
+          [data-ref="report"] [data-pdf-page].p-8 { padding: 6mm 8mm 6mm 8mm !important; }
           [data-ref="report"] .mb-6 { margin-bottom: 4px !important; }
           [data-ref="report"] .mb-4 { margin-bottom: 3px !important; }
           [data-ref="report"] .mb-2 { margin-bottom: 2px !important; }
@@ -823,6 +842,54 @@ const CompressionReport = () => {
           [data-ref="report"] img.max-h-16 { max-height: 26px !important; }
           [data-ref="report"] img.max-h-20 { max-height: 32px !important; }
         }
+        .pdf-export-mode [data-pdf-page] {
+          width: 210mm !important;
+          height: 297mm !important;
+          max-width: 210mm !important;
+          max-height: 297mm !important;
+          min-height: 297mm !important;
+          padding: 6mm 8mm !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          overflow: hidden !important;
+          box-sizing: border-box !important;
+        }
+        .pdf-export-mode [data-pdf-page].p-8 { padding: 6mm 8mm !important; }
+        .pdf-export-mode .mb-6 { margin-bottom: 4px !important; }
+        .pdf-export-mode .mb-4 { margin-bottom: 3px !important; }
+        .pdf-export-mode .mb-2 { margin-bottom: 2px !important; }
+        .pdf-export-mode .mt-8 { margin-top: 5px !important; }
+        .pdf-export-mode .mt-4 { margin-top: 3px !important; }
+        .pdf-export-mode .pt-4 { padding-top: 3px !important; }
+        .pdf-export-mode .pt-3 { padding-top: 2px !important; }
+        .pdf-export-mode h3 { font-size: 9px !important; margin-bottom: 2px !important; }
+        .pdf-export-mode table { page-break-inside: avoid; break-inside: avoid; font-size: 10px !important; }
+        .pdf-export-mode tr { page-break-inside: avoid; break-inside: avoid; }
+        .pdf-export-mode th,
+        .pdf-export-mode td {
+          padding: 1px 3px !important;
+          font-size: 8.5px !important;
+          line-height: 1.05 !important;
+        }
+        .pdf-export-mode .formulation-table th,
+        .pdf-export-mode .formulation-table td {
+          font-size: 5.5px !important;
+          padding: 0.5px 1px !important;
+          line-height: 0.95 !important;
+        }
+        .pdf-export-mode [data-report-header] { margin-bottom: 2px !important; }
+        .pdf-export-mode [data-report-header] img { max-height: 34px !important; }
+        .pdf-export-mode [data-report-header] svg { width: 44px !important; height: 44px !important; }
+        .pdf-export-mode [data-report-header] h1 { font-size: 13px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
+        .pdf-export-mode [data-report-header] p { font-size: 8px !important; line-height: 1.05 !important; margin: 0 !important; }
+        .pdf-export-mode h2 { font-size: 12px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
+        .pdf-export-mode .border-t-2 { margin-bottom: 3px !important; }
+        .pdf-export-mode .text-center.mb-6 { margin-bottom: 4px !important; }
+        .pdf-export-mode .text-sm { font-size: 8.5px !important; line-height: 1.05 !important; }
+        .pdf-export-mode .text-xs { font-size: 7px !important; line-height: 1.05 !important; }
+        .pdf-export-mode img.max-h-16 { max-height: 26px !important; }
+        .pdf-export-mode img.max-h-20 { max-height: 32px !important; }
         .formulation-table th,
         .formulation-table td {
           font-size: 6px !important;
