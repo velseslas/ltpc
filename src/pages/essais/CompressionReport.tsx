@@ -711,7 +711,7 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles d'impression */}
+      {/* Styles d'impression — conserve fidèlement le rendu de l'aperçu */}
       <style>{`
         @media print {
           @page {
@@ -722,22 +722,12 @@ const CompressionReport = () => {
             margin: 0 !important;
             padding: 0 !important;
             width: 210mm !important;
-            min-height: 297mm !important;
             background: #ffffff !important;
-            overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          body {
-            position: relative !important;
-          }
-          body * {
-            visibility: hidden;
-          }
-          .print\\:hidden {
-            display: none !important;
-          }
-          /* Masquer tous les éléments liés à la preview Lovable */
+          body * { visibility: hidden; }
+          .print\\:hidden { display: none !important; }
           [data-lov-id],
           [data-lovable],
           [data-lovable-badge],
@@ -749,156 +739,47 @@ const CompressionReport = () => {
           header, nav, aside, footer {
             display: none !important;
             visibility: hidden !important;
-            width: 0 !important;
-            height: 0 !important;
           }
-          #root {
+          #root, #root > div, #root main {
             padding: 0 !important;
             margin: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
-            min-height: auto !important;
             overflow: visible !important;
           }
-          #root > div,
-          #root main {
-            padding: 0 !important;
-            margin: 0 !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
-            min-height: auto !important;
-            overflow: visible !important;
-          }
-          [data-ref="report"], [data-ref="report"] * {
-            visibility: visible;
-          }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            right: 0 !important;
-            transform: none !important;
             width: 210mm !important;
             max-width: 210mm !important;
             margin: 0 !important;
             padding: 0 !important;
             box-sizing: border-box !important;
           }
+          /* Conserve le même padding/marges/bordures que l'aperçu (p-8 = 32px) */
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            min-height: auto !important;
-            padding: 6mm 8mm 6mm 8mm !important;
-            margin: 0 !important;
             box-sizing: border-box !important;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            overflow: hidden !important;
           }
-          /* Compact section spacing */
-          [data-ref="report"] [data-pdf-page].p-8 { padding: 6mm 8mm 6mm 8mm !important; }
-          [data-ref="report"] .mb-6 { margin-bottom: 4px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 3px !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 2px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 5px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 3px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 3px !important; }
-          [data-ref="report"] .pt-3 { padding-top: 2px !important; }
-          [data-ref="report"] h3 { font-size: 9px !important; margin-bottom: 2px !important; }
-          /* Compact table cells globally inside report */
-          [data-ref="report"] table { page-break-inside: avoid; break-inside: avoid; font-size: 10px !important; }
+          [data-ref="report"] table { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] thead { display: table-header-group; }
-          [data-ref="report"] th,
-          [data-ref="report"] td {
-            padding: 2px 3px !important;
-            font-size: 8.5px !important;
-            line-height: 1.3 !important;
-            vertical-align: middle !important;
-          }
-          [data-ref="report"] .formulation-table th,
-          [data-ref="report"] .formulation-table td {
-            font-size: 6px !important;
-            padding: 1.5px 1px !important;
-            line-height: 1.25 !important;
-            vertical-align: middle !important;
-          }
-          /* Shrink header block */
-          [data-ref="report"] [data-report-header] { margin-bottom: 2px !important; }
-          [data-ref="report"] [data-report-header] img { max-height: 34px !important; }
-          [data-ref="report"] [data-report-header] svg { width: 44px !important; height: 44px !important; }
-          [data-ref="report"] [data-report-header] h1 { font-size: 13px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
-          [data-ref="report"] [data-report-header] p { font-size: 8px !important; line-height: 1.05 !important; margin: 0 !important; }
-          [data-ref="report"] h2 { font-size: 12px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
-          [data-ref="report"] .border-t-2 { margin-bottom: 3px !important; }
-          [data-ref="report"] .text-center.mb-6 { margin-bottom: 4px !important; }
-          [data-ref="report"] .text-sm { font-size: 8.5px !important; line-height: 1.05 !important; }
-          [data-ref="report"] .text-xs { font-size: 7px !important; line-height: 1.05 !important; }
-          /* Signature images */
-          [data-ref="report"] img.max-h-16 { max-height: 26px !important; }
-          [data-ref="report"] img.max-h-20 { max-height: 32px !important; }
         }
+        /* Mode export PDF (html2canvas) — calque exact de l'aperçu sur format A4 */
         .pdf-export-mode [data-pdf-page] {
           width: 210mm !important;
-          height: 297mm !important;
-          max-width: 210mm !important;
-          max-height: 297mm !important;
           min-height: 297mm !important;
-          padding: 6mm 8mm !important;
           margin: 0 !important;
           border-radius: 0 !important;
           box-shadow: none !important;
-          overflow: hidden !important;
           box-sizing: border-box !important;
-        }
-        .pdf-export-mode [data-pdf-page].p-8 { padding: 6mm 8mm !important; }
-        .pdf-export-mode .mb-6 { margin-bottom: 4px !important; }
-        .pdf-export-mode .mb-4 { margin-bottom: 3px !important; }
-        .pdf-export-mode .mb-2 { margin-bottom: 2px !important; }
-        .pdf-export-mode .mt-8 { margin-top: 5px !important; }
-        .pdf-export-mode .mt-4 { margin-top: 3px !important; }
-        .pdf-export-mode .pt-4 { padding-top: 3px !important; }
-        .pdf-export-mode .pt-3 { padding-top: 2px !important; }
-        .pdf-export-mode h3 { font-size: 9px !important; margin-bottom: 2px !important; }
-        .pdf-export-mode table { page-break-inside: avoid; break-inside: avoid; font-size: 10px !important; }
-        .pdf-export-mode tr { page-break-inside: avoid; break-inside: avoid; }
-        .pdf-export-mode th,
-        .pdf-export-mode td {
-          padding: 2px 3px !important;
-          font-size: 8.5px !important;
-          line-height: 1.3 !important;
-          vertical-align: middle !important;
-        }
-        .pdf-export-mode .formulation-table th,
-        .pdf-export-mode .formulation-table td {
-          font-size: 6px !important;
-          padding: 1.5px 1px !important;
-          line-height: 1.25 !important;
-          vertical-align: middle !important;
-        }
-        .pdf-export-mode [data-report-header] { margin-bottom: 2px !important; }
-        .pdf-export-mode [data-report-header] img { max-height: 34px !important; }
-        .pdf-export-mode [data-report-header] svg { width: 44px !important; height: 44px !important; }
-        .pdf-export-mode [data-report-header] h1 { font-size: 13px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
-        .pdf-export-mode [data-report-header] p { font-size: 8px !important; line-height: 1.05 !important; margin: 0 !important; }
-        .pdf-export-mode h2 { font-size: 12px !important; line-height: 1.05 !important; margin-bottom: 1px !important; }
-        .pdf-export-mode .border-t-2 { margin-bottom: 3px !important; }
-        .pdf-export-mode .text-center.mb-6 { margin-bottom: 4px !important; }
-        .pdf-export-mode .text-sm { font-size: 8.5px !important; line-height: 1.05 !important; }
-        .pdf-export-mode .text-xs { font-size: 7px !important; line-height: 1.05 !important; }
-        .pdf-export-mode img.max-h-16 { max-height: 26px !important; }
-        .pdf-export-mode img.max-h-20 { max-height: 32px !important; }
-        .formulation-table th,
-        .formulation-table td {
-          font-size: 6px !important;
-          line-height: 1.1 !important;
-          padding: 1px 2px !important;
         }
       `}</style>
     </div>
