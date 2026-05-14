@@ -307,25 +307,15 @@ const CompressionReport = () => {
     });
 
     const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
-    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
-
-    const imgWidth = pdfWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let heightLeft = imgHeight;
-    let position = 0;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+    const imgWidth = canvas.width * ratio;
+    const imgHeight = canvas.height * ratio;
+    const x = (pdfWidth - imgWidth) / 2;
     const imgData = canvas.toDataURL("image/png");
 
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight; // negative offset to shift image up
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-    }
+    pdf.addImage(imgData, "PNG", x, 0, imgWidth, imgHeight);
 
     pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
   };
