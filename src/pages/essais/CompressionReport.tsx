@@ -808,7 +808,7 @@ const CompressionReport = () => {
             break-after: avoid-page !important;
           }
           [data-ref="report"] [data-pdf-content] {
-            transform: scale(var(--report-print-scale, 1)) !important;
+            zoom: var(--report-print-scale, 1);
             transform-origin: top left !important;
           }
           [data-ref="report"] table {
