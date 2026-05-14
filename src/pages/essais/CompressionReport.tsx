@@ -802,7 +802,7 @@ const CompressionReport = () => {
             overflow: hidden !important;
           }
           /* Compact section spacing */
-          [data-ref="report"] .p-8 { padding: 0 !important; }
+          [data-ref="report"] [data-pdf-page].p-8 { padding: 6mm 8mm 6mm 8mm !important; }
           [data-ref="report"] .mb-6 { margin-bottom: 4px !important; }
           [data-ref="report"] .mb-4 { margin-bottom: 3px !important; }
           [data-ref="report"] .mb-2 { margin-bottom: 2px !important; }
@@ -855,7 +855,7 @@ const CompressionReport = () => {
           overflow: hidden !important;
           box-sizing: border-box !important;
         }
-        .pdf-export-mode .p-8 { padding: 0 !important; }
+        .pdf-export-mode [data-pdf-page].p-8 { padding: 6mm 8mm !important; }
         .pdf-export-mode .mb-6 { margin-bottom: 4px !important; }
         .pdf-export-mode .mb-4 { margin-bottom: 3px !important; }
         .pdf-export-mode .mb-2 { margin-bottom: 2px !important; }
