@@ -764,7 +764,7 @@ const CompressionReport = () => {
             height: 297mm !important;
             max-height: 297mm !important;
             min-height: auto !important;
-            padding: 3mm 3mm 2mm 3mm !important;
+            padding: 6mm 8mm 6mm 8mm !important;
             margin: 0 !important;
             box-sizing: border-box !important;
             page-break-after: avoid !important;
@@ -795,7 +795,7 @@ const CompressionReport = () => {
           }
           [data-ref="report"] .formulation-table th,
           [data-ref="report"] .formulation-table td {
-            font-size: 6px !important;
+            font-size: 5.5px !important;
             padding: 0.5px 1px !important;
             line-height: 0.95 !important;
           }
@@ -816,9 +816,9 @@ const CompressionReport = () => {
         }
         .formulation-table th,
         .formulation-table td {
-          font-size: 10px !important;
-          line-height: 1.2 !important;
-        }
+          font-size: 7px !important;
+          line-height: 1.15 !important;
+          padding: 1px 2px !important;
         }
       `}</style>
     </div>
