@@ -307,15 +307,24 @@ const CompressionReport = () => {
     });
 
     const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+
+    // Marges PDF (mm) — équilibrées
+    const marginX = 10;
+    const marginY = 8;
+    const usableW = pdfWidth - 2 * marginX;
+    const usableH = pdfHeight - 2 * marginY;
+
+    // Ratio pour faire tenir tout le rapport sur UNE seule page
+    const ratio = Math.min(usableW / canvas.width, usableH / canvas.height);
     const imgWidth = canvas.width * ratio;
     const imgHeight = canvas.height * ratio;
     const x = (pdfWidth - imgWidth) / 2;
+    const y = marginY;
     const imgData = canvas.toDataURL("image/png");
 
-    pdf.addImage(imgData, "PNG", x, 0, imgWidth, imgHeight);
+    pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
 
     pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
   };
@@ -816,8 +825,8 @@ const CompressionReport = () => {
         }
         .formulation-table th,
         .formulation-table td {
-          font-size: 7px !important;
-          line-height: 1.15 !important;
+          font-size: 6px !important;
+          line-height: 1.1 !important;
           padding: 1px 2px !important;
         }
       `}</style>
