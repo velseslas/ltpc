@@ -438,7 +438,7 @@ const CompressionReport = () => {
         {/* ============ RAPPORT DÉTAILLÉ ============ */}
         <div
           data-pdf-page
-          className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 print:rounded-none"
+          className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:rounded-none"
         >
           <ReportHeader
             entreprise={entreprise}
@@ -758,17 +758,27 @@ const CompressionReport = () => {
             padding: 0 !important;
             box-sizing: border-box !important;
           }
-          /* Conserve le même padding/marges/bordures que l'aperçu (p-8 = 32px) */
+          /* Conserve exactement le rendu de l'aperçu (p-8 = 32px, bordures simples) */
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
+            padding: 32px !important;
             box-sizing: border-box !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          [data-ref="report"] table { page-break-inside: avoid; break-inside: avoid; }
+          [data-ref="report"] table {
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          [data-ref="report"] th,
+          [data-ref="report"] td {
+            border-collapse: collapse !important;
+          }
           [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] thead { display: table-header-group; }
         }
@@ -776,10 +786,19 @@ const CompressionReport = () => {
         .pdf-export-mode [data-pdf-page] {
           width: 210mm !important;
           min-height: 297mm !important;
+          padding: 32px !important;
           margin: 0 !important;
           border-radius: 0 !important;
           box-shadow: none !important;
           box-sizing: border-box !important;
+        }
+        .pdf-export-mode table {
+          border-collapse: collapse !important;
+          border-spacing: 0 !important;
+        }
+        .pdf-export-mode th,
+        .pdf-export-mode td {
+          border-collapse: collapse !important;
         }
       `}</style>
     </div>
