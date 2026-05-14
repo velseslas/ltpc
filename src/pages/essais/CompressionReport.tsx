@@ -749,6 +749,9 @@ const CompressionReport = () => {
             margin: 0 !important;
             padding: 0 !important;
             width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
             background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -772,17 +775,22 @@ const CompressionReport = () => {
             margin: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
-            overflow: visible !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
           }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] {
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 210mm !important;
             max-width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: hidden !important;
             box-sizing: border-box !important;
           }
           /* Conserve exactement le rendu de l'aperçu (p-8 = 32px, bordures simples) */
@@ -804,6 +812,7 @@ const CompressionReport = () => {
             transform-origin: top left !important;
           }
           [data-ref="report"] table {
+            border: 0 !important;
             border-collapse: collapse !important;
             border-spacing: 0 !important;
             page-break-inside: avoid;
@@ -834,6 +843,7 @@ const CompressionReport = () => {
           transform-origin: top left !important;
         }
         .pdf-export-mode table {
+          border: 0 !important;
           border-collapse: collapse !important;
           border-spacing: 0 !important;
         }
