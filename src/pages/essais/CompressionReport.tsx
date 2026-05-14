@@ -307,10 +307,13 @@ const CompressionReport = () => {
 
     const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
     const availableHeightPx = pageHeightPx - 64;
-    const scale = Math.min(1, availableHeightPx / content.scrollHeight);
+    // Reset puis mesure réelle non scalée
+    page.style.setProperty("--report-print-scale", "1");
+    const naturalHeight = content.scrollHeight;
+    const scale = Math.min(1, availableHeightPx / naturalHeight);
     page.style.setProperty("--report-print-scale", scale.toFixed(4));
 
-    window.print();
+    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
   };
 
   const handleDownloadPDF = async () => {
@@ -808,7 +811,7 @@ const CompressionReport = () => {
             break-after: avoid-page !important;
           }
           [data-ref="report"] [data-pdf-content] {
-            transform: scale(var(--report-print-scale, 1)) !important;
+            zoom: var(--report-print-scale, 1);
             transform-origin: top left !important;
           }
           [data-ref="report"] table {
@@ -839,7 +842,7 @@ const CompressionReport = () => {
           box-sizing: border-box !important;
         }
         .pdf-export-mode [data-pdf-content] {
-          transform: scale(var(--report-print-scale, 1)) !important;
+          zoom: var(--report-print-scale, 1);
           transform-origin: top left !important;
         }
         .pdf-export-mode table {
