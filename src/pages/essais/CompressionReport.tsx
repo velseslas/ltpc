@@ -445,7 +445,7 @@ const CompressionReport = () => {
       <div 
         ref={reportRef}
         data-ref="report"
-        className="report-table max-w-4xl mx-auto"
+        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         {/* ============ RAPPORT DÉTAILLÉ ============ */}
