@@ -292,28 +292,25 @@ const CompressionReport = () => {
     };
   };
 
-  const handlePrint = () => {
-    if (!reportRef.current) {
-      window.print();
-      return;
+  const waitForReportAssets = async (root: HTMLElement) => {
+    await document.fonts?.ready;
+    await Promise.all(
+      Array.from(root.querySelectorAll("img")).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      })
+    );
+  };
+
+  const handlePrint = async () => {
+    if (reportRef.current) {
+      await waitForReportAssets(reportRef.current);
     }
 
-    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
-    const content = reportRef.current.querySelector("[data-pdf-content]") as HTMLElement | null;
-    if (!page || !content) {
-      window.print();
-      return;
-    }
-
-    const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
-    const availableHeightPx = pageHeightPx - 64;
-    // Reset puis mesure réelle non scalée
-    page.style.setProperty("--report-print-scale", "1");
-    const naturalHeight = content.scrollHeight;
-    const scale = Math.min(1, availableHeightPx / naturalHeight);
-    page.style.setProperty("--report-print-scale", scale.toFixed(4));
-
-    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    requestAnimationFrame(() => window.print());
   };
 
   const handleDownloadPDF = async () => {
@@ -328,42 +325,30 @@ const CompressionReport = () => {
     exportRoot.style.left = "-10000px";
     exportRoot.style.top = "0";
     exportRoot.style.width = "210mm";
-    exportRoot.style.height = "297mm";
+    exportRoot.style.minHeight = "297mm";
     exportRoot.style.background = "#ffffff";
-    exportRoot.style.overflow = "hidden";
+    exportRoot.style.overflow = "visible";
     exportRoot.style.pointerEvents = "none";
 
     const clonedPage = page.cloneNode(true) as HTMLElement;
-    const clonedContent = clonedPage.querySelector("[data-pdf-content]") as HTMLElement | null;
     exportRoot.appendChild(clonedPage);
     document.body.appendChild(exportRoot);
 
     try {
-      await document.fonts?.ready;
-      await Promise.all(
-        Array.from(clonedPage.querySelectorAll("img")).map(
-          (img) => img.complete ? Promise.resolve() : new Promise<void>((resolve) => {
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          })
-        )
-      );
+      await waitForReportAssets(clonedPage);
 
-      if (clonedContent) {
-        const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
-        const availableHeightPx = pageHeightPx - 64;
-        const scale = Math.min(1, availableHeightPx / clonedContent.scrollHeight);
-        clonedPage.style.setProperty("--report-print-scale", scale.toFixed(4));
-      }
+      const pxPerMm = 96 / 25.4;
+      const a4WidthPx = Math.round(210 * pxPerMm);
+      const a4HeightPx = Math.round(297 * pxPerMm);
 
       const canvas = await html2canvas(clonedPage, {
         scale: 3,
         useCORS: true,
         backgroundColor: "#ffffff",
-        width: clonedPage.offsetWidth,
-        height: clonedPage.offsetHeight,
-        windowWidth: clonedPage.scrollWidth,
-        windowHeight: clonedPage.offsetHeight,
+        width: a4WidthPx,
+        height: a4HeightPx,
+        windowWidth: a4WidthPx,
+        windowHeight: a4HeightPx,
         logging: false,
       });
 
@@ -460,7 +445,7 @@ const CompressionReport = () => {
       <div 
         ref={reportRef}
         data-ref="report"
-        className="report-table max-w-4xl mx-auto"
+        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         {/* ============ RAPPORT DÉTAILLÉ ============ */}
@@ -741,7 +726,7 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles d'impression — conserve fidèlement le rendu de l'aperçu */}
+      {/* Styles d'impression — structure A4 stable sans zoom/scale ni doubles bordures */}
       <style>{`
         @media print {
           @page {
@@ -790,7 +775,6 @@ const CompressionReport = () => {
             overflow: hidden !important;
             box-sizing: border-box !important;
           }
-          /* Conserve exactement le rendu de l'aperçu (p-8 = 32px, bordures simples) */
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
@@ -805,11 +789,14 @@ const CompressionReport = () => {
             break-after: avoid-page !important;
           }
           [data-ref="report"] [data-pdf-content] {
-            zoom: var(--report-print-scale, 1);
-            transform-origin: top left !important;
+            width: 100% !important;
+            transform: none !important;
+            zoom: 1 !important;
           }
           [data-ref="report"] table {
-            border: 0 !important;
+            width: 100% !important;
+            table-layout: fixed !important;
+            border: 1px solid #444 !important;
             border-collapse: collapse !important;
             border-spacing: 0 !important;
             page-break-inside: avoid;
@@ -818,11 +805,13 @@ const CompressionReport = () => {
           [data-ref="report"] th,
           [data-ref="report"] td {
             border-collapse: collapse !important;
+            border: 1px solid #444 !important;
+            box-shadow: none !important;
           }
           [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] thead { display: table-header-group; }
         }
-        /* Mode export PDF (html2canvas) — calque exact de l'aperçu sur format A4 */
+        /* Mode export PDF (html2canvas + jsPDF) — même boîte A4 que l'impression */
         .pdf-export-mode [data-pdf-page] {
           width: 210mm !important;
           height: 297mm !important;
@@ -836,17 +825,22 @@ const CompressionReport = () => {
           box-sizing: border-box !important;
         }
         .pdf-export-mode [data-pdf-content] {
-          zoom: var(--report-print-scale, 1);
-          transform-origin: top left !important;
+          width: 100% !important;
+          transform: none !important;
+          zoom: 1 !important;
         }
         .pdf-export-mode table {
-          border: 0 !important;
+          width: 100% !important;
+          table-layout: fixed !important;
+          border: 1px solid #444 !important;
           border-collapse: collapse !important;
           border-spacing: 0 !important;
         }
         .pdf-export-mode th,
         .pdf-export-mode td {
           border-collapse: collapse !important;
+          border: 1px solid #444 !important;
+          box-shadow: none !important;
         }
       `}</style>
     </div>
