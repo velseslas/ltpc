@@ -292,28 +292,25 @@ const CompressionReport = () => {
     };
   };
 
-  const handlePrint = () => {
-    if (!reportRef.current) {
-      window.print();
-      return;
+  const waitForReportAssets = async (root: HTMLElement) => {
+    await document.fonts?.ready;
+    await Promise.all(
+      Array.from(root.querySelectorAll("img")).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      })
+    );
+  };
+
+  const handlePrint = async () => {
+    if (reportRef.current) {
+      await waitForReportAssets(reportRef.current);
     }
 
-    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
-    const content = reportRef.current.querySelector("[data-pdf-content]") as HTMLElement | null;
-    if (!page || !content) {
-      window.print();
-      return;
-    }
-
-    const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
-    const availableHeightPx = pageHeightPx - 64;
-    // Reset puis mesure réelle non scalée
-    page.style.setProperty("--report-print-scale", "1");
-    const naturalHeight = content.scrollHeight;
-    const scale = Math.min(1, availableHeightPx / naturalHeight);
-    page.style.setProperty("--report-print-scale", scale.toFixed(4));
-
-    requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    requestAnimationFrame(() => window.print());
   };
 
   const handleDownloadPDF = async () => {
@@ -328,42 +325,30 @@ const CompressionReport = () => {
     exportRoot.style.left = "-10000px";
     exportRoot.style.top = "0";
     exportRoot.style.width = "210mm";
-    exportRoot.style.height = "297mm";
+    exportRoot.style.minHeight = "297mm";
     exportRoot.style.background = "#ffffff";
-    exportRoot.style.overflow = "hidden";
+    exportRoot.style.overflow = "visible";
     exportRoot.style.pointerEvents = "none";
 
     const clonedPage = page.cloneNode(true) as HTMLElement;
-    const clonedContent = clonedPage.querySelector("[data-pdf-content]") as HTMLElement | null;
     exportRoot.appendChild(clonedPage);
     document.body.appendChild(exportRoot);
 
     try {
-      await document.fonts?.ready;
-      await Promise.all(
-        Array.from(clonedPage.querySelectorAll("img")).map(
-          (img) => img.complete ? Promise.resolve() : new Promise<void>((resolve) => {
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-          })
-        )
-      );
+      await waitForReportAssets(clonedPage);
 
-      if (clonedContent) {
-        const pageHeightPx = (210 * 96 / 25.4) * (297 / 210);
-        const availableHeightPx = pageHeightPx - 64;
-        const scale = Math.min(1, availableHeightPx / clonedContent.scrollHeight);
-        clonedPage.style.setProperty("--report-print-scale", scale.toFixed(4));
-      }
+      const pxPerMm = 96 / 25.4;
+      const a4WidthPx = Math.round(210 * pxPerMm);
+      const a4HeightPx = Math.round(297 * pxPerMm);
 
       const canvas = await html2canvas(clonedPage, {
         scale: 3,
         useCORS: true,
         backgroundColor: "#ffffff",
-        width: clonedPage.offsetWidth,
-        height: clonedPage.offsetHeight,
-        windowWidth: clonedPage.scrollWidth,
-        windowHeight: clonedPage.offsetHeight,
+        width: a4WidthPx,
+        height: a4HeightPx,
+        windowWidth: a4WidthPx,
+        windowHeight: a4HeightPx,
         logging: false,
       });
 
