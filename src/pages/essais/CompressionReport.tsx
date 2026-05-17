@@ -726,7 +726,7 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles d'impression — conserve fidèlement le rendu de l'aperçu */}
+      {/* Styles d'impression — structure A4 stable sans zoom/scale ni doubles bordures */}
       <style>{`
         @media print {
           @page {
@@ -775,7 +775,6 @@ const CompressionReport = () => {
             overflow: hidden !important;
             box-sizing: border-box !important;
           }
-          /* Conserve exactement le rendu de l'aperçu (p-8 = 32px, bordures simples) */
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
@@ -790,11 +789,14 @@ const CompressionReport = () => {
             break-after: avoid-page !important;
           }
           [data-ref="report"] [data-pdf-content] {
-            zoom: var(--report-print-scale, 1);
-            transform-origin: top left !important;
+            width: 100% !important;
+            transform: none !important;
+            zoom: 1 !important;
           }
           [data-ref="report"] table {
-            border: 0 !important;
+            width: 100% !important;
+            table-layout: fixed !important;
+            border: 1px solid #444 !important;
             border-collapse: collapse !important;
             border-spacing: 0 !important;
             page-break-inside: avoid;
@@ -803,11 +805,13 @@ const CompressionReport = () => {
           [data-ref="report"] th,
           [data-ref="report"] td {
             border-collapse: collapse !important;
+            border: 1px solid #444 !important;
+            box-shadow: none !important;
           }
           [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] thead { display: table-header-group; }
         }
-        /* Mode export PDF (html2canvas) — calque exact de l'aperçu sur format A4 */
+        /* Mode export PDF (html2canvas + jsPDF) — même boîte A4 que l'impression */
         .pdf-export-mode [data-pdf-page] {
           width: 210mm !important;
           height: 297mm !important;
@@ -821,17 +825,22 @@ const CompressionReport = () => {
           box-sizing: border-box !important;
         }
         .pdf-export-mode [data-pdf-content] {
-          zoom: var(--report-print-scale, 1);
-          transform-origin: top left !important;
+          width: 100% !important;
+          transform: none !important;
+          zoom: 1 !important;
         }
         .pdf-export-mode table {
-          border: 0 !important;
+          width: 100% !important;
+          table-layout: fixed !important;
+          border: 1px solid #444 !important;
           border-collapse: collapse !important;
           border-spacing: 0 !important;
         }
         .pdf-export-mode th,
         .pdf-export-mode td {
           border-collapse: collapse !important;
+          border: 1px solid #444 !important;
+          box-shadow: none !important;
         }
       `}</style>
     </div>
