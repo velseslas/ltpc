@@ -289,7 +289,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             visibility: hidden;
           }
 
-          .print\:hidden {
+          .print\\:hidden {
             display: none !important;
           }
 
