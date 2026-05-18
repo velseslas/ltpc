@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,6 @@ function getTypeSuffix(echantillon: EchantillonGranulatBase, essaiType: string):
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
@@ -80,7 +77,6 @@ const reportContentComponents: Record<string, React.ComponentType<{ resultats: R
 export default function GranulatReport({ essaiType, essaiTitle, normRef, basePath }: GranulatReportProps) {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const reportRef = useRef<HTMLDivElement>(null);
   const { data: echantillon, isLoading } = useEchantillonGranulatById(essaiType, id);
   const { data: entreprise } = useEntreprise();
   const prefix = getPrefix(essaiType);
@@ -90,32 +86,10 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
   const ReportContent = reportContentComponents[essaiType];
 
   const handlePrint = () => {
-    window.print();
+    requestAnimationFrame(() => window.print());
   };
 
-  const generatePdfBlob = async (): Promise<Blob | null> => {
-    if (!reportRef.current || !echantillon) return null;
-    
-    const canvas = await html2canvas(reportRef.current, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    return pdf.output("blob");
-  };
-
-  const handleDownloadPDF = async () => {
-    const blob = await generatePdfBlob();
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `rapport-${essaiType}-${fullPrefix}-${String(echantillon!.numero).padStart(3, "0")}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const handleDownloadPDF = handlePrint;
 
   if (isLoading) {
     return (
@@ -168,7 +142,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <p className="text-muted-foreground text-sm">{essaiTitle}</p>
               </div>
               <div className="flex gap-3">
-                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-${essaiType}-${fullPrefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
+                <ShareButton fileName={`rapport-${essaiType}-${fullPrefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
                 <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
                   <Printer className="h-4 w-4" />
                   Imprimer
@@ -185,8 +159,8 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
 
       {/* Rapport */}
       <div 
-        ref={reportRef}
-        className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4"
+        data-ref="report"
+        className="report-table bg-white text-black p-8 rounded-lg shadow-lg w-[210mm] max-w-full mx-auto overflow-x-auto print:overflow-visible print:shadow-none print:p-0 print:rounded-none"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         <ReportHeader
@@ -297,14 +271,80 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
       {/* Styles d'impression */}
       <style>{`
         @media print {
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+
+          html,
+          body {
+            width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            overflow: visible !important;
+          }
+
           body * {
             visibility: hidden;
           }
+
           .print\\:hidden {
             display: none !important;
           }
+
+          [data-ref="report"],
+          [data-ref="report"] * {
+            visibility: visible !important;
+          }
+
           #root {
+            width: 210mm !important;
             padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+
+          [data-ref="report"] {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 190mm !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: white !important;
+            color: #111111 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          [data-ref="report"] table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            table-layout: fixed !important;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
+          }
+
+          [data-ref="report"] th,
+          [data-ref="report"] td {
+            border: 1px solid #444444 !important;
+            vertical-align: middle !important;
+          }
+
+          [data-ref="report"] tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+
+          [data-ref="report"] thead {
+            display: table-header-group !important;
           }
         }
       `}</style>
