@@ -22,9 +22,11 @@ const ShareButton = ({ onGeneratePdf, fileName = "rapport.pdf" }: ShareButtonPro
       // Fallback: share link
       const shareText = `Consultez ce rapport : ${window.location.href}`;
       if (method === "gmail") {
-        window.open(`https://mail.google.com/mail/?view=cm&fs=1&body=${encodeURIComponent(shareText)}`, "_blank");
+        window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=${encodeURIComponent(fileName)}&body=${encodeURIComponent(shareText)}`, "_blank");
       } else if (method === "whatsapp") {
         window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+      } else if (navigator.share) {
+        await navigator.share({ title: fileName, text: shareText, url: window.location.href });
       }
       setOpen(false);
       return;
@@ -75,7 +77,7 @@ const ShareButton = ({ onGeneratePdf, fileName = "rapport.pdf" }: ShareButtonPro
       </PopoverTrigger>
       <PopoverContent className="w-auto p-4" align="end">
         <p className="text-sm font-medium mb-3 text-foreground">
-          {onGeneratePdf ? "Partager le PDF via" : "Partager via"}
+          {onGeneratePdf ? "Partager le PDF via" : "Partager le lien via"}
         </p>
         <div className="flex gap-4">
           <button
