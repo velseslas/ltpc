@@ -7,8 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
@@ -309,57 +307,12 @@ const CompressionReport = () => {
     if (reportRef.current) {
       await waitForReportAssets(reportRef.current);
     }
-
     requestAnimationFrame(() => window.print());
   };
 
-  const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-
-    const page = reportRef.current.querySelector("[data-pdf-page]") as HTMLElement | null;
-    if (!page) return;
-
-    const exportRoot = document.createElement("div");
-    exportRoot.className = "pdf-export-mode";
-    exportRoot.style.position = "fixed";
-    exportRoot.style.left = "-10000px";
-    exportRoot.style.top = "0";
-    exportRoot.style.width = "210mm";
-    exportRoot.style.minHeight = "297mm";
-    exportRoot.style.background = "#ffffff";
-    exportRoot.style.overflow = "visible";
-    exportRoot.style.pointerEvents = "none";
-
-    const clonedPage = page.cloneNode(true) as HTMLElement;
-    exportRoot.appendChild(clonedPage);
-    document.body.appendChild(exportRoot);
-
-    try {
-      await waitForReportAssets(clonedPage);
-
-      const pxPerMm = 96 / 25.4;
-      const a4WidthPx = Math.round(210 * pxPerMm);
-      const a4HeightPx = Math.round(297 * pxPerMm);
-
-      const canvas = await html2canvas(clonedPage, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        width: a4WidthPx,
-        height: a4HeightPx,
-        windowWidth: a4WidthPx,
-        windowHeight: a4HeightPx,
-        logging: false,
-      });
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-      pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
-      pdf.save(`rapport-compression-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
-    } finally {
-      document.body.removeChild(exportRoot);
-    }
-  };
+  // Téléchargement PDF = impression native du navigateur (choisir "Enregistrer en PDF").
+  // Pas de html2canvas ni jsPDF : rendu identique à l'écran, pagination automatique, A4 pixel-perfect.
+  const handleDownloadPDF = handlePrint;
 
   const results = calculateResults();
 
@@ -726,20 +679,16 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles d'impression — structure A4 stable sans zoom/scale ni doubles bordures */}
+      {/* Styles d'impression — A4 natif, pagination auto, bordures uniques */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 10mm;
           }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            overflow: hidden !important;
             background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
@@ -747,46 +696,35 @@ const CompressionReport = () => {
           body * { visibility: hidden; }
           .print\\:hidden { display: none !important; }
           body > iframe,
-          body > [data-lovable-badge],
-          header, nav, aside, footer {
+          body > [data-lovable-badge] {
             display: none !important;
-            visibility: hidden !important;
           }
           #root, #root > div, #root main {
             padding: 0 !important;
             margin: 0 !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            background: #ffffff !important;
           }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
+            position: static !important;
+            width: 100% !important;
+            max-width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden !important;
-            box-sizing: border-box !important;
+            overflow: visible !important;
+            box-shadow: none !important;
           }
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            padding: 32px !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
             box-sizing: border-box !important;
-            page-break-after: avoid !important;
-            break-after: avoid-page !important;
           }
           [data-ref="report"] [data-pdf-content] {
             width: 100% !important;
@@ -796,51 +734,17 @@ const CompressionReport = () => {
           [data-ref="report"] table {
             width: 100% !important;
             table-layout: fixed !important;
-            border: 1px solid #444 !important;
             border-collapse: collapse !important;
             border-spacing: 0 !important;
-            page-break-inside: avoid;
-            break-inside: avoid;
+            page-break-inside: auto;
           }
           [data-ref="report"] th,
           [data-ref="report"] td {
-            border-collapse: collapse !important;
             border: 1px solid #444 !important;
             box-shadow: none !important;
           }
           [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
           [data-ref="report"] thead { display: table-header-group; }
-        }
-        /* Mode export PDF (html2canvas + jsPDF) — même boîte A4 que l'impression */
-        .pdf-export-mode [data-pdf-page] {
-          width: 210mm !important;
-          height: 297mm !important;
-          min-height: 297mm !important;
-          max-height: 297mm !important;
-          padding: 32px !important;
-          margin: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          overflow: hidden !important;
-          box-sizing: border-box !important;
-        }
-        .pdf-export-mode [data-pdf-content] {
-          width: 100% !important;
-          transform: none !important;
-          zoom: 1 !important;
-        }
-        .pdf-export-mode table {
-          width: 100% !important;
-          table-layout: fixed !important;
-          border: 1px solid #444 !important;
-          border-collapse: collapse !important;
-          border-spacing: 0 !important;
-        }
-        .pdf-export-mode th,
-        .pdf-export-mode td {
-          border-collapse: collapse !important;
-          border: 1px solid #444 !important;
-          box-shadow: none !important;
         }
       `}</style>
     </div>
