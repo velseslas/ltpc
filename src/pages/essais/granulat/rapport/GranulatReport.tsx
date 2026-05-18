@@ -271,14 +271,80 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
       {/* Styles d'impression */}
       <style>{`
         @media print {
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+
+          html,
+          body {
+            width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            overflow: visible !important;
+          }
+
           body * {
             visibility: hidden;
           }
-          .print\\:hidden {
+
+          .print\:hidden {
             display: none !important;
           }
+
+          [data-ref="report"],
+          [data-ref="report"] * {
+            visibility: visible !important;
+          }
+
           #root {
+            width: 210mm !important;
             padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+
+          [data-ref="report"] {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 190mm !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: white !important;
+            color: #111111 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          [data-ref="report"] table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            table-layout: fixed !important;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
+          }
+
+          [data-ref="report"] th,
+          [data-ref="report"] td {
+            border: 1px solid #444444 !important;
+            vertical-align: middle !important;
+          }
+
+          [data-ref="report"] tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+
+          [data-ref="report"] thead {
+            display: table-header-group !important;
           }
         }
       `}</style>
