@@ -316,6 +316,18 @@ function ProtectedLayout() {
 const AppRoutes = () => (
   <Routes>
     <Route path="/auth" element={<AuthRedirect />} />
+
+    {/* Page d'impression A4 dédiée — source de vérité PDF, sans chrome */}
+    <Route
+      path="/reports/compression/:id/print"
+      element={
+        <ProtectedRoute>
+          <CompressionReport />
+        </ProtectedRoute>
+      }
+    />
+
+
     
     {/* All protected routes with persistent layout */}
     <Route element={<ProtectedLayout />}>
