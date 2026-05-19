@@ -698,13 +698,34 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles d'impression — A4 natif, pagination auto, bordures uniques */}
+      {/* Styles d'impression — A4 strict, pagination auto, source de vérité PDF */}
       <style>{`
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 10mm;
+        ${isPrintRoute ? `
+          html, body, #root {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #e5e7eb;
           }
+          body { display: flex; justify-content: center; }
+          [data-ref="report"] {
+            width: 210mm !important;
+            max-width: 210mm !important;
+            margin: 0 auto !important;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(0,0,0,0.15);
+          }
+          [data-ref="report"] [data-pdf-page] {
+            width: 210mm !important;
+            max-width: 210mm !important;
+            min-height: 297mm;
+            box-sizing: border-box;
+            padding: 10mm !important;
+            background: #ffffff;
+          }
+        ` : ""}
+
+        @media print {
+          @page { size: A4 portrait; margin: 10mm; }
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -715,15 +736,14 @@ const CompressionReport = () => {
           body * { visibility: hidden; }
           .print\\:hidden { display: none !important; }
           body > iframe,
-          body > [data-lovable-badge] {
-            display: none !important;
-          }
+          body > [data-lovable-badge] { display: none !important; }
           #root, #root > div, #root main {
             padding: 0 !important;
             margin: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
             background: #ffffff !important;
+            box-shadow: none !important;
           }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] {
@@ -734,16 +754,19 @@ const CompressionReport = () => {
             padding: 0 !important;
             overflow: visible !important;
             box-shadow: none !important;
+            background: #ffffff !important;
           }
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
+            min-height: 0 !important;
             padding: 0 !important;
             margin: 0 !important;
             overflow: visible !important;
             box-sizing: border-box !important;
+            background: #ffffff !important;
           }
           [data-ref="report"] [data-pdf-content] {
             width: 100% !important;
@@ -761,9 +784,31 @@ const CompressionReport = () => {
           [data-ref="report"] td {
             border: 1px solid #444 !important;
             box-shadow: none !important;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
           }
-          [data-ref="report"] tr { page-break-inside: avoid; break-inside: avoid; }
+          [data-ref="report"] tr,
+          [data-ref="report"] tbody tr,
+          [data-ref="report"] thead tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
           [data-ref="report"] thead { display: table-header-group; }
+          [data-ref="report"] tfoot { display: table-footer-group; }
+          [data-ref="report"] h1,
+          [data-ref="report"] h2,
+          [data-ref="report"] h3 {
+            page-break-after: avoid;
+            break-after: avoid;
+          }
+          [data-ref="report"] [data-report-header],
+          [data-ref="report"] .identification-table,
+          [data-ref="report"] .formulation-table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .page-break-before { page-break-before: always; break-before: page; }
+          .page-break-after { page-break-after: always; break-after: page; }
         }
       `}</style>
     </div>
