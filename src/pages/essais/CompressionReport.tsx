@@ -75,7 +75,9 @@ const CompressionReport = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const embed = searchParams.get("embed") === "1";
+  const isPrintRoute = typeof window !== "undefined" && window.location.pathname.includes("/print");
+  const embed = searchParams.get("embed") === "1" || isPrintRoute;
+  const autoPrint = searchParams.get("autoprint") === "1" || isPrintRoute;
   const reportRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
