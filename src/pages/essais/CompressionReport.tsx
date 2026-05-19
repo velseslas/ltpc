@@ -312,9 +312,26 @@ const CompressionReport = () => {
     requestAnimationFrame(() => window.print());
   };
 
-  // Téléchargement PDF = impression native du navigateur (choisir "Enregistrer en PDF").
-  // Pas de html2canvas ni jsPDF : rendu identique à l'écran, pagination automatique, A4 pixel-perfect.
-  const handleDownloadPDF = handlePrint;
+  // "Télécharger PDF" et "Imprimer" ouvrent la page dédiée /print
+  // qui est la SEULE source de vérité pour le PDF (A4 strict, non responsive).
+  const handleDownloadPDF = () => {
+    if (!id) return;
+    window.open(`/reports/compression/${id}/print`, "_blank", "noopener");
+  };
+
+  // Auto-print lorsqu'on est sur la route /print
+  useEffect(() => {
+    if (!autoPrint || isLoading || !echantillon) return;
+    const t = setTimeout(() => {
+      if (reportRef.current) {
+        waitForReportAssets(reportRef.current).then(() => window.print());
+      } else {
+        window.print();
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [autoPrint, isLoading, echantillon]);
+
 
   const results = calculateResults();
 
