@@ -300,13 +300,96 @@ const RolesPermissions = () => {
           {/* Permissions Matrix */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="h-5 w-5" />
-                Matrice des permissions pour {ROLE_LABELS[selectedRole]}
-              </CardTitle>
-              <CardDescription>
-                Cochez les permissions à attribuer à ce rôle
-              </CardDescription>
+              <div className="flex items-start justify-between flex-wrap gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2 flex-wrap">
+                    <Lock className="h-5 w-5" />
+                    Matrice des permissions pour
+                    <Badge className={`${ROLE_COLORS[selectedRole]} border`}>
+                      {ROLE_LABELS[selectedRole]}
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    Cochez les permissions à attribuer. Utilisez les actions globales pour gagner du temps.
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Rechercher une permission..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 w-[260px]"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={selectedRole === 'super_admin' || togglePermission.isPending}
+                    onClick={() => {
+                      permissions?.forEach(p => {
+                        const has = rolePermissions?.[selectedRole]?.includes(p.id) || false;
+                        if (!has) togglePermission.mutate({ role: selectedRole, permissionId: p.id, hasPermission: false });
+                      });
+                    }}
+                  >
+                    <Check className="h-4 w-4 mr-1" /> Tout cocher
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={selectedRole === 'super_admin' || togglePermission.isPending}
+                    onClick={() => {
+                      permissions?.forEach(p => {
+                        const has = rolePermissions?.[selectedRole]?.includes(p.id) || false;
+                        if (has) togglePermission.mutate({ role: selectedRole, permissionId: p.id, hasPermission: true });
+                      });
+                    }}
+                  >
+                    <X className="h-4 w-4 mr-1" /> Tout décocher
+                  </Button>
+                </div>
+              </div>
+
+              {!modulesLoading && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                  {(() => {
+                    const grantedIds = selectedRole === 'super_admin'
+                      ? (permissions?.map(p => p.id) || [])
+                      : (rolePermissions?.[selectedRole] || []);
+                    const total = permissions?.length || 0;
+                    const granted = selectedRole === 'super_admin' ? total : grantedIds.length;
+                    const pct = total > 0 ? Math.round((granted / total) * 100) : 0;
+                    const fullModules = modules.filter(m => {
+                      const mp = permissionsByModule?.[m] || [];
+                      return mp.length > 0 && mp.every(p => grantedIds.includes(p.id));
+                    }).length;
+                    return (
+                      <>
+                        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                          <div className="text-xs text-muted-foreground">Permissions accordées</div>
+                          <div className="text-2xl font-bold text-primary">{granted}<span className="text-sm text-muted-foreground"> / {total}</span></div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <div className="text-xs text-muted-foreground">Couverture</div>
+                          <div className="text-2xl font-bold">{pct}%</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <div className="text-xs text-muted-foreground">Modules complets</div>
+                          <div className="text-2xl font-bold">{fullModules}<span className="text-sm text-muted-foreground"> / {modules.length}</span></div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <div className="text-xs text-muted-foreground">Niveau d'accès</div>
+                          <div className="text-2xl font-bold">
+                            {pct === 100 ? 'Total' : pct >= 75 ? 'Élevé' : pct >= 40 ? 'Moyen' : pct > 0 ? 'Limité' : 'Aucun'}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               {modulesLoading ? (
@@ -317,55 +400,130 @@ const RolesPermissions = () => {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {modules.map((module) => (
-                    <div key={module} className="space-y-3">
-                      <div className="flex items-center gap-2 py-2 border-b">
-                        <span className="text-xl">{MODULE_ICONS[module] || '📁'}</span>
-                        <h3 className="font-semibold text-lg">{module}</h3>
-                        <Badge variant="outline" className="ml-auto">
-                          {permissionsByModule?.[module]?.length || 0}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pl-8">
-                        {permissionsByModule?.[module]?.map((perm) => {
-                          const hasPermission = rolePermissions?.[selectedRole]?.includes(perm.id) || false;
-                          return (
-                            <div 
-                              key={perm.id}
-                              className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
-                                hasPermission 
-                                  ? 'bg-primary/10 border-primary/30' 
-                                  : 'bg-muted/30 border-border hover:border-primary/50'
-                              }`}
-                            >
-                              <Checkbox
-                                id={perm.id}
-                                checked={hasPermission}
-                                onCheckedChange={() => handleTogglePermission(selectedRole, perm.id)}
-                                disabled={togglePermission.isPending}
+                  {selectedRole === 'super_admin' && (
+                    <div className="p-3 rounded-lg bg-primary/10 border border-primary/30 text-sm">
+                      Le rôle <strong>Super Administrateur</strong> possède automatiquement toutes les permissions. Les cases sont en lecture seule.
+                    </div>
+                  )}
+                  {modules.map((module) => {
+                    const modulePerms = permissionsByModule?.[module] || [];
+                    const visiblePerms = modulePerms.filter(p =>
+                      !searchTerm ||
+                      p.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      (p.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    if (visiblePerms.length === 0) return null;
+                    const grantedIds = selectedRole === 'super_admin'
+                      ? modulePerms.map(p => p.id)
+                      : (rolePermissions?.[selectedRole] || []);
+                    const grantedCount = modulePerms.filter(p => grantedIds.includes(p.id)).length;
+                    const allChecked = grantedCount === modulePerms.length;
+                    const someChecked = grantedCount > 0 && !allChecked;
+                    const groups: Record<string, typeof visiblePerms> = {};
+                    visiblePerms.forEach(p => {
+                      const action = p.code.split('.').slice(1).join('.') || 'autre';
+                      (groups[action] ||= []).push(p);
+                    });
+                    const actionLabels: Record<string, string> = {
+                      voir: 'Lecture', creer: 'Création', modifier: 'Modification',
+                      supprimer: 'Suppression', valider: 'Validation', exporter: 'Export',
+                      imprimer: 'Impression', gerer: 'Gestion',
+                    };
+
+                    return (
+                      <div key={module} className="rounded-lg border bg-card/50 overflow-hidden">
+                        <div className="flex items-center gap-3 px-4 py-3 bg-muted/40 border-b">
+                          <Checkbox
+                            checked={allChecked}
+                            disabled={selectedRole === 'super_admin' || togglePermission.isPending}
+                            onCheckedChange={() => {
+                              modulePerms.forEach(p => {
+                                const has = grantedIds.includes(p.id);
+                                if (allChecked && has) {
+                                  togglePermission.mutate({ role: selectedRole, permissionId: p.id, hasPermission: true });
+                                } else if (!allChecked && !has) {
+                                  togglePermission.mutate({ role: selectedRole, permissionId: p.id, hasPermission: false });
+                                }
+                              });
+                            }}
+                          />
+                          <span className="text-xl">{MODULE_ICONS[module] || '📁'}</span>
+                          <h3 className="font-semibold text-lg">{module}</h3>
+                          <div className="ml-auto flex items-center gap-2">
+                            <div className="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                              <div
+                                className={`h-full transition-all ${
+                                  grantedCount === modulePerms.length ? 'bg-green-500' :
+                                  grantedCount > 0 ? 'bg-yellow-500' : 'bg-muted-foreground/30'
+                                }`}
+                                style={{ width: `${modulePerms.length > 0 ? (grantedCount / modulePerms.length) * 100 : 0}%` }}
                               />
-                              <div className="flex-1 space-y-1">
-                                <Label 
-                                  htmlFor={perm.id} 
-                                  className="font-medium cursor-pointer"
-                                >
-                                  {perm.nom}
-                                </Label>
-                                {perm.description && (
-                                  <p className="text-xs text-muted-foreground">
-                                    {perm.description}
-                                  </p>
-                                )}
-                                <code className="text-[10px] text-muted-foreground bg-muted px-1 rounded">
-                                  {perm.code}
-                                </code>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {grantedCount}/{modulePerms.length}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                          {Object.entries(groups).map(([action, perms]) => (
+                            <div key={action}>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                  {actionLabels[action] || action}
+                                </span>
+                                <div className="flex-1 h-px bg-border" />
+                                <span className="text-[10px] text-muted-foreground">{perms.length}</span>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                                {perms.map((perm) => {
+                                  const hasPermission = grantedIds.includes(perm.id);
+                                  const disabled = selectedRole === 'super_admin' || togglePermission.isPending;
+                                  return (
+                                    <div
+                                      key={perm.id}
+                                      className={`flex items-start gap-2 p-2.5 rounded-md border transition-all ${
+                                        hasPermission
+                                          ? 'bg-primary/10 border-primary/40 shadow-sm'
+                                          : 'bg-muted/20 border-border hover:border-primary/40 hover:bg-muted/40'
+                                      } ${disabled ? 'opacity-70' : 'cursor-pointer'}`}
+                                      onClick={() => !disabled && handleTogglePermission(selectedRole, perm.id)}
+                                    >
+                                      <Checkbox
+                                        id={`mp-${perm.id}`}
+                                        checked={hasPermission}
+                                        disabled={disabled}
+                                        onCheckedChange={() => handleTogglePermission(selectedRole, perm.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="mt-0.5"
+                                      />
+                                      <div className="flex-1 min-w-0 space-y-0.5">
+                                        <Label
+                                          htmlFor={`mp-${perm.id}`}
+                                          className="font-medium text-sm cursor-pointer leading-tight block"
+                                        >
+                                          {perm.nom}
+                                        </Label>
+                                        {perm.description && (
+                                          <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">
+                                            {perm.description}
+                                          </p>
+                                        )}
+                                        <code className="text-[10px] text-muted-foreground bg-muted/60 px-1 rounded inline-block">
+                                          {perm.code}
+                                        </code>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
