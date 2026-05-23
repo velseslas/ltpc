@@ -201,6 +201,102 @@ const RolesPermissions = () => {
             ))}
           </div>
 
+          {/* Détail développé des permissions par rôle */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Info className="h-5 w-5" />
+                Détail des permissions par rôle
+              </CardTitle>
+              <CardDescription>
+                Cliquez sur un rôle pour afficher la liste complète de ses permissions, groupées par module
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {modulesLoading || rolePermissionsLoading ? (
+                <div className="space-y-2">
+                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 w-full" />)}
+                </div>
+              ) : (
+                <Accordion type="multiple" className="w-full">
+                  {ROLES.map(role => {
+                    const grantedIds = rolePermissions?.[role] || [];
+                    const totalGranted = role === 'super_admin' ? (permissions?.length || 0) : grantedIds.length;
+                    return (
+                      <AccordionItem key={role} value={role}>
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center gap-3 flex-1">
+                            <Badge className={`${ROLE_COLORS[role]} border`}>
+                              {ROLE_LABELS[role]}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              {ROLE_DESCRIPTIONS[role]}
+                            </span>
+                            <Badge variant="outline" className="ml-auto mr-3">
+                              {totalGranted} / {permissions?.length || 0}
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4 pt-2">
+                            {role === 'super_admin' && (
+                              <div className="p-3 rounded-lg bg-primary/10 border border-primary/30 text-sm">
+                                <strong>Super Administrateur</strong> possède automatiquement toutes les permissions du système.
+                              </div>
+                            )}
+                            {modules.map(module => {
+                              const modulePerms = permissionsByModule?.[module] || [];
+                              const granted = role === 'super_admin'
+                                ? modulePerms
+                                : modulePerms.filter(p => grantedIds.includes(p.id));
+                              const denied = role === 'super_admin'
+                                ? []
+                                : modulePerms.filter(p => !grantedIds.includes(p.id));
+                              if (modulePerms.length === 0) return null;
+                              return (
+                                <div key={module} className="border rounded-lg overflow-hidden">
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-muted/40 border-b">
+                                    <span className="text-lg">{MODULE_ICONS[module] || '📁'}</span>
+                                    <span className="font-semibold">{module}</span>
+                                    <Badge variant="outline" className="ml-auto text-xs">
+                                      {granted.length}/{modulePerms.length}
+                                    </Badge>
+                                  </div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-3">
+                                    {granted.map(p => (
+                                      <div key={p.id} className="flex items-start gap-2 text-sm p-2 rounded bg-green-500/5 border border-green-500/20">
+                                        <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-medium">{p.nom}</div>
+                                          {p.description && <div className="text-xs text-muted-foreground">{p.description}</div>}
+                                          <code className="text-[10px] text-muted-foreground">{p.code}</code>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {denied.map(p => (
+                                      <div key={p.id} className="flex items-start gap-2 text-sm p-2 rounded bg-muted/30 border border-border opacity-60">
+                                        <X className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-medium line-through">{p.nom}</div>
+                                          <code className="text-[10px] text-muted-foreground">{p.code}</code>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              )}
+            </CardContent>
+          </Card>
+
+
           {/* Permissions Matrix */}
           <Card>
             <CardHeader>
