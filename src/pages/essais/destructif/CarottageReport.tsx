@@ -57,9 +57,17 @@ const CarottageReport = () => {
     return <div className="text-center py-12 text-muted-foreground">Échantillon non trouvé</div>;
   }
 
-  const results: CarotteResult[] = (echantillon.resultats && Array.isArray(echantillon.resultats))
-    ? echantillon.resultats as unknown as CarotteResult[]
-    : [];
+  const rawResults: any = echantillon.resultats;
+  let results: CarotteResult[] = [];
+  if (Array.isArray(rawResults)) {
+    results = rawResults as CarotteResult[];
+  } else if (rawResults && typeof rawResults === "object") {
+    if (Array.isArray(rawResults.carottes)) {
+      results = rawResults.carottes as CarotteResult[];
+    } else if (Array.isArray(rawResults.elements)) {
+      results = rawResults.elements.flatMap((e: any) => Array.isArray(e?.carottes) ? e.carottes : []);
+    }
+  }
 
   const verificationUrl = `${window.location.origin}/essais/beton/destructif/carottage/${id}/rapport`;
 
