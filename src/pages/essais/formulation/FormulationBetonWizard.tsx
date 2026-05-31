@@ -1007,6 +1007,26 @@ export default function FormulationBetonWizard() {
   const { data: clients = [] } = useClients();
   const { data: chantiers = [] } = useChantiers();
   const { data: centrales = [] } = useCentralesBeton();
+  const { data: centralesByChantier = [] } = useQuery({
+    queryKey: ["centrales_by_chantier", chantierId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("client_centrales")
+        .select("centrale_id, centrales_beton:centrale_id(id, nom)")
+        .eq("chantier_id", chantierId);
+      if (error) throw error;
+      const list = (data || []).map((r: any) => r.centrales_beton).filter(Boolean);
+      return Array.from(new Map(list.map((c: any) => [c.id, c])).values());
+    },
+    enabled: !!chantierId,
+  });
+  const filteredCentrales = chantierId ? centralesByChantier : centrales;
+  const mergedCentrales = useMemo(() => {
+    const list = [...(filteredCentrales as any[])];
+    const existing = (centrales as any[]).find((c) => c.id === centraleId);
+    if (centraleId && existing && !list.some((c: any) => c.id === centraleId)) list.push(existing);
+    return list;
+  }, [filteredCentrales, centrales, centraleId]);
   const { data: carrieres = [] } = useCarrieres();
   const { data: cimenteries = [] } = useCimenteries();
   const { data: adjuvants = [] } = useAdjuvants();
