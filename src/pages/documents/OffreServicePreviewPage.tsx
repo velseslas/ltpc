@@ -129,15 +129,17 @@ const OffreServicePreviewPage = () => {
 
   return (
     <>
-      <AppBreadcrumb
-        items={[
-          { label: "Documents", path: "/documents" },
-          { label: "Offres de service", path: "/documents/offres-service" },
-          { label: offre.titre },
-        ]}
-      />
+      <div className="print:hidden">
+        <AppBreadcrumb
+          items={[
+            { label: "Documents", path: "/documents" },
+            { label: "Offres de service", path: "/documents/offres-service" },
+            { label: offre.titre },
+          ]}
+        />
+      </div>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 print:hidden">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
