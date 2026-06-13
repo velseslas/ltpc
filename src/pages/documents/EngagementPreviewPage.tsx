@@ -114,14 +114,16 @@ const EngagementPreviewPage = () => {
 
   return (
     <>
-      <AppBreadcrumb items={[
-        { label: "Documents", path: "/documents" },
-        { label: "Lettres d'engagement", path: "/documents/lettres-engagement" },
-        { label: engagement.titre },
-      ]} />
+      <div className="print:hidden">
+        <AppBreadcrumb items={[
+          { label: "Documents", path: "/documents" },
+          { label: "Lettres d'engagement", path: "/documents/lettres-engagement" },
+          { label: engagement.titre },
+        ]} />
+      </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 print:hidden">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/documents/lettres-engagement")}>
             <ArrowLeft className="w-4 h-4" />
@@ -157,9 +159,10 @@ const EngagementPreviewPage = () => {
       </div>
 
       {/* Engagement content */}
-      <div className="bg-secondary/30 rounded-xl p-4 sm:p-6">
+      <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
         <div
           ref={reportRef}
+          data-ref="report"
           className="mx-auto flex flex-col gap-8"
           style={{ maxWidth: "800px", width: "100%" }}
         >
