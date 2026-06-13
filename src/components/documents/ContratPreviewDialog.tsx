@@ -96,6 +96,7 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
         <div className="flex-1 overflow-auto bg-secondary/30 p-4 sm:p-6">
           <div
             ref={reportRef}
+            data-ref="report"
             className="bg-white text-black shadow-xl mx-auto"
             style={{
               maxWidth: "800px",
