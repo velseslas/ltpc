@@ -69,8 +69,8 @@ const TractionFendageReport = () => {
         const startX = (A4_WIDTH_MM - renderWidthMM) / 2;
         const startY = MARGIN_MM + (AVAILABLE_HEIGHT_MM - renderHeightMM) / 2;
 
-        const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", startX, startY, renderWidthMM, renderHeightMM);
+        const imgData = canvas.toDataURL("image/jpeg", 0.85);
+        pdf.addImage(imgData, "JPEG", startX, startY, renderWidthMM, renderHeightMM);
       } else {
         const pageSliceHeightPx = Math.floor((AVAILABLE_HEIGHT_MM * canvas.width) / CONTENT_WIDTH_MM);
         let offsetY = 0;
@@ -102,7 +102,7 @@ const TractionFendageReport = () => {
           );
 
           const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
-          const sliceImgData = sliceCanvas.toDataURL("image/png");
+          const sliceImgData = sliceCanvas.toDataURL("image/jpeg", 0.85);
           pdf.addImage(sliceImgData, "PNG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
 
           offsetY += sliceHeightPx;
