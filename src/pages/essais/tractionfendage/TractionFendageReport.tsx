@@ -103,7 +103,7 @@ const TractionFendageReport = () => {
 
           const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
           const sliceImgData = sliceCanvas.toDataURL("image/jpeg", 0.85);
-          pdf.addImage(sliceImgData, "PNG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
+          pdf.addImage(sliceImgData, "JPEG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
 
           offsetY += sliceHeightPx;
           pageIndex += 1;
