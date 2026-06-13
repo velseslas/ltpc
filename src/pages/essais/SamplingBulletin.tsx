@@ -586,22 +586,22 @@ const SamplingBulletin = () => {
                 Échantillonnage et Prélèvement reconnu EXACT
               </div>
               <div className="flex text-xs">
-                <div className="flex-1 border-r border-black p-3">
-                  <div className="font-bold mb-2">L'Entrepreneur</div>
+                <div className="flex-1 border-r border-black p-2">
+                  <div className="font-bold mb-1">L'Entrepreneur</div>
                   <div className="text-gray-600">Nom, Cachet et Signature</div>
-                  <div className="h-16"></div>
+                  <div className="h-10"></div>
                 </div>
-                <div className="flex-1 p-3">
-                  <div className="font-bold mb-2">Le Bureau d'études Chargé du suivi</div>
+                <div className="flex-1 p-2">
+                  <div className="font-bold mb-1">Le Bureau d'études Chargé du suivi</div>
                   <div className="text-gray-600">Nom, Cachet et Signature</div>
-                  <div className="h-16"></div>
+                  <div className="h-10"></div>
                 </div>
               </div>
             </div>
 
             {/* Remis au LABORATOIRE */}
-            <div className="border border-black mb-4 text-xs">
-              <div className="flex items-center px-2 py-2">
+            <div className="border border-black mb-2 text-xs">
+              <div className="flex items-center px-2 py-1.5">
                 <span className="font-bold">Remis au LABORATOIRE</span>
                 <span className="flex-1 border-b border-black mx-4"></span>
                 <span className="font-bold">Par</span>
@@ -612,7 +612,7 @@ const SamplingBulletin = () => {
             </div>
 
             {/* Footer */}
-            <div className="border-t-2 border-black pt-2 text-center">
+            <div className="border-t-2 border-black pt-1 text-center">
               <p className="text-xs italic">
                 Le P.V. d'écrasement du LABORATOIRE doit obligatoirement se référer et mentionner la codification
               </p>
@@ -620,17 +620,16 @@ const SamplingBulletin = () => {
                 Et la reconnaître dans son P.V. d'essai
               </p>
             </div>
-
-            {/* VERSO marker */}
-            <div className="text-right text-xs mt-4 text-gray-500">
-              VERSO
-            </div>
           </div>
         </div>
 
       {/* Print styles */}
       <style>{`
         @media print {
+          @page {
+            size: A4;
+            margin: 6mm;
+          }
           body * {
             visibility: hidden;
           }
@@ -642,9 +641,23 @@ const SamplingBulletin = () => {
             left: 0;
             top: 0;
             width: 210mm;
+            min-height: 0 !important;
+            padding: 4mm !important;
+            font-size: 9px !important;
+            page-break-after: avoid;
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
+          #bulletin-content .mb-3 { margin-bottom: 4px !important; }
+          #bulletin-content .mb-4 { margin-bottom: 4px !important; }
+          #bulletin-content .py-2 { padding-top: 2px !important; padding-bottom: 2px !important; }
+          #bulletin-content .py-1 { padding-top: 1px !important; padding-bottom: 1px !important; }
+          #bulletin-content .p-3 { padding: 4px !important; }
+          #bulletin-content .h-16 { height: 28px !important; }
+          #bulletin-content .h-10 { height: 24px !important; }
         }
       `}</style>
+
     </div>
   );
 };
