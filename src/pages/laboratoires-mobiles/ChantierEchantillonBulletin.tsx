@@ -7,8 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
 interface FormulationIngredient {
