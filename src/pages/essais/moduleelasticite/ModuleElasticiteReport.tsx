@@ -95,7 +95,7 @@ const ModuleElasticiteReport = () => {
         </div>
       </div>
 
-      <div ref={reportRef} className="report-table bg-white p-8 rounded-lg border max-w-4xl mx-auto print:border-0 print:shadow-none print:p-0">
+      <div ref={reportRef} data-ref="report" className="report-table bg-white p-8 rounded-lg border max-w-4xl mx-auto print:border-0 print:shadow-none print:p-0">
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI DE MODULE D'ÉLASTICITÉ" subtitle="Détermination du module d'élasticité en compression - Norme NF EN 12390-13" />
 
         <div className="mb-6 mt-6">
