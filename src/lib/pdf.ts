@@ -1,6 +1,3 @@
-export function downloadReportAsPDF(filename: string) {
-  const prev = document.title;
-  document.title = filename;
+export function downloadReportAsPDF(_filename: string) {
   window.print();
-  setTimeout(() => { document.title = prev; }, 1000);
 }
