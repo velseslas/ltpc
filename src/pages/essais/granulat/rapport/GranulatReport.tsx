@@ -89,7 +89,14 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
     requestAnimationFrame(() => window.print());
   };
 
-  const handleDownloadPDF = handlePrint;
+  const handleDownloadPDF = async () => {
+    const el = document.querySelector<HTMLElement>('[data-ref="report"]');
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(
+      el,
+      `Rapport_${fullPrefix}-${String(echantillon?.numero ?? "").padStart(3, "0")}`
+    );
+  };
 
   if (isLoading) {
     return (

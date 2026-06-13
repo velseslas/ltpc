@@ -243,14 +243,11 @@ const SamplingBulletin = () => {
   };
 
   const handleDownloadPDF = async () => {
-    const blob = await generatePdfBlob();
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(
+      bulletinRef.current,
+      `bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}`
+    );
   };
 
   const getModeCoulageDisplay = (mode: string | null) => {

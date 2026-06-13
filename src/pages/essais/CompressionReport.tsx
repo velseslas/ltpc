@@ -312,8 +312,15 @@ const CompressionReport = () => {
     requestAnimationFrame(() => window.print());
   };
 
-  // Imprime directement la page courante (le navigateur permet "Enregistrer en PDF").
-  const handleDownloadPDF = handlePrint;
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    await waitForReportAssets(reportRef.current);
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(
+      reportRef.current,
+      `rapport-compression-${String(echantillon?.numero ?? "").padStart(3, "0")}`
+    );
+  };
 
   // Auto-print lorsqu'on est sur la route /print
   useEffect(() => {

@@ -7,8 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
@@ -279,16 +277,11 @@ export default function ChantierEchantillonReport() {
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-    
-    const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`rapport-compression-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}.pdf`);
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(
+      reportRef.current,
+      `rapport-compression-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`
+    );
   };
 
   const results = calculateResults();

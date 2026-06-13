@@ -83,8 +83,16 @@ export default function GranulometrieSolReport() {
         </div>
         <div className="flex gap-2">
           <ShareButton />
-          <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => window.print()}>
-            <Download className="h-4 w-4 mr-2" />Télécharger
+          <Button
+            variant="outline"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            onClick={async () => {
+              const el = document.querySelector<HTMLElement>('[data-ref="report"]');
+              const { downloadReportAsPDF } = await import("@/lib/pdf");
+              await downloadReportAsPDF(el, `rapport-granulometrie-sol-${numero}`);
+            }}
+          >
+            <Download className="h-4 w-4 mr-2" />Télécharger PDF
           </Button>
           <Button onClick={() => window.print()} className="gradient-primary text-primary-foreground">
             <Printer className="h-4 w-4 mr-2" />Imprimer

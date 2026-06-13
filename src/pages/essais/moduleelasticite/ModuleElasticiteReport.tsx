@@ -6,8 +6,7 @@ import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { useEntreprise } from "@/hooks/useEntreprise";
@@ -34,15 +33,8 @@ const ModuleElasticiteReport = () => {
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
     try {
-      const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save(`rapport-ME-${echantillon?.numero}.pdf`);
+      await downloadReportAsPDF(reportRef.current, `rapport-ME-${echantillon?.numero}`);
       toast.success("PDF téléchargé avec succès");
     } catch {
       toast.error("Erreur lors de la génération du PDF");
