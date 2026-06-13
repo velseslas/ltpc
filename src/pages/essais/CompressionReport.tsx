@@ -420,13 +420,13 @@ const CompressionReport = () => {
       <div 
         ref={reportRef}
         data-ref="report"
-        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible"
+        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible bg-white"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         {/* ============ RAPPORT DÉTAILLÉ ============ */}
         <div
           data-pdf-page
-          className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:rounded-none"
+          className="bg-white text-black p-4 rounded-lg shadow-lg print:shadow-none print:rounded-none"
         >
           <div data-pdf-content>
             <ReportHeader
@@ -441,7 +441,7 @@ const CompressionReport = () => {
           {/* Identification de l'échantillon */}
           <div className="mb-6">
             <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
-            <table className="identification-table w-full border-collapse border border-black text-sm">
+            <table className="identification-table w-full border-collapse text-sm" style={{ borderSpacing: 0 }}>
               <tbody>
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black text-left align-middle">N° Échantillon</td>
@@ -495,7 +495,7 @@ const CompressionReport = () => {
               <span className="mx-4">|</span>
               <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
             </div>
-            <table className="w-full border-collapse border border-black formulation-table">
+            <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Ciment</th>
@@ -545,7 +545,7 @@ const CompressionReport = () => {
 
           {/* Caractéristiques techniques */}
           <div className="mb-6">
-            <table className="w-full border-collapse border border-black text-sm">
+            <table className="w-full border-collapse text-sm" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de Résistance</th>
@@ -570,7 +570,7 @@ const CompressionReport = () => {
           {/* Résultats des essais */}
           <div className="mb-6">
             <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des essais</h3>
-            <table className="w-full border-collapse border border-black">
+            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>

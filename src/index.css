@@ -188,7 +188,7 @@
   width: 100% !important;
   border-collapse: collapse !important;
   border-spacing: 0 !important;
-  border: 1px solid #444444 !important;
+  border: none !important;
   table-layout: fixed !important;
   background: #ffffff !important;
   box-shadow: none !important;
