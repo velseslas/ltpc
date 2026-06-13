@@ -286,8 +286,7 @@
     border-radius: 0 !important;
   }
 
-  [data-ref="report"] .p-8,
-  [data-ref="report"] [class*="p-"] {
+  [data-ref="report"] > * {
     padding: 0 !important;
   }
 
@@ -353,6 +352,8 @@
     height: auto !important;
     white-space: normal !important;
     table-layout: auto !important;
+    border: 1px solid #000 !important;
+    border-collapse: collapse !important;
   }
 
   [data-ref="report"] tr {

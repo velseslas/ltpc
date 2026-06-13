@@ -401,16 +401,21 @@ const CompressionReport = () => {
                 Rapport de compression — <span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}
               </h1>
             </div>
-            <div className="flex gap-3">
-              <ShareButton />
-              <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
-                <Printer className="h-4 w-4" />
-                Imprimer
-              </Button>
-              <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                Télécharger PDF
-              </Button>
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex gap-3">
+                <ShareButton />
+                <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
+                  <Printer className="h-4 w-4" />
+                  Imprimer
+                </Button>
+                <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Télécharger PDF
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground print:hidden">
+                Conseil : désactivez les en-têtes dans les paramètres d'impression du navigateur
+              </p>
             </div>
           </div>
         </>
