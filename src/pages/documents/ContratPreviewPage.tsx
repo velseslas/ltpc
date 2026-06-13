@@ -114,11 +114,13 @@ const ContratPreviewPage = () => {
 
   return (
     <>
-      <div className="print:hidden"><AppBreadcrumb items={[
-        { label: "Documents", path: "/documents" },
-        { label: "Contrats chantier", path: "/documents/contrats" },
-        { label: contrat.titre },
-      ]} />
+      <div className="print:hidden">
+        <AppBreadcrumb items={[
+          { label: "Documents", path: "/documents" },
+          { label: "Contrats chantier", path: "/documents/contrats" },
+          { label: contrat.titre },
+        ]} />
+      </div>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6 print:hidden">
