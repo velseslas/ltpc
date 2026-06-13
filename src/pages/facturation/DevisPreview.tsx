@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useParams, useNavigate } from "react-router-dom";
 import { Printer, Download, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,8 +10,6 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { Loader2 } from "lucide-react";
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
@@ -88,48 +87,11 @@ export default function DevisPreview() {
   const montantEnLettres = numberToFrenchWords(montantTTCEntier);
 
   const handlePrint = () => {
-    const printContent = reportRef.current;
-    if (!printContent) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html><head><title>Devis ${devis.numero}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', serif; }
-        @page { size: A4; margin: 10mm; }
-        @media print { .page-break { page-break-before: always; } }
-      </style>
-      </head><body>${printContent.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.onload = () => { printWindow.print(); printWindow.close(); };
+    window.print();
   };
 
   const handleDownload = async () => {
-    if (!reportRef.current) return;
-    try {
-      const pages = Array.from(reportRef.current.querySelectorAll("[data-pdf-page]")) as HTMLElement[];
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const contentW = pdfW - margin * 2;
-
-      for (let i = 0; i < pages.length; i++) {
-        if (i > 0) pdf.addPage();
-        const canvas = await html2canvas(pages[i], { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
-        const ratio = contentW / (canvas.width / 3);
-        const imgH = (canvas.height / 3) * ratio;
-        pdf.addImage(imgData, "JPEG", margin, margin, contentW, Math.min(imgH, pdfH - margin * 2));
-      }
-
-      pdf.save(`Devis_${devis.numero}.pdf`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors du téléchargement");
-    }
+    downloadReportAsPDF(`Devis_${devis.numero}`);
   };
 
   const cellStyle: React.CSSProperties = {

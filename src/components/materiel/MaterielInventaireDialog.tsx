@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Printer, Download, ClipboardList } from "lucide-react";
@@ -11,9 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-
 interface MaterielItem {
   id: string;
   nom: string;
@@ -68,49 +66,11 @@ export default function MaterielInventaireDialog({ open, onOpenChange, data }: M
   const logoSrc = logoDataUrl || entreprise?.logo_url;
 
   const handlePrint = () => {
-    const content = printRef.current;
-    if (!content) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Veuillez autoriser les popups");
-      return;
-    }
-    printWindow.document.write(`
-      <html><head><title>Inventaire Matériel</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; color: #111; }
-        table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 11px; }
-        th, td { border: 1px solid #444; padding: 6px 8px; text-align: left; }
-        th { background: #f1f5f9; font-weight: 600; }
-        .header { text-align: center; margin-bottom: 16px; }
-        .header h2 { margin: 4px 0; }
-        .meta { font-size: 12px; color: #555; margin-bottom: 8px; }
-        @page { size: landscape; margin: 10mm; }
-        @media print { body { margin: 0; } }
-      </style></head><body>
-      ${content.innerHTML}
-      </body></html>
-    `);
-    printWindow.document.close();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 400);
+    window.print();
   };
 
   const handleDownloadPDF = async () => {
-    const content = printRef.current;
-    if (!content) return;
-    toast.info("Génération du PDF...");
-    try {
-      const canvas = await html2canvas(content, { scale: 2, backgroundColor: "#fff", useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = (canvas.height * pdfW) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
-      pdf.save(`inventaire-materiel-${format(new Date(), "yyyy-MM-dd")}.pdf`);
-      toast.success("PDF téléchargé");
-    } catch {
-      toast.error("Erreur lors de la génération du PDF");
-    }
+    downloadReportAsPDF(`inventaire-materiel-${format(new Date(), "yyyy-MM-dd")}`);
   };
 
   const stats = {

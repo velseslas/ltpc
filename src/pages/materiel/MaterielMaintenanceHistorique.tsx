@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { Wrench, Printer, Download } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,6 @@ import { useMaintenanceMateriel } from "@/hooks/useMaterielLaboratoire";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 
 export default function MaterielMaintenanceHistorique() {
@@ -40,14 +39,7 @@ export default function MaterielMaintenanceHistorique() {
   const handlePrint = () => window.print();
 
   const handleDownload = async () => {
-    if (!printRef.current) return;
-    const canvas = await html2canvas(printRef.current, { scale: 2, backgroundColor: "#ffffff" });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("l", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`historique-maintenances-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    downloadReportAsPDF(`historique-maintenances-${format(new Date(), "yyyy-MM-dd")}`);
   };
 
   const coutTotal = data?.reduce((sum: number, m: any) => sum + (m.cout || 0), 0) || 0;

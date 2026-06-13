@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -6,8 +7,6 @@ import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { useEntreprise } from "@/hooks/useEntreprise";
@@ -37,84 +36,7 @@ const TractionFendageReport = () => {
   };
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-
-    try {
-      await document.fonts.ready;
-
-      const A4_WIDTH_MM = 210;
-      const A4_HEIGHT_MM = 297;
-      const MARGIN_MM = 10;
-      const CONTENT_WIDTH_MM = A4_WIDTH_MM - MARGIN_MM * 2;
-      const AVAILABLE_HEIGHT_MM = A4_HEIGHT_MM - MARGIN_MM * 2;
-
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 1,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        windowWidth: reportRef.current.scrollWidth,
-        windowHeight: reportRef.current.scrollHeight,
-      });
-
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const fullHeightMM = (canvas.height * CONTENT_WIDTH_MM) / canvas.width;
-
-      const canFitOnSinglePage = fullHeightMM <= AVAILABLE_HEIGHT_MM * 1.3;
-
-      if (canFitOnSinglePage) {
-        const fitScale = Math.min(1, AVAILABLE_HEIGHT_MM / fullHeightMM);
-        const renderWidthMM = CONTENT_WIDTH_MM * fitScale;
-        const renderHeightMM = fullHeightMM * fitScale;
-        const startX = (A4_WIDTH_MM - renderWidthMM) / 2;
-        const startY = MARGIN_MM + (AVAILABLE_HEIGHT_MM - renderHeightMM) / 2;
-
-        const imgData = canvas.toDataURL("image/jpeg", 0.85);
-        pdf.addImage(imgData, "JPEG", startX, startY, renderWidthMM, renderHeightMM);
-      } else {
-        const pageSliceHeightPx = Math.floor((AVAILABLE_HEIGHT_MM * canvas.width) / CONTENT_WIDTH_MM);
-        let offsetY = 0;
-        let pageIndex = 0;
-
-        while (offsetY < canvas.height) {
-          if (pageIndex > 0) {
-            pdf.addPage();
-          }
-
-          const sliceHeightPx = Math.min(pageSliceHeightPx, canvas.height - offsetY);
-          const sliceCanvas = document.createElement("canvas");
-          sliceCanvas.width = canvas.width;
-          sliceCanvas.height = sliceHeightPx;
-
-          const ctx = sliceCanvas.getContext("2d");
-          if (!ctx) break;
-
-          ctx.drawImage(
-            canvas,
-            0,
-            offsetY,
-            canvas.width,
-            sliceHeightPx,
-            0,
-            0,
-            canvas.width,
-            sliceHeightPx
-          );
-
-          const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
-          const sliceImgData = sliceCanvas.toDataURL("image/jpeg", 0.85);
-          pdf.addImage(sliceImgData, "JPEG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
-
-          offsetY += sliceHeightPx;
-          pageIndex += 1;
-        }
-      }
-
-      pdf.save(`rapport-TF-${echantillon?.numero}.pdf`);
-      toast.success("PDF téléchargé avec succès");
-    } catch (error) {
-      toast.error("Erreur lors de la génération du PDF");
-    }
+    downloadReportAsPDF(`rapport-TF-${echantillon?.numero}`);
   };
 
   if (isLoading) {
