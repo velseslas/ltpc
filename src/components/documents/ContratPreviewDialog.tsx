@@ -6,8 +6,7 @@ import { toast } from "sonner";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 
 interface ContratPreviewDialogProps {
   open: boolean;
