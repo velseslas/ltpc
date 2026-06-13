@@ -100,7 +100,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
         </div>
       </div>
 
-      <div ref={printRef} className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
+      <div ref={printRef} data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
         <ReportHeader
           entreprise={entreprise}
           verificationUrl={verificationUrl}

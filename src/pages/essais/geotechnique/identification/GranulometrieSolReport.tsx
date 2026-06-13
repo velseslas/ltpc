@@ -93,7 +93,7 @@ export default function GranulometrieSolReport() {
       </div>
 
       {/* Printable report */}
-      <div className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 max-w-4xl mx-auto" id="report-content">
+      <div data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 max-w-4xl mx-auto" id="report-content">
         <ReportHeader
           title="ANALYSE GRANULOMÉTRIQUE DES SOLS"
           subtitle="NF P 94-056"

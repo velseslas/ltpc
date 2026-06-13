@@ -359,6 +359,7 @@ const SamplingBulletin = () => {
       <div className="flex justify-center">
         <div 
           ref={bulletinRef}
+          data-ref="report"
           className="bg-white p-6 w-[210mm] min-h-[297mm] text-black print:p-0 print:shadow-none shadow-lg"
           style={{ fontFamily: "Arial, sans-serif", fontSize: "11px" }}
         >
