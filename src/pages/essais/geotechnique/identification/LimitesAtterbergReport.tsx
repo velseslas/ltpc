@@ -102,10 +102,7 @@ export default function LimitesAtterbergReport() {
 
   const handleDownloadPDF = async () => {
     if (!echantillon) return;
-    await downloadReportAsPDF(
-      reportRef.current,
-      `rapport-limites-atterberg-${prefix}-${String(echantillon.numero).padStart(3, "0")}`
-    );
+    downloadReportAsPDF(`rapport-limites-atterberg-${prefix}-${String(echantillon.numero).padStart(3, "0")}`);
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

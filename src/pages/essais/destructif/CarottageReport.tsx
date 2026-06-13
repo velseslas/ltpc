@@ -34,10 +34,7 @@ const CarottageReport = () => {
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    await downloadReportAsPDF(
-      reportRef.current,
-      `Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`
-    );
+    downloadReportAsPDF(`Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`);
   };
 
   if (isLoading) {

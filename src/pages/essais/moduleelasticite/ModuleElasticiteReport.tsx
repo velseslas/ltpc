@@ -34,7 +34,7 @@ const ModuleElasticiteReport = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await downloadReportAsPDF(reportRef.current, `rapport-ME-${echantillon?.numero}`);
+      downloadReportAsPDF(`rapport-ME-${echantillon?.numero}`);
       toast.success("PDF téléchargé avec succès");
     } catch {
       toast.error("Erreur lors de la génération du PDF");

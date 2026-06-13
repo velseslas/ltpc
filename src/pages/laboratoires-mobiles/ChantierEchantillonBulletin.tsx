@@ -216,10 +216,7 @@ export default function ChantierEchantillonBulletin() {
 
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(
-      bulletinRef.current,
-      `bulletin-echantillonnage-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`
-    );
+    downloadReportAsPDF(`bulletin-echantillonnage-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`);
   };
 
   const getAffaissementClass = (classe: string | null) => {
