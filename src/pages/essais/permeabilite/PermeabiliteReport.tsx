@@ -95,7 +95,7 @@ const PermeabiliteReport = () => {
         </div>
       </div>
 
-      <div ref={reportRef} className="report-table bg-white p-8 rounded-lg border max-w-4xl mx-auto print:border-0 print:shadow-none print:p-0">
+      <div ref={reportRef} data-ref="report" className="report-table bg-white p-8 rounded-lg border max-w-4xl mx-auto print:border-0 print:shadow-none print:p-0">
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI DE PERMÉABILITÉ" subtitle="Profondeur de pénétration d'eau sous pression - Norme NF EN 12390-8" />
 
         <div className="mb-6 mt-6">
