@@ -121,7 +121,8 @@ const ContratPreviewPage = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 print:hidden">
+
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/documents/contrats")}>
             <ArrowLeft className="w-4 h-4" />
