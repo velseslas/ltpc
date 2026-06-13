@@ -648,13 +648,13 @@ const SamplingBulletin = () => {
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          #bulletin-content .mb-3 { margin-bottom: 4px !important; }
-          #bulletin-content .mb-4 { margin-bottom: 4px !important; }
-          #bulletin-content .py-2 { padding-top: 2px !important; padding-bottom: 2px !important; }
-          #bulletin-content .py-1 { padding-top: 1px !important; padding-bottom: 1px !important; }
-          #bulletin-content .p-3 { padding: 4px !important; }
-          #bulletin-content .h-16 { height: 28px !important; }
-          #bulletin-content .h-10 { height: 24px !important; }
+          #bulletin-content .mb-3 { margin-bottom: 10px !important; }
+          #bulletin-content .mb-4 { margin-bottom: 12px !important; }
+          #bulletin-content .py-2 { padding-top: 4px !important; padding-bottom: 4px !important; }
+          #bulletin-content .py-1 { padding-top: 3px !important; padding-bottom: 3px !important; }
+          #bulletin-content .p-3 { padding: 8px !important; }
+          #bulletin-content .h-16 { height: 44px !important; }
+          #bulletin-content .h-10 { height: 36px !important; }
         }
       `}</style>
 
