@@ -145,7 +145,7 @@ export default function LimitesAtterbergReport() {
       </div>
 
       {/* Rapport */}
-      <div ref={reportRef} className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={reportRef} data-ref="report" className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI - LIMITES D'ATTERBERG" subtitle="Norme NF P 94-051" />
 
         {/* Infos échantillon */}
