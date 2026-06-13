@@ -74,7 +74,7 @@ export default function ClassificationSolReport() {
                 <p className="text-muted-foreground text-sm">Classification des Sols</p>
               </div>
               <div className="flex gap-3">
-                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-classification-sol-${numero}.pdf`} />
+                <ShareButton fileName={`rapport-classification-sol-${numero}.pdf`} />
                 <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
                 <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
               </div>

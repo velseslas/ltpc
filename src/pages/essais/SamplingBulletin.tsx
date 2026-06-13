@@ -337,7 +337,7 @@ const SamplingBulletin = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <ShareButton onGeneratePdf={generatePdfBlob} fileName={`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`} />
+          <ShareButton fileName={`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`} />
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
