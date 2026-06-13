@@ -286,8 +286,7 @@
     border-radius: 0 !important;
   }
 
-  [data-ref="report"] .p-8,
-  [data-ref="report"] [class*="p-"] {
+  [data-ref="report"] > * {
     padding: 0 !important;
   }
 
