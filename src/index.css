@@ -271,11 +271,12 @@
     visibility: visible !important;
   }
 
-  /* Position the report flush to the page */
+  /* Display report in normal flow (fixes multi-page clipping and charts) */
   [data-ref="report"] {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+    display: block !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
     width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
@@ -304,6 +305,10 @@
     color-adjust: exact !important;
   }
 
+  img {
+    max-width: 100% !important;
+  }
+
   /* Tables fit page width with auto column sizing */
   [data-ref="report"] table {
     width: 100% !important;
@@ -316,9 +321,6 @@
   [data-ref="report"] th {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
-    white-space: normal !important;
     line-height: 1.3 !important;
     font-size: 10pt !important;
     height: auto !important;
@@ -333,6 +335,10 @@
 
   [data-ref="report"] thead {
     display: table-header-group;
+  }
+
+  [data-ref="report"] tfoot {
+    display: table-footer-group;
   }
 
   /* Keep key sections together */

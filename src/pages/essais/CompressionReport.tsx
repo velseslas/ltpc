@@ -403,7 +403,7 @@ const CompressionReport = () => {
             </div>
             <div className="flex gap-3">
               <ShareButton />
-              <Button variant="outline" onClick={handleDownloadPDF} className="flex items-center gap-2">
+              <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
                 <Printer className="h-4 w-4" />
                 Imprimer
               </Button>

@@ -49,7 +49,7 @@ const TractionFendageReport = () => {
       const AVAILABLE_HEIGHT_MM = A4_HEIGHT_MM - MARGIN_MM * 2;
 
       const canvas = await html2canvas(reportRef.current, {
-        scale: 3,
+        scale: 1,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
@@ -69,8 +69,8 @@ const TractionFendageReport = () => {
         const startX = (A4_WIDTH_MM - renderWidthMM) / 2;
         const startY = MARGIN_MM + (AVAILABLE_HEIGHT_MM - renderHeightMM) / 2;
 
-        const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", startX, startY, renderWidthMM, renderHeightMM);
+        const imgData = canvas.toDataURL("image/jpeg", 0.85);
+        pdf.addImage(imgData, "JPEG", startX, startY, renderWidthMM, renderHeightMM);
       } else {
         const pageSliceHeightPx = Math.floor((AVAILABLE_HEIGHT_MM * canvas.width) / CONTENT_WIDTH_MM);
         let offsetY = 0;
@@ -102,8 +102,8 @@ const TractionFendageReport = () => {
           );
 
           const sliceHeightMM = (sliceHeightPx * CONTENT_WIDTH_MM) / canvas.width;
-          const sliceImgData = sliceCanvas.toDataURL("image/png");
-          pdf.addImage(sliceImgData, "PNG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
+          const sliceImgData = sliceCanvas.toDataURL("image/jpeg", 0.85);
+          pdf.addImage(sliceImgData, "JPEG", MARGIN_MM, MARGIN_MM, CONTENT_WIDTH_MM, sliceHeightMM);
 
           offsetY += sliceHeightPx;
           pageIndex += 1;

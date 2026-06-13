@@ -339,7 +339,7 @@ export default function FormulationReport() {
 
           const canvas = await withTimeout(
             html2canvas(el, {
-              scale: 1.5,
+              scale: 1,
               useCORS: true,
               allowTaint: true,
               logging: false,
@@ -355,7 +355,7 @@ export default function FormulationReport() {
             `page ${i + 1}`
           );
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.9);
+          const imgData = canvas.toDataURL("image/jpeg", 0.85);
           const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
           const finalHeight = Math.min(imgHeightMm, pageHeightMm);
           if (added > 0) pdf.addPage();
