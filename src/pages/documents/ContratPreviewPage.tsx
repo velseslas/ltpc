@@ -114,7 +114,7 @@ const ContratPreviewPage = () => {
 
   return (
     <>
-      <AppBreadcrumb items={[
+      <div className="print:hidden"><AppBreadcrumb items={[
         { label: "Documents", path: "/documents" },
         { label: "Contrats chantier", path: "/documents/contrats" },
         { label: contrat.titre },
