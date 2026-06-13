@@ -1,11 +1,10 @@
 import { ArrowLeft, Printer, Download, ChevronDown, FileText, Target, Settings, ListOrdered, Calculator } from "lucide-react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
-import jsPDF from "jspdf";
-
 interface NormeData {
   id: string;
   title: string;
@@ -105,6 +104,7 @@ const DestructifNormes = () => {
   const navigate = useNavigate();
   const [openItems, setOpenItems] = useState<string[]>([]);
 
+  const [printingNormeId, setPrintingNormeId] = useState<string | null>(null);
   const toggleItem = (id: string) => {
     setOpenItems(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
@@ -112,134 +112,18 @@ const DestructifNormes = () => {
   };
 
   const handlePrint = (norme: NormeData) => {
-    const printContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${norme.title} - ${norme.normeNumber}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
-            h1 { color: #1a365d; border-bottom: 2px solid #e53e3e; padding-bottom: 10px; }
-            h2 { color: #c53030; margin-top: 25px; }
-            .section { margin: 20px 0; padding: 15px; background: #fff5f5; border-radius: 8px; }
-            .section-title { font-weight: bold; color: #2d3748; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-            .section-number { background: #e53e3e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
-            ul, ol { margin: 10px 0; padding-left: 25px; }
-            li { margin: 8px 0; }
-            .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-            .norme-badge { background: #fff5f5; color: #c53030; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>${norme.title}</h1>
-            <span class="norme-badge">${norme.normeNumber}</span>
-          </div>
-          
-          <div class="section">
-            <div class="section-title"><span class="section-number">1</span> Domaine d'application</div>
-            <p>${norme.domaine}</p>
-          </div>
-          
-          <div class="section">
-            <div class="section-title"><span class="section-number">2</span> Principe de l'essai</div>
-            <p>${norme.principe}</p>
-          </div>
-          
-          <div class="section">
-            <div class="section-title"><span class="section-number">3</span> Appareillage</div>
-            <ul>
-              ${norme.appareillage.map(item => `<li>${item}</li>`).join('')}
-            </ul>
-          </div>
-          
-          <div class="section">
-            <div class="section-title"><span class="section-number">4</span> Mode opératoire</div>
-            <ol>
-              ${norme.modeOperatoire.map(step => `<li>${step}</li>`).join('')}
-            </ol>
-          </div>
-          
-          <div class="section">
-            <div class="section-title"><span class="section-number">5</span> Expression des résultats</div>
-            <p>${norme.expression}</p>
-          </div>
-        </body>
-      </html>
-    `;
-    
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    setOpenItems(prev => prev.includes(norme.id) ? prev : [...prev, norme.id]);
+    setPrintingNormeId(norme.id);
+    setTimeout(() => { window.print(); setPrintingNormeId(null); }, 100);
   };
 
   const handleDownloadPDF = (norme: NormeData) => {
-    const pdf = new jsPDF();
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 20;
-    const maxWidth = pageWidth - 2 * margin;
-    let yPosition = 20;
-
-    pdf.setFontSize(18);
-    pdf.setTextColor(229, 62, 62);
-    pdf.text(norme.title, margin, yPosition);
-    yPosition += 10;
-
-    pdf.setFontSize(12);
-    pdf.setTextColor(197, 48, 48);
-    pdf.text(norme.normeNumber, margin, yPosition);
-    yPosition += 15;
-
-    const addSection = (number: string, title: string, content: string | string[], isList: boolean = false) => {
-      if (yPosition > 250) {
-        pdf.addPage();
-        yPosition = 20;
-      }
-
-      pdf.setFontSize(12);
-      pdf.setTextColor(45, 55, 72);
-      pdf.setFont("helvetica", "bold");
-      pdf.text(`${number}. ${title}`, margin, yPosition);
-      yPosition += 8;
-
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(10);
-      pdf.setTextColor(74, 85, 104);
-
-      if (isList && Array.isArray(content)) {
-        content.forEach((item, index) => {
-          if (yPosition > 270) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-          const lines = pdf.splitTextToSize(`${index + 1}. ${item}`, maxWidth - 10);
-          pdf.text(lines, margin + 5, yPosition);
-          yPosition += lines.length * 5 + 3;
-        });
-      } else {
-        const lines = pdf.splitTextToSize(content as string, maxWidth);
-        lines.forEach((line: string) => {
-          if (yPosition > 270) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-          pdf.text(line, margin, yPosition);
-          yPosition += 6;
-        });
-      }
-      yPosition += 8;
-    };
-
-    addSection("1", "Domaine d'application", norme.domaine);
-    addSection("2", "Principe de l'essai", norme.principe);
-    addSection("3", "Appareillage", norme.appareillage, true);
-    addSection("4", "Mode opératoire", norme.modeOperatoire, true);
-    addSection("5", "Expression des résultats", norme.expression);
-
-    pdf.save(`${norme.normeNumber.replace(/\s/g, '_')}_${norme.id}.pdf`);
+    setOpenItems(prev => prev.includes(norme.id) ? prev : [...prev, norme.id]);
+    setPrintingNormeId(norme.id);
+    setTimeout(() => {
+      downloadReportAsPDF(`${norme.normeNumber.replace(/\s+/g, '_')}_${norme.id}`);
+      setPrintingNormeId(null);
+    }, 100);
   };
 
   return (
@@ -278,7 +162,7 @@ const DestructifNormes = () => {
             open={openItems.includes(norme.id)}
             onOpenChange={() => toggleItem(norme.id)}
           >
-            <div className="border border-border/50 rounded-xl bg-card overflow-hidden">
+            <div data-ref={printingNormeId === norme.id ? "report" : undefined} className="border border-border/50 rounded-xl bg-card overflow-hidden">
               <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-rose-500/10 flex items-center justify-center">

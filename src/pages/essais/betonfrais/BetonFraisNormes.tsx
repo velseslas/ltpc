@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Download, Printer, FileText, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import jsPDF from "jspdf";
 import FeuilleEssaiDialog from "@/components/essais/FeuilleEssaiDialog";
 
 interface NormeData {
@@ -132,6 +132,7 @@ const normesData: NormeData[] = [
 export default function BetonFraisNormes() {
   const navigate = useNavigate();
   const [openNormes, setOpenNormes] = useState<string[]>([]);
+  const [printingNormeId, setPrintingNormeId] = useState<string | null>(null);
   const [feuilleNorme, setFeuilleNorme] = useState<NormeData | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -144,146 +145,20 @@ export default function BetonFraisNormes() {
   const handlePrint = (normeId: string) => {
     const norme = normesData.find(n => n.id === normeId);
     if (!norme) return;
-
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${norme.title} - ${norme.normeNumber}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
-            h1 { font-size: 22px; margin-bottom: 5px; color: #333; }
-            .norme-number { font-size: 16px; color: #666; margin-bottom: 5px; }
-            .norme-full { font-size: 14px; color: #888; margin-bottom: 25px; font-style: italic; }
-            h3 { font-size: 14px; font-weight: bold; margin-top: 25px; margin-bottom: 10px; color: #333; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-            p { margin: 10px 0; font-size: 13px; text-align: justify; }
-            ul, ol { padding-left: 25px; margin: 10px 0; }
-            li { margin: 6px 0; font-size: 13px; }
-            @media print { body { padding: 20px; } }
-          </style>
-        </head>
-        <body>
-          <h1>${norme.title}</h1>
-          <div class="norme-number">${norme.normeNumber}</div>
-          <div class="norme-full">${norme.normeFull}</div>
-          
-          <h3>1. Domaine d'application</h3>
-          <p>${norme.domaine}</p>
-          
-          <h3>2. Principe de l'essai</h3>
-          <p>${norme.principe}</p>
-          
-          <h3>3. Appareillage</h3>
-          <ul>
-            ${norme.appareillage.map(item => `<li>${item}</li>`).join('')}
-          </ul>
-          
-          <h3>4. Mode Opératoire</h3>
-          <ol>
-            ${norme.modeOperatoire.map(step => `<li>${step}</li>`).join('')}
-          </ol>
-          
-          <h3>5. Expression des résultats</h3>
-          <p>${norme.expression}</p>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    setOpenNormes(prev => prev.includes(norme.id) ? prev : [...prev, norme.id]);
+    setPrintingNormeId(norme.id);
+    setTimeout(() => { window.print(); setPrintingNormeId(null); }, 100);
   };
 
   const handleDownloadPDF = async (normeId: string) => {
     const norme = normesData.find(n => n.id === normeId);
     if (!norme) return;
-
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const margin = 20;
-    const contentWidth = pageWidth - margin * 2;
-    let y = 20;
-
-    const checkPageBreak = (neededSpace: number) => {
-      if (y + neededSpace > 280) {
-        pdf.addPage();
-        y = 20;
-      }
-    };
-
-    // Title
-    pdf.setFontSize(18);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(norme.title, margin, y);
-    y += 8;
-
-    // Norme number
-    pdf.setFontSize(12);
-    pdf.setFont("helvetica", "normal");
-    pdf.setTextColor(100);
-    pdf.text(norme.normeNumber, margin, y);
-    y += 6;
-
-    // Norme full
-    pdf.setFontSize(10);
-    pdf.setTextColor(120);
-    pdf.setFont("helvetica", "italic");
-    const normeFullLines = pdf.splitTextToSize(norme.normeFull, contentWidth);
-    pdf.text(normeFullLines, margin, y);
-    y += normeFullLines.length * 5 + 10;
-
-    // Section helper
-    const addSection = (title: string, content: string | string[], isList: boolean = false) => {
-      checkPageBreak(25);
-      
-      // Section title
-      pdf.setFontSize(11);
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(0);
-      pdf.text(title, margin, y);
-      y += 7;
-
-      pdf.setFontSize(10);
-      pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(60);
-
-      if (isList && Array.isArray(content)) {
-        content.forEach((item, index) => {
-          const bullet = isList ? `${index + 1}. ` : "• ";
-          const lines = pdf.splitTextToSize(bullet + item, contentWidth - 5);
-          checkPageBreak(lines.length * 5 + 3);
-          pdf.text(lines, margin + 5, y);
-          y += lines.length * 5 + 2;
-        });
-      } else if (typeof content === 'string') {
-        const lines = pdf.splitTextToSize(content, contentWidth);
-        checkPageBreak(lines.length * 5);
-        pdf.text(lines, margin, y);
-        y += lines.length * 5;
-      }
-      y += 5;
-    };
-
-    // Sections
-    addSection("1. Domaine d'application", norme.domaine);
-    addSection("2. Principe de l'essai", norme.principe);
-    addSection("3. Appareillage", norme.appareillage, false);
-    
-    // Appareillage as bullet list
-    y -= 5;
-    norme.appareillage.forEach((item) => {
-      const lines = pdf.splitTextToSize("• " + item, contentWidth - 5);
-      checkPageBreak(lines.length * 5 + 2);
-      pdf.text(lines, margin + 5, y);
-      y += lines.length * 5 + 2;
-    });
-    y += 5;
-
-    addSection("4. Mode Opératoire", norme.modeOperatoire, true);
-    addSection("5. Expression des résultats", norme.expression);
-
-    pdf.save(`norme-${norme.normeNumber.replace(/\s+/g, '-')}.pdf`);
+    setOpenNormes(prev => prev.includes(norme.id) ? prev : [...prev, norme.id]);
+    setPrintingNormeId(norme.id);
+    setTimeout(() => {
+      downloadReportAsPDF(`${norme.normeNumber.replace(/\s+/g, '_')}_${norme.id}`);
+      setPrintingNormeId(null);
+    }, 100);
   };
 
   return (
