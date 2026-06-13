@@ -590,7 +590,7 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
           </DialogTitle>
         </DialogHeader>
 
-        <div ref={printRef} style={{ background: "#fff", color: "#000", fontFamily: "'Times New Roman', Georgia, serif" }}>
+        <div ref={printRef} data-ref="report" style={{ background: "#fff", color: "#000", fontFamily: "'Times New Roman', Georgia, serif" }}>
           {/* En-tête identique aux rapports */}
           <div style={{ border: "1px solid #000", borderRadius: "8px", padding: "16px", marginBottom: "24px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
