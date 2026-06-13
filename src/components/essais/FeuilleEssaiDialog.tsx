@@ -532,56 +532,7 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
   ];
 
   const handlePrint = () => {
-    if (!printRef.current) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Feuille d'essai - ${normeTitle}</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Times New Roman', Georgia, serif; padding: 15mm; font-size: 11px; background: #fff; color: #000; }
-            .header-box { border: 1px solid #000; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
-            .header-flex { display: flex; align-items: flex-start; justify-content: space-between; }
-            .logo-box { width: 96px; height: 96px; border: 1px solid #d1d5db; display: flex; align-items: center; justify-content: center; background: #d4e5f7; border-radius: 6px; flex-shrink: 0; }
-            .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-            .info-center { flex: 1; text-align: center; padding: 0 12px; }
-            .info-center h1 { font-size: 16px; font-weight: bold; color: #1e5a7a; margin-bottom: 4px; }
-            .info-center p { font-size: 11px; color: #000; margin-bottom: 2px; }
-            .info-center .auth { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-            .separator { border-top: 2px solid #1e5a7a; margin-bottom: 16px; }
-            .title-section { text-align: center; margin-bottom: 20px; }
-            .title-section h2 { font-size: 18px; font-weight: bold; color: #1e5a7a; margin-bottom: 4px; }
-            .title-section p { font-size: 13px; color: #000; }
-            .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #ccc; margin-bottom: 12px; }
-            .field { border: 1px solid #ccc; padding: 6px 8px; background: #fff; }
-            .field.col-span-2 { grid-column: span 2; }
-            .field-label { font-size: 9px; color: #666; font-weight: bold; text-transform: uppercase; margin-bottom: 3px; }
-            .field-value { min-height: 20px; border-bottom: 1px dotted #ccc; }
-            .field-value.tall { min-height: 40px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-            table th { background: #f0f4f8; border: 1px solid #ccc; padding: 5px 6px; font-size: 9px; text-align: center; font-weight: bold; color: #000; }
-            table td { border: 1px solid #ccc; padding: 5px 6px; min-height: 22px; height: 22px; background: #fff; }
-            .table-title { font-size: 10px; font-weight: bold; color: #1e5a7a; margin-bottom: 4px; padding: 4px 8px; background: #f0f4f8; border: 1px solid #ccc; border-bottom: none; }
-            .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-            .signature-box { border: 1px solid #ccc; padding: 8px; text-align: center; background: #fff; }
-            .signature-box .label { font-size: 9px; color: #666; font-weight: bold; margin-bottom: 40px; }
-            @media print { body { padding: 10mm; } }
-          </style>
-        </head>
-        <body>
-          ${printRef.current.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 300);
+    window.print();
   };
 
   const renderField = (field: FieldConfig, index: number) => {
