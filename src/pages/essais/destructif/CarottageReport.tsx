@@ -114,7 +114,6 @@ const CarottageReport = () => {
 
         {/* Identification */}
         <div className="mb-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>

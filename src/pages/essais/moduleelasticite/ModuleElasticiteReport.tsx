@@ -91,7 +91,6 @@ const ModuleElasticiteReport = () => {
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI DE MODULE D'ÉLASTICITÉ" subtitle="Détermination du module d'élasticité en compression - Norme NF EN 12390-13" />
 
         <div className="mb-6 mt-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr><td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td><td className="border border-black px-3 py-1.5 text-black">ME-{String(echantillon.numero).padStart(3, "0")}</td></tr>

@@ -132,7 +132,6 @@ const TractionFendageReport = () => {
 
         {/* Identification de l'échantillon */}
         <div className="mb-4 mt-4" data-pdf-section>
-          <h3 className="font-bold text-sm mb-1 underline text-black">Identification de l'échantillon</h3>
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
