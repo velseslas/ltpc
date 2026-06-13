@@ -73,6 +73,10 @@ export default function CBRReport() {
   const colors = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b"];
 
   const handlePrint = () => window.print();
+  const handleDownloadPDF = async () => {
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(printRef.current, `rapport-cbr-${numero}`);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -93,8 +97,8 @@ export default function CBRReport() {
           </div>
           <div className="flex gap-2">
             <ShareButton />
-            <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handlePrint}>
-              <Download className="h-4 w-4 mr-2" />Télécharger
+            <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handleDownloadPDF}>
+              <Download className="h-4 w-4 mr-2" />Télécharger PDF
             </Button>
             <Button onClick={handlePrint} className="gradient-primary text-primary-foreground">
               <Printer className="h-4 w-4 mr-2" />Imprimer

@@ -217,26 +217,11 @@ export default function ChantierEchantillonBulletin() {
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    if (!bulletinRef.current) return;
-
-    const canvas = await html2canvas(bulletinRef.current, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    pdf.save(`bulletin-echantillonnage-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}.pdf`);
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(
+      bulletinRef.current,
+      `bulletin-echantillonnage-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`
+    );
   };
 
   const getAffaissementClass = (classe: string | null) => {

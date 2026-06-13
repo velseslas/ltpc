@@ -63,6 +63,10 @@ export default function TeneurEauSolReport() {
   ];
 
   const handlePrint = () => window.print();
+  const handleDownloadPDF = async () => {
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    await downloadReportAsPDF(printRef.current, `rapport-teneur-eau-${numero}`);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -83,8 +87,8 @@ export default function TeneurEauSolReport() {
           </div>
           <div className="flex gap-2">
             <ShareButton />
-            <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handlePrint}>
-              <Download className="h-4 w-4 mr-2" />Télécharger
+            <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handleDownloadPDF}>
+              <Download className="h-4 w-4 mr-2" />Télécharger PDF
             </Button>
             <Button onClick={handlePrint} className="gradient-primary text-primary-foreground">
               <Printer className="h-4 w-4 mr-2" />Imprimer

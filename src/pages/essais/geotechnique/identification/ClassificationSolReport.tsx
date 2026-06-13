@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { SOIL_SIEVES } from "@/components/essais/geotechnique/SoilClassificationGTR";
@@ -46,14 +47,11 @@ export default function ClassificationSolReport() {
   };
 
   const handleDownloadPDF = async () => {
-    const blob = await generatePdfBlob();
-    if (!blob || !echantillon) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `rapport-classification-sol-${prefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (!echantillon) return;
+    await downloadReportAsPDF(
+      reportRef.current,
+      `rapport-classification-sol-${prefix}-${String(echantillon.numero).padStart(3, "0")}`
+    );
   };
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

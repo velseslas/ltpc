@@ -7,8 +7,7 @@ import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 
@@ -35,19 +34,10 @@ const CarottageReport = () => {
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 3,
-      useCORS: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-    });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+    await downloadReportAsPDF(
+      reportRef.current,
+      `Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`
+    );
   };
 
   if (isLoading) {

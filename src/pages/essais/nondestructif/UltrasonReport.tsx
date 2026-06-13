@@ -9,8 +9,7 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { toast } from "sonner";
 
 const getQualite = (v: number) => {
@@ -32,15 +31,11 @@ const UltrasonReport = () => {
   const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
     try {
-      const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true, logging: false });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save(`rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}.pdf`);
+      await downloadReportAsPDF(
+        reportRef.current,
+        `rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}`
+      );
       toast.success("PDF téléchargé avec succès");
     } catch {
       toast.error("Erreur lors de la génération du PDF");
