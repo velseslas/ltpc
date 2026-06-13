@@ -217,29 +217,6 @@ const SamplingBulletin = () => {
     window.print();
   };
 
-  const generatePdfBlob = async (): Promise<Blob | null> => {
-    if (!bulletinRef.current) return null;
-
-    const canvas = await html2canvas(bulletinRef.current, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    return pdf.output("blob");
-  };
-
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
     downloadReportAsPDF(`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}`);
