@@ -545,7 +545,7 @@ const CompressionReport = () => {
 
           {/* Caractéristiques techniques */}
           <div className="mb-6">
-            <table className="w-full border-collapse border border-black text-sm">
+            <table className="w-full border-collapse text-sm" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de Résistance</th>
