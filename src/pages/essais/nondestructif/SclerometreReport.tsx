@@ -76,7 +76,7 @@ const SclerometreReport = () => {
         </div>
       </div>
 
-      <div ref={reportRef} className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={reportRef} data-ref="report" className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI AU SCLÉROMÈTRE" subtitle="Norme NF EN 12504-2" />
 
         {/* Identification */}
