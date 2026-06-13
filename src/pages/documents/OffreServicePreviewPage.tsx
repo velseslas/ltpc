@@ -13,8 +13,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
@@ -104,58 +103,10 @@ const OffreServicePreviewPage = () => {
       );
     });
   };
+  const handlePrint = () => window.print();
 
-  const handlePrint = () => {
-    const printContent = reportRef.current;
-    if (!printContent) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html><head><title>${offre.titre}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', serif; }
-        @page { size: A4; margin: 15mm; }
-        .page-break { page-break-before: always; }
-      </style>
-      </head><body>${printContent.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.print();
-      printWindow.close();
-    };
-  };
-
-  const handleDownload = async () => {
-    if (!reportRef.current) return;
-    try {
-      const pages = Array.from(reportRef.current.querySelectorAll("[data-pdf-page]")) as HTMLElement[];
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const contentW = pdfW - margin * 2;
-
-      for (let i = 0; i < pages.length; i++) {
-        if (i > 0) pdf.addPage();
-        const canvas = await html2canvas(pages[i], {
-          scale: 3,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        });
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
-        const ratio = contentW / (canvas.width / 3);
-        const imgH = (canvas.height / 3) * ratio;
-        pdf.addImage(imgData, "JPEG", margin, margin, contentW, Math.min(imgH, pdfH - margin * 2));
-      }
-
-      pdf.save(`${offre.titre || "offre-de-service"}.pdf`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors du téléchargement");
-    }
+  const handleDownload = () => {
+    downloadReportAsPDF(offre.titre || "offre-de-service");
   };
 
   const handleShare = async () => {
@@ -178,15 +129,17 @@ const OffreServicePreviewPage = () => {
 
   return (
     <>
-      <AppBreadcrumb
-        items={[
-          { label: "Documents", path: "/documents" },
-          { label: "Offres de service", path: "/documents/offres-service" },
-          { label: offre.titre },
-        ]}
-      />
+      <div className="print:hidden">
+        <AppBreadcrumb
+          items={[
+            { label: "Documents", path: "/documents" },
+            { label: "Offres de service", path: "/documents/offres-service" },
+            { label: offre.titre },
+          ]}
+        />
+      </div>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 print:hidden">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -248,8 +201,8 @@ const OffreServicePreviewPage = () => {
         </div>
       </div>
 
-      <div className="bg-secondary/30 rounded-xl p-4 sm:p-6">
-        <div ref={reportRef} className="mx-auto flex flex-col gap-8" style={{ maxWidth: "800px", width: "100%" }}>
+      <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
+        <div ref={reportRef} data-ref="report" className="mx-auto flex flex-col gap-8" style={{ maxWidth: "800px", width: "100%" }}>
           {/* ============ PAGE 1 : PAGE DE GARDE ============ */}
           <div
             data-pdf-page

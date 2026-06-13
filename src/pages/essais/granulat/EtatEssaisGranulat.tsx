@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,8 +10,6 @@ import { ArrowLeft, Printer, Download, CalendarIcon, Loader2, ListFilter } from 
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useCarrieres } from "@/hooks/useCarrieres";
@@ -92,42 +91,7 @@ export default function EtatEssaisGranulat() {
   const handlePrint = () => window.print();
 
   const handleDownload = async () => {
-    if (!reportRef.current) return;
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 3,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 5;
-    const availableWidth = pageWidth - margin * 2;
-    const imgRatio = canvas.height / canvas.width;
-    const imgHeight = availableWidth * imgRatio;
-
-    if (imgHeight <= pageHeight - margin * 2) {
-      pdf.addImage(imgData, "PNG", margin, margin, availableWidth, imgHeight);
-    } else {
-      let yOffset = 0;
-      const sliceHeight = ((pageHeight - margin * 2) / imgHeight) * canvas.height;
-      while (yOffset < canvas.height) {
-        const sliceCanvas = document.createElement("canvas");
-        sliceCanvas.width = canvas.width;
-        sliceCanvas.height = Math.min(sliceHeight, canvas.height - yOffset);
-        const ctx = sliceCanvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
-          const sliceData = sliceCanvas.toDataURL("image/png");
-          if (yOffset > 0) pdf.addPage();
-          const h = (sliceCanvas.height / canvas.width) * availableWidth;
-          pdf.addImage(sliceData, "PNG", margin, margin, availableWidth, h);
-        }
-        yOffset += sliceHeight;
-      }
-    }
-    pdf.save(`etat-essais-${essaiType}.pdf`);
+    downloadReportAsPDF(`etat-essais-${essaiType}`);
   };
 
   const selectedClient = clients?.find(c => c.id === clientFilter);

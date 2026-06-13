@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer, Loader2 } from "lucide-react";

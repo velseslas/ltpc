@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { Plus, Trash2, Gauge, Pencil, MoreHorizontal, Eye, History, Search, ClipboardList, Printer, Download, X, Filter, FileText } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -29,8 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 import { AdminOnly } from "@/components/common/AdminOnly";
 
@@ -87,31 +86,11 @@ export default function MaterielEtalonnage() {
   };
 
   const handlePrintReport = () => {
-    const content = reportRef.current;
-    if (!content) return;
-    const w = window.open("", "_blank");
-    if (!w) { toast.error("Veuillez autoriser les popups"); return; }
-    w.document.write(`<html><head><title>Liste des étalonnages</title>
-      <style>body{font-family:Arial,sans-serif;margin:20px;color:#111}table{width:100%;border-collapse:collapse;margin-top:12px;font-size:11px}th,td{border:1px solid #444;padding:6px 8px;text-align:left}th{background:#f1f5f9;font-weight:600}@page{size:landscape;margin:10mm}</style>
-      </head><body>${content.innerHTML}</body></html>`);
-    w.document.close();
-    setTimeout(() => { w.print(); w.close(); }, 400);
+    window.print();
   };
 
   const handleDownloadReport = async () => {
-    const content = reportRef.current;
-    if (!content) return;
-    toast.info("Génération du PDF...");
-    try {
-      const canvas = await html2canvas(content, { scale: 2, backgroundColor: "#fff", useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = (canvas.height * pdfW) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
-      pdf.save(`liste-etalonnages-${format(new Date(), "yyyy-MM-dd")}.pdf`);
-      toast.success("PDF téléchargé");
-    } catch { toast.error("Erreur lors de la génération du PDF"); }
+    downloadReportAsPDF(`liste-etalonnages-${format(new Date(), "yyyy-MM-dd")}`);
   };
 
   const handleDelete = async () => {

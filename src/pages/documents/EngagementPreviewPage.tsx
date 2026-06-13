@@ -10,8 +10,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
@@ -93,56 +92,10 @@ const EngagementPreviewPage = () => {
     });
   };
 
-  const handlePrint = () => {
-    const printContent = reportRef.current;
-    if (!printContent) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html><head><title>${engagement.titre}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', serif; }
-        @page { size: A4; margin: 15mm; }
-        .page-break { page-break-before: always; }
-      </style>
-      </head><body>${printContent.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.onload = () => { printWindow.print(); printWindow.close(); };
-  };
+  const handlePrint = () => window.print();
 
-  const handleDownload = async () => {
-    if (!reportRef.current) return;
-    try {
-      const pages = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-page]")
-      ) as HTMLElement[];
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const contentW = pdfW - margin * 2;
-
-      for (let i = 0; i < pages.length; i++) {
-        if (i > 0) pdf.addPage();
-        const canvas = await html2canvas(pages[i], {
-          scale: 3,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        });
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
-        const ratio = contentW / (canvas.width / 3);
-        const imgH = (canvas.height / 3) * ratio;
-        pdf.addImage(imgData, "JPEG", margin, margin, contentW, Math.min(imgH, pdfH - margin * 2));
-      }
-
-      pdf.save(`${engagement.titre || "engagement"}.pdf`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors du téléchargement");
-    }
+  const handleDownload = () => {
+    downloadReportAsPDF(engagement.titre || "engagement");
   };
 
   const handleShare = async () => {
@@ -161,14 +114,16 @@ const EngagementPreviewPage = () => {
 
   return (
     <>
-      <AppBreadcrumb items={[
-        { label: "Documents", path: "/documents" },
-        { label: "Lettres d'engagement", path: "/documents/lettres-engagement" },
-        { label: engagement.titre },
-      ]} />
+      <div className="print:hidden">
+        <AppBreadcrumb items={[
+          { label: "Documents", path: "/documents" },
+          { label: "Lettres d'engagement", path: "/documents/lettres-engagement" },
+          { label: engagement.titre },
+        ]} />
+      </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 print:hidden">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/documents/lettres-engagement")}>
             <ArrowLeft className="w-4 h-4" />
@@ -204,9 +159,10 @@ const EngagementPreviewPage = () => {
       </div>
 
       {/* Engagement content */}
-      <div className="bg-secondary/30 rounded-xl p-4 sm:p-6">
+      <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
         <div
           ref={reportRef}
+          data-ref="report"
           className="mx-auto flex flex-col gap-8"
           style={{ maxWidth: "800px", width: "100%" }}
         >

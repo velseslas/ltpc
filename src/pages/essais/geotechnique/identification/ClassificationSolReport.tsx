@@ -8,8 +8,6 @@ import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchanti
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { downloadReportAsPDF } from "@/lib/pdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -35,16 +33,7 @@ export default function ClassificationSolReport() {
 
   const handlePrint = () => window.print();
 
-  const generatePdfBlob = async (): Promise<Blob | null> => {
-    if (!reportRef.current || !echantillon) return null;
-    const canvas = await html2canvas(reportRef.current, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    return pdf.output("blob");
-  };
+
 
   const handleDownloadPDF = async () => {
     if (!echantillon) return;
@@ -76,7 +65,7 @@ export default function ClassificationSolReport() {
                 <p className="text-muted-foreground text-sm">Classification des Sols</p>
               </div>
               <div className="flex gap-3">
-                <ShareButton onGeneratePdf={generatePdfBlob} fileName={`rapport-classification-sol-${numero}.pdf`} />
+                <ShareButton fileName={`rapport-classification-sol-${numero}.pdf`} />
                 <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
                 <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
               </div>

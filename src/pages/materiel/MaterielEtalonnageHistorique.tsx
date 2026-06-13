@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { Gauge, Printer, Download } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,6 @@ import { useEtalonnageMateriel } from "@/hooks/useMaterielLaboratoire";
 import { format, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 
 export default function MaterielEtalonnageHistorique() {
@@ -38,14 +37,7 @@ export default function MaterielEtalonnageHistorique() {
   const handlePrint = () => window.print();
 
   const handleDownload = async () => {
-    if (!printRef.current) return;
-    const canvas = await html2canvas(printRef.current, { scale: 2, backgroundColor: "#ffffff" });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("l", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`historique-etalonnages-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    downloadReportAsPDF(`historique-etalonnages-${format(new Date(), "yyyy-MM-dd")}`);
   };
 
   const totalConformes = data?.filter((e: any) => e.resultat === "conforme").length || 0;

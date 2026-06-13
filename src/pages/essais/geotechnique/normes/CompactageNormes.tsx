@@ -1,10 +1,10 @@
 import { ArrowLeft, Printer, Download, ChevronDown, FileText, Target, Settings, ListOrdered, Calculator, ClipboardList } from "lucide-react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
-import jsPDF from "jspdf";
 import FeuilleEssaiDialog from "@/components/essais/FeuilleEssaiDialog";
 
 interface NormeData {
@@ -120,24 +120,23 @@ const normesData: NormeData[] = [
 const CompactageNormes = () => {
   const navigate = useNavigate();
   const [openItems, setOpenItems] = useState<string[]>([]);
+  const [printingNormeId, setPrintingNormeId] = useState<string | null>(null);
   const [feuilleNorme, setFeuilleNorme] = useState<NormeData | null>(null);
   const toggleItem = (id: string) => setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
 
   const handlePrint = (norme: NormeData) => {
-    const printContent = `<!DOCTYPE html><html><head><title>${norme.title} - ${norme.normeNumber}</title><style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.6}h1{color:#1a365d;border-bottom:2px solid #0284c7;padding-bottom:10px}.section{margin:20px 0;padding:15px;background:#f0f9ff;border-radius:8px}.section-title{font-weight:bold;color:#2d3748;margin-bottom:10px;display:flex;align-items:center;gap:8px}.section-number{background:#0284c7;color:white;padding:2px 8px;border-radius:4px;font-size:12px}ul,ol{margin:10px 0;padding-left:25px}li{margin:8px 0}.header{display:flex;justify-content:space-between;margin-bottom:30px}.norme-badge{background:#f0f9ff;color:#0369a1;padding:5px 15px;border-radius:20px;font-weight:bold}</style></head><body><div class="header"><h1>${norme.title}</h1><span class="norme-badge">${norme.normeNumber}</span></div><div class="section"><div class="section-title"><span class="section-number">1</span> Domaine d'application</div><p>${norme.domaine}</p></div><div class="section"><div class="section-title"><span class="section-number">2</span> Principe</div><p>${norme.principe}</p></div><div class="section"><div class="section-title"><span class="section-number">3</span> Appareillage</div><ul>${norme.appareillage.map(i=>`<li>${i}</li>`).join('')}</ul></div><div class="section"><div class="section-title"><span class="section-number">4</span> Mode opératoire</div><ol>${norme.modeOperatoire.map(s=>`<li>${s}</li>`).join('')}</ol></div><div class="section"><div class="section-title"><span class="section-number">5</span> Expression des résultats</div><p>${norme.expression}</p></div></body></html>`;
-    const w = window.open('','_blank'); if(w){w.document.write(printContent);w.document.close();w.print();}
+    setOpenItems(prev => prev.includes(norme.id) ? prev : [...prev, norme.id]);
+    setPrintingNormeId(norme.id);
+    setTimeout(() => { window.print(); setPrintingNormeId(null); }, 100);
   };
 
   const handleDownloadPDF = (norme: NormeData) => {
-    const pdf = new jsPDF(); const margin = 20; const maxWidth = pdf.internal.pageSize.getWidth()-2*margin; let y = 20;
-    pdf.setFontSize(18);pdf.setTextColor(2,132,199);pdf.text(norme.title,margin,y);y+=10;
-    pdf.setFontSize(12);pdf.setTextColor(3,105,161);pdf.text(norme.normeNumber,margin,y);y+=15;
-    const addSection = (num:string,title:string,content:string|string[],isList=false) => {
-      if(y>250){pdf.addPage();y=20;}pdf.setFontSize(12);pdf.setTextColor(45,55,72);pdf.setFont("helvetica","bold");pdf.text(`${num}. ${title}`,margin,y);y+=8;pdf.setFont("helvetica","normal");pdf.setFontSize(10);pdf.setTextColor(74,85,104);
-      if(isList&&Array.isArray(content)){content.forEach((item,i)=>{if(y>270){pdf.addPage();y=20;}const lines=pdf.splitTextToSize(`${i+1}. ${item}`,maxWidth-10);pdf.text(lines,margin+5,y);y+=lines.length*5+3;});}else{const lines=pdf.splitTextToSize(content as string,maxWidth);lines.forEach((line:string)=>{if(y>270){pdf.addPage();y=20;}pdf.text(line,margin,y);y+=6;});}y+=8;
-    };
-    addSection("1","Domaine d'application",norme.domaine);addSection("2","Principe",norme.principe);addSection("3","Appareillage",norme.appareillage,true);addSection("4","Mode opératoire",norme.modeOperatoire,true);addSection("5","Expression des résultats",norme.expression);
-    pdf.save(`${norme.normeNumber.replace(/\s/g,'_')}_${norme.id}.pdf`);
+    setOpenItems(prev => prev.includes(norme.id) ? prev : [...prev, norme.id]);
+    setPrintingNormeId(norme.id);
+    setTimeout(() => {
+      downloadReportAsPDF(`${norme.normeNumber.replace(/\s+/g, '_')}_${norme.id}`);
+      setPrintingNormeId(null);
+    }, 100);
   };
 
   return (
@@ -153,7 +152,7 @@ const CompactageNormes = () => {
       <div className="space-y-4">
         {normesData.map((norme) => (
           <Collapsible key={norme.id} open={openItems.includes(norme.id)} onOpenChange={() => toggleItem(norme.id)}>
-            <div className="border border-border/50 rounded-xl bg-card overflow-hidden">
+            <div data-ref={printingNormeId === norme.id ? "report" : undefined} className="border border-border/50 rounded-xl bg-card overflow-hidden">
               <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500/20 to-blue-500/10 flex items-center justify-center"><FileText className="h-6 w-6 text-sky-500" /></div>

@@ -6,8 +6,7 @@ import { toast } from "sonner";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { downloadReportAsPDF } from "@/lib/pdf";
 
 interface ContratPreviewDialogProps {
   open: boolean;
@@ -44,62 +43,10 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
   const labName = entreprise?.nom || "LTPC BENMALEK";
   const labSiege = entreprise?.siege_social || "Ain Ebey Constantine";
 
-  const handlePrint = () => {
-    const printContent = reportRef.current;
-    if (!printContent) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html><head><title>${contrat.titre}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', serif; }
-        @page { size: A4; margin: 15mm; }
-      </style>
-      </head><body>${printContent.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.onload = () => { printWindow.print(); printWindow.close(); };
-  };
+  const handlePrint = () => window.print();
 
-  const handleDownload = async () => {
-    if (!reportRef.current) return;
-    try {
-      const sections = Array.from(
-        reportRef.current.querySelectorAll("[data-pdf-section]")
-      ) as HTMLElement[];
-
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const contentW = pdfW - margin * 2;
-      let currentY = margin;
-
-      for (let i = 0; i < sections.length; i++) {
-        const canvas = await html2canvas(sections[i], {
-          scale: 3,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        });
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
-        const ratio = contentW / (canvas.width / 3);
-        const imgH = (canvas.height / 3) * ratio;
-
-        if (currentY + imgH > pdfH - margin && currentY > margin) {
-          pdf.addPage();
-          currentY = margin;
-        }
-
-        pdf.addImage(imgData, "JPEG", margin, currentY, contentW, imgH);
-        currentY += imgH + 2;
-      }
-
-      pdf.save(`${contrat.titre || "contrat"}.pdf`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors du téléchargement");
-    }
+  const handleDownload = () => {
+    downloadReportAsPDF(contrat.titre || "contrat");
   };
 
   const handleShare = async () => {
@@ -149,6 +96,7 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
         <div className="flex-1 overflow-auto bg-secondary/30 p-4 sm:p-6">
           <div
             ref={reportRef}
+            data-ref="report"
             className="bg-white text-black shadow-xl mx-auto"
             style={{
               maxWidth: "800px",

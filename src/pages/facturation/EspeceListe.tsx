@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Banknote, Eye, Search, FileBarChart, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,17 +47,7 @@ export default function EspeceListe() {
   };
 
   const handlePrintPreview = () => {
-    if (!previewUrl) return;
-    const w = window.open("", "_blank");
-    if (!w) return;
-    const isPdf = previewUrl.toLowerCase().endsWith(".pdf");
-    if (isPdf) {
-      w.location.href = previewUrl;
-    } else {
-      w.document.write(`<html><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f5f5f5"><img src="${previewUrl}" style="max-width:100%;max-height:100vh" /></body></html>`);
-      w.document.close();
-      w.print();
-    }
+    window.print();
   };
 
   const handleDownloadPreview = () => {

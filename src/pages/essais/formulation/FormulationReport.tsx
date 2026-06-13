@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useParams } from "react-router-dom";
@@ -7,8 +8,6 @@ import { fr } from "date-fns/locale";
 import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
@@ -293,108 +292,7 @@ export default function FormulationReport() {
 
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) {
-      toast.error("Rapport introuvable");
-      return;
-    }
-    const loadingId = toast.loading("Génération du PDF en cours…");
-
-    // Helper : timeout pour ne jamais rester bloqué sur une page
-    const withTimeout = <T,>(p: Promise<T>, ms: number, label: string): Promise<T> =>
-      Promise.race([
-        p,
-        new Promise<T>((_, rej) => setTimeout(() => rej(new Error(`Timeout ${label}`)), ms)),
-      ]);
-
-    try {
-      applyUniformReportTableStyles(reportRef.current);
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageWidthMm = 210;
-      const pageHeightMm = 297;
-      const pages = Array.from(
-        reportRef.current.querySelectorAll<HTMLDivElement>(".report-page")
-      );
-      if (pages.length === 0) {
-        toast.dismiss(loadingId);
-        toast.error("Aucune page à exporter");
-        return;
-      }
-
-      let added = 0;
-      let failed = 0;
-
-      for (let i = 0; i < pages.length; i++) {
-        const el = pages[i];
-        try {
-          const w = el.offsetWidth || el.scrollWidth;
-          const h = el.offsetHeight || el.scrollHeight;
-          if (!w || !h) {
-            console.warn(`[PDF] Page ${i + 1} ignorée (dimensions 0)`);
-            failed++;
-            continue;
-          }
-
-          // Mise à jour visuelle de la progression
-          toast.loading(`Génération PDF… page ${i + 1}/${pages.length}`, { id: loadingId });
-
-          const canvas = await withTimeout(
-            html2canvas(el, {
-              scale: 1,
-              useCORS: true,
-              allowTaint: true,
-              logging: false,
-              backgroundColor: "#ffffff",
-              imageTimeout: 15000,
-              removeContainer: true,
-              onclone: (doc) => {
-                const clonedPage = doc.body.querySelectorAll<HTMLElement>(".report-page")[i];
-                if (clonedPage) applyUniformReportTableStyles(clonedPage);
-              },
-            }),
-            60000,
-            `page ${i + 1}`
-          );
-
-          const imgData = canvas.toDataURL("image/jpeg", 0.85);
-          const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
-          const finalHeight = Math.min(imgHeightMm, pageHeightMm);
-          if (added > 0) pdf.addPage();
-          pdf.addImage(imgData, "JPEG", 0, 0, pageWidthMm, finalHeight);
-          added++;
-          // Yield au navigateur pour libérer la mémoire entre pages
-          await new Promise((r) => setTimeout(r, 100));
-        } catch (pageErr: any) {
-          console.error(`[PDF] Erreur page ${i + 1}:`, pageErr?.message || pageErr);
-          failed++;
-          // Continue malgré l'erreur sur une page
-          await new Promise((r) => setTimeout(r, 50));
-        }
-      }
-
-      if (added === 0) throw new Error("Aucune page n'a pu être rendue");
-
-      // Téléchargement robuste : blob + lien <a> (évite blocages de pdf.save)
-      const blob = pdf.output("blob");
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `formulation-${formulation?.nom || id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-      toast.dismiss(loadingId);
-      if (failed > 0) {
-        toast.warning(`PDF téléchargé (${added} page(s), ${failed} ignorée(s))`);
-      } else {
-        toast.success("PDF téléchargé avec succès");
-      }
-    } catch (e: any) {
-      console.error("[PDF] Échec génération:", e);
-      toast.dismiss(loadingId);
-      toast.error(`Erreur PDF : ${e?.message || "inconnue"}`);
-    }
+    downloadReportAsPDF("document");
   };
 
   if (isLoading) {

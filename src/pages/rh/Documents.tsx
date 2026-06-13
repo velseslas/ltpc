@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { downloadReportAsPDF } from "@/lib/pdf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,8 +53,6 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { AdminOnly } from "@/components/common/AdminOnly";
 
 const typesDocument = [
@@ -143,69 +142,11 @@ export default function Documents() {
   };
 
   const handlePrint = () => {
-    if (documentRef.current) {
-      const printContent = documentRef.current.innerHTML;
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Document</title>
-              <style>
-                body { margin: 0; padding: 0; font-family: "Times New Roman", serif; }
-                @page { size: A4; margin: 0; }
-                @media print {
-                  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                }
-              </style>
-            </head>
-            <body>${printContent}</body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-          printWindow.print();
-          printWindow.close();
-        }, 250);
-      }
-    }
+    window.print();
   };
 
   const handleDownload = async () => {
-    if (documentRef.current) {
-      try {
-        const canvas = await html2canvas(documentRef.current, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        });
-        
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: "a4",
-        });
-        
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 0;
-        
-        pdf.addImage(imgData, "PNG", imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-        pdf.save(`${selectedDocument?.type_document || "document"}_${selectedIntervenant?.nom || "employe"}.pdf`);
-        
-        toast.success("Document PDF téléchargé");
-      } catch (error) {
-        toast.error("Erreur lors du téléchargement");
-        console.error(error);
-      }
-    }
+    downloadReportAsPDF(`${selectedDocument?.type_document || "document"}_${selectedIntervenant?.nom || "employe"}`);
   };
 
   const handleOpenEmailDialog = () => {
