@@ -240,9 +240,9 @@
 
 #root .report-table .formulation-table th,
 #root .report-table .formulation-table td {
-  padding: 4px !important;
-  font-size: 8px !important;
-  line-height: 1.15 !important;
+  padding: 6px !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
 }
 
 @media print {
