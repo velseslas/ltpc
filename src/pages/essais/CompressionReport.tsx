@@ -420,13 +420,13 @@ const CompressionReport = () => {
       <div 
         ref={reportRef}
         data-ref="report"
-        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible"
+        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible bg-white"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         {/* ============ RAPPORT DÉTAILLÉ ============ */}
         <div
           data-pdf-page
-          className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:rounded-none"
+          className="bg-white text-black p-4 rounded-lg shadow-lg print:shadow-none print:rounded-none"
         >
           <div data-pdf-content>
             <ReportHeader
