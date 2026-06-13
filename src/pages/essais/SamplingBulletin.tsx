@@ -642,19 +642,19 @@ const SamplingBulletin = () => {
             top: 0;
             width: 210mm;
             min-height: 0 !important;
-            padding: 4mm !important;
-            font-size: 9px !important;
+            padding: 5mm !important;
+            font-size: 9.5px !important;
             page-break-after: avoid;
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          #bulletin-content .mb-3 { margin-bottom: 10px !important; }
-          #bulletin-content .mb-4 { margin-bottom: 12px !important; }
-          #bulletin-content .py-2 { padding-top: 4px !important; padding-bottom: 4px !important; }
-          #bulletin-content .py-1 { padding-top: 3px !important; padding-bottom: 3px !important; }
-          #bulletin-content .p-3 { padding: 8px !important; }
-          #bulletin-content .h-16 { height: 44px !important; }
-          #bulletin-content .h-10 { height: 36px !important; }
+          #bulletin-content .mb-3 { margin-bottom: 14px !important; }
+          #bulletin-content .mb-4 { margin-bottom: 18px !important; }
+          #bulletin-content .py-2 { padding-top: 6px !important; padding-bottom: 6px !important; }
+          #bulletin-content .py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+          #bulletin-content .p-3 { padding: 10px !important; }
+          #bulletin-content .h-16 { height: 52px !important; }
+          #bulletin-content .h-10 { height: 40px !important; }
         }
       `}</style>
 
