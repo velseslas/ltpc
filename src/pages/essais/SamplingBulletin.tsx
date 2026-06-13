@@ -353,9 +353,10 @@ const SamplingBulletin = () => {
       <div className="flex justify-center">
         <div 
           ref={bulletinRef}
+          id="bulletin-content"
           data-ref="report"
-          className="bg-white p-6 w-[210mm] min-h-[297mm] text-black print:p-0 print:shadow-none shadow-lg"
-          style={{ fontFamily: "Arial, sans-serif", fontSize: "11px" }}
+          className="bg-white p-4 w-[210mm] min-h-[297mm] text-black print:p-2 print:shadow-none shadow-lg"
+          style={{ fontFamily: "Arial, sans-serif", fontSize: "10px" }}
         >
             {/* Title in bordered box */}
             <div className="border border-black mb-3">
