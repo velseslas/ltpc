@@ -49,7 +49,7 @@ const TractionFendageReport = () => {
       const AVAILABLE_HEIGHT_MM = A4_HEIGHT_MM - MARGIN_MM * 2;
 
       const canvas = await html2canvas(reportRef.current, {
-        scale: 3,
+        scale: 1,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
