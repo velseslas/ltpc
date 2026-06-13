@@ -312,12 +312,8 @@ const CompressionReport = () => {
     requestAnimationFrame(() => window.print());
   };
 
-  // "Télécharger PDF" et "Imprimer" ouvrent la page dédiée /print
-  // qui est la SEULE source de vérité pour le PDF (A4 strict, non responsive).
-  const handleDownloadPDF = () => {
-    if (!id) return;
-    window.open(`/reports/compression/${id}/print`, "_blank", "noopener");
-  };
+  // Imprime directement la page courante (le navigateur permet "Enregistrer en PDF").
+  const handleDownloadPDF = handlePrint;
 
   // Auto-print lorsqu'on est sur la route /print
   useEffect(() => {
