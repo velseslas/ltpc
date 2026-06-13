@@ -278,10 +278,7 @@ export default function ChantierEchantillonReport() {
 
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(
-      reportRef.current,
-      `rapport-compression-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`
-    );
+    downloadReportAsPDF(`rapport-compression-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`);
   };
 
   const results = calculateResults();

@@ -89,7 +89,7 @@ export default function GranulometrieSolReport() {
             onClick={async () => {
               const el = document.querySelector<HTMLElement>('[data-ref="report"]');
               const { downloadReportAsPDF } = await import("@/lib/pdf");
-              await downloadReportAsPDF(el, `rapport-granulometrie-sol-${numero}`);
+              downloadReportAsPDF(`rapport-granulometrie-sol-${numero}`);
             }}
           >
             <Download className="h-4 w-4 mr-2" />Télécharger PDF

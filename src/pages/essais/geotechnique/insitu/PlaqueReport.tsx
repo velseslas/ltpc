@@ -59,7 +59,7 @@ export default function PlaqueReport() {
   const handlePrint = () => window.print();
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(printRef.current, `rapport-plaque-${numero}`);
+    downloadReportAsPDF(`rapport-plaque-${numero}`);
   };
 
   return (

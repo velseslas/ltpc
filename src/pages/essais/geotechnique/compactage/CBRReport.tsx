@@ -75,7 +75,7 @@ export default function CBRReport() {
   const handlePrint = () => window.print();
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(printRef.current, `rapport-cbr-${numero}`);
+    downloadReportAsPDF(`rapport-cbr-${numero}`);
   };
 
   return (

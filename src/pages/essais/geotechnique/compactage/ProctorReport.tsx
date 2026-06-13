@@ -72,7 +72,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
   const handlePrint = () => window.print();
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(printRef.current, `rapport-${essaiType}-${numero}`);
+    downloadReportAsPDF(`rapport-${essaiType}-${numero}`);
   };
 
   return (

@@ -32,10 +32,7 @@ const UltrasonReport = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await downloadReportAsPDF(
-        reportRef.current,
-        `rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}`
-      );
+      downloadReportAsPDF(`rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}`);
       toast.success("PDF téléchargé avec succès");
     } catch {
       toast.error("Erreur lors de la génération du PDF");

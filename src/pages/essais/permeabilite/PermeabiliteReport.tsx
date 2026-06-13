@@ -34,7 +34,7 @@ const PermeabiliteReport = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await downloadReportAsPDF(reportRef.current, `rapport-PE-${echantillon?.numero}`);
+      downloadReportAsPDF(`rapport-PE-${echantillon?.numero}`);
       toast.success("PDF téléchargé avec succès");
     } catch {
       toast.error("Erreur lors de la génération du PDF");

@@ -65,7 +65,7 @@ export default function TeneurEauSolReport() {
   const handlePrint = () => window.print();
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(printRef.current, `rapport-teneur-eau-${numero}`);
+    downloadReportAsPDF(`rapport-teneur-eau-${numero}`);
   };
 
   return (

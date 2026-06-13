@@ -244,10 +244,7 @@ const SamplingBulletin = () => {
 
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(
-      bulletinRef.current,
-      `bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}`
-    );
+    downloadReportAsPDF(`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}`);
   };
 
   const getModeCoulageDisplay = (mode: string | null) => {

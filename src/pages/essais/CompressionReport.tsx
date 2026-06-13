@@ -316,10 +316,7 @@ const CompressionReport = () => {
     if (!reportRef.current) return;
     await waitForReportAssets(reportRef.current);
     const { downloadReportAsPDF } = await import("@/lib/pdf");
-    await downloadReportAsPDF(
-      reportRef.current,
-      `rapport-compression-${String(echantillon?.numero ?? "").padStart(3, "0")}`
-    );
+    downloadReportAsPDF(`rapport-compression-${String(echantillon?.numero ?? "").padStart(3, "0")}`);
   };
 
   // Auto-print lorsqu'on est sur la route /print

@@ -24,10 +24,7 @@ const SclerometreReport = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      await downloadReportAsPDF(
-        reportRef.current,
-        `rapport-sclerometre-SC-${String(echantillon?.numero).padStart(3, "0")}`
-      );
+      downloadReportAsPDF(`rapport-sclerometre-SC-${String(echantillon?.numero).padStart(3, "0")}`);
       toast.success("PDF téléchargé avec succès");
     } catch {
       toast.error("Erreur lors de la génération du PDF");

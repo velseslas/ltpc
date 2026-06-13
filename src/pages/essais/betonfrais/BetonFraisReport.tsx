@@ -68,7 +68,7 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
 
   const handleDownloadPDF = async () => {
     try {
-      await downloadReportAsPDF(reportRef.current, `rapport-${prefix}-${echantillon?.numero}`);
+      downloadReportAsPDF(`rapport-${prefix}-${echantillon?.numero}`);
       toast.success("PDF téléchargé avec succès");
     } catch (error) {
       toast.error("Erreur lors de la génération du PDF");
