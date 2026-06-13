@@ -440,9 +440,7 @@ const CompressionReport = () => {
 
 
           {/* Identification de l'échantillon */}
-          {/* Identification de l'échantillon */}
           <div className="mb-6">
-            <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'échantillon</h3>
             <table className="identification-table w-full border-collapse text-sm" style={{ borderSpacing: 0 }}>
               <tbody>
                 <tr>
@@ -571,7 +569,6 @@ const CompressionReport = () => {
 
           {/* Résultats des essais */}
           <div className="mb-6">
-            <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des essais</h3>
             <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
