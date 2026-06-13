@@ -33,16 +33,7 @@ export default function ClassificationSolReport() {
 
   const handlePrint = () => window.print();
 
-  const generatePdfBlob = async (): Promise<Blob | null> => {
-    if (!reportRef.current || !echantillon) return null;
-    const canvas = await html2canvas(reportRef.current, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    return pdf.output("blob");
-  };
+
 
   const handleDownloadPDF = async () => {
     if (!echantillon) return;
