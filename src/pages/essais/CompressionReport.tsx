@@ -495,7 +495,7 @@ const CompressionReport = () => {
               <span className="mx-4">|</span>
               <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
             </div>
-            <table className="w-full border-collapse border border-black formulation-table">
+            <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Ciment</th>
