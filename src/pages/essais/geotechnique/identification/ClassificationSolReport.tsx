@@ -91,7 +91,7 @@ export default function ClassificationSolReport() {
       </div>
 
       {/* Rapport */}
-      <div ref={reportRef} className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={reportRef} data-ref="report" className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI - CLASSIFICATION DES SOLS" subtitle="NF P 11-300 (GTR) / ASTM D2487 (USCS)" />
 
         {/* Infos échantillon */}
