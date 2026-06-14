@@ -13,15 +13,17 @@ import { ReportHeader } from "@/components/reports/ReportHeader";
 
 interface CarotteResult {
   reference: string;
-  longueur_avant: string;
-  longueur_apres: string;
-  diametre: string;
-  masse: string;
+  hauteur_L: string;
+  diametre_D: string;
+  elancement: string;
+  k_ld: string;
+  poids: string;
+  volume: string;
   masse_volumique: string;
-  charge_rupture: string;
+  charge: string;
+  section: string;
   resistance: string;
-  type_rupture: string;
-  observations: string;
+  resistance_corrigee: string;
 }
 
 const CarottageReport = () => {
@@ -58,10 +60,14 @@ const CarottageReport = () => {
 
   const verificationUrl = `${window.location.origin}/essais/beton/destructif/carottage/${id}/rapport`;
 
-  // Calculate average resistance
+  // Calculate average resistance (brute et corrigée)
   const resistances = results.map(r => parseFloat(r.resistance)).filter(v => !isNaN(v) && v > 0);
   const moyenneRc = resistances.length > 0
     ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+    : "—";
+  const resistancesCorr = results.map(r => parseFloat(r.resistance_corrigee)).filter(v => !isNaN(v) && v > 0);
+  const moyenneRcCorr = resistancesCorr.length > 0
+    ? (resistancesCorr.reduce((a, b) => a + b, 0) / resistancesCorr.length).toFixed(2)
     : "—";
 
   return (
@@ -182,55 +188,72 @@ const CarottageReport = () => {
         {/* Résultats */}
         <div className="mb-6">
           <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des essais sur carottes</h3>
-          <table className="w-full border-collapse border border-black">
+          <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-black text-[10px]">
             <thead>
               <tr>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Réf.</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Ø (mm)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">L avant rect. (mm)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">L après rect. (mm)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Masse (g)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">ρ (kg/m³)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">F (kN)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">fc (MPa)</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Type rupture</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Réf.</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">L (mm)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">D (mm)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">L/D</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">K(L/D)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Poids (kg)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Volume (m³)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">ρ (t/m³)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Charge (kN)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Section (mm²)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Rc (MPa)</th>
+                <th className="border border-black px-1 py-1 text-center font-medium text-black">Rc corr. L/D 16×32 (MPa)</th>
               </tr>
             </thead>
             <tbody>
               {results.length > 0 ? (
                 results.map((r, i) => (
                   <tr key={i}>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.reference || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.diametre || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.longueur_avant || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.longueur_apres || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.masse || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.masse_volumique || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.charge_rupture || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm font-bold text-black">{r.resistance || "—"}</td>
-                    <td className="border border-black px-2 py-2 text-center text-sm text-black">{r.type_rupture || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.reference || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.hauteur_L || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.diametre_D || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.elancement || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.k_ld || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.poids || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.volume || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.masse_volumique || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.charge || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center text-black">{r.section || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center font-bold text-black">{r.resistance || "—"}</td>
+                    <td className="border border-black px-1 py-1 text-center font-bold text-black">{r.resistance_corrigee || "—"}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="border border-black px-2 py-4 text-center text-sm text-black">
+                  <td colSpan={12} className="border border-black px-2 py-4 text-center text-black">
                     Aucune donnée saisie
                   </td>
                 </tr>
               )}
               {results.length > 0 && (
-                <tr>
-                  <td colSpan={7} className="border border-black px-3 py-2 text-right text-sm font-bold text-black">
-                    Résistance moyenne fc :
-                  </td>
-                  <td className="border border-black px-2 py-2 text-center text-sm font-bold text-black">
-                    {moyenneRc}
-                  </td>
-                  <td className="border border-black px-2 py-2 text-center text-sm text-black">MPa</td>
-                </tr>
+                <>
+                  <tr>
+                    <td colSpan={10} className="border border-black px-2 py-1 text-right font-bold text-black">
+                      Rc moyenne (MPa) :
+                    </td>
+                    <td className="border border-black px-1 py-1 text-center font-bold text-black" colSpan={2}>
+                      {moyenneRc}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={10} className="border border-black px-2 py-1 text-right font-bold text-black">
+                      Rc moyenne avec élancement L/D (16×32) (MPa) :
+                    </td>
+                    <td className="border border-black px-1 py-1 text-center font-bold text-black" colSpan={2}>
+                      {moyenneRcCorr}
+                    </td>
+                  </tr>
+                </>
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Observations */}
