@@ -119,7 +119,13 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
       {(conformityEsv || conformityEsp) && (
         <div>
           <h3 className="font-bold text-sm mb-2 underline">Conformité</h3>
-          <table className="w-full border-collapse border border-[#4a90a4] text-sm">
+          <table className="w-full border-collapse border border-[#4a90a4] text-sm" style={{ tableLayout: "fixed" }}>
+            <colgroup>
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "58%" }} />
+              <col style={{ width: "15%" }} />
+            </colgroup>
             <thead>
               <tr className="bg-[#e8f4f8]">
                 <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Paramètre</th>
@@ -133,8 +139,8 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
                 <tr>
                   <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">ESv moyen</td>
                   <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold">{esvMoy} %</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5">{conformityEsv.label} — {conformityEsv.usage}</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold" style={{ color: conformityEsv.conforme ? "#16a34a" : "#dc2626" }}>
+                  <td className="border border-[#4a90a4] px-3 py-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{conformityEsv.label} — {conformityEsv.usage}</td>
+                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold whitespace-nowrap" style={{ color: conformityEsv.conforme ? "#16a34a" : "#dc2626" }}>
                     {conformityEsv.conforme ? "✓ Conforme" : "✗ Non conforme"}
                   </td>
                 </tr>
@@ -143,8 +149,8 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
                 <tr>
                   <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">ESp moyen</td>
                   <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold">{espMoy} %</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5">{conformityEsp.label} — {conformityEsp.usage}</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold" style={{ color: conformityEsp.conforme ? "#16a34a" : "#dc2626" }}>
+                  <td className="border border-[#4a90a4] px-3 py-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{conformityEsp.label} — {conformityEsp.usage}</td>
+                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold whitespace-nowrap" style={{ color: conformityEsp.conforme ? "#16a34a" : "#dc2626" }}>
                     {conformityEsp.conforme ? "✓ Conforme" : "✗ Non conforme"}
                   </td>
                 </tr>

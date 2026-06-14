@@ -181,10 +181,6 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
                 <td className="border border-black px-3 py-1.5 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
               </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Type d'essai</td>
-                <td className="border border-black px-3 py-1.5 text-black font-semibold">{essaiTitle}</td>
-              </tr>
               {echantillon.clients?.nom && (
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black">Entreprise</td>
@@ -206,15 +202,11 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.produit}</td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception / Date d'essai</td>
                 <td className="border border-black px-3 py-1.5 text-black">
                   {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
-                <td className="border border-black px-3 py-1.5 text-black">
-                  {(echantillon as any).date_essai 
+                  {" / "}
+                  {(echantillon as any).date_essai
                     ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr })
                     : "-"}
                 </td>
