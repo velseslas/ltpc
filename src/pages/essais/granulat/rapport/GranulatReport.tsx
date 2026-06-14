@@ -175,6 +175,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
 
         {/* Identification de l'échantillon */}
         <div className="mb-6">
+          <h2 className="text-sm font-bold text-black mb-2">Identification de l'échantillon</h2>
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
@@ -202,10 +203,14 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.produit}</td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception / Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception</td>
                 <td className="border border-black px-3 py-1.5 text-black">
                   {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
-                  {" / "}
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 text-black">
                   {(echantillon as any).date_essai
                     ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr })
                     : "-"}
