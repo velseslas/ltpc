@@ -46,7 +46,7 @@ export default function BleuMethyleneReportContent({ resultats }: BleuMethyleneR
   const specs = getSpecs(typeEssai);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bleu-methylene-content">
       <div>
         <h3 className="font-bold text-sm mb-2 underline">Résultats des essais</h3>
         <table className="w-full border-collapse border border-[#4a90a4]">
@@ -69,7 +69,7 @@ export default function BleuMethyleneReportContent({ resultats }: BleuMethyleneR
           <tbody>
             <tr>
               <td className="border border-[#4a90a4] px-3 py-2 bg-[#e8f4f8] font-medium w-1/2">Valeur au Bleu de Méthylène (MB)</td>
-              <td className="border border-[#4a90a4] px-3 py-2 text-center font-bold text-lg text-[#4a90a4]">
+              <td className="border border-[#4a90a4] px-3 py-2 text-center font-bold text-lg text-[#4a90a4] print-mb-value">
                 {mb ? `${mb} g/kg` : "-"}
               </td>
             </tr>
@@ -132,6 +132,35 @@ export default function BleuMethyleneReportContent({ resultats }: BleuMethyleneR
           </tbody>
         </table>
       </div>
+
+      <style>{`
+        @media print {
+          /* More generous spacing for BleuMethylene report */
+          [data-ref="report"] .bleu-methylene-content.space-y-6 > * + * {
+            margin-top: 12px !important;
+          }
+
+          [data-ref="report"] .bleu-methylene-content h3 {
+            font-size: 11.5px !important;
+            margin-bottom: 5px !important;
+            line-height: 1.3 !important;
+          }
+
+          [data-ref="report"] .bleu-methylene-content table {
+            font-size: 10px !important;
+          }
+
+          [data-ref="report"] .bleu-methylene-content th,
+          [data-ref="report"] .bleu-methylene-content td {
+            padding: 4px 8px !important;
+            line-height: 1.35 !important;
+          }
+
+          [data-ref="report"] .bleu-methylene-content .print-mb-value {
+            font-size: 15px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
