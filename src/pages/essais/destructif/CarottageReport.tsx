@@ -60,10 +60,14 @@ const CarottageReport = () => {
 
   const verificationUrl = `${window.location.origin}/essais/beton/destructif/carottage/${id}/rapport`;
 
-  // Calculate average resistance
+  // Calculate average resistance (brute et corrigée)
   const resistances = results.map(r => parseFloat(r.resistance)).filter(v => !isNaN(v) && v > 0);
   const moyenneRc = resistances.length > 0
     ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+    : "—";
+  const resistancesCorr = results.map(r => parseFloat(r.resistance_corrigee)).filter(v => !isNaN(v) && v > 0);
+  const moyenneRcCorr = resistancesCorr.length > 0
+    ? (resistancesCorr.reduce((a, b) => a + b, 0) / resistancesCorr.length).toFixed(2)
     : "—";
 
   return (
