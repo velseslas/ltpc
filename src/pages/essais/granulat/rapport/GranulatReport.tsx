@@ -332,18 +332,18 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           [data-ref="report"] h3 { font-size: 10px !important; }
           [data-ref="report"] p { margin: 1px 0 !important; }
 
-          [data-ref="report"] .mb-6 { margin-bottom: 4px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 3px !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 2px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 6px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 3px !important; }
-          [data-ref="report"] .mt-2 { margin-top: 2px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 3px !important; }
-          [data-ref="report"] .p-4 { padding: 3px !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 5px !important; }
+          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 8px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 5px !important; }
+          [data-ref="report"] .mt-2 { margin-top: 3px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 5px !important; }
+          [data-ref="report"] .p-4 { padding: 5px !important; }
           [data-ref="report"] .p-8 { padding: 0 !important; }
-          [data-ref="report"] .space-y-6 > * + * { margin-top: 4px !important; }
-          [data-ref="report"] .space-y-4 > * + * { margin-top: 3px !important; }
-          [data-ref="report"] .space-y-2 > * + * { margin-top: 2px !important; }
+          [data-ref="report"] .space-y-6 > * + * { margin-top: 6px !important; }
+          [data-ref="report"] .space-y-4 > * + * { margin-top: 5px !important; }
+          [data-ref="report"] .space-y-2 > * + * { margin-top: 3px !important; }
 
           [data-ref="report"] table {
             width: 100% !important;
