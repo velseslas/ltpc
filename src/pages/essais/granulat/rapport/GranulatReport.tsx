@@ -332,9 +332,9 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             margin: 2px 0 !important;
             line-height: 1.2 !important;
           }
-          [data-ref="report"] h1 { font-size: 14px !important; font-weight: bold !important; }
-          [data-ref="report"] h2 { font-size: 14px !important; font-weight: bold !important; }
-          [data-ref="report"] h3 { font-size: 11px !important; font-weight: bold !important; }
+          [data-ref="report"] h1 { font-size: 18px !important; font-weight: bold !important; }
+          [data-ref="report"] h2 { font-size: 17px !important; font-weight: bold !important; }
+          [data-ref="report"] h3 { font-size: 13px !important; font-weight: bold !important; }
           [data-ref="report"] p { margin: 1px 0 !important; }
 
           [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
