@@ -19,7 +19,7 @@ export function useCentralesByClient(clientId: string) {
 
       // Deduplicate by id
       const unique = Array.from(new Map(centrales.map(c => [c.id, c])).values());
-      return unique.sort((a, b) => a.nom.localeCompare(b.nom));
+      return unique.sort((a, b) => a.nom?.localeCompare(b.nom ?? '') ?? 0);
     },
     enabled: !!clientId,
   });

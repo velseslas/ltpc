@@ -12,7 +12,7 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredClients = clients?.filter(client =>
-    client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.ville?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
