@@ -13,15 +13,17 @@ import { ReportHeader } from "@/components/reports/ReportHeader";
 
 interface CarotteResult {
   reference: string;
-  longueur_avant: string;
-  longueur_apres: string;
-  diametre: string;
-  masse: string;
+  hauteur_L: string;
+  diametre_D: string;
+  elancement: string;
+  k_ld: string;
+  poids: string;
+  volume: string;
   masse_volumique: string;
-  charge_rupture: string;
+  charge: string;
+  section: string;
   resistance: string;
-  type_rupture: string;
-  observations: string;
+  resistance_corrigee: string;
 }
 
 const CarottageReport = () => {
