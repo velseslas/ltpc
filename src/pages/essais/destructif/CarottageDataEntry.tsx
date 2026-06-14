@@ -12,7 +12,6 @@ import type { Json } from "@/integrations/supabase/types";
 interface CarotteResult {
   id: string;
   reference: string;
-  diametre_mesure: string; // Diamètre (mm) - mesure initiale
   hauteur_L: string;       // Hauteur L (mm)
   diametre_D: string;      // Diamètre D (mm)
   elancement: string;      // L/D
