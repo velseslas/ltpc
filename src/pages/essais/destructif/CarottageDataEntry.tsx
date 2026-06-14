@@ -3,9 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { ArrowLeft, Save, Loader2, Plus, Trash2 } from "lucide-react";
 import { useEchantillonCarottage, useUpdateEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { toast } from "sonner";
@@ -15,15 +12,18 @@ import type { Json } from "@/integrations/supabase/types";
 interface CarotteResult {
   id: string;
   reference: string;
-  longueur_avant: string;
-  longueur_apres: string;
-  diametre: string;
-  masse: string;
-  masse_volumique: string;
-  charge_rupture: string;
-  resistance: string;
-  type_rupture: string;
-  observations: string;
+  diametre_mesure: string; // Diamètre (mm) - mesure initiale
+  hauteur_L: string;       // Hauteur L (mm)
+  diametre_D: string;      // Diamètre D (mm)
+  elancement: string;      // L/D
+  k_ld: string;            // K(L/D)
+  poids: string;           // kg
+  volume: string;          // m³
+  masse_volumique: string; // t/m³
+  charge: string;          // kN
+  section: string;         // mm²
+  resistance: string;      // MPa
+  resistance_corrigee: string; // MPa avec K
 }
 
 interface ElementTest {
@@ -31,45 +31,90 @@ interface ElementTest {
   carottes: CarotteResult[];
 }
 
-const TYPES_RUPTURE = ["Conique", "Colonne", "Mixte", "Cisaillement", "Autre"];
-
 const emptyCarotte = (): CarotteResult => ({
   id: crypto.randomUUID(),
   reference: "",
-  longueur_avant: "",
-  longueur_apres: "",
-  diametre: "",
-  masse: "",
+  diametre_mesure: "",
+  hauteur_L: "",
+  diametre_D: "",
+  elancement: "",
+  k_ld: "",
+  poids: "",
+  volume: "",
   masse_volumique: "",
-  charge_rupture: "",
+  charge: "",
+  section: "",
   resistance: "",
-  type_rupture: "",
-  observations: "",
+  resistance_corrigee: "",
 });
 
-const getQualite = (r: number) => {
-  if (r >= 40) return { label: "Excellent", className: "text-emerald-500 bg-emerald-500/10 border-emerald-500/30" };
-  if (r >= 30) return { label: "Bon", className: "text-sky-500 bg-sky-500/10 border-sky-500/30" };
-  if (r >= 20) return { label: "Moyen", className: "text-yellow-500 bg-yellow-500/10 border-yellow-500/30" };
-  if (r >= 15) return { label: "Médiocre", className: "text-orange-500 bg-orange-500/10 border-orange-500/30" };
-  return { label: "Très mauvais", className: "text-destructive bg-destructive/10 border-destructive/30" };
+// Coefficient K(L/D) selon NF P18-418 — interpolation linéaire
+// L/D : 1.00 → 0.87 ; 1.25 → 0.94 ; 1.50 → 0.96 ; 1.75 → 0.98 ; 2.00 → 1.00
+const computeK = (ld: number): number => {
+  const table = [
+    { ld: 1.0, k: 0.87 },
+    { ld: 1.25, k: 0.94 },
+    { ld: 1.5, k: 0.96 },
+    { ld: 1.75, k: 0.98 },
+    { ld: 2.0, k: 1.0 },
+  ];
+  if (ld <= 1.0) return 0.87;
+  if (ld >= 2.0) return 1.0;
+  for (let i = 0; i < table.length - 1; i++) {
+    const a = table[i], b = table[i + 1];
+    if (ld >= a.ld && ld <= b.ld) {
+      const t = (ld - a.ld) / (b.ld - a.ld);
+      return a.k + t * (b.k - a.k);
+    }
+  }
+  return 1.0;
 };
 
 const computeCarotte = (c: CarotteResult): CarotteResult => {
-  const updated = { ...c };
-  const charge = parseFloat(updated.charge_rupture);
-  const diam = parseFloat(updated.diametre);
-  if (!isNaN(charge) && !isNaN(diam) && diam > 0) {
-    const area = (Math.PI * diam * diam) / 4;
-    updated.resistance = ((charge * 1000) / area).toFixed(2);
+  const u = { ...c };
+  const L = parseFloat(u.hauteur_L);
+  const D = parseFloat(u.diametre_D);
+  const P = parseFloat(u.poids);
+  const F = parseFloat(u.charge);
+
+  // L/D
+  if (!isNaN(L) && !isNaN(D) && D > 0) {
+    const ld = L / D;
+    u.elancement = ld.toFixed(2);
+    u.k_ld = computeK(ld).toFixed(3);
+  } else {
+    u.elancement = "";
+    u.k_ld = "";
   }
-  const masse = parseFloat(updated.masse);
-  const longueur = parseFloat(updated.longueur_apres);
-  if (!isNaN(masse) && !isNaN(diam) && !isNaN(longueur) && diam > 0 && longueur > 0) {
-    const volume_mm3 = Math.PI * (diam / 2) ** 2 * longueur;
-    updated.masse_volumique = ((masse / volume_mm3) * 1e6).toFixed(0);
+
+  // Volume m³ et section mm²
+  let volume_m3 = NaN;
+  let section_mm2 = NaN;
+  if (!isNaN(D) && D > 0) {
+    section_mm2 = (Math.PI * D * D) / 4;
+    u.section = section_mm2.toFixed(2);
+    if (!isNaN(L) && L > 0) {
+      volume_m3 = (Math.PI * (D / 2) ** 2 * L) / 1e9; // mm³ → m³
+      u.volume = volume_m3.toExponential(3);
+    }
   }
-  return updated;
+
+  // Masse volumique t/m³ = (kg/m³) / 1000
+  if (!isNaN(P) && !isNaN(volume_m3) && volume_m3 > 0) {
+    u.masse_volumique = (P / volume_m3 / 1000).toFixed(3);
+  }
+
+  // Résistance MPa = F(kN)*1000 / Section(mm²)
+  if (!isNaN(F) && !isNaN(section_mm2) && section_mm2 > 0) {
+    const rc = (F * 1000) / section_mm2;
+    u.resistance = rc.toFixed(2);
+    const k = parseFloat(u.k_ld);
+    if (!isNaN(k)) {
+      u.resistance_corrigee = (rc * k).toFixed(2);
+    }
+  }
+
+  return u;
 };
 
 const CarottageDataEntry = () => {
@@ -90,10 +135,17 @@ const CarottageDataEntry = () => {
     const r = echantillon.resultats as any;
     if (r) {
       if (Array.isArray(r?.elements)) {
-        setElements(r.elements);
+        // re-compute to ensure derived fields are up to date
+        setElements(
+          r.elements.map((e: ElementTest) => ({
+            ...e,
+            carottes: (e.carottes || []).map((c: any) =>
+              computeCarotte({ ...emptyCarotte(), ...c })
+            ),
+          })),
+        );
       } else if (Array.isArray(r)) {
-        // Legacy: flat array of carottes
-        setElements([{ element_coule: "", carottes: r as CarotteResult[] }]);
+        setElements([{ element_coule: "", carottes: (r as any[]).map((c) => computeCarotte({ ...emptyCarotte(), ...c })) }]);
       }
     }
   }, [echantillon]);
@@ -130,27 +182,25 @@ const CarottageDataEntry = () => {
     setElements(elements.filter((_, i) => i !== eIdx));
   };
 
-  // Global stats
-  const allCarottes = elements.flatMap(e => e.carottes);
-  const resistances = allCarottes
-    .map(c => parseFloat(c.resistance))
-    .filter(v => !isNaN(v) && v > 0);
-  const resistanceMoyenne = resistances.length > 0
-    ? resistances.reduce((a, b) => a + b, 0) / resistances.length
-    : 0;
+  // Moyennes globales
+  const allCarottes = elements.flatMap((e) => e.carottes);
+  const resistances = allCarottes.map((c) => parseFloat(c.resistance)).filter((v) => !isNaN(v) && v > 0);
+  const resistancesCorr = allCarottes.map((c) => parseFloat(c.resistance_corrigee)).filter((v) => !isNaN(v) && v > 0);
+  const rcMoyenne = resistances.length > 0 ? resistances.reduce((a, b) => a + b, 0) / resistances.length : 0;
+  const rcMoyenneCorr = resistancesCorr.length > 0 ? resistancesCorr.reduce((a, b) => a + b, 0) / resistancesCorr.length : 0;
 
   const handleSave = async () => {
     if (!id) return;
     try {
-      const flat = elements.flatMap(e => e.carottes);
+      const flat = elements.flatMap((e) => e.carottes);
       await updateMutation.mutateAsync({
         id,
         date_essai: dateEssai || null,
         resultats: {
           elements,
           carottes: flat,
-          resistance_moyenne: resistanceMoyenne > 0 ? Number(resistanceMoyenne.toFixed(2)) : null,
-          qualite: resistanceMoyenne > 0 ? getQualite(resistanceMoyenne).label : null,
+          rc_moyenne: rcMoyenne > 0 ? Number(rcMoyenne.toFixed(2)) : null,
+          rc_moyenne_corrigee: rcMoyenneCorr > 0 ? Number(rcMoyenneCorr.toFixed(2)) : null,
         } as unknown as Json,
         statut: "termine",
       });
@@ -162,7 +212,11 @@ const CarottageDataEntry = () => {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
   if (!echantillon) {
     return <div className="text-center py-12 text-muted-foreground">Échantillon non trouvé</div>;
@@ -181,8 +235,12 @@ const CarottageDataEntry = () => {
       />
 
       <div className="flex items-start gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)}
-          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate(`${basePath}/${id}`)}
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
@@ -210,12 +268,18 @@ const CarottageDataEntry = () => {
               <h2 className="text-lg font-semibold">Élément {eIdx + 1}</h2>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => addCarotte(eIdx)} className="flex items-center gap-1">
-                  <Plus className="h-4 w-4" />Ajouter une carotte
+                  <Plus className="h-4 w-4" />
+                  Ajouter une carotte
                 </Button>
                 {elements.length > 1 && (
-                  <Button variant="outline" size="sm" onClick={() => removeElement(eIdx)}
-                    className="flex items-center gap-1 text-destructive border-destructive/30 hover:bg-destructive/10">
-                    <Trash2 className="h-4 w-4" />Supprimer
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeElement(eIdx)}
+                    className="flex items-center gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Supprimer
                   </Button>
                 )}
               </div>
@@ -232,78 +296,77 @@ const CarottageDataEntry = () => {
               </div>
             </div>
 
-            <div className="space-y-4">
-              {elem.carottes.map((r, cIdx) => {
-                const res = parseFloat(r.resistance);
-                const q = !isNaN(res) && res > 0 ? getQualite(res) : null;
-                return (
-                  <div key={r.id} className="rounded-lg border border-border/50 bg-muted/20 p-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-foreground">Carotte {cIdx + 1}</h3>
-                      {elem.carottes.length > 1 && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"
-                          onClick={() => removeCarotte(eIdx, cIdx)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Référence</Label>
-                        <Input value={r.reference} onChange={(e) => updateCarotte(eIdx, cIdx, "reference", e.target.value)} placeholder="Ex: C1" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Diamètre (mm)</Label>
-                        <Input type="number" value={r.diametre} onChange={(e) => updateCarotte(eIdx, cIdx, "diametre", e.target.value)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Longueur avant rect. (mm)</Label>
-                        <Input type="number" value={r.longueur_avant} onChange={(e) => updateCarotte(eIdx, cIdx, "longueur_avant", e.target.value)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Longueur après rect. (mm)</Label>
-                        <Input type="number" value={r.longueur_apres} onChange={(e) => updateCarotte(eIdx, cIdx, "longueur_apres", e.target.value)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Masse (g)</Label>
-                        <Input type="number" value={r.masse} onChange={(e) => updateCarotte(eIdx, cIdx, "masse", e.target.value)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Masse vol. (kg/m³)</Label>
-                        <Input type="number" value={r.masse_volumique} readOnly className="bg-muted/50" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Charge de rupture (kN)</Label>
-                        <Input type="number" value={r.charge_rupture} onChange={(e) => updateCarotte(eIdx, cIdx, "charge_rupture", e.target.value)} />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Résistance (MPa)</Label>
-                        <div className={`text-center font-medium rounded-md px-2 py-2 border ${q ? q.className : "text-muted-foreground bg-muted/50 border-border"}`}>
-                          {r.resistance || "-"}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Type de rupture</Label>
-                        <Select value={r.type_rupture} onValueChange={(v) => updateCarotte(eIdx, cIdx, "type_rupture", v)}>
-                          <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
-                          <SelectContent>{TYPES_RUPTURE.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-1 col-span-2 md:col-span-3">
-                        <Label className="text-xs">Observations</Label>
-                        <Input value={r.observations} onChange={(e) => updateCarotte(eIdx, cIdx, "observations", e.target.value)} placeholder="Remarques..." />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Tableau de saisie */}
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/40">
+                  <tr>
+                    <th className="p-2 text-left font-semibold">Référence</th>
+                    <th className="p-2 text-left font-semibold">Diamètre (mm)</th>
+                    <th className="p-2 text-left font-semibold">Hauteur L (mm)</th>
+                    <th className="p-2 text-left font-semibold">Diamètre D (mm)</th>
+                    <th className="p-2 text-center font-semibold">L/D</th>
+                    <th className="p-2 text-center font-semibold">K(L/D)</th>
+                    <th className="p-2 text-left font-semibold">Poids (kg)</th>
+                    <th className="p-2 text-center font-semibold">Volume (m³)</th>
+                    <th className="p-2 text-center font-semibold">M. vol. (t/m³)</th>
+                    <th className="p-2 text-left font-semibold">Charge (kN)</th>
+                    <th className="p-2 text-center font-semibold">Section (mm²)</th>
+                    <th className="p-2 text-center font-semibold">Rc (MPa)</th>
+                    <th className="p-2 text-center font-semibold">Rc corr. 16×32 (MPa)</th>
+                    <th className="p-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {elem.carottes.map((r, cIdx) => (
+                    <tr key={r.id} className="border-t border-border">
+                      <td className="p-1">
+                        <Input className="h-8" value={r.reference} onChange={(e) => updateCarotte(eIdx, cIdx, "reference", e.target.value)} placeholder="C1" />
+                      </td>
+                      <td className="p-1">
+                        <Input className="h-8" type="number" value={r.diametre_mesure} onChange={(e) => updateCarotte(eIdx, cIdx, "diametre_mesure", e.target.value)} />
+                      </td>
+                      <td className="p-1">
+                        <Input className="h-8" type="number" value={r.hauteur_L} onChange={(e) => updateCarotte(eIdx, cIdx, "hauteur_L", e.target.value)} />
+                      </td>
+                      <td className="p-1">
+                        <Input className="h-8" type="number" value={r.diametre_D} onChange={(e) => updateCarotte(eIdx, cIdx, "diametre_D", e.target.value)} />
+                      </td>
+                      <td className="p-1 text-center text-muted-foreground">{r.elancement || "-"}</td>
+                      <td className="p-1 text-center text-muted-foreground">{r.k_ld || "-"}</td>
+                      <td className="p-1">
+                        <Input className="h-8" type="number" value={r.poids} onChange={(e) => updateCarotte(eIdx, cIdx, "poids", e.target.value)} />
+                      </td>
+                      <td className="p-1 text-center text-muted-foreground">{r.volume || "-"}</td>
+                      <td className="p-1 text-center text-muted-foreground">{r.masse_volumique || "-"}</td>
+                      <td className="p-1">
+                        <Input className="h-8" type="number" value={r.charge} onChange={(e) => updateCarotte(eIdx, cIdx, "charge", e.target.value)} />
+                      </td>
+                      <td className="p-1 text-center text-muted-foreground">{r.section || "-"}</td>
+                      <td className="p-1 text-center font-medium text-primary">{r.resistance || "-"}</td>
+                      <td className="p-1 text-center font-semibold text-primary">{r.resistance_corrigee || "-"}</td>
+                      <td className="p-1">
+                        {elem.carottes.length > 1 && (
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeCarotte(eIdx, cIdx)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         ))}
 
-        <Button variant="outline" onClick={addElement}
-          className="w-full flex items-center justify-center gap-2 border-dashed border-primary/40 text-primary hover:bg-primary/5">
-          <Plus className="h-4 w-4" />Ajouter un élément
+        <Button
+          variant="outline"
+          onClick={addElement}
+          className="w-full flex items-center justify-center gap-2 border-dashed border-primary/40 text-primary hover:bg-primary/5"
+        >
+          <Plus className="h-4 w-4" />
+          Ajouter un élément
         </Button>
 
         <div className="border-t border-border pt-6">
@@ -314,25 +377,23 @@ const CarottageDataEntry = () => {
               <p className="text-2xl font-bold">{resistances.length}</p>
             </div>
             <div className="rounded-lg bg-primary/10 border border-primary/30 p-4 text-center">
-              <span className="text-sm text-muted-foreground">Résistance moyenne</span>
-              <p className="text-2xl font-bold text-primary">
-                {resistanceMoyenne > 0 ? `${resistanceMoyenne.toFixed(2)} MPa` : "-"}
-              </p>
+              <span className="text-sm text-muted-foreground">Rc moyenne</span>
+              <p className="text-2xl font-bold text-primary">{rcMoyenne > 0 ? `${rcMoyenne.toFixed(2)} MPa` : "-"}</p>
             </div>
-            {resistanceMoyenne > 0 && (
-              <div className={`rounded-lg p-4 text-center border ${getQualite(resistanceMoyenne).className}`}>
-                <span className="text-sm text-muted-foreground">Qualité du béton</span>
-                <p className="text-2xl font-bold">{getQualite(resistanceMoyenne).label}</p>
-              </div>
-            )}
+            <div className="rounded-lg bg-primary/15 border border-primary/40 p-4 text-center">
+              <span className="text-sm text-muted-foreground">Rc moyenne corrigée L/D (16×32)</span>
+              <p className="text-2xl font-bold text-primary">{rcMoyenneCorr > 0 ? `${rcMoyenneCorr.toFixed(2)} MPa` : "-"}</p>
+            </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            * fc = F(kN) × 1000 / A(mm²). Classification : ≥ 40 = Excellent, 30-40 = Bon, 20-30 = Moyen, 15-20 = Médiocre.
+            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · K(L/D) interpolé selon NF P18-418 (1.00→0.87 ; 1.25→0.94 ; 1.50→0.96 ; 1.75→0.98 ; 2.00→1.00).
           </p>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={() => navigate(`${basePath}/${id}`)}>Annuler</Button>
+          <Button variant="outline" onClick={() => navigate(`${basePath}/${id}`)}>
+            Annuler
+          </Button>
           <Button onClick={handleSave} disabled={updateMutation.isPending} className="flex items-center gap-2">
             {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Enregistrer
