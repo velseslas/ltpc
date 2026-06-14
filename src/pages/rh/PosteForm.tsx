@@ -96,9 +96,11 @@ export default function PosteForm() {
       nom: formData.nom.trim(),
       description: formData.description.trim() || null,
       departement: formData.departement || null,
-      salaire_moyen: formData.salaire_moyen
-        ? parseInt(formData.salaire_moyen)
-        : null,
+      salaire_moyen: (() => {
+        if (!formData.salaire_moyen) return null;
+        const parsed = parseInt(formData.salaire_moyen);
+        return isNaN(parsed) ? null : parsed;
+      })(),
       competences: competencesArray.length > 0 ? competencesArray : null,
       niveau_experience: formData.niveau_experience || null,
       type_contrat: formData.type_contrat || null,

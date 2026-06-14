@@ -261,8 +261,8 @@ const CompressionReport = () => {
       return { moyenne: 0, caracteristique: 0, classe: "--" };
     }
 
-    const moyenne = resistances.reduce((a, b) => a + b, 0) / resistances.length;
-    const variance = resistances.reduce((sum, r) => sum + Math.pow(r - moyenne, 2), 0) / resistances.length;
+    const moyenne = resistances.length > 0 ? resistances.reduce((a, b) => a + b, 0) / resistances.length : 0;
+    const variance = resistances.length > 0 ? resistances.reduce((sum, r) => sum + Math.pow(r - moyenne, 2), 0) / resistances.length : 0;
     const ecartType = Math.sqrt(variance);
     const caracteristique = moyenne - 1.48 * ecartType;
 

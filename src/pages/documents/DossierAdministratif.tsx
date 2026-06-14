@@ -46,7 +46,8 @@ const DossierAdministratif = () => {
     try {
       await remove.mutateAsync(deleteId);
       toast.success("Document supprimé");
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors de la suppression");
     }
     setDeleteId(null);

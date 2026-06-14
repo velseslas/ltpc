@@ -79,7 +79,7 @@ const TauxTVAPage = () => {
 
     const payload = {
       nom: formData.nom,
-      taux: parseFloat(formData.taux),
+      taux: (() => { const parsed = parseFloat(formData.taux); return isNaN(parsed) ? null : parsed; })(),
       description: formData.description || null,
       actif: formData.actif,
     };

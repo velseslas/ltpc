@@ -69,7 +69,8 @@ const Auth = () => {
         description: `Bienvenue`,
       });
       navigate("/");
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Une erreur est survenue");
     } finally {
       setIsLoading(false);
