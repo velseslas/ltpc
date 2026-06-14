@@ -3,6 +3,7 @@ import { Sidebar } from "./Sidebar";
 import { ReactNode, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -16,7 +17,9 @@ export function MainLayout({ children }: MainLayoutProps) {
   if (embed) {
     return (
       <div className="min-h-screen bg-background">
-        <main className="p-4">{children}</main>
+        <main className="p-4">
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </main>
       </div>
     );
   }
@@ -31,7 +34,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           collapsed ? "ml-16" : "ml-56"
         )}
       >
-        {children}
+        <ErrorBoundary>{children}</ErrorBoundary>
       </main>
     </div>
   );

@@ -111,7 +111,7 @@ export default function TechnicienDetail() {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Nom complet</p>
                 <p className="font-medium text-foreground">
-                  {intervenant.prenom} {intervenant.nom.toUpperCase()}
+                  {intervenant.prenom} {intervenant.nom?.toUpperCase()}
                 </p>
               </div>
 
