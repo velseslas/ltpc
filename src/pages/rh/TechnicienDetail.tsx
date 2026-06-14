@@ -173,41 +173,43 @@ export default function TechnicienDetail() {
             </CardHeader>
             <CardContent>
               {affectations && affectations.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Chantier</TableHead>
-                      <TableHead>Ville</TableHead>
-                      <TableHead>Période</TableHead>
-                      <TableHead>Statut</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {affectations.map((affectation) => (
-                      <TableRow key={affectation.id}>
-                        <TableCell className="font-medium">
-                          {(affectation as any).client?.nom || "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          {(affectation as any).chantier?.nom || "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            {(affectation as any).chantier?.ville || "N/A"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {formatPeriode(affectation.date_debut, affectation.date_fin)}
-                        </TableCell>
-                        <TableCell>
-                          {getAffectationStatusBadge(affectation.statut)}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Client</TableHead>
+                        <TableHead>Chantier</TableHead>
+                        <TableHead>Ville</TableHead>
+                        <TableHead>Période</TableHead>
+                        <TableHead>Statut</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {affectations.map((affectation) => (
+                        <TableRow key={affectation.id}>
+                          <TableCell className="font-medium">
+                            {(affectation as any).client?.nom || "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            {(affectation as any).chantier?.nom || "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <MapPin className="h-3 w-3" />
+                              {(affectation as any).chantier?.ville || "N/A"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {formatPeriode(affectation.date_debut, affectation.date_fin)}
+                          </TableCell>
+                          <TableCell>
+                            {getAffectationStatusBadge(affectation.statut)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   Aucune affectation pour ce technicien
