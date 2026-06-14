@@ -84,7 +84,8 @@ export default function DevisListe() {
 
       toast.success(`Facture ${numero} créée depuis le devis`);
       navigate(`/facturation/factures/${newFacture.id}/apercu`);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors de la conversion");
     } finally {
       setConverting(null);

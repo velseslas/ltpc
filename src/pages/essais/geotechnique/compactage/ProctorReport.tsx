@@ -55,7 +55,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
 
   const chartData = useMemo(() => {
     return computed
-      .map((c, i) => ({ w: parseFloat(c.w.toFixed(2)), rho_sec: parseFloat(c.rho_sec.toFixed(3)), name: `P${i + 1}` }))
+      .map((c, i) => ({ w: isNaN(c.w) ? 0 : parseFloat(c.w.toFixed(2)), rho_sec: isNaN(c.rho_sec) ? 0 : parseFloat(c.rho_sec.toFixed(3)), name: `P${i + 1}` }))
       .filter(p => p.w > 0 && p.rho_sec > 0)
       .sort((a, b) => a.w - b.w);
   }, [computed]);

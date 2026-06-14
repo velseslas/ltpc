@@ -63,7 +63,8 @@ const EngagementEditPage = () => {
       );
       toast.success("Articles sauvegardés avec succès");
       navigate(`/documents/lettres-engagement/${id}`);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors de la sauvegarde");
     }
   };

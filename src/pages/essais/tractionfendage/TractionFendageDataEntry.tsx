@@ -108,7 +108,7 @@ const TractionFendageDataEntry = () => {
     const { diameter, length } = getCylinderDimensions();
     const volumeMm3 = 3.1416 * Math.pow(diameter / 2, 2) * length;
     const volumeCm3 = volumeMm3 / 1000;
-    const density = weight / volumeCm3;
+    const density = volumeCm3 !== 0 ? weight / volumeCm3 : 0;
     return density.toFixed(2);
   };
 
@@ -116,9 +116,9 @@ const TractionFendageDataEntry = () => {
   const calculateResistance = (charge: string): string => {
     const p = parseFloat(charge);
     if (isNaN(p) || p === 0) return "";
-    
+
     const K = getK();
-    const fct = p / K;
+    const fct = K !== 0 ? p / K : 0;
     return fct.toFixed(2);
   };
 

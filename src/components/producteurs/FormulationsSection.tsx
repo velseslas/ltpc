@@ -154,7 +154,7 @@ export function FormulationsSection({ centraleId }: FormulationsSectionProps) {
                       </div>
                       <div className="bg-accent/50 rounded-lg px-4 py-2 text-center">
                         <div className="text-[10px] text-muted-foreground uppercase">Total</div>
-                        <div className="text-sm font-bold text-foreground">{total.toFixed(1)} kg</div>
+                        <div className="text-sm font-bold text-foreground">{isNaN(total) ? '-' : total.toFixed(1)} kg</div>
                       </div>
                       
                       <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">

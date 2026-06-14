@@ -65,7 +65,8 @@ const OffreServiceEditPage = () => {
       );
       toast.success("Articles sauvegardés avec succès");
       navigate(`/documents/offres-service/${id}`);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors de la sauvegarde");
     }
   };

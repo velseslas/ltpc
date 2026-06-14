@@ -44,8 +44,11 @@ const parseDimension = (dimension: string): { type: 'cube' | 'cylinder'; d: numb
   
   if (parts) {
     let a = parseInt(parts[1]);
+    if (isNaN(a)) a = 0;
     let b = parseInt(parts[2]);
+    if (isNaN(b)) b = 0;
     let c = parts[3] ? parseInt(parts[3]) : null;
+    if (c !== null && isNaN(c)) c = null;
     
     // Convert cm to mm if needed
     if (a < 50) { a *= 10; b *= 10; if (c) c *= 10; }

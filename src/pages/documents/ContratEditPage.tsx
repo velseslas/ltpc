@@ -63,7 +63,8 @@ const ContratEditPage = () => {
       );
       toast.success("Articles sauvegardés avec succès");
       navigate(`/documents/contrats/${id}`);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors de la sauvegarde");
     }
   };

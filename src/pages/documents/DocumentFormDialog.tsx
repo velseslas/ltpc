@@ -10,6 +10,7 @@ import { useChantiers } from "@/hooks/useChantiers";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { Building2, MapPin, User, Hash, Upload, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface DocumentFormData {
   titre: string;
@@ -160,8 +161,9 @@ const DocumentFormDialog = ({
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("documents-administratifs").getPublicUrl(path);
       setForm((prev) => ({ ...prev, document_url: urlData.publicUrl, document_nom: file.name }));
-    } catch {
-      // toast handled by caller
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de l'upload du document");
     }
     setUploading(false);
   };
