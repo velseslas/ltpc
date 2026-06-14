@@ -52,34 +52,36 @@ export default function VirementListe() {
           ) : !data?.length ? (
             <div className="text-center py-12 text-muted-foreground"><ArrowUpRight className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Aucun virement</p></div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Référence</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Facture</TableHead>
-                  <TableHead>Banque</TableHead>
-                  <TableHead>Montant</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((v: any) => (
-                  <TableRow key={v.id}>
-                    <TableCell className="font-medium">{v.reference_virement || "—"}</TableCell>
-                    <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
-                    <TableCell>{(v.factures as any)?.numero || "—"}</TableCell>
-                    <TableCell>{v.banque || "—"}</TableCell>
-                    <TableCell>{Number(v.montant).toLocaleString()} DA</TableCell>
-                    <TableCell>{format(new Date(v.date_virement), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                    <TableCell>{statutBadge(v.statut)}</TableCell>
-                    <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => handleDelete(v.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Référence</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Facture</TableHead>
+                    <TableHead>Banque</TableHead>
+                    <TableHead>Montant</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {data.map((v: any) => (
+                    <TableRow key={v.id}>
+                      <TableCell className="font-medium">{v.reference_virement || "—"}</TableCell>
+                      <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
+                      <TableCell>{(v.factures as any)?.numero || "—"}</TableCell>
+                      <TableCell>{v.banque || "—"}</TableCell>
+                      <TableCell>{Number(v.montant).toLocaleString()} DA</TableCell>
+                      <TableCell>{format(new Date(v.date_virement), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                      <TableCell>{statutBadge(v.statut)}</TableCell>
+                      <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => handleDelete(v.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

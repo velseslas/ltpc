@@ -418,45 +418,47 @@ export default function EmployeDetail() {
                   ))}
                 </div>
               ) : affectations && affectations.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Chantier</TableHead>
-                      <TableHead>Ville</TableHead>
-                      <TableHead>Période</TableHead>
-                      <TableHead>Statut</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {affectations.map((affectation) => (
-                      <TableRow 
-                        key={affectation.id} 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => navigate(`/rh/affectations/${affectation.id}`)}
-                      >
-                        <TableCell className="font-medium">
-                          {(affectation as any).client?.nom || "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          {(affectation as any).chantier?.nom || "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            {(affectation as any).chantier?.ville || "N/A"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {formatPeriode(affectation.date_debut, affectation.date_fin)}
-                        </TableCell>
-                        <TableCell>
-                          {getAffectationStatusBadge(affectation.statut)}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Client</TableHead>
+                        <TableHead>Chantier</TableHead>
+                        <TableHead>Ville</TableHead>
+                        <TableHead>Période</TableHead>
+                        <TableHead>Statut</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {affectations.map((affectation) => (
+                        <TableRow 
+                          key={affectation.id} 
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => navigate(`/rh/affectations/${affectation.id}`)}
+                        >
+                          <TableCell className="font-medium">
+                            {(affectation as any).client?.nom || "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            {(affectation as any).chantier?.nom || "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <MapPin className="h-3 w-3" />
+                              {(affectation as any).chantier?.ville || "N/A"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {formatPeriode(affectation.date_debut, affectation.date_fin)}
+                          </TableCell>
+                          <TableCell>
+                            {getAffectationStatusBadge(affectation.statut)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -496,44 +498,46 @@ export default function EmployeDetail() {
                   ))}
                 </div>
               ) : employeDocuments.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Nom du fichier</TableHead>
-                      <TableHead>Date d'ajout</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {employeDocuments.map((doc) => (
-                      <TableRow key={doc.id}>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {getDocumentTypeLabel(doc.type_document)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {doc.nom_fichier || "Sans nom"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: fr })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {doc.url_fichier && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => window.open(doc.url_fichier!, '_blank')}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Nom du fichier</TableHead>
+                        <TableHead>Date d'ajout</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {employeDocuments.map((doc) => (
+                        <TableRow key={doc.id}>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {getDocumentTypeLabel(doc.type_document)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {doc.nom_fichier || "Sans nom"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {format(new Date(doc.created_at), "dd/MM/yyyy", { locale: fr })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {doc.url_fichier && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => window.open(doc.url_fichier!, '_blank')}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
