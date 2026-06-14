@@ -37,10 +37,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (document.visibilityState === "visible") {
         supabase.auth.startAutoRefresh();
+        // Proactively refresh if the access token is expired or close to expiry
+        void supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+          if (!s) return;
+          const expiresAt = s.expires_at ?? 0;
+          const nowSec = Math.floor(Date.now() / 1000);
+          if (expiresAt - nowSec < 60) {
+            await supabase.auth.refreshSession().catch(() => {});
+          }
+        });
       } else {
         supabase.auth.stopAutoRefresh();
       }
     };
+
 
     const {
       data: { subscription },
