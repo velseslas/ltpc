@@ -45,37 +45,39 @@ export default function RecapitulatifPaiements() {
         <TabsContent value="tous">
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Montant</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Statut</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {especes?.map((e: any) => (
-                    <TableRow key={`esp-${e.id}`}>
-                      <TableCell><Badge variant="outline">Espèce</Badge></TableCell>
-                      <TableCell>{(e.clients as any)?.nom || "—"}</TableCell>
-                      <TableCell>{Number(e.montant).toLocaleString()} DA</TableCell>
-                      <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell><Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">{e.statut}</Badge></TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Montant</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Statut</TableHead>
                     </TableRow>
-                  ))}
-                  {virements?.map((v: any) => (
-                    <TableRow key={`vir-${v.id}`}>
-                      <TableCell><Badge variant="outline">Virement</Badge></TableCell>
-                      <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
-                      <TableCell>{Number(v.montant).toLocaleString()} DA</TableCell>
-                      <TableCell>{format(new Date(v.date_virement), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell><Badge className="bg-cyan-500/20 text-cyan-500 border-cyan-500/30">{v.statut}</Badge></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {especes?.map((e: any) => (
+                      <TableRow key={`esp-${e.id}`}>
+                        <TableCell><Badge variant="outline">Espèce</Badge></TableCell>
+                        <TableCell>{(e.clients as any)?.nom || "—"}</TableCell>
+                        <TableCell>{Number(e.montant).toLocaleString()} DA</TableCell>
+                        <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                        <TableCell><Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">{e.statut}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                    {virements?.map((v: any) => (
+                      <TableRow key={`vir-${v.id}`}>
+                        <TableCell><Badge variant="outline">Virement</Badge></TableCell>
+                        <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
+                        <TableCell>{Number(v.montant).toLocaleString()} DA</TableCell>
+                        <TableCell>{format(new Date(v.date_virement), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                        <TableCell><Badge className="bg-cyan-500/20 text-cyan-500 border-cyan-500/30">{v.statut}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -83,20 +85,22 @@ export default function RecapitulatifPaiements() {
         <TabsContent value="espece">
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader><TableRow><TableHead>N° Reçu</TableHead><TableHead>Client</TableHead><TableHead>Montant</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>
-                <TableBody>
-                  {especes?.map((e: any) => (
-                    <TableRow key={e.id}>
-                      <TableCell>{e.numero_recu || "—"}</TableCell>
-                      <TableCell>{(e.clients as any)?.nom || "—"}</TableCell>
-                      <TableCell>{Number(e.montant).toLocaleString()} DA</TableCell>
-                      <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell><Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">{e.statut}</Badge></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader><TableRow><TableHead>N° Reçu</TableHead><TableHead>Client</TableHead><TableHead>Montant</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {especes?.map((e: any) => (
+                      <TableRow key={e.id}>
+                        <TableCell>{e.numero_recu || "—"}</TableCell>
+                        <TableCell>{(e.clients as any)?.nom || "—"}</TableCell>
+                        <TableCell>{Number(e.montant).toLocaleString()} DA</TableCell>
+                        <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                        <TableCell><Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">{e.statut}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -104,21 +108,23 @@ export default function RecapitulatifPaiements() {
         <TabsContent value="virement">
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader><TableRow><TableHead>Référence</TableHead><TableHead>Client</TableHead><TableHead>Banque</TableHead><TableHead>Montant</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>
-                <TableBody>
-                  {virements?.map((v: any) => (
-                    <TableRow key={v.id}>
-                      <TableCell>{v.reference_virement || "—"}</TableCell>
-                      <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
-                      <TableCell>{v.banque || "—"}</TableCell>
-                      <TableCell>{Number(v.montant).toLocaleString()} DA</TableCell>
-                      <TableCell>{format(new Date(v.date_virement), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell><Badge className="bg-cyan-500/20 text-cyan-500 border-cyan-500/30">{v.statut}</Badge></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader><TableRow><TableHead>Référence</TableHead><TableHead>Client</TableHead><TableHead>Banque</TableHead><TableHead>Montant</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {virements?.map((v: any) => (
+                      <TableRow key={v.id}>
+                        <TableCell>{v.reference_virement || "—"}</TableCell>
+                        <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
+                        <TableCell>{v.banque || "—"}</TableCell>
+                        <TableCell>{Number(v.montant).toLocaleString()} DA</TableCell>
+                        <TableCell>{format(new Date(v.date_virement), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                        <TableCell><Badge className="bg-cyan-500/20 text-cyan-500 border-cyan-500/30">{v.statut}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

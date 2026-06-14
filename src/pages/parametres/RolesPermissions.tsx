@@ -563,7 +563,7 @@ const RolesPermissions = () => {
                   ))}
                 </div>
               ) : (
-                <div className="border rounded-lg">
+                <div className="border rounded-lg overflow-x-auto">
                   <Table className="w-full table-fixed [&_th]:px-2 [&_td]:px-2 [&_th]:py-2 [&_td]:py-2">
                     <TableHeader>
                       <TableRow className="bg-muted/30">
