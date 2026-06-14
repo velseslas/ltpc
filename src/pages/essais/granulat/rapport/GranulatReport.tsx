@@ -310,7 +310,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             top: 0 !important;
             width: 194mm !important;
             max-width: none !important;
-            min-height: 0 !important;
+            min-height: 281mm !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: visible !important;
@@ -318,37 +318,40 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             border-radius: 0 !important;
             background: white !important;
             color: #111111 !important;
-            font-size: 9px !important;
-            line-height: 1.15 !important;
+            font-size: 11px !important;
+            line-height: 1.35 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
 
-          /* Compact spacing for single-page fit */
+          /* A4 readable spacing: avoid the old 3/4-page compact rendering */
           [data-ref="report"] h1,
           [data-ref="report"] h2,
           [data-ref="report"] h3,
           [data-ref="report"] h4 {
-            margin: 2px 0 !important;
-            line-height: 1.2 !important;
+            margin: 0 0 6px 0 !important;
+            line-height: 1.25 !important;
           }
-          [data-ref="report"] h1 { font-size: 18px !important; font-weight: bold !important; }
-          [data-ref="report"] h2 { font-size: 17px !important; font-weight: bold !important; }
-          [data-ref="report"] h3 { font-size: 13px !important; font-weight: bold !important; }
-          [data-ref="report"] p { margin: 1px 0 !important; }
+          [data-ref="report"] h1 { font-size: 21px !important; font-weight: 800 !important; }
+          [data-ref="report"] h2 { font-size: 20px !important; font-weight: 800 !important; }
+          [data-ref="report"] h3 { font-size: 14px !important; font-weight: 800 !important; }
+          [data-ref="report"] p { margin: 3px 0 !important; }
 
-          [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 5px !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 8px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 5px !important; }
-          [data-ref="report"] .mt-2 { margin-top: 3px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 5px !important; }
-          [data-ref="report"] .p-4 { padding: 5px !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 12px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 10px !important; }
+          [data-ref="report"] .mb-2 { margin-bottom: 6px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 18px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 10px !important; }
+          [data-ref="report"] .mt-2 { margin-top: 6px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 10px !important; }
+          [data-ref="report"] .p-4 { padding: 10px !important; }
           [data-ref="report"] .p-8 { padding: 0 !important; }
-          [data-ref="report"] .space-y-6 > * + * { margin-top: 6px !important; }
-          [data-ref="report"] .space-y-4 > * + * { margin-top: 5px !important; }
-          [data-ref="report"] .space-y-2 > * + * { margin-top: 3px !important; }
+          [data-ref="report"] .space-y-6 > * + * { margin-top: 14px !important; }
+          [data-ref="report"] .space-y-4 > * + * { margin-top: 11px !important; }
+          [data-ref="report"] .space-y-2 > * + * { margin-top: 6px !important; }
 
           [data-ref="report"] table {
             width: 100% !important;
@@ -357,15 +360,15 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             table-layout: fixed !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            font-size: 8.5px !important;
+            font-size: 10.5px !important;
           }
 
           [data-ref="report"] th,
           [data-ref="report"] td {
             border: 1px solid #444444 !important;
             vertical-align: middle !important;
-            padding: 1.5px 4px !important;
-            line-height: 1.15 !important;
+            padding: 4.5px 7px !important;
+            line-height: 1.3 !important;
           }
 
           [data-ref="report"] tr {
@@ -377,9 +380,12 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             display: table-header-group !important;
           }
 
-          /* Compact signature/cachet block */
           [data-ref="report"] img {
-            max-height: 36px !important;
+            max-height: 72px !important;
+          }
+
+          [data-ref="report"] > div:last-child {
+            margin-top: auto !important;
           }
 
           /* Force entire report onto one page */

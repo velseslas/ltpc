@@ -136,29 +136,30 @@ export default function BleuMethyleneReportContent({ resultats }: BleuMethyleneR
       <style>{`
         @media print {
 
-          /* More generous spacing for BleuMethylene report */
+          /* Keep BleuMethylene consistent with the full-page A4 report scale */
           [data-ref="report"] .bleu-methylene-content.space-y-6 > * + * {
-            margin-top: 12px !important;
+            margin-top: 14px !important;
           }
 
           [data-ref="report"] .bleu-methylene-content h3 {
-            font-size: 11.5px !important;
-            margin-bottom: 5px !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            margin-bottom: 6px !important;
             line-height: 1.3 !important;
           }
 
           [data-ref="report"] .bleu-methylene-content table {
-            font-size: 10px !important;
+            font-size: 10.5px !important;
           }
 
           [data-ref="report"] .bleu-methylene-content th,
           [data-ref="report"] .bleu-methylene-content td {
-            padding: 4px 8px !important;
-            line-height: 1.35 !important;
+            padding: 4.5px 7px !important;
+            line-height: 1.3 !important;
           }
 
           [data-ref="report"] .bleu-methylene-content .print-mb-value {
-            font-size: 15px !important;
+            font-size: 16px !important;
           }
         }
       `}</style>
