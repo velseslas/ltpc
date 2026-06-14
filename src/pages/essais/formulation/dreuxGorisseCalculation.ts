@@ -334,7 +334,7 @@ function distributeSand(
     const mf1 = sand1.moduleFinesse;
     const mf2 = sand2.moduleFinesse;
 
-    console.log('[distributeSand] MF formula inputs:', { mfCible, mf1, mf2, sand1Key: sand1.key, sand2Key: sand2.key, totalVolume });
+    if (import.meta.env.DEV) console.log('[distributeSand] MF formula inputs:', { mfCible, mf1, mf2, sand1Key: sand1.key, sand2Key: sand2.key, totalVolume });
 
     if (typeof mf1 === "number" && mf1 > 0 && typeof mf2 === "number" && mf2 > 0 && Math.abs(mf1 - mf2) > 0.001) {
       let s1 = (mfCible - mf2) / (mf1 - mf2);
