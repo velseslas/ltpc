@@ -12,7 +12,6 @@ import type { Json } from "@/integrations/supabase/types";
 interface CarotteResult {
   id: string;
   reference: string;
-  diametre_mesure: string; // Diamètre (mm) - mesure initiale
   hauteur_L: string;       // Hauteur L (mm)
   diametre_D: string;      // Diamètre D (mm)
   elancement: string;      // L/D
@@ -34,7 +33,6 @@ interface ElementTest {
 const emptyCarotte = (): CarotteResult => ({
   id: crypto.randomUUID(),
   reference: "",
-  diametre_mesure: "",
   hauteur_L: "",
   diametre_D: "",
   elancement: "",
@@ -302,7 +300,6 @@ const CarottageDataEntry = () => {
                 <thead className="bg-muted/40">
                   <tr>
                     <th className="p-2 text-left font-semibold">Référence</th>
-                    <th className="p-2 text-left font-semibold">Diamètre (mm)</th>
                     <th className="p-2 text-left font-semibold">Hauteur L (mm)</th>
                     <th className="p-2 text-left font-semibold">Diamètre D (mm)</th>
                     <th className="p-2 text-center font-semibold">L/D</th>
@@ -322,9 +319,6 @@ const CarottageDataEntry = () => {
                     <tr key={r.id} className="border-t border-border">
                       <td className="p-1">
                         <Input className="h-8" value={r.reference} onChange={(e) => updateCarotte(eIdx, cIdx, "reference", e.target.value)} placeholder="C1" />
-                      </td>
-                      <td className="p-1">
-                        <Input className="h-8" type="number" value={r.diametre_mesure} onChange={(e) => updateCarotte(eIdx, cIdx, "diametre_mesure", e.target.value)} />
                       </td>
                       <td className="p-1">
                         <Input className="h-8" type="number" value={r.hauteur_L} onChange={(e) => updateCarotte(eIdx, cIdx, "hauteur_L", e.target.value)} />
