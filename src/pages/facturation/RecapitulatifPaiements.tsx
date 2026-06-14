@@ -85,20 +85,22 @@ export default function RecapitulatifPaiements() {
         <TabsContent value="espece">
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader><TableRow><TableHead>N° Reçu</TableHead><TableHead>Client</TableHead><TableHead>Montant</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>
-                <TableBody>
-                  {especes?.map((e: any) => (
-                    <TableRow key={e.id}>
-                      <TableCell>{e.numero_recu || "—"}</TableCell>
-                      <TableCell>{(e.clients as any)?.nom || "—"}</TableCell>
-                      <TableCell>{Number(e.montant).toLocaleString()} DA</TableCell>
-                      <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                      <TableCell><Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">{e.statut}</Badge></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader><TableRow><TableHead>N° Reçu</TableHead><TableHead>Client</TableHead><TableHead>Montant</TableHead><TableHead>Date</TableHead><TableHead>Statut</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {especes?.map((e: any) => (
+                      <TableRow key={e.id}>
+                        <TableCell>{e.numero_recu || "—"}</TableCell>
+                        <TableCell>{(e.clients as any)?.nom || "—"}</TableCell>
+                        <TableCell>{Number(e.montant).toLocaleString()} DA</TableCell>
+                        <TableCell>{format(new Date(e.date_paiement), "dd/MM/yyyy", { locale: fr })}</TableCell>
+                        <TableCell><Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">{e.statut}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
