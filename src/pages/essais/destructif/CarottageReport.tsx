@@ -143,10 +143,6 @@ const CarottageReport = () => {
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage || "—"}</td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Localisation</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.localisation || "—"}</td>
-              </tr>
-              <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Date de prélèvement</td>
                 <td className="border border-black px-3 py-1.5 text-black">{format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</td>
               </tr>
@@ -160,30 +156,6 @@ const CarottageReport = () => {
           </table>
         </div>
 
-        {/* Caractéristiques techniques */}
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Caractéristiques du carottage</h3>
-          <table className="w-full border-collapse border border-black text-sm">
-            <thead>
-              <tr>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Diamètre (mm)</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Direction</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de résistance</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">État de surface</th>
-                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Armatures</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.diametre_carotte ? `Ø ${echantillon.diametre_carotte}` : "—"}</td>
-                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.direction_carottage || "—"}</td>
-                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_resistance || "—"}</td>
-                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.etat_surface || "—"}</td>
-                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.presence_armatures ? "Oui" : "Non"}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
 
         {/* Résultats */}
         <div className="mb-6">
