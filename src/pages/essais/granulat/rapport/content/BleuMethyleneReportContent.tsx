@@ -136,8 +136,8 @@ export default function BleuMethyleneReportContent({ resultats }: BleuMethyleneR
       <style>{`
         @media print {
           /* Increase title font size when Bleu de Méthylène report */
-          [data-ref="report"]:has(.bleu-methylene-content) h1 {
-            font-size: 15px !important;
+          [data-ref="report"]:has(.bleu-methylene-content) h2 {
+            font-size: 16px !important;
           }
 
           /* More generous spacing for BleuMethylene report */
