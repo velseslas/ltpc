@@ -130,40 +130,44 @@ export function useEchantillonGranulatById(essaiType: string, id: string | undef
   return useQuery({
     queryKey: ["echantillon", tableName, id],
     queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
-        .from(tableName)
-        .select(`
-          *,
-          carrieres (
-            id,
-            nom,
-            ville
-          ),
-          clients (
-            id,
-            nom
-          ),
-          chantiers (
-            id,
-            nom
-          ),
-          intervenants (
-            id,
-            nom,
-            prenom,
-            signature_url
-          )
-        `)
-        .eq("id", id!)
-        .maybeSingle();
+      const runQuery = async () =>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any)
+          .from(tableName)
+          .select(`
+            *,
+            carrieres ( id, nom, ville ),
+            clients ( id, nom ),
+            chantiers ( id, nom ),
+            intervenants ( id, nom, prenom, signature_url )
+          `)
+          .eq("id", id!)
+          .maybeSingle();
+
+      let { data, error } = await runQuery();
+
+      // If JWT expired, force-refresh the session and retry once
+      if (error && (error.code === "PGRST303" || /jwt/i.test(error.message || ""))) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError) {
+          ({ data, error } = await runQuery());
+        }
+      }
 
       if (error) throw error;
       return data as EchantillonGranulatBase | null;
     },
     enabled: !!id,
+    retry: (failureCount, err: unknown) => {
+      const e = err as { code?: string; message?: string } | null;
+      if (e?.code === "PGRST303" || (e?.message && /jwt/i.test(e.message))) {
+        return failureCount < 2;
+      }
+      return failureCount < 1;
+    },
   });
 }
+
 
 export function useCreateEchantillonGranulatByType(essaiType: string) {
   const queryClient = useQueryClient();
