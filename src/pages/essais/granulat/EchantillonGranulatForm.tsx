@@ -83,7 +83,9 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const { data: intervenants } = useIntervenants();
   const { data: clients } = useClients();
   const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGranulatById(essaiType, id);
-  
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>(getTableName(essaiType));
+  const prefillSource: any = isEditing ? echantillon : duplicateSource;
+
   const createEchantillon = useCreateEchantillonGranulatByType(essaiType);
   const updateEchantillon = useUpdateEchantillonGranulatByType(essaiType);
 
