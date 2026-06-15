@@ -34,8 +34,10 @@ import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { 
   useEchantillonGranulatById,
   useCreateEchantillonGranulatByType, 
-  useUpdateEchantillonGranulatByType 
+  useUpdateEchantillonGranulatByType,
+  getTableName,
 } from "@/hooks/useEchantillonsGranulatFactory";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 
