@@ -153,7 +153,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
     }
   };
 
-  const isLoading = clientsLoading || chantiersLoading || carrieresLoading || (isEditing && echantillonLoading);
+  const isLoading = clientsLoading || chantiersLoading || carrieresLoading || (isEditing && echantillonLoading) || isDuplicateLoading;
   const isPending = createEchantillon.isPending || updateEchantillon.isPending;
 
   if (isLoading) {
