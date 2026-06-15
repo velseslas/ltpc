@@ -104,6 +104,7 @@ const UltrasonTest = () => {
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}`)}><Eye className="h-4 w-4" />Détails</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie de données</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/rapport`)}><FileBarChart className="h-4 w-4" />Rapport</DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/nouveau?duplicateFrom=${e.id}`)}><Copy className="h-4 w-4" />Dupliquer</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/modifier`)}><Pencil className="h-4 w-4" />Modifier</DropdownMenuItem>
                         <AdminOnly>
                           <ConfirmDelete
