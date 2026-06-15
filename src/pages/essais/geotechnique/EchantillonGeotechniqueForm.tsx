@@ -21,8 +21,10 @@ import { useCarrieres } from "@/hooks/useCarrieres";
 import {
   useEchantillonGeotechniqueById,
   useCreateEchantillonGeotechniqueByType,
-  useUpdateEchantillonGeotechniqueByType
+  useUpdateEchantillonGeotechniqueByType,
+  getGeoTableName,
 } from "@/hooks/useEchantillonsGeotechniqueFactory";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
