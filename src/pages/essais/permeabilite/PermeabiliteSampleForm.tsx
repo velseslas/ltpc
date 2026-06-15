@@ -339,7 +339,7 @@ const PermeabiliteSampleForm = () => {
 
   const isPending = createEchantillon.isPending || updateEchantillon.isPending;
 
-  if (isLoadingEchantillon) {
+  if (isLoadingEchantillon || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
