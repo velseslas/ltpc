@@ -46,6 +46,7 @@ const SclerometreSampleForm = () => {
   const basePath = "/essais/beton/non-destructif/sclerometre";
 
   const { data: existingData } = useEchantillonSclerometre(id ?? "");
+  const { duplicateSource } = useDuplicateSource<any>("echantillons_sclerometre");
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const createMutation = useCreateEchantillonSclerometre();
