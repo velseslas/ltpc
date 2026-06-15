@@ -32,6 +32,7 @@ import {
   useCreateEchantillonPermeabilite,
   useUpdateEchantillonPermeabilite,
 } from "@/hooks/useEchantillonsPermeabilite";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
@@ -98,9 +99,11 @@ const PermeabiliteSampleForm = () => {
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id && id !== "nouveau";
 
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useEchantillonPermeabiliteById(
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonPermeabiliteById(
     isEditMode ? id : undefined
   );
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_permeabilite");
+  const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
   const createEchantillon = useCreateEchantillonPermeabilite();
   const updateEchantillon = useUpdateEchantillonPermeabilite();
 
@@ -336,7 +339,7 @@ const PermeabiliteSampleForm = () => {
 
   const isPending = createEchantillon.isPending || updateEchantillon.isPending;
 
-  if (isLoadingEchantillon) {
+  if (isLoadingEchantillon || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

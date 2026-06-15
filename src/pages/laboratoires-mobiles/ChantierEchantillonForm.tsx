@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 
 const CONDITIONS_CURE = [
   { value: "standard", label: "Cure standard (20°C, 95% HR)" },
@@ -154,7 +155,7 @@ export default function ChantierEchantillonForm() {
   }, [labos, chantierId]);
 
   // Fetch existing echantillon for edit mode
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useQuery({
     queryKey: ["echantillon-chantier", echantillonId],
     queryFn: async () => {
       if (!echantillonId) return null;
@@ -168,6 +169,8 @@ export default function ChantierEchantillonForm() {
     },
     enabled: !!echantillonId,
   });
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_compression");
+  const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
 
   // Initialize form with existing data
   useEffect(() => {
@@ -364,7 +367,7 @@ export default function ChantierEchantillonForm() {
 
   const isPending = createEchantillon.isPending;
 
-  if (isLoadingChantier || isLoadingEchantillon) {
+  if (isLoadingChantier || isLoadingEchantillon || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

@@ -49,7 +49,9 @@ import {
   useCreateEchantillonBetonFraisByType,
   useUpdateEchantillonBetonFraisByType,
   getPrefix,
+  getTableName,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 
 const CLASSES_RESISTANCE = [
   "C12/15", "C16/20", "C20/25", "C25/30", "C30/37", "C35/45",
@@ -125,7 +127,9 @@ export default function EchantillonBetonFraisForm({
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
 
-  const { data: echantillon, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
+  const { data: echantillonEdit, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>(getTableName(essaiType));
+  const echantillon: any = echantillonEdit || (!isEditing ? duplicateSource : null);
   const createEchantillon = useCreateEchantillonBetonFraisByType(essaiType);
   const updateEchantillon = useUpdateEchantillonBetonFraisByType(essaiType);
 
@@ -237,7 +241,7 @@ export default function EchantillonBetonFraisForm({
 
   // Multi-step initialization for edit mode
   useEffect(() => {
-    if (echantillon && isEditing && !isFormInitialized && initStep === 0) {
+    if (echantillon && !isFormInitialized && initStep === 0) {
       setIsPreFilling(true);
       form.setValue("client_id", echantillon.client_id || "");
       form.setValue("centrale_id", echantillon.centrale_id || "");
@@ -345,7 +349,7 @@ export default function EchantillonBetonFraisForm({
     { label: isEditing ? "Modifier" : "Nouveau" },
   ];
 
-  if (isEditing && loadingEchantillon) {
+  if ((isEditing && loadingEchantillon) || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

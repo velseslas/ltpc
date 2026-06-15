@@ -32,6 +32,7 @@ import {
   useCreateEchantillonModuleElasticite,
   useUpdateEchantillonModuleElasticite,
 } from "@/hooks/useEchantillonsModuleElasticite";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
@@ -98,9 +99,11 @@ const ModuleElasticiteSampleForm = () => {
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id && id !== "nouveau";
 
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useEchantillonModuleElasticiteById(
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonModuleElasticiteById(
     isEditMode ? id : undefined
   );
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_module_elasticite");
+  const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
   const createEchantillon = useCreateEchantillonModuleElasticite();
   const updateEchantillon = useUpdateEchantillonModuleElasticite();
 
@@ -330,7 +333,7 @@ const ModuleElasticiteSampleForm = () => {
 
   const isPending = createEchantillon.isPending || updateEchantillon.isPending;
 
-  if (isLoadingEchantillon) {
+  if (isLoadingEchantillon || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

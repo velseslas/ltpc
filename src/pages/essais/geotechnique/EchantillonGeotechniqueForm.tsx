@@ -21,8 +21,10 @@ import { useCarrieres } from "@/hooks/useCarrieres";
 import {
   useEchantillonGeotechniqueById,
   useCreateEchantillonGeotechniqueByType,
-  useUpdateEchantillonGeotechniqueByType
+  useUpdateEchantillonGeotechniqueByType,
+  getGeoTableName,
 } from "@/hooks/useEchantillonsGeotechniqueFactory";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -60,7 +62,9 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: allChantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
-  const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGeotechniqueById(essaiType, id);
+  const { data: echantillonEdit, isLoading: echantillonLoading } = useEchantillonGeotechniqueById(essaiType, id);
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>(getGeoTableName(essaiType));
+  const echantillon: any = echantillonEdit || (!isEditing ? duplicateSource : null);
 
   const createEchantillon = useCreateEchantillonGeotechniqueByType(essaiType);
   const updateEchantillon = useUpdateEchantillonGeotechniqueByType(essaiType);
@@ -88,12 +92,14 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const [isFormInitialized, setIsFormInitialized] = useState(false);
 
   useEffect(() => {
-    if (echantillon && isEditing && !isFormInitialized) {
+    if (echantillon && !isFormInitialized) {
       form.setValue("client_id", echantillon.client_id || "");
       form.setValue("chantier_id", echantillon.chantier_id || "");
       form.setValue("carriere_id", echantillon.carriere_id || "");
       form.setValue("type_sol", echantillon.type_sol);
-      form.setValue("date_prelevement", echantillon.date_prelevement);
+      if (isEditing) {
+        form.setValue("date_prelevement", echantillon.date_prelevement);
+      }
       form.setValue("date_essai", echantillon.date_essai || "");
       form.setValue("observations", echantillon.observations || "");
       const res = echantillon.resultats as Record<string, unknown> | null;
@@ -147,7 +153,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
     }
   };
 
-  const isLoading = clientsLoading || chantiersLoading || carrieresLoading || (isEditing && echantillonLoading);
+  const isLoading = clientsLoading || chantiersLoading || carrieresLoading || (isEditing && echantillonLoading) || isDuplicateLoading;
   const isPending = createEchantillon.isPending || updateEchantillon.isPending;
 
   if (isLoading) {
