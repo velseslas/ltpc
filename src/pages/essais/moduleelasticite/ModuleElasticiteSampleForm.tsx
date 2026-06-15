@@ -99,9 +99,11 @@ const ModuleElasticiteSampleForm = () => {
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id && id !== "nouveau";
 
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useEchantillonModuleElasticiteById(
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonModuleElasticiteById(
     isEditMode ? id : undefined
   );
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_module_elasticite");
+  const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
   const createEchantillon = useCreateEchantillonModuleElasticite();
   const updateEchantillon = useUpdateEchantillonModuleElasticite();
 
