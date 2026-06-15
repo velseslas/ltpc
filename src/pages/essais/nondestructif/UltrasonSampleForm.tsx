@@ -44,6 +44,7 @@ const UltrasonSampleForm = () => {
   const basePath = "/essais/beton/non-destructif/ultrason";
 
   const { data: existingData } = useEchantillonUltrason(id ?? "");
+  const { duplicateSource } = useDuplicateSource<any>("echantillons_ultrason");
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const createMutation = useCreateEchantillonUltrason();
