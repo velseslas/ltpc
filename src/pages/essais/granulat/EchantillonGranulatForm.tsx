@@ -243,7 +243,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
       {/* Form */}
       <Card className="border-border bg-card relative">
         <FormLoadingOverlay 
-          isLoading={isEditing && (echantillonLoading || isPreFilling)} 
+          isLoading={(isEditing && echantillonLoading) || isDuplicateLoading || isPreFilling} 
           message="Chargement des données de l'échantillon..." 
         />
         <CardHeader>
