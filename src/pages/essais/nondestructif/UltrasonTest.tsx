@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
+import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
 import { useEchantillonsUltrason, useDeleteEchantillonUltrason, EchantillonUltrasonWithRelations } from "@/hooks/useEchantillonsUltrason";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -104,6 +104,7 @@ const UltrasonTest = () => {
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}`)}><Eye className="h-4 w-4" />Détails</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie de données</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/rapport`)}><FileBarChart className="h-4 w-4" />Rapport</DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/nouveau?duplicateFrom=${e.id}`)}><Copy className="h-4 w-4" />Dupliquer</DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${e.id}/modifier`)}><Pencil className="h-4 w-4" />Modifier</DropdownMenuItem>
                         <AdminOnly>
                           <ConfirmDelete

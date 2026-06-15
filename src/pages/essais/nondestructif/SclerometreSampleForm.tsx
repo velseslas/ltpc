@@ -16,6 +16,7 @@ import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useCreateEchantillonSclerometre, useUpdateEchantillonSclerometre, useEchantillonSclerometre } from "@/hooks/useEchantillonsSclerometre";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
@@ -45,6 +46,7 @@ const SclerometreSampleForm = () => {
   const basePath = "/essais/beton/non-destructif/sclerometre";
 
   const { data: existingData } = useEchantillonSclerometre(id ?? "");
+  const { duplicateSource } = useDuplicateSource<any>("echantillons_sclerometre");
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const createMutation = useCreateEchantillonSclerometre();
@@ -65,22 +67,23 @@ const SclerometreSampleForm = () => {
   const { data: chantiers } = useChantiersByClient(clientId);
 
   useEffect(() => {
-    if (existingData && isEdit) {
-      setClientId(existingData.client_id ?? "");
-      setChantierId(existingData.chantier_id ?? "");
-      setOperateurId(existingData.operateur_id ?? "");
-      setOuvrage(existingData.ouvrage ?? "");
-      setPartieOuvrage(existingData.partie_ouvrage ?? "");
-      setOrientation(existingData.orientation ?? "horizontale");
-      setDateEssai(parseISO(existingData.date_essai));
-      setAgeBetonJours(existingData.age_beton_jours?.toString() ?? "");
-      setClasseResistance(existingData.classe_resistance ?? "");
+    const src = isEdit ? existingData : duplicateSource;
+    if (src) {
+      setClientId(src.client_id ?? "");
+      setChantierId(src.chantier_id ?? "");
+      setOperateurId(src.operateur_id ?? "");
+      setOuvrage(src.ouvrage ?? "");
+      setPartieOuvrage(src.partie_ouvrage ?? "");
+      setOrientation(src.orientation ?? "horizontale");
+      if (src.date_essai) setDateEssai(parseISO(src.date_essai));
+      setAgeBetonJours(src.age_beton_jours?.toString() ?? "");
+      setClasseResistance(src.classe_resistance ?? "");
       try {
-        const stored = JSON.parse(existingData.observations ?? "[]");
+        const stored = JSON.parse(src.observations ?? "[]");
         if (Array.isArray(stored)) setMentions(stored);
       } catch { setMentions([]); }
     }
-  }, [existingData, isEdit]);
+  }, [existingData, duplicateSource, isEdit]);
 
   const handleSubmit = async () => {
     const payload: any = {

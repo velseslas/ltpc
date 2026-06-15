@@ -16,6 +16,7 @@ import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useCreateEchantillonUltrason, useUpdateEchantillonUltrason, useEchantillonUltrason } from "@/hooks/useEchantillonsUltrason";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
@@ -43,6 +44,7 @@ const UltrasonSampleForm = () => {
   const basePath = "/essais/beton/non-destructif/ultrason";
 
   const { data: existingData } = useEchantillonUltrason(id ?? "");
+  const { duplicateSource } = useDuplicateSource<any>("echantillons_ultrason");
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const createMutation = useCreateEchantillonUltrason();
@@ -64,23 +66,24 @@ const UltrasonSampleForm = () => {
   const { data: chantiers } = useChantiersByClient(clientId);
 
   useEffect(() => {
-    if (existingData && isEdit) {
-      setClientId(existingData.client_id ?? "");
-      setChantierId(existingData.chantier_id ?? "");
-      setOperateurId(existingData.operateur_id ?? "");
-      setOuvrage(existingData.ouvrage ?? "");
-      setPartieOuvrage(existingData.partie_ouvrage ?? "");
-      setModeTransmission(existingData.mode_transmission ?? "direct");
-      setFrequenceKhz(existingData.frequence_khz?.toString() ?? "");
-      setDateEssai(parseISO(existingData.date_essai));
-      setAgeBetonJours(existingData.age_beton_jours?.toString() ?? "");
-      setClasseResistance(existingData.classe_resistance ?? "");
+    const src = isEdit ? existingData : duplicateSource;
+    if (src) {
+      setClientId(src.client_id ?? "");
+      setChantierId(src.chantier_id ?? "");
+      setOperateurId(src.operateur_id ?? "");
+      setOuvrage(src.ouvrage ?? "");
+      setPartieOuvrage(src.partie_ouvrage ?? "");
+      setModeTransmission(src.mode_transmission ?? "direct");
+      setFrequenceKhz(src.frequence_khz?.toString() ?? "");
+      if (src.date_essai) setDateEssai(parseISO(src.date_essai));
+      setAgeBetonJours(src.age_beton_jours?.toString() ?? "");
+      setClasseResistance(src.classe_resistance ?? "");
       try {
-        const stored = JSON.parse(existingData.observations ?? "[]");
+        const stored = JSON.parse(src.observations ?? "[]");
         if (Array.isArray(stored)) setMentions(stored);
       } catch { setMentions([]); }
     }
-  }, [existingData, isEdit]);
+  }, [existingData, duplicateSource, isEdit]);
 
   const handleSubmit = async () => {
     const payload: any = {

@@ -19,6 +19,7 @@ import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useCreateEchantillonCarottage, useUpdateEchantillonCarottage, useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
@@ -52,6 +53,7 @@ const CarottageSampleForm = () => {
   const isEditing = !!id;
 
   const { data: existingData, isLoading: loadingExisting } = useEchantillonCarottage(id || "");
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_carottage");
   const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const createMutation = useCreateEchantillonCarottage();
@@ -76,23 +78,24 @@ const CarottageSampleForm = () => {
   const { data: chantiers } = useChantiersByClient(clientId);
 
   useEffect(() => {
-    if (isEditing && existingData) {
-      setClientId(existingData.client_id || "");
-      setChantierId(existingData.chantier_id || "");
-      setOperateurId(existingData.operateur_id || "");
-      setDatePrelevement(parseISO(existingData.date_prelevement));
-      setOuvrage(existingData.ouvrage || "");
-      setPartieOuvrage(existingData.partie_ouvrage || "");
-      setLocalisation(existingData.localisation || "");
-      setDiametreCarotte(existingData.diametre_carotte || "");
-      setLongueurCarotte(existingData.longueur_carotte?.toString() || "");
-      setDirectionCarottage(existingData.direction_carottage || "");
-      setPresenceArmatures(existingData.presence_armatures || false);
-      setEtatSurface(existingData.etat_surface || "");
-      setClasseResistance(existingData.classe_resistance || "");
-      setObservations(existingData.observations || "");
+    const sourceData = isEditing ? existingData : duplicateSource;
+    if (sourceData) {
+      setClientId(sourceData.client_id || "");
+      setChantierId(sourceData.chantier_id || "");
+      setOperateurId(sourceData.operateur_id || "");
+      if (sourceData.date_prelevement) setDatePrelevement(parseISO(sourceData.date_prelevement));
+      setOuvrage(sourceData.ouvrage || "");
+      setPartieOuvrage(sourceData.partie_ouvrage || "");
+      setLocalisation(sourceData.localisation || "");
+      setDiametreCarotte(sourceData.diametre_carotte || "");
+      setLongueurCarotte(sourceData.longueur_carotte?.toString() || "");
+      setDirectionCarottage(sourceData.direction_carottage || "");
+      setPresenceArmatures(sourceData.presence_armatures || false);
+      setEtatSurface(sourceData.etat_surface || "");
+      setClasseResistance(sourceData.classe_resistance || "");
+      setObservations(sourceData.observations || "");
     }
-  }, [isEditing, existingData]);
+  }, [isEditing, existingData, duplicateSource]);
 
   const handleSubmit = async () => {
     const payload = {

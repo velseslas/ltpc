@@ -8,7 +8,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart, FileText } from "lucide-react";
+import { ArrowLeft, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart, FileText } from "lucide-react";
 import { useEchantillonsCarottage, useDeleteEchantillonCarottage, CarottageWithRelations } from "@/hooks/useEchantillonsCarottage";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -142,6 +142,9 @@ const CarottageTest = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/rapport`)}>
                           <FileBarChart className="h-4 w-4" /> Rapport
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/nouveau?duplicateFrom=${e.id}`)}>
+                          <Copy className="h-4 w-4" /> Dupliquer
                         </DropdownMenuItem>
                         <DropdownMenuItem className="flex items-center gap-2" onClick={() => navigate(`/essais/beton/destructif/carottage/${e.id}/modifier`)}>
                           <Pencil className="h-4 w-4" /> Modifier

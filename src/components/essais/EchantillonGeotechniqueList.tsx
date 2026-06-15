@@ -12,7 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { FileText, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, ArrowLeft } from "lucide-react";
+import { FileText, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, ArrowLeft } from "lucide-react";
 import {
   useEchantillonsGeotechniqueByType,
   useDeleteEchantillonGeotechniqueByType,
@@ -176,6 +176,9 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}`); }}>
                           <Eye className="w-4 h-4 mr-2" />Détails
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/nouveau?duplicateFrom=${echantillon.id}`); }}>
+                          <Copy className="w-4 h-4 mr-2" />Dupliquer
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`${basePath}/${echantillon.id}/modifier`); }}>
                           <Pencil className="w-4 h-4 mr-2" />Modifier

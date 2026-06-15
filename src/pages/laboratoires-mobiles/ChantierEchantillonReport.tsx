@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
-import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format, addDays } from "date-fns";
@@ -349,7 +348,6 @@ export default function ChantierEchantillonReport() {
         </div>
         <div className="flex gap-3">
           <ShareButton />
-          {echantillonId && <DuplicateReportButton tableName="echantillons_compression" sourceId={echantillonId} reportRoute={(nid) => `/laboratoires-mobiles/chantier/${chantierId}/echantillon/${nid}/rapport`} invalidateKeys={["echantillons-compression"]} />}
           <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
             <Printer className="h-4 w-4" />
             Imprimer

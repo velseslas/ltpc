@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, MoreHorizontal, Eye, Edit, Trash2, ClipboardEdit, FileText, ArrowLeft, Loader2, ClipboardList } from "lucide-react";
+import { Plus, MoreHorizontal, Eye, Edit, Copy, Trash2, ClipboardEdit, FileText, ArrowLeft, Loader2, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -242,6 +242,15 @@ export function EchantillonBetonFraisList({
                         >
                           <FileText className="w-4 h-4 mr-2" />
                           Rapport
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`${basePath}/nouveau?duplicateFrom=${echantillon.id}`);
+                          }}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Dupliquer
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e) => {

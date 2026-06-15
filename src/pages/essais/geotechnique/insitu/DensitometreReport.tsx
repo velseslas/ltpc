@@ -9,7 +9,6 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
-import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 2): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
@@ -88,7 +87,6 @@ export default function DensitometreReport() {
               Rapport <span className="text-primary">{numero}</span>
             </h1>
           </div>
-          {id && <DuplicateReportButton tableName="echantillons_densitometre" sourceId={id} reportRoute={(nid) => `${basePath}/${nid}/rapport`} />}
           <Button onClick={handlePrint} className="gradient-primary text-primary-foreground">
             <Printer className="h-4 w-4 mr-2" />Imprimer
           </Button>

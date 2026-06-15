@@ -33,6 +33,7 @@ import {
 } from "@/hooks/useEchantillonsTractionFendage";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -93,7 +94,9 @@ const TractionFendageSampleForm = () => {
   
   const createEchantillon = useCreateEchantillonTractionFendage();
   const updateEchantillon = useUpdateEchantillonTractionFendage();
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useEchantillonTractionFendageById(id);
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonTractionFendageById(id);
+  const { duplicateSource } = useDuplicateSource<any>("echantillons_traction_fendage");
+  const existingEchantillon = isEditMode ? editEchantillon : duplicateSource;
 
   // Form state
   const [clientId, setClientId] = useState("");

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart, ClipboardList } from "lucide-react";
+import { Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -228,6 +228,13 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
                         >
                           <FileBarChart className="h-4 w-4" />
                           Rapport
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2"
+                          onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/nouveau?duplicateFrom=${echantillon.id}`)}
+                        >
+                          <Copy className="h-4 w-4" />
+                          Dupliquer
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="flex items-center gap-2"

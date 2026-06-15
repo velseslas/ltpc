@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
-import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { downloadReportAsPDF } from "@/lib/pdf";
@@ -128,7 +127,6 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
 
         <div className="flex gap-2">
           <ShareButton />
-          {id && <DuplicateReportButton tableName={`echantillons_${essaiType.replace(/-/g, "_")}`} sourceId={id} reportRoute={(nid) => `${basePath}/${nid}/rapport`} />}
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimer

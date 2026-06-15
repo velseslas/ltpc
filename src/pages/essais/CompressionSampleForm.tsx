@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,9 +121,10 @@ const CompressionSampleForm = () => {
   
   const createEchantillon = useCreateEchantillonCompression();
   const updateEchantillon = useUpdateEchantillonCompression();
+  const { duplicateSource } = useDuplicateSource<any>("echantillons_compression");
 
   // Fetch existing echantillon for edit mode
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useQuery({
     queryKey: ["echantillon-compression", id],
     queryFn: async () => {
       if (!id) return null;
@@ -136,6 +138,9 @@ const CompressionSampleForm = () => {
     },
     enabled: !!id,
   });
+
+  // Source data: edit data when editing, duplicate source when duplicating
+  const existingEchantillon = isEditMode ? editEchantillon : duplicateSource;
 
   // Form state
   const [clientId, setClientId] = useState("");
