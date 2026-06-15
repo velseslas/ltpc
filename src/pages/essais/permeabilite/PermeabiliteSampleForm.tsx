@@ -32,6 +32,7 @@ import {
   useCreateEchantillonPermeabilite,
   useUpdateEchantillonPermeabilite,
 } from "@/hooks/useEchantillonsPermeabilite";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
