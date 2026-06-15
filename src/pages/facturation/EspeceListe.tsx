@@ -153,7 +153,7 @@ export default function EspeceListe() {
 
       {/* Receipt Preview Dialog */}
       <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+        <DialogContent className="max-w-3xl max-h-[90vh]" data-ref="report">
           <DialogHeader>
             <DialogTitle>Aperçu du reçu</DialogTitle>
           </DialogHeader>

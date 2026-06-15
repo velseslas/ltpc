@@ -101,7 +101,7 @@ export default function MaterielInventaireDialog({ open, onOpenChange, data }: M
           </Button>
         </div>
 
-        <div ref={printRef} style={{ padding: "16px", background: "#fff", color: "#111" }}>
+        <div ref={printRef} data-ref="report" style={{ padding: "16px", background: "#fff", color: "#111" }}>
           <div style={{ textAlign: "center", marginBottom: "16px" }}>
             {entreprise?.nom && (
               <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>

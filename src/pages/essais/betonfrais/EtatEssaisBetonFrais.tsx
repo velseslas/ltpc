@@ -216,7 +216,7 @@ export default function EtatEssaisBetonFrais() {
             </Button>
           </div>
 
-          <div ref={reportRef} className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+          <div ref={reportRef} data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/essais/beton/beton-frais/etat-essais?type=${essaiType}`}
