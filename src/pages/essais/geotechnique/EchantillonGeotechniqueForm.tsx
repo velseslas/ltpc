@@ -92,12 +92,14 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const [isFormInitialized, setIsFormInitialized] = useState(false);
 
   useEffect(() => {
-    if (echantillon && isEditing && !isFormInitialized) {
+    if (echantillon && !isFormInitialized) {
       form.setValue("client_id", echantillon.client_id || "");
       form.setValue("chantier_id", echantillon.chantier_id || "");
       form.setValue("carriere_id", echantillon.carriere_id || "");
       form.setValue("type_sol", echantillon.type_sol);
-      form.setValue("date_prelevement", echantillon.date_prelevement);
+      if (isEditing) {
+        form.setValue("date_prelevement", echantillon.date_prelevement);
+      }
       form.setValue("date_essai", echantillon.date_essai || "");
       form.setValue("observations", echantillon.observations || "");
       const res = echantillon.resultats as Record<string, unknown> | null;
