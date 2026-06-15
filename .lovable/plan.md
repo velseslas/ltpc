@@ -1,94 +1,35 @@
-# Plan: Bouton "Dupliquer" sur tous les rapports
+# Déplacer "Dupliquer" dans le menu actions des listes
 
-## Objectif
-Ajouter un bouton "Dupliquer" (icône Copy) à côté des boutons Partager / Télécharger / Imprimer dans chaque rapport. Au clic, ouvrir un modal contenant le formulaire d'enregistrement pré-rempli avec les données d'identification du rapport courant (sauf N° échantillon, qui est auto-généré). À la soumission, créer un nouvel échantillon, copier l'intégralité du champ `resultats` (mesures, charges, Rc, densités, etc.) et rediriger automatiquement vers le nouveau rapport.
+## Changement de comportement
 
-## Architecture proposée
+Aujourd'hui le bouton "Dupliquer" est dans l'en-tête du rapport et ouvre une modale qui crée immédiatement le doublon. À la place :
 
-### 1. Hook partagé `useDuplicateEssai`
-Fichier : `src/hooks/useDuplicateEssai.ts`
+1. **Retirer** `DuplicateReportButton` de tous les rapports (et supprimer la modale `DuplicateReportDialog`).
+2. **Ajouter** une entrée "Dupliquer" dans le dropdown `…` de chaque liste d'échantillons, juste avant "Modifier".
+3. Au clic, naviguer vers la page **"Nouveau échantillon"** existante (route normale, pas de popup) avec un paramètre `?duplicateFrom={id}`.
+4. La page formulaire détecte ce paramètre, charge l'échantillon source, **pré-remplit** tous les champs d'identification (client, chantier, ouvrage, partie ouvrage, opérateur, dates, etc.) sauf le **N°** qui reste vide.
+5. **Aucune création automatique** : l'utilisateur modifie ce qu'il veut puis clique "Créer l'échantillon" pour persister (logique existante du bouton).
 
-Signature :
-```ts
-useDuplicateEssai({
-  tableName: string,          // ex: "echantillons_compression"
-  reportRoute: (id) => string // ex: id => `/essais/compression/${id}/rapport`
-})
-```
+## Périmètre (listes + formulaires concernés)
 
-Comportement :
-- `duplicate(sourceRecord, overrides)` :
-  1. construit le payload : copie tous les champs sauf `id`, `numero`, `numero_chantier`, `created_at`, `updated_at`, `statut`
-  2. applique `overrides` (les valeurs venues du formulaire)
-  3. `insert` sur la table → récupère le nouvel `id`
-  4. `navigate(reportRoute(newId))`
+- Béton : Compression, Carottage, BétonFrais, TractionFendage, Sclérométrie, Ultrason, Module élasticité, Perméabilité
+- Granulats : toutes les pages de saisie (via `EchantillonGranulatForm` + chaque page liste)
+- Géotechnique : Proctor, CBR, Atterberg, Classification, Granulométrie sol, Teneur eau, Densitomètre, Plaque
+- Formulation : `FormulationBeton` (liste) + `FormulationForm`
+- Laboratoires mobiles : `ChantierEchantillonsList` + `ChantierEchantillonForm`
 
-Avantage : un seul hook pour les ~40 tables `echantillons_*` et `formulations`, parce que toutes partagent la même forme (colonnes identification + JSONB `resultats`).
+## Détails techniques
 
-### 2. Composant partagé `DuplicateReportButton`
-Fichier : `src/components/reports/DuplicateReportButton.tsx`
+- Le hook `useDuplicateEssai` est conservé mais simplifié : il expose une fonction `prepareDuplicateOverrides(sourceRow)` qui retire `id, numero, numero_chantier, created_at, updated_at` et est réutilisée par les formulaires. La logique d'insertion immédiate est supprimée — l'insertion passe par le `createMutation` existant du formulaire.
+- Chaque `*SampleForm` / `*Form` lit `searchParams.get("duplicateFrom")`, appelle son hook `useEchantillon<X>(duplicateId)` (même hook que pour l'édition) et applique les valeurs dans un `useEffect` (avec un `duplicateInitialized` ref pour ne pas écraser les saisies utilisateur, conformément à la mémoire `editInitialized`).
+- Le titre devient "Nouveau" (et non "Modifier") et le bouton reste "Créer l'échantillon" : le formulaire n'est pas en mode édition, juste pré-rempli.
+- Pour granulats / géotechnique qui partagent un formulaire générique, on ajoute la logique une seule fois dans `EchantillonGranulatForm` et l'équivalent géotechnique.
+- Composants supprimés : `src/components/reports/DuplicateReportButton.tsx`, `src/components/reports/DuplicateReportDialog.tsx`.
 
-- Bouton avec icône Copy, classe `print:hidden`
-- Ouvre `DuplicateReportDialog`
-- Props : `sourceRecord`, `tableName`, `formComponent`, `reportRoute`
+## Livrables
 
-### 3. Composant partagé `DuplicateReportDialog`
-Fichier : `src/components/reports/DuplicateReportDialog.tsx`
-
-- Dialog modal large (max-w-4xl, scrollable)
-- Affiche le `formComponent` reçu en prop, en mode « duplication »
-- Le formulaire reçoit les valeurs initiales depuis `sourceRecord` (sans le N°)
-- À la soumission, appelle `useDuplicateEssai.duplicate(...)`
-
-### 4. Adaptation des formulaires existants
-Chaque formulaire d'enregistrement (`*Form.tsx`) doit accepter un mode « embedded » :
-- prop `initialValues` (override des valeurs par défaut)
-- prop `onSuccess(newId)` (au lieu de `navigate` interne)
-- prop `mode: "create" | "duplicate"` pour ajuster le titre / cacher breadcrumb
-
-Pour limiter le risque, j'ajouterai ces props de façon **non breaking** (toutes optionnelles, fallback = comportement actuel).
-
-### 5. Intégration dans chaque rapport
-Dans chaque fichier `*Report.tsx`, ajouter dans la barre d'action :
-```tsx
-<DuplicateReportButton
-  sourceRecord={echantillon}
-  tableName="echantillons_xxx"
-  formComponent={XxxForm}
-  reportRoute={(id) => `/essais/xxx/${id}/rapport`}
-/>
-```
-
-## Périmètre des rapports concernés
-
-**Béton (destructif/non-destructif)** :
-- Compression, Carottage, BetonFrais (Affaissement, Température, TempsPrise, TeneurAir), TractionFendage, Sclérométrie, Ultrason, Module élasticité, Perméabilité, Écrasement
-
-**Granulats** (tous via `GranulatReport.tsx` factorisé) :
-- BleuMéthylène, ÉquivalentSable, FormeGranulats, Friabilité, Granulométrie, LosAngeles, MasseVolumique, MatièreOrganique, MicroDeval, TeneurEau, MatièreOrganique
-
-**Géotechnique** :
-- CBR, Proctor (normal/modifié), Atterberg, Classification, TeneurEau sol, Granulométrie sol, Densitomètre, Plaque, Cisaillement, Œdométrique, Pénétromètre, Pressiomètre, Sondage, Triaxial, DensitéPlace, CompressionSimple
-
-**Formulation** : 1 rapport
-
-**Laboratoires mobiles** : `ChantierEchantillonReport.tsx` + bulletin
-
-## Étapes d'implémentation
-
-1. Créer `useDuplicateEssai.ts` (hook générique)
-2. Créer `DuplicateReportDialog.tsx` + `DuplicateReportButton.tsx`
-3. Refactor d'**un** formulaire pilote (Compression) pour supporter `initialValues` / `onSuccess`
-4. Brancher le bouton dans `CompressionReport.tsx` → valider l'UX de bout en bout
-5. Étendre aux familles de rapports une par une (Béton, Granulats via le wrapper factorisé `GranulatReport`, Géotechnique, Formulation, Labos mobiles)
-6. Vérifier le build après chaque famille
-
-## Question avant de me lancer
-
-L'ampleur est importante (~50 fichiers touchés). Deux options :
-
-**A. Implémentation complète en une livraison** (Compression + Carottage + toutes les autres familles d'un coup). Plus long, plus de fichiers modifiés, plus de risque de régression à valider.
-
-**B. Implémentation incrémentale validée** : je livre d'abord l'infrastructure (hook + modal + bouton) **+ Compression et Carottage** comme pilotes. Vous validez le comportement, puis je propage aux autres familles dans des messages suivants. Recommandé.
-
-Confirmez l'option (A ou B) avant que je commence à écrire le code.
+- ~20 fichiers liste modifiés (ajout entrée dropdown)
+- ~15 fichiers formulaire modifiés (lecture `duplicateFrom`, pré-remplissage)
+- 20 fichiers rapport modifiés (retrait du bouton et de l'import)
+- 2 fichiers supprimés (button + dialog)
+- 1 hook légèrement remanié
