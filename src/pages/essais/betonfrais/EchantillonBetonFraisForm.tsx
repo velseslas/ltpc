@@ -241,7 +241,7 @@ export default function EchantillonBetonFraisForm({
 
   // Multi-step initialization for edit mode
   useEffect(() => {
-    if (echantillon && isEditing && !isFormInitialized && initStep === 0) {
+    if (echantillon && !isFormInitialized && initStep === 0) {
       setIsPreFilling(true);
       form.setValue("client_id", echantillon.client_id || "");
       form.setValue("centrale_id", echantillon.centrale_id || "");
