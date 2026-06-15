@@ -33,6 +33,7 @@ import {
 } from "@/hooks/useEchantillonsTractionFendage";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
