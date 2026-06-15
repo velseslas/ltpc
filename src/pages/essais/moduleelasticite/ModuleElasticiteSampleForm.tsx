@@ -32,6 +32,7 @@ import {
   useCreateEchantillonModuleElasticite,
   useUpdateEchantillonModuleElasticite,
 } from "@/hooks/useEchantillonsModuleElasticite";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { toast } from "sonner";
