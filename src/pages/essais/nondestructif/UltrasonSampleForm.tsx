@@ -16,6 +16,7 @@ import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useCreateEchantillonUltrason, useUpdateEchantillonUltrason, useEchantillonUltrason } from "@/hooks/useEchantillonsUltrason";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 
