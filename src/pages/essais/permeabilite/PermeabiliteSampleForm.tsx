@@ -99,9 +99,11 @@ const PermeabiliteSampleForm = () => {
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id && id !== "nouveau";
 
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useEchantillonPermeabiliteById(
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonPermeabiliteById(
     isEditMode ? id : undefined
   );
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_permeabilite");
+  const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
   const createEchantillon = useCreateEchantillonPermeabilite();
   const updateEchantillon = useUpdateEchantillonPermeabilite();
 
