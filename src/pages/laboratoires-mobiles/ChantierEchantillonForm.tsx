@@ -155,7 +155,7 @@ export default function ChantierEchantillonForm() {
   }, [labos, chantierId]);
 
   // Fetch existing echantillon for edit mode
-  const { data: existingEchantillon, isLoading: isLoadingEchantillon } = useQuery({
+  const { data: editEchantillon, isLoading: isLoadingEchantillon } = useQuery({
     queryKey: ["echantillon-chantier", echantillonId],
     queryFn: async () => {
       if (!echantillonId) return null;
@@ -169,6 +169,8 @@ export default function ChantierEchantillonForm() {
     },
     enabled: !!echantillonId,
   });
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_compression");
+  const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
 
   // Initialize form with existing data
   useEffect(() => {
