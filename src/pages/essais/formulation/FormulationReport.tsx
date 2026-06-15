@@ -12,6 +12,7 @@ import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadc
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import ShareButton from "@/components/reports/ShareButton";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulation } from "@/hooks/useFormulations";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
@@ -485,6 +486,7 @@ export default function FormulationReport() {
 
         <div className="flex gap-2">
           <ShareButton />
+          {formulation?.id && <DuplicateReportButton tableName="formulations" sourceId={formulation.id} reportRoute={(nid) => `/essais/beton/formulation/${nid}/rapport`} invalidateKeys={["formulations"]} />}
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimer

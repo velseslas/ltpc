@@ -1,115 +1,94 @@
-# Plan — Unifier l'impression/téléchargement PDF dans toute l'app
+# Plan: Bouton "Dupliquer" sur tous les rapports
 
-Objectif : remplacer toute logique `html2canvas`/`jsPDF`/`window.open(...).print()` par le pattern unique basé sur l'impression du navigateur (`window.print()` + `downloadReportAsPDF(filename)` depuis `src/lib/pdf.ts`), pour garantir un rendu identique entre Aperçu / Imprimer / Télécharger.
+## Objectif
+Ajouter un bouton "Dupliquer" (icône Copy) à côté des boutons Partager / Télécharger / Imprimer dans chaque rapport. Au clic, ouvrir un modal contenant le formulaire d'enregistrement pré-rempli avec les données d'identification du rapport courant (sauf N° échantillon, qui est auto-généré). À la soumission, créer un nouvel échantillon, copier l'intégralité du champ `resultats` (mesures, charges, Rc, densités, etc.) et rediriger automatiquement vers le nouveau rapport.
 
-## Portée — 37 fichiers à modifier
+## Architecture proposée
 
-### A. Rapports d'essais (ont déjà un `reportRef` / `data-ref="report"`)
-- `src/pages/essais/CompressionReport.tsx` ✓ déjà migré
-- `src/pages/essais/SamplingBulletin.tsx` ✓ déjà migré
-- `src/pages/essais/tractionfendage/TractionFendageReport.tsx`
-- `src/pages/essais/permeabilite/PermeabiliteReport.tsx`
-- `src/pages/essais/betonfrais/BetonFraisReport.tsx`
-- `src/pages/essais/destructif/CarottageReport.tsx`
-- `src/pages/essais/destructif/EtatEssaisCarottage.tsx`
-- `src/pages/essais/nondestructif/UltrasonReport.tsx`
-- `src/pages/essais/nondestructif/SclerometreReport.tsx`
-- `src/pages/essais/moduleelasticite/ModuleElasticiteReport.tsx`
-- `src/pages/essais/betondurci/EtatEssaisBetonDurci.tsx`
-- `src/pages/essais/betonfrais/EtatEssaisBetonFrais.tsx`
-- `src/pages/essais/granulat/EtatEssaisGranulat.tsx`
-- `src/pages/essais/granulat/rapport/GranulatReport.tsx`
-- `src/pages/essais/geotechnique/insitu/DensitometreReport.tsx`
-- `src/pages/essais/geotechnique/insitu/PlaqueReport.tsx`
-- `src/pages/essais/geotechnique/compactage/ProctorReport.tsx`
-- `src/pages/essais/geotechnique/compactage/CBRReport.tsx`
-- `src/pages/essais/geotechnique/identification/GranulometrieSolReport.tsx`
-- `src/pages/essais/geotechnique/identification/LimitesAtterbergReport.tsx`
-- `src/pages/essais/geotechnique/identification/ClassificationSolReport.tsx`
-- `src/pages/essais/geotechnique/identification/TeneurEauSolReport.tsx`
-- `src/pages/essais/formulation/FormulationReport.tsx`
-- `src/pages/laboratoires-mobiles/ChantierEchantillonReport.tsx`
-- `src/pages/laboratoires-mobiles/ChantierEchantillonBulletin.tsx`
-- `src/pages/laboratoires-mobiles/EtatCoulages.tsx`
+### 1. Hook partagé `useDuplicateEssai`
+Fichier : `src/hooks/useDuplicateEssai.ts`
 
-### B. Facturation
-- `src/pages/facturation/FacturePreview.tsx`
-- `src/pages/facturation/DevisPreview.tsx`
-- `src/pages/facturation/EtatPaiementsEspece.tsx`
-- `src/pages/facturation/EspeceListe.tsx`
+Signature :
+```ts
+useDuplicateEssai({
+  tableName: string,          // ex: "echantillons_compression"
+  reportRoute: (id) => string // ex: id => `/essais/compression/${id}/rapport`
+})
+```
 
-### C. Documents (contrats, engagements, offres)
-- `src/pages/documents/ContratPreviewPage.tsx`
-- `src/pages/documents/EngagementPreviewPage.tsx`
-- `src/pages/documents/OffreServicePreviewPage.tsx`
-- `src/components/documents/ContratPreviewDialog.tsx`
-- `src/components/documents/DocumentViewerDialog.tsx`
+Comportement :
+- `duplicate(sourceRecord, overrides)` :
+  1. construit le payload : copie tous les champs sauf `id`, `numero`, `numero_chantier`, `created_at`, `updated_at`, `statut`
+  2. applique `overrides` (les valeurs venues du formulaire)
+  3. `insert` sur la table → récupère le nouvel `id`
+  4. `navigate(reportRoute(newId))`
 
-### D. Matériel
-- `src/pages/materiel/MaterielMaintenance.tsx`
-- `src/pages/materiel/MaterielMaintenanceHistorique.tsx`
-- `src/pages/materiel/MaterielEtalonnage.tsx`
-- `src/pages/materiel/MaterielEtalonnageHistorique.tsx`
-- `src/pages/materiel/MaterielAffectation.tsx`
-- `src/pages/materiel/MaterielAffectationHistorique.tsx`
-- `src/pages/materiel/MaterielInventaire.tsx`
-- `src/components/materiel/MaterielInventaireDialog.tsx`
+Avantage : un seul hook pour les ~40 tables `echantillons_*` et `formulations`, parce que toutes partagent la même forme (colonnes identification + JSONB `resultats`).
 
-### E. Normes (cas spécial)
-- `src/pages/essais/DestructifNormes.tsx`
-- `src/pages/essais/NonDestructifNormes.tsx`
-- `src/pages/essais/betonfrais/BetonFraisNormes.tsx`
-- `src/pages/essais/betonfrais/BetonDurciNormes.tsx`
-- `src/pages/essais/granulat/GranulatMecaniquesNormes.tsx`
-- `src/pages/essais/granulat/GranulatPhysiquesNormes.tsx`
-- `src/pages/essais/granulat/GranulatPropreteNormes.tsx`
-- `src/pages/essais/geotechnique/normes/MecaniqueNormes.tsx`
-- `src/pages/essais/geotechnique/normes/InSituNormes.tsx`
-- `src/pages/essais/geotechnique/normes/IdentificationNormes.tsx`
-- `src/pages/essais/geotechnique/normes/CompactageNormes.tsx`
-- `src/components/essais/FeuilleEssaiDialog.tsx`
+### 2. Composant partagé `DuplicateReportButton`
+Fichier : `src/components/reports/DuplicateReportButton.tsx`
 
-### F. Autres
-- `src/pages/rh/Documents.tsx`
+- Bouton avec icône Copy, classe `print:hidden`
+- Ouvre `DuplicateReportDialog`
+- Props : `sourceRecord`, `tableName`, `formComponent`, `reportRoute`
 
-## Transformations appliquées
+### 3. Composant partagé `DuplicateReportDialog`
+Fichier : `src/components/reports/DuplicateReportDialog.tsx`
 
-**Pour chaque fichier :**
+- Dialog modal large (max-w-4xl, scrollable)
+- Affiche le `formComponent` reçu en prop, en mode « duplication »
+- Le formulaire reçoit les valeurs initiales depuis `sourceRecord` (sans le N°)
+- À la soumission, appelle `useDuplicateEssai.duplicate(...)`
 
-1. **Imports** — supprimer `import html2canvas from "html2canvas"` et `import jsPDF from "jspdf"`. Ajouter `import { downloadReportAsPDF } from "@/lib/pdf"`.
+### 4. Adaptation des formulaires existants
+Chaque formulaire d'enregistrement (`*Form.tsx`) doit accepter un mode « embedded » :
+- prop `initialValues` (override des valeurs par défaut)
+- prop `onSuccess(newId)` (au lieu de `navigate` interne)
+- prop `mode: "create" | "duplicate"` pour ajuster le titre / cacher breadcrumb
 
-2. **handlePrint** — remplacer toute variante (`window.open("", "_blank")` + `printWindow.print()`, ouverture d'une nouvelle fenêtre avec HTML inline) par :
-   ```ts
-   const handlePrint = () => window.print();
-   ```
+Pour limiter le risque, j'ajouterai ces props de façon **non breaking** (toutes optionnelles, fallback = comportement actuel).
 
-3. **handleDownload** — remplacer la génération `html2canvas` → `jsPDF` → `pdf.save(...)` par :
-   ```ts
-   const handleDownload = () => downloadReportAsPDF(`<nom-fichier>`);
-   ```
-   (le nom de fichier conservé identique à l'existant pour chaque rapport).
+### 5. Intégration dans chaque rapport
+Dans chaque fichier `*Report.tsx`, ajouter dans la barre d'action :
+```tsx
+<DuplicateReportButton
+  sourceRecord={echantillon}
+  tableName="echantillons_xxx"
+  formComponent={XxxForm}
+  reportRoute={(id) => `/essais/xxx/${id}/rapport`}
+/>
+```
 
-4. **Container imprimable** — s'assurer que l'élément racine du contenu à imprimer porte `data-ref="report"`. Si absent, l'ajouter sur le `<div ref={printRef}>` existant.
+## Périmètre des rapports concernés
 
-5. **Chrome UI** — vérifier que les boutons d'action (Imprimer, Télécharger, retour, partage) et `AppBreadcrumb` portent `print:hidden`.
+**Béton (destructif/non-destructif)** :
+- Compression, Carottage, BetonFrais (Affaissement, Température, TempsPrise, TeneurAir), TractionFendage, Sclérométrie, Ultrason, Module élasticité, Perméabilité, Écrasement
 
-## Cas spécial — Pages Normes (groupe E)
+**Granulats** (tous via `GranulatReport.tsx` factorisé) :
+- BleuMéthylène, ÉquivalentSable, FormeGranulats, Friabilité, Granulométrie, LosAngeles, MasseVolumique, MatièreOrganique, MicroDeval, TeneurEau, MatièreOrganique
 
-Ces pages ne possèdent pas de container imprimable : elles construisent une chaîne HTML et l'envoient à une fenêtre popup. Solution :
+**Géotechnique** :
+- CBR, Proctor (normal/modifié), Atterberg, Classification, TeneurEau sol, Granulométrie sol, Densitomètre, Plaque, Cisaillement, Œdométrique, Pénétromètre, Pressiomètre, Sondage, Triaxial, DensitéPlace, CompressionSimple
 
-- Ajouter dans la page un container caché `<div ref={printRef} data-ref="report" className="hidden print:block">…</div>` qui rend la norme active.
-- Un état local `printingNorme: NormeData | null` détermine quel contenu rendre.
-- `handlePrint(norme)` : `setPrintingNorme(norme)` → `setTimeout(() => window.print(), 50)`.
-- `handleDownload(norme)` : `setPrintingNorme(norme)` → `setTimeout(() => downloadReportAsPDF(...), 50)`.
-- Le contenu reste invisible à l'écran (`hidden`) mais visible à l'impression (`print:block`), avec masquage du reste de l'app via `body > *:not(.print-root) { display:none }` déjà géré dans `src/index.css`.
+**Formulation** : 1 rapport
 
-## Vérification
+**Laboratoires mobiles** : `ChantierEchantillonReport.tsx` + bulletin
 
-Après modifications, contrôles :
-- Build TypeScript passe (auto par la sandbox).
-- Aucune occurrence restante de `html2canvas` ni `jsPDF` (sauf si volontaire) : `rg -l "html2canvas|jsPDF" src/`.
-- Aucun `window.open(.*)\.print()` restant : `rg "window\.open.*print" src/`.
+## Étapes d'implémentation
 
-## Livrable
+1. Créer `useDuplicateEssai.ts` (hook générique)
+2. Créer `DuplicateReportDialog.tsx` + `DuplicateReportButton.tsx`
+3. Refactor d'**un** formulaire pilote (Compression) pour supporter `initialValues` / `onSuccess`
+4. Brancher le bouton dans `CompressionReport.tsx` → valider l'UX de bout en bout
+5. Étendre aux familles de rapports une par une (Béton, Granulats via le wrapper factorisé `GranulatReport`, Géotechnique, Formulation, Labos mobiles)
+6. Vérifier le build après chaque famille
 
-Un rapport listant chaque fichier modifié et la nature du changement appliqué.
+## Question avant de me lancer
+
+L'ampleur est importante (~50 fichiers touchés). Deux options :
+
+**A. Implémentation complète en une livraison** (Compression + Carottage + toutes les autres familles d'un coup). Plus long, plus de fichiers modifiés, plus de risque de régression à valider.
+
+**B. Implémentation incrémentale validée** : je livre d'abord l'infrastructure (hook + modal + bouton) **+ Compression et Carottage** comme pilotes. Vous validez le comportement, puis je propage aux autres familles dans des messages suivants. Recommandé.
+
+Confirmez l'option (A ou B) avant que je commence à écrire le code.
