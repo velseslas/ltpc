@@ -246,6 +246,15 @@ export function EchantillonBetonFraisList({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
+                            navigate(`${basePath}/nouveau?duplicateFrom=${echantillon.id}`);
+                          }}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Dupliquer
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
                             navigate(`${basePath}/${echantillon.id}/modifier`);
                           }}
                         >
