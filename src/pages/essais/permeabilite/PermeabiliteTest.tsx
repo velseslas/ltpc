@@ -245,6 +245,13 @@ const PermeabiliteTest = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="flex items-center gap-2"
+                          onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/nouveau?duplicateFrom=${echantillon.id}`)}
+                        >
+                          <Copy className="h-4 w-4" />
+                          Dupliquer
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2"
                           onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${echantillon.id}/modifier`)}
                         >
                           <Pencil className="h-4 w-4" />
