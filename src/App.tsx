@@ -9,6 +9,7 @@ import { PermissionProvider } from "@/hooks/usePermissionContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PrintPreviewProvider } from "@/components/print/PrintPreviewProvider";
 
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
