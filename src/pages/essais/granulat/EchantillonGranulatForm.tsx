@@ -137,45 +137,47 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
     }
   }, [selectedClientId, form, isFormInitialized, lastClientId, initStep]);
 
-  // Multi-step initialization for edit mode
+  // Multi-step initialization for edit OR duplicate mode
   useEffect(() => {
-    if (echantillon && isEditing && !isFormInitialized) {
+    if (prefillSource && !isFormInitialized) {
       setIsPreFilling(true);
-      
+
       if (initStep === 0) {
-        form.setValue("client_id", (echantillon as any).client_id || "");
-        setLastClientId((echantillon as any).client_id || "");
-        form.setValue("carriere_id", echantillon.carriere_id || "");
-        setLastCarriereId(echantillon.carriere_id || "");
-        setPendingProduit(echantillon.produit);
+        form.setValue("client_id", prefillSource.client_id || "");
+        setLastClientId(prefillSource.client_id || "");
+        form.setValue("carriere_id", prefillSource.carriere_id || "");
+        setLastCarriereId(prefillSource.carriere_id || "");
+        setPendingProduit(prefillSource.produit);
         setInitStep(1);
       }
     }
-  }, [echantillon, isEditing, form, isFormInitialized, initStep]);
+  }, [prefillSource, form, isFormInitialized, initStep]);
 
   // Step 2: Wait for products to load, then set the produit
   useEffect(() => {
     if (initStep === 1 && pendingProduit && !produitsLoading && produits) {
       const timer = setTimeout(() => {
         form.setValue("produit", pendingProduit);
-        form.setValue("chantier_id", (echantillon as any)?.chantier_id || "");
-        
-        if (echantillon) {
-          form.setValue("date_reception", echantillon.date_reception);
-          form.setValue("date_essai", (echantillon as any).date_essai || "");
-          form.setValue("observations", echantillon.observations || "");
-          form.setValue("operateur_id", echantillon.operateur_id || "");
+        form.setValue("chantier_id", prefillSource?.chantier_id || "");
+
+        if (prefillSource) {
+          if (isEditing) {
+            form.setValue("date_reception", prefillSource.date_reception);
+          }
+          form.setValue("date_essai", prefillSource.date_essai || "");
+          form.setValue("observations", prefillSource.observations || "");
+          form.setValue("operateur_id", prefillSource.operateur_id || "");
         }
-        
+
         setIsFormInitialized(true);
         setIsPreFilling(false);
         setPendingProduit(null);
         setInitStep(0);
       }, 150);
-      
+
       return () => clearTimeout(timer);
     }
-  }, [initStep, pendingProduit, produitsLoading, produits, form, echantillon]);
+  }, [initStep, pendingProduit, produitsLoading, produits, form, prefillSource, isEditing]);
 
   const onSubmit = async (values: FormValues) => {
     try {
