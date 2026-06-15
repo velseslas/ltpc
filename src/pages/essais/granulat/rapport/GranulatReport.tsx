@@ -3,7 +3,8 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
-import { useEchantillonGranulatById, getPrefix, EchantillonGranulatBase } from "@/hooks/useEchantillonsGranulatFactory";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
+import { useEchantillonGranulatById, getPrefix, getTableName, EchantillonGranulatBase } from "@/hooks/useEchantillonsGranulatFactory";
 
 const TYPE_ESSAI_SUFFIX: Record<string, string> = {
   beton: "B",
@@ -146,6 +147,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
               </div>
               <div className="flex gap-3">
                 <ShareButton fileName={`rapport-${essaiType}-${fullPrefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} />
+                {id && <DuplicateReportButton tableName={getTableName(essaiType)} sourceId={id} reportRoute={(nid) => `${basePath}/${nid}/rapport`} />}
                 <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
                   <Printer className="h-4 w-4" />
                   Imprimer

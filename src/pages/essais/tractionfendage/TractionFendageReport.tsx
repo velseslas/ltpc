@@ -5,6 +5,7 @@ import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -105,6 +106,7 @@ const TractionFendageReport = () => {
 
         <div className="flex gap-2">
           <ShareButton />
+          {id && <DuplicateReportButton tableName="echantillons_traction_fendage" sourceId={id} reportRoute={(nid) => `/essais/beton/beton-durci/traction-fendage/${nid}/rapport`} />}
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
             Imprimer

@@ -4,6 +4,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
@@ -66,6 +67,7 @@ export default function ClassificationSolReport() {
               </div>
               <div className="flex gap-3">
                 <ShareButton fileName={`rapport-classification-sol-${numero}.pdf`} />
+                {id && <DuplicateReportButton tableName="echantillons_classification_sol" sourceId={id} reportRoute={(nid) => `${basePath}/${nid}/rapport`} />}
                 <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
                 <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
               </div>

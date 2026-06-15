@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, Loader2, Download } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import ShareButton from "@/components/reports/ShareButton";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
@@ -94,6 +95,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
           </div>
           <div className="flex gap-2">
             <ShareButton />
+            {id && <DuplicateReportButton tableName={isModifie ? "echantillons_proctor_modifie" : "echantillons_proctor_normal"} sourceId={id} reportRoute={(nid) => `${basePath}/${nid}/rapport`} />}
             <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handleDownloadPDF}>
               <Download className="h-4 w-4 mr-2" />Télécharger PDF
             </Button>

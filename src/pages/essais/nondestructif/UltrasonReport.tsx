@@ -9,6 +9,7 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { downloadReportAsPDF } from "@/lib/pdf";
 import { toast } from "sonner";
 
@@ -71,6 +72,7 @@ const UltrasonReport = () => {
         </div>
         <div className="flex gap-2">
           <ShareButton />
+          {id && <DuplicateReportButton tableName="echantillons_ultrason" sourceId={id} reportRoute={(nid) => `${basePath}/${nid}/rapport`} invalidateKeys={["echantillons-ultrason"]} />}
           <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
           <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
         </div>

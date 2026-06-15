@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
+import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
@@ -95,6 +96,7 @@ const CarottageReport = () => {
         </div>
         <div className="flex gap-3">
           <ShareButton />
+          {id && <DuplicateReportButton tableName="echantillons_carottage" sourceId={id} reportRoute={(nid) => `/essais/beton/destructif/carottage/${nid}/rapport`} />}
           <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
             <Printer className="h-4 w-4" /> Imprimer
           </Button>
