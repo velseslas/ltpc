@@ -62,7 +62,9 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: allChantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
-  const { data: echantillon, isLoading: echantillonLoading } = useEchantillonGeotechniqueById(essaiType, id);
+  const { data: echantillonEdit, isLoading: echantillonLoading } = useEchantillonGeotechniqueById(essaiType, id);
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>(getGeoTableName(essaiType));
+  const echantillon: any = echantillonEdit || (!isEditing ? duplicateSource : null);
 
   const createEchantillon = useCreateEchantillonGeotechniqueByType(essaiType);
   const updateEchantillon = useUpdateEchantillonGeotechniqueByType(essaiType);
