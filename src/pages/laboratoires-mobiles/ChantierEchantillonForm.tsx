@@ -367,7 +367,7 @@ export default function ChantierEchantillonForm() {
 
   const isPending = createEchantillon.isPending;
 
-  if (isLoadingChantier || isLoadingEchantillon) {
+  if (isLoadingChantier || isLoadingEchantillon || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
