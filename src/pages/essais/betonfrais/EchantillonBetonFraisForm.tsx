@@ -349,7 +349,7 @@ export default function EchantillonBetonFraisForm({
     { label: isEditing ? "Modifier" : "Nouveau" },
   ];
 
-  if (isEditing && loadingEchantillon) {
+  if ((isEditing && loadingEchantillon) || isDuplicateLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
