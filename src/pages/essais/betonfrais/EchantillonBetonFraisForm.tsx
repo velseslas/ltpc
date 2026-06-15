@@ -127,7 +127,9 @@ export default function EchantillonBetonFraisForm({
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
 
-  const { data: echantillon, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
+  const { data: echantillonEdit, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
+  const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>(getTableName(essaiType));
+  const echantillon: any = echantillonEdit || (!isEditing ? duplicateSource : null);
   const createEchantillon = useCreateEchantillonBetonFraisByType(essaiType);
   const updateEchantillon = useUpdateEchantillonBetonFraisByType(essaiType);
 
