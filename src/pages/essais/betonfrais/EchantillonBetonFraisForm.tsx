@@ -49,7 +49,9 @@ import {
   useCreateEchantillonBetonFraisByType,
   useUpdateEchantillonBetonFraisByType,
   getPrefix,
+  getTableName,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
+import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 
 const CLASSES_RESISTANCE = [
   "C12/15", "C16/20", "C20/25", "C25/30", "C30/37", "C35/45",
