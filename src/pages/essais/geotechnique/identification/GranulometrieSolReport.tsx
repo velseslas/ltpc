@@ -9,7 +9,6 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
-import { DuplicateReportButton } from "@/components/reports/DuplicateReportButton";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 const FUSEAU_GNT_0_315 = {
@@ -84,7 +83,6 @@ export default function GranulometrieSolReport() {
         </div>
         <div className="flex gap-2">
           <ShareButton />
-          {id && <DuplicateReportButton tableName="echantillons_granulometrie_sol" sourceId={id} reportRoute={(nid) => `/essais/geotechnique/identification/granulometrie-sol/${nid}/rapport`} />}
           <Button
             variant="outline"
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
