@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
+import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
 import { useEchantillonsSclerometre, useDeleteEchantillonSclerometre, EchantillonSclerometreWithRelations } from "@/hooks/useEchantillonsSclerometre";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";

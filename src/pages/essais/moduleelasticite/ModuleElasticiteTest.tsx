@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
+import { ArrowLeft, FileText, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart } from "lucide-react";
 import { useEchantillonsModuleElasticite, useDeleteEchantillonModuleElasticite } from "@/hooks/useEchantillonsModuleElasticite";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";

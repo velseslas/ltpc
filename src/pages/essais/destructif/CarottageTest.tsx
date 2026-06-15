@@ -8,7 +8,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, FileBarChart, FileText } from "lucide-react";
+import { ArrowLeft, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart, FileText } from "lucide-react";
 import { useEchantillonsCarottage, useDeleteEchantillonCarottage, CarottageWithRelations } from "@/hooks/useEchantillonsCarottage";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";

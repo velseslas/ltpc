@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { FileText, Plus, MoreHorizontal, Eye, Pencil, Trash2, Loader2, ClipboardEdit, ArrowLeft, FileBarChart } from "lucide-react";
+import { FileText, Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, ArrowLeft, FileBarChart } from "lucide-react";
 import { 
   useEchantillonsGranulatByType, 
   useDeleteEchantillonGranulatByType,
