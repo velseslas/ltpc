@@ -115,7 +115,7 @@ export default function MaterielMaintenanceHistorique() {
         </Card>
       </div>
 
-      <div ref={printRef}>
+      <div ref={printRef} data-ref="report">
         <EntrepriseHeader title="Historique des Maintenances Matériel" subtitle={`Édité le ${format(new Date(), "dd/MM/yyyy", { locale: fr })}`} />
         <Card>
           <CardHeader>

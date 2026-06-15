@@ -152,7 +152,7 @@ const CompactageNormes = () => {
       <div className="space-y-4">
         {normesData.map((norme) => (
           <Collapsible key={norme.id} open={openItems.includes(norme.id)} onOpenChange={() => toggleItem(norme.id)}>
-            <div data-ref={printingNormeId === norme.id ? "report" : undefined} className="border border-border/50 rounded-xl bg-card overflow-hidden">
+            <div data-ref="report" className="border border-border/50 rounded-xl bg-card overflow-hidden">
               <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500/20 to-blue-500/10 flex items-center justify-center"><FileText className="h-6 w-6 text-sky-500" /></div>

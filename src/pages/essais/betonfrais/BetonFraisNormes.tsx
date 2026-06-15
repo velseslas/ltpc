@@ -190,7 +190,7 @@ export default function BetonFraisNormes() {
         </p>
       </div>
 
-      <div className="space-y-4" ref={printRef}>
+      <div className="space-y-4" ref={printRef} data-ref="report">
         {normesData.map((norme) => (
           <Card key={norme.id} className="border-border bg-card overflow-hidden">
             <Collapsible open={openNormes.includes(norme.id)} onOpenChange={() => toggleNorme(norme.id)}>

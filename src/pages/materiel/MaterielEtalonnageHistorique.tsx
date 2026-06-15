@@ -113,7 +113,7 @@ export default function MaterielEtalonnageHistorique() {
         </Card>
       </div>
 
-      <div ref={printRef}>
+      <div ref={printRef} data-ref="report">
         <EntrepriseHeader title="Historique des Étalonnages Matériel" subtitle={`Édité le ${format(new Date(), "dd/MM/yyyy", { locale: fr })}`} />
         <Card>
           <CardHeader>

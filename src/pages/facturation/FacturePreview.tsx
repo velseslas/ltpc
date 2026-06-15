@@ -148,7 +148,7 @@ export default function FacturePreview() {
 
       {/* Invoice document */}
       <div className="flex justify-center">
-        <div ref={reportRef} style={{ width: "210mm" }}>
+        <div ref={reportRef} data-ref="report" style={{ width: "210mm" }}>
           <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
             {/* Header */}
             <DocumentPageHeader
