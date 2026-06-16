@@ -38,6 +38,7 @@ import {
   getTableName,
 } from "@/hooks/useEchantillonsGranulatFactory";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
+import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 
@@ -196,7 +197,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         await updateEchantillon.mutateAsync({ id, ...data });
         toast.success("Échantillon modifié avec succès");
       } else {
-        await createEchantillon.mutateAsync(data);
+        await createEchantillon.mutateAsync(mergeDuplicateData(data, duplicateSource));
         toast.success("Échantillon créé avec succès");
       }
       navigate(basePath);

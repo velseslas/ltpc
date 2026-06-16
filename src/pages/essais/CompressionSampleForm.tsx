@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
+import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -469,7 +470,8 @@ const CompressionSampleForm = () => {
         
         toast.success("Échantillon modifié avec succès");
       } else {
-        const result = await createEchantillon.mutateAsync(data);
+        const createPayload = mergeDuplicateData(data, duplicateSource);
+        const result = await createEchantillon.mutateAsync(createPayload);
         
         // Log creation history
         if (result?.id) {

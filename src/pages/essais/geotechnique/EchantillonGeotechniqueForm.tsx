@@ -25,6 +25,7 @@ import {
   getGeoTableName,
 } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
+import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -144,7 +145,12 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         await updateEchantillon.mutateAsync({ id, ...data } as any);
         toast.success("Échantillon modifié avec succès");
       } else {
-        await createEchantillon.mutateAsync(data as any);
+        const createPayload = mergeDuplicateData(data, duplicateSource);
+        // Ensure resultats from source are preserved if present
+        if (duplicateSource?.resultats && !data.resultats) {
+          createPayload.resultats = duplicateSource.resultats;
+        }
+        await createEchantillon.mutateAsync(createPayload as any);
         toast.success("Échantillon créé avec succès");
       }
       navigate(basePath);
