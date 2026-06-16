@@ -470,7 +470,8 @@ const CompressionSampleForm = () => {
         
         toast.success("Échantillon modifié avec succès");
       } else {
-        const result = await createEchantillon.mutateAsync(data);
+        const createPayload = mergeDuplicateData(data, duplicateSource);
+        const result = await createEchantillon.mutateAsync(createPayload);
         
         // Log creation history
         if (result?.id) {
