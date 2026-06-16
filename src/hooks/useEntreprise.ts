@@ -31,14 +31,32 @@ export const useEntreprise = () => {
   return useQuery({
     queryKey: ["entreprise"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("entreprise")
-        .select("*")
-        .order("created_at", { ascending: true })
-        .limit(1);
+      const isExpiredJwtError = (error: unknown) => {
+        const err = error as { code?: string; message?: string } | null;
+        return err?.code === "PGRST303" || /jwt expired|token is expired/i.test(err?.message || "");
+      };
+
+      const runQuery = () => supabase
+          .from("entreprise")
+          .select("*")
+          .order("created_at", { ascending: true })
+          .limit(1);
+
+      let { data, error } = await runQuery();
+      if (isExpiredJwtError(error)) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError) {
+          ({ data, error } = await runQuery());
+        }
+      }
 
       if (error) throw error;
       return (data && data.length > 0 ? data[0] : null) as Entreprise | null;
+    },
+    retry: (failureCount, error) => {
+      const err = error as { code?: string; message?: string } | null;
+      const expiredJwt = err?.code === "PGRST303" || /jwt expired|token is expired/i.test(err?.message || "");
+      return expiredJwt && failureCount < 2;
     },
   });
 };

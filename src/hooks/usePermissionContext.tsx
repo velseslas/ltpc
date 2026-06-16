@@ -18,31 +18,54 @@ const PermissionContext = createContext<PermissionContextType | undefined>(undef
 export function PermissionProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
+  const isExpiredJwtError = (error: unknown) => {
+    const err = error as { code?: string; message?: string } | null;
+    return err?.code === "PGRST303" || /jwt expired|token is expired/i.test(err?.message || "");
+  };
+
   const { data: role = null, isLoading: isRoleLoading } = useQuery({
     queryKey: ["current_user_role", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      const { data, error } = await supabase.rpc("get_user_role", {
-        _user_id: user.id,
-      });
+      const runQuery = () => supabase.rpc("get_user_role", { _user_id: user.id });
+
+      let { data, error } = await runQuery();
+      if (isExpiredJwtError(error)) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError) {
+          ({ data, error } = await runQuery());
+        }
+      }
+
       if (error) throw error;
       return data as AppRole | null;
     },
     enabled: !!user?.id,
+    retry: (failureCount, error) => isExpiredJwtError(error) && failureCount < 2,
   });
 
   const { data: userPermissions = [], isLoading: isPermsLoading } = useQuery({
     queryKey: ["current_user_permissions", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const { data, error } = await supabase
-        .from("role_permissions")
-        .select("permission:permissions(code)")
-        .eq("role", role!);
+      const runQuery = () => supabase
+          .from("role_permissions")
+          .select("permission:permissions(code)")
+          .eq("role", role!);
+
+      let { data, error } = await runQuery();
+      if (isExpiredJwtError(error)) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError) {
+          ({ data, error } = await runQuery());
+        }
+      }
+
       if (error) throw error;
       return (data || []).map((rp: any) => rp.permission?.code).filter(Boolean) as string[];
     },
     enabled: !!user?.id && !!role,
+    retry: (failureCount, error) => isExpiredJwtError(error) && failureCount < 2,
   });
 
   const isLoading = isRoleLoading || isPermsLoading;
