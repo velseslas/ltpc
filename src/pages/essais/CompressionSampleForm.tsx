@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
+import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
