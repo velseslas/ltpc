@@ -80,7 +80,9 @@ export class ErrorBoundary extends Component<Props, State> {
     } catch {
       // ignore
     }
-    window.location.reload();
+    const url = new URL(window.location.href);
+    url.searchParams.set("_r", String(Date.now()));
+    window.location.replace(url.toString());
   };
 
   render() {
