@@ -194,7 +194,7 @@ const RolesPermissions = () => {
                     {ROLE_DESCRIPTIONS[role]}
                   </p>
                   <div className="mt-3 text-xs text-muted-foreground">
-                    {rolePermissions?.[role]?.length || 0} permissions
+                    {role === 'super_admin' ? (permissions?.length || 0) : (rolePermissions?.[role]?.length || 0)} permissions
                   </div>
                 </CardContent>
               </Card>
