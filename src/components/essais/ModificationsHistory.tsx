@@ -76,93 +76,123 @@ export function ModificationsHistory({ tableName, recordId }: Props) {
     );
   }
 
+  // Flatten: each JSON sub-field becomes its own entry
+  type FlatEntry = {
+    key: string;
+    parentEntry: ModificationEntry;
+    fieldLabel: string;
+    oldV: any;
+    newV: any;
+    isSubField: boolean;
+    subKey?: string;
+  };
+
+  const flatEntries: FlatEntry[] = [];
+  for (const entry of entries) {
+    const diffs = getJsonDiff(entry.old_value, entry.new_value);
+    if (diffs) {
+      for (const d of diffs) {
+        flatEntries.push({
+          key: `${entry.id}-${d.key}`,
+          parentEntry: entry,
+          fieldLabel: `${entry.field_name}.${d.key}`,
+          oldV: d.oldV,
+          newV: d.newV,
+          isSubField: true,
+          subKey: d.key,
+        });
+      }
+    } else {
+      flatEntries.push({
+        key: entry.id,
+        parentEntry: entry,
+        fieldLabel: entry.field_name,
+        oldV: entry.old_value,
+        newV: entry.new_value,
+        isSubField: false,
+      });
+    }
+  }
+
+  const handleRestore = (f: FlatEntry) => {
+    if (f.isSubField && f.subKey) {
+      const newObj = isPlainObject(f.parentEntry.new_value) ? f.parentEntry.new_value : {};
+      const restoredObj = { ...newObj, [f.subKey]: f.oldV };
+      restore.mutate({ ...f.parentEntry, old_value: restoredObj });
+    } else {
+      restore.mutate(f.parentEntry);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <History className="h-5 w-5 text-primary" />
           Historique des modifications
-          <Badge variant="secondary">{entries.length}</Badge>
+          <Badge variant="secondary">{flatEntries.length}</Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {entries.map((entry: ModificationEntry) => (
-          <div
-            key={entry.id}
-            className="flex flex-col md:flex-row md:items-start gap-3 p-3 rounded-lg border border-border bg-muted/30 min-w-0"
-          >
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="font-mono text-xs">
-                  {entry.field_name}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  par <strong>{entry.modified_by_name || "Système"}</strong> le{" "}
-                  {format(new Date(entry.modified_at), "dd MMM yyyy à HH:mm", { locale: fr })}
-                </span>
+      <CardContent className="space-y-2">
+        {flatEntries.map((f) => {
+          const entry = f.parentEntry;
+          return (
+            <div
+              key={f.key}
+              className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 min-w-0"
+            >
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {f.fieldLabel}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    par <strong>{entry.modified_by_name || "Système"}</strong> le{" "}
+                    {format(new Date(entry.modified_at), "dd MMM yyyy à HH:mm", { locale: fr })}
+                  </span>
+                </div>
+                <div className="text-sm flex items-center gap-2 flex-wrap min-w-0">
+                  <ValueBadge value={f.oldV} variant="old" />
+                  <span className="text-muted-foreground">→</span>
+                  <ValueBadge value={f.newV} variant="new" />
+                </div>
               </div>
-              {(() => {
-                const diffs = getJsonDiff(entry.old_value, entry.new_value);
-                if (diffs) {
-                  return (
-                    <div className="text-sm space-y-1 min-w-0">
-                      {diffs.map((d) => (
-                        <div key={d.key} className="flex items-start gap-2 flex-wrap min-w-0">
-                          <Badge variant="secondary" className="font-mono text-[10px] mt-0.5">
-                            {d.key}
-                          </Badge>
-                          <ValueBadge value={d.oldV} variant="old" />
-                          <span className="text-muted-foreground">→</span>
-                          <ValueBadge value={d.newV} variant="new" />
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-                return (
-                  <div className="text-sm flex items-start gap-2 flex-wrap min-w-0">
-                    <ValueBadge value={entry.old_value} variant="old" />
-                    <span className="text-muted-foreground">→</span>
-                    <ValueBadge value={entry.new_value} variant="new" />
-                  </div>
-                );
-              })()}
-            </div>
-            {entry.restored_at ? (
-              <Badge variant="secondary" className="gap-1 whitespace-nowrap">
-                <Undo2 className="h-3 w-3" />
-                Restauré le {format(new Date(entry.restored_at), "dd/MM/yy HH:mm", { locale: fr })}
-                {entry.restored_by_name ? ` par ${entry.restored_by_name}` : ""}
-              </Badge>
-            ) : (
-              isAdmin && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Undo2 className="h-4 w-4" />
-                      Restaurer
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Restaurer la modification ?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Le champ <strong>{entry.field_name}</strong> reprendra la valeur :{" "}
-                        <em>{formatScalar(entry.old_value)}</em>
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annuler</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => restore.mutate(entry)}>
+              {entry.restored_at ? (
+                <Badge variant="secondary" className="gap-1 whitespace-nowrap">
+                  <Undo2 className="h-3 w-3" />
+                  Restauré le {format(new Date(entry.restored_at), "dd/MM/yy HH:mm", { locale: fr })}
+                  {entry.restored_by_name ? ` par ${entry.restored_by_name}` : ""}
+                </Badge>
+              ) : (
+                isAdmin && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1">
+                        <Undo2 className="h-4 w-4" />
                         Restaurer
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )
-            )}
-          </div>
-        ))}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Restaurer la modification ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Le champ <strong>{f.fieldLabel}</strong> reprendra la valeur :{" "}
+                          <em>{formatScalar(f.oldV)}</em>
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleRestore(f)}>
+                          Restaurer
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )
+              )}
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );
