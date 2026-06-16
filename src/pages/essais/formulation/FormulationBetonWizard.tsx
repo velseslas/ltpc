@@ -1332,7 +1332,7 @@ export default function FormulationBetonWizard() {
 
 
   // Block UI in edit mode until the formulation is loaded so all fields can be pre-filled
-  if (isEdit && (isLoadingFormulation || (!formulationToEdit && !formulationError))) {
+  if ((isEdit || isDuplicating) && (isLoadingFormulation || (!formulationToEdit && !formulationError))) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-3">
