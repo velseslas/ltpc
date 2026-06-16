@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEchantillonGranulatById, getPrefix as getGranulatPrefix } from "@/hooks/useEchantillonsGranulatFactory";
@@ -805,12 +805,23 @@ function EssaiStep({
 export default function FormulationBetonWizard() {
   const navigate = useNavigate();
   const { formulationId } = useParams<{ formulationId?: string }>();
+  const [searchParams] = useSearchParams();
+  const duplicateFromId = searchParams.get("duplicateFrom") || "";
   const isEdit = !!formulationId;
-  const { data: existingFormulation, isLoading: isLoadingFormulation, error: formulationError, refetch: refetchFormulation } = useFormulation(formulationId || "");
+  const isDuplicating = !isEdit && !!duplicateFromId;
+  const sourceId = formulationId || duplicateFromId;
+  const { data: existingFormulation, isLoading: isLoadingFormulation, error: formulationError, refetch: refetchFormulation } = useFormulation(sourceId || "");
   const formulationToEdit = useMemo(() => {
     if (!existingFormulation) return null;
-    return Array.isArray(existingFormulation) ? existingFormulation[0] ?? null : existingFormulation;
-  }, [existingFormulation]);
+    const src = Array.isArray(existingFormulation) ? existingFormulation[0] ?? null : existingFormulation;
+    if (!src) return null;
+    if (isDuplicating) {
+      // Strip identifiers so a fresh row is created on save
+      const { id: _id, created_at: _c, updated_at: _u, numero: _n, ...rest } = src as any;
+      return { ...rest, nom: rest?.nom ? `${rest.nom} (copie)` : "" };
+    }
+    return src;
+  }, [existingFormulation, isDuplicating]);
   const editInitialized = useRef(false);
   const [debugOpen, setDebugOpen] = useState(true);
 
@@ -1321,7 +1332,7 @@ export default function FormulationBetonWizard() {
 
 
   // Block UI in edit mode until the formulation is loaded so all fields can be pre-filled
-  if (isEdit && (isLoadingFormulation || (!formulationToEdit && !formulationError))) {
+  if ((isEdit || isDuplicating) && (isLoadingFormulation || (!formulationToEdit && !formulationError))) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-3">

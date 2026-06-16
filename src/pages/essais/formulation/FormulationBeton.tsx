@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil, ClipboardCheck, Trash2 } from "lucide-react";
+import { FlaskConical, Plus, Loader2, Search, Building2, FileText, Pencil, ClipboardCheck, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -320,6 +320,18 @@ const FormulationBeton = () => {
                       >
                         <FileText className="w-3.5 h-3.5" />
                         Rapport
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/essais/beton/formulation/nouveau?duplicateFrom=${f.id}`);
+                        }}
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        Dupliquer
                       </Button>
                       <Button
                         variant="ghost"
