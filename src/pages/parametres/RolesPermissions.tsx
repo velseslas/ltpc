@@ -194,7 +194,7 @@ const RolesPermissions = () => {
                     {ROLE_DESCRIPTIONS[role]}
                   </p>
                   <div className="mt-3 text-xs text-muted-foreground">
-                    {rolePermissions?.[role]?.length || 0} permissions
+                    {role === 'super_admin' ? (permissions?.length || 0) : (rolePermissions?.[role]?.length || 0)} permissions
                   </div>
                 </CardContent>
               </Card>
@@ -399,12 +399,13 @@ const RolesPermissions = () => {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {selectedRole === 'super_admin' && (
                     <div className="p-3 rounded-lg bg-primary/10 border border-primary/30 text-sm">
                       Le rôle <strong>Super Administrateur</strong> possède automatiquement toutes les permissions. Les cases sont en lecture seule.
                     </div>
                   )}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3 items-start">
                   {modules.map((module) => {
                     const modulePerms = permissionsByModule?.[module] || [];
                     const visiblePerms = modulePerms.filter(p =>
@@ -524,6 +525,7 @@ const RolesPermissions = () => {
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               )}
             </CardContent>
