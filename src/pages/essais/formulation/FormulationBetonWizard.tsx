@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BarChart3, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEchantillonGranulatById, getPrefix as getGranulatPrefix } from "@/hooks/useEchantillonsGranulatFactory";
