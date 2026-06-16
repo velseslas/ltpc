@@ -466,7 +466,7 @@ const RolesPermissions = () => {
                           </div>
                         </div>
 
-                        <div className="p-4 space-y-4">
+                        <div className="p-3 space-y-3">
                           {Object.entries(groups).map(([action, perms]) => (
                             <div key={action}>
                               <div className="flex items-center gap-2 mb-2">
@@ -476,14 +476,14 @@ const RolesPermissions = () => {
                                 <div className="flex-1 h-px bg-border" />
                                 <span className="text-[10px] text-muted-foreground">{perms.length}</span>
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5">
                                 {perms.map((perm) => {
                                   const hasPermission = grantedIds.includes(perm.id);
                                   const disabled = selectedRole === 'super_admin' || togglePermission.isPending;
                                   return (
                                     <div
                                       key={perm.id}
-                                      className={`flex items-start gap-2 p-2.5 rounded-md border transition-all ${
+                                      className={`flex items-start gap-2 p-2 rounded-md border transition-all ${
                                         hasPermission
                                           ? 'bg-primary/10 border-primary/40 shadow-sm'
                                           : 'bg-muted/20 border-border hover:border-primary/40 hover:bg-muted/40'
