@@ -477,7 +477,7 @@ const RolesPermissions = () => {
                                 <div className="flex-1 h-px bg-border" />
                                 <span className="text-[10px] text-muted-foreground">{perms.length}</span>
                               </div>
-                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5">
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                 {perms.map((perm) => {
                                   const hasPermission = grantedIds.includes(perm.id);
                                   const disabled = selectedRole === 'super_admin' || togglePermission.isPending;
