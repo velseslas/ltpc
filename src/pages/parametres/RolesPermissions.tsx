@@ -525,6 +525,7 @@ const RolesPermissions = () => {
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               )}
             </CardContent>
