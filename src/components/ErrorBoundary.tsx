@@ -37,7 +37,10 @@ function tryAutoReload(message: string): boolean {
   } catch {
     // ignore
   }
-  window.location.reload();
+  // Cache-bust to force fetching the new index.html and chunk hashes
+  const url = new URL(window.location.href);
+  url.searchParams.set("_r", String(Date.now()));
+  window.location.replace(url.toString());
   return true;
 }
 
@@ -77,7 +80,9 @@ export class ErrorBoundary extends Component<Props, State> {
     } catch {
       // ignore
     }
-    window.location.reload();
+    const url = new URL(window.location.href);
+    url.searchParams.set("_r", String(Date.now()));
+    window.location.replace(url.toString());
   };
 
   render() {
