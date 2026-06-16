@@ -327,6 +327,18 @@ const FormulationBeton = () => {
                         className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
                         onClick={(e) => {
                           e.stopPropagation();
+                          navigate(`/essais/beton/formulation/nouveau?duplicateFrom=${f.id}`);
+                        }}
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        Dupliquer
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           navigate(`/essais/beton/formulation/${f.id}/convenance`);
                         }}
                       >
