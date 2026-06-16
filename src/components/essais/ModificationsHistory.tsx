@@ -33,11 +33,14 @@ function isPlainObject(v: any): boolean {
 }
 
 function getJsonDiff(oldVal: any, newVal: any): { key: string; oldV: any; newV: any }[] | null {
-  if (!isPlainObject(oldVal) || !isPlainObject(newVal)) return null;
-  const keys = Array.from(new Set([...Object.keys(oldVal), ...Object.keys(newVal)]));
+  // Show a per-field diff if at least one side is a plain object (JSONB column like `resultats`)
+  if (!isPlainObject(oldVal) && !isPlainObject(newVal)) return null;
+  const oldObj = isPlainObject(oldVal) ? oldVal : {};
+  const newObj = isPlainObject(newVal) ? newVal : {};
+  const keys = Array.from(new Set([...Object.keys(oldObj), ...Object.keys(newObj)]));
   const diffs = keys
-    .filter((k) => JSON.stringify(oldVal[k]) !== JSON.stringify(newVal[k]))
-    .map((k) => ({ key: k, oldV: oldVal[k], newV: newVal[k] }));
+    .filter((k) => JSON.stringify(oldObj[k]) !== JSON.stringify(newObj[k]))
+    .map((k) => ({ key: k, oldV: oldObj[k], newV: newObj[k] }));
   return diffs.length > 0 ? diffs : null;
 }
 
