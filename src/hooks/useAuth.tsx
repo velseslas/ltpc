@@ -21,12 +21,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
     let authEventReceived = false;
+    const expiryMarginSeconds = 60;
+
+    const shouldRefreshSession = (nextSession: Session | null) => {
+      if (!nextSession?.expires_at) return false;
+      const nowSec = Math.floor(Date.now() / 1000);
+      return nextSession.expires_at - nowSec < expiryMarginSeconds;
+    };
 
     const applySession = (nextSession: Session | null) => {
       if (!mounted) return;
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       setIsLoading(false);
+    };
+
+    const clearLocalSession = async () => {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    };
+
+    const refreshAndApplySession = async () => {
+      if (!mounted) return;
+      setIsLoading(true);
+      const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+      if (!mounted) return;
+      if (refreshError || !refreshed.session) {
+        await clearLocalSession();
+        applySession(null);
+        return;
+      }
+      applySession(refreshed.session);
     };
 
     const syncAutoRefresh = () => {
@@ -39,11 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase.auth.startAutoRefresh();
         // Proactively refresh if the access token is expired or close to expiry
         void supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-          if (!s) return;
-          const expiresAt = s.expires_at ?? 0;
-          const nowSec = Math.floor(Date.now() / 1000);
-          if (expiresAt - nowSec < 60) {
-            await supabase.auth.refreshSession().catch(() => {});
+          if (shouldRefreshSession(s)) {
+            await refreshAndApplySession();
           }
         });
       } else {
@@ -56,41 +77,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, nextSession) => {
       authEventReceived = true;
-      applySession(nextSession);
-      // Force redirect to /auth on token refresh failure or sign out
-      if (event === "TOKEN_REFRESHED" && !nextSession) {
-        void supabase.auth.signOut();
+
+      if (event === "SIGNED_OUT" || !nextSession) {
+        applySession(null);
+        return;
       }
+
+      // On preview refresh, the restored INITIAL_SESSION can contain an expired
+      // access token. Refresh it before exposing the user to protected queries.
+      if (shouldRefreshSession(nextSession)) {
+        void refreshAndApplySession();
+        return;
+      }
+
+      applySession(nextSession);
     });
 
     void supabase.auth
       .getSession()
       .then(async ({ data: { session: initialSession }, error }) => {
         if (authEventReceived) return;
-        // If session is expired, try to refresh; if it fails, sign out
-        if (initialSession) {
-          const expiresAt = initialSession.expires_at ?? 0;
-          const nowSec = Math.floor(Date.now() / 1000);
-          if (expiresAt <= nowSec) {
-            const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
-            if (refreshError || !refreshed.session) {
-              await supabase.auth.signOut();
-              applySession(null);
-              return;
-            }
-            applySession(refreshed.session);
-            return;
-          }
+        // If session is expired or close to expiry, refresh before rendering protected data.
+        if (shouldRefreshSession(initialSession)) {
+          await refreshAndApplySession();
+          return;
         }
         if (error) {
-          await supabase.auth.signOut();
+          await clearLocalSession();
           applySession(null);
           return;
         }
         applySession(initialSession);
       })
       .catch(async () => {
-        await supabase.auth.signOut().catch(() => {});
+        await clearLocalSession();
         if (mounted) {
           applySession(null);
         }
@@ -132,7 +152,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    }
   };
 
   const value = useMemo(
