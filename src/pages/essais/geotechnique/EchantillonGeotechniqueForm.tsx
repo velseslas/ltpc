@@ -25,6 +25,7 @@ import {
   getGeoTableName,
 } from "@/hooks/useEchantillonsGeotechniqueFactory";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
+import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
