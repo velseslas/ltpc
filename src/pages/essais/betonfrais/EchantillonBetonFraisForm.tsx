@@ -333,7 +333,7 @@ export default function EchantillonBetonFraisForm({
         await updateEchantillon.mutateAsync({ id, ...data });
         toast.success("Échantillon modifié avec succès");
       } else {
-        await createEchantillon.mutateAsync(data);
+        await createEchantillon.mutateAsync(mergeDuplicateData(data, duplicateSource));
         toast.success("Échantillon créé avec succès");
       }
 
