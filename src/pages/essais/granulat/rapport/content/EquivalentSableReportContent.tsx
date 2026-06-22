@@ -66,48 +66,48 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 print:space-y-2">
       <div>
-        <h3 className="font-bold text-sm mb-2 underline">Expression des résultats</h3>
+        <h3 className="font-bold text-sm mb-1 underline">Expression des résultats</h3>
         <table className="w-full border-collapse border border-[#4a90a4] text-sm">
           <thead>
             <tr className="bg-[#e8f4f8]">
-              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium w-1/2">Échantillon N°</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium w-16">Unité</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">1</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">2</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-left font-medium w-1/2">Échantillon N°</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium w-16">Unité</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">1</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">2</th>
             </tr>
           </thead>
           <tbody>
             {fields.map((f, i) => (
               <tr key={i}>
-                <td className="border border-[#4a90a4] px-3 py-1.5">{f.label}</td>
-                <td className="border border-[#4a90a4] px-3 py-1.5 text-center">({f.unit})</td>
-                <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">{display(f.key1)}</td>
-                <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">{display(f.key2)}</td>
+                <td className="border border-[#4a90a4] px-3 py-1">{f.label}</td>
+                <td className="border border-[#4a90a4] px-3 py-1 text-center">({f.unit})</td>
+                <td className="border border-[#4a90a4] px-3 py-1 text-center font-medium">{display(f.key1)}</td>
+                <td className="border border-[#4a90a4] px-3 py-1 text-center font-medium">{display(f.key2)}</td>
               </tr>
             ))}
 
             <tr className="bg-[#e8f4f8]">
-              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">Moyenne teneur en eau (W moy)</td>
-              <td className="border border-[#4a90a4] px-3 py-1.5 text-center">(%)</td>
-              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold text-[#4a90a4]">
+              <td className="border border-[#4a90a4] px-3 py-1 font-medium">Moyenne teneur en eau (W moy)</td>
+              <td className="border border-[#4a90a4] px-3 py-1 text-center">(%)</td>
+              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1 text-center font-bold text-[#4a90a4]">
                 {display("w_moyen")}
               </td>
             </tr>
 
             <tr className="bg-[#e8f4f8]">
-              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">Moyenne (ESv % moy)</td>
-              <td className="border border-[#4a90a4] px-3 py-1.5 text-center">(%)</td>
-              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold text-lg text-[#4a90a4]">
+              <td className="border border-[#4a90a4] px-3 py-1 font-medium">Moyenne (ESv % moy)</td>
+              <td className="border border-[#4a90a4] px-3 py-1 text-center">(%)</td>
+              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1 text-center font-bold text-[#4a90a4]">
                 {esvMoy ? `${esvMoy} %` : "-"}
               </td>
             </tr>
 
             <tr className="bg-[#e8f4f8]">
-              <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">Moyenne (ESp % moy)</td>
-              <td className="border border-[#4a90a4] px-3 py-1.5 text-center">(%)</td>
-              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold text-lg text-[#4a90a4]">
+              <td className="border border-[#4a90a4] px-3 py-1 font-medium">Moyenne (ESp % moy)</td>
+              <td className="border border-[#4a90a4] px-3 py-1 text-center">(%)</td>
+              <td colSpan={2} className="border border-[#4a90a4] px-3 py-1 text-center font-bold text-[#4a90a4]">
                 {espMoy ? `${espMoy} %` : "-"}
               </td>
             </tr>
@@ -118,7 +118,7 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
       {/* Conformité */}
       {(conformityEsv || conformityEsp) && (
         <div>
-          <h3 className="font-bold text-sm mb-2 underline">Conformité</h3>
+          <h3 className="font-bold text-sm mb-1 underline">Conformité</h3>
           <table className="w-full border-collapse border border-[#4a90a4] text-sm" style={{ tableLayout: "fixed" }}>
             <colgroup>
               <col style={{ width: "15%" }} />
@@ -128,29 +128,29 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
             </colgroup>
             <thead>
               <tr className="bg-[#e8f4f8]">
-                <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Paramètre</th>
-                <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">Valeur</th>
-                <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Classification</th>
-                <th className="border border-[#4a90a4] px-3 py-2 text-center font-medium">Conformité</th>
+                <th className="border border-[#4a90a4] px-3 py-1.5 text-left font-medium">Paramètre</th>
+                <th className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">Valeur</th>
+                <th className="border border-[#4a90a4] px-3 py-1.5 text-left font-medium">Classification</th>
+                <th className="border border-[#4a90a4] px-3 py-1.5 text-center font-medium">Conformité</th>
               </tr>
             </thead>
             <tbody>
               {conformityEsv && (
                 <tr>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">ESv moyen</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold">{esvMoy} %</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{conformityEsv.label} — {conformityEsv.usage}</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold whitespace-nowrap" style={{ color: conformityEsv.conforme ? "#16a34a" : "#dc2626" }}>
+                  <td className="border border-[#4a90a4] px-3 py-1 font-medium">ESv moyen</td>
+                  <td className="border border-[#4a90a4] px-3 py-1 text-center font-bold">{esvMoy} %</td>
+                  <td className="border border-[#4a90a4] px-3 py-1 whitespace-nowrap overflow-hidden text-ellipsis">{conformityEsv.label} — {conformityEsv.usage}</td>
+                  <td className="border border-[#4a90a4] px-3 py-1 text-center font-bold whitespace-nowrap" style={{ color: conformityEsv.conforme ? "#16a34a" : "#dc2626" }}>
                     {conformityEsv.conforme ? "✓ Conforme" : "✗ Non conforme"}
                   </td>
                 </tr>
               )}
               {conformityEsp && (
                 <tr>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">ESp moyen</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold">{espMoy} %</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 whitespace-nowrap overflow-hidden text-ellipsis">{conformityEsp.label} — {conformityEsp.usage}</td>
-                  <td className="border border-[#4a90a4] px-3 py-1.5 text-center font-bold whitespace-nowrap" style={{ color: conformityEsp.conforme ? "#16a34a" : "#dc2626" }}>
+                  <td className="border border-[#4a90a4] px-3 py-1 font-medium">ESp moyen</td>
+                  <td className="border border-[#4a90a4] px-3 py-1 text-center font-bold">{espMoy} %</td>
+                  <td className="border border-[#4a90a4] px-3 py-1 whitespace-nowrap overflow-hidden text-ellipsis">{conformityEsp.label} — {conformityEsp.usage}</td>
+                  <td className="border border-[#4a90a4] px-3 py-1 text-center font-bold whitespace-nowrap" style={{ color: conformityEsp.conforme ? "#16a34a" : "#dc2626" }}>
                     {conformityEsp.conforme ? "✓ Conforme" : "✗ Non conforme"}
                   </td>
                 </tr>
@@ -162,23 +162,23 @@ export default function EquivalentSableReportContent({ resultats }: EquivalentSa
 
       {/* Spécifications */}
       <div>
-        <h3 className="font-bold text-sm mb-2 underline">
+        <h3 className="font-bold text-sm mb-1 underline">
           Spécification ({typeEssai === "geotechnique" ? "Géotechnique" : typeEssai === "route" ? "Route" : "Béton"})
         </h3>
         <table className="w-full border-collapse border border-[#4a90a4] text-sm">
           <thead>
             <tr className="bg-[#e8f4f8]">
-              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Valeur ES</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Nature</th>
-              <th className="border border-[#4a90a4] px-3 py-2 text-left font-medium">Usage recommandé</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-left font-medium">Valeur ES</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-left font-medium">Nature</th>
+              <th className="border border-[#4a90a4] px-3 py-1.5 text-left font-medium">Usage recommandé</th>
             </tr>
           </thead>
           <tbody>
             {specs.map((s, i) => (
               <tr key={i}>
-                <td className="border border-[#4a90a4] px-3 py-1.5 font-medium">{s.rangeLabel}</td>
-                <td className="border border-[#4a90a4] px-3 py-1.5">{s.label}</td>
-                <td className="border border-[#4a90a4] px-3 py-1.5">{s.usage}</td>
+                <td className="border border-[#4a90a4] px-3 py-1 font-medium">{s.rangeLabel}</td>
+                <td className="border border-[#4a90a4] px-3 py-1">{s.label}</td>
+                <td className="border border-[#4a90a4] px-3 py-1">{s.usage}</td>
               </tr>
             ))}
           </tbody>

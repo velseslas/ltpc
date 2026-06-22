@@ -174,43 +174,43 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
         />
 
         {/* Identification de l'échantillon */}
-        <div className="mb-6">
-          <h2 className="text-sm font-bold text-black mb-2">Identification de l'échantillon</h2>
+        <div className="mb-6 print:mb-4">
+          <h2 className="text-sm font-bold text-black mb-2 print:mb-1">Identification de l'échantillon</h2>
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1.5 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1 font-medium w-1/3 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
               </tr>
               {echantillon.clients?.nom && (
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Entreprise</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients.nom}</td>
+                  <td className="border border-black px-3 py-1 font-medium text-black">Entreprise</td>
+                  <td className="border border-black px-3 py-1 text-black">{echantillon.clients.nom}</td>
                 </tr>
               )}
               {echantillon.chantiers?.nom && (
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers.nom}</td>
+                  <td className="border border-black px-3 py-1 font-medium text-black">Chantier</td>
+                  <td className="border border-black px-3 py-1 text-black">{echantillon.chantiers.nom}</td>
                 </tr>
               )}
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Carrière / Fournisseur</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.carrieres?.nom || "-"}</td>
+                <td className="border border-black px-3 py-1 font-medium text-black">Carrière / Fournisseur</td>
+                <td className="border border-black px-3 py-1 text-black">{echantillon.carrieres?.nom || "-"}</td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Produit</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.produit}</td>
+                <td className="border border-black px-3 py-1 font-medium text-black">Produit</td>
+                <td className="border border-black px-3 py-1 text-black">{echantillon.produit}</td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de réception</td>
-                <td className="border border-black px-3 py-1.5 text-black">
+                <td className="border border-black px-3 py-1 font-medium text-black">Date de réception</td>
+                <td className="border border-black px-3 py-1 text-black">
                   {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
-                <td className="border border-black px-3 py-1.5 text-black">
+                <td className="border border-black px-3 py-1 font-medium text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1 text-black">
                   {(echantillon as any).date_essai
                     ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr })
                     : "-"}
@@ -218,8 +218,8 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
               </tr>
               {echantillon.observations && (
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black">Observations</td>
-                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.observations}</td>
+                  <td className="border border-black px-3 py-1 font-medium text-black">Observations</td>
+                  <td className="border border-black px-3 py-1 text-black">{echantillon.observations}</td>
                 </tr>
               )}
             </tbody>
@@ -236,30 +236,30 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
         )}
 
         {/* Pied de page */}
-        <div className="mt-8 pt-4 border-t border-gray-300">
+        <div className="report-footer mt-6 pt-3 border-t border-gray-300 print:mt-3 print:pt-2">
           <div className="flex justify-between items-end">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 print:text-xs">
               <p>Opérateur: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
               {echantillon.intervenants?.signature_url && (
-                <div className="mt-2">
+                <div className="mt-1">
                   <img 
                     src={echantillon.intervenants.signature_url} 
                     alt="Signature opérateur" 
-                    className="max-h-16 object-contain"
+                    className="max-h-16 object-contain print:max-h-12"
                   />
                 </div>
               )}
             </div>
             <div className="text-center">
-              <div className="min-h-16 flex flex-col items-center justify-end">
+              <div className="min-h-16 flex flex-col items-center justify-end print:min-h-12">
                 {entreprise?.cachet_url ? (
                   <img 
                     src={entreprise.cachet_url} 
                     alt="Cachet entreprise" 
-                    className="max-h-20 object-contain mb-1"
+                    className="max-h-20 object-contain mb-1 print:max-h-14"
                   />
                 ) : (
-                  <p className="text-sm font-medium">Signature et cachet</p>
+                  <p className="text-sm font-medium print:text-xs">Signature et cachet</p>
                 )}
               </div>
             </div>
@@ -332,27 +332,46 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           [data-ref="report"] h2,
           [data-ref="report"] h3,
           [data-ref="report"] h4 {
-            margin: 0 0 6px 0 !important;
-            line-height: 1.25 !important;
+            margin: 0 0 4px 0 !important;
+            line-height: 1.2 !important;
           }
           [data-ref="report"] h1 { font-size: 21px !important; font-weight: 800 !important; }
-          [data-ref="report"] h2 { font-size: 20px !important; font-weight: 800 !important; }
-          [data-ref="report"] h3 { font-size: 14px !important; font-weight: 800 !important; }
-          [data-ref="report"] p { margin: 3px 0 !important; }
+          [data-ref="report"] h2 { font-size: 18px !important; font-weight: 800 !important; }
+          [data-ref="report"] h3 { font-size: 13px !important; font-weight: 800 !important; }
+          [data-ref="report"] p { margin: 2px 0 !important; }
 
-          [data-ref="report"] .mb-6 { margin-bottom: 12px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 10px !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 6px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 18px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 10px !important; }
-          [data-ref="report"] .mt-2 { margin-top: 6px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 10px !important; }
-          [data-ref="report"] .p-4 { padding: 10px !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 10px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 8px !important; }
+          [data-ref="report"] .mb-2 { margin-bottom: 4px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 14px !important; }
+          [data-ref="report"] .mt-6 { margin-top: 10px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 8px !important; }
+          [data-ref="report"] .mt-2 { margin-top: 4px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 8px !important; }
+          [data-ref="report"] .pt-3 { padding-top: 6px !important; }
+          [data-ref="report"] .p-4 { padding: 8px !important; }
           [data-ref="report"] .p-8 { padding: 0 !important; }
-          [data-ref="report"] .space-y-6 > * + * { margin-top: 14px !important; }
-          [data-ref="report"] .space-y-4 > * + * { margin-top: 11px !important; }
-          [data-ref="report"] .space-y-2 > * + * { margin-top: 6px !important; }
+          [data-ref="report"] .space-y-6 > * + * { margin-top: 10px !important; }
+          [data-ref="report"] .space-y-4 > * + * { margin-top: 8px !important; }
+          [data-ref="report"] .space-y-3 > * + * { margin-top: 6px !important; }
+          [data-ref="report"] .space-y-2 > * + * { margin-top: 4px !important; }
 
+          /* Compact report header */
+          [data-ref="report"] [data-report-header] {
+            padding: 6px !important;
+            margin-bottom: 8px !important;
+            border-radius: 6px !important;
+          }
+          [data-ref="report"] [data-report-header] img,
+          [data-ref="report"] [data-report-header] svg {
+            max-height: 54px !important;
+            width: auto !important;
+          }
+          [data-ref="report"] [data-report-header] + div.border-t-2 {
+            margin-bottom: 8px !important;
+          }
+
+          /* Compact tables */
           [data-ref="report"] table {
             width: 100% !important;
             border-collapse: collapse !important;
@@ -360,15 +379,19 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             table-layout: fixed !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            font-size: 10.5px !important;
+            font-size: 10px !important;
           }
 
           [data-ref="report"] th,
           [data-ref="report"] td {
             border: 1px solid #444444 !important;
             vertical-align: middle !important;
-            padding: 4.5px 7px !important;
-            line-height: 1.3 !important;
+            padding: 3px 6px !important;
+            line-height: 1.2 !important;
+          }
+
+          [data-ref="report"] .identification-table td {
+            padding: 2.5px 6px !important;
           }
 
           [data-ref="report"] tr {
@@ -381,11 +404,17 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           }
 
           [data-ref="report"] img {
-            max-height: 72px !important;
+            max-height: 60px !important;
           }
 
           [data-ref="report"] > div:last-child {
             margin-top: auto !important;
+          }
+
+          /* Compact footer */
+          [data-ref="report"] .report-footer {
+            margin-top: 8px !important;
+            padding-top: 6px !important;
           }
 
           /* Force entire report onto one page */
