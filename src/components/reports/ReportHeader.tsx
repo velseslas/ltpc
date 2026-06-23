@@ -86,12 +86,13 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
           </div>
 
           {/* QR Code — contenu lisible (détails du rapport) */}
-          <div className="flex flex-col items-center">
+          <div data-qr-wrapper className="flex flex-col items-center shrink-0" style={{ width: 96, height: 96 }}>
             <QRCodeSVG
               value={normalizeQRValue(verificationUrl, { entreprise: entreprise?.nom, title, subtitle })}
               size={96}
               level="L"
               marginSize={2}
+              style={{ width: 96, height: 96, display: "block" }}
             />
           </div>
         </div>
