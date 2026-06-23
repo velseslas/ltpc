@@ -61,7 +61,7 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
 
           {/* Informations entreprise */}
           <div className="flex-1 text-center px-2">
-            <h1 className="text-xl font-bold text-[#1e5a7a] mb-1">
+            <h1 className="text-base font-bold text-[#1e5a7a] mb-1 whitespace-nowrap">
               {entreprise?.nom || "Laboratoire de Travaux Publics & de Construction"}
             </h1>
             <p className="text-sm font-semibold text-black mb-1">
