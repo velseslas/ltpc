@@ -1155,7 +1155,7 @@ export default function FormulationBetonWizard() {
       }
       autoDeducedRefs.current.clientChantier = true;
     })();
-  }, [isEdit, formulationToEdit, centraleId, clientId, chantierId]);
+  }, [isEdit, isDuplicating, formulationToEdit, centraleId, clientId, chantierId]);
 
   // Auto-deduce maître d'ouvrage / maître d'œuvre from client links (with fallback to first available)
   useEffect(() => {
