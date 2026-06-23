@@ -1081,10 +1081,15 @@ export default function FormulationBetonWizard() {
     setEauProduitId(f.eau_produit_id || "");
     setEauQte(f.eau_quantite != null ? String(f.eau_quantite) : "");
 
-    // Activate sections that have data
-    if (f.sable_fin_producteur_id || f.sable_fin_quantite) setSable2Active(true);
-    if (f.gravier2_producteur_id || f.gravier2_quantite) setGravier2Active(true);
-    if (f.gravier3_producteur_id || f.gravier3_quantite) setGravier3Active(true);
+    // Activate sections based on the source data (covers duplicate + edit)
+    setSable1Active(!!(f.sable_concasse_producteur_id || f.sable_concasse_quantite));
+    setSable2Active(!!(f.sable_fin_producteur_id || f.sable_fin_quantite));
+    setGravier1Active(!!(f.gravillons1_producteur_id || f.gravillons1_quantite));
+    setGravier2Active(!!(f.gravier2_producteur_id || f.gravier2_quantite));
+    setGravier3Active(!!(f.gravier3_producteur_id || f.gravier3_quantite));
+    setCimentActive(!!(f.ciment_producteur_id || f.ciment_quantite));
+    setAdjuvantActive(!!(f.adjuvant_producteur_id || f.adjuvant_quantite));
+    setEauActive(!!(f.eau_producteur_id || f.eau_quantite));
 
     const initialEau = formatNumberInput(f.eau_calculee) || formatNumberInput(f.eau_quantite);
     const initialCiment = formatNumberInput(f.ciment_calcule) || formatNumberInput(f.ciment_quantite);
@@ -1133,7 +1138,7 @@ export default function FormulationBetonWizard() {
   // Auto-deduce client/chantier from centrale when missing in edit mode
   const autoDeducedRefs = useRef({ clientChantier: false, moa: false, moe: false });
   useEffect(() => {
-    if (!isEdit || !formulationToEdit || !centraleId) return;
+    if ((!isEdit && !isDuplicating) || !formulationToEdit || !centraleId) return;
     if (autoDeducedRefs.current.clientChantier) return;
     if (clientId && chantierId) { autoDeducedRefs.current.clientChantier = true; return; }
     (async () => {
@@ -1150,11 +1155,11 @@ export default function FormulationBetonWizard() {
       }
       autoDeducedRefs.current.clientChantier = true;
     })();
-  }, [isEdit, formulationToEdit, centraleId, clientId, chantierId]);
+  }, [isEdit, isDuplicating, formulationToEdit, centraleId, clientId, chantierId]);
 
   // Auto-deduce maître d'ouvrage / maître d'œuvre from client links (with fallback to first available)
   useEffect(() => {
-    if (!isEdit || !clientId) return;
+    if ((!isEdit && !isDuplicating) || !clientId) return;
     if (!autoDeducedRefs.current.moa && !maitreOuvrageId) {
       (async () => {
         const { supabase } = await import("@/integrations/supabase/client");
@@ -1189,7 +1194,7 @@ export default function FormulationBetonWizard() {
         autoDeducedRefs.current.moe = true;
       })();
     }
-  }, [isEdit, clientId, maitreOuvrageId, maitreOeuvreId, maitresOuvrage, maitresOeuvre]);
+  }, [isEdit, isDuplicating, clientId, maitreOuvrageId, maitreOeuvreId, maitresOuvrage, maitresOeuvre]);
 
   // Resolve product names for labels
   const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
