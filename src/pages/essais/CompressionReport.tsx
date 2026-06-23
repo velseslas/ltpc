@@ -811,6 +811,32 @@ const CompressionReport = () => {
           }
           .page-break-before { page-break-before: always; break-before: page; }
           .page-break-after { page-break-after: always; break-after: page; }
+
+          /* Compact compression report so 12 specimens fit on a single A4 page */
+          [data-ref="report"] [data-pdf-page] { page-break-after: avoid !important; break-after: avoid !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 4px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 8px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 4px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 4px !important; }
+          [data-ref="report"] [data-report-header] { padding: 6px !important; }
+          [data-ref="report"] [data-report-header] h1 { font-size: 12px !important; margin-bottom: 0 !important; }
+          [data-ref="report"] [data-report-header] p { font-size: 9px !important; line-height: 1.2 !important; margin-bottom: 0 !important; }
+          #root [data-ref="report"] table,
+          #root [data-ref="report"] td,
+          #root [data-ref="report"] th {
+            font-size: 8.5pt !important;
+            padding: 2px 4px !important;
+            line-height: 1.15 !important;
+          }
+          #root [data-ref="report"] .formulation-table th,
+          #root [data-ref="report"] .formulation-table td {
+            font-size: 7pt !important;
+            padding: 1px 2px !important;
+          }
+          [data-ref="report"] [data-report-footer] { margin-top: 6px !important; padding-top: 4px !important; }
+          [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
+          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
         }
       `}</style>
     </div>
