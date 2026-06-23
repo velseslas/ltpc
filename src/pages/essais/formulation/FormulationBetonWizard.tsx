@@ -1159,7 +1159,7 @@ export default function FormulationBetonWizard() {
 
   // Auto-deduce maître d'ouvrage / maître d'œuvre from client links (with fallback to first available)
   useEffect(() => {
-    if (!isEdit || !clientId) return;
+    if ((!isEdit && !isDuplicating) || !clientId) return;
     if (!autoDeducedRefs.current.moa && !maitreOuvrageId) {
       (async () => {
         const { supabase } = await import("@/integrations/supabase/client");
