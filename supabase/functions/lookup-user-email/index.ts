@@ -5,9 +5,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Public endpoint (pre-login). Returns ONLY the email + statut for a given
-// username or email, with no PII beyond what the user must already type.
-// This replaces the previous anon SELECT policy on `utilisateurs`.
+// Public endpoint (pre-login). Resolves a username/email to the account's
+// email so the client can complete sign-in. To avoid user enumeration we:
+//  - strictly validate the identifier (no wildcards, no PostgREST operators)
+//  - use exact equality (not ILIKE) on both `email` and `nom`
+//  - always return the same generic response shape; do not leak `statut`
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -21,17 +23,21 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const identifier: string = (body?.identifier ?? "").toString().trim().toLowerCase();
 
-    if (!identifier || identifier.length > 200) {
+    // Strict validation — reject anything that could be a PostgREST pattern
+    // (%, _, *, commas, parens, quotes). Allow common email/username chars only.
+    const VALID = /^[a-z0-9._+\-@]{1,128}$/;
+    if (!identifier || !VALID.test(identifier)) {
       return new Response(
-        JSON.stringify({ error: "Identifiant requis" }),
+        JSON.stringify({ error: "Identifiant invalide" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    // Exact match on email or nom — no pattern matching, no wildcard enumeration
     const { data, error } = await supabaseAdmin
       .from("utilisateurs")
       .select("email, statut")
-      .or(`email.ilike.${identifier},nom.ilike.${identifier}`)
+      .or(`email.eq.${identifier},nom.eq.${identifier}`)
       .limit(1)
       .maybeSingle();
 
@@ -42,8 +48,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!data) {
-      // Generic response — do not disclose whether the user exists
+    // Treat inactive accounts as "not found" — do not disclose status
+    if (!data || (data.statut && data.statut !== "actif")) {
       return new Response(
         JSON.stringify({ found: false }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -51,10 +57,10 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ found: true, email: data.email, statut: data.statut }),
+      JSON.stringify({ found: true, email: data.email }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-  } catch (error) {
+  } catch (_error) {
     return new Response(
       JSON.stringify({ error: "Erreur serveur" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
