@@ -1138,7 +1138,7 @@ export default function FormulationBetonWizard() {
   // Auto-deduce client/chantier from centrale when missing in edit mode
   const autoDeducedRefs = useRef({ clientChantier: false, moa: false, moe: false });
   useEffect(() => {
-    if (!isEdit || !formulationToEdit || !centraleId) return;
+    if ((!isEdit && !isDuplicating) || !formulationToEdit || !centraleId) return;
     if (autoDeducedRefs.current.clientChantier) return;
     if (clientId && chantierId) { autoDeducedRefs.current.clientChantier = true; return; }
     (async () => {
