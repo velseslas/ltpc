@@ -1143,19 +1143,40 @@ export default function FormulationBetonWizard() {
     if (clientId && chantierId) { autoDeducedRefs.current.clientChantier = true; return; }
     (async () => {
       const { supabase } = await import("@/integrations/supabase/client");
-      const { data } = await supabase
+      let resolvedClient = clientId;
+      let resolvedChantier = chantierId;
+      // 1) Try client_centrales link
+      const { data: cc } = await supabase
         .from("client_centrales")
         .select("client_id, chantier_id")
         .eq("centrale_id", centraleId)
         .limit(1)
         .maybeSingle();
-      if (data) {
-        if (!clientId && data.client_id) setClientId(data.client_id);
-        if (!chantierId && data.chantier_id) setChantierId(data.chantier_id);
+      if (cc) {
+        if (!resolvedClient && cc.client_id) resolvedClient = cc.client_id;
+        if (!resolvedChantier && cc.chantier_id) resolvedChantier = cc.chantier_id;
       }
+      // 2) Fallback: any other formulation on same centrale with populated refs
+      if (!resolvedClient || !resolvedChantier) {
+        const { data: sibling } = await supabase
+          .from("formulations")
+          .select("client_id, chantier_id, maitre_ouvrage_id, maitre_oeuvre_id")
+          .eq("centrale_id", centraleId)
+          .not("client_id", "is", null)
+          .limit(1)
+          .maybeSingle();
+        if (sibling) {
+          if (!resolvedClient && sibling.client_id) resolvedClient = sibling.client_id;
+          if (!resolvedChantier && sibling.chantier_id) resolvedChantier = sibling.chantier_id;
+          if (sibling.maitre_ouvrage_id && !maitreOuvrageId) setMaitreOuvrageId(sibling.maitre_ouvrage_id);
+          if (sibling.maitre_oeuvre_id && !maitreOeuvreId) setMaitreOeuvreId(sibling.maitre_oeuvre_id);
+        }
+      }
+      if (resolvedClient && !clientId) setClientId(resolvedClient);
+      if (resolvedChantier && !chantierId) setChantierId(resolvedChantier);
       autoDeducedRefs.current.clientChantier = true;
     })();
-  }, [isEdit, isDuplicating, formulationToEdit, centraleId, clientId, chantierId]);
+  }, [isEdit, isDuplicating, formulationToEdit, centraleId, clientId, chantierId, maitreOuvrageId, maitreOeuvreId]);
 
   // Auto-deduce maître d'ouvrage / maître d'œuvre from client links (with fallback to first available)
   useEffect(() => {
