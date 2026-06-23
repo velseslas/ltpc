@@ -66,9 +66,10 @@ Deno.serve(async (req) => {
       if (authError.message.includes("already been registered")) {
         const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
         if (listError) {
+          console.error("create-user listUsers error:", listError);
           return new Response(
-            JSON.stringify({ error: listError.message }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            JSON.stringify({ error: "Erreur interne du serveur" }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
         const existingUser = users.find((u: any) => u.email === email);
@@ -81,8 +82,9 @@ Deno.serve(async (req) => {
         authUserId = existingUser.id;
         await supabaseAdmin.auth.admin.updateUserById(authUserId, { password });
       } else {
+        console.error("create-user auth error:", authError);
         return new Response(
-          JSON.stringify({ error: authError.message }),
+          JSON.stringify({ error: "Impossible de créer l'utilisateur" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
