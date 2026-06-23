@@ -490,7 +490,7 @@ const CompressionReport = () => {
           {/* Formulation de béton */}
           <div className="mb-6">
             <h3 className="font-bold text-sm mb-2 underline text-black">Formulation de béton</h3>
-            <div className="mb-2 text-sm text-black">
+            <div className="mb-2 text-sm text-black formulation-meta">
               <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
               <span className="mx-4">|</span>
               <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
@@ -569,7 +569,7 @@ const CompressionReport = () => {
 
           {/* Résultats des essais */}
           <div className="mb-6">
-            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
+            <table className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
