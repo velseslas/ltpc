@@ -203,7 +203,8 @@ export default function FormulationReport() {
     formulation?.chantier_id,
     formulation?.maitre_ouvrage_id,
     formulation?.maitre_oeuvre_id,
-    formulation?.essai_compression_id
+    formulation?.essai_compression_id,
+    formulation?.centrale_id
   );
 
   // Charge l'essai de convenance complet (Étape 8) pour l'intégrer au rapport.
