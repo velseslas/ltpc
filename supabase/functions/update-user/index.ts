@@ -61,8 +61,9 @@ Deno.serve(async (req) => {
       .single();
 
     if (utilFetchErr || !util) {
+      if (utilFetchErr) console.error("update-user fetch error:", utilFetchErr);
       return new Response(
-        JSON.stringify({ error: utilFetchErr?.message || "Utilisateur introuvable" }),
+        JSON.stringify({ error: "Utilisateur introuvable" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
