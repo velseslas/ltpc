@@ -1194,7 +1194,7 @@ export default function FormulationBetonWizard() {
         autoDeducedRefs.current.moe = true;
       })();
     }
-  }, [isEdit, clientId, maitreOuvrageId, maitreOeuvreId, maitresOuvrage, maitresOeuvre]);
+  }, [isEdit, isDuplicating, clientId, maitreOuvrageId, maitreOeuvreId, maitresOuvrage, maitresOeuvre]);
 
   // Resolve product names for labels
   const { data: sable1ProduitsWiz = [] } = useProduits(sableConcasseProducteurId, "carriere");
