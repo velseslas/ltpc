@@ -114,8 +114,9 @@ Deno.serve(async (req) => {
         .single();
 
       if (utilError) {
+        console.error("create-user utilisateurs update error:", utilError);
         return new Response(
-          JSON.stringify({ error: utilError.message }),
+          JSON.stringify({ error: "Erreur de mise à jour de l'utilisateur" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
