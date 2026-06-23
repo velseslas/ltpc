@@ -1019,19 +1019,32 @@ export default function FormulationBetonWizard() {
   const { data: chantiers = [] } = useChantiers();
   const { data: centrales = [] } = useCentralesBeton();
   const { data: centralesByChantier = [] } = useQuery({
-    queryKey: ["centrales_by_chantier", chantierId],
+    queryKey: ["centrales_by_chantier_or_client", chantierId, clientId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("client_centrales")
-        .select("centrale_id, centrales_beton:centrale_id(id, nom)")
-        .eq("chantier_id", chantierId);
-      if (error) throw error;
-      const list = (data || []).map((r: any) => r.centrales_beton).filter(Boolean);
+      // 1) Try centrales linked directly to this chantier
+      let list: any[] = [];
+      if (chantierId) {
+        const { data } = await supabase
+          .from("client_centrales")
+          .select("centrale_id, centrales_beton:centrale_id(id, nom)")
+          .eq("chantier_id", chantierId);
+        list = (data || []).map((r: any) => r.centrales_beton).filter(Boolean);
+      }
+      // 2) Fallback: centrales linked to the client
+      if (list.length === 0 && clientId) {
+        const { data } = await supabase
+          .from("client_centrales")
+          .select("centrale_id, centrales_beton:centrale_id(id, nom)")
+          .eq("client_id", clientId);
+        list = (data || []).map((r: any) => r.centrales_beton).filter(Boolean);
+      }
       return Array.from(new Map(list.map((c: any) => [c.id, c])).values());
     },
-    enabled: !!chantierId,
+    enabled: !!chantierId || !!clientId,
   });
-  const filteredCentrales = chantierId ? centralesByChantier : centrales;
+  const filteredCentrales = (chantierId || clientId)
+    ? ((centralesByChantier as any[]).length > 0 ? centralesByChantier : centrales)
+    : centrales;
   const mergedCentrales = useMemo(() => {
     const list = [...(filteredCentrales as any[])];
     const existing = (centrales as any[]).find((c) => c.id === centraleId);
