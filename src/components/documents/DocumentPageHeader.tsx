@@ -65,12 +65,13 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
           </div>
 
           {/* QR Code — contenu lisible (détails du document) */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+          <div data-qr-wrapper style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: 96, height: 96 }}>
             <QRCodeSVG
               value={normalizeQRValue(qrData, { entreprise: entreprise?.nom, title, subtitle })}
               size={96}
               level="L"
               marginSize={2}
+              style={{ width: 96, height: 96, display: "block" }}
             />
           </div>
         </div>
