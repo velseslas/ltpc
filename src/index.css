@@ -251,6 +251,18 @@
     margin: 15mm;
   }
 
+  /* Taille uniforme du QR Code dans tous les rapports/documents (96x96) */
+  [data-qr-wrapper] {
+    width: 96px !important;
+    height: 96px !important;
+    flex-shrink: 0 !important;
+  }
+  [data-qr-wrapper] svg {
+    width: 96px !important;
+    height: 96px !important;
+    display: block !important;
+  }
+
   html, body, #root {
     background: #fff !important;
     margin: 0 !important;
