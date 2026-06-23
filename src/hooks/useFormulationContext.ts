@@ -29,7 +29,8 @@ export function useFormulationContext(
   chantierId: string | null | undefined,
   maitreOuvrageId: string | null | undefined,
   maitreOeuvreId: string | null | undefined,
-  essaiCompressionId: string | null | undefined
+  essaiCompressionId: string | null | undefined,
+  centraleId?: string | null | undefined
 ) {
   return useQuery({
     queryKey: [
@@ -39,6 +40,7 @@ export function useFormulationContext(
       maitreOuvrageId,
       maitreOeuvreId,
       essaiCompressionId,
+      centraleId,
     ],
     queryFn: async (): Promise<FormulationContext> => {
       // 1) Charger l'essai de compression (sert aussi de fallback pour client/chantier)
@@ -52,9 +54,22 @@ export function useFormulationContext(
 
       const essaiData: any = essaiRes.data || null;
 
-      // 2) Résoudre client_id / chantier_id avec fallback via l'essai
-      const effectiveClientId = clientId || essaiData?.client_id || null;
-      const effectiveChantierId = chantierId || essaiData?.chantier_id || null;
+      // 2) Résoudre client_id / chantier_id avec fallback via l'essai puis via la centrale liée
+      let effectiveClientId = clientId || essaiData?.client_id || null;
+      let effectiveChantierId = chantierId || essaiData?.chantier_id || null;
+
+      if ((!effectiveClientId || !effectiveChantierId) && centraleId) {
+        const { data: cc } = await supabase
+          .from("client_centrales")
+          .select("client_id, chantier_id")
+          .eq("centrale_id", centraleId)
+          .limit(1)
+          .maybeSingle();
+        if (cc) {
+          if (!effectiveClientId && (cc as any).client_id) effectiveClientId = (cc as any).client_id;
+          if (!effectiveChantierId && (cc as any).chantier_id) effectiveChantierId = (cc as any).chantier_id;
+        }
+      }
 
       // 3) Récupérer client + chantier
       const [client, chantier] = await Promise.all([
