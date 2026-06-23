@@ -9,5 +9,3 @@ verify_jwt = false
 [functions.lookup-user-email]
 verify_jwt = false
 
-[functions.bootstrap-admin]
-verify_jwt = false
