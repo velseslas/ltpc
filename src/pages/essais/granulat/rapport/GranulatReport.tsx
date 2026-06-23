@@ -427,6 +427,21 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             page-break-after: avoid !important;
             break-after: avoid !important;
           }
+
+          /* Coefficient d'Aplatissement: extra compaction to fit a single A4 page */
+          [data-ref="report"][data-essai-type="forme-granulats"] { font-size: 10px !important; line-height: 1.2 !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] h3 { font-size: 11px !important; margin: 0 0 2px 0 !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] .space-y-6 > * + * { margin-top: 6px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] table { font-size: 9px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] th,
+          [data-ref="report"][data-essai-type="forme-granulats"] td { padding: 1.5px 4px !important; line-height: 1.15 !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] ul { margin: 2px 0 !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] ul li { line-height: 1.2 !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] { padding: 4px !important; margin-bottom: 4px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] img,
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] svg { max-height: 46px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] .report-footer { margin-top: 4px !important; padding-top: 4px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] .p-3 { padding: 4px !important; }
         }
       `}</style>
     </div>
