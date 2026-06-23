@@ -6539,6 +6539,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_write_business: { Args: never; Returns: boolean }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -6554,6 +6555,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_only: { Args: never; Returns: boolean }
+      is_admin_or_manager: { Args: never; Returns: boolean }
       log_audit_action: {
         Args: {
           p_action: string

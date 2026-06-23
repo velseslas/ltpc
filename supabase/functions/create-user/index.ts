@@ -66,9 +66,10 @@ Deno.serve(async (req) => {
       if (authError.message.includes("already been registered")) {
         const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
         if (listError) {
+          console.error("create-user listUsers error:", listError);
           return new Response(
-            JSON.stringify({ error: listError.message }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            JSON.stringify({ error: "Erreur interne du serveur" }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
         const existingUser = users.find((u: any) => u.email === email);
@@ -81,8 +82,9 @@ Deno.serve(async (req) => {
         authUserId = existingUser.id;
         await supabaseAdmin.auth.admin.updateUserById(authUserId, { password });
       } else {
+        console.error("create-user auth error:", authError);
         return new Response(
-          JSON.stringify({ error: authError.message }),
+          JSON.stringify({ error: "Impossible de créer l'utilisateur" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -112,8 +114,9 @@ Deno.serve(async (req) => {
         .single();
 
       if (utilError) {
+        console.error("create-user utilisateurs update error:", utilError);
         return new Response(
-          JSON.stringify({ error: utilError.message }),
+          JSON.stringify({ error: "Erreur de mise à jour de l'utilisateur" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -146,9 +149,10 @@ Deno.serve(async (req) => {
       .single();
 
     if (utilError) {
+      console.error("create-user utilisateurs insert error:", utilError);
       await supabaseAdmin.auth.admin.deleteUser(authUserId);
       return new Response(
-        JSON.stringify({ error: utilError.message }),
+        JSON.stringify({ error: "Erreur de création de l'utilisateur" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -158,7 +162,7 @@ Deno.serve(async (req) => {
       .insert({ user_id: authUserId, role: role || "technicien" });
 
     if (roleError) {
-      console.error("Error inserting user_role:", roleError.message);
+      console.error("Error inserting user_role:", roleError);
     }
 
     return new Response(
@@ -166,8 +170,9 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
+    console.error("create-user unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+      JSON.stringify({ error: "Erreur interne du serveur" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

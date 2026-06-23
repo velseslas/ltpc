@@ -61,8 +61,9 @@ Deno.serve(async (req) => {
       .single();
 
     if (utilFetchErr || !util) {
+      if (utilFetchErr) console.error("update-user fetch error:", utilFetchErr);
       return new Response(
-        JSON.stringify({ error: utilFetchErr?.message || "Utilisateur introuvable" }),
+        JSON.stringify({ error: "Utilisateur introuvable" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -73,9 +74,10 @@ Deno.serve(async (req) => {
       if (!authUserId) {
         const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
         if (listError) {
+          console.error("update-user listUsers error:", listError);
           return new Response(
-            JSON.stringify({ error: listError.message }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            JSON.stringify({ error: "Erreur interne du serveur" }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
         const existingUser = users.find((u: any) => u.email === util.email);
@@ -89,8 +91,9 @@ Deno.serve(async (req) => {
             user_metadata: { nom: util.email },
           });
           if (authError || !authData?.user) {
+            if (authError) console.error("update-user createUser error:", authError);
             return new Response(
-              JSON.stringify({ error: authError?.message || "Création auth échouée" }),
+              JSON.stringify({ error: "Création auth échouée" }),
               { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
@@ -100,8 +103,9 @@ Deno.serve(async (req) => {
 
       const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId!, { password });
       if (pwdErr) {
+        console.error("update-user password update error:", pwdErr);
         return new Response(
-          JSON.stringify({ error: pwdErr.message }),
+          JSON.stringify({ error: "Impossible de mettre à jour le mot de passe" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -119,8 +123,9 @@ Deno.serve(async (req) => {
         .update(updateData)
         .eq("id", utilisateur_id);
       if (updErr) {
+        console.error("update-user utilisateurs update error:", updErr);
         return new Response(
-          JSON.stringify({ error: updErr.message }),
+          JSON.stringify({ error: "Erreur de mise à jour de l'utilisateur" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -140,8 +145,9 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
+    console.error("update-user unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: (error as Error).message }),
+      JSON.stringify({ error: "Erreur interne du serveur" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
