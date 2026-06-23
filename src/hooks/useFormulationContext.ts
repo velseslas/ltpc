@@ -140,6 +140,6 @@ export function useFormulationContext(
           : null,
       };
     },
-    enabled: !!(clientId || chantierId || maitreOuvrageId || maitreOeuvreId || essaiCompressionId),
+    enabled: !!(clientId || chantierId || maitreOuvrageId || maitreOeuvreId || essaiCompressionId || centraleId),
   });
 }
