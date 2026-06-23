@@ -1081,10 +1081,15 @@ export default function FormulationBetonWizard() {
     setEauProduitId(f.eau_produit_id || "");
     setEauQte(f.eau_quantite != null ? String(f.eau_quantite) : "");
 
-    // Activate sections that have data
-    if (f.sable_fin_producteur_id || f.sable_fin_quantite) setSable2Active(true);
-    if (f.gravier2_producteur_id || f.gravier2_quantite) setGravier2Active(true);
-    if (f.gravier3_producteur_id || f.gravier3_quantite) setGravier3Active(true);
+    // Activate sections based on the source data (covers duplicate + edit)
+    setSable1Active(!!(f.sable_concasse_producteur_id || f.sable_concasse_quantite));
+    setSable2Active(!!(f.sable_fin_producteur_id || f.sable_fin_quantite));
+    setGravier1Active(!!(f.gravillons1_producteur_id || f.gravillons1_quantite));
+    setGravier2Active(!!(f.gravier2_producteur_id || f.gravier2_quantite));
+    setGravier3Active(!!(f.gravier3_producteur_id || f.gravier3_quantite));
+    setCimentActive(!!(f.ciment_producteur_id || f.ciment_quantite));
+    setAdjuvantActive(!!(f.adjuvant_producteur_id || f.adjuvant_quantite));
+    setEauActive(!!(f.eau_producteur_id || f.eau_quantite));
 
     const initialEau = formatNumberInput(f.eau_calculee) || formatNumberInput(f.eau_quantite);
     const initialCiment = formatNumberInput(f.ciment_calcule) || formatNumberInput(f.ciment_quantite);
