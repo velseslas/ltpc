@@ -490,7 +490,7 @@ const CompressionReport = () => {
           {/* Formulation de béton */}
           <div className="mb-6">
             <h3 className="font-bold text-sm mb-2 underline text-black">Formulation de béton</h3>
-            <div className="mb-2 text-sm text-black formulation-meta">
+            <div className="mb-2 text-sm text-black">
               <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
               <span className="mx-4">|</span>
               <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
@@ -569,7 +569,7 @@ const CompressionReport = () => {
 
           {/* Résultats des essais */}
           <div className="mb-6">
-            <table className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
+            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
@@ -814,43 +814,29 @@ const CompressionReport = () => {
 
           /* Compact compression report so 12 specimens fit on a single A4 page */
           [data-ref="report"] [data-pdf-page] { page-break-after: avoid !important; break-after: avoid !important; }
-          [data-ref="report"] .mb-6 { margin-bottom: 8px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 6px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 10px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 6px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 6px !important; }
-          [data-ref="report"] [data-report-header] { padding: 8px !important; }
-          [data-ref="report"] [data-report-header] h1 { font-size: 13px !important; margin-bottom: 1px !important; }
-          [data-ref="report"] [data-report-header] p { font-size: 9px !important; line-height: 1.25 !important; margin-bottom: 1px !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 10px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 8px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 12px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 8px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 8px !important; }
+          [data-ref="report"] [data-report-header] { padding: 10px !important; }
+          [data-ref="report"] [data-report-header] h1 { font-size: 14px !important; margin-bottom: 2px !important; }
+          [data-ref="report"] [data-report-header] p { font-size: 10px !important; line-height: 1.3 !important; margin-bottom: 2px !important; }
           #root [data-ref="report"] table,
           #root [data-ref="report"] td,
           #root [data-ref="report"] th {
-            font-size: 8.5pt !important;
-            padding: 2px 4px !important;
-            line-height: 1.15 !important;
-          }
-          #root [data-ref="report"] .identification-table td,
-          #root [data-ref="report"] .identification-table th {
-            padding: 2px 4px !important;
-            line-height: 1.1 !important;
-            font-size: 8.5pt !important;
-          }
-          #root [data-ref="report"] .results-table th,
-          #root [data-ref="report"] .results-table td {
-            padding: 2px 4px !important;
-            line-height: 1.15 !important;
-            font-size: 8.5pt !important;
+            font-size: 9pt !important;
+            padding: 3px 5px !important;
+            line-height: 1.25 !important;
           }
           #root [data-ref="report"] .formulation-table th,
           #root [data-ref="report"] .formulation-table td {
-            font-size: 7.5pt !important;
-            padding: 1px 3px !important;
-            line-height: 1.1 !important;
+            font-size: 8pt !important;
+            padding: 2px 4px !important;
           }
-          [data-ref="report"] [data-report-footer] { margin-top: 8px !important; padding-top: 6px !important; }
-          [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
-          [data-ref="report"] h3 { font-size: 9.5pt !important; margin-bottom: 1px !important; }
-          [data-ref="report"] .formulation-meta { font-size: 8pt !important; margin-bottom: 2px !important; }
+          [data-ref="report"] [data-report-footer] { margin-top: 10px !important; padding-top: 8px !important; }
+          [data-ref="report"] [data-report-footer] img { max-height: 45px !important; }
+          [data-ref="report"] h3 { font-size: 11pt !important; margin-bottom: 3px !important; }
         }
       `}</style>
     </div>
