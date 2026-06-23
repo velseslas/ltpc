@@ -129,8 +129,8 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             </div>
 
             {/* QR Code */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-              <QRCodeSVG value={qrData} size={96} level="L" marginSize={2} />
+            <div data-qr-wrapper style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: 96, height: 96 }}>
+              <QRCodeSVG value={qrData} size={96} level="L" marginSize={2} style={{ width: 96, height: 96, display: "block" }} />
             </div>
           </div>
         </div>
