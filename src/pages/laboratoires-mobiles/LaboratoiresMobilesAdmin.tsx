@@ -69,6 +69,7 @@ const getNavigationStateFromSearch = (search: string): NavigationState => {
 export default function LaboratoiresMobilesAdmin() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin, isLoading: roleLoading } = usePermissionContext();
   const { data: labos, isLoading: labosLoading } = useLaboratoiresMobiles();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
