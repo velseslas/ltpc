@@ -78,7 +78,7 @@ export default function LaboratoireMobileChantier() {
   }
 
   // Technicians can only access their assigned chantiers
-  if (isTechnicien && chantierId && userChantiers && !userChantiers.chantierIds.includes(chantierId)) {
+  if (!isAdmin && chantierId && userChantiers && !userChantiers.chantierIds.includes(chantierId)) {
     return (
       <div className="text-center py-12">
         <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-destructive opacity-60" />
