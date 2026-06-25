@@ -27,14 +27,10 @@ export function useCurrentUserChantiers() {
 
       const intervenantId = utilisateur.intervenant_id;
 
-      // 2. Get chantier IDs from affectations (active)
-      const { data: affectations } = await supabase
-        .from("affectations")
-        .select("chantier_id")
-        .eq("intervenant_id", intervenantId)
-        .in("statut", ["en_cours", "active", "actif"]);
-
-      // 3. Get chantier IDs from laboratoires_mobiles (as responsable)
+      // Source of truth: laboratoires_mobiles.responsable_id ("Technicien affecté").
+      // We intentionally ignore the RH `affectations` table here — that one tracks
+      // generic project assignments which are not the same as being the technician
+      // in charge of a mobile lab on a chantier.
       const { data: labos } = await supabase
         .from("laboratoires_mobiles")
         .select("chantier_id")
@@ -42,10 +38,10 @@ export function useCurrentUserChantiers() {
         .not("chantier_id", "is", null);
 
       const chantierIdSet = new Set<string>();
-      affectations?.forEach(a => { if (a.chantier_id) chantierIdSet.add(a.chantier_id); });
       labos?.forEach(l => { if (l.chantier_id) chantierIdSet.add(l.chantier_id as string); });
 
       return { intervenantId, chantierIds: Array.from(chantierIdSet) };
+
     },
     enabled: !!user?.id,
   });
