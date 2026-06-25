@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 import { useChantier } from "@/hooks/useChantiers";
 import { useClient } from "@/hooks/useClients";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
+import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateChantierEchantillon } from "@/hooks/useChantierEchantillons";
 import { supabase } from "@/integrations/supabase/client";
@@ -143,7 +145,8 @@ export default function ChantierEchantillonForm() {
   const [showError, setShowError] = useState(false);
 
   // Data fetching
-  const { data: centrales = [] } = useCentralesBeton();
+  const { data: centralesByClient = [] } = useCentralesByClient(chantier?.client_id || "");
+  const centrales = useMergedById("centrales_beton", centraleId || null, centralesByClient, "id, nom, ville");
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
   const { data: labos } = useLaboratoiresMobiles();
 
