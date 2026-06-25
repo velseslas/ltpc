@@ -26,7 +26,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 export default function LaboratoireMobileChantier() {
   const navigate = useNavigate();
   const { chantierId } = useParams();
-  const { isTechnicien } = usePermissionContext();
+  const { isAdmin } = usePermissionContext();
   const { data: userChantiers, isLoading: chantiersAccessLoading } = useCurrentUserChantiers();
   const { data: chantier, isLoading: chantierLoading } = useChantier(chantierId || "");
   const { data: client, isLoading: clientLoading } = useClient(chantier?.client_id || "");
