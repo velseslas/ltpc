@@ -1,10 +1,10 @@
 import { Loader2 } from "lucide-react";
-import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
+import { usePermissionContext } from "@/hooks/usePermissionContext";
 import LaboratoiresMobilesAdmin from "./LaboratoiresMobilesAdmin";
 import LaboratoiresMobilesTechnicien from "./LaboratoiresMobilesTechnicien";
 
 export default function LaboratoiresMobiles() {
-  const { data: role, isLoading } = useCurrentUserRole();
+  const { isAdmin, isLoading } = usePermissionContext();
 
   if (isLoading) {
     return (
@@ -14,9 +14,7 @@ export default function LaboratoiresMobiles() {
     );
   }
 
-  // Admin roles: super_admin, admin, manager see admin view
-  // Technicien, operateur, lecteur see technicien view
-  const isAdmin = role === "super_admin" || role === "admin" || role === "manager";
-
+  // Only super_admin / admin / manager see all chantiers.
+  // Everyone else (technicien, operateur, lecteur, unknown) sees only their assigned chantiers.
   return isAdmin ? <LaboratoiresMobilesAdmin /> : <LaboratoiresMobilesTechnicien />;
 }
