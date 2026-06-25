@@ -18,10 +18,10 @@ export function useChantierEchantillons(chantierId: string) {
         .from("echantillons_compression")
         .select(`
           *,
-          clients(id, nom),
-          chantiers(id, nom),
-          centrales_beton(id, nom),
-          formulations(id, nom)
+          clients:client_id(id, nom),
+          chantiers:chantier_id(id, nom),
+          centrales_beton:centrale_id(id, nom),
+          formulations:formulation_id(id, nom)
         `)
         .eq("chantier_id", chantierId)
         .order("numero_chantier", { ascending: true });
@@ -67,8 +67,8 @@ export function useCreateChantierEchantillon() {
         .insert({ ...echantillon, is_laboratoire_chantier: true })
         .select(`
           *,
-          clients(id, nom),
-          chantiers(id, nom)
+          clients:client_id(id, nom),
+          chantiers:chantier_id(id, nom)
         `)
         .single();
 
