@@ -150,16 +150,28 @@ export default function LaboratoiresMobilesTechnicien() {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const monthEch = echantillonsCompression.filter((e: any) => {
-      if (!e.chantier_id || !assignedChantierIds.has(e.chantier_id)) return false;
-      const d = e.date_essai ? new Date(e.date_essai) : (e.created_at ? new Date(e.created_at) : null);
+    const scoped = echantillonsCompression.filter(
+      (e: any) => e.chantier_id && assignedChantierIds.has(e.chantier_id)
+    );
+    const monthEch = scoped.filter((e: any) => {
+      const d = e.date_essai
+        ? new Date(e.date_essai)
+        : e.date_coulage
+          ? new Date(e.date_coulage)
+          : e.created_at
+            ? new Date(e.created_at)
+            : null;
       return d && d >= monthStart && d < monthEnd;
     });
-    const total = monthEch.length;
-    const conformes = monthEch.filter((e: any) => e.resultats != null).length;
+    const evaluated = scoped.filter(
+      (e: any) => e.statut === "termine" || e.statut === "non-conforme"
+    );
+    const conformes = evaluated.filter((e: any) => e.statut === "termine").length;
     return {
-      essaisCount: total,
-      tauxReussite: total > 0 ? Math.round((conformes / total) * 100) : 0,
+      essaisCount: monthEch.length,
+      tauxReussite: evaluated.length > 0
+        ? Math.round((conformes / evaluated.length) * 100)
+        : 0,
     };
   }, [echantillonsCompression, assignedChantierIds]);
 
