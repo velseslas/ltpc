@@ -26,7 +26,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 export default function LaboratoireMobileChantier() {
   const navigate = useNavigate();
   const { chantierId } = useParams();
-  const { isTechnicien } = usePermissionContext();
+  const { isAdmin } = usePermissionContext();
   const { data: userChantiers, isLoading: chantiersAccessLoading } = useCurrentUserChantiers();
   const { data: chantier, isLoading: chantierLoading } = useChantier(chantierId || "");
   const { data: client, isLoading: clientLoading } = useClient(chantier?.client_id || "");
@@ -78,7 +78,7 @@ export default function LaboratoireMobileChantier() {
   }
 
   // Technicians can only access their assigned chantiers
-  if (isTechnicien && chantierId && userChantiers && !userChantiers.chantierIds.includes(chantierId)) {
+  if (!isAdmin && chantierId && userChantiers && !userChantiers.chantierIds.includes(chantierId)) {
     return (
       <div className="text-center py-12">
         <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-destructive opacity-60" />

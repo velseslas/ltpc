@@ -33,6 +33,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { usePermissionContext } from "@/hooks/usePermissionContext";
+import LaboratoiresMobilesTechnicien from "./LaboratoiresMobilesTechnicien";
 
 type NavigationLevel = "wilayas" | "clients" | "chantiers";
 
@@ -69,6 +71,7 @@ const getNavigationStateFromSearch = (search: string): NavigationState => {
 export default function LaboratoiresMobilesAdmin() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin, isLoading: roleLoading } = usePermissionContext();
   const { data: labos, isLoading: labosLoading } = useLaboratoiresMobiles();
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
@@ -84,6 +87,14 @@ export default function LaboratoiresMobilesAdmin() {
     setCurrentPage(1);
     setNavState(getNavigationStateFromSearch(location.search));
   }, [location.search]);
+
+  // Defense in depth: only super_admin / admin / manager can see ALL chantiers.
+  // Any other role lands on the filtered technicien view.
+  if (!roleLoading && !isAdmin) {
+    return <LaboratoiresMobilesTechnicien />;
+  }
+
+
 
   // Get chantiers that have laboratoires mobiles assigned
   const chantiersWithLaboMobile = useMemo(() => {
