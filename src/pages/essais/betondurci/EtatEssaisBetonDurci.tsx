@@ -44,21 +44,21 @@ function useEchantillonsBetonDurciByType(essaiType: string) {
   return useQuery({
     queryKey: ["etat-essais-beton-durci", essaiType],
     queryFn: async () => {
-      const query = supabase
+      let query: any = supabase
         .from(tableName as any)
         .select(`
           *,
-          clients(id, nom),
-          chantiers(id, nom),
-          centrales_beton(id, nom),
-          formulations(id, nom),
-          intervenants(id, nom, prenom)
+          clients:client_id(id, nom),
+          chantiers:chantier_id(id, nom),
+          centrales_beton:centrale_id(id, nom),
+          formulations:formulation_id(id, nom),
+          intervenants:operateur_id(id, nom, prenom)
         `)
         .order("numero", { ascending: true });
 
       // For compression, only non-laboratoire-chantier
       if (essaiType === "compression") {
-        (query as any).eq("is_laboratoire_chantier", false);
+        query = query.eq("is_laboratoire_chantier", false);
       }
 
       const { data, error } = await query;
