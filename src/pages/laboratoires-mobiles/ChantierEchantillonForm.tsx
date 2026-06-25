@@ -145,7 +145,8 @@ export default function ChantierEchantillonForm() {
   const [showError, setShowError] = useState(false);
 
   // Data fetching
-  const { data: centrales = [] } = useCentralesBeton();
+  const { data: centralesByClient = [] } = useCentralesByClient(chantier?.client_id || "");
+  const centrales = useMergedById("centrales_beton", centraleId || null, centralesByClient, "id, nom, ville");
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
   const { data: labos } = useLaboratoiresMobiles();
 
