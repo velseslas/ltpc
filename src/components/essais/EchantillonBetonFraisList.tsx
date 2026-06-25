@@ -41,6 +41,7 @@ import {
   EchantillonBetonFraisBase,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 
 const getStatusBadge = (statut: string) => {
   switch (statut) {
