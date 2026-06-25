@@ -137,10 +137,32 @@ export default function LaboratoiresMobilesTechnicien() {
     );
   }, [chantiersWithLaboMobile, navState.selectedClient, navState.selectedWilaya]);
 
-  // Stats calculations
-  const techniciensCount = useMemo(() => {
-    return intervenants?.filter(i => i.postes?.nom?.toLowerCase().includes('technicien')).length || 0;
-  }, [intervenants]);
+  // Stats scoped to current technicien's chantiers
+  const assignedChantierIds = useMemo(
+    () => new Set(userChantiers?.chantierIds || []),
+    [userChantiers]
+  );
+
+  const { essaisCount, tauxReussite } = useMemo(() => {
+    if (!echantillonsCompression || assignedChantierIds.size === 0) {
+      return { essaisCount: 0, tauxReussite: 0 };
+    }
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const monthEch = echantillonsCompression.filter((e: any) => {
+      if (!e.chantier_id || !assignedChantierIds.has(e.chantier_id)) return false;
+      const d = e.date_essai ? new Date(e.date_essai) : (e.created_at ? new Date(e.created_at) : null);
+      return d && d >= monthStart && d < monthEnd;
+    });
+    const total = monthEch.length;
+    const conformes = monthEch.filter((e: any) => e.resultats != null).length;
+    return {
+      essaisCount: total,
+      tauxReussite: total > 0 ? Math.round((conformes / total) * 100) : 0,
+    };
+  }, [echantillonsCompression, assignedChantierIds]);
+
 
   // Get current items for pagination
   const getCurrentItems = () => {
@@ -266,10 +288,12 @@ export default function LaboratoiresMobilesTechnicien() {
       <AdminStatsCards
         wilayasCount={wilayasWithLaboMobile.length}
         chantiersCount={chantiersWithLaboMobile.length}
-        techniciensCount={techniciensCount}
-        essaisCount={1375}
-        tauxReussite={94}
+        techniciensCount={0}
+        essaisCount={essaisCount}
+        tauxReussite={tauxReussite}
+        hideTechniciens
       />
+
 
       {/* Section Title */}
       <div className="flex items-center gap-3 pt-4">

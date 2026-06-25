@@ -7,6 +7,7 @@ interface AdminStatsCardsProps {
   techniciensCount: number;
   essaisCount: number;
   tauxReussite: number;
+  hideTechniciens?: boolean;
 }
 
 export function AdminStatsCards({
@@ -14,7 +15,8 @@ export function AdminStatsCards({
   chantiersCount,
   techniciensCount,
   essaisCount,
-  tauxReussite
+  tauxReussite,
+  hideTechniciens = false,
 }: AdminStatsCardsProps) {
   const stats = [
     {
@@ -29,16 +31,18 @@ export function AdminStatsCards({
       subtitle: "Tous projets confondus",
       icon: Building2,
     },
-    {
-      title: "Techniciens",
-      value: techniciensCount,
-      subtitle: "Personnel actif",
-      icon: Users,
-    },
+    ...(hideTechniciens
+      ? []
+      : [{
+          title: "Techniciens",
+          value: techniciensCount,
+          subtitle: "Personnel actif",
+          icon: Users,
+        }]),
     {
       title: "Essais du mois",
       value: essaisCount,
-      subtitle: "+12% vs mois précédent",
+      subtitle: "Mois en cours",
       icon: FlaskConical,
     },
     {
@@ -49,8 +53,12 @@ export function AdminStatsCards({
     },
   ];
 
+  const gridCols = hideTechniciens
+    ? "grid gap-4 grid-cols-2 md:grid-cols-4"
+    : "grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5";
+
   return (
-    <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+    <div className={gridCols}>
       {stats.map((stat, index) => (
         <Card key={index} className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="p-4">
