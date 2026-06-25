@@ -10,7 +10,16 @@ type EchantillonLike = {
 
 const parseValidDate = (value?: string | null) => {
   if (!value) return null;
-  const date = new Date(value);
+
+  const trimmed = value.trim();
+  const frenchDate = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (frenchDate) {
+    const [, day, month, year] = frenchDate;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  const date = new Date(trimmed);
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
