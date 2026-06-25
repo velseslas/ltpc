@@ -20,6 +20,7 @@ import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
 import { wilayas } from "@/data/wilayas";
+import { calculateLaboratoireEssaiStats } from "@/lib/laboratoireMobileStats";
 import { AdminStatsCards } from "@/components/laboratoires-mobiles/AdminStatsCards";
 import { AppBreadcrumb, BreadcrumbItemType } from "@/components/layout/AppBreadcrumb";
 import { WilayaCard } from "@/components/laboratoires-mobiles/WilayaCard";
@@ -76,7 +77,7 @@ export default function LaboratoiresMobilesAdmin() {
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: intervenants } = useIntervenants();
-  const { data: echantillonsCompression } = useEchantillonsCompression();
+  const { data: echantillonsCompression } = useEchantillonsCompression("laboratoire-chantier");
 
   const [navState, setNavState] = useState<NavigationState>(() => getNavigationStateFromSearch(location.search));
   const [currentPage, setCurrentPage] = useState(1);
@@ -164,32 +165,10 @@ export default function LaboratoiresMobilesAdmin() {
     return intervenants?.filter(i => i.postes?.nom?.toLowerCase().includes('technicien')).length || 0;
   }, [intervenants]);
 
-  const { essaisCount, tauxReussite } = useMemo(() => {
-    if (!echantillonsCompression) return { essaisCount: 0, tauxReussite: 0 };
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const monthEch = echantillonsCompression.filter((e: any) => {
-      const d = e.date_essai
-        ? new Date(e.date_essai)
-        : e.date_coulage
-          ? new Date(e.date_coulage)
-          : e.created_at
-            ? new Date(e.created_at)
-            : null;
-      return d && d >= monthStart && d < monthEnd;
-    });
-    const evaluated = echantillonsCompression.filter(
-      (e: any) => e.statut === "termine" || e.statut === "non-conforme"
-    );
-    const conformes = evaluated.filter((e: any) => e.statut === "termine").length;
-    return {
-      essaisCount: monthEch.length,
-      tauxReussite: evaluated.length > 0
-        ? Math.round((conformes / evaluated.length) * 100)
-        : 0,
-    };
-  }, [echantillonsCompression]);
+  const { essaisCount, tauxReussite } = useMemo(
+    () => calculateLaboratoireEssaiStats(echantillonsCompression),
+    [echantillonsCompression]
+  );
 
   // Get current items for pagination
   const getCurrentItems = () => {

@@ -9,6 +9,7 @@ import { useIntervenants } from "@/hooks/useIntervenants";
 import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { wilayas } from "@/data/wilayas";
+import { calculateLaboratoireEssaiStats } from "@/lib/laboratoireMobileStats";
 import { AdminStatsCards } from "@/components/laboratoires-mobiles/AdminStatsCards";
 import { AppBreadcrumb, BreadcrumbItemType } from "@/components/layout/AppBreadcrumb";
 import { WilayaCard } from "@/components/laboratoires-mobiles/WilayaCard";
@@ -62,7 +63,7 @@ export default function LaboratoiresMobilesTechnicien() {
   const { data: chantiers, isLoading: chantiersLoading } = useChantiers();
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: intervenants } = useIntervenants();
-  const { data: echantillonsCompression } = useEchantillonsCompression();
+  const { data: echantillonsCompression } = useEchantillonsCompression("laboratoire-chantier");
   const { data: userChantiers } = useCurrentUserChantiers();
 
   const [navState, setNavState] = useState<NavigationState>(() => getNavigationStateFromSearch(location.search));
@@ -143,37 +144,10 @@ export default function LaboratoiresMobilesTechnicien() {
     [userChantiers]
   );
 
-  const { essaisCount, tauxReussite } = useMemo(() => {
-    if (!echantillonsCompression || assignedChantierIds.size === 0) {
-      return { essaisCount: 0, tauxReussite: 0 };
-    }
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const scoped = echantillonsCompression.filter(
-      (e: any) => e.chantier_id && assignedChantierIds.has(e.chantier_id)
-    );
-    const monthEch = scoped.filter((e: any) => {
-      const d = e.date_essai
-        ? new Date(e.date_essai)
-        : e.date_coulage
-          ? new Date(e.date_coulage)
-          : e.created_at
-            ? new Date(e.created_at)
-            : null;
-      return d && d >= monthStart && d < monthEnd;
-    });
-    const evaluated = scoped.filter(
-      (e: any) => e.statut === "termine" || e.statut === "non-conforme"
-    );
-    const conformes = evaluated.filter((e: any) => e.statut === "termine").length;
-    return {
-      essaisCount: monthEch.length,
-      tauxReussite: evaluated.length > 0
-        ? Math.round((conformes / evaluated.length) * 100)
-        : 0,
-    };
-  }, [echantillonsCompression, assignedChantierIds]);
+  const { essaisCount, tauxReussite } = useMemo(
+    () => calculateLaboratoireEssaiStats(echantillonsCompression, assignedChantierIds),
+    [echantillonsCompression, assignedChantierIds]
+  );
 
 
   // Get current items for pagination

@@ -21,12 +21,15 @@ export type EchantillonCompression = {
   date_coulage: string | null;
   date_essai: string | null;
   etuvage: string | null;
+  is_laboratoire_chantier: boolean;
   statut: string;
   observations: string | null;
   resultats: Json | null;
   created_at: string;
   updated_at: string;
 };
+
+export type EchantillonsCompressionScope = "essais" | "laboratoire-chantier" | "all";
 
 export type EchantillonCompressionInsert = {
   client_id?: string | null;
@@ -55,19 +58,25 @@ export type EchantillonWithRelations = EchantillonCompression & {
   chantiers: { id: string; nom: string } | null;
 };
 
-export function useEchantillonsCompression() {
+export function useEchantillonsCompression(scope: EchantillonsCompressionScope = "essais") {
   return useQuery({
-    queryKey: ["echantillons-compression"],
+    queryKey: ["echantillons-compression", scope],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("echantillons_compression")
         .select(`
           *,
-          clients(id, nom),
-          chantiers(id, nom)
-        `)
-        .eq("is_laboratoire_chantier", false)
-        .order("numero", { ascending: true });
+          clients:client_id(id, nom),
+          chantiers:chantier_id(id, nom)
+        `);
+
+      if (scope === "essais") {
+        query = query.eq("is_laboratoire_chantier", false);
+      } else if (scope === "laboratoire-chantier") {
+        query = query.eq("is_laboratoire_chantier", true);
+      }
+
+      const { data, error } = await query.order("numero", { ascending: true });
 
       if (error) throw error;
       return data as EchantillonWithRelations[];
