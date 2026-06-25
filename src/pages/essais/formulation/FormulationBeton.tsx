@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/ui/back-button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -345,23 +346,25 @@ const FormulationBeton = () => {
                         <ClipboardCheck className="w-3.5 h-3.5" />
                         Convenance
                       </Button>
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <ConfirmDelete
-                          trigger={
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              Supprimer
-                            </Button>
-                          }
-                          title="Supprimer la formulation"
-                          description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
-                          onConfirm={() => handleDelete(f.id)}
-                        />
-                      </div>
+                      <NotTechnicien>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <ConfirmDelete
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                Supprimer
+                              </Button>
+                            }
+                            title="Supprimer la formulation"
+                            description={`Voulez-vous vraiment supprimer la formulation « ${f.nom} » ? Cette action est irréversible.`}
+                            onConfirm={() => handleDelete(f.id)}
+                          />
+                        </div>
+                      </NotTechnicien>
                     </div>
                   </CardContent>
                 </Card>

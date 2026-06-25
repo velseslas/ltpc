@@ -56,6 +56,7 @@ import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 
 interface EchantillonGranulatListProps {
   title: string;
@@ -295,17 +296,19 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
                           <Pencil className="w-4 h-4 mr-2" />
                           Modifier
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEchantillonToDelete(echantillon.id);
-                            setDeleteDialogOpen(true);
-                          }}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Supprimer
-                        </DropdownMenuItem>
+                        <NotTechnicien>
+                          <DropdownMenuItem 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEchantillonToDelete(echantillon.id);
+                              setDeleteDialogOpen(true);
+                            }}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </NotTechnicien>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -27,6 +27,7 @@ import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 
 interface EchantillonGeotechniqueListProps {
   title: string;
@@ -188,12 +189,14 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
                             <FileText className="w-4 h-4 mr-2" />Rapport
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem
-                          onClick={(e) => { e.stopPropagation(); setEchantillonToDelete(echantillon.id); setDeleteDialogOpen(true); }}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />Supprimer
-                        </DropdownMenuItem>
+                        <NotTechnicien>
+                          <DropdownMenuItem
+                            onClick={(e) => { e.stopPropagation(); setEchantillonToDelete(echantillon.id); setDeleteDialogOpen(true); }}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />Supprimer
+                          </DropdownMenuItem>
+                        </NotTechnicien>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

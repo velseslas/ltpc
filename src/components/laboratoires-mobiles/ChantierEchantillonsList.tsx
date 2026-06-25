@@ -39,6 +39,7 @@ import {
   EchantillonChantier 
 } from "@/hooks/useChantierEchantillons";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 
 const getStatutBadge = (statut: string) => {
   switch (statut) {
@@ -243,13 +244,15 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
                           <Pencil className="h-4 w-4" />
                           Modifier
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="flex items-center gap-2 text-destructive"
-                          onClick={() => setDeleteId(echantillon.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Supprimer
-                        </DropdownMenuItem>
+                        <NotTechnicien>
+                          <DropdownMenuItem 
+                            className="flex items-center gap-2 text-destructive"
+                            onClick={() => setDeleteId(echantillon.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </NotTechnicien>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
