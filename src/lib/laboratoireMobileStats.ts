@@ -83,8 +83,8 @@ const getActivityDate = (echantillon: EchantillonLike) => {
   const hasResult = hasMeasuredResult(echantillon.resultats);
 
   return (
-    parseValidDate(echantillon.date_essai) ||
     (hasResult ? parseValidDate(echantillon.updated_at) : null) ||
+    parseValidDate(echantillon.date_essai) ||
     parseValidDate(echantillon.date_coulage) ||
     parseValidDate(echantillon.created_at)
   );
