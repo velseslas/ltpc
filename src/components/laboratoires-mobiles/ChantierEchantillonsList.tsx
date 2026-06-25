@@ -39,6 +39,7 @@ import {
   EchantillonChantier 
 } from "@/hooks/useChantierEchantillons";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 
 const getStatutBadge = (statut: string) => {
   switch (statut) {
