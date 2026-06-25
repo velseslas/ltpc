@@ -88,6 +88,14 @@ export default function LaboratoiresMobilesAdmin() {
     setNavState(getNavigationStateFromSearch(location.search));
   }, [location.search]);
 
+  // Defense in depth: only super_admin / admin / manager can see ALL chantiers.
+  // Any other role lands on the filtered technicien view.
+  if (!roleLoading && !isAdmin) {
+    return <LaboratoiresMobilesTechnicien />;
+  }
+
+
+
   // Get chantiers that have laboratoires mobiles assigned
   const chantiersWithLaboMobile = useMemo(() => {
     if (!labos || !chantiers) return [];
