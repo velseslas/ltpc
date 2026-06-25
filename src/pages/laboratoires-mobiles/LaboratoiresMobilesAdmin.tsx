@@ -33,6 +33,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { usePermissionContext } from "@/hooks/usePermissionContext";
+import LaboratoiresMobilesTechnicien from "./LaboratoiresMobilesTechnicien";
 
 type NavigationLevel = "wilayas" | "clients" | "chantiers";
 
