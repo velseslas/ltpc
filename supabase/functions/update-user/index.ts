@@ -104,8 +104,15 @@ Deno.serve(async (req) => {
       const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId!, { password });
       if (pwdErr) {
         console.error("update-user password update error:", pwdErr);
+        const code = (pwdErr as any)?.code;
+        let msg = "Impossible de mettre à jour le mot de passe";
+        if (code === "weak_password") {
+          msg = "Mot de passe trop faible ou compromis (présent dans une fuite connue). Choisissez-en un autre, plus long et unique.";
+        } else if (pwdErr.message) {
+          msg = pwdErr.message;
+        }
         return new Response(
-          JSON.stringify({ error: "Impossible de mettre à jour le mot de passe" }),
+          JSON.stringify({ error: msg, code }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
