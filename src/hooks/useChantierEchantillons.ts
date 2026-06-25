@@ -67,8 +67,8 @@ export function useCreateChantierEchantillon() {
         .insert({ ...echantillon, is_laboratoire_chantier: true })
         .select(`
           *,
-          clients(id, nom),
-          chantiers(id, nom)
+          clients:client_id(id, nom),
+          chantiers:chantier_id(id, nom)
         `)
         .single();
 
