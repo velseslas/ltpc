@@ -45,7 +45,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     // Techniciens: only show Essais + Laboratoires Chantier (if assigned)
     if (isTechnicien) {
       if (item.permission === "essais.voir") return hasPermission(item.permission);
-      if (item.permission === "labos_mobiles.voir") {
+      if (item.permission === "laboratoires_mobiles.voir") {
         return hasPermission(item.permission) && (userChantiers?.chantierIds?.length ?? 0) > 0;
       }
       return false;
