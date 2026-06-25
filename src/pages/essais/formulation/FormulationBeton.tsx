@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/ui/back-button";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
