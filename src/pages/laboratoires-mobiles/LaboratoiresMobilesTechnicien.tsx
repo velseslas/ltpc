@@ -288,10 +288,12 @@ export default function LaboratoiresMobilesTechnicien() {
       <AdminStatsCards
         wilayasCount={wilayasWithLaboMobile.length}
         chantiersCount={chantiersWithLaboMobile.length}
-        techniciensCount={techniciensCount}
-        essaisCount={1375}
-        tauxReussite={94}
+        techniciensCount={0}
+        essaisCount={essaisCount}
+        tauxReussite={tauxReussite}
+        hideTechniciens
       />
+
 
       {/* Section Title */}
       <div className="flex items-center gap-3 pt-4">
