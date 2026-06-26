@@ -234,8 +234,8 @@ const RolesPermissions = () => {
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <Badge className={`${ROLE_COLORS[role]} border`}>
-                      {ROLE_LABELS[role]}
+                    <Badge className={`${dynColors[role]} border`}>
+                      {dynLabels[role]}
                     </Badge>
                     {selectedRole === role && (
                       <Check className="h-5 w-5 text-primary" />
@@ -244,7 +244,7 @@ const RolesPermissions = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    {ROLE_DESCRIPTIONS[role]}
+                    {dynDescriptions[role]}
                   </p>
                   <div className="mt-3 text-xs text-muted-foreground">
                     {role === 'super_admin' ? (permissions?.length || 0) : (rolePermissions?.[role]?.length || 0)} permissions
@@ -279,11 +279,11 @@ const RolesPermissions = () => {
                       <AccordionItem key={role} value={role}>
                         <AccordionTrigger className="hover:no-underline">
                           <div className="flex items-center gap-3 flex-1">
-                            <Badge className={`${ROLE_COLORS[role]} border`}>
-                              {ROLE_LABELS[role]}
+                            <Badge className={`${dynColors[role]} border`}>
+                              {dynLabels[role]}
                             </Badge>
                             <span className="text-sm text-muted-foreground">
-                              {ROLE_DESCRIPTIONS[role]}
+                              {dynDescriptions[role]}
                             </span>
                             <Badge variant="outline" className="ml-auto mr-3">
                               {totalGranted} / {permissions?.length || 0}
@@ -358,8 +358,8 @@ const RolesPermissions = () => {
                   <CardTitle className="flex items-center gap-2 flex-wrap">
                     <Lock className="h-5 w-5" />
                     Matrice des permissions pour
-                    <Badge className={`${ROLE_COLORS[selectedRole]} border`}>
-                      {ROLE_LABELS[selectedRole]}
+                    <Badge className={`${dynColors[selectedRole]} border`}>
+                      {dynLabels[selectedRole]}
                     </Badge>
                   </CardTitle>
                   <CardDescription className="mt-1">
@@ -635,7 +635,7 @@ const RolesPermissions = () => {
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="max-w-[200px] text-sm">{ROLE_LABELS[role]}</p>
+                                  <p className="max-w-[200px] text-sm">{dynLabels[role]}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -679,7 +679,7 @@ const RolesPermissions = () => {
                                             </span>
                                           </TooltipTrigger>
                                           <TooltipContent>
-                                            {ROLE_LABELS[role]}: {assignedCount}/{totalCount}
+                                            {dynLabels[role]}: {assignedCount}/{totalCount}
                                           </TooltipContent>
                                         </Tooltip>
                                       </TooltipProvider>
@@ -913,12 +913,12 @@ const RolesPermissions = () => {
                                     <TooltipProvider key={role}>
                                       <Tooltip>
                                         <TooltipTrigger>
-                                          <Badge className={`${ROLE_COLORS[role]} border text-[10px] px-1`}>
-                                            {ROLE_LABELS[role].charAt(0)}
+                                          <Badge className={`${dynColors[role]} border text-[10px] px-1`}>
+                                            {dynLabels[role].charAt(0)}
                                           </Badge>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                          {ROLE_LABELS[role]}
+                                          {dynLabels[role]}
                                         </TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
@@ -1008,8 +1008,8 @@ const RolesPermissions = () => {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Badge className={`${ROLE_COLORS[user.role as AppRole] || ROLE_COLORS.lecteur} border`}>
-                                {ROLE_LABELS[user.role as AppRole] || 'Lecteur'}
+                              <Badge className={`${dynColors[user.role as AppRole] || ROLE_COLORS.lecteur} border`}>
+                                {dynLabels[user.role as AppRole] || 'Lecteur'}
                               </Badge>
                             </TableCell>
                             <TableCell>
@@ -1028,7 +1028,7 @@ const RolesPermissions = () => {
                                 <SelectContent>
                                   {ROLES.map(role => (
                                     <SelectItem key={role} value={role}>
-                                      {ROLE_LABELS[role]}
+                                      {dynLabels[role]}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -1051,11 +1051,11 @@ const RolesPermissions = () => {
               return (
                 <Card key={role}>
                   <CardContent className="pt-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${ROLE_COLORS[role].replace('text-', 'bg-').split(' ')[0]}`}>
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${dynColors[role].replace('text-', 'bg-').split(' ')[0]}`}>
                       <Shield className="h-6 w-6" />
                     </div>
                     <p className="text-2xl font-bold">{count}</p>
-                    <p className="text-xs text-muted-foreground">{ROLE_LABELS[role]}</p>
+                    <p className="text-xs text-muted-foreground">{dynLabels[role]}</p>
                   </CardContent>
                 </Card>
               );
