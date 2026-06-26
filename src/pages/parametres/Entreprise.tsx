@@ -5,13 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Building2, Upload, Save, Loader2, Stamp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEntreprise, useUpdateEntreprise, uploadLogo, uploadCachet } from "@/hooks/useEntreprise";
+import { useEntrepriseFull, useUpdateEntreprise, uploadLogo, uploadCachet } from "@/hooks/useEntreprise";
 import { toast } from "sonner";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 const Entreprise = () => {
   const navigate = useNavigate();
-  const { data: entreprise, isLoading } = useEntreprise();
+  const { data: entreprise, isLoading } = useEntrepriseFull();
   const updateEntreprise = useUpdateEntreprise();
   
   const [formData, setFormData] = useState({
