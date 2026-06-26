@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Shield, Users, Lock, Plus, Trash2, Check, X, Info, Search } from "lucide-react";
+import { ArrowLeft, Shield, Users, Lock, Plus, Trash2, Check, X, Info, Search, Pencil, Link2 } from "lucide-react";
+import { useRoleDefinitions, useUpdateRoleDefinition, useCreateRoleAlias, useDeleteRoleDefinition, type RoleDefinition } from "@/hooks/useRoleDefinitions";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/common/ConfirmDelete";
