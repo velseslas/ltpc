@@ -92,7 +92,7 @@ export default function FactureListe() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((f: any) => (
+                {filtered.map((f: any) => (
                   <TableRow key={f.id}>
                     <TableCell className="font-medium">{f.numero}</TableCell>
                     <TableCell>{(f.clients as any)?.nom || "—"}</TableCell>
