@@ -23,6 +23,8 @@ import {
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useParametresSysteme, useUpsertParametresSysteme } from "@/hooks/useParametres";
 import { toast } from "sonner";
+import { isMaintenanceActive, setMaintenanceMode as persistMaintenanceMode } from "@/components/common/MaintenanceGate";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const SystemeSettings = () => {
   const navigate = useNavigate();
@@ -52,7 +54,17 @@ const SystemeSettings = () => {
   const [notifFacturation, setNotifFacturation] = useState(true);
   const [notifMateriel, setNotifMateriel] = useState(true);
   const [notifRH, setNotifRH] = useState(false);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMode, setMaintenanceModeState] = useState<boolean>(() => isMaintenanceActive());
+  const isAdmin = useIsAdmin();
+  const handleToggleMaintenance = (v: boolean) => {
+    if (!isAdmin) {
+      toast.error("Seuls les administrateurs peuvent activer le mode maintenance");
+      return;
+    }
+    setMaintenanceModeState(v);
+    persistMaintenanceMode(v);
+    toast.success(v ? "Mode maintenance activé" : "Mode maintenance désactivé");
+  };
   const [debugMode, setDebugMode] = useState(false);
   const [autoBackup, setAutoBackup] = useState(true);
   const [backupFrequency, setBackupFrequency] = useState("daily");
@@ -586,7 +598,7 @@ const SystemeSettings = () => {
                     </Label>
                     <p className="text-xs text-muted-foreground">Désactiver l'accès utilisateur temporairement</p>
                   </div>
-                  <Switch checked={maintenanceMode} onCheckedChange={setMaintenanceMode} />
+                  <Switch checked={maintenanceMode} onCheckedChange={handleToggleMaintenance} />
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
                   <div className="space-y-0.5">
