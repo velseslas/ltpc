@@ -23,6 +23,8 @@ import {
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useParametresSysteme, useUpsertParametresSysteme } from "@/hooks/useParametres";
 import { toast } from "sonner";
+import { isMaintenanceActive, setMaintenanceMode as persistMaintenanceMode } from "@/components/common/MaintenanceGate";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const SystemeSettings = () => {
   const navigate = useNavigate();
