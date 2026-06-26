@@ -6549,6 +6549,25 @@ export type Database = {
     }
     Functions: {
       can_write_business: { Args: never; Returns: boolean }
+      get_entreprise_public: {
+        Args: never
+        Returns: {
+          annexe: string
+          cachet_url: string
+          created_at: string
+          date_autorisation: string
+          email: string
+          id: string
+          logo_url: string
+          nom: string
+          numero_autorisation: string
+          representant: string
+          siege_social: string
+          site_web: string
+          telephone: string
+          updated_at: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
