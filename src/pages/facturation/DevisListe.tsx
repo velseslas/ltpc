@@ -152,7 +152,7 @@ export default function DevisListe() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((d: any) => (
+                {filtered.map((d: any) => (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">{d.numero}</TableCell>
                     <TableCell>{(d.clients as any)?.nom || "—"}</TableCell>
