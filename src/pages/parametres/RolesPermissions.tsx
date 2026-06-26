@@ -303,7 +303,7 @@ const RolesPermissions = () => {
                         </Button>
                         <ConfirmDelete
                           onConfirm={() => deleteRoleDef.mutate(rd.id)}
-                          itemLabel={rd.label}
+                          description={`Supprimer le rôle "${rd.label}" ? Cette action est irréversible.`}
                           trigger={
                             <Button
                               variant="ghost"
