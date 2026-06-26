@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, FlaskConical, Edit } from "lucide-react";
+import { Plus, Trash2, FlaskConical, Edit, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -33,6 +33,7 @@ export default function PrixEssaiListe() {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [search, setSearch] = useState("");
 
   const handleOpen = (item?: any) => {
     if (item) {
@@ -66,20 +67,39 @@ export default function PrixEssaiListe() {
 
   const getCategorieLabel = (v: string) => categories.find(c => c.value === v)?.label || v;
 
+  const filtered = data?.filter((p: any) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (p.nom_essai?.toLowerCase().includes(s) ||
+      p.code_essai?.toLowerCase().includes(s) ||
+      getCategorieLabel(p.categorie)?.toLowerCase().includes(s) ||
+      String(p.prix_unitaire ?? "").includes(s));
+  });
+
   return (
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Prix essais" }]} />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <BackButton to="/facturation" />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Prix des essais</h1>
-            <p className="text-muted-foreground">Barème des prix unitaires par type d'essai</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <BackButton to="/facturation" />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Prix des essais</h1>
+          <p className="text-muted-foreground">Barème des prix unitaires par type d'essai</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par nom, code, catégorie, prix..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-10 h-11 bg-card border-border"
+          />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2" onClick={() => handleOpen()}><Plus className="h-4 w-4" />Nouveau prix</Button>
+            <Button className="gap-2 shrink-0" onClick={() => handleOpen()}><Plus className="h-4 w-4" />Nouveau prix</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editId ? "Modifier le prix" : "Nouveau prix essai"}</DialogTitle></DialogHeader>
@@ -119,11 +139,11 @@ export default function PrixEssaiListe() {
         </Dialog>
       </div>
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-        <CardHeader><CardTitle className="flex items-center gap-2"><FlaskConical className="h-5 w-5" />Prix essais ({data?.length || 0})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><FlaskConical className="h-5 w-5" />Prix essais ({filtered?.length || 0})</CardTitle></CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
-          ) : !data?.length ? (
+          ) : !filtered?.length ? (
             <div className="text-center py-12 text-muted-foreground"><FlaskConical className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Aucun prix configuré</p></div>
           ) : (
             <Table>
@@ -138,7 +158,7 @@ export default function PrixEssaiListe() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((p: any) => (
+                {filtered.map((p: any) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-medium">{p.nom_essai}</TableCell>
                     <TableCell className="text-muted-foreground">{p.code_essai || "-"}</TableCell>
