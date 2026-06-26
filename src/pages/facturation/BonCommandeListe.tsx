@@ -30,10 +30,20 @@ export default function BonCommandeListe() {
   const navigate = useNavigate();
   const { data, isLoading } = useBonsCommande();
   const deleteMutation = useDeleteBonCommande();
+  const [search, setSearch] = useState("");
 
   const handleDelete = async (id: string) => {
     try { await deleteMutation.mutateAsync(id); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
+
+  const filtered = data?.filter((b: any) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (b.numero?.toLowerCase().includes(s) ||
+      (b.clients as any)?.nom?.toLowerCase().includes(s) ||
+      b.statut?.toLowerCase().includes(s) ||
+      String(b.montant_ttc ?? "").includes(s));
+  });
 
   return (
     <div className="space-y-6">
