@@ -22,7 +22,7 @@ export function useLaboratoiresMobiles() {
           *,
           intervenants(*),
           clients(id, nom),
-          chantiers(id, nom)
+          chantiers(id, nom, ville)
         `)
         .order("nom", { ascending: true });
       
@@ -42,7 +42,7 @@ export function useLaboratoireMobile(id: string) {
           *,
           intervenants(*),
           clients(id, nom),
-          chantiers(id, nom)
+          chantiers(id, nom, ville)
         `)
         .eq("id", id)
         .maybeSingle();
