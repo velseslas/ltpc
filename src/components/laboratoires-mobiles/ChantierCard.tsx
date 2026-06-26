@@ -67,10 +67,12 @@ export function ChantierCard({ nom, adresse, statut, colorIndex, onClick, showAc
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuItem className="flex items-center gap-2" onClick={onEdit}>
-                  <Pencil className="h-4 w-4" />
-                  Modifier
-                </DropdownMenuItem>
+                <NotTechnicien>
+                  <DropdownMenuItem className="flex items-center gap-2" onClick={onEdit}>
+                    <Pencil className="h-4 w-4" />
+                    Modifier
+                  </DropdownMenuItem>
+                </NotTechnicien>
                 <AdminOnly>
                   <ConfirmDelete
                     trigger={
