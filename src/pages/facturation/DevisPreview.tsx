@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Printer, Download, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useEntreprise } from "@/hooks/useEntreprise";
+import { useEntrepriseFull } from "@/hooks/useEntreprise";
 import { useDevisDetail } from "@/hooks/useFacturation";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
@@ -68,7 +68,7 @@ export default function DevisPreview() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const reportRef = useRef<HTMLDivElement>(null);
-  const { data: entreprise } = useEntreprise();
+  const { data: entreprise } = useEntrepriseFull();
   const { data: devis, isLoading } = useDevisDetail(id);
 
   if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
