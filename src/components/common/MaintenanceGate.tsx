@@ -26,9 +26,29 @@ export function setMaintenanceMode(active: boolean) {
 }
 
 export function MaintenanceGate({ children }: { children: ReactNode }) {
-  const isAdmin = useIsAdmin();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [active, setActive] = useState<boolean>(() => isMaintenanceActive());
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      if (cancelled) return;
+      const roles = (data ?? []).map((r: any) => r.role);
+      setIsAdmin(roles.includes("admin") || roles.includes("super_admin"));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   useEffect(() => {
     const refresh = () => setActive(isMaintenanceActive());
