@@ -77,8 +77,36 @@ export default function MaterielAffectationForm() {
     return chantiersInWilaya.filter(c => c.client_id === form.client_id);
   }, [chantiersInWilaya, form.client_id]);
 
+  const [missingFields, setMissingFields] = useState<Set<string>>(new Set());
+
+  const requiredFields: { key: keyof typeof form; label: string }[] = [
+    { key: "materiel_id", label: "Matériel" },
+    { key: "wilaya", label: "Wilaya" },
+    { key: "client_id", label: "Client" },
+    { key: "chantier_id", label: "Chantier" },
+    { key: "intervenant_id", label: "Technicien" },
+    { key: "date_debut", label: "Date début" },
+    { key: "date_fin", label: "Date fin" },
+    { key: "observations", label: "Observations" },
+  ];
+
   const handleSubmit = async () => {
-    if (!form.materiel_id) { toast.error("Sélectionnez un matériel"); return; }
+    const missing = new Set<string>();
+    const missingLabels: string[] = [];
+    requiredFields.forEach(f => {
+      if (!String(form[f.key] ?? "").trim()) {
+        missing.add(f.key as string);
+        missingLabels.push(f.label);
+      }
+    });
+    if (missing.size > 0) {
+      setMissingFields(missing);
+      toast.error(`Champs obligatoires manquants : ${missingLabels.join(", ")}`);
+      setTimeout(() => setMissingFields(new Set()), 4000);
+      return;
+    }
+    setMissingFields(new Set());
+
     const payload = {
       materiel_id: form.materiel_id,
       chantier_id: form.chantier_id || null,
@@ -99,6 +127,9 @@ export default function MaterielAffectationForm() {
       navigate("/materiel/affectation");
     } catch { toast.error("Erreur"); }
   };
+
+  const errClass = (key: string) => missingFields.has(key) ? "animate-border-blink border-destructive" : "";
+  const Req = () => <span className="text-destructive ml-0.5">*</span>;
 
   const isFormLoading = isEditing && (affectationLoading || !isInitialized);
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -122,45 +153,45 @@ export default function MaterielAffectationForm() {
         <FormLoadingOverlay isLoading={isFormLoading} message="Chargement des données..." />
         <CardContent className="pt-6 space-y-4">
           <div className="grid gap-2">
-            <Label>Matériel *</Label>
+            <Label>Matériel<Req /></Label>
             <Select value={form.materiel_id} onValueChange={v => setForm(p => ({ ...p, materiel_id: v }))}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+              <SelectTrigger className={errClass("materiel_id")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
               <SelectContent>{materiels?.map(m => <SelectItem key={m.id} value={m.id}>{m.nom} {m.reference ? `(${m.reference})` : ""}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label>Wilaya</Label>
+            <Label>Wilaya<Req /></Label>
             <Select value={form.wilaya} onValueChange={v => setForm(p => ({ ...p, wilaya: v, client_id: "", chantier_id: "" }))}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya" /></SelectTrigger>
+              <SelectTrigger className={errClass("wilaya")}><SelectValue placeholder="Sélectionner une wilaya" /></SelectTrigger>
               <SelectContent>{wilayas.map(w => <SelectItem key={w.code} value={w.nom}>{w.code} - {w.nom}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label>Client</Label>
+            <Label>Client<Req /></Label>
             <Select value={form.client_id} onValueChange={v => setForm(p => ({ ...p, client_id: v, chantier_id: "" }))} disabled={!form.wilaya}>
-              <SelectTrigger><SelectValue placeholder={form.wilaya ? "Sélectionner un client" : "Sélectionnez d'abord une wilaya"} /></SelectTrigger>
+              <SelectTrigger className={errClass("client_id")}><SelectValue placeholder={form.wilaya ? "Sélectionner un client" : "Sélectionnez d'abord une wilaya"} /></SelectTrigger>
               <SelectContent>{filteredClients.map(c => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label>Chantier</Label>
+            <Label>Chantier<Req /></Label>
             <Select value={form.chantier_id} onValueChange={v => setForm(p => ({ ...p, chantier_id: v }))} disabled={!form.client_id}>
-              <SelectTrigger><SelectValue placeholder={form.client_id ? "Sélectionner un chantier" : "Sélectionnez d'abord un client"} /></SelectTrigger>
+              <SelectTrigger className={errClass("chantier_id")}><SelectValue placeholder={form.client_id ? "Sélectionner un chantier" : "Sélectionnez d'abord un client"} /></SelectTrigger>
               <SelectContent>{filteredChantiers.map(c => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
-            <Label>Technicien</Label>
+            <Label>Technicien<Req /></Label>
             <Select value={form.intervenant_id} onValueChange={v => setForm(p => ({ ...p, intervenant_id: v }))}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+              <SelectTrigger className={errClass("intervenant_id")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
               <SelectContent>{intervenants?.map(i => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2"><Label>Date début *</Label><Input type="date" value={form.date_debut} onChange={e => setForm(p => ({ ...p, date_debut: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Date fin</Label><Input type="date" value={form.date_fin} onChange={e => setForm(p => ({ ...p, date_fin: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date début<Req /></Label><Input type="date" className={errClass("date_debut")} value={form.date_debut} onChange={e => setForm(p => ({ ...p, date_debut: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date fin<Req /></Label><Input type="date" className={errClass("date_fin")} value={form.date_fin} onChange={e => setForm(p => ({ ...p, date_fin: e.target.value }))} /></div>
           </div>
-          <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
+          <div className="grid gap-2"><Label>Observations<Req /></Label><Textarea className={errClass("observations")} value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4 justify-end">
             <Button variant="outline" onClick={() => navigate("/materiel/affectation")}>Annuler</Button>
             <Button onClick={handleSubmit} disabled={isPending}>
