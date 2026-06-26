@@ -91,7 +91,7 @@ export default function BonCommandeListe() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((b: any) => (
+                {filtered.map((b: any) => (
                   <TableRow key={b.id}>
                     <TableCell className="font-medium">{b.numero}</TableCell>
                     <TableCell>{(b.clients as any)?.nom || "—"}</TableCell>
