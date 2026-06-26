@@ -27,31 +27,56 @@ export default function VirementListe() {
   const navigate = useNavigate();
   const { data, isLoading } = usePaiementsVirement();
   const deleteMutation = useDeletePaiementVirement();
+  const [search, setSearch] = useState("");
 
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer ce virement ?")) return;
     try { await deleteMutation.mutateAsync(id); toast.success("Supprimé"); } catch { toast.error("Erreur"); }
   };
 
+  const filtered = data?.filter((v: any) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (v.reference_virement?.toLowerCase().includes(s) ||
+      (v.clients as any)?.nom?.toLowerCase().includes(s) ||
+      (v.factures as any)?.numero?.toLowerCase().includes(s) ||
+      v.banque?.toLowerCase().includes(s) ||
+      v.statut?.toLowerCase().includes(s) ||
+      String(v.montant ?? "").includes(s));
+  });
+
   return (
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Virements" }]} />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <BackButton to="/facturation" />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Virements bancaires</h1>
-            <p className="text-muted-foreground">Suivi des virements reçus</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <BackButton to="/facturation" />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Virements bancaires</h1>
+          <p className="text-muted-foreground">Suivi des virements reçus</p>
         </div>
-        <Button className="gap-2" onClick={() => navigate("/facturation/virements/nouveau")}><Plus className="h-4 w-4" />Nouveau virement</Button>
       </div>
+
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par référence, client, facture, banque, montant..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-10 h-11 bg-card border-border"
+          />
+        </div>
+        <Button className="gap-2 shrink-0" onClick={() => navigate("/facturation/virements/nouveau")}>
+          <Plus className="h-4 w-4" />Nouveau virement
+        </Button>
+      </div>
+
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-        <CardHeader><CardTitle className="flex items-center gap-2"><ArrowUpRight className="h-5 w-5" />Virements ({data?.length || 0})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><ArrowUpRight className="h-5 w-5" />Virements ({filtered?.length || 0})</CardTitle></CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
-          ) : !data?.length ? (
+          ) : !filtered?.length ? (
             <div className="text-center py-12 text-muted-foreground"><ArrowUpRight className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Aucun virement</p></div>
           ) : (
             <div className="overflow-x-auto">
