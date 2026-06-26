@@ -6364,6 +6364,42 @@ export type Database = {
         }
         Relationships: []
       }
+      role_definitions: {
+        Row: {
+          alias_of: Database["public"]["Enums"]["app_role"] | null
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_system: boolean
+          key: string
+          label: string
+          updated_at: string
+        }
+        Insert: {
+          alias_of?: Database["public"]["Enums"]["app_role"] | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          key: string
+          label: string
+          updated_at?: string
+        }
+        Update: {
+          alias_of?: Database["public"]["Enums"]["app_role"] | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system?: boolean
+          key?: string
+          label?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           created_at: string

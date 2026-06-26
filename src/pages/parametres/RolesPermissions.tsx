@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Shield, Users, Lock, Plus, Trash2, Check, X, Info, Search } from "lucide-react";
+import { ArrowLeft, Shield, Users, Lock, Plus, Trash2, Check, X, Info, Search, Pencil, Link2 } from "lucide-react";
+import { useRoleDefinitions, useUpdateRoleDefinition, useCreateRoleAlias, useDeleteRoleDefinition, type RoleDefinition } from "@/hooks/useRoleDefinitions";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete } from "@/components/common/ConfirmDelete";
@@ -67,16 +68,68 @@ const RolesPermissions = () => {
     description: "",
     module: ""
   });
+  const [editRoleDef, setEditRoleDef] = useState<RoleDefinition | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [isNewRoleOpen, setIsNewRoleOpen] = useState(false);
+  const [newRole, setNewRole] = useState<{ label: string; description: string; alias_of: AppRole }>({
+    label: "", description: "", alias_of: "manager",
+  });
 
   const { data: permissions, isLoading: permissionsLoading } = usePermissions();
   const { data: permissionsByModule, isLoading: modulesLoading } = usePermissionsByModule();
   const { data: rolePermissions, isLoading: rolePermissionsLoading } = useAllRolePermissions();
   const { data: usersWithRoles, isLoading: usersLoading } = useUsersWithRoles();
-  
+  const { data: roleDefs } = useRoleDefinitions();
+  const updateRoleDef = useUpdateRoleDefinition();
+  const createRoleAlias = useCreateRoleAlias();
+  const deleteRoleDef = useDeleteRoleDefinition();
+
   const togglePermission = useToggleRolePermission();
   const assignRole = useAssignRole();
   const createPermission = useCreatePermission();
   const deletePermission = useDeletePermission();
+
+  // Dynamic role label/description/color maps (overrides from role_definitions table)
+  const dynLabels = { ...ROLE_LABELS } as Record<string, string>;
+  const dynDescriptions = { ...ROLE_DESCRIPTIONS } as Record<string, string>;
+  const dynColors = { ...ROLE_COLORS } as Record<string, string>;
+  (roleDefs || []).forEach(rd => {
+    if (rd.alias_of) return; // aliases are rendered separately
+    dynLabels[rd.key] = rd.label;
+    if (rd.description) dynDescriptions[rd.key] = rd.description;
+    if (rd.color) dynColors[rd.key] = rd.color;
+  });
+  const aliasDefs = (roleDefs || []).filter(rd => !!rd.alias_of);
+  const systemDefsByKey = new Map((roleDefs || []).filter(rd => !rd.alias_of).map(rd => [rd.key, rd]));
+
+  const openEditRole = (role: AppRole) => {
+    const rd = systemDefsByKey.get(role);
+    if (!rd) return;
+    setEditRoleDef(rd);
+    setEditLabel(rd.label);
+    setEditDescription(rd.description || "");
+  };
+  const openEditAlias = (rd: RoleDefinition) => {
+    setEditRoleDef(rd);
+    setEditLabel(rd.label);
+    setEditDescription(rd.description || "");
+  };
+  const submitEditRole = () => {
+    if (!editRoleDef || !editLabel.trim()) return;
+    updateRoleDef.mutate(
+      { id: editRoleDef.id, label: editLabel.trim(), description: editDescription.trim() || null },
+      { onSuccess: () => setEditRoleDef(null) }
+    );
+  };
+  const submitNewRole = () => {
+    if (!newRole.label.trim()) return;
+    const key = `alias_${Date.now()}_${newRole.label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 30)}`;
+    createRoleAlias.mutate(
+      { key, label: newRole.label.trim(), description: newRole.description.trim() || null, alias_of: newRole.alias_of },
+      { onSuccess: () => { setIsNewRoleOpen(false); setNewRole({ label: "", description: "", alias_of: "manager" }); } }
+    );
+  };
 
   const handleTogglePermission = (role: AppRole, permissionId: string) => {
     const hasPermission = rolePermissions?.[role]?.includes(permissionId) || false;
@@ -169,29 +222,48 @@ const RolesPermissions = () => {
 
         {/* Roles Tab */}
         <TabsContent value="roles" className="space-y-6">
+          {/* Header actions */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="text-sm text-muted-foreground">
+              {ROLES.length} rôles système · {aliasDefs.length} rôles personnalisés
+            </div>
+            <Button onClick={() => setIsNewRoleOpen(true)}>
+              <Plus className="h-4 w-4 mr-1" /> Nouveau rôle
+            </Button>
+          </div>
+
           {/* Role Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ROLES.map((role) => (
-              <Card 
-                key={role} 
+              <Card
+                key={role}
                 className={`cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
                   selectedRole === role ? 'ring-2 ring-primary' : ''
                 }`}
                 onClick={() => setSelectedRole(role)}
               >
                 <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <Badge className={`${ROLE_COLORS[role]} border`}>
-                      {ROLE_LABELS[role]}
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge className={`${dynColors[role]} border`}>
+                      {dynLabels[role]}
                     </Badge>
-                    {selectedRole === role && (
-                      <Check className="h-5 w-5 text-primary" />
-                    )}
+                    <div className="flex items-center gap-1">
+                      {selectedRole === role && <Check className="h-4 w-4 text-primary" />}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={(e) => { e.stopPropagation(); openEditRole(role); }}
+                        title="Modifier le nom"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    {ROLE_DESCRIPTIONS[role]}
+                    {dynDescriptions[role]}
                   </p>
                   <div className="mt-3 text-xs text-muted-foreground">
                     {role === 'super_admin' ? (permissions?.length || 0) : (rolePermissions?.[role]?.length || 0)} permissions
@@ -199,7 +271,68 @@ const RolesPermissions = () => {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Alias roles (custom) */}
+            {aliasDefs.map((rd) => {
+              const base = rd.alias_of as AppRole;
+              const baseLabel = ROLE_LABELS[base];
+              const baseColor = ROLE_COLORS[base];
+              const permCount = base === 'super_admin' ? (permissions?.length || 0) : (rolePermissions?.[base]?.length || 0);
+              return (
+                <Card
+                  key={rd.id}
+                  className={`cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
+                    selectedRole === base ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => setSelectedRole(base)}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge className={`${rd.color || baseColor} border`}>
+                        {rd.label}
+                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => { e.stopPropagation(); openEditAlias(rd); }}
+                          title="Modifier"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <ConfirmDelete
+                          onConfirm={() => deleteRoleDef.mutate(rd.id)}
+                          description={`Supprimer le rôle "${rd.label}" ? Cette action est irréversible.`}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={(e) => e.stopPropagation()}
+                              title="Supprimer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          }
+                        />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      {rd.description || `Alias de ${baseLabel} — hérite de toutes ses permissions.`}
+                    </p>
+                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Link2 className="h-3 w-3" />
+                      <span>Hérite de <strong>{baseLabel}</strong> · {permCount} permissions</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+
 
           {/* Détail développé des permissions par rôle */}
           <Card>
@@ -226,11 +359,11 @@ const RolesPermissions = () => {
                       <AccordionItem key={role} value={role}>
                         <AccordionTrigger className="hover:no-underline">
                           <div className="flex items-center gap-3 flex-1">
-                            <Badge className={`${ROLE_COLORS[role]} border`}>
-                              {ROLE_LABELS[role]}
+                            <Badge className={`${dynColors[role]} border`}>
+                              {dynLabels[role]}
                             </Badge>
                             <span className="text-sm text-muted-foreground">
-                              {ROLE_DESCRIPTIONS[role]}
+                              {dynDescriptions[role]}
                             </span>
                             <Badge variant="outline" className="ml-auto mr-3">
                               {totalGranted} / {permissions?.length || 0}
@@ -305,8 +438,8 @@ const RolesPermissions = () => {
                   <CardTitle className="flex items-center gap-2 flex-wrap">
                     <Lock className="h-5 w-5" />
                     Matrice des permissions pour
-                    <Badge className={`${ROLE_COLORS[selectedRole]} border`}>
-                      {ROLE_LABELS[selectedRole]}
+                    <Badge className={`${dynColors[selectedRole]} border`}>
+                      {dynLabels[selectedRole]}
                     </Badge>
                   </CardTitle>
                   <CardDescription className="mt-1">
@@ -582,7 +715,7 @@ const RolesPermissions = () => {
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="max-w-[200px] text-sm">{ROLE_LABELS[role]}</p>
+                                  <p className="max-w-[200px] text-sm">{dynLabels[role]}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -626,7 +759,7 @@ const RolesPermissions = () => {
                                             </span>
                                           </TooltipTrigger>
                                           <TooltipContent>
-                                            {ROLE_LABELS[role]}: {assignedCount}/{totalCount}
+                                            {dynLabels[role]}: {assignedCount}/{totalCount}
                                           </TooltipContent>
                                         </Tooltip>
                                       </TooltipProvider>
@@ -860,12 +993,12 @@ const RolesPermissions = () => {
                                     <TooltipProvider key={role}>
                                       <Tooltip>
                                         <TooltipTrigger>
-                                          <Badge className={`${ROLE_COLORS[role]} border text-[10px] px-1`}>
-                                            {ROLE_LABELS[role].charAt(0)}
+                                          <Badge className={`${dynColors[role]} border text-[10px] px-1`}>
+                                            {dynLabels[role].charAt(0)}
                                           </Badge>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                          {ROLE_LABELS[role]}
+                                          {dynLabels[role]}
                                         </TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>
@@ -955,8 +1088,8 @@ const RolesPermissions = () => {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Badge className={`${ROLE_COLORS[user.role as AppRole] || ROLE_COLORS.lecteur} border`}>
-                                {ROLE_LABELS[user.role as AppRole] || 'Lecteur'}
+                              <Badge className={`${dynColors[user.role as AppRole] || ROLE_COLORS.lecteur} border`}>
+                                {dynLabels[user.role as AppRole] || 'Lecteur'}
                               </Badge>
                             </TableCell>
                             <TableCell>
@@ -975,7 +1108,7 @@ const RolesPermissions = () => {
                                 <SelectContent>
                                   {ROLES.map(role => (
                                     <SelectItem key={role} value={role}>
-                                      {ROLE_LABELS[role]}
+                                      {dynLabels[role]}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -998,11 +1131,11 @@ const RolesPermissions = () => {
               return (
                 <Card key={role}>
                   <CardContent className="pt-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${ROLE_COLORS[role].replace('text-', 'bg-').split(' ')[0]}`}>
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 ${dynColors[role].replace('text-', 'bg-').split(' ')[0]}`}>
                       <Shield className="h-6 w-6" />
                     </div>
                     <p className="text-2xl font-bold">{count}</p>
-                    <p className="text-xs text-muted-foreground">{ROLE_LABELS[role]}</p>
+                    <p className="text-xs text-muted-foreground">{dynLabels[role]}</p>
                   </CardContent>
                 </Card>
               );
@@ -1010,7 +1143,85 @@ const RolesPermissions = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Edit role dialog */}
+      <Dialog open={!!editRoleDef} onOpenChange={(o) => !o && setEditRoleDef(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le rôle</DialogTitle>
+            <DialogDescription>
+              {editRoleDef?.is_system
+                ? "Le nom technique reste inchangé. Seul le libellé affiché dans l'application sera modifié."
+                : "Modifier le libellé et la description de ce rôle personnalisé."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Libellé affiché</Label>
+              <Input value={editLabel} onChange={(e) => setEditLabel(e.target.value)} placeholder="Ex: Ingénieur" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Description du rôle" />
+            </div>
+            {editRoleDef?.is_system && (
+              <p className="text-xs text-muted-foreground">
+                Clé technique : <code className="bg-muted px-1 rounded">{editRoleDef.key}</code>
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditRoleDef(null)}>Annuler</Button>
+            <Button onClick={submitEditRole} disabled={!editLabel.trim() || updateRoleDef.isPending}>
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* New role dialog */}
+      <Dialog open={isNewRoleOpen} onOpenChange={setIsNewRoleOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nouveau rôle</DialogTitle>
+            <DialogDescription>
+              Créez un libellé personnalisé qui hérite des permissions d'un rôle existant (ex: « Ingénieur » basé sur Manager).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Nom du rôle *</Label>
+              <Input value={newRole.label} onChange={(e) => setNewRole({ ...newRole, label: e.target.value })} placeholder="Ex: Ingénieur" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input value={newRole.description} onChange={(e) => setNewRole({ ...newRole, description: e.target.value })} placeholder="Optionnel" />
+            </div>
+            <div>
+              <Label>Basé sur le rôle *</Label>
+              <Select value={newRole.alias_of} onValueChange={(v) => setNewRole({ ...newRole, alias_of: v as AppRole })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ROLES.map(r => (
+                    <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Le nouveau rôle héritera automatiquement de toutes les permissions du rôle de base.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewRoleOpen(false)}>Annuler</Button>
+            <Button onClick={submitNewRole} disabled={!newRole.label.trim() || createRoleAlias.isPending}>
+              Créer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };
 
