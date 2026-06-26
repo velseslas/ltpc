@@ -1143,7 +1143,85 @@ const RolesPermissions = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Edit role dialog */}
+      <Dialog open={!!editRoleDef} onOpenChange={(o) => !o && setEditRoleDef(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le rôle</DialogTitle>
+            <DialogDescription>
+              {editRoleDef?.is_system
+                ? "Le nom technique reste inchangé. Seul le libellé affiché dans l'application sera modifié."
+                : "Modifier le libellé et la description de ce rôle personnalisé."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Libellé affiché</Label>
+              <Input value={editLabel} onChange={(e) => setEditLabel(e.target.value)} placeholder="Ex: Ingénieur" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Description du rôle" />
+            </div>
+            {editRoleDef?.is_system && (
+              <p className="text-xs text-muted-foreground">
+                Clé technique : <code className="bg-muted px-1 rounded">{editRoleDef.key}</code>
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditRoleDef(null)}>Annuler</Button>
+            <Button onClick={submitEditRole} disabled={!editLabel.trim() || updateRoleDef.isPending}>
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* New role dialog */}
+      <Dialog open={isNewRoleOpen} onOpenChange={setIsNewRoleOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nouveau rôle</DialogTitle>
+            <DialogDescription>
+              Créez un libellé personnalisé qui hérite des permissions d'un rôle existant (ex: « Ingénieur » basé sur Manager).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Nom du rôle *</Label>
+              <Input value={newRole.label} onChange={(e) => setNewRole({ ...newRole, label: e.target.value })} placeholder="Ex: Ingénieur" />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input value={newRole.description} onChange={(e) => setNewRole({ ...newRole, description: e.target.value })} placeholder="Optionnel" />
+            </div>
+            <div>
+              <Label>Basé sur le rôle *</Label>
+              <Select value={newRole.alias_of} onValueChange={(v) => setNewRole({ ...newRole, alias_of: v as AppRole })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ROLES.map(r => (
+                    <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Le nouveau rôle héritera automatiquement de toutes les permissions du rôle de base.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNewRoleOpen(false)}>Annuler</Button>
+            <Button onClick={submitNewRole} disabled={!newRole.label.trim() || createRoleAlias.isPending}>
+              Créer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 };
 
