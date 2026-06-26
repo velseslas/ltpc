@@ -68,16 +68,68 @@ const RolesPermissions = () => {
     description: "",
     module: ""
   });
+  const [editRoleDef, setEditRoleDef] = useState<RoleDefinition | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [isNewRoleOpen, setIsNewRoleOpen] = useState(false);
+  const [newRole, setNewRole] = useState<{ label: string; description: string; alias_of: AppRole }>({
+    label: "", description: "", alias_of: "manager",
+  });
 
   const { data: permissions, isLoading: permissionsLoading } = usePermissions();
   const { data: permissionsByModule, isLoading: modulesLoading } = usePermissionsByModule();
   const { data: rolePermissions, isLoading: rolePermissionsLoading } = useAllRolePermissions();
   const { data: usersWithRoles, isLoading: usersLoading } = useUsersWithRoles();
-  
+  const { data: roleDefs } = useRoleDefinitions();
+  const updateRoleDef = useUpdateRoleDefinition();
+  const createRoleAlias = useCreateRoleAlias();
+  const deleteRoleDef = useDeleteRoleDefinition();
+
   const togglePermission = useToggleRolePermission();
   const assignRole = useAssignRole();
   const createPermission = useCreatePermission();
   const deletePermission = useDeletePermission();
+
+  // Dynamic role label/description/color maps (overrides from role_definitions table)
+  const dynLabels = { ...ROLE_LABELS } as Record<string, string>;
+  const dynDescriptions = { ...ROLE_DESCRIPTIONS } as Record<string, string>;
+  const dynColors = { ...ROLE_COLORS } as Record<string, string>;
+  (roleDefs || []).forEach(rd => {
+    if (rd.alias_of) return; // aliases are rendered separately
+    dynLabels[rd.key] = rd.label;
+    if (rd.description) dynDescriptions[rd.key] = rd.description;
+    if (rd.color) dynColors[rd.key] = rd.color;
+  });
+  const aliasDefs = (roleDefs || []).filter(rd => !!rd.alias_of);
+  const systemDefsByKey = new Map((roleDefs || []).filter(rd => !rd.alias_of).map(rd => [rd.key, rd]));
+
+  const openEditRole = (role: AppRole) => {
+    const rd = systemDefsByKey.get(role);
+    if (!rd) return;
+    setEditRoleDef(rd);
+    setEditLabel(rd.label);
+    setEditDescription(rd.description || "");
+  };
+  const openEditAlias = (rd: RoleDefinition) => {
+    setEditRoleDef(rd);
+    setEditLabel(rd.label);
+    setEditDescription(rd.description || "");
+  };
+  const submitEditRole = () => {
+    if (!editRoleDef || !editLabel.trim()) return;
+    updateRoleDef.mutate(
+      { id: editRoleDef.id, label: editLabel.trim(), description: editDescription.trim() || null },
+      { onSuccess: () => setEditRoleDef(null) }
+    );
+  };
+  const submitNewRole = () => {
+    if (!newRole.label.trim()) return;
+    const key = `alias_${Date.now()}_${newRole.label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 30)}`;
+    createRoleAlias.mutate(
+      { key, label: newRole.label.trim(), description: newRole.description.trim() || null, alias_of: newRole.alias_of },
+      { onSuccess: () => { setIsNewRoleOpen(false); setNewRole({ label: "", description: "", alias_of: "manager" }); } }
+    );
+  };
 
   const handleTogglePermission = (role: AppRole, permissionId: string) => {
     const hasPermission = rolePermissions?.[role]?.includes(permissionId) || false;
