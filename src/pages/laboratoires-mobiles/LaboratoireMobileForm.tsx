@@ -138,7 +138,7 @@ export default function LaboratoireMobileForm() {
       const selectedChantier = allChantiers?.find(c => c.id === formData.chantier_id);
       const nom = `${selectedClient?.nom || ""} - ${selectedChantier?.nom || ""}`;
 
-      const dataToSubmit = {
+      const dataToSubmit: any = {
         nom,
         client_id: formData.client_id,
         chantier_id: formData.chantier_id,
@@ -146,6 +146,9 @@ export default function LaboratoireMobileForm() {
         date_fin: formData.date_fin ? format(formData.date_fin, "yyyy-MM-dd") : null,
         statut: formData.statut,
         responsable_id: formData.responsable_id || null,
+        date_affectation: formData.date_affectation ? format(formData.date_affectation, "yyyy-MM-dd") : null,
+        date_fin_affectation: formData.date_fin_affectation ? format(formData.date_fin_affectation, "yyyy-MM-dd") : null,
+        notes_affectation: formData.notes_affectation || null,
       };
 
       if (isEditing) {
