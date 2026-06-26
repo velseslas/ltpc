@@ -67,6 +67,15 @@ export default function PrixEssaiListe() {
 
   const getCategorieLabel = (v: string) => categories.find(c => c.value === v)?.label || v;
 
+  const filtered = data?.filter((p: any) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (p.nom_essai?.toLowerCase().includes(s) ||
+      p.code_essai?.toLowerCase().includes(s) ||
+      getCategorieLabel(p.categorie)?.toLowerCase().includes(s) ||
+      String(p.prix_unitaire ?? "").includes(s));
+  });
+
   return (
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Prix essais" }]} />
