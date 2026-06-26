@@ -94,25 +94,48 @@ export default function DevisListe() {
     }
   };
 
+  const filtered = data?.filter((d: any) => {
+    if (!search) return true;
+    const s = search.toLowerCase();
+    return (d.numero?.toLowerCase().includes(s) ||
+      (d.clients as any)?.nom?.toLowerCase().includes(s) ||
+      (d.chantiers as any)?.nom?.toLowerCase().includes(s) ||
+      d.statut?.toLowerCase().includes(s) ||
+      String(d.montant_ttc ?? "").includes(s));
+  });
+
   return (
     <div className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Devis" }]} />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <BackButton to="/facturation" />
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Devis</h1>
-            <p className="text-muted-foreground">Génération et gestion des devis</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <BackButton to="/facturation" />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Devis</h1>
+          <p className="text-muted-foreground">Génération et gestion des devis</p>
         </div>
-        <Button className="gap-2" onClick={() => navigate("/facturation/devis/nouveau")}><Plus className="h-4 w-4" />Nouveau devis</Button>
       </div>
+
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par N° devis, client, chantier, statut, montant..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-10 h-11 bg-card border-border"
+          />
+        </div>
+        <Button className="gap-2 shrink-0" onClick={() => navigate("/facturation/devis/nouveau")}>
+          <Plus className="h-4 w-4" />Nouveau devis
+        </Button>
+      </div>
+
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-        <CardHeader><CardTitle className="flex items-center gap-2"><Receipt className="h-5 w-5" />Devis ({data?.length || 0})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Receipt className="h-5 w-5" />Devis ({filtered?.length || 0})</CardTitle></CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
-          ) : !data?.length ? (
+          ) : !filtered?.length ? (
             <div className="text-center py-12 text-muted-foreground"><Receipt className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Aucun devis</p></div>
           ) : (
             <Table>
