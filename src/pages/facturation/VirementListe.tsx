@@ -94,7 +94,7 @@ export default function VirementListe() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.map((v: any) => (
+                  {filtered.map((v: any) => (
                     <TableRow key={v.id}>
                       <TableCell className="font-medium">{v.reference_virement || "—"}</TableCell>
                       <TableCell>{(v.clients as any)?.nom || "—"}</TableCell>
