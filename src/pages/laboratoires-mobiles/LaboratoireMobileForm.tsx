@@ -45,6 +45,9 @@ export default function LaboratoireMobileForm() {
     date_fin: null as Date | null,
     statut: "disponible",
     responsable_id: "",
+    date_affectation: null as Date | null,
+    date_fin_affectation: null as Date | null,
+    notes_affectation: "",
   });
 
   // Get chantiers used in compression tests
