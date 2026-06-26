@@ -5080,12 +5080,15 @@ export type Database = {
           chantier_id: string | null
           client_id: string | null
           created_at: string
+          date_affectation: string | null
           date_debut: string | null
           date_fin: string | null
+          date_fin_affectation: string | null
           id: string
           immatriculation: string | null
           localisation_actuelle: string | null
           nom: string
+          notes_affectation: string | null
           responsable_id: string | null
           statut: string
           updated_at: string
@@ -5094,12 +5097,15 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_affectation?: string | null
           date_debut?: string | null
           date_fin?: string | null
+          date_fin_affectation?: string | null
           id?: string
           immatriculation?: string | null
           localisation_actuelle?: string | null
           nom: string
+          notes_affectation?: string | null
           responsable_id?: string | null
           statut?: string
           updated_at?: string
@@ -5108,12 +5114,15 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           created_at?: string
+          date_affectation?: string | null
           date_debut?: string | null
           date_fin?: string | null
+          date_fin_affectation?: string | null
           id?: string
           immatriculation?: string | null
           localisation_actuelle?: string | null
           nom?: string
+          notes_affectation?: string | null
           responsable_id?: string | null
           statut?: string
           updated_at?: string
