@@ -9,7 +9,7 @@ export type LaboratoireMobileUpdate = TablesUpdate<"laboratoires_mobiles">;
 export type LaboratoireMobileWithRelations = LaboratoireMobile & {
   intervenants: Tables<"intervenants"> | null;
   clients: { id: string; nom: string } | null;
-  chantiers: { id: string; nom: string } | null;
+  chantiers: { id: string; nom: string; ville: string | null } | null;
 };
 
 export function useLaboratoiresMobiles() {
