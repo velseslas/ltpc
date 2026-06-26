@@ -86,8 +86,6 @@ export default function MaterielAffectationForm() {
     { key: "chantier_id", label: "Chantier" },
     { key: "intervenant_id", label: "Technicien" },
     { key: "date_debut", label: "Date début" },
-    { key: "date_fin", label: "Date fin" },
-    { key: "observations", label: "Observations" },
   ];
 
   const handleSubmit = async () => {
