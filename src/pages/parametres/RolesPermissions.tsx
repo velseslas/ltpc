@@ -222,24 +222,43 @@ const RolesPermissions = () => {
 
         {/* Roles Tab */}
         <TabsContent value="roles" className="space-y-6">
+          {/* Header actions */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="text-sm text-muted-foreground">
+              {ROLES.length} rôles système · {aliasDefs.length} rôles personnalisés
+            </div>
+            <Button onClick={() => setIsNewRoleOpen(true)}>
+              <Plus className="h-4 w-4 mr-1" /> Nouveau rôle
+            </Button>
+          </div>
+
           {/* Role Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ROLES.map((role) => (
-              <Card 
-                key={role} 
+              <Card
+                key={role}
                 className={`cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
                   selectedRole === role ? 'ring-2 ring-primary' : ''
                 }`}
                 onClick={() => setSelectedRole(role)}
               >
                 <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <Badge className={`${dynColors[role]} border`}>
                       {dynLabels[role]}
                     </Badge>
-                    {selectedRole === role && (
-                      <Check className="h-5 w-5 text-primary" />
-                    )}
+                    <div className="flex items-center gap-1">
+                      {selectedRole === role && <Check className="h-4 w-4 text-primary" />}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={(e) => { e.stopPropagation(); openEditRole(role); }}
+                        title="Modifier le nom"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -252,7 +271,68 @@ const RolesPermissions = () => {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Alias roles (custom) */}
+            {aliasDefs.map((rd) => {
+              const base = rd.alias_of as AppRole;
+              const baseLabel = ROLE_LABELS[base];
+              const baseColor = ROLE_COLORS[base];
+              const permCount = base === 'super_admin' ? (permissions?.length || 0) : (rolePermissions?.[base]?.length || 0);
+              return (
+                <Card
+                  key={rd.id}
+                  className={`cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
+                    selectedRole === base ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => setSelectedRole(base)}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge className={`${rd.color || baseColor} border`}>
+                        {rd.label}
+                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => { e.stopPropagation(); openEditAlias(rd); }}
+                          title="Modifier"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <ConfirmDelete
+                          onConfirm={() => deleteRoleDef.mutate(rd.id)}
+                          itemLabel={rd.label}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={(e) => e.stopPropagation()}
+                              title="Supprimer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          }
+                        />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      {rd.description || `Alias de ${baseLabel} — hérite de toutes ses permissions.`}
+                    </p>
+                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Link2 className="h-3 w-3" />
+                      <span>Hérite de <strong>{baseLabel}</strong> · {permCount} permissions</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+
 
           {/* Détail développé des permissions par rôle */}
           <Card>
