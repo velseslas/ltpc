@@ -359,6 +359,81 @@ export default function LaboratoireMobileForm() {
               </div>
             </div>
 
+            {/* Détails de l'affectation du technicien */}
+            <div className="space-y-4 pt-4 border-t border-border">
+              <h3 className="text-sm font-semibold text-muted-foreground">Affectation du technicien</h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Date d'affectation</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.date_affectation && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.date_affectation
+                          ? format(formData.date_affectation, "PPP", { locale: fr })
+                          : <span>Sélectionner une date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.date_affectation || undefined}
+                        onSelect={(d) => setFormData({ ...formData, date_affectation: d || null })}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>Date de fin d'affectation</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.date_fin_affectation && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.date_fin_affectation
+                          ? format(formData.date_fin_affectation, "PPP", { locale: fr })
+                          : <span>Sélectionner une date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.date_fin_affectation || undefined}
+                        onSelect={(d) => setFormData({ ...formData, date_fin_affectation: d || null })}
+                        disabled={(date) => formData.date_affectation ? date < formData.date_affectation : false}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes_affectation">Notes d'affectation</Label>
+                <Textarea
+                  id="notes_affectation"
+                  rows={3}
+                  placeholder="Instructions spéciales, équipements requis..."
+                  value={formData.notes_affectation}
+                  onChange={(e) => setFormData({ ...formData, notes_affectation: e.target.value })}
+                />
+              </div>
+            </div>
+
+
             <div className="flex justify-end gap-3 pt-4">
               <Button 
                 type="button" 
