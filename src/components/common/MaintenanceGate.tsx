@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AlertTriangle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const MAINTENANCE_KEY = "app_maintenance_mode";
 
@@ -26,9 +26,29 @@ export function setMaintenanceMode(active: boolean) {
 }
 
 export function MaintenanceGate({ children }: { children: ReactNode }) {
-  const isAdmin = useIsAdmin();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [active, setActive] = useState<boolean>(() => isMaintenanceActive());
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      if (cancelled) return;
+      const roles = (data ?? []).map((r: any) => r.role);
+      setIsAdmin(roles.includes("admin") || roles.includes("super_admin"));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   useEffect(() => {
     const refresh = () => setActive(isMaintenanceActive());
