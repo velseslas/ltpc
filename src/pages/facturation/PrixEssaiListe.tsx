@@ -158,7 +158,7 @@ export default function PrixEssaiListe() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((p: any) => (
+                {filtered.map((p: any) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-medium">{p.nom_essai}</TableCell>
                     <TableCell className="text-muted-foreground">{p.code_essai || "-"}</TableCell>
