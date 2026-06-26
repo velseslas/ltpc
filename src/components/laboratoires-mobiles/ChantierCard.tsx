@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDelete } from "@/components/common/ConfirmDelete";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 import { cn } from "@/lib/utils";
 
 interface ChantierCardProps {
