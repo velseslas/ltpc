@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,89 +11,92 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Plus, 
-  Printer, 
-  Download, 
-  Mail, 
-  Building2, 
-  MapPin, 
-  Users, 
+import {
+  Building2,
+  MapPin,
+  Users,
   Eye,
   Calendar,
   ArrowLeft,
-  Search
+  Search,
+  Info,
 } from "lucide-react";
-import { useIntervenants } from "@/hooks/useIntervenants";
-import { useAffectations } from "@/hooks/useAffectations";
-import { useClients } from "@/hooks/useClients";
+import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
 export default function Affectations() {
   const navigate = useNavigate();
-  const { data: intervenants, isLoading: loadingIntervenants } = useIntervenants();
-  const { data: affectations, isLoading: loadingAffectations } = useAffectations();
-  const { data: clients } = useClients();
-  
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [specialiteFilter, setSpecialiteFilter] = useState<string>("all");
+  const { data: labos, isLoading } = useLaboratoiresMobiles();
 
-  // Get unique specialties
-  const specialites = useMemo(() => {
-    if (!intervenants) return [];
-    const specs = intervenants
-      .map(i => i.specialite)
-      .filter((s): s is string => !!s);
-    return [...new Set(specs)];
-  }, [intervenants]);
+  const [search, setSearch] = useState("");
+  const [statutFilter, setStatutFilter] = useState<string>("all");
+  const [wilayaFilter, setWilayaFilter] = useState<string>("all");
 
-  // Filter intervenants
-  const filteredIntervenants = useMemo(() => {
-    if (!intervenants) return [];
-    return intervenants.filter(intervenant => {
-      if (statusFilter !== "all" && intervenant.statut !== statusFilter) return false;
-      if (specialiteFilter !== "all" && intervenant.specialite !== specialiteFilter) return false;
+  // Only labos with a responsable affecté
+  const affectations = useMemo(() => {
+    if (!labos) return [];
+    return labos.filter((l) => l.responsable_id && l.intervenants);
+  }, [labos]);
+
+  const wilayas = useMemo(() => {
+    const set = new Set<string>();
+    affectations.forEach((l) => {
+      const w = (l.chantiers as any)?.ville || (l as any).ville;
+      if (w) set.add(w);
+    });
+    return Array.from(set).sort();
+  }, [affectations]);
+
+  const filtered = useMemo(() => {
+    return affectations.filter((l) => {
+      if (statutFilter !== "all" && l.statut !== statutFilter) return false;
+      const wil = (l.chantiers as any)?.ville;
+      if (wilayaFilter !== "all" && wil !== wilayaFilter) return false;
+      if (search) {
+        const s = search.toLowerCase();
+        const tech = `${l.intervenants?.prenom || ""} ${l.intervenants?.nom || ""}`.toLowerCase();
+        const client = (l.clients?.nom || "").toLowerCase();
+        const chantier = (l.chantiers?.nom || "").toLowerCase();
+        if (!tech.includes(s) && !client.includes(s) && !chantier.includes(s)) return false;
+      }
       return true;
     });
-  }, [intervenants, statusFilter, specialiteFilter]);
+  }, [affectations, statutFilter, wilayaFilter, search]);
 
-  // Get affectations count per intervenant
-  const getAffectationsCount = (intervenantId: string) => {
-    if (!affectations) return 0;
-    return affectations.filter(a => 
-      a.intervenant_id === intervenantId && a.statut === "en_cours"
-    ).length;
+  // Group by client
+  const grouped = useMemo(() => {
+    const map = new Map<string, { client: any; items: typeof filtered }>();
+    filtered.forEach((l) => {
+      const key = l.client_id || "none";
+      if (!map.has(key)) {
+        map.set(key, { client: l.clients, items: [] });
+      }
+      map.get(key)!.items.push(l);
+    });
+    return Array.from(map.values());
+  }, [filtered]);
+
+  const statutBadge = (statut: string) => {
+    const map: Record<string, string> = {
+      deploye: "bg-green-500/20 text-green-400 border-green-500/30",
+      disponible: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      maintenance: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+    };
+    const label: Record<string, string> = {
+      deploye: "Déployé",
+      disponible: "Disponible",
+      maintenance: "Maintenance",
+    };
+    return (
+      <Badge variant="outline" className={map[statut] || "bg-muted text-muted-foreground"}>
+        {label[statut] || statut}
+      </Badge>
+    );
   };
 
-  // Get intervenant status badge
-  const getStatusBadge = (statut: string, affCount: number) => {
-    if (affCount > 0) {
-      return <Badge variant="outline" className="bg-blue-500/20 text-blue-400 border-blue-500/30">Affecté</Badge>;
-    }
-    if (statut === "active") {
-      return <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">Disponible</Badge>;
-    }
-    return <Badge variant="outline" className="bg-muted text-muted-foreground">Inactif</Badge>;
-  };
-
-  // Group affectations by client
-  const affectationsByClient = useMemo(() => {
-    if (!affectations || !clients) return [];
-    
-    const grouped = clients.map(client => {
-      const clientAffectations = affectations.filter(a => a.client_id === client.id);
-      return {
-        client,
-        affectations: clientAffectations,
-      };
-    }).filter(g => g.affectations.length > 0);
-
-    return grouped;
-  }, [affectations, clients]);
-
-  if (loadingIntervenants || loadingAffectations) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-muted-foreground">Chargement...</div>
@@ -103,203 +106,156 @@ export default function Affectations() {
 
   return (
     <div className="space-y-6">
-        <AppBreadcrumb 
-          items={[
-            { label: "Ressources Humaines", path: "/rh" },
-            { label: "Affectations" }
-          ]} 
-        />
+      <AppBreadcrumb
+        items={[
+          { label: "Ressources Humaines", path: "/rh" },
+          { label: "Affectations" },
+        ]}
+      />
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-              onClick={() => navigate("/rh")}
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+          onClick={() => navigate("/rh")}
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">
+            Affectations des <span className="text-primary">Techniciens</span>
+          </h1>
+          <p className="text-muted-foreground">
+            Vue consultative — les affectations sont gérées depuis Laboratoires Mobiles
+          </p>
+        </div>
+      </div>
+
+      {/* Info banner */}
+      <Card className="border-primary/30 bg-primary/5">
+        <CardContent className="py-3 flex items-center gap-3 text-sm">
+          <Info className="h-4 w-4 text-primary shrink-0" />
+          <span className="text-muted-foreground">
+            Pour créer, modifier ou supprimer une affectation, rendez-vous dans{" "}
+            <button
+              onClick={() => navigate("/laboratoires-mobiles")}
+              className="text-primary underline hover:no-underline"
             >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">
-                Affectations des <span className="text-primary">Techniciens</span>
-              </h1>
-              <p className="text-muted-foreground">Gestion des affectations du personnel</p>
-            </div>
-          </div>
+              Laboratoires Mobiles
+            </button>
+            .
+          </span>
+        </CardContent>
+      </Card>
+
+      {/* Filters */}
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher technicien, client, chantier..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10"
+          />
         </div>
+        <Select value={statutFilter} onValueChange={setStatutFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Statut" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous les statuts</SelectItem>
+            <SelectItem value="deploye">Déployé</SelectItem>
+            <SelectItem value="disponible">Disponible</SelectItem>
+            <SelectItem value="maintenance">Maintenance</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={wilayaFilter} onValueChange={setWilayaFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Wilaya" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toutes les wilayas</SelectItem>
+            {wilayas.map((w) => (
+              <SelectItem key={w} value={w}>
+                {w}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Search + New */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une affectation..."
-              className="pl-10"
-            />
-          </div>
-          <Button onClick={() => navigate("/rh/affectations/nouveau")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nouveau
-          </Button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Tous les statuts" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les statuts</SelectItem>
-              <SelectItem value="active">Actif</SelectItem>
-              <SelectItem value="mission">En mission</SelectItem>
-              <SelectItem value="inactive">Inactif</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={specialiteFilter} onValueChange={setSpecialiteFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Toutes les spécialités" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes les spécialités</SelectItem>
-              {specialites.map(spec => (
-                <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="flex-1" />
-
-          <Button variant="outline" size="sm">
-            <Printer className="h-4 w-4 mr-2" />
-            Imprimer
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export PDF
-          </Button>
-          <Button variant="outline" size="sm">
-            <Mail className="h-4 w-4 mr-2" />
-            Courrier
-          </Button>
-        </div>
-
-        {/* Technicians Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredIntervenants.map(intervenant => {
-            const affCount = getAffectationsCount(intervenant.id);
-            return (
-              <Card key={intervenant.id} className="hover:border-primary/50 transition-colors">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold text-foreground">
-                        {intervenant.prenom} {intervenant.nom.toUpperCase()}
-                      </h3>
-                      <p className="text-sm text-primary">{intervenant.role}</p>
-                    </div>
-                    {getStatusBadge(intervenant.statut, affCount)}
-                  </div>
-                  
-                  <div className="space-y-1 text-sm text-muted-foreground mb-4">
-                    <p>Spécialité</p>
-                    <p className="text-foreground font-medium">
-                      {intervenant.specialite || "Non définie"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1 text-sm text-muted-foreground mb-4">
-                    <p>Affectations actives</p>
-                    <p className="text-primary font-medium">
-                      {affCount} chantier(s)
-                    </p>
-                  </div>
-
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-                    onClick={() => navigate(`/rh/techniciens/${intervenant.id}`)}
+      {/* Grouped list */}
+      <div className="space-y-4">
+        {grouped.map(({ client, items }) => (
+          <Card key={client?.id || "none"}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">{client?.nom || "Client inconnu"}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {items.map((l) => {
+                const tech = l.intervenants;
+                const dateAff = (l as any).date_affectation || l.date_debut;
+                return (
+                  <div
+                    key={l.id}
+                    className="bg-muted/50 rounded-lg p-4 flex items-center justify-between gap-4"
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Voir les détails
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Affectations by Client */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            Affectations par Client
-          </h2>
-
-          {affectationsByClient.map(({ client, affectations: clientAffectations }) => (
-            <Card key={client.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-primary" />
-                  <div>
-                    <CardTitle className="text-lg">{client.nom}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Contact: {client.contact || "N/A"} • {client.ville || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {clientAffectations.map(affectation => (
-                  <div 
-                    key={affectation.id}
-                    className="bg-muted/50 rounded-lg p-4 flex items-center justify-between"
-                  >
-                    <div className="space-y-1">
+                    <div className="space-y-1 flex-1 min-w-0">
                       <h4 className="font-medium text-foreground">
-                        {(affectation as any).chantier?.nom || "Chantier inconnu"}
+                        {l.chantiers?.nom || "Chantier inconnu"}
                       </h4>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <MapPin className="h-3 w-3" />
-                        {(affectation as any).chantier?.ville || "N/A"}
+                        {(l.chantiers as any)?.ville || "N/A"}
                       </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Users className="h-3 w-3" />
-                        Technicien: {(affectation as any).intervenant?.prenom} {(affectation as any).intervenant?.nom?.toUpperCase()}
+                        Technicien : {tech?.prenom} {tech?.nom?.toUpperCase()}
                       </div>
+                      {(l as any).notes_affectation && (
+                        <p className="text-xs text-muted-foreground italic mt-1">
+                          {(l as any).notes_affectation}
+                        </p>
+                      )}
                     </div>
-                    <div className="text-right space-y-2">
-                      <Badge 
-                        variant="outline" 
-                        className={
-                          affectation.statut === "en_cours" 
-                            ? "bg-green-500/20 text-green-400 border-green-500/30"
-                            : "bg-muted text-muted-foreground"
-                        }
-                      >
-                        {affectation.statut === "en_cours" ? "En cours" : affectation.statut}
-                      </Badge>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <div className="text-right space-y-2 shrink-0">
+                      {statutBadge(l.statut || "")}
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground justify-end">
                         <Calendar className="h-3 w-3" />
-                        Affecté depuis le {affectation.date_debut ? format(new Date(affectation.date_debut), "dd/MM/yyyy", { locale: fr }) : "N/A"}
+                        {dateAff
+                          ? `Depuis le ${format(new Date(dateAff), "dd/MM/yyyy", { locale: fr })}`
+                          : "Date non précisée"}
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/laboratoires-mobiles/chantier/${l.chantier_id}`)}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Voir le chantier
+                      </Button>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
+                );
+              })}
+            </CardContent>
+          </Card>
+        ))}
 
-          {affectationsByClient.length === 0 && (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                Aucune affectation trouvée
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        {grouped.length === 0 && (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              Aucune affectation trouvée
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
