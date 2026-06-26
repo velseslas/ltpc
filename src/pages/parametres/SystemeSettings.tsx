@@ -598,7 +598,7 @@ const SystemeSettings = () => {
                     </Label>
                     <p className="text-xs text-muted-foreground">Désactiver l'accès utilisateur temporairement</p>
                   </div>
-                  <Switch checked={maintenanceMode} onCheckedChange={setMaintenanceMode} />
+                  <Switch checked={maintenanceMode} onCheckedChange={handleToggleMaintenance} />
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
                   <div className="space-y-0.5">
