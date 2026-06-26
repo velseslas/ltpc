@@ -77,8 +77,36 @@ export default function MaterielAffectationForm() {
     return chantiersInWilaya.filter(c => c.client_id === form.client_id);
   }, [chantiersInWilaya, form.client_id]);
 
+  const [missingFields, setMissingFields] = useState<Set<string>>(new Set());
+
+  const requiredFields: { key: keyof typeof form; label: string }[] = [
+    { key: "materiel_id", label: "Matériel" },
+    { key: "wilaya", label: "Wilaya" },
+    { key: "client_id", label: "Client" },
+    { key: "chantier_id", label: "Chantier" },
+    { key: "intervenant_id", label: "Technicien" },
+    { key: "date_debut", label: "Date début" },
+    { key: "date_fin", label: "Date fin" },
+    { key: "observations", label: "Observations" },
+  ];
+
   const handleSubmit = async () => {
-    if (!form.materiel_id) { toast.error("Sélectionnez un matériel"); return; }
+    const missing = new Set<string>();
+    const missingLabels: string[] = [];
+    requiredFields.forEach(f => {
+      if (!String(form[f.key] ?? "").trim()) {
+        missing.add(f.key as string);
+        missingLabels.push(f.label);
+      }
+    });
+    if (missing.size > 0) {
+      setMissingFields(missing);
+      toast.error(`Champs obligatoires manquants : ${missingLabels.join(", ")}`);
+      setTimeout(() => setMissingFields(new Set()), 4000);
+      return;
+    }
+    setMissingFields(new Set());
+
     const payload = {
       materiel_id: form.materiel_id,
       chantier_id: form.chantier_id || null,
@@ -99,6 +127,9 @@ export default function MaterielAffectationForm() {
       navigate("/materiel/affectation");
     } catch { toast.error("Erreur"); }
   };
+
+  const errClass = (key: string) => missingFields.has(key) ? "animate-border-blink border-destructive" : "";
+  const Req = () => <span className="text-destructive ml-0.5">*</span>;
 
   const isFormLoading = isEditing && (affectationLoading || !isInitialized);
   const isPending = createMutation.isPending || updateMutation.isPending;
