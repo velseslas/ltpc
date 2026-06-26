@@ -46,6 +46,24 @@ export const useEntreprise = () => {
   });
 };
 
+// Full entreprise record including sensitive banking / tax IDs.
+// Reserved for admin-only pages (settings, facture/devis previews).
+// RLS restricts the underlying table to super_admin / admin.
+export const useEntrepriseFull = () => {
+  return useQuery({
+    queryKey: ["entreprise", "full"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("entreprise")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1);
+      if (error) throw error;
+      return (data && data.length > 0 ? data[0] : null) as Entreprise | null;
+    },
+  });
+};
+
 export const useUpdateEntreprise = () => {
   const queryClient = useQueryClient();
 
