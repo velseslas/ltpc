@@ -93,6 +93,9 @@ export default function LaboratoireMobileForm() {
         date_fin: labo.date_fin ? new Date(labo.date_fin) : null,
         statut: labo.statut || "disponible",
         responsable_id: labo.responsable_id || "",
+        date_affectation: (labo as any).date_affectation ? new Date((labo as any).date_affectation) : null,
+        date_fin_affectation: (labo as any).date_fin_affectation ? new Date((labo as any).date_fin_affectation) : null,
+        notes_affectation: (labo as any).notes_affectation || "",
       });
     }
   }, [labo]);
