@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AlertTriangle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const MAINTENANCE_KEY = "app_maintenance_mode";
 
