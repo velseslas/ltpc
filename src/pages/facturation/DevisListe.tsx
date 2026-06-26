@@ -34,6 +34,7 @@ export default function DevisListe() {
   const { data, isLoading } = useDevis();
   const deleteMutation = useDeleteDevis();
   const [converting, setConverting] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   const handleDelete = async (id: string) => {
     try { await deleteMutation.mutateAsync(id); toast.success("Devis supprimé"); } catch { toast.error("Erreur"); }
