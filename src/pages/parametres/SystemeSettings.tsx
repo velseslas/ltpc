@@ -54,7 +54,17 @@ const SystemeSettings = () => {
   const [notifFacturation, setNotifFacturation] = useState(true);
   const [notifMateriel, setNotifMateriel] = useState(true);
   const [notifRH, setNotifRH] = useState(false);
-  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMode, setMaintenanceModeState] = useState<boolean>(() => isMaintenanceActive());
+  const isAdmin = useIsAdmin();
+  const handleToggleMaintenance = (v: boolean) => {
+    if (!isAdmin) {
+      toast.error("Seuls les administrateurs peuvent activer le mode maintenance");
+      return;
+    }
+    setMaintenanceModeState(v);
+    persistMaintenanceMode(v);
+    toast.success(v ? "Mode maintenance activé" : "Mode maintenance désactivé");
+  };
   const [debugMode, setDebugMode] = useState(false);
   const [autoBackup, setAutoBackup] = useState(true);
   const [backupFrequency, setBackupFrequency] = useState("daily");
