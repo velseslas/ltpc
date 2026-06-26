@@ -33,6 +33,7 @@ export default function PrixEssaiListe() {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [search, setSearch] = useState("");
 
   const handleOpen = (item?: any) => {
     if (item) {
