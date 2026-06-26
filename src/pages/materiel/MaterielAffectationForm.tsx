@@ -59,15 +59,23 @@ export default function MaterielAffectationForm() {
     }
   }, [existingAffectation, isInitialized, allChantiers, allClients]);
 
+  const chantiersInWilaya = useMemo(() => {
+    if (!allChantiers) return [];
+    if (!form.wilaya) return allChantiers;
+    return allChantiers.filter(c => c.ville === form.wilaya);
+  }, [allChantiers, form.wilaya]);
+
   const filteredClients = useMemo(() => {
-    if (!allClients || !form.wilaya) return allClients || [];
-    return allClients.filter(c => c.ville === form.wilaya);
-  }, [allClients, form.wilaya]);
+    if (!allClients) return [];
+    if (!form.wilaya) return allClients;
+    const clientIds = new Set(chantiersInWilaya.map(c => c.client_id).filter(Boolean));
+    return allClients.filter(c => clientIds.has(c.id) || c.ville === form.wilaya);
+  }, [allClients, chantiersInWilaya, form.wilaya]);
 
   const filteredChantiers = useMemo(() => {
-    if (!allChantiers || !form.client_id) return [];
-    return allChantiers.filter(c => c.client_id === form.client_id);
-  }, [allChantiers, form.client_id]);
+    if (!form.client_id) return [];
+    return chantiersInWilaya.filter(c => c.client_id === form.client_id);
+  }, [chantiersInWilaya, form.client_id]);
 
   const handleSubmit = async () => {
     if (!form.materiel_id) { toast.error("Sélectionnez un matériel"); return; }
