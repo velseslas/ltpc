@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2, FlaskConical, Edit } from "lucide-react";
+import { Plus, Trash2, FlaskConical, Edit, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
