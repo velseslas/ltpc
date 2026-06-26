@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
+import { MaintenanceGate } from "@/components/common/MaintenanceGate";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -26,5 +27,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return <MaintenanceGate>{children}</MaintenanceGate>;
 }
