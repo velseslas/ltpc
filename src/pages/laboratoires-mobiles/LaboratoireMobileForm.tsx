@@ -107,14 +107,16 @@ export default function LaboratoireMobileForm() {
     }
   }, [formData.client_id, isEditing]);
 
-  // Auto-import date_debut from chantier
+  // Auto-import date_debut + date_affectation from chantier
   useEffect(() => {
     if (formData.chantier_id && allChantiers) {
       const selectedChantier = allChantiers.find(c => c.id === formData.chantier_id);
       if (selectedChantier?.date_debut) {
+        const d = new Date(selectedChantier.date_debut as string);
         setFormData(prev => ({
           ...prev,
-          date_debut: new Date(selectedChantier.date_debut as string)
+          date_debut: prev.date_debut ?? d,
+          date_affectation: prev.date_affectation ?? d,
         }));
       }
     }
