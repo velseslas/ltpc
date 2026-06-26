@@ -31,27 +31,12 @@ export const useEntreprise = () => {
   return useQuery({
     queryKey: ["entreprise"],
     queryFn: async () => {
-      const isExpiredJwtError = (error: unknown) => {
-        const err = error as { code?: string; message?: string } | null;
-        return err?.code === "PGRST303" || /jwt expired|token is expired/i.test(err?.message || "");
-      };
-
-      const runQuery = () => supabase
-          .from("entreprise")
-          .select("*")
-          .order("created_at", { ascending: true })
-          .limit(1);
-
-      let { data, error } = await runQuery();
-      if (isExpiredJwtError(error)) {
-        const { error: refreshError } = await supabase.auth.refreshSession();
-        if (!refreshError) {
-          ({ data, error } = await runQuery());
-        }
-      }
-
+      // Public-safe fields only (no banking / tax IDs). RLS restricts the
+      // underlying table to admins; everyone else reads via this RPC.
+      const { data, error } = await (supabase as any).rpc("get_entreprise_public");
       if (error) throw error;
-      return (data && data.length > 0 ? data[0] : null) as Entreprise | null;
+      const row = Array.isArray(data) && data.length > 0 ? data[0] : null;
+      return row as Entreprise | null;
     },
     retry: (failureCount, error) => {
       const err = error as { code?: string; message?: string } | null;
