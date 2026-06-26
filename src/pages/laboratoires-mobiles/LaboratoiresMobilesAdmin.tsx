@@ -342,7 +342,14 @@ export default function LaboratoiresMobilesAdmin() {
             colorIndex={index}
             showActions
             onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantier.id}`)}
-            onEdit={() => navigate(`/laboratoires-mobiles/${chantier.id}/modifier`)}
+            onEdit={() => {
+              const labo = labos?.find(l => l.chantier_id === chantier.id);
+              if (labo) {
+                navigate(`/laboratoires-mobiles/${labo.id}/modifier`);
+              } else {
+                toast.error("Laboratoire mobile introuvable pour ce chantier");
+              }
+            }}
             onDelete={() => setDeleteChantierId(chantier.id)}
           />
         ))}
