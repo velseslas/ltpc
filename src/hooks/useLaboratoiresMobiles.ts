@@ -9,7 +9,7 @@ export type LaboratoireMobileUpdate = TablesUpdate<"laboratoires_mobiles">;
 export type LaboratoireMobileWithRelations = LaboratoireMobile & {
   intervenants: Tables<"intervenants"> | null;
   clients: { id: string; nom: string } | null;
-  chantiers: { id: string; nom: string } | null;
+  chantiers: { id: string; nom: string; ville: string | null } | null;
 };
 
 export function useLaboratoiresMobiles() {
@@ -22,7 +22,7 @@ export function useLaboratoiresMobiles() {
           *,
           intervenants(*),
           clients(id, nom),
-          chantiers(id, nom)
+          chantiers(id, nom, ville)
         `)
         .order("nom", { ascending: true });
       
@@ -42,7 +42,7 @@ export function useLaboratoireMobile(id: string) {
           *,
           intervenants(*),
           clients(id, nom),
-          chantiers(id, nom)
+          chantiers(id, nom, ville)
         `)
         .eq("id", id)
         .maybeSingle();
