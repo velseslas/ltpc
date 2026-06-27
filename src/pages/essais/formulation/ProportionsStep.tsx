@@ -747,79 +747,88 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
         </Card>
       </div>
 
-      {/* Interactive Granulat Sliders - only in manual mode */}
-      {calcMode === "manual" && hasCalculated && (
-        <Card className="border-amber-500/30 bg-card/80 backdrop-blur-sm">
-          <CardContent className="p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-5 h-5 text-amber-500" />
-              <h2 className="text-lg font-bold text-foreground">
-                Mode manuel — Ajustement interactif
-              </h2>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Modifiez les quantités pour recalculer instantanément la courbe granulométrique, le module de finesse et les pourcentages.
-            </p>
-            <div className="space-y-4 pt-2">
-              {sliders.map((s) => (
-                <div key={s.key} className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium flex items-center gap-2">
-                      <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: s.color }} />
-                      {s.label}
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                        {s.isSable ? "Sable" : "Gravier"}
-                      </Badge>
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={s.value}
-                        onChange={(e) => handleInputChange(s.key, e.target.value)}
-                        className="w-20 h-8 text-right text-sm"
-                        min={0}
-                        max={s.max}
-                      />
-                      <span className="text-xs text-muted-foreground w-8">kg</span>
+      {/* Manual adjustment + chart side-by-side when in manual mode */}
+      <div
+        className={cn(
+          calcMode === "manual" && hasCalculated
+            ? "grid grid-cols-1 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-4 items-start"
+            : "space-y-4"
+        )}
+      >
+        {/* Interactive Granulat Sliders - only in manual mode */}
+        {calcMode === "manual" && hasCalculated && (
+          <Card className="border-amber-500/30 bg-card/80 backdrop-blur-sm xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-5 h-5 text-amber-500" />
+                <h2 className="text-base font-bold text-foreground">
+                  Mode manuel — Ajustement interactif
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Modifiez les quantités : la courbe granulométrique, le module de finesse et les pourcentages se recalculent instantanément.
+              </p>
+              <div className="space-y-3 pt-1">
+                {sliders.map((s) => (
+                  <div key={s.key} className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs font-medium flex items-center gap-1.5 min-w-0">
+                        <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                        <span className="truncate">{s.label}</span>
+                        <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0">
+                          {s.isSable ? "S" : "G"}
+                        </Badge>
+                      </Label>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Input
+                          type="number"
+                          value={s.value}
+                          onChange={(e) => handleInputChange(s.key, e.target.value)}
+                          className="w-20 h-8 text-right text-sm"
+                          min={0}
+                          max={s.max}
+                        />
+                        <span className="text-xs text-muted-foreground w-6">kg</span>
+                      </div>
                     </div>
+                    <Slider
+                      value={[parseFloat(s.value) || 0]}
+                      onValueChange={([val]) => handleSliderChange(s.key, val)}
+                      max={s.max}
+                      step={5}
+                      className="w-full"
+                    />
                   </div>
-                  <Slider
-                    value={[parseFloat(s.value) || 0]}
-                    onValueChange={([val]) => handleSliderChange(s.key, val)}
-                    max={s.max}
-                    step={5}
-                    className="w-full"
-                  />
-                </div>
-              ))}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Dreux-Gorisse Chart */}
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm min-w-0">
+          <CardContent className="p-6 space-y-4">
+            <div>
+              <h2 className="text-lg font-bold text-foreground">
+                Graphique granulométrique – Méthode Dreux-Gorisse (Dmax {dMaxReel} mm)
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Fuseau granulométrique, courbe de référence, Point A scientifique et courbe de mélange
+              </p>
             </div>
+
+            <DreuxGorisseChart
+              dMax={dMaxReel}
+              classeRheologique={classeRheologique}
+              materials={demoMaterials}
+              sables={sables}
+              graviers={graviers}
+              pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
+              mfMelange={mfMelange ?? 2.5}
+            />
           </CardContent>
         </Card>
-      )}
-
-      {/* Dreux-Gorisse Chart */}
-      <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-        <CardContent className="p-6 space-y-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">
-              Graphique granulométrique – Méthode Dreux-Gorisse (Dmax {dMaxReel} mm)
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Fuseau granulométrique, courbe de référence, Point A scientifique et courbe de mélange
-            </p>
-          </div>
-
-          <DreuxGorisseChart
-            dMax={dMaxReel}
-            classeRheologique={classeRheologique}
-            materials={demoMaterials}
-            sables={sables}
-            graviers={graviers}
-            pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
-            mfMelange={mfMelange ?? 2.5}
-          />
-        </CardContent>
-      </Card>
+      </div>
 
       {/* Stability & Segregation Analysis */}
       {hasCalculated && (
