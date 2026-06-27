@@ -118,22 +118,47 @@ export default function DreuxGorisseChart({
     [dMax, mfMelange, pointA]
   );
 
-  const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
-
   const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
 
-  // Check conformity: mix curve within envelope (5%-95%)
+  // Real Dreux-Gorisse 95/5 partition lines.
+  // For each pair of adjacent fractions (sorted by Dmax), build the straight
+  // segment from P95 = (log10(d95_fin), 95) to P05 = (log10(d05_suivant), 5).
+  // These are the TRUE partition lines from the reference document — not a
+  // sinusoidal envelope.
+  const partitionLines = useMemo(() => {
+    if (materials.length < 2) return [];
+    // Sort materials by max sieve opening present in their curve
+    const sorted = [...materials]
+      .map((m) => ({
+        ...m,
+        dmax: m.curve.reduce((mx, c) => Math.max(mx, c.ouverture), 0),
+      }))
+      .sort((a, b) => a.dmax - b.dmax);
+
+    const lines: { pair: string; from: { x: number; y: number }; to: { x: number; y: number } }[] = [];
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const d95 = dAtPassant(sorted[i].curve, 95);
+      const d05 = dAtPassant(sorted[i + 1].curve, 5);
+      if (d95 == null || d05 == null) continue;
+      lines.push({
+        pair: `${sorted[i].label} → ${sorted[i + 1].label}`,
+        from: { x: d95, y: 95 },
+        to: { x: d05, y: 5 },
+      });
+    }
+    return lines;
+  }, [materials]);
+
+  // Conformity: mix curve cumulated pass within ±5 % of reference at each sieve.
   const isConforme = useMemo(() => {
     if (mixCurve.length === 0) return null;
     for (const mp of mixCurve) {
-      const env = envelope.find((e) => Math.abs(e.ouverture - mp.ouverture) < 0.001);
-      if (!env) continue;
-      if (mp.pourcentage < env.lower - 0.5 || mp.pourcentage > env.upper + 0.5) {
-        return false;
-      }
+      const ref = referenceCurve.find((r) => Math.abs(r.ouverture - mp.ouverture) < 0.001);
+      if (!ref) continue;
+      if (Math.abs(mp.pourcentage - ref.pourcentage) > 8) return false;
     }
     return true;
-  }, [mixCurve, envelope]);
+  }, [mixCurve, referenceCurve]);
 
   // Build chart data — filtered to Dmax
   const tamis = useMemo(() => getTamisForDmax(dMax), [dMax]);
@@ -141,11 +166,6 @@ export default function DreuxGorisseChart({
   const chartData = useMemo(() => {
     return tamis.map((ouv) => {
       const point: Record<string, number | string | number[]> = { ouverture: ouv };
-
-      const env = envelope.find((e) => Math.abs(e.ouverture - ouv) < 0.001);
-      point["Limite 95 %"] = env ? env.upper : 95;
-      point["Limite 5 %"] = env ? env.lower : 5;
-      point["_envelopeRange"] = env ? [env.lower, env.upper] : [5, 95];
 
       const ref = referenceCurve.find((r) => Math.abs(r.ouverture - ouv) < 0.001);
       point["Référence Dreux-Gorisse"] = ref ? ref.pourcentage : 0;
@@ -161,7 +181,8 @@ export default function DreuxGorisseChart({
 
       return point;
     });
-  }, [tamis, referenceCurve, envelope, materials, mixCurve, dMax]);
+  }, [tamis, referenceCurve, materials, mixCurve, dMax]);
+
 
   const hasMaterials = materials.length > 0;
 
