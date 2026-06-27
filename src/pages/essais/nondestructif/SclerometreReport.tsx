@@ -76,38 +76,30 @@ const SclerometreReport = () => {
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1.5 text-black">SC-{String(echantillon.numero).padStart(3, "0")}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date d'essai</td>
-                <td className="border border-black px-3 py-1.5 text-black">{format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</td>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/6 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1.5 w-1/3 text-black">SC-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/6 text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 w-1/3 text-black">{format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom ?? "-"}</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Âge du béton</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers?.nom ?? "-"}</td>
+                <td className="border border-black px-3 py-1.5 text-black" colSpan={3}>{echantillon.chantiers?.nom ?? "-"}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage ?? "-"}</td>
-              </tr>
-              <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage ?? "-"}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Orientation</td>
                 <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.orientation ?? "-"}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Âge du béton</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</td>
-              </tr>
-              <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Classe de résistance</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.classe_resistance ?? "-"}</td>
               </tr>
