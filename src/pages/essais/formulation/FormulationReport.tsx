@@ -58,10 +58,10 @@ function mfCategory(mf: number | null): string {
 }
 
 // ---------- Page wrapper ----------
-function ReportPage({ children, last = false, compact = false }: { children: React.ReactNode; last?: boolean; compact?: boolean }) {
+function ReportPage({ children, last = false }: { children: React.ReactNode; last?: boolean }) {
   return (
     <div
-      className={`report-page bg-white ${compact ? "p-6 report-page--compact" : "p-8"} ${!last ? "page-break" : ""}`}
+      className={`report-page bg-white p-8 ${!last ? "page-break" : ""}`}
       style={{
         width: "210mm",
         height: "297mm",
@@ -902,49 +902,89 @@ export default function FormulationReport() {
           </ReportPage>
         ))}
 
-        {/* ============== PAGE 6 — Dureté graviers + Composition Dreux-Gorisse (fusionnée) ============== */}
-        <ReportPage compact>
+        {/* ============== PAGE 6 — Dureté graviers (LA + densité) ============== */}
+        {graviersList.length > 0 && (
+          <ReportPage>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="II — IDENTIFICATIONS DES GRANULATS"
+              subtitle="II.2.4 Dureté & masse volumique des gravillons"
+            />
 
+            <div className="text-sm text-black space-y-4">
+              <p>
+                <strong>Résistance à la fragmentation par chocs (Los-Angeles, LA)</strong> : essai
+                qui consiste à mesurer la quantité d'éléments inférieurs à 1,6 mm produits en
+                soumettant le matériau aux chocs de boulets d'acier (NF EN 1097-2).
+              </p>
+
+              <p className="font-bold">Tableau : Coefficient Los-Angeles & Micro-Deval</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">LA (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">MDE (%)</th>
+                    <th className="border border-black px-2 py-1 text-black">Spécification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {graviersList.map((g) => (
+                    <tr key={g.key}>
+                      <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_la, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_mde, 1)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30 ; MDE ≤ 25</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <p className="font-bold mt-4">Tableau : Masse volumique des gravillons</p>
+              <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
+                    <th className="border border-black px-2 py-1 text-black">Densité absolue (T/m³)</th>
+                    <th className="border border-black px-2 py-1 text-black">Densité apparente (T/m³)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {graviersList.map((g) => (
+                    <tr key={g.key}>
+                      <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.densite_absolue, 3)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.densite_apparente, 3)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <h3 className="font-bold underline mt-6">INTERPRÉTATION DES RÉSULTATS</h3>
+              <p>
+                À la lumière des essais réalisés sur les fractions des agrégats (sables et
+                gravillons), les granulats étudiés respectent globalement les spécifications des
+                normes en vigueur pour la fabrication d'un béton hydraulique de qualité courante.
+                Ils peuvent donc être retenus pour la formulation présentée ci-après.
+              </p>
+            </div>
+          </ReportPage>
+        )}
+
+        {/* ============== PAGE 7 — Composition Dreux-Gorisse ============== */}
+        <ReportPage>
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
-            title="II — DURETÉ GRAVIERS  /  III — COMPOSITION DU BÉTON"
-            subtitle="LA & MDE — Méthode Dreux-Gorisse"
+            title="III — COMPOSITION DU BÉTON"
+            subtitle="Méthode Dreux-Gorisse — Proportions des constituants"
           />
 
-          <div className="text-sm text-black space-y-3">
-            {graviersList.length > 0 && (
-              <>
-                <p className="font-bold">Coefficient Los-Angeles, Micro-Deval & masse volumique des gravillons</p>
-                <table className="w-full border-collapse border border-black text-xs">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border border-black px-2 py-1 text-black">Classe granulaire</th>
-                      <th className="border border-black px-2 py-1 text-black">LA (%)</th>
-                      <th className="border border-black px-2 py-1 text-black">MDE (%)</th>
-                      <th className="border border-black px-2 py-1 text-black">Densité absolue (T/m³)</th>
-                      <th className="border border-black px-2 py-1 text-black">Densité apparente (T/m³)</th>
-                      <th className="border border-black px-2 py-1 text-black">Spécification</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {graviersList.map((g) => (
-                      <tr key={g.key}>
-                        <td className="border border-black px-2 py-1 text-black">{g.g?.produit_nom || g.label}</td>
-                        <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_la, 1)}</td>
-                        <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.coefficient_mde, 1)}</td>
-                        <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.densite_absolue, 3)}</td>
-                        <td className="border border-black px-2 py-1 text-center text-black">{fmt(g.g?.densite_apparente, 3)}</td>
-                        <td className="border border-black px-2 py-1 text-center text-black">LA ≤ 30 ; MDE ≤ 25</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
-            )}
-
-            <p className="font-bold mt-3">III.0 Paramètres de formulation</p>
-            <table className="w-full border-collapse border border-black text-xs">
+          <div className="text-sm text-black space-y-4">
+            {/* Paramètres saisis dans le wizard (étapes 2, 5, 6) */}
+            <p className="font-bold">III.0 Paramètres de formulation</p>
+            <table className="w-full border-collapse border border-black text-sm">
               <tbody>
                 <tr>
                   <td className="border border-black px-2 py-1 font-medium text-black w-1/4">Résistance visée à 28j</td>
@@ -985,8 +1025,8 @@ export default function FormulationReport() {
               </tbody>
             </table>
 
-            <p className="font-bold mt-3">III.1 Proportions des différents constituants</p>
-            <table className="w-full border-collapse border border-black text-xs">
+            <p className="font-bold mt-4">III.1 Proportions des différents constituants</p>
+            <table className="w-full border-collapse border border-black text-sm">
               <thead>
                 <tr className="bg-gray-100">
                   <th className="border border-black px-2 py-1 text-black">Composant</th>
@@ -1003,16 +1043,26 @@ export default function FormulationReport() {
                       <td className="border border-black px-2 py-1 text-black">
                         <strong>{r.code} :</strong> {r.label}
                       </td>
-                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(pct, 1)}</td>
-                      <td className="border border-black px-2 py-1 text-center text-black">{fmt(r.densite, 2)}</td>
-                      <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(r.quantite)}</td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {fmt(pct, 1)}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center text-black">
+                        {fmt(r.densite, 2)}
+                      </td>
+                      <td className="border border-black px-2 py-1 text-center font-medium text-black">
+                        {fmtInt(r.quantite)}
+                      </td>
                     </tr>
                   );
                 })}
                 <tr className="bg-gray-50 font-bold">
-                  <td className="border border-black px-2 py-1 text-black" colSpan={2}>Total granulats</td>
+                  <td className="border border-black px-2 py-1 text-black" colSpan={2}>
+                    Total granulats
+                  </td>
                   <td className="border border-black px-2 py-1 text-black"></td>
-                  <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(totalGranulats)}</td>
+                  <td className="border border-black px-2 py-1 text-center text-black">
+                    {fmtInt(totalGranulats)}
+                  </td>
                 </tr>
                 {ciment > 0 && (
                   <tr>
@@ -1045,8 +1095,8 @@ export default function FormulationReport() {
               </tbody>
             </table>
 
-            <p className="font-bold mt-3">III.2 Caractéristiques du béton frais</p>
-            <table className="w-full border-collapse border border-black text-xs">
+            <p className="font-bold mt-6">III.2 Caractéristiques du béton frais</p>
+            <table className="w-full border-collapse border border-black text-sm">
               <thead>
                 <tr className="bg-gray-100">
                   <th className="border border-black px-2 py-1 text-black">Granulats (Kg/m³)</th>
@@ -1069,26 +1119,37 @@ export default function FormulationReport() {
               </tbody>
             </table>
 
+            <p className="text-xs italic mt-4 text-black">
+              III.3 Résistance à la compression : les éprouvettes destinées à cet essai sont
+              testées à 7 et 28 jours, conservées après démoulage en chambre humide à 20 °C ± 2.
+            </p>
+
             {ctx?.essai_compression && (
-              <div className="mt-2 border border-black p-2 bg-gray-50">
-                <p className="font-bold text-black text-xs">III.3 Essai de convenance associé</p>
-                <p className="text-xs text-black mt-1">
+              <div className="mt-4 border border-black p-3 bg-gray-50">
+                <p className="font-bold text-black">III.4 Essai de convenance associé</p>
+                <p className="text-sm text-black mt-1">
                   Numéro essai : <strong>EC-{ctx.essai_compression.numero}</strong>
-                  {ctx.essai_compression.classe_resistance && (<> — Classe : <strong>{ctx.essai_compression.classe_resistance}</strong></>)}
-                  {ctx.essai_compression.ouvrage && (<> — Ouvrage : <strong>{ctx.essai_compression.ouvrage}</strong></>)}
-                  {ctx.essai_compression.date_coulage && (<> — Coulé le : <strong>{format(new Date(ctx.essai_compression.date_coulage), "dd/MM/yyyy", { locale: fr })}</strong></>)}
+                  {ctx.essai_compression.classe_resistance && (
+                    <> — Classe : <strong>{ctx.essai_compression.classe_resistance}</strong></>
+                  )}
+                  {ctx.essai_compression.ouvrage && (
+                    <> — Ouvrage : <strong>{ctx.essai_compression.ouvrage}</strong></>
+                  )}
+                  {ctx.essai_compression.date_coulage && (
+                    <> — Coulé le : <strong>{format(new Date(ctx.essai_compression.date_coulage), "dd/MM/yyyy", { locale: fr })}</strong></>
+                  )}
                 </p>
               </div>
             )}
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-8 text-black text-sm">
+          <div className="mt-12 grid grid-cols-2 gap-8 text-black text-sm">
             <div className="text-center">
-              <p className="font-medium mb-10">Le Technicien Formulateur</p>
+              <p className="font-medium mb-12">Le Technicien Formulateur</p>
               <p>_________________</p>
             </div>
             <div className="text-center">
-              <p className="font-medium mb-10">L'Ingénieur d'Études</p>
+              <p className="font-medium mb-12">L'Ingénieur d'Études</p>
               <p>{entreprise?.representant || "_________________"}</p>
             </div>
           </div>
@@ -1580,19 +1641,12 @@ export default function FormulationReport() {
         }
 
         @media print {
-          @page { size: A4; margin: 0; }
           body * { visibility: hidden; }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] { position: absolute; left: 0; top: 0; }
           .print\\:hidden { display: none !important; }
-          .report-page { box-shadow: none !important; border: none !important; margin: 0 auto !important; page-break-after: always; page-break-inside: avoid; break-inside: avoid; }
-          .report-page--compact { font-size: 10px !important; }
-          .report-page--compact table { font-size: 9.5px !important; }
-          .report-page--compact table th,
-          .report-page--compact table td { padding: 2px 4px !important; line-height: 1.15 !important; }
-          .report-page--compact p { margin: 2px 0 !important; }
+          .report-page { box-shadow: none !important; border: none !important; }
         }
-
       `}</style>
     </div>
   );
