@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal, CheckCircle2, AlertCircle, Plus, Minus } from "lucide-react";
 import StabilityAnalysisPanel from "./StabilityAnalysisPanel";
+import DebugDreuxPanel from "./DebugDreuxPanel";
 import {
   Dialog,
   DialogContent,
@@ -910,6 +911,11 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           pct1525={pct1525}
           isWithinEnvelope={null}
         />
+      )}
+
+      {/* Debug Dreux-Gorisse — Panneau Laboratoire (lecture seule) */}
+      {hasCalculated && calcResult && (
+        <DebugDreuxPanel inputs={buildInputs()} result={calcResult} />
       )}
 
       {/* MF Analysis Panel */}
