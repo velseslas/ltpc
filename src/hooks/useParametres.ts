@@ -346,6 +346,7 @@ export function useUpsertParametresQRCode() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["parametres_qrcode"] });
+      queryClient.invalidateQueries({ queryKey: ["parametres_qrcode_public"] });
       toast.success("Paramètres QR Code enregistrés");
     },
     onError: () => toast.error("Erreur lors de l'enregistrement"),
