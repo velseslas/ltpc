@@ -60,10 +60,10 @@ const QRCodeSettings = () => {
 
   const getQRSize = () => {
     switch (formData.taille_qrcode) {
-      case "small": return 80;
-      case "medium": return 100;
-      case "large": return 120;
-      default: return 100;
+      case "small": return 72;
+      case "medium": return 96;
+      case "large": return 144;
+      default: return 96;
     }
   };
 

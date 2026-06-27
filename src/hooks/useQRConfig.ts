@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,10 +18,10 @@ const DEFAULT: QRConfig = {
   position: "bas-droite",
 };
 
-function sizeToPx(s: string | null | undefined): number {
+export function sizeToPx(s: string | null | undefined): number {
   switch (s) {
     case "small": return 72;
-    case "large": return 120;
+    case "large": return 144;
     case "medium":
     default: return 96;
   }
@@ -40,12 +41,20 @@ export function useQRConfig(): QRConfig {
     staleTime: 5 * 60 * 1000,
   });
 
-  if (!data) return DEFAULT;
-  return {
-    enabled: data.activer_qrcode ?? true,
-    sizePx: sizeToPx(data.taille_qrcode),
-    color: data.couleur_qrcode || "#000000",
-    includeLogo: !!data.inclure_logo,
-    position: data.position_qrcode || "bas-droite",
-  };
+  const config: QRConfig = !data
+    ? DEFAULT
+    : {
+        enabled: data.activer_qrcode ?? true,
+        sizePx: sizeToPx(data.taille_qrcode),
+        color: data.couleur_qrcode || "#000000",
+        includeLogo: !!data.inclure_logo,
+        position: data.position_qrcode || "bas-droite",
+      };
+
+  // Sync CSS var so print stylesheet honors the configured size
+  useEffect(() => {
+    document.documentElement.style.setProperty("--qr-size", `${config.sizePx}px`);
+  }, [config.sizePx]);
+
+  return config;
 }
