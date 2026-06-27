@@ -913,6 +913,11 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
         />
       )}
 
+      {/* Debug Dreux-Gorisse — Panneau Laboratoire (lecture seule) */}
+      {hasCalculated && calcResult && (
+        <DebugDreuxPanel inputs={buildInputs()} result={calcResult} />
+      )}
+
       {/* MF Analysis Panel */}
       {hasCalculated && mfMelange !== null && mfMelange !== undefined && (() => {
         const mf = mfMelange;
