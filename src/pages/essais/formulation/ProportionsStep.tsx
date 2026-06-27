@@ -1035,7 +1035,8 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               <tbody>
                 {components.map(({ label, value, density }, i) => {
                   const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
-                  const pct = totalVolume > 0 ? (volumeL / 1000) / totalVolume * 100 : 0;
+                  // % par rapport au volume cible de 1 m³ (1000 L)
+                  const pct = volumeL / 1000 * 100;
                   return (
                     <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
                       <td className="border border-border p-2.5 text-foreground">{label}</td>
@@ -1048,13 +1049,25 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-primary/10">
-                  <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
-                  <td className="border border-border p-2.5 text-right font-bold text-primary">100%</td>
-                  <td className="border border-border p-2.5 text-right font-bold text-primary">{(totalVolume * 1000).toFixed(1)} L</td>
-                  <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
-                  <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{Math.round(total)}</td>
-                </tr>
+                {(() => {
+                  const totalPct = totalVolume * 100;
+                  const isOk = Math.abs(totalPct - 100) < 0.1;
+                  return (
+                    <tr className={cn("bg-primary/10", !isOk && "animate-border-blink")}>
+                      <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
+                      <td className={cn(
+                        "border border-border p-2.5 text-right font-bold",
+                        isOk ? "text-emerald-500" : "text-destructive"
+                      )}>{totalPct.toFixed(1)}%</td>
+                      <td className={cn(
+                        "border border-border p-2.5 text-right font-bold",
+                        isOk ? "text-emerald-500" : "text-destructive"
+                      )}>{(totalVolume * 1000).toFixed(1)} L</td>
+                      <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
+                      <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{Math.round(total)}</td>
+                    </tr>
+                  );
+                })()}
               </tfoot>
             </table>
           </div>
