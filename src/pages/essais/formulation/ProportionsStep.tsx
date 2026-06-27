@@ -768,39 +768,98 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               <p className="text-xs text-muted-foreground">
                 Modifiez les quantités : la courbe granulométrique, le module de finesse et les pourcentages se recalculent instantanément.
               </p>
-              <div className="space-y-3 pt-1">
-                {sliders.map((s) => (
-                  <div key={s.key} className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <Label className="text-xs font-medium flex items-center gap-1.5 min-w-0">
-                        <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
-                        <span className="truncate">{s.label}</span>
-                        <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0">
-                          {s.isSable ? "S" : "G"}
+              {(() => {
+                const totalGranulats = sliders.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
+                const totalPct = sliders.reduce((sum, s) => {
+                  const v = parseFloat(s.value) || 0;
+                  return sum + (totalGranulats > 0 ? (v / totalGranulats) * 100 : 0);
+                }, 0);
+                const isOk = Math.abs(totalPct - 100) < 0.05 && totalGranulats > 0;
+                return (
+                  <>
+                    <div className="space-y-3 pt-1">
+                      {sliders.map((s) => {
+                        const v = parseFloat(s.value) || 0;
+                        const pct = totalGranulats > 0 ? (v / totalGranulats) * 100 : 0;
+                        const step = 5;
+                        return (
+                          <div key={s.key} className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <Label className="text-xs font-medium flex items-center gap-1.5 min-w-0">
+                                <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                                <span className="truncate">{s.label}</span>
+                                <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0">
+                                  {s.isSable ? "S" : "G"}
+                                </Badge>
+                              </Label>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => handleInputChange(s.key, Math.max(0, v - step).toString())}
+                                >
+                                  <Minus className="w-3.5 h-3.5" />
+                                </Button>
+                                <Input
+                                  type="number"
+                                  value={s.value}
+                                  onChange={(e) => handleInputChange(s.key, e.target.value)}
+                                  className="w-20 h-8 text-right text-sm"
+                                  min={0}
+                                  max={s.max}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => handleInputChange(s.key, Math.min(s.max, v + step).toString())}
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </Button>
+                                <span className="text-xs text-muted-foreground w-6">kg</span>
+                                <Badge variant="secondary" className="text-[10px] tabular-nums w-14 justify-center">
+                                  {pct.toFixed(1)}%
+                                </Badge>
+                              </div>
+                            </div>
+                            <Slider
+                              value={[v]}
+                              onValueChange={([val]) => handleSliderChange(s.key, val)}
+                              max={s.max}
+                              step={5}
+                              className="w-full"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div
+                      className={cn(
+                        "flex items-center justify-between gap-2 mt-3 px-3 py-2 rounded-md border-2 tabular-nums",
+                        isOk
+                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600"
+                          : "border-destructive bg-destructive/10 text-destructive animate-border-blink"
+                      )}
+                    >
+                      <span className="text-xs font-semibold uppercase tracking-wider">Total granulats</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold">{totalGranulats.toFixed(1)} kg</span>
+                        <Badge
+                          className={cn(
+                            "text-xs font-bold border-0",
+                            isOk ? "bg-emerald-500 text-white" : "bg-destructive text-destructive-foreground"
+                          )}
+                        >
+                          {totalPct.toFixed(1)}%
                         </Badge>
-                      </Label>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Input
-                          type="number"
-                          value={s.value}
-                          onChange={(e) => handleInputChange(s.key, e.target.value)}
-                          className="w-20 h-8 text-right text-sm"
-                          min={0}
-                          max={s.max}
-                        />
-                        <span className="text-xs text-muted-foreground w-6">kg</span>
                       </div>
                     </div>
-                    <Slider
-                      value={[parseFloat(s.value) || 0]}
-                      onValueChange={([val]) => handleSliderChange(s.key, val)}
-                      max={s.max}
-                      step={5}
-                      className="w-full"
-                    />
-                  </div>
-                ))}
-              </div>
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         )}
