@@ -422,7 +422,7 @@ export default function DreuxGorisseChart({
           ) : (
             <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/30 gap-1.5 py-1.5 px-3">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Granulométrie hors fuseau – ajuster les proportions sable/gravier
+              Granulométrie hors plage – écart > 8 % avec la courbe de référence
             </Badge>
           )}
         </div>
