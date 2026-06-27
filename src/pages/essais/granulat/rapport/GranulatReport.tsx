@@ -180,47 +180,41 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
-                <td className="border border-black px-3 py-1 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
-              </tr>
-              {echantillon.clients?.nom && (
-                <tr>
-                  <td className="border border-black px-3 py-1 font-medium text-black">Entreprise</td>
-                  <td className="border border-black px-3 py-1 text-black">{echantillon.clients.nom}</td>
-                </tr>
-              )}
-              {echantillon.chantiers?.nom && (
-                <tr>
-                  <td className="border border-black px-3 py-1 font-medium text-black">Chantier</td>
-                  <td className="border border-black px-3 py-1 text-black">{echantillon.chantiers.nom}</td>
-                </tr>
-              )}
-              <tr>
-                <td className="border border-black px-3 py-1 font-medium text-black">Carrière / Fournisseur</td>
-                <td className="border border-black px-3 py-1 text-black">{echantillon.carrieres?.nom || "-"}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1 font-medium text-black">Produit</td>
-                <td className="border border-black px-3 py-1 text-black">{echantillon.produit}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1 font-medium text-black">Date de réception</td>
-                <td className="border border-black px-3 py-1 text-black">
-                  {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1 font-medium text-black">Date d'essai</td>
-                <td className="border border-black px-3 py-1 text-black">
+                <td className="border border-black px-3 py-1 font-medium w-1/6 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1 w-1/3 text-black">{fullPrefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1 font-medium w-1/6 text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1 w-1/3 text-black">
                   {(echantillon as any).date_essai
                     ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr })
                     : "-"}
                 </td>
               </tr>
+              {echantillon.clients?.nom && (
+                <tr>
+                  <td className="border border-black px-3 py-1 font-medium text-black">Entreprise</td>
+                  <td className="border border-black px-3 py-1 text-black">{echantillon.clients.nom}</td>
+                  <td className="border border-black px-3 py-1 font-medium text-black">Date de réception</td>
+                  <td className="border border-black px-3 py-1 text-black">
+                    {format(new Date(echantillon.date_reception), "dd/MM/yyyy", { locale: fr })}
+                  </td>
+                </tr>
+              )}
+              {echantillon.chantiers?.nom && (
+                <tr>
+                  <td className="border border-black px-3 py-1 font-medium text-black">Chantier</td>
+                  <td className="border border-black px-3 py-1 text-black" colSpan={3}>{echantillon.chantiers.nom}</td>
+                </tr>
+              )}
+              <tr>
+                <td className="border border-black px-3 py-1 font-medium text-black">Carrière / Fournisseur</td>
+                <td className="border border-black px-3 py-1 text-black">{echantillon.carrieres?.nom || "-"}</td>
+                <td className="border border-black px-3 py-1 font-medium text-black">Produit</td>
+                <td className="border border-black px-3 py-1 text-black">{echantillon.produit}</td>
+              </tr>
               {echantillon.observations && (
                 <tr>
                   <td className="border border-black px-3 py-1 font-medium text-black">Observations</td>
-                  <td className="border border-black px-3 py-1 text-black">{echantillon.observations}</td>
+                  <td className="border border-black px-3 py-1 text-black" colSpan={3}>{echantillon.observations}</td>
                 </tr>
               )}
             </tbody>
