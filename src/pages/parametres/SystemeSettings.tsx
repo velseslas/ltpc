@@ -446,14 +446,14 @@ const SystemeSettings = () => {
                       <Label className="text-sm font-medium">Mode compact</Label>
                       <p className="text-xs text-muted-foreground">Réduire les espaces pour afficher plus de contenu</p>
                     </div>
-                    <Switch checked={compactMode} onCheckedChange={setCompactMode} />
+                    <Switch checked={compactMode} onCheckedChange={(v) => { setCompactMode(v); applyAndPersist({ compactMode: v }); }} />
                   </div>
                   <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border/30">
                     <div className="space-y-0.5">
                       <Label className="text-sm font-medium">Animations</Label>
                       <p className="text-xs text-muted-foreground">Activer les transitions et animations</p>
                     </div>
-                    <Switch checked={animations} onCheckedChange={setAnimations} />
+                    <Switch checked={animations} onCheckedChange={(v) => { setAnimations(v); applyAndPersist({ animations: v }); }} />
                   </div>
                 </div>
               </CardContent>
