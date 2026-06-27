@@ -252,7 +252,6 @@ export default function DreuxGorisseChart({
                 }}
                 labelFormatter={(v) => `Tamis: ${v} mm`}
                 formatter={(value: number, name: string) => {
-                  if (name === "_envelopeRange" || name === "Fuseau granulaire") return [null, null];
                   return [`${typeof value === "number" ? value.toFixed(1) : value}%`, name];
                 }}
               />
@@ -263,45 +262,47 @@ export default function DreuxGorisseChart({
                 verticalAlign="bottom"
                 iconSize={8}
                 iconType="plainline"
-                formatter={(value: string) => {
-                  if (value === "_envelopeRange") return null;
-                  return <span style={{ marginRight: 10, whiteSpace: "nowrap" }}>{value}</span>;
+                formatter={(value: string) => (
+                  <span style={{ marginRight: 10, whiteSpace: "nowrap" }}>{value}</span>
+                )}
+              />
+
+              {/* Vraies lignes de partage 95/5 Dreux-Gorisse (une par paire de
+                  granulats voisins). Tracées via Customized → SVG natif pour
+                  ne pas être altérées par l'interpolation Recharts. */}
+              <Customized
+                component={(props: {
+                  xAxisMap?: Record<string, { scale: (v: number) => number }>;
+                  yAxisMap?: Record<string, { scale: (v: number) => number }>;
+                }) => {
+                  const xMap = props.xAxisMap ? Object.values(props.xAxisMap)[0] : null;
+                  const yMap = props.yAxisMap ? Object.values(props.yAxisMap)[0] : null;
+                  if (!xMap || !yMap) return null;
+                  return (
+                    <g>
+                      {partitionLines.map((ln, idx) => {
+                        const x1 = xMap.scale(ln.from.x);
+                        const y1 = yMap.scale(ln.from.y);
+                        const x2 = xMap.scale(ln.to.x);
+                        const y2 = yMap.scale(ln.to.y);
+                        return (
+                          <g key={idx}>
+                            <line
+                              x1={x1} y1={y1} x2={x2} y2={y2}
+                              stroke="#22c55e"
+                              strokeWidth={1.8}
+                              strokeDasharray="6 4"
+                            />
+                            <circle cx={x1} cy={y1} r={3} fill="#22c55e" />
+                            <circle cx={x2} cy={y2} r={3} fill="#22c55e" />
+                          </g>
+                        );
+                      })}
+                    </g>
+                  );
                 }}
               />
 
-              {/* Fuseau granulaire - shaded area */}
-              <Area
-                type="linear"
-                dataKey="_envelopeRange"
-                fill="hsl(var(--primary))"
-                fillOpacity={0.08}
-                stroke="none"
-                legendType="none"
-                tooltipType="none"
-                connectNulls
-              />
-
-              <Line
-                type="linear"
-                dataKey="Limite 95 %"
-                stroke="#22c55e"
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-                name="Limite 95 %"
-              />
-
-              <Line
-                type="linear"
-                dataKey="Limite 5 %"
-                stroke="#f97316"
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-                name="Limite 5 %"
-              />
 
               {/* Vertical reference lines */}
               <ReferenceLine
