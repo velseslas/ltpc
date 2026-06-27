@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import {
   ComposedChart,
   Line,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,6 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceDot,
+  Customized,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
@@ -27,26 +27,30 @@ function logPos(mm: number) {
   return Math.log10(mm);
 }
 
-// Envelope: 5% lower limit and 95% upper limit curves
-function computeEnvelope(
-  refPoints: { ouverture: number; pourcentage: number }[],
-  dMax: number
-) {
-  if (refPoints.length === 0) return [];
-  const dMin = 0.063;
-
-  return refPoints.map((p) => {
-    const logRange = logPos(dMax) - logPos(dMin);
-    const logRel = (logPos(p.ouverture) - logPos(dMin)) / logRange;
-    const offset = 15 * Math.sin(logRel * Math.PI);
-    
-    return {
-      ouverture: p.ouverture,
-      upper: Math.min(95, p.pourcentage + offset),
-      lower: Math.max(5, p.pourcentage - offset),
-    };
-  });
+// Log-linear interpolation: find sieve opening (mm) where the cumulative
+// passant equals the target percentage. Reads on the raw material curve.
+function dAtPassant(
+  curve: { ouverture: number; pourcentageTamisat: number }[],
+  targetPct: number
+): number | null {
+  if (!curve || curve.length < 2) return null;
+  // Sort ascending by opening
+  const pts = [...curve].sort((a, b) => a.ouverture - b.ouverture);
+  // Find the bracket where passant crosses targetPct
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const yMin = Math.min(p1.pourcentageTamisat, p2.pourcentageTamisat);
+    const yMax = Math.max(p1.pourcentageTamisat, p2.pourcentageTamisat);
+    if (targetPct >= yMin && targetPct <= yMax && p1.pourcentageTamisat !== p2.pourcentageTamisat) {
+      const t = (targetPct - p1.pourcentageTamisat) / (p2.pourcentageTamisat - p1.pourcentageTamisat);
+      const logD = Math.log10(p1.ouverture) + t * (Math.log10(p2.ouverture) - Math.log10(p1.ouverture));
+      return Math.pow(10, logD);
+    }
+  }
+  return null;
 }
+
 
 export interface MaterialCurve {
   label: string;
@@ -114,22 +118,47 @@ export default function DreuxGorisseChart({
     [dMax, mfMelange, pointA]
   );
 
-  const envelope = useMemo(() => computeEnvelope(referenceCurve, dMax), [referenceCurve, dMax]);
-
   const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
 
-  // Check conformity: mix curve within envelope (5%-95%)
+  // Real Dreux-Gorisse 95/5 partition lines.
+  // For each pair of adjacent fractions (sorted by Dmax), build the straight
+  // segment from P95 = (log10(d95_fin), 95) to P05 = (log10(d05_suivant), 5).
+  // These are the TRUE partition lines from the reference document — not a
+  // sinusoidal envelope.
+  const partitionLines = useMemo(() => {
+    if (materials.length < 2) return [];
+    // Sort materials by max sieve opening present in their curve
+    const sorted = [...materials]
+      .map((m) => ({
+        ...m,
+        dmax: m.curve.reduce((mx, c) => Math.max(mx, c.ouverture), 0),
+      }))
+      .sort((a, b) => a.dmax - b.dmax);
+
+    const lines: { pair: string; from: { x: number; y: number }; to: { x: number; y: number } }[] = [];
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const d95 = dAtPassant(sorted[i].curve, 95);
+      const d05 = dAtPassant(sorted[i + 1].curve, 5);
+      if (d95 == null || d05 == null) continue;
+      lines.push({
+        pair: `${sorted[i].label} → ${sorted[i + 1].label}`,
+        from: { x: d95, y: 95 },
+        to: { x: d05, y: 5 },
+      });
+    }
+    return lines;
+  }, [materials]);
+
+  // Conformity: mix curve cumulated pass within ±5 % of reference at each sieve.
   const isConforme = useMemo(() => {
     if (mixCurve.length === 0) return null;
     for (const mp of mixCurve) {
-      const env = envelope.find((e) => Math.abs(e.ouverture - mp.ouverture) < 0.001);
-      if (!env) continue;
-      if (mp.pourcentage < env.lower - 0.5 || mp.pourcentage > env.upper + 0.5) {
-        return false;
-      }
+      const ref = referenceCurve.find((r) => Math.abs(r.ouverture - mp.ouverture) < 0.001);
+      if (!ref) continue;
+      if (Math.abs(mp.pourcentage - ref.pourcentage) > 8) return false;
     }
     return true;
-  }, [mixCurve, envelope]);
+  }, [mixCurve, referenceCurve]);
 
   // Build chart data — filtered to Dmax
   const tamis = useMemo(() => getTamisForDmax(dMax), [dMax]);
@@ -137,11 +166,6 @@ export default function DreuxGorisseChart({
   const chartData = useMemo(() => {
     return tamis.map((ouv) => {
       const point: Record<string, number | string | number[]> = { ouverture: ouv };
-
-      const env = envelope.find((e) => Math.abs(e.ouverture - ouv) < 0.001);
-      point["Limite 95 %"] = env ? env.upper : 95;
-      point["Limite 5 %"] = env ? env.lower : 5;
-      point["_envelopeRange"] = env ? [env.lower, env.upper] : [5, 95];
 
       const ref = referenceCurve.find((r) => Math.abs(r.ouverture - ouv) < 0.001);
       point["Référence Dreux-Gorisse"] = ref ? ref.pourcentage : 0;
@@ -157,7 +181,8 @@ export default function DreuxGorisseChart({
 
       return point;
     });
-  }, [tamis, referenceCurve, envelope, materials, mixCurve, dMax]);
+  }, [tamis, referenceCurve, materials, mixCurve, dMax]);
+
 
   const hasMaterials = materials.length > 0;
 
@@ -227,7 +252,6 @@ export default function DreuxGorisseChart({
                 }}
                 labelFormatter={(v) => `Tamis: ${v} mm`}
                 formatter={(value: number, name: string) => {
-                  if (name === "_envelopeRange" || name === "Fuseau granulaire") return [null, null];
                   return [`${typeof value === "number" ? value.toFixed(1) : value}%`, name];
                 }}
               />
@@ -238,45 +262,47 @@ export default function DreuxGorisseChart({
                 verticalAlign="bottom"
                 iconSize={8}
                 iconType="plainline"
-                formatter={(value: string) => {
-                  if (value === "_envelopeRange") return null;
-                  return <span style={{ marginRight: 10, whiteSpace: "nowrap" }}>{value}</span>;
+                formatter={(value: string) => (
+                  <span style={{ marginRight: 10, whiteSpace: "nowrap" }}>{value}</span>
+                )}
+              />
+
+              {/* Vraies lignes de partage 95/5 Dreux-Gorisse (une par paire de
+                  granulats voisins). Tracées via Customized → SVG natif pour
+                  ne pas être altérées par l'interpolation Recharts. */}
+              <Customized
+                component={(props: {
+                  xAxisMap?: Record<string, { scale: (v: number) => number }>;
+                  yAxisMap?: Record<string, { scale: (v: number) => number }>;
+                }) => {
+                  const xMap = props.xAxisMap ? Object.values(props.xAxisMap)[0] : null;
+                  const yMap = props.yAxisMap ? Object.values(props.yAxisMap)[0] : null;
+                  if (!xMap || !yMap) return null;
+                  return (
+                    <g>
+                      {partitionLines.map((ln, idx) => {
+                        const x1 = xMap.scale(ln.from.x);
+                        const y1 = yMap.scale(ln.from.y);
+                        const x2 = xMap.scale(ln.to.x);
+                        const y2 = yMap.scale(ln.to.y);
+                        return (
+                          <g key={idx}>
+                            <line
+                              x1={x1} y1={y1} x2={x2} y2={y2}
+                              stroke="#22c55e"
+                              strokeWidth={1.8}
+                              strokeDasharray="6 4"
+                            />
+                            <circle cx={x1} cy={y1} r={3} fill="#22c55e" />
+                            <circle cx={x2} cy={y2} r={3} fill="#22c55e" />
+                          </g>
+                        );
+                      })}
+                    </g>
+                  );
                 }}
               />
 
-              {/* Fuseau granulaire - shaded area */}
-              <Area
-                type="linear"
-                dataKey="_envelopeRange"
-                fill="hsl(var(--primary))"
-                fillOpacity={0.08}
-                stroke="none"
-                legendType="none"
-                tooltipType="none"
-                connectNulls
-              />
-
-              <Line
-                type="linear"
-                dataKey="Limite 95 %"
-                stroke="#22c55e"
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-                name="Limite 95 %"
-              />
-
-              <Line
-                type="linear"
-                dataKey="Limite 5 %"
-                stroke="#f97316"
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                dot={false}
-                connectNulls
-                name="Limite 5 %"
-              />
 
               {/* Vertical reference lines */}
               <ReferenceLine
@@ -369,11 +395,19 @@ export default function DreuxGorisseChart({
         </div>
       )}
 
-      {/* Fuseau legend */}
-      {hasMaterials && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-block w-6 h-3 rounded-sm" style={{ backgroundColor: "hsl(var(--primary))", opacity: 0.15 }} />
-          Fuseau granulométrique Dreux-Gorisse (entre limites 5 % et 95 %)
+      {/* Légende des lignes de partage */}
+      {hasMaterials && partitionLines.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#22c55e" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
+            Ligne de partage 95/5 Dreux-Gorisse ({partitionLines.length}{" "}
+            {partitionLines.length > 1 ? "droites" : "droite"})
+          </span>
+          {partitionLines.map((ln, i) => (
+            <span key={i} className="text-[10px] opacity-80">
+              {ln.pair} : P95=({ln.from.x.toFixed(2)} mm, 95 %) → P05=({ln.to.x.toFixed(2)} mm, 5 %)
+            </span>
+          ))}
         </div>
       )}
 
@@ -388,7 +422,7 @@ export default function DreuxGorisseChart({
           ) : (
             <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/30 gap-1.5 py-1.5 px-3">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Granulométrie hors fuseau – ajuster les proportions sable/gravier
+              Granulométrie hors plage – écart supérieur à 8 % avec la courbe de référence
             </Badge>
           )}
         </div>
