@@ -1,229 +1,237 @@
 
 # Spécification — Module de répartition des gravillons (méthode graphique Dreux-Gorisse)
 
-> Spécification uniquement. Aucun code ne sera écrit tant qu'elle n'est pas validée.
-> Seul le module de **répartition des gravillons** est refondu. Tout le reste du moteur actuel (eau, ciment, bilan volumique, G/S imposé, mélange de sables au module de finesse) est conservé tel quel.
+> Version révisée. Spécification uniquement, aucun code.
+> Seul le module de **répartition des gravillons** est refondu. Le reste du moteur (eau, ciment, bilan volumique Vgranulats = 1 − Ve − Vc, G/S imposé, mélange de sables par module de finesse) est conservé tel quel.
 
 ---
 
-## 1. Architecture du nouveau module
+## 0. Décisions verrouillées
 
-Nouveau dossier isolé, sans dépendance au solveur actuel :
+1. **Interprétation A définitivement retenue.** Application séquentielle de la règle 95/5 sur chaque paire de gravillons voisins `(G_k, G_{k+1})`, en utilisant uniquement les **courbes brutes** de chaque fraction. L'interprétation B est abandonnée : il est **interdit** de construire ou d'utiliser une courbe granulométrique d'un mélange déjà calculé (G1+G2) pour déterminer la fraction suivante (G3, G4). Cela introduirait une dépendance circulaire étrangère à la méthode Dreux-Gorisse.
+2. **Méthode strictement graphique et déterministe.** Aucun solveur, aucune optimisation, aucun gradient, aucune moindre carré.
+3. **Aucun fallback inventé.** Toute incohérence géométrique produit une erreur métier explicite.
+4. **Aucune renormalisation artificielle** (cf. §6).
+
+---
+
+## 1. Architecture du module
 
 ```text
 src/pages/essais/formulation/engine/gravelSplit/
 ├── index.ts                # API publique : splitGravels(input) → output
-├── types.ts                # Types I/O
+├── types.ts                # Types I/O et erreurs métier
 ├── referenceCurve.ts       # Courbe OAB (réutilise le calcul du Point A existant)
-├── granuloCurve.ts         # Interpolation log-linéaire d'une courbe granulo, inverse dAt(p)
-├── partitionLine.ts        # Construction d'une ligne 95/5 et intersection avec OAB
-└── pairwiseSplit.ts        # Application séquentielle aux n-1 paires de gravillons
+├── granuloCurve.ts         # Interpolation log-linéaire, inverse dAt(p)
+├── partitionLine.ts        # Ligne de partage 95/5 + intersection avec OAB
+└── pairwiseSplit.ts        # Application séquentielle aux n-1 paires
 ```
 
-Le fichier `dreuxGorisseCalculation.ts` actuel n'est touché que sur **un seul endroit** : l'appel au solveur de gravillons est remplacé par un appel à `splitGravels(...)`. Tout le reste (volumes, sables, masses, contrôles) reste inchangé.
-
-Le code du solveur (`solveSimplexLeastSquares`, `SIEVE_WEIGHTS`, gradient projeté) sera supprimé à la fin de l'implémentation, après recette.
+`dreuxGorisseCalculation.ts` n'est modifié qu'en un seul endroit : l'appel au solveur de gravillons est remplacé par `splitGravels(...)`. Après recette, l'ancien solveur (`solveSimplexLeastSquares`, `SIEVE_WEIGHTS`, gradient projeté) est supprimé.
 
 ---
 
-## 2. Fonctions à créer
+## 2. Fonctions
 
 | Fichier | Fonction | Rôle |
 |---|---|---|
-| `referenceCurve.ts` | `buildReferenceCurve(dmax, K)` | Renvoie les 2 segments OAB en `(log10 d, %)` |
-| `referenceCurve.ts` | `passantRef(d, curve)` | % cumulé OAB à un tamis donné |
-| `granuloCurve.ts` | `normalizeCurve(tamis[])` | Trie + valide la courbe granulo d'un gravillon |
+| `referenceCurve.ts` | `buildReferenceCurve(dmax, K)` | Polyligne OAB en `(log10 d, %)` |
+| `referenceCurve.ts` | `passantRef(d, curve)` | % cumulé OAB à un tamis donné (informatif uniquement) |
+| `granuloCurve.ts` | `normalizeCurve(tamis[])` | Tri + validation d'une courbe granulo |
 | `granuloCurve.ts` | `passantAt(d, curve)` | Interpolation linéaire en `log10(d)` |
-| `granuloCurve.ts` | `dAt(p, curve)` | Inverse par dichotomie sur `passantAt` |
-| `partitionLine.ts` | `buildPartitionLine(gFin, gSuivant)` | Renvoie `{P95, P05}` en coordonnées semi-log |
-| `partitionLine.ts` | `intersectWithReference(line, refCurve)` | Calcule l'intersection segment/polyligne ; renvoie `{x_log, y_pct}` |
-| `pairwiseSplit.ts` | `computeCutoffs(gravillons[], refCurve)` | Renvoie `[y_1, …, y_{n-1}]` (ordonnées de partage cumulées) |
-| `pairwiseSplit.ts` | `cutoffsToProportions(cutoffs, n)` | Transforme les ordonnées en proportions volumiques par fraction |
-| `index.ts` | `splitGravels(input)` | Orchestration + contrôles |
+| `granuloCurve.ts` | `dAt(p, curve)` | Inverse par dichotomie |
+| `partitionLine.ts` | `buildPartitionLine(gFin, gSuivant)` | Renvoie `{P95, P05}` en coordonnées `(log10 d, %)` |
+| `partitionLine.ts` | `intersectWithReference(line, refCurve)` | Intersection segment/polyligne ; **erreur si vide** |
+| `pairwiseSplit.ts` | `computeCutoffs(gravillons[], refCurve)` | Renvoie `[y_1, …, y_{n-1}]` strictement croissantes |
+| `pairwiseSplit.ts` | `cutoffsToProportions(cutoffs)` | Transforme les ordonnées en proportions par différences successives |
+| `index.ts` | `splitGravels(input)` | Orchestration + contrôles métier |
 
-Aucune autre fonction. Pas de boucle d'optimisation, pas de minimisation, pas de gradient.
+Aucune autre fonction.
 
 ---
 
-## 3. Entrées
+## 3. Entrées / Sorties
 
 ```text
 SplitGravelsInput {
-  dmax_mm:    number,                     // Dmax global du mélange
-  K:          number,                     // correction Dreux (G' + MF) pour le Point A
-  gravillons: GravillonInput[],           // 2 à 4 entrées, triées par Dmax croissant
+  dmax_mm:    number,
+  K:          number,
+  gravillons: GravillonInput[],   // 2 à 4 entrées, triées par Dmax croissant
 }
 
 GravillonInput {
   nom:       string,
-  dmax_mm:   number,                      // Dmax propre de la fraction (pour validations)
-  tamis:     { ouverture_mm: number, passant_pct: number }[],   // courbe granulo brute
+  dmax_mm:   number,
+  tamis:     { ouverture_mm: number, passant_pct: number }[],
+}
+
+SplitGravelsOutput {
+  proportions:     { nom: string, pct: number }[],
+  cutoffs:         { y_pct: number, x_log10d: number }[],
+  partition_lines: { from: Point, to: Point }[],
+  reference_curve: Point[],
+  warnings:        string[],
 }
 ```
 
-Pré-conditions vérifiées en entrée :
-- `gravillons.length ∈ [2, 4]` (sinon erreur explicite, cf. §8).
-- Chaque courbe contient au moins 3 points de tamis.
-- Les Dmax sont strictement croissants.
+Toute violation des pré-conditions ou des contrôles (§6) lève une **erreur métier typée**, jamais une correction silencieuse.
 
 ---
 
-## 4. Sorties
+## 4. Construction de la ligne de partage (CORRIGÉ)
+
+Conformément au document de référence :
+
+> « On trace une ligne de partage joignant le point correspondant à **95 %** des granulats fins au point correspondant à **5 %** des gros granulats. »
+
+La ligne de partage est donc construite **dans le repère semi-log de la courbe de référence**, en reliant deux points dont :
+- l'abscisse est lue sur la **courbe brute** de chaque gravillon (`dAt(95)` du fin, `dAt(5)` du suivant) ;
+- l'**ordonnée est la valeur littérale 95 % et 5 %**, pas un passant OAB recalculé.
 
 ```text
-SplitGravelsOutput {
-  proportions: { nom: string, pct: number }[],     // somme = 100 sur la part gravier
-  cutoffs:     { y_pct: number, x_log10d: number }[],  // n-1 intersections OAB
-  partition_lines: { from: Point, to: Point }[],   // pour l'overlay graphique
-  reference_curve: Point[],                        // OAB échantillonnée pour Recharts
-  warnings:    string[],                           // non bloquants
-}
+d95  = dAt(95, G_fin)             // sur la courbe brute du fin
+d05  = dAt( 5, G_suivant)         // sur la courbe brute du suivant
+P95  = ( log10(d95), 95 )
+P05  = ( log10(d05),  5 )
 ```
 
-Les pourcentages sont exprimés **en volume absolu**, à appliquer ensuite au `Vgravier` calculé par la partie conservée du moteur.
+L'ordonnée du point d'intersection de `[P95, P05]` avec la polyligne **OAB** donne le **pourcentage cumulé en volume absolu** du cumul des fractions jusqu'à `G_fin` inclus.
+
+Cette correction supprime l'erreur de la version précédente qui projetait `P95` et `P05` sur OAB.
 
 ---
 
 ## 5. Calculs géométriques
 
 ### 5.1 Repère
+Tous les calculs s'effectuent dans `(X = log10(d_mm), Y = passant_%)`.
 
-Tous les calculs s'effectuent dans le plan `(X = log10(d_mm), Y = passant_%)`.
-La courbe OAB est une polyligne à 2 segments analytiques :
-- Segment 1 : O = (log10(0.080), 0) → A = (log10(Dmax/2), pA)
-- Segment 2 : A → B = (log10(Dmax), 100)
-- `pA = 50 − √Dmax + K` (calcul actuel conservé).
-
-### 5.2 Ligne de partage entre deux gravillons voisins (G_fin, G_suivant)
-
-```text
-d95  = dAt(95, G_fin)            // ouverture où la courbe brute du fin passe à 95 %
-d05  = dAt( 5, G_suivant)        // ouverture où la courbe brute du suivant passe à 5 %
-P95  = ( log10(d95),  passantRef(d95)  )    // point sur OAB à l'abscisse d95
-P05  = ( log10(d05),  passantRef(d05)  )    // point sur OAB à l'abscisse d05
-```
-
-La ligne de partage est le segment `[P95, P05]`. Conformément au document :
-- abscisses `d95` et `d05` lues sur les **courbes brutes** des gravillons,
-- ordonnées de `P95` et `P05` lues sur la **courbe de référence OAB**.
+### 5.2 Courbe OAB (inchangé)
+- O = (log10(0.080), 0)
+- A = (log10(Dmax/2), pA), avec `pA = 50 − √Dmax + K`
+- B = (log10(Dmax), 100)
 
 ### 5.3 Intersection ligne ↔ OAB
+Résolution paramétrique segment/segment (Cramer) sur chacun des 2 segments OAB. On retient l'unique point dont les paramètres `t, u ∈ [0,1]`. Si aucun point valide n'est trouvé → **erreur métier bloquante** (cf. §6 et §7).
 
-OAB n'a que 2 segments → on teste l'intersection paramétrique segment/segment pour chacun. On retient l'unique point dont le paramètre `t ∈ [0,1]` sur la ligne de partage **et** sur le segment OAB.
-
-L'ordonnée `y_partage` (% cumulé sur OAB) est le pourcentage en volume absolu **du cumul des fractions jusqu'à G_fin inclus**.
-
-### 5.4 De `n−1` ordonnées de partage aux proportions
-
-Pour `n` gravillons (n = 2, 3 ou 4) triés croissant par Dmax :
+### 5.4 Ordonnées de partage → proportions
+Pour `n` gravillons triés par Dmax croissant, on obtient `n−1` ordonnées `y_1 < y_2 < … < y_{n-1}` strictement croissantes, complétées par `y_0 = 0` et `y_n = 100` :
 
 ```text
-y_0     = y_sable_top   // ordonnée OAB au sommet du sable composé (cf. §8)
-y_1…y_{n-1} = ordonnées des n-1 lignes de partage
-y_n     = 100           // sommet OAB en B = Dmax
-
-p_Gk = y_k − y_{k-1}     pour k = 1..n           (en % du mélange total)
+G_1 = y_1
+G_k = y_k − y_{k-1}    pour k = 2 .. n-1
+G_n = 100 − y_{n-1}
 ```
 
-Renormalisation finale sur la **part gravier seule** (les sables ne sont pas touchés) :
-
-```text
-p_Gk_gravier = p_Gk / Σ p_Gk × 100
-```
-
-Aucun ajustement itératif, aucune optimisation.
+Ces proportions sont exprimées en **% de la part gravier** du mélange.
 
 ---
 
-## 6. Interpolations nécessaires
+## 6. Renormalisation (SUPPRIMÉE)
 
-| Usage | Méthode | Précision |
+Démonstration de la conservation exacte :
+
+```text
+Σ G_k = y_1 + (y_2 − y_1) + (y_3 − y_2) + … + (y_{n-1} − y_{n-2}) + (100 − y_{n-1})
+      = 100
+```
+
+La construction par différences successives garantit mathématiquement `Σ G_k = 100 %`. **Aucune renormalisation n'est appliquée.** Si une somme s'écarte de 100 % (même de 0.001 %), c'est nécessairement le signe d'une erreur en amont (ordonnées non monotones, intersection manquée, bug d'interpolation) → erreur métier, pas correction.
+
+---
+
+## 7. Fallback (SUPPRIMÉ)
+
+L'ancien fallback « milieu géométrique de `[P95, P05]` » est **supprimé**. Il n'est documenté nulle part dans la méthode Dreux-Gorisse.
+
+Si une ligne de partage ne coupe pas OAB, le moteur lève une erreur métier explicite, par exemple :
+
+```text
+ERREUR — Ligne de partage non sécante avec la courbe de référence OAB.
+Paire : G_fin = "<nom>"  →  G_suivant = "<nom>"
+Cause probable :
+  • Courbes granulométriques incompatibles avec la courbe de référence (Dmax/K).
+  • Fractions mal classées par Dmax croissant.
+  • Données granulométriques incohérentes (passants non monotones, tamis manquants).
+Aucune valeur n'est inventée. Corrigez les données d'entrée puis relancez le calcul.
+```
+
+---
+
+## 8. Généralisation à 3 et 4 gravillons
+
+**Statut documentaire** : l'extrait du document de référence n'illustre la règle 95/5 que pour **1 sable + 2 gravillons** (une seule ligne de partage). La généralisation à 3 et 4 gravillons est donc une **extension logique de la règle graphique**, **non démontrée explicitement** par le document, mais cohérente avec son esprit :
+- la règle 95/5 est une règle **locale** entre deux courbes brutes adjacentes ;
+- son application à chaque paire `(G_k, G_{k+1})` n'introduit aucune hypothèse supplémentaire ;
+- aucune courbe de mélange intermédiaire n'est utilisée (interprétation B explicitement rejetée).
+
+Cette distinction doit apparaître clairement dans la JSDoc du module et dans le rapport généré (mention « extension logique » pour n ≥ 3).
+
+Plafond : 4 gravillons. Au-delà → erreur bloquante « non couvert par la méthode Dreux-Gorisse ».
+
+---
+
+## 9. Contrôles de cohérence
+
+Effectués dans `splitGravels(...)`, **sans correction silencieuse**. Chaque échec produit un message métier détaillé.
+
+| # | Contrôle | Sévérité |
 |---|---|---|
-| `passantAt(d)` sur courbe granulo brute | Linéaire en `log10(d)` entre tamis adjacents | exacte entre points |
-| `dAt(p)` (inverse) | Dichotomie sur `passantAt`, 30 itérations max | 1e-4 mm |
-| OAB | 2 segments analytiques en `(log10 d, %)` | exacte |
-| Intersection segment/segment | Résolution 2×2 (Cramer) | exacte |
+| 1 | `gravillons.length ∈ [2, 4]` | Erreur |
+| 2 | Dmax strictement croissants | Erreur |
+| 3 | Chaque courbe contient au moins 3 points et passants monotones décroissants en `log10 d` | Erreur |
+| 4 | `dAt(95)` et `dAt(5)` existent dans les bornes des tamis fournis | Erreur |
+| 5 | **Chaque ligne de partage coupe effectivement OAB** | Erreur (§7) |
+| 6 | **Ordonnées de partage `y_1 < y_2 < … < y_{n-1}` strictement croissantes** | Erreur |
+| 7 | **Chaque proportion `G_k > 0`** strictement | Erreur |
+| 8 | **Σ G_k = 100 % exactement** (à la précision machine, tolérance 1e-6) | Erreur si violé — diagnostic interne |
+| 9 | `d95(G_fin) < d05(G_suivant)` recommandé | Warning (chevauchement granulaire) |
 
-Hors bornes :
-- sous le plus petit tamis → 0 %
-- au-dessus du plus grand tamis → 100 %
-
----
-
-## 7. Contrôles de cohérence
-
-Effectués **après** calcul des proportions, sans rien corriger silencieusement :
-
-1. `gravillons` triés par Dmax strictement croissant.
-2. `y_1 < y_2 < … < y_{n-1}` (monotone). Si violation → warning "lignes de partage croisées".
-3. Chaque `p_Gk > 0`. Sinon warning "fraction nulle, vérifier les courbes".
-4. `Σ p_Gk_gravier = 100 ± 0.5`.
-5. `y_partage ∈ (y_{k-1}, 100)` pour chaque ligne.
-6. Pour chaque paire, `d95(G_fin) < d05(G_suivant)` recommandé (chevauchement granulaire normal sinon mal classement).
-
-Tout échec déclenche un warning lisible dans la sortie, jamais une correction automatique.
+Tout message d'erreur cite : la paire concernée, les valeurs lues (`d95`, `d05`, `y_k`), et la cause probable.
 
 ---
 
-## 8. Cas particuliers
+## 10. Cas particuliers
 
 | Cas | Comportement |
 |---|---|
-| 1 seul gravillon | Court-circuit : `{ G1: 100% }`. |
-| 2 gravillons | 1 ligne de partage, cas standard du document. |
-| 3 gravillons | 2 lignes appliquées séquentiellement aux paires (G1↔G2) puis (G2↔G3). **Non explicitement documenté** dans l'extrait — cf. §10. |
-| 4 gravillons | 3 lignes (G1↔G2, G2↔G3, G3↔G4). **Non explicitement documenté** — cf. §10. |
-| ≥5 gravillons | Erreur bloquante "non couvert par la méthode Dreux-Gorisse". |
-| `d95(G_fin)` ≥ `d05(G_suivant)` (chevauchement total) | Warning "gravillons mal classés / chevauchement", calcul poursuivi. |
-| Courbe quasi-plate empêchant `dAt(95)` ou `dAt(5)` | Warning + utilisation des bornes Dmax/dmin de la fraction. |
-| Aucune intersection ligne/OAB | Warning + fallback : milieu géométrique de `[P95, P05]`. |
-| Sable composé déterminé par MF (étape 5 conservée) | Sa proportion globale est imposée par G/S, donc `y_0` est **uniquement** utilisée si l'on a besoin du % cumulé OAB au sommet du sable pour le graphique (informatif). Elle ne corrige pas les sables. |
+| 1 seul gravillon | Court-circuit : `{ G1: 100 % }`. Pas de ligne de partage. |
+| 2 gravillons | 1 ligne de partage, cas standard documenté. |
+| 3 gravillons | 2 lignes successives `(G1,G2)` puis `(G2,G3)`, extension logique (§8). |
+| 4 gravillons | 3 lignes successives, extension logique (§8). |
+| ≥ 5 gravillons | Erreur bloquante. |
+| Sable composé | Sa proportion globale reste imposée par G/S ; le module gravillons n'y touche pas. |
 
 ---
 
-## 9. Tests unitaires à prévoir
+## 11. Tests unitaires
 
 Sous `src/pages/essais/formulation/engine/gravelSplit/__tests__/` :
 
-1. `referenceCurve.test.ts` — passage par O, A, B pour Dmax = 12.5, 20, 25, 40.
-2. `granuloCurve.test.ts` :
-   - interpolation linéaire en log sur 3/8, 8/15, 15/25 ;
-   - `dAt(95)` et `dAt(5)` retournent une valeur cohérente avec les tamis fournis ;
-   - clamps hors bornes.
+1. `referenceCurve.test.ts` — passage par O, A, B pour Dmax ∈ {12.5, 20, 25, 40}.
+2. `granuloCurve.test.ts` — interpolation log-linéaire, `dAt(95)` et `dAt(5)`, clamps hors bornes (erreur, pas extrapolation).
 3. `partitionLine.test.ts` :
-   - construction `{P95, P05}` sur un cas analytique vérifié à la main ;
-   - intersection segment/segment avec OAB pour les 2 segments ;
-   - cas "aucune intersection" → fallback.
+   - `{P95, P05}` avec ordonnées **littérales 95 et 5** (régression du bug corrigé en §4) ;
+   - intersection segment/segment sur les 2 segments OAB ;
+   - cas « aucune intersection » → erreur métier (vérifier le message).
 4. `pairwiseSplit.test.ts` :
-   - **2 gravillons** — reproduction numérique de l'exemple du document Dreux-Gorisse (1 sable + 2 gravillons). Tolérance ±1 %.
-   - **3 gravillons** — vérification que les 2 ordonnées sont monotones et que la somme = 100 %.
-   - **4 gravillons** — vérification que les 3 ordonnées sont monotones.
-   - cas dégénéré "courbes plates" → warning + fallback.
-5. `index.test.ts` — orchestration complète + contrôles de cohérence, vérification de la structure `SplitGravelsOutput`.
-6. Snapshot d'un cas complet de bout en bout sur l'exemple du document.
+   - **2 gravillons** — reproduction numérique de l'exemple du document, tolérance ±1 % ;
+   - **3 gravillons** — monotonie stricte des `y_k`, somme = 100 % sans normalisation ;
+   - **4 gravillons** — monotonie stricte des `y_k`, somme = 100 % sans normalisation ;
+   - cas dégénéré (courbes plates, fractions inversées) → erreur typée.
+5. `index.test.ts` — orchestration complète + tous les contrôles du §9.
+6. Snapshot end-to-end sur l'exemple du document de référence.
 
 ---
 
-## 10. Généralisation à 3 et 4 gravillons — point à valider
+## 12. Synthèse des changements vs version précédente
 
-**Honnêteté métier requise** : l'extrait du document fourni n'illustre la méthode que pour **1 sable + 2 gravillons** (une seule ligne de partage). La généralisation à 3 ou 4 gravillons n'est **pas démontrée** par le texte cité.
+| Point | Avant | Après |
+|---|---|---|
+| Interprétation 3-4 gravillons | A ou B à trancher | **A verrouillée, B interdite** |
+| Coordonnées `P95` / `P05` | Ordonnées projetées sur OAB | **Ordonnées littérales 95 et 5** |
+| Renormalisation finale | Prévue | **Supprimée** (somme = 100 % par construction) |
+| Fallback « milieu géométrique » | Prévu | **Supprimé**, erreur métier explicite |
+| Statut 3-4 gravillons | Ambigu | Documenté comme **extension logique** non démontrée |
+| Contrôles | Warnings | **Erreurs métier détaillées** pour les violations critiques |
 
-Deux interprétations possibles, à trancher par le métier avant implémentation :
-
-**Interprétation A — extension naturelle par paires successives (proposition retenue dans cette spec)**
-- Pour chaque paire `(G_k, G_{k+1})`, on construit une ligne 95/5 entre les **courbes brutes** de `G_k` et `G_{k+1}`.
-- Les n-1 lignes produisent n-1 ordonnées de partage `y_k` sur OAB.
-- Les proportions sont les différences `y_k − y_{k-1}`.
-- Avantage : symétrique, déterministe, conforme à la lettre de la règle 95/5 appliquée localement à chaque paire.
-- Limite : non explicitement écrit dans l'extrait fourni.
-
-**Interprétation B — ligne 95/5 entre le mélange déjà composé et le gravillon suivant**
-- Pour `G_3`, on lit `dAt(95)` sur la **courbe du mélange (G_1 + G_2)** déjà calculée avec les proportions précédentes, puis `dAt(5)` sur `G_3`.
-- Avantage : plus proche d'un raisonnement séquentiel.
-- Inconvénient : introduit une dépendance d'ordre, et la "courbe du mélange" elle-même n'est pas définie graphiquement dans le texte cité.
-
-**Action requise avant codage** : valider explicitement **A** ou **B** (ou produire un autre extrait du livre décrivant la procédure pour ≥ 3 gravillons). Tant que cette ambiguïté n'est pas levée :
-- l'implémentation se limitera à **2 gravillons** ;
-- 3 et 4 gravillons renverront une **erreur bloquante** "généralisation non validée par le métier", plutôt qu'une règle inventée.
-
-Aucune autre interprétation ne sera implémentée sans documentation supplémentaire.
