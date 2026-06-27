@@ -27,26 +27,30 @@ function logPos(mm: number) {
   return Math.log10(mm);
 }
 
-// Envelope: 5% lower limit and 95% upper limit curves
-function computeEnvelope(
-  refPoints: { ouverture: number; pourcentage: number }[],
-  dMax: number
-) {
-  if (refPoints.length === 0) return [];
-  const dMin = 0.063;
-
-  return refPoints.map((p) => {
-    const logRange = logPos(dMax) - logPos(dMin);
-    const logRel = (logPos(p.ouverture) - logPos(dMin)) / logRange;
-    const offset = 15 * Math.sin(logRel * Math.PI);
-    
-    return {
-      ouverture: p.ouverture,
-      upper: Math.min(95, p.pourcentage + offset),
-      lower: Math.max(5, p.pourcentage - offset),
-    };
-  });
+// Log-linear interpolation: find sieve opening (mm) where the cumulative
+// passant equals the target percentage. Reads on the raw material curve.
+function dAtPassant(
+  curve: { ouverture: number; pourcentageTamisat: number }[],
+  targetPct: number
+): number | null {
+  if (!curve || curve.length < 2) return null;
+  // Sort ascending by opening
+  const pts = [...curve].sort((a, b) => a.ouverture - b.ouverture);
+  // Find the bracket where passant crosses targetPct
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const yMin = Math.min(p1.pourcentageTamisat, p2.pourcentageTamisat);
+    const yMax = Math.max(p1.pourcentageTamisat, p2.pourcentageTamisat);
+    if (targetPct >= yMin && targetPct <= yMax && p1.pourcentageTamisat !== p2.pourcentageTamisat) {
+      const t = (targetPct - p1.pourcentageTamisat) / (p2.pourcentageTamisat - p1.pourcentageTamisat);
+      const logD = Math.log10(p1.ouverture) + t * (Math.log10(p2.ouverture) - Math.log10(p1.ouverture));
+      return Math.pow(10, logD);
+    }
+  }
+  return null;
 }
+
 
 export interface MaterialCurve {
   label: string;
