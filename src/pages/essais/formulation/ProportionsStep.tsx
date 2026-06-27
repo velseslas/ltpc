@@ -769,11 +769,19 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                 Modifiez les quantités : la courbe granulométrique, le module de finesse et les pourcentages se recalculent instantanément.
               </p>
               {(() => {
-                const totalGranulats = sliders.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
-                const totalPct = sliders.reduce((sum, s) => {
-                  const v = parseFloat(s.value) || 0;
-                  return sum + (totalGranulats > 0 ? (v / totalGranulats) * 100 : 0);
+                // Référence = total granulats issu du calcul Dreux-Gorisse (props, non modifié)
+                const refTotal = sliders.reduce((sum, s) => {
+                  const propMap: Record<string, string> = {
+                    sableConcasse: sableConcasseQte,
+                    sableFin: sableFinQte,
+                    gravillons1: gravillons1Qte,
+                    gravier2: gravier2Qte,
+                    gravier3: gravier3Qte,
+                  };
+                  return sum + (parseFloat(propMap[s.key] ?? "0") || 0);
                 }, 0);
+                const totalGranulats = sliders.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
+                const totalPct = refTotal > 0 ? (totalGranulats / refTotal) * 100 : 0;
                 const isOk = Math.abs(totalPct - 100) < 0.05 && totalGranulats > 0;
                 return (
                   <>
