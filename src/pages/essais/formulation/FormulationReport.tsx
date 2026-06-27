@@ -58,10 +58,10 @@ function mfCategory(mf: number | null): string {
 }
 
 // ---------- Page wrapper ----------
-function ReportPage({ children, last = false }: { children: React.ReactNode; last?: boolean }) {
+function ReportPage({ children, last = false, compact = false }: { children: React.ReactNode; last?: boolean; compact?: boolean }) {
   return (
     <div
-      className={`report-page bg-white p-8 ${!last ? "page-break" : ""}`}
+      className={`report-page bg-white ${compact ? "p-6 report-page--compact" : "p-8"} ${!last ? "page-break" : ""}`}
       style={{
         width: "210mm",
         height: "297mm",
