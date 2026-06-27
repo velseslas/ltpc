@@ -25,35 +25,39 @@ import { useParametresSysteme, useUpsertParametresSysteme } from "@/hooks/usePar
 import { toast } from "sonner";
 import { isMaintenanceActive, setMaintenanceMode as persistMaintenanceMode } from "@/components/common/MaintenanceGate";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { loadPrefs, savePrefs, clearAppCache, applyPrefs } from "@/lib/uiPreferences";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SystemeSettings = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: parametres, isLoading } = useParametresSysteme();
   const upsertParametres = useUpsertParametresSysteme();
+  const initial = loadPrefs();
 
   const [formData, setFormData] = useState({
     langue: "fr",
     fuseau_horaire: "Africa/Algiers",
     format_date: "DD/MM/YYYY",
     format_nombre: "fr-FR",
-    theme: "dark",
-    couleur_accent: "blue",
+    theme: initial.theme,
+    couleur_accent: initial.couleurAccent,
     logo_header: true,
     nom_application: "",
   });
 
-  // Extended local settings
-  const [sessionTimeout, setSessionTimeout] = useState("30");
-  const [autoSave, setAutoSave] = useState(true);
-  const [compactMode, setCompactMode] = useState(false);
-  const [animations, setAnimations] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(false);
-  const [soundNotifications, setSoundNotifications] = useState(true);
-  const [notifEssais, setNotifEssais] = useState(true);
-  const [notifFacturation, setNotifFacturation] = useState(true);
-  const [notifMateriel, setNotifMateriel] = useState(true);
-  const [notifRH, setNotifRH] = useState(false);
+  // Extended local settings (persistés dans localStorage)
+  const [sessionTimeout, setSessionTimeout] = useState(initial.sessionTimeout);
+  const [autoSave, setAutoSave] = useState(initial.autoSave);
+  const [compactMode, setCompactMode] = useState(initial.compactMode);
+  const [animations, setAnimations] = useState(initial.animations);
+  const [emailNotifications, setEmailNotifications] = useState(initial.emailNotifications);
+  const [pushNotifications, setPushNotifications] = useState(initial.pushNotifications);
+  const [soundNotifications, setSoundNotifications] = useState(initial.soundNotifications);
+  const [notifEssais, setNotifEssais] = useState(initial.notifEssais);
+  const [notifFacturation, setNotifFacturation] = useState(initial.notifFacturation);
+  const [notifMateriel, setNotifMateriel] = useState(initial.notifMateriel);
+  const [notifRH, setNotifRH] = useState(initial.notifRH);
   const [maintenanceMode, setMaintenanceModeState] = useState<boolean>(() => isMaintenanceActive());
   const isAdmin = useIsAdmin();
   const handleToggleMaintenance = (v: boolean) => {
@@ -65,11 +69,16 @@ const SystemeSettings = () => {
     persistMaintenanceMode(v);
     toast.success(v ? "Mode maintenance activé" : "Mode maintenance désactivé");
   };
-  const [debugMode, setDebugMode] = useState(false);
-  const [autoBackup, setAutoBackup] = useState(true);
-  const [backupFrequency, setBackupFrequency] = useState("daily");
-  const [dataRetention, setDataRetention] = useState("365");
-  const [paginationDefault, setPaginationDefault] = useState("25");
+  const [debugMode, setDebugMode] = useState(initial.debugMode);
+  const [autoBackup, setAutoBackup] = useState(initial.autoBackup);
+  const [backupFrequency, setBackupFrequency] = useState(initial.backupFrequency);
+  const [dataRetention, setDataRetention] = useState(initial.dataRetention);
+  const [paginationDefault, setPaginationDefault] = useState(initial.paginationDefault);
+
+  // Auto-apply visual prefs on toggle
+  const applyAndPersist = (patch: Partial<ReturnType<typeof loadPrefs>>) => {
+    savePrefs(patch);
+  };
 
   useEffect(() => {
     if (parametres) {
@@ -83,11 +92,14 @@ const SystemeSettings = () => {
         logo_header: parametres.logo_header,
         nom_application: parametres.nom_application || "",
       });
+      savePrefs({ theme: parametres.theme, couleurAccent: parametres.couleur_accent });
     }
   }, [parametres]);
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === "theme" && typeof value === "string") applyAndPersist({ theme: value });
+    if (field === "couleur_accent" && typeof value === "string") applyAndPersist({ couleurAccent: value });
   };
 
   const handleSave = async () => {
@@ -95,6 +107,15 @@ const SystemeSettings = () => {
       ...formData,
       nom_application: formData.nom_application || null,
     });
+    savePrefs({
+      theme: formData.theme,
+      couleurAccent: formData.couleur_accent,
+      sessionTimeout, autoSave, compactMode, animations,
+      emailNotifications, pushNotifications, soundNotifications,
+      notifEssais, notifFacturation, notifMateriel, notifRH,
+      debugMode, autoBackup, backupFrequency, dataRetention, paginationDefault,
+    });
+    applyPrefs();
     toast.success("Paramètres système enregistrés");
   };
 
@@ -113,11 +134,14 @@ const SystemeSettings = () => {
     setAutoSave(true);
     setCompactMode(false);
     setAnimations(true);
+    savePrefs({ theme: "dark", couleurAccent: "cyan", compactMode: false, animations: true });
     toast.info("Paramètres réinitialisés aux valeurs par défaut");
   };
 
   const handleClearCache = () => {
-    toast.success("Cache de l'application vidé avec succès");
+    const { keysCleared } = clearAppCache();
+    queryClient.clear();
+    toast.success(`Cache vidé (${keysCleared} entrée(s))`);
   };
 
   const handleExportSettings = () => {
@@ -422,14 +446,14 @@ const SystemeSettings = () => {
                       <Label className="text-sm font-medium">Mode compact</Label>
                       <p className="text-xs text-muted-foreground">Réduire les espaces pour afficher plus de contenu</p>
                     </div>
-                    <Switch checked={compactMode} onCheckedChange={setCompactMode} />
+                    <Switch checked={compactMode} onCheckedChange={(v) => { setCompactMode(v); applyAndPersist({ compactMode: v }); }} />
                   </div>
                   <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border/30">
                     <div className="space-y-0.5">
                       <Label className="text-sm font-medium">Animations</Label>
                       <p className="text-xs text-muted-foreground">Activer les transitions et animations</p>
                     </div>
-                    <Switch checked={animations} onCheckedChange={setAnimations} />
+                    <Switch checked={animations} onCheckedChange={(v) => { setAnimations(v); applyAndPersist({ animations: v }); }} />
                   </div>
                 </div>
               </CardContent>

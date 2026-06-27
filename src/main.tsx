@@ -250,6 +250,10 @@ async function bootstrap() {
   installAuthFetchPatch();
   normalizeStoredAuthSession();
   installAuthLockFallback();
+  try {
+    const { applyPrefs } = await import("./lib/uiPreferences");
+    applyPrefs();
+  } catch { /* noop */ }
   const { default: App } = await import("./App.tsx");
   createRoot(document.getElementById("root")!).render(<App />);
 }

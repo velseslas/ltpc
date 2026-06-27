@@ -3,6 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { normalizeQRValue } from "@/lib/qrContent";
+import { useQRConfig } from "@/hooks/useQRConfig";
 
 interface EntrepriseData {
   nom?: string | null;
@@ -24,6 +25,7 @@ interface ReportHeaderProps {
 
 export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: ReportHeaderProps) {
   const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const qrConfig = useQRConfig();
 
   useEffect(() => {
     if (!entreprise?.logo_url) return;
@@ -86,15 +88,19 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
           </div>
 
           {/* QR Code — contenu lisible (détails du rapport) */}
-          <div data-qr-wrapper className="flex flex-col items-center shrink-0" style={{ width: 96, height: 96 }}>
-            <QRCodeSVG
-              value={normalizeQRValue(verificationUrl, { entreprise: entreprise?.nom, title, subtitle })}
-              size={96}
-              level="L"
-              marginSize={2}
-              style={{ width: 96, height: 96, display: "block" }}
-            />
-          </div>
+          {qrConfig.enabled && (
+            <div data-qr-wrapper className="flex flex-col items-center shrink-0" style={{ width: qrConfig.sizePx, height: qrConfig.sizePx }}>
+              <QRCodeSVG
+                value={normalizeQRValue(verificationUrl, { entreprise: entreprise?.nom, title, subtitle })}
+                size={qrConfig.sizePx}
+                level="L"
+                marginSize={2}
+                fgColor={qrConfig.color}
+                imageSettings={qrConfig.includeLogo && logoSrc ? { src: logoSrc, height: Math.round(qrConfig.sizePx * 0.22), width: Math.round(qrConfig.sizePx * 0.22), excavate: true } : undefined}
+                style={{ width: qrConfig.sizePx, height: qrConfig.sizePx, display: "block" }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

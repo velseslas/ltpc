@@ -454,3 +454,20 @@
 .animate-ring-blink {
   animation: ring-blink 1s ease-in-out infinite;
 }
+
+/* Préférences UI dynamiques (Paramètres > Système) */
+html[data-compact="on"] {
+  --app-density-padding: 0.5rem;
+}
+html[data-compact="on"] .space-y-6 > * + * { margin-top: 1rem !important; }
+html[data-compact="on"] .p-6 { padding: 1rem !important; }
+html[data-compact="on"] .py-6 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+html[data-compact="on"] .gap-6 { gap: 1rem !important; }
+
+html[data-animations="off"] *,
+html[data-animations="off"] *::before,
+html[data-animations="off"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
