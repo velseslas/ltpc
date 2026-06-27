@@ -6,9 +6,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const MAINTENANCE_KEY = "app_maintenance_mode";
 
+// Purge legacy persistent flag (ancienne version stockait dans localStorage,
+// ce qui déclenchait le mode maintenance "tout seul" après un toggle accidentel).
+try {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(MAINTENANCE_KEY);
+  }
+} catch {
+  /* noop */
+}
+
 export function isMaintenanceActive(): boolean {
   try {
-    return localStorage.getItem(MAINTENANCE_KEY) === "on";
+    return sessionStorage.getItem(MAINTENANCE_KEY) === "on";
   } catch {
     return false;
   }
@@ -16,8 +26,8 @@ export function isMaintenanceActive(): boolean {
 
 export function setMaintenanceMode(active: boolean) {
   try {
-    if (active) localStorage.setItem(MAINTENANCE_KEY, "on");
-    else localStorage.removeItem(MAINTENANCE_KEY);
+    if (active) sessionStorage.setItem(MAINTENANCE_KEY, "on");
+    else sessionStorage.removeItem(MAINTENANCE_KEY);
     // Notify same-tab listeners
     window.dispatchEvent(new Event("maintenance-mode-change"));
   } catch {
