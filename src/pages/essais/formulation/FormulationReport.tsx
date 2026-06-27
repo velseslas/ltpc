@@ -1580,12 +1580,19 @@ export default function FormulationReport() {
         }
 
         @media print {
+          @page { size: A4; margin: 0; }
           body * { visibility: hidden; }
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] { position: absolute; left: 0; top: 0; }
           .print\\:hidden { display: none !important; }
-          .report-page { box-shadow: none !important; border: none !important; }
+          .report-page { box-shadow: none !important; border: none !important; margin: 0 auto !important; page-break-after: always; page-break-inside: avoid; break-inside: avoid; }
+          .report-page--compact { font-size: 10px !important; }
+          .report-page--compact table { font-size: 9.5px !important; }
+          .report-page--compact table th,
+          .report-page--compact table td { padding: 2px 4px !important; line-height: 1.15 !important; }
+          .report-page--compact p { margin: 2px 0 !important; }
         }
+
       `}</style>
     </div>
   );
