@@ -2,6 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { normalizeQRValue } from "@/lib/qrContent";
+import { useQRConfig } from "@/hooks/useQRConfig";
 
 interface DocumentPageHeaderProps {
   entreprise?: {
@@ -22,6 +23,7 @@ interface DocumentPageHeaderProps {
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 
 export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: DocumentPageHeaderProps) {
+  const qrConfig = useQRConfig();
   return (
     <>
       {/* En-tête encadré */}
@@ -65,15 +67,19 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
           </div>
 
           {/* QR Code — contenu lisible (détails du document) */}
-          <div data-qr-wrapper style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: 96, height: 96 }}>
-            <QRCodeSVG
-              value={normalizeQRValue(qrData, { entreprise: entreprise?.nom, title, subtitle })}
-              size={96}
-              level="L"
-              marginSize={2}
-              style={{ width: 96, height: 96, display: "block" }}
-            />
-          </div>
+          {qrConfig.enabled && (
+            <div data-qr-wrapper style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: qrConfig.sizePx, height: qrConfig.sizePx }}>
+              <QRCodeSVG
+                value={normalizeQRValue(qrData, { entreprise: entreprise?.nom, title, subtitle })}
+                size={qrConfig.sizePx}
+                level="L"
+                marginSize={2}
+                fgColor={qrConfig.color}
+                imageSettings={qrConfig.includeLogo && entreprise?.logo_url ? { src: entreprise.logo_url, height: Math.round(qrConfig.sizePx * 0.22), width: Math.round(qrConfig.sizePx * 0.22), excavate: true } : undefined}
+                style={{ width: qrConfig.sizePx, height: qrConfig.sizePx, display: "block" }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
