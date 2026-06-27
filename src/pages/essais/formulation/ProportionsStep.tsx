@@ -769,26 +769,30 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                 Modifiez les quantités : la courbe granulométrique, le module de finesse et les pourcentages se recalculent instantanément.
               </p>
               {(() => {
-                // Référence = total granulats issu du calcul Dreux-Gorisse (props, non modifié)
-                const refTotal = sliders.reduce((sum, s) => {
-                  const propMap: Record<string, string> = {
-                    sableConcasse: sableConcasseQte,
-                    sableFin: sableFinQte,
-                    gravillons1: gravillons1Qte,
-                    gravier2: gravier2Qte,
-                    gravier3: gravier3Qte,
-                  };
-                  return sum + (parseFloat(propMap[s.key] ?? "0") || 0);
-                }, 0);
+                // Volumes (m³) — alignés avec le tableau Récapitulatif pour 1 m³
+                const Veau = eau / 1000;
+                const Vcim = ciment / 3110;
+                const Vadj = adjuvant / (1.05 * 1000);
+                const granulatVolumes: Record<string, number> = {};
+                let Vgranulats = 0;
+                for (const s of sliders) {
+                  const d = getDensite(s.key); // kg/L
+                  const v = parseFloat(s.value) || 0;
+                  const vol = d > 0 ? v / (d * 1000) : 0;
+                  granulatVolumes[s.key] = vol;
+                  Vgranulats += vol;
+                }
+                const totalVol = Veau + Vcim + Vadj + Vgranulats;
                 const totalGranulats = sliders.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
-                const totalPct = refTotal > 0 ? (totalGranulats / refTotal) * 100 : 0;
-                const isOk = Math.abs(totalPct - 100) < 0.05 && totalGranulats > 0;
+                // Total m³ visé = 1.000 m³ → % = totalVol / 1 * 100
+                const totalPct = totalVol * 100;
+                const isOk = Math.abs(totalPct - 100) < 0.1 && totalGranulats > 0;
                 return (
                   <>
                     <div className="space-y-3 pt-1">
                       {sliders.map((s) => {
                         const v = parseFloat(s.value) || 0;
-                        const pct = refTotal > 0 ? (v / refTotal) * 100 : 0;
+                        const pct = totalVol > 0 ? (granulatVolumes[s.key] / totalVol) * 100 : 0;
                         const step = 5;
                         return (
                           <div key={s.key} className="space-y-1.5">
