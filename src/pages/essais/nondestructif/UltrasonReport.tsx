@@ -180,18 +180,18 @@ const UltrasonReport = () => {
             <div className="mb-6">
               <h3 className="font-bold text-sm mb-2 underline text-black">Synthèse</h3>
               <table className="w-full border-collapse border border-black text-sm">
+                <thead>
+                  <tr>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black w-1/3">Nombre de mesures</th>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black w-1/3">Vitesse moyenne</th>
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black w-1/3">Qualité globale du béton</th>
+                  </tr>
+                </thead>
                 <tbody>
                   <tr>
-                    <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">Nombre de mesures</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{resultats.mesures.length}</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">Vitesse moyenne</td>
-                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.vitesse_moyenne ? `${resultats.vitesse_moyenne} m/s` : "-"}</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">Qualité globale du béton</td>
-                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.qualite ?? "-"}</td>
+                    <td className="border border-black px-3 py-1.5 text-center text-black">{resultats.mesures.length}</td>
+                    <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.vitesse_moyenne ? `${resultats.vitesse_moyenne} m/s` : "-"}</td>
+                    <td className="border border-black px-3 py-1.5 text-center font-bold text-black">{resultats.qualite ?? "-"}</td>
                   </tr>
                 </tbody>
               </table>
