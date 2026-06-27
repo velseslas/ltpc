@@ -395,11 +395,19 @@ export default function DreuxGorisseChart({
         </div>
       )}
 
-      {/* Fuseau legend */}
-      {hasMaterials && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-block w-6 h-3 rounded-sm" style={{ backgroundColor: "hsl(var(--primary))", opacity: 0.15 }} />
-          Fuseau granulométrique Dreux-Gorisse (entre limites 5 % et 95 %)
+      {/* Légende des lignes de partage */}
+      {hasMaterials && partitionLines.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#22c55e" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
+            Ligne de partage 95/5 Dreux-Gorisse ({partitionLines.length}{" "}
+            {partitionLines.length > 1 ? "droites" : "droite"})
+          </span>
+          {partitionLines.map((ln, i) => (
+            <span key={i} className="text-[10px] opacity-80">
+              {ln.pair} : P95=({ln.from.x.toFixed(2)} mm, 95 %) → P05=({ln.to.x.toFixed(2)} mm, 5 %)
+            </span>
+          ))}
         </div>
       )}
 
