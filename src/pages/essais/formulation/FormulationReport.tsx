@@ -163,6 +163,45 @@ function GranulometrieTable({ label, granulat, numero }: GranuloRowProps) {
             {fmt(granulat.granulometrie.teneur_fines_f, 2)} %
           </p>
         )}
+      <GranulometrieCourbe label={label} tamis={tamis} />
+    </div>
+  );
+}
+
+function GranulometrieCourbe({ label, tamis }: { label: string; tamis: any[] }) {
+  const data = (tamis || [])
+    .filter((t: any) => t?.ouverture !== undefined && t?.ouverture !== null && t?.passant !== undefined && t?.passant !== null)
+    .map((t: any) => ({ ouverture: Number(t.ouverture), passant: Number(t.passant) }))
+    .sort((a, b) => a.ouverture - b.ouverture);
+  if (data.length < 2) return null;
+  const ouvs = data.map((d) => d.ouverture);
+  const minO = Math.min(...ouvs, 0.063);
+  const maxO = Math.max(...ouvs, 1);
+  return (
+    <div className="mt-2 mb-2 avoid-break" style={{ width: "100%", height: "220px", background: "#fff" }}>
+      <p className="text-xs italic text-black mb-1">Courbe granulométrique — {label}</p>
+      <ResponsiveContainer width="100%" height="90%">
+        <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 25 }}>
+          <CartesianGrid stroke="#cbd5e1" strokeDasharray="3 3" />
+          <XAxis
+            dataKey="ouverture"
+            type="number"
+            scale="log"
+            domain={[minO, maxO]}
+            ticks={TAMIS_STD.filter((v) => v >= minO && v <= maxO)}
+            tick={{ fill: "#000", fontSize: 9 }}
+            label={{ value: "Ouverture des tamis (mm) — log", position: "insideBottom", offset: -8, fill: "#000", fontSize: 10 }}
+          />
+          <YAxis
+            domain={[0, 100]}
+            ticks={[0, 20, 40, 60, 80, 100]}
+            tick={{ fill: "#000", fontSize: 9 }}
+            label={{ value: "Passants (%)", angle: -90, position: "insideLeft", fill: "#000", fontSize: 10 }}
+          />
+          <Tooltip />
+          <Line type="monotone" dataKey="passant" name={label} stroke="#1e40af" strokeWidth={2} dot={{ r: 2.5, fill: "#1e40af" }} />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 }
