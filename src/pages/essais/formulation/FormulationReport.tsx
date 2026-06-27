@@ -903,7 +903,8 @@ export default function FormulationReport() {
         ))}
 
         {/* ============== PAGE 6 — Dureté graviers + Composition Dreux-Gorisse (fusionnée) ============== */}
-        <ReportPage>
+        <ReportPage compact>
+
           <ReportHeader
             entreprise={entreprise}
             verificationUrl={verificationUrl}
