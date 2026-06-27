@@ -155,47 +155,39 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
           <table className="identification-table w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
-                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1.5 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/6 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1.5 w-1/3 text-black">{prefix}-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/6 text-black">Date de prélèvement</td>
+                <td className="border border-black px-3 py-1.5 w-1/3 text-black">
+                  {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
+                </td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
                 <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom || "-"}</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Heure de prélèvement</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.heure_prelevement || "-"}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantiers?.nom || "-"}</td>
+                <td className="border border-black px-3 py-1.5 text-black" colSpan={3}>{echantillon.chantiers?.nom || "-"}</td>
               </tr>
               {(echantillon as any).essai_convenance && (
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black">Essai de convenance</td>
-                  <td className="border border-black px-3 py-1.5 text-black">
+                  <td className="border border-black px-3 py-1.5 text-black" colSpan={3}>
                     {(echantillon as any).essai_convenance_details || "-"}
                   </td>
                 </tr>
               )}
               {!(echantillon as any).essai_convenance && (
-                <>
-                  <tr>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{(echantillon as any).ouvrage || "-"}</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{(echantillon as any).destination_beton || "-"}</td>
-                  </tr>
-                </>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{(echantillon as any).ouvrage || "-"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{(echantillon as any).destination_beton || "-"}</td>
+                </tr>
               )}
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Date de prélèvement</td>
-                <td className="border border-black px-3 py-1.5 text-black">
-                  {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Heure de prélèvement</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.heure_prelevement || "-"}</td>
-              </tr>
             </tbody>
           </table>
         </div>
