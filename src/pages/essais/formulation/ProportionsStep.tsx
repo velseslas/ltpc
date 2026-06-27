@@ -788,7 +788,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                     <div className="space-y-3 pt-1">
                       {sliders.map((s) => {
                         const v = parseFloat(s.value) || 0;
-                        const pct = totalGranulats > 0 ? (v / totalGranulats) * 100 : 0;
+                        const pct = refTotal > 0 ? (v / refTotal) * 100 : 0;
                         const step = 5;
                         return (
                           <div key={s.key} className="space-y-1.5">
