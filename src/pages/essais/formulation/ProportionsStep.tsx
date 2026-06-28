@@ -1035,54 +1035,85 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           <h2 className="text-lg font-bold text-foreground">Récapitulatif pour 1 m³</h2>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-muted">
-                  <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
-                  <th className="border border-border p-2.5 text-right font-semibold">%</th>
-                  <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
-                  <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
-                  <th className="border border-border p-2.5 text-right font-semibold">Poids (kg/m³)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {components.map(({ label, value, density }, i) => {
-                  const volumeL = density > 0 ? (value / (density * 1000)) * 1000 : 0;
-                  // % par rapport au volume cible de 1 m³ (1000 L)
-                  const pct = volumeL / 1000 * 100;
-                  return (
-                    <tr key={label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                      <td className="border border-border p-2.5 text-foreground">{label}</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{pct.toFixed(1)}%</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? volumeL.toFixed(1) : "-"}</td>
-                      <td className="border border-border p-2.5 text-right text-foreground">{density > 0 ? density.toFixed(2) : "-"}</td>
-                      <td className="border border-border p-2.5 text-right font-semibold text-foreground">{Math.round(value)}</td>
+            {(() => {
+              // Map fractions 95/5 (label normalisé) — provient du graphique Dreux-Gorisse.
+              const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
+              const fractionByLabel = new Map<string, number>();
+              for (const f of graphFractions) fractionByLabel.set(norm(f.label), f.pct);
+
+              // Binders (eau, ciment, adjuvant) → conservés tels quels.
+              const binders = components.filter((c) => !fractionByLabel.has(norm(c.label)));
+              const granulats = components.filter((c) => fractionByLabel.has(norm(c.label)));
+
+              const bindersVolumeL = binders.reduce((s, b) => {
+                return s + (b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0);
+              }, 0);
+              const granulatsVolumeL = Math.max(0, 1000 - bindersVolumeL);
+
+              // Adapter les masses des granulats à partir des fractions 95/5.
+              const granulatsRows = granulats.map((g) => {
+                const pct95 = fractionByLabel.get(norm(g.label)) ?? 0;
+                const volumeL = (pct95 / 100) * granulatsVolumeL;
+                const mass = g.density > 0 ? volumeL * g.density : 0;
+                const pctVol = volumeL / 1000 * 100;
+                return { ...g, volumeL, mass, pctVol, pct95 };
+              });
+              const bindersRows = binders.map((b) => {
+                const volumeL = b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0;
+                const pctVol = volumeL / 1000 * 100;
+                return { ...b, volumeL, mass: b.value, pctVol, pct95: null as number | null };
+              });
+              const rows = [...bindersRows, ...granulatsRows];
+              const totalMass = rows.reduce((s, r) => s + r.mass, 0);
+              const totalVolL = rows.reduce((s, r) => s + r.volumeL, 0);
+              const totalPct = totalVolL / 10; // = totalVolL/1000*100
+              const isOk = Math.abs(totalPct - 100) < 0.5;
+
+              return (
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-muted">
+                      <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">% granulats (95/5)</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">% volume</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">Poids (kg/m³)</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot>
-                {(() => {
-                  const totalPct = totalVolume * 100;
-                  const isOk = Math.abs(totalPct - 100) < 0.1;
-                  return (
+                  </thead>
+                  <tbody>
+                    {rows.map((r, i) => (
+                      <tr key={r.label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                        <td className="border border-border p-2.5 text-foreground">{r.label}</td>
+                        <td className="border border-border p-2.5 text-right text-foreground">
+                          {r.pct95 !== null ? `${r.pct95.toFixed(1)}%` : "—"}
+                        </td>
+                        <td className="border border-border p-2.5 text-right text-foreground">{r.pctVol.toFixed(1)}%</td>
+                        <td className="border border-border p-2.5 text-right text-foreground">{r.density > 0 ? r.volumeL.toFixed(1) : "-"}</td>
+                        <td className="border border-border p-2.5 text-right text-foreground">{r.density > 0 ? r.density.toFixed(2) : "-"}</td>
+                        <td className="border border-border p-2.5 text-right font-semibold text-foreground">{Math.round(r.mass)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
                     <tr className={cn("bg-primary/10", !isOk && "animate-border-blink")}>
                       <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
-                      <td className={cn(
-                        "border border-border p-2.5 text-right font-bold",
-                        isOk ? "text-emerald-500" : "text-destructive"
-                      )}>{totalPct.toFixed(1)}%</td>
-                      <td className={cn(
-                        "border border-border p-2.5 text-right font-bold",
-                        isOk ? "text-emerald-500" : "text-destructive"
-                      )}>{(totalVolume * 1000).toFixed(1)} L</td>
+                      <td className="border border-border p-2.5 text-right font-bold text-foreground">
+                        {granulatsRows.reduce((s, r) => s + r.pct95, 0).toFixed(1)}%
+                      </td>
+                      <td className={cn("border border-border p-2.5 text-right font-bold", isOk ? "text-emerald-500" : "text-destructive")}>
+                        {totalPct.toFixed(1)}%
+                      </td>
+                      <td className={cn("border border-border p-2.5 text-right font-bold", isOk ? "text-emerald-500" : "text-destructive")}>
+                        {totalVolL.toFixed(1)} L
+                      </td>
                       <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
-                      <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{Math.round(total)}</td>
+                      <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{Math.round(totalMass)}</td>
                     </tr>
-                  );
-                })()}
-              </tfoot>
-            </table>
+                  </tfoot>
+                </table>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>
