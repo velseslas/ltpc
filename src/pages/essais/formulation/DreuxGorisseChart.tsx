@@ -90,6 +90,35 @@ export interface MaterialCurve {
   curve: { ouverture: number; pourcentageTamisat: number }[];
 }
 
+type MaterialSeriesId = "sable01" | "sable04" | "gravier815" | "gravier1525" | "other";
+
+function normalizeMaterialLabel(label: string) {
+  return label
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getMaterialSeriesId(label: string): MaterialSeriesId {
+  const normalized = normalizeMaterialLabel(label);
+  const isSable = normalized.includes("sable");
+  const isGravier = normalized.includes("gravier") || normalized.includes("gravillon");
+
+  if (isSable && /\b0\s*\/\s*1\b/.test(normalized)) return "sable01";
+  if (isSable && /\b0\s*\/\s*4\b/.test(normalized)) return "sable04";
+  if (isGravier && /\b8\s*\/\s*15\b/.test(normalized)) return "gravier815";
+  if (isGravier && /\b15\s*\/\s*25\b/.test(normalized)) return "gravier1525";
+  return "other";
+}
+
+function getCurveFinenessKey(material: MaterialCurve) {
+  const d50 = dAtPassant(material.curve, 50);
+  const dMaxMat = material.curve.reduce((mx, p) => (p.ouverture > mx ? p.ouverture : mx), 0);
+  return d50 ?? dMaxMat;
+}
+
 // Compute mix curve
 function computeMixCurve(materials: MaterialCurve[], dMax: number) {
   const totalQty = materials.reduce((sum, m) => sum + m.quantity, 0);
@@ -188,16 +217,26 @@ export default function DreuxGorisseChart({
 
 
   // ===== Méthode graphique 95/5 — droites de partage et fractions =====
-  // Tri des matériaux du plus fin au plus gros (selon le d où la courbe atteint ~50% de tamisat,
-  // fallback : ouverture max présente dans la courbe).
+  // Association stricte des séries pour la méthode 95/5 :
+  // Sable 0/1 → Sable 0/4 → Gravier 8/15 → Gravier 15/25.
+  // Les matériaux non standards restent triés physiquement en fallback.
   const sortedMaterials = useMemo(() => {
-    const withKey = materials.map((m) => {
-      const d50 = dAtPassant(m.curve, 50);
-      const dMaxMat = m.curve.reduce((mx, p) => (p.ouverture > mx ? p.ouverture : mx), 0);
-      return { mat: m, key: d50 ?? dMaxMat };
-    });
-    withKey.sort((a, b) => a.key - b.key);
-    return withKey.map((w) => w.mat);
+    const strictOrder: MaterialSeriesId[] = ["sable01", "sable04", "gravier815", "gravier1525"];
+    const usedLabels = new Set<string>();
+
+    const ordered = strictOrder
+      .map((seriesId) => materials.find((m) => getMaterialSeriesId(m.label) === seriesId))
+      .filter((m): m is MaterialCurve => {
+        if (!m || usedLabels.has(m.label)) return false;
+        usedLabels.add(m.label);
+        return true;
+      });
+
+    const fallback = materials
+      .filter((m) => !usedLabels.has(m.label))
+      .sort((a, b) => getCurveFinenessKey(a) - getCurveFinenessKey(b));
+
+    return [...ordered, ...fallback];
   }, [materials]);
 
   const partitionData = useMemo(() => {
