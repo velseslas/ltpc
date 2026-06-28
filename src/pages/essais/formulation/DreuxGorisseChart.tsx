@@ -283,30 +283,21 @@ export default function DreuxGorisseChart({
                   return (
                     <g>
                       {partitionLines.map((ln, idx) => {
-                        const xFin = xMap.scale(ln.d95);
-                        const xSui = xMap.scale(ln.d05);
-                        const yTop = yMap.scale(95);
-                        const yBot = yMap.scale(5);
+                        // Droite oblique unique : P95 (d95 du fin, 95 %) → P05 (d05 du suivant, 5 %)
+                        const x1 = xMap.scale(ln.d95);
+                        const y1 = yMap.scale(95);
+                        const x2 = xMap.scale(ln.d05);
+                        const y2 = yMap.scale(5);
                         return (
                           <g key={idx}>
-                            {/* Droite verticale à x = d95 du fin */}
                             <line
-                              x1={xFin} y1={yTop} x2={xFin} y2={yBot}
+                              x1={x1} y1={y1} x2={x2} y2={y2}
                               stroke="#ef4444"
                               strokeWidth={1.8}
                               strokeDasharray="6 4"
                             />
-                            <circle cx={xFin} cy={yTop} r={3} fill="#ef4444" />
-                            <circle cx={xFin} cy={yBot} r={3} fill="#ef4444" />
-                            {/* Droite verticale à x = d05 du suivant — parallèle */}
-                            <line
-                              x1={xSui} y1={yTop} x2={xSui} y2={yBot}
-                              stroke="#ef4444"
-                              strokeWidth={1.8}
-                              strokeDasharray="6 4"
-                            />
-                            <circle cx={xSui} cy={yTop} r={3} fill="#ef4444" />
-                            <circle cx={xSui} cy={yBot} r={3} fill="#ef4444" />
+                            <circle cx={x1} cy={y1} r={3.5} fill="#ef4444" />
+                            <circle cx={x2} cy={y2} r={3.5} fill="#ef4444" />
                           </g>
                         );
                       })}
