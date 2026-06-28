@@ -125,9 +125,11 @@ export default function DreuxGorisseChart({
   // segment from P95 = (log10(d95_fin), 95) to P05 = (log10(d05_suivant), 5).
   // These are the TRUE partition lines from the reference document — not a
   // sinusoidal envelope.
+  // Pour chaque paire (fin → suivant), on trace DEUX droites verticales
+  // parallèles : x = d95 (du fin) et x = d05 (du suivant), allant de y=5 à y=95.
+  // Cf. méthode Dreux-Gorisse (référence document utilisateur).
   const partitionLines = useMemo(() => {
     if (materials.length < 2) return [];
-    // Sort materials by max sieve opening present in their curve
     const sorted = [...materials]
       .map((m) => ({
         ...m,
@@ -135,15 +137,15 @@ export default function DreuxGorisseChart({
       }))
       .sort((a, b) => a.dmax - b.dmax);
 
-    const lines: { pair: string; from: { x: number; y: number }; to: { x: number; y: number } }[] = [];
+    const lines: { pair: string; d95: number; d05: number }[] = [];
     for (let i = 0; i < sorted.length - 1; i++) {
       const d95 = dAtPassant(sorted[i].curve, 95);
       const d05 = dAtPassant(sorted[i + 1].curve, 5);
       if (d95 == null || d05 == null) continue;
       lines.push({
         pair: `${sorted[i].label} → ${sorted[i + 1].label}`,
-        from: { x: d95, y: 95 },
-        to: { x: d05, y: 5 },
+        d95,
+        d05,
       });
     }
     return lines;
@@ -281,20 +283,30 @@ export default function DreuxGorisseChart({
                   return (
                     <g>
                       {partitionLines.map((ln, idx) => {
-                        const x1 = xMap.scale(ln.from.x);
-                        const y1 = yMap.scale(ln.from.y);
-                        const x2 = xMap.scale(ln.to.x);
-                        const y2 = yMap.scale(ln.to.y);
+                        const xFin = xMap.scale(ln.d95);
+                        const xSui = xMap.scale(ln.d05);
+                        const yTop = yMap.scale(95);
+                        const yBot = yMap.scale(5);
                         return (
                           <g key={idx}>
+                            {/* Droite verticale à x = d95 du fin */}
                             <line
-                              x1={x1} y1={y1} x2={x2} y2={y2}
-                              stroke="#22c55e"
+                              x1={xFin} y1={yTop} x2={xFin} y2={yBot}
+                              stroke="#ef4444"
                               strokeWidth={1.8}
                               strokeDasharray="6 4"
                             />
-                            <circle cx={x1} cy={y1} r={3} fill="#22c55e" />
-                            <circle cx={x2} cy={y2} r={3} fill="#22c55e" />
+                            <circle cx={xFin} cy={yTop} r={3} fill="#ef4444" />
+                            <circle cx={xFin} cy={yBot} r={3} fill="#ef4444" />
+                            {/* Droite verticale à x = d05 du suivant — parallèle */}
+                            <line
+                              x1={xSui} y1={yTop} x2={xSui} y2={yBot}
+                              stroke="#ef4444"
+                              strokeWidth={1.8}
+                              strokeDasharray="6 4"
+                            />
+                            <circle cx={xSui} cy={yTop} r={3} fill="#ef4444" />
+                            <circle cx={xSui} cy={yBot} r={3} fill="#ef4444" />
                           </g>
                         );
                       })}
@@ -399,13 +411,12 @@ export default function DreuxGorisseChart({
       {hasMaterials && partitionLines.length > 0 && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#22c55e" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
-            Ligne de partage 95/5 Dreux-Gorisse ({partitionLines.length}{" "}
-            {partitionLines.length > 1 ? "droites" : "droite"})
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#ef4444" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
+            Lignes de partage 95/5 Dreux-Gorisse — droites verticales parallèles ({partitionLines.length * 2})
           </span>
           {partitionLines.map((ln, i) => (
             <span key={i} className="text-[10px] opacity-80">
-              {ln.pair} : P95=({ln.from.x.toFixed(2)} mm, 95 %) → P05=({ln.to.x.toFixed(2)} mm, 5 %)
+              {ln.pair} : x = d₉₅ = {ln.d95.toFixed(2)} mm ∥ x = d₀₅ = {ln.d05.toFixed(2)} mm
             </span>
           ))}
         </div>
