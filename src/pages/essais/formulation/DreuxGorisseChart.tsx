@@ -10,8 +10,8 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceDot,
-  Customized,
 } from "recharts";
+
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
@@ -269,42 +269,45 @@ export default function DreuxGorisseChart({
                 )}
               />
 
-              {/* Vraies lignes de partage 95/5 Dreux-Gorisse (une par paire de
-                  granulats voisins). Tracées via Customized → SVG natif pour
-                  ne pas être altérées par l'interpolation Recharts. */}
-              <Customized
-                component={(props: {
-                  xAxisMap?: Record<string, { scale: (v: number) => number }>;
-                  yAxisMap?: Record<string, { scale: (v: number) => number }>;
-                }) => {
-                  const xMap = props.xAxisMap ? Object.values(props.xAxisMap)[0] : null;
-                  const yMap = props.yAxisMap ? Object.values(props.yAxisMap)[0] : null;
-                  if (!xMap || !yMap) return null;
-                  return (
-                    <g>
-                      {partitionLines.map((ln, idx) => {
-                        // Droite oblique unique : P95 (d95 du fin, 95 %) → P05 (d05 du suivant, 5 %)
-                        const x1 = xMap.scale(ln.d95);
-                        const y1 = yMap.scale(95);
-                        const x2 = xMap.scale(ln.d05);
-                        const y2 = yMap.scale(5);
-                        return (
-                          <g key={idx}>
-                            <line
-                              x1={x1} y1={y1} x2={x2} y2={y2}
-                              stroke="#ef4444"
-                              strokeWidth={1.8}
-                              strokeDasharray="6 4"
-                            />
-                            <circle cx={x1} cy={y1} r={3.5} fill="#ef4444" />
-                            <circle cx={x2} cy={y2} r={3.5} fill="#ef4444" />
-                          </g>
-                        );
-                      })}
-                    </g>
-                  );
-                }}
-              />
+              {/* Vraies lignes de partage 95/5 Dreux-Gorisse — une droite
+                  oblique par paire de granulats voisins, de
+                  P95 = (d95 du fin, 95 %) à P05 = (d05 du suivant, 5 %).
+                  Utilise ReferenceLine.segment (API officielle Recharts)
+                  pour un rendu fiable et indépendant des axes Customized. */}
+              {partitionLines.map((ln, idx) => (
+                <ReferenceLine
+                  key={`partition-${idx}`}
+                  ifOverflow="extendDomain"
+                  segment={[
+                    { x: ln.d95, y: 95 },
+                    { x: ln.d05, y: 5 },
+                  ]}
+                  stroke="#ef4444"
+                  strokeWidth={1.8}
+                  strokeDasharray="6 4"
+                />
+              ))}
+              {partitionLines.map((ln, idx) => (
+                <ReferenceDot
+                  key={`p95-${idx}`}
+                  x={ln.d95}
+                  y={95}
+                  r={3.5}
+                  fill="#ef4444"
+                  stroke="#ef4444"
+                />
+              ))}
+              {partitionLines.map((ln, idx) => (
+                <ReferenceDot
+                  key={`p05-${idx}`}
+                  x={ln.d05}
+                  y={5}
+                  r={3.5}
+                  fill="#ef4444"
+                  stroke="#ef4444"
+                />
+              ))}
+
 
 
               {/* Vertical reference lines */}
