@@ -903,6 +903,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               graviers={graviers}
               pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
               mfMelange={mfMelange ?? 2.5}
+              onFractionsChange={handleFractionsChange}
             />
           </CardContent>
         </Card>
