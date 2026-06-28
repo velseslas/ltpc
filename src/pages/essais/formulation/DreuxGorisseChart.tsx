@@ -573,9 +573,8 @@ export default function DreuxGorisseChart({
               </thead>
               <tbody>
                 {partitionData.fractions.map((f, i) => {
-                  const cum = i < partitionData.lines.length
-                    ? partitionData.lines[i].intersection?.y
-                    : 100;
+                  const sortedCutoffs = partitionData.sortedCutoffs ?? [];
+                  const cum = i < sortedCutoffs.length ? sortedCutoffs[i] : 100;
                   return (
                     <tr key={f.label} className="border-t border-border">
                       <td className="px-3 py-2 text-foreground">{f.label}</td>
