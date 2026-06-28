@@ -283,30 +283,21 @@ export default function DreuxGorisseChart({
                   return (
                     <g>
                       {partitionLines.map((ln, idx) => {
-                        const xFin = xMap.scale(ln.d95);
-                        const xSui = xMap.scale(ln.d05);
-                        const yTop = yMap.scale(95);
-                        const yBot = yMap.scale(5);
+                        // Droite oblique unique : P95 (d95 du fin, 95 %) → P05 (d05 du suivant, 5 %)
+                        const x1 = xMap.scale(ln.d95);
+                        const y1 = yMap.scale(95);
+                        const x2 = xMap.scale(ln.d05);
+                        const y2 = yMap.scale(5);
                         return (
                           <g key={idx}>
-                            {/* Droite verticale à x = d95 du fin */}
                             <line
-                              x1={xFin} y1={yTop} x2={xFin} y2={yBot}
+                              x1={x1} y1={y1} x2={x2} y2={y2}
                               stroke="#ef4444"
                               strokeWidth={1.8}
                               strokeDasharray="6 4"
                             />
-                            <circle cx={xFin} cy={yTop} r={3} fill="#ef4444" />
-                            <circle cx={xFin} cy={yBot} r={3} fill="#ef4444" />
-                            {/* Droite verticale à x = d05 du suivant — parallèle */}
-                            <line
-                              x1={xSui} y1={yTop} x2={xSui} y2={yBot}
-                              stroke="#ef4444"
-                              strokeWidth={1.8}
-                              strokeDasharray="6 4"
-                            />
-                            <circle cx={xSui} cy={yTop} r={3} fill="#ef4444" />
-                            <circle cx={xSui} cy={yBot} r={3} fill="#ef4444" />
+                            <circle cx={x1} cy={y1} r={3.5} fill="#ef4444" />
+                            <circle cx={x2} cy={y2} r={3.5} fill="#ef4444" />
                           </g>
                         );
                       })}
@@ -412,11 +403,11 @@ export default function DreuxGorisseChart({
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-2">
             <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#ef4444" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
-            Lignes de partage 95/5 Dreux-Gorisse — droites verticales parallèles ({partitionLines.length * 2})
+            Ligne de partage 95/5 Dreux-Gorisse — droite oblique P95 → P05 ({partitionLines.length})
           </span>
           {partitionLines.map((ln, i) => (
             <span key={i} className="text-[10px] opacity-80">
-              {ln.pair} : x = d₉₅ = {ln.d95.toFixed(2)} mm ∥ x = d₀₅ = {ln.d05.toFixed(2)} mm
+              {ln.pair} : P95 = ({ln.d95.toFixed(2)} mm ; 95 %) → P05 = ({ln.d05.toFixed(2)} mm ; 5 %)
             </span>
           ))}
         </div>
