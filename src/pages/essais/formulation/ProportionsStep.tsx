@@ -903,6 +903,21 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
         </Card>
       </div>
 
+      {/* Composition optimale auto-calculée */}
+      {demoMaterials.length > 0 && (
+        <OptimalMixComposition
+          dMax={dMaxReel}
+          mfMelange={mfMelange ?? 2.5}
+          pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
+          materials={demoMaterials}
+          densities={Object.fromEntries(
+            granulatInputs
+              .filter((g) => g.active && (granulatDensites[g.key] ?? 0) > 0)
+              .map((g) => [g.label, granulatDensites[g.key]])
+          )}
+        />
+      )}
+
       {/* Stability & Segregation Analysis */}
       {hasCalculated && (
         <StabilityAnalysisPanel
