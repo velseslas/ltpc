@@ -759,7 +759,7 @@ export default function DreuxGorisseChart({
                       <td className="px-3 py-2 text-right font-mono text-muted-foreground">
                         {typeof cum === "number" ? `${cum.toFixed(1)} %` : "—"}
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-semibold text-red-600">
+                      <td className="px-3 py-2 text-right font-mono font-semibold text-foreground">
                         {f.pct.toFixed(1)} %
                       </td>
                     </tr>
