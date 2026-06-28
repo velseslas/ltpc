@@ -174,6 +174,12 @@ export default function ProportionsStep({
   const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
+  // Fractions individuelles 95/5 émises par le graphique Dreux-Gorisse
+  const [graphFractions, setGraphFractions] = useState<Array<{ label: string; pct: number }>>([]);
+  const handleFractionsChange = useCallback(
+    (f: Array<{ label: string; pct: number }>) => setGraphFractions(f),
+    []
+  );
 
   const mfMelangeEffectif = useMemo(
     () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
