@@ -430,6 +430,18 @@ export default function DreuxGorisseChart({
 
   const hasMaterials = materials.length > 0;
 
+  // Émission des fractions individuelles 95/5 vers le parent (récap 1 m³).
+  const lastFractionsRef = useRef<string>("");
+  useEffect(() => {
+    if (!onFractionsChange) return;
+    const payload = partitionData.fractions.map((f) => ({ label: f.label, pct: f.pct }));
+    const sig = JSON.stringify(payload);
+    if (sig !== lastFractionsRef.current) {
+      lastFractionsRef.current = sig;
+      onFractionsChange(payload);
+    }
+  }, [partitionData.fractions, onFractionsChange]);
+
 
   return (
     <div className="space-y-4">
