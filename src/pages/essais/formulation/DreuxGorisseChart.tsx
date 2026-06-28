@@ -283,20 +283,30 @@ export default function DreuxGorisseChart({
                   return (
                     <g>
                       {partitionLines.map((ln, idx) => {
-                        const x1 = xMap.scale(ln.from.x);
-                        const y1 = yMap.scale(ln.from.y);
-                        const x2 = xMap.scale(ln.to.x);
-                        const y2 = yMap.scale(ln.to.y);
+                        const xFin = xMap.scale(ln.d95);
+                        const xSui = xMap.scale(ln.d05);
+                        const yTop = yMap.scale(95);
+                        const yBot = yMap.scale(5);
                         return (
                           <g key={idx}>
+                            {/* Droite verticale à x = d95 du fin */}
                             <line
-                              x1={x1} y1={y1} x2={x2} y2={y2}
-                              stroke="#22c55e"
+                              x1={xFin} y1={yTop} x2={xFin} y2={yBot}
+                              stroke="#ef4444"
                               strokeWidth={1.8}
                               strokeDasharray="6 4"
                             />
-                            <circle cx={x1} cy={y1} r={3} fill="#22c55e" />
-                            <circle cx={x2} cy={y2} r={3} fill="#22c55e" />
+                            <circle cx={xFin} cy={yTop} r={3} fill="#ef4444" />
+                            <circle cx={xFin} cy={yBot} r={3} fill="#ef4444" />
+                            {/* Droite verticale à x = d05 du suivant — parallèle */}
+                            <line
+                              x1={xSui} y1={yTop} x2={xSui} y2={yBot}
+                              stroke="#ef4444"
+                              strokeWidth={1.8}
+                              strokeDasharray="6 4"
+                            />
+                            <circle cx={xSui} cy={yTop} r={3} fill="#ef4444" />
+                            <circle cx={xSui} cy={yBot} r={3} fill="#ef4444" />
                           </g>
                         );
                       })}
