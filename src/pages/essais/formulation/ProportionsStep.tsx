@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal, CheckCircle2, AlertCircle, Plus, Minus } from "lucide-react";
 import StabilityAnalysisPanel from "./StabilityAnalysisPanel";
 import DebugDreuxPanel from "./DebugDreuxPanel";
+import OptimalMixComposition from "./OptimalMixComposition";
 import {
   Dialog,
   DialogContent,
