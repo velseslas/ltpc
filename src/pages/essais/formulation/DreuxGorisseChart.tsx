@@ -671,15 +671,15 @@ export default function DreuxGorisseChart({
                           return null;
                         }
                         return (
-                          <g key={`partition-g-${idx}`}>
+                        <g key={`partition-g-${idx}`}>
                             {/* Projection horizontale pointillée vers l'axe Y */}
                             <line
                               x1={xLeft}
                               y1={yi as number}
                               x2={xi as number}
                               y2={yi as number}
-                              stroke="#dc2626"
-                              strokeWidth={1.2}
+                              stroke="#9CA3AF"
+                              strokeWidth={1}
                               strokeDasharray="4 3"
                             />
                             {/* Étiquette pourcentage sur l'axe Y, alignée verticalement avec la projection */}
@@ -687,9 +687,9 @@ export default function DreuxGorisseChart({
                               x={(xLeft as number) + 4}
                               y={yi as number}
                               dy="0.32em"
-                              fill="#dc2626"
+                              fill="#9CA3AF"
                               fontSize={11}
-                              fontWeight={700}
+                              fontWeight={600}
                             >
                               {inter.y.toFixed(1)} %
                             </text>
@@ -698,9 +698,9 @@ export default function DreuxGorisseChart({
                               cx={xi as number}
                               cy={yi as number}
                               r={4}
-                              fill="#dc2626"
-                              stroke="#fff"
-                              strokeWidth={1.5}
+                              fill="#ffffff"
+                              stroke="#3B82F6"
+                              strokeWidth={1}
                             />
                           </g>
                         );
@@ -728,7 +728,7 @@ export default function DreuxGorisseChart({
             Lignes 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
           </span>
           <span className="flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#9CA3AF" strokeWidth="1" strokeDasharray="4 3" /></svg>
             Projection vers l'axe Y (% cumulé)
           </span>
         </div>
@@ -759,7 +759,7 @@ export default function DreuxGorisseChart({
                       <td className="px-3 py-2 text-right font-mono text-muted-foreground">
                         {typeof cum === "number" ? `${cum.toFixed(1)} %` : "—"}
                       </td>
-                      <td className="px-3 py-2 text-right font-mono font-semibold text-red-600">
+                      <td className="px-3 py-2 text-right font-mono font-semibold text-foreground">
                         {f.pct.toFixed(1)} %
                       </td>
                     </tr>
