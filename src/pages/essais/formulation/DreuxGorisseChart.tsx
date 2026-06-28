@@ -10,7 +10,9 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceDot,
+  Customized,
 } from "recharts";
+
 
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
@@ -518,52 +520,87 @@ export default function DreuxGorisseChart({
                 name="Courbe de mélange"
               />
 
-              {/* Droites de partage 95/5 (obliques rouges) + projections horizontales
-                  vers l'axe Y aux ordonnées des intersections avec la courbe OAB. */}
-              {partitionData.lines.map((ln, idx) => (
-                <ReferenceLine
-                  key={`partition-${idx}`}
-                  segment={[ln.from, ln.to]}
-                  stroke="#dc2626"
-                  strokeWidth={2.5}
-                  ifOverflow="extendDomain"
-                />
-              ))}
-              {partitionData.lines.map((ln, idx) =>
-                ln.intersection ? (
-                  <ReferenceLine
-                    key={`proj-${idx}`}
-                    segment={[
-                      { x: 0.063, y: ln.intersection.y },
-                      { x: ln.intersection.x, y: ln.intersection.y },
-                    ]}
-                    stroke="#dc2626"
-                    strokeWidth={1.2}
-                    strokeDasharray="4 3"
-                    ifOverflow="extendDomain"
-                    label={{
-                      value: `${ln.intersection.y.toFixed(0)} %`,
-                      position: "insideLeft",
-                      fill: "#dc2626",
-                      fontSize: 11,
-                      fontWeight: 700,
-                    }}
-                  />
-                ) : null
-              )}
-              {partitionData.lines.map((ln, idx) =>
-                ln.intersection ? (
-                  <ReferenceDot
-                    key={`dot-${idx}`}
-                    x={ln.intersection.x}
-                    y={ln.intersection.y}
-                    r={4}
-                    fill="#dc2626"
-                    stroke="#fff"
-                    strokeWidth={1.5}
-                  />
-                ) : null
-              )}
+              {/* Droites de partage 95/5 + projections horizontales — rendues
+                  via un calque SVG custom utilisant directement les échelles
+                  des axes. Garantit un tracé strictement aligné en log10(X)
+                  entre P95(d95, 95) et P05(d05, 5) pour chaque paire. */}
+              <Customized
+                component={(props: any) => {
+                  const { xAxisMap, yAxisMap } = props;
+                  const xKey = xAxisMap ? Object.keys(xAxisMap)[0] : null;
+                  const yKey = yAxisMap ? Object.keys(yAxisMap)[0] : null;
+                  if (!xKey || !yKey) return null;
+                  const xScale = xAxisMap[xKey].scale;
+                  const yScale = yAxisMap[yKey].scale;
+                  const xRange = xScale.range();
+                  const xLeft = Math.min(xRange[0], xRange[1]);
+
+                  return (
+                    <g>
+                      {partitionData.lines.map((ln, idx) => {
+                        const x1 = xScale(ln.from.x);
+                        const y1 = yScale(ln.from.y);
+                        const x2 = xScale(ln.to.x);
+                        const y2 = yScale(ln.to.y);
+                        if (![x1, y1, x2, y2].every((v) => Number.isFinite(v))) return null;
+                        const inter = ln.intersection;
+                        const xi = inter ? xScale(inter.x) : null;
+                        const yi = inter ? yScale(inter.y) : null;
+                        return (
+                          <g key={`partition-g-${idx}`}>
+                            {/* Droite de partage oblique (rouge continue) */}
+                            <line
+                              x1={x1}
+                              y1={y1}
+                              x2={x2}
+                              y2={y2}
+                              stroke="#dc2626"
+                              strokeWidth={2.5}
+                            />
+                            {/* Marqueurs P95 et P05 */}
+                            <circle cx={x1} cy={y1} r={3.5} fill="#dc2626" stroke="#fff" strokeWidth={1} />
+                            <circle cx={x2} cy={y2} r={3.5} fill="#dc2626" stroke="#fff" strokeWidth={1} />
+                            {inter && Number.isFinite(xi as number) && Number.isFinite(yi as number) && (
+                              <g>
+                                {/* Projection horizontale pointillée vers l'axe Y */}
+                                <line
+                                  x1={xLeft}
+                                  y1={yi as number}
+                                  x2={xi as number}
+                                  y2={yi as number}
+                                  stroke="#dc2626"
+                                  strokeWidth={1.2}
+                                  strokeDasharray="4 3"
+                                />
+                                {/* Étiquette pourcentage sur l'axe Y */}
+                                <text
+                                  x={(xLeft as number) + 4}
+                                  y={(yi as number) - 4}
+                                  fill="#dc2626"
+                                  fontSize={11}
+                                  fontWeight={700}
+                                >
+                                  {inter.y.toFixed(1)} %
+                                </text>
+                                {/* Point d'intersection avec OAB */}
+                                <circle
+                                  cx={xi as number}
+                                  cy={yi as number}
+                                  r={4}
+                                  fill="#dc2626"
+                                  stroke="#fff"
+                                  strokeWidth={1.5}
+                                />
+                              </g>
+                            )}
+                          </g>
+                        );
+                      })}
+                    </g>
+                  );
+                }}
+              />
+
             </ComposedChart>
           </ResponsiveContainer>
         </div>
