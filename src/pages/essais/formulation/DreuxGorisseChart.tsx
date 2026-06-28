@@ -515,15 +515,72 @@ export default function DreuxGorisseChart({
         </div>
       )}
 
-      {/* Légende des lignes de référence 5% / 95% */}
+      {/* Légende des lignes de référence */}
       {hasMaterials && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-2">
             <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
-            Lignes de référence 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
+            Lignes 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
+          </span>
+          <span className="flex items-center gap-2">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="2.5" /></svg>
+            Droites de partage 95/5 (Dreux-Gorisse)
+          </span>
+          <span className="flex items-center gap-2">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
+            Projection vers l'axe Y (% cumulé)
           </span>
         </div>
       )}
+
+      {/* Tableau récapitulatif des fractions individuelles (méthode graphique 95/5) */}
+      {hasMaterials && partitionData.fractions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
+            Fractions individuelles — Méthode graphique 95/5 Dreux-Gorisse
+          </p>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-3 py-2 text-left font-semibold text-foreground">Constituant</th>
+                  <th className="px-3 py-2 text-right font-semibold text-foreground">% cumulé lu</th>
+                  <th className="px-3 py-2 text-right font-semibold text-foreground">% fraction</th>
+                </tr>
+              </thead>
+              <tbody>
+                {partitionData.fractions.map((f, i) => {
+                  const cum = i < partitionData.lines.length
+                    ? partitionData.lines[i].intersection?.y
+                    : 100;
+                  return (
+                    <tr key={f.label} className="border-t border-border">
+                      <td className="px-3 py-2 text-foreground">{f.label}</td>
+                      <td className="px-3 py-2 text-right font-mono text-muted-foreground">
+                        {typeof cum === "number" ? `${cum.toFixed(1)} %` : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono font-semibold text-red-600">
+                        {f.pct.toFixed(1)} %
+                      </td>
+                    </tr>
+                  );
+                })}
+                <tr className="border-t border-border bg-muted/30">
+                  <td className="px-3 py-2 font-semibold text-foreground">Total</td>
+                  <td className="px-3 py-2"></td>
+                  <td className="px-3 py-2 text-right font-mono font-bold text-foreground">
+                    {partitionData.fractions.reduce((s, f) => s + f.pct, 0).toFixed(1)} %
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[10px] text-muted-foreground italic">
+            Calcul par soustractions successives des ordonnées d'intersection des droites P95(d₉₅, 95%) → P05(d₀₅, 5%) avec la courbe de référence OAB.
+          </p>
+        </div>
+      )}
+
 
       {/* Conformity badge */}
       {isConforme !== null && (
