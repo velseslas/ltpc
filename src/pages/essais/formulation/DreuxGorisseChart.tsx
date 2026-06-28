@@ -18,7 +18,9 @@ import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
 
 const D_MIN_REF = 0.080;
 
-/** Interpolation log-linéaire : ouverture (mm) où la courbe atteint p%. */
+/** Interpolation log-linéaire : ouverture (mm) où la courbe atteint p%.
+ *  Fallback robuste : si p est hors plage, renvoie l'ouverture du point le
+ *  plus proche afin de toujours produire une ligne de partage exploitable. */
 function dAtPassant(
   curve: { ouverture: number; pourcentageTamisat: number }[],
   p: number
@@ -26,7 +28,8 @@ function dAtPassant(
   const pts = [...curve]
     .filter((c) => c.ouverture > 0 && Number.isFinite(c.pourcentageTamisat))
     .sort((a, b) => a.ouverture - b.ouverture);
-  if (pts.length < 2) return null;
+  if (pts.length === 0) return null;
+  if (pts.length === 1) return pts[0].ouverture;
   if (p <= pts[0].pourcentageTamisat) return pts[0].ouverture;
   if (p >= pts[pts.length - 1].pourcentageTamisat) return pts[pts.length - 1].ouverture;
   for (let i = 0; i < pts.length - 1; i++) {
@@ -40,7 +43,7 @@ function dAtPassant(
       return Math.pow(10, xa + t * (xb - xa));
     }
   }
-  return null;
+  return pts[pts.length - 1].ouverture;
 }
 
 /** Intersection segment/segment ; renvoie null si non sécant. */
