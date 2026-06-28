@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   ComposedChart,
   Line,
@@ -223,6 +223,7 @@ interface DreuxGorisseChartProps {
   graviers: number;
   pointA?: PointA | null;
   mfMelange?: number;
+  onFractionsChange?: (fractions: Array<{ label: string; pct: number }>) => void;
 }
 
 export default function DreuxGorisseChart({
@@ -233,6 +234,7 @@ export default function DreuxGorisseChart({
   graviers,
   pointA: pointAProp,
   mfMelange = 2.5,
+  onFractionsChange,
 }: DreuxGorisseChartProps) {
   const totalAggregats = sables + graviers;
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
@@ -427,6 +429,18 @@ export default function DreuxGorisseChart({
   }, [sortedMaterials, pointA, dMax, referenceCurve]);
 
   const hasMaterials = materials.length > 0;
+
+  // Émission des fractions individuelles 95/5 vers le parent (récap 1 m³).
+  const lastFractionsRef = useRef<string>("");
+  useEffect(() => {
+    if (!onFractionsChange) return;
+    const payload = partitionData.fractions.map((f) => ({ label: f.label, pct: f.pct }));
+    const sig = JSON.stringify(payload);
+    if (sig !== lastFractionsRef.current) {
+      lastFractionsRef.current = sig;
+      onFractionsChange(payload);
+    }
+  }, [partitionData.fractions, onFractionsChange]);
 
 
   return (
