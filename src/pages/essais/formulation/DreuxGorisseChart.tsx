@@ -169,6 +169,8 @@ export default function DreuxGorisseChart({
               <XAxis
                 dataKey="ouverture"
                 scale="log"
+                // Domaine dynamique : borné par dMax (0.063 mm → dMax mm).
+                // Les lignes de référence 5% / 95% s'étendent jusqu'à cette valeur.
                 domain={[0.063, dMax]}
                 type="number"
                 tickFormatter={(v: number) => `${v}`}
