@@ -224,16 +224,23 @@ export default function DreuxGorisseChart({
       to: { x: number; y: number };
       intersection: { x: number; y: number } | null;
     }> = [];
-    const cutoffs: number[] = [];
+    const cutoffs: number[] = []; // Y1, Y2, Y3… dans l'ordre des paires (du plus fin au plus gros)
 
     for (let i = 0; i < sortedMaterials.length - 1; i++) {
       const fin = sortedMaterials[i];
       const suivant = sortedMaterials[i + 1];
-      const d95 = dAtPassant(fin.curve, 95);
-      const d05 = dAtPassant(suivant.curve, 5);
-      if (d95 == null || d05 == null) {
-        lines.push({ pair: `${fin.label} → ${suivant.label}`, from: { x: 0, y: 95 }, to: { x: 0, y: 5 }, intersection: null });
-        continue;
+      let d95 = dAtPassant(fin.curve, 95);
+      let d05 = dAtPassant(suivant.curve, 5);
+      // Garde-fous : si la courbe ne fournit pas l'ordonnée, on retombe sur
+      // l'extrémité raisonnable (max pour le fin, min utile pour le suivant).
+      if (d95 == null) {
+        d95 = fin.curve.reduce((mx, p) => (p.ouverture > mx ? p.ouverture : mx), 0) || 0.063;
+      }
+      if (d05 == null) {
+        const nonZero = suivant.curve.filter((p) => p.pourcentageTamisat > 0);
+        d05 = nonZero.length
+          ? nonZero.reduce((mn, p) => (p.ouverture < mn ? p.ouverture : mn), Infinity)
+          : 0.063;
       }
       const from = { x: d95, y: 95 };
       const to = { x: d05, y: 5 };
@@ -241,6 +248,7 @@ export default function DreuxGorisseChart({
       const P95log = { x: Math.log10(d95), y: 95 };
       const P05log = { x: Math.log10(d05), y: 5 };
 
+      // Tentative d'intersection avec les segments OA puis AB.
       const seg1 = intersectSegments(P95log, P05log, Olog, Alog);
       const seg2 = intersectSegments(P95log, P05log, Alog, Blog);
       const candidates = [seg1, seg2].filter((p): p is { x: number; y: number } => p !== null);
@@ -249,15 +257,40 @@ export default function DreuxGorisseChart({
         candidates.sort((a, b) => Math.abs(a.y - A.y) - Math.abs(b.y - A.y));
         const chosen = candidates[0];
         intersection = { x: Math.pow(10, chosen.x), y: chosen.y };
-        cutoffs.push(chosen.y);
+      } else {
+        // Fallback : intersection avec la droite OAB prolongée
+        // en cherchant le y sur la référence à mi-chemin (interp x).
+        const midLogX = (P95log.x + P05log.x) / 2;
+        // y de la référence par interpolation linéaire en log
+        const refY = (() => {
+          const refCurve = referenceCurve;
+          for (let k = 0; k < refCurve.length - 1; k++) {
+            const a = refCurve[k];
+            const b = refCurve[k + 1];
+            const xa = Math.log10(a.ouverture);
+            const xb = Math.log10(b.ouverture);
+            if (midLogX >= xa && midLogX <= xb) {
+              const t = (midLogX - xa) / (xb - xa || 1);
+              return a.pourcentage + t * (b.pourcentage - a.pourcentage);
+            }
+          }
+          return 50;
+        })();
+        intersection = { x: Math.pow(10, midLogX), y: refY };
       }
+      cutoffs.push(Math.min(100, Math.max(0, intersection.y)));
       lines.push({ pair: `${fin.label} → ${suivant.label}`, from, to, intersection });
     }
 
-    // Tri croissant des cutoffs et clamp dans [0, 100] (garantit Σ = 100 %).
-    const sortedCutoffs = [...cutoffs]
-      .map((y) => Math.min(100, Math.max(0, y)))
-      .sort((a, b) => a - b);
+    // Les cutoffs sont déjà dans l'ordre cumulé (fin → gros) : Y1, Y2, Y3…
+    // Forçage de la monotonie croissante pour éviter toute inversion numérique.
+    const sortedCutoffs: number[] = [];
+    let last = 0;
+    for (const c of cutoffs) {
+      const v = Math.max(c, last);
+      sortedCutoffs.push(v);
+      last = v;
+    }
 
     const fractions: Array<{ label: string; pct: number }> = [];
     let prev = 0;
@@ -280,7 +313,7 @@ export default function DreuxGorisseChart({
     }
 
     return { lines, fractions, sortedCutoffs };
-  }, [sortedMaterials, pointA, dMax]);
+  }, [sortedMaterials, pointA, dMax, referenceCurve]);
 
   const hasMaterials = materials.length > 0;
 
