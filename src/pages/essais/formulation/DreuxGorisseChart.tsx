@@ -10,7 +10,9 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceDot,
+  Customized,
 } from "recharts";
+
 
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
