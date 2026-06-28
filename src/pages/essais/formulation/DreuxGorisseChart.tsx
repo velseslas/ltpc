@@ -183,8 +183,20 @@ export default function DreuxGorisseChart({
 
 
   // ===== Méthode graphique 95/5 — droites de partage et fractions =====
+  // Tri des matériaux du plus fin au plus gros (selon le d où la courbe atteint ~50% de tamisat,
+  // fallback : ouverture max présente dans la courbe).
+  const sortedMaterials = useMemo(() => {
+    const withKey = materials.map((m) => {
+      const d50 = dAtPassant(m.curve, 50);
+      const dMaxMat = m.curve.reduce((mx, p) => (p.ouverture > mx ? p.ouverture : mx), 0);
+      return { mat: m, key: d50 ?? dMaxMat };
+    });
+    withKey.sort((a, b) => a.key - b.key);
+    return withKey.map((w) => w.mat);
+  }, [materials]);
+
   const partitionData = useMemo(() => {
-    if (materials.length < 2) {
+    if (sortedMaterials.length < 2) {
       return { lines: [] as Array<{
         pair: string;
         from: { x: number; y: number };
@@ -193,12 +205,12 @@ export default function DreuxGorisseChart({
       }>, fractions: [] as Array<{ label: string; pct: number }> };
     }
 
-    // OAB en coordonnées (mm, %) — l'axe X est log mais Recharts gère via scale="log".
+    // OAB en coordonnées (mm, %).
     const O = { x: D_MIN_REF, y: 0 };
     const A = { x: pointA.dA, y: pointA.pA };
     const B = { x: dMax, y: 100 };
 
-    // Pour l'intersection on travaille en (log10 d, %) pour rester fidèle au graphique semi-log.
+    // Intersection en (log10 d, %).
     const Olog = { x: Math.log10(O.x), y: O.y };
     const Alog = { x: Math.log10(A.x), y: A.y };
     const Blog = { x: Math.log10(B.x), y: B.y };
@@ -211,9 +223,9 @@ export default function DreuxGorisseChart({
     }> = [];
     const cutoffs: number[] = [];
 
-    for (let i = 0; i < materials.length - 1; i++) {
-      const fin = materials[i];
-      const suivant = materials[i + 1];
+    for (let i = 0; i < sortedMaterials.length - 1; i++) {
+      const fin = sortedMaterials[i];
+      const suivant = sortedMaterials[i + 1];
       const d95 = dAtPassant(fin.curve, 95);
       const d05 = dAtPassant(suivant.curve, 5);
       if (d95 == null || d05 == null) {
@@ -239,22 +251,33 @@ export default function DreuxGorisseChart({
       lines.push({ pair: `${fin.label} → ${suivant.label}`, from, to, intersection });
     }
 
-    // Fractions par soustractions successives (Σ = 100 % par construction).
+    // Tri croissant des cutoffs et clamp dans [0, 100] (garantit Σ = 100 %).
+    const sortedCutoffs = [...cutoffs]
+      .map((y) => Math.min(100, Math.max(0, y)))
+      .sort((a, b) => a - b);
+
     const fractions: Array<{ label: string; pct: number }> = [];
     let prev = 0;
-    for (let i = 0; i < materials.length; i++) {
+    for (let i = 0; i < sortedMaterials.length; i++) {
       let pct: number;
-      if (i < cutoffs.length) {
-        pct = cutoffs[i] - prev;
-        prev = cutoffs[i];
+      if (i < sortedCutoffs.length) {
+        pct = sortedCutoffs[i] - prev;
+        prev = sortedCutoffs[i];
       } else {
         pct = 100 - prev;
       }
-      fractions.push({ label: materials[i].label, pct });
+      fractions.push({ label: sortedMaterials[i].label, pct: Math.max(0, pct) });
     }
 
-    return { lines, fractions };
-  }, [materials, pointA, dMax]);
+    // Normalisation finale pour garantir un total strict de 100.0 %.
+    const total = fractions.reduce((s, f) => s + f.pct, 0);
+    if (total > 0 && Math.abs(total - 100) > 1e-6) {
+      const k = 100 / total;
+      fractions.forEach((f) => (f.pct = f.pct * k));
+    }
+
+    return { lines, fractions, sortedCutoffs };
+  }, [sortedMaterials, pointA, dMax]);
 
   const hasMaterials = materials.length > 0;
 
@@ -550,9 +573,8 @@ export default function DreuxGorisseChart({
               </thead>
               <tbody>
                 {partitionData.fractions.map((f, i) => {
-                  const cum = i < partitionData.lines.length
-                    ? partitionData.lines[i].intersection?.y
-                    : 100;
+                  const sortedCutoffs = partitionData.sortedCutoffs ?? [];
+                  const cum = i < sortedCutoffs.length ? sortedCutoffs[i] : 100;
                   return (
                     <tr key={f.label} className="border-t border-border">
                       <td className="px-3 py-2 text-foreground">{f.label}</td>
