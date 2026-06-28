@@ -215,44 +215,37 @@ export default function DreuxGorisseChart({
                 )}
               />
 
-              {/* Vraies lignes de partage 95/5 Dreux-Gorisse — une droite
-                  oblique par paire de granulats voisins, de
-                  P95 = (d95 du fin, 95 %) à P05 = (d05 du suivant, 5 %).
-                  Utilise ReferenceLine.segment (API officielle Recharts)
-                  pour un rendu fiable et indépendant des axes Customized. */}
-              {partitionLines.map((ln, idx) => (
-                <ReferenceLine
-                  key={`partition-${idx}`}
-                  ifOverflow="extendDomain"
-                  segment={[
-                    { x: ln.d95, y: 95 },
-                    { x: ln.d05, y: 5 },
-                  ]}
-                  stroke="#ef4444"
-                  strokeWidth={1.8}
-                  strokeDasharray="6 4"
-                />
-              ))}
-              {partitionLines.map((ln, idx) => (
-                <ReferenceDot
-                  key={`p95-${idx}`}
-                  x={ln.d95}
-                  y={95}
-                  r={3.5}
-                  fill="#ef4444"
-                  stroke="#ef4444"
-                />
-              ))}
-              {partitionLines.map((ln, idx) => (
-                <ReferenceDot
-                  key={`p05-${idx}`}
-                  x={ln.d05}
-                  y={5}
-                  r={3.5}
-                  fill="#ef4444"
-                  stroke="#ef4444"
-                />
-              ))}
+              {/* Lignes de référence horizontales 5% et 95% — dynamiques
+                  suivant la valeur de dMax. Elles traversent tout le graphique
+                  de l'abscisse 0.063 mm jusqu'à dMax. */}
+              <ReferenceLine
+                y={95}
+                stroke="#94a3b8"
+                strokeWidth={1.2}
+                strokeDasharray="4 3"
+                ifOverflow="extendDomain"
+                label={{
+                  value: "95%",
+                  position: "right",
+                  fill: "#94a3b8",
+                  fontSize: 10,
+                  fontWeight: 600,
+                }}
+              />
+              <ReferenceLine
+                y={5}
+                stroke="#94a3b8"
+                strokeWidth={1.2}
+                strokeDasharray="4 3"
+                ifOverflow="extendDomain"
+                label={{
+                  value: "5%",
+                  position: "right",
+                  fill: "#94a3b8",
+                  fontSize: 10,
+                  fontWeight: 600,
+                }}
+              />
 
 
 
