@@ -125,9 +125,11 @@ export default function DreuxGorisseChart({
   // segment from P95 = (log10(d95_fin), 95) to P05 = (log10(d05_suivant), 5).
   // These are the TRUE partition lines from the reference document — not a
   // sinusoidal envelope.
+  // Pour chaque paire (fin → suivant), on trace DEUX droites verticales
+  // parallèles : x = d95 (du fin) et x = d05 (du suivant), allant de y=5 à y=95.
+  // Cf. méthode Dreux-Gorisse (référence document utilisateur).
   const partitionLines = useMemo(() => {
     if (materials.length < 2) return [];
-    // Sort materials by max sieve opening present in their curve
     const sorted = [...materials]
       .map((m) => ({
         ...m,
@@ -135,15 +137,15 @@ export default function DreuxGorisseChart({
       }))
       .sort((a, b) => a.dmax - b.dmax);
 
-    const lines: { pair: string; from: { x: number; y: number }; to: { x: number; y: number } }[] = [];
+    const lines: { pair: string; d95: number; d05: number }[] = [];
     for (let i = 0; i < sorted.length - 1; i++) {
       const d95 = dAtPassant(sorted[i].curve, 95);
       const d05 = dAtPassant(sorted[i + 1].curve, 5);
       if (d95 == null || d05 == null) continue;
       lines.push({
         pair: `${sorted[i].label} → ${sorted[i + 1].label}`,
-        from: { x: d95, y: 95 },
-        to: { x: d05, y: 5 },
+        d95,
+        d05,
       });
     }
     return lines;
