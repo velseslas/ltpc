@@ -411,13 +411,12 @@ export default function DreuxGorisseChart({
       {hasMaterials && partitionLines.length > 0 && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#22c55e" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
-            Ligne de partage 95/5 Dreux-Gorisse ({partitionLines.length}{" "}
-            {partitionLines.length > 1 ? "droites" : "droite"})
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#ef4444" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
+            Lignes de partage 95/5 Dreux-Gorisse — droites verticales parallèles ({partitionLines.length * 2})
           </span>
           {partitionLines.map((ln, i) => (
             <span key={i} className="text-[10px] opacity-80">
-              {ln.pair} : P95=({ln.from.x.toFixed(2)} mm, 95 %) → P05=({ln.to.x.toFixed(2)} mm, 5 %)
+              {ln.pair} : x = d₉₅ = {ln.d95.toFixed(2)} mm ∥ x = d₀₅ = {ln.d05.toFixed(2)} mm
             </span>
           ))}
         </div>
