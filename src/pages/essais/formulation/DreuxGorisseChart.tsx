@@ -27,29 +27,6 @@ function logPos(mm: number) {
   return Math.log10(mm);
 }
 
-// Log-linear interpolation: find sieve opening (mm) where the cumulative
-// passant equals the target percentage. Reads on the raw material curve.
-function dAtPassant(
-  curve: { ouverture: number; pourcentageTamisat: number }[],
-  targetPct: number
-): number | null {
-  if (!curve || curve.length < 2) return null;
-  // Sort ascending by opening
-  const pts = [...curve].sort((a, b) => a.ouverture - b.ouverture);
-  // Find the bracket where passant crosses targetPct
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const yMin = Math.min(p1.pourcentageTamisat, p2.pourcentageTamisat);
-    const yMax = Math.max(p1.pourcentageTamisat, p2.pourcentageTamisat);
-    if (targetPct >= yMin && targetPct <= yMax && p1.pourcentageTamisat !== p2.pourcentageTamisat) {
-      const t = (targetPct - p1.pourcentageTamisat) / (p2.pourcentageTamisat - p1.pourcentageTamisat);
-      const logD = Math.log10(p1.ouverture) + t * (Math.log10(p2.ouverture) - Math.log10(p1.ouverture));
-      return Math.pow(10, logD);
-    }
-  }
-  return null;
-}
 
 
 export interface MaterialCurve {
