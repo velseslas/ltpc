@@ -199,6 +199,22 @@ const MATERIAL_COLORS = [
   "#06b6d4",
 ];
 
+// Couleur fixe par type de matériau pour garantir l'association demandée :
+// Sable 0/1 → orange, Sable 0/4 → vert, Gravier 8/15 → violet, Gravier 15/25 → rouge.
+const MATERIAL_COLOR_BY_SERIES: Record<MaterialSeriesId, string> = {
+  sable01: "#f59e0b",
+  sable04: "#10b981",
+  gravier815: "#8b5cf6",
+  gravier1525: "#ef4444",
+  other: "#06b6d4",
+};
+
+function getMaterialColor(label: string, fallbackIndex: number) {
+  const seriesId = getMaterialSeriesId(label);
+  if (seriesId !== "other") return MATERIAL_COLOR_BY_SERIES[seriesId];
+  return MATERIAL_COLORS[fallbackIndex % MATERIAL_COLORS.length];
+}
+
 interface DreuxGorisseChartProps {
   dMax: number;
   classeRheologique: string;
@@ -588,19 +604,22 @@ export default function DreuxGorisseChart({
               />
 
               {/* Individual material curves */}
-              {materials.map((mat, i) => (
-                <Line
-                  key={mat.label}
-                  type="monotone"
-                  dataKey={mat.label}
-                  stroke={MATERIAL_COLORS[i % MATERIAL_COLORS.length]}
-                  strokeWidth={1.5}
-                  dot={{ r: 2, fill: MATERIAL_COLORS[i % MATERIAL_COLORS.length] }}
-                  connectNulls
-                  opacity={0.85}
-                  name={mat.label}
-                />
-              ))}
+              {materials.map((mat, i) => {
+                const color = getMaterialColor(mat.label, i);
+                return (
+                  <Line
+                    key={mat.label}
+                    type="monotone"
+                    dataKey={mat.label}
+                    stroke={color}
+                    strokeWidth={1.5}
+                    dot={{ r: 2, fill: color }}
+                    connectNulls
+                    opacity={0.85}
+                    name={mat.label}
+                  />
+                );
+              })}
 
               {/* Mix curve */}
               <Line
