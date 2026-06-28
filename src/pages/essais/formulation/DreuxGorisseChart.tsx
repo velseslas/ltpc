@@ -182,7 +182,82 @@ export default function DreuxGorisseChart({
   }, [tamis, referenceCurve, materials, mixCurve, dMax]);
 
 
+  // ===== Méthode graphique 95/5 — droites de partage et fractions =====
+  const partitionData = useMemo(() => {
+    if (materials.length < 2) {
+      return { lines: [] as Array<{
+        pair: string;
+        from: { x: number; y: number };
+        to: { x: number; y: number };
+        intersection: { x: number; y: number } | null;
+      }>, fractions: [] as Array<{ label: string; pct: number }> };
+    }
+
+    // OAB en coordonnées (mm, %) — l'axe X est log mais Recharts gère via scale="log".
+    const O = { x: D_MIN_REF, y: 0 };
+    const A = { x: pointA.dA, y: pointA.pA };
+    const B = { x: dMax, y: 100 };
+
+    // Pour l'intersection on travaille en (log10 d, %) pour rester fidèle au graphique semi-log.
+    const Olog = { x: Math.log10(O.x), y: O.y };
+    const Alog = { x: Math.log10(A.x), y: A.y };
+    const Blog = { x: Math.log10(B.x), y: B.y };
+
+    const lines: Array<{
+      pair: string;
+      from: { x: number; y: number };
+      to: { x: number; y: number };
+      intersection: { x: number; y: number } | null;
+    }> = [];
+    const cutoffs: number[] = [];
+
+    for (let i = 0; i < materials.length - 1; i++) {
+      const fin = materials[i];
+      const suivant = materials[i + 1];
+      const d95 = dAtPassant(fin.curve, 95);
+      const d05 = dAtPassant(suivant.curve, 5);
+      if (d95 == null || d05 == null) {
+        lines.push({ pair: `${fin.label} → ${suivant.label}`, from: { x: 0, y: 95 }, to: { x: 0, y: 5 }, intersection: null });
+        continue;
+      }
+      const from = { x: d95, y: 95 };
+      const to = { x: d05, y: 5 };
+
+      const P95log = { x: Math.log10(d95), y: 95 };
+      const P05log = { x: Math.log10(d05), y: 5 };
+
+      const seg1 = intersectSegments(P95log, P05log, Olog, Alog);
+      const seg2 = intersectSegments(P95log, P05log, Alog, Blog);
+      const candidates = [seg1, seg2].filter((p): p is { x: number; y: number } => p !== null);
+      let intersection: { x: number; y: number } | null = null;
+      if (candidates.length > 0) {
+        candidates.sort((a, b) => Math.abs(a.y - A.y) - Math.abs(b.y - A.y));
+        const chosen = candidates[0];
+        intersection = { x: Math.pow(10, chosen.x), y: chosen.y };
+        cutoffs.push(chosen.y);
+      }
+      lines.push({ pair: `${fin.label} → ${suivant.label}`, from, to, intersection });
+    }
+
+    // Fractions par soustractions successives (Σ = 100 % par construction).
+    const fractions: Array<{ label: string; pct: number }> = [];
+    let prev = 0;
+    for (let i = 0; i < materials.length; i++) {
+      let pct: number;
+      if (i < cutoffs.length) {
+        pct = cutoffs[i] - prev;
+        prev = cutoffs[i];
+      } else {
+        pct = 100 - prev;
+      }
+      fractions.push({ label: materials[i].label, pct });
+    }
+
+    return { lines, fractions };
+  }, [materials, pointA, dMax]);
+
   const hasMaterials = materials.length > 0;
+
 
   return (
     <div className="space-y-4">
