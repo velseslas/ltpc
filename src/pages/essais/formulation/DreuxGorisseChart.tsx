@@ -639,53 +639,44 @@ export default function DreuxGorisseChart({
                         const inter = ln.intersection;
                         const xi = inter ? xScale(inter.x) : null;
                         const yi = inter ? yScale(inter.y) : null;
+                        // Les droites obliques 95/5 sont calculées en arrière-plan
+                        // mais ne sont plus dessinées pour épurer le graphique.
+                        // On ne garde que la projection horizontale + intersection.
+                        if (!inter || !Number.isFinite(xi as number) || !Number.isFinite(yi as number)) {
+                          return null;
+                        }
                         return (
                           <g key={`partition-g-${idx}`}>
-                            {/* Droite de partage oblique (rouge continue) */}
+                            {/* Projection horizontale pointillée vers l'axe Y */}
                             <line
-                              x1={x1}
-                              y1={y1}
-                              x2={x2}
-                              y2={y2}
+                              x1={xLeft}
+                              y1={yi as number}
+                              x2={xi as number}
+                              y2={yi as number}
                               stroke="#dc2626"
-                              strokeWidth={2.5}
+                              strokeWidth={1.2}
+                              strokeDasharray="4 3"
                             />
-                            {/* Marqueurs P95 et P05 */}
-                            <circle cx={x1} cy={y1} r={3.5} fill="#dc2626" stroke="#fff" strokeWidth={1} />
-                            <circle cx={x2} cy={y2} r={3.5} fill="#dc2626" stroke="#fff" strokeWidth={1} />
-                            {inter && Number.isFinite(xi as number) && Number.isFinite(yi as number) && (
-                              <g>
-                                {/* Projection horizontale pointillée vers l'axe Y */}
-                                <line
-                                  x1={xLeft}
-                                  y1={yi as number}
-                                  x2={xi as number}
-                                  y2={yi as number}
-                                  stroke="#dc2626"
-                                  strokeWidth={1.2}
-                                  strokeDasharray="4 3"
-                                />
-                                {/* Étiquette pourcentage sur l'axe Y */}
-                                <text
-                                  x={(xLeft as number) + 4}
-                                  y={(yi as number) - 4}
-                                  fill="#dc2626"
-                                  fontSize={11}
-                                  fontWeight={700}
-                                >
-                                  {inter.y.toFixed(1)} %
-                                </text>
-                                {/* Point d'intersection avec OAB */}
-                                <circle
-                                  cx={xi as number}
-                                  cy={yi as number}
-                                  r={4}
-                                  fill="#dc2626"
-                                  stroke="#fff"
-                                  strokeWidth={1.5}
-                                />
-                              </g>
-                            )}
+                            {/* Étiquette pourcentage sur l'axe Y, alignée verticalement avec la projection */}
+                            <text
+                              x={(xLeft as number) + 4}
+                              y={yi as number}
+                              dy="0.32em"
+                              fill="#dc2626"
+                              fontSize={11}
+                              fontWeight={700}
+                            >
+                              {inter.y.toFixed(1)} %
+                            </text>
+                            {/* Point d'intersection sur la courbe de référence OAB */}
+                            <circle
+                              cx={xi as number}
+                              cy={yi as number}
+                              r={4}
+                              fill="#dc2626"
+                              stroke="#fff"
+                              strokeWidth={1.5}
+                            />
                           </g>
                         );
                       })}
@@ -710,10 +701,6 @@ export default function DreuxGorisseChart({
           <span className="flex items-center gap-2">
             <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
             Lignes 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
-          </span>
-          <span className="flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="2.5" /></svg>
-            Droites de partage 95/5 (Dreux-Gorisse)
           </span>
           <span className="flex items-center gap-2">
             <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
