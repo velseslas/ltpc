@@ -16,6 +16,56 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
 
+const D_MIN_REF = 0.080;
+
+/** Interpolation log-linéaire : ouverture (mm) où la courbe atteint p%. */
+function dAtPassant(
+  curve: { ouverture: number; pourcentageTamisat: number }[],
+  p: number
+): number | null {
+  const pts = [...curve]
+    .filter((c) => c.ouverture > 0 && Number.isFinite(c.pourcentageTamisat))
+    .sort((a, b) => a.ouverture - b.ouverture);
+  if (pts.length < 2) return null;
+  if (p <= pts[0].pourcentageTamisat) return pts[0].ouverture;
+  if (p >= pts[pts.length - 1].pourcentageTamisat) return pts[pts.length - 1].ouverture;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    if (p >= a.pourcentageTamisat && p <= b.pourcentageTamisat) {
+      if (b.pourcentageTamisat === a.pourcentageTamisat) return a.ouverture;
+      const xa = Math.log10(a.ouverture);
+      const xb = Math.log10(b.ouverture);
+      const t = (p - a.pourcentageTamisat) / (b.pourcentageTamisat - a.pourcentageTamisat);
+      return Math.pow(10, xa + t * (xb - xa));
+    }
+  }
+  return null;
+}
+
+/** Intersection segment/segment ; renvoie null si non sécant. */
+function intersectSegments(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  p3: { x: number; y: number },
+  p4: { x: number; y: number }
+) {
+  const rx = p2.x - p1.x;
+  const ry = p2.y - p1.y;
+  const sx = p4.x - p3.x;
+  const sy = p4.y - p3.y;
+  const denom = rx * sy - ry * sx;
+  if (Math.abs(denom) < 1e-12) return null;
+  const qpx = p3.x - p1.x;
+  const qpy = p3.y - p1.y;
+  const t = (qpx * sy - qpy * sx) / denom;
+  const u = (qpx * ry - qpy * rx) / denom;
+  const EPS = 1e-9;
+  if (t < -EPS || t > 1 + EPS) return null;
+  if (u < -EPS || u > 1 + EPS) return null;
+  return { x: p1.x + t * rx, y: p1.y + t * ry };
+}
+
 // Standard sieve openings (mm) for Dreux-Gorisse
 const ALL_TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
 
@@ -132,7 +182,82 @@ export default function DreuxGorisseChart({
   }, [tamis, referenceCurve, materials, mixCurve, dMax]);
 
 
+  // ===== Méthode graphique 95/5 — droites de partage et fractions =====
+  const partitionData = useMemo(() => {
+    if (materials.length < 2) {
+      return { lines: [] as Array<{
+        pair: string;
+        from: { x: number; y: number };
+        to: { x: number; y: number };
+        intersection: { x: number; y: number } | null;
+      }>, fractions: [] as Array<{ label: string; pct: number }> };
+    }
+
+    // OAB en coordonnées (mm, %) — l'axe X est log mais Recharts gère via scale="log".
+    const O = { x: D_MIN_REF, y: 0 };
+    const A = { x: pointA.dA, y: pointA.pA };
+    const B = { x: dMax, y: 100 };
+
+    // Pour l'intersection on travaille en (log10 d, %) pour rester fidèle au graphique semi-log.
+    const Olog = { x: Math.log10(O.x), y: O.y };
+    const Alog = { x: Math.log10(A.x), y: A.y };
+    const Blog = { x: Math.log10(B.x), y: B.y };
+
+    const lines: Array<{
+      pair: string;
+      from: { x: number; y: number };
+      to: { x: number; y: number };
+      intersection: { x: number; y: number } | null;
+    }> = [];
+    const cutoffs: number[] = [];
+
+    for (let i = 0; i < materials.length - 1; i++) {
+      const fin = materials[i];
+      const suivant = materials[i + 1];
+      const d95 = dAtPassant(fin.curve, 95);
+      const d05 = dAtPassant(suivant.curve, 5);
+      if (d95 == null || d05 == null) {
+        lines.push({ pair: `${fin.label} → ${suivant.label}`, from: { x: 0, y: 95 }, to: { x: 0, y: 5 }, intersection: null });
+        continue;
+      }
+      const from = { x: d95, y: 95 };
+      const to = { x: d05, y: 5 };
+
+      const P95log = { x: Math.log10(d95), y: 95 };
+      const P05log = { x: Math.log10(d05), y: 5 };
+
+      const seg1 = intersectSegments(P95log, P05log, Olog, Alog);
+      const seg2 = intersectSegments(P95log, P05log, Alog, Blog);
+      const candidates = [seg1, seg2].filter((p): p is { x: number; y: number } => p !== null);
+      let intersection: { x: number; y: number } | null = null;
+      if (candidates.length > 0) {
+        candidates.sort((a, b) => Math.abs(a.y - A.y) - Math.abs(b.y - A.y));
+        const chosen = candidates[0];
+        intersection = { x: Math.pow(10, chosen.x), y: chosen.y };
+        cutoffs.push(chosen.y);
+      }
+      lines.push({ pair: `${fin.label} → ${suivant.label}`, from, to, intersection });
+    }
+
+    // Fractions par soustractions successives (Σ = 100 % par construction).
+    const fractions: Array<{ label: string; pct: number }> = [];
+    let prev = 0;
+    for (let i = 0; i < materials.length; i++) {
+      let pct: number;
+      if (i < cutoffs.length) {
+        pct = cutoffs[i] - prev;
+        prev = cutoffs[i];
+      } else {
+        pct = 100 - prev;
+      }
+      fractions.push({ label: materials[i].label, pct });
+    }
+
+    return { lines, fractions };
+  }, [materials, pointA, dMax]);
+
   const hasMaterials = materials.length > 0;
+
 
   return (
     <div className="space-y-4">
@@ -333,24 +458,129 @@ export default function DreuxGorisseChart({
                 connectNulls
                 name="Courbe de mélange"
               />
+
+              {/* Droites de partage 95/5 (obliques rouges) + projections horizontales
+                  vers l'axe Y aux ordonnées des intersections avec la courbe OAB. */}
+              {partitionData.lines.map((ln, idx) => (
+                <ReferenceLine
+                  key={`partition-${idx}`}
+                  segment={[ln.from, ln.to]}
+                  stroke="#dc2626"
+                  strokeWidth={2.5}
+                  ifOverflow="extendDomain"
+                />
+              ))}
+              {partitionData.lines.map((ln, idx) =>
+                ln.intersection ? (
+                  <ReferenceLine
+                    key={`proj-${idx}`}
+                    segment={[
+                      { x: 0.063, y: ln.intersection.y },
+                      { x: ln.intersection.x, y: ln.intersection.y },
+                    ]}
+                    stroke="#dc2626"
+                    strokeWidth={1.2}
+                    strokeDasharray="4 3"
+                    ifOverflow="extendDomain"
+                    label={{
+                      value: `${ln.intersection.y.toFixed(0)} %`,
+                      position: "insideLeft",
+                      fill: "#dc2626",
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  />
+                ) : null
+              )}
+              {partitionData.lines.map((ln, idx) =>
+                ln.intersection ? (
+                  <ReferenceDot
+                    key={`dot-${idx}`}
+                    x={ln.intersection.x}
+                    y={ln.intersection.y}
+                    r={4}
+                    fill="#dc2626"
+                    stroke="#fff"
+                    strokeWidth={1.5}
+                  />
+                ) : null
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
+
       ) : (
         <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
           Ajoutez des quantités de granulats à l'étape 3 pour afficher le graphique.
         </div>
       )}
 
-      {/* Légende des lignes de référence 5% / 95% */}
+      {/* Légende des lignes de référence */}
       {hasMaterials && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-2">
             <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
-            Lignes de référence 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
+            Lignes 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
+          </span>
+          <span className="flex items-center gap-2">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="2.5" /></svg>
+            Droites de partage 95/5 (Dreux-Gorisse)
+          </span>
+          <span className="flex items-center gap-2">
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
+            Projection vers l'axe Y (% cumulé)
           </span>
         </div>
       )}
+
+      {/* Tableau récapitulatif des fractions individuelles (méthode graphique 95/5) */}
+      {hasMaterials && partitionData.fractions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
+            Fractions individuelles — Méthode graphique 95/5 Dreux-Gorisse
+          </p>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-xs">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-3 py-2 text-left font-semibold text-foreground">Constituant</th>
+                  <th className="px-3 py-2 text-right font-semibold text-foreground">% cumulé lu</th>
+                  <th className="px-3 py-2 text-right font-semibold text-foreground">% fraction</th>
+                </tr>
+              </thead>
+              <tbody>
+                {partitionData.fractions.map((f, i) => {
+                  const cum = i < partitionData.lines.length
+                    ? partitionData.lines[i].intersection?.y
+                    : 100;
+                  return (
+                    <tr key={f.label} className="border-t border-border">
+                      <td className="px-3 py-2 text-foreground">{f.label}</td>
+                      <td className="px-3 py-2 text-right font-mono text-muted-foreground">
+                        {typeof cum === "number" ? `${cum.toFixed(1)} %` : "—"}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono font-semibold text-red-600">
+                        {f.pct.toFixed(1)} %
+                      </td>
+                    </tr>
+                  );
+                })}
+                <tr className="border-t border-border bg-muted/30">
+                  <td className="px-3 py-2 font-semibold text-foreground">Total</td>
+                  <td className="px-3 py-2"></td>
+                  <td className="px-3 py-2 text-right font-mono font-bold text-foreground">
+                    {partitionData.fractions.reduce((s, f) => s + f.pct, 0).toFixed(1)} %
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[10px] text-muted-foreground italic">
+            Calcul par soustractions successives des ordonnées d'intersection des droites P95(d₉₅, 95%) → P05(d₀₅, 5%) avec la courbe de référence OAB.
+          </p>
+        </div>
+      )}
+
 
       {/* Conformity badge */}
       {isConforme !== null && (
