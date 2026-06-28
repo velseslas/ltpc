@@ -223,6 +223,7 @@ interface DreuxGorisseChartProps {
   graviers: number;
   pointA?: PointA | null;
   mfMelange?: number;
+  onFractionsChange?: (fractions: Array<{ label: string; pct: number }>) => void;
 }
 
 export default function DreuxGorisseChart({
@@ -233,6 +234,7 @@ export default function DreuxGorisseChart({
   graviers,
   pointA: pointAProp,
   mfMelange = 2.5,
+  onFractionsChange,
 }: DreuxGorisseChartProps) {
   const totalAggregats = sables + graviers;
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
