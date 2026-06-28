@@ -97,37 +97,6 @@ export default function DreuxGorisseChart({
 
   const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
 
-  // Real Dreux-Gorisse 95/5 partition lines.
-  // For each pair of adjacent fractions (sorted by Dmax), build the straight
-  // segment from P95 = (log10(d95_fin), 95) to P05 = (log10(d05_suivant), 5).
-  // These are the TRUE partition lines from the reference document — not a
-  // sinusoidal envelope.
-  // Pour chaque paire (fin → suivant), on trace DEUX droites verticales
-  // parallèles : x = d95 (du fin) et x = d05 (du suivant), allant de y=5 à y=95.
-  // Cf. méthode Dreux-Gorisse (référence document utilisateur).
-  const partitionLines = useMemo(() => {
-    if (materials.length < 2) return [];
-    const sorted = [...materials]
-      .map((m) => ({
-        ...m,
-        dmax: m.curve.reduce((mx, c) => Math.max(mx, c.ouverture), 0),
-      }))
-      .sort((a, b) => a.dmax - b.dmax);
-
-    const lines: { pair: string; d95: number; d05: number }[] = [];
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const d95 = dAtPassant(sorted[i].curve, 95);
-      const d05 = dAtPassant(sorted[i + 1].curve, 5);
-      if (d95 == null || d05 == null) continue;
-      lines.push({
-        pair: `${sorted[i].label} → ${sorted[i + 1].label}`,
-        d95,
-        d05,
-      });
-    }
-    return lines;
-  }, [materials]);
-
   // Conformity: mix curve cumulated pass within ±5 % of reference at each sieve.
   const isConforme = useMemo(() => {
     if (mixCurve.length === 0) return null;
