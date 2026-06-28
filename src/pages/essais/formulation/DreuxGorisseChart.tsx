@@ -458,9 +458,57 @@ export default function DreuxGorisseChart({
                 connectNulls
                 name="Courbe de mélange"
               />
+
+              {/* Droites de partage 95/5 (obliques rouges) + projections horizontales
+                  vers l'axe Y aux ordonnées des intersections avec la courbe OAB. */}
+              {partitionData.lines.map((ln, idx) => (
+                <ReferenceLine
+                  key={`partition-${idx}`}
+                  segment={[ln.from, ln.to]}
+                  stroke="#dc2626"
+                  strokeWidth={2.5}
+                  ifOverflow="extendDomain"
+                />
+              ))}
+              {partitionData.lines.map((ln, idx) =>
+                ln.intersection ? (
+                  <ReferenceLine
+                    key={`proj-${idx}`}
+                    segment={[
+                      { x: 0.063, y: ln.intersection.y },
+                      { x: ln.intersection.x, y: ln.intersection.y },
+                    ]}
+                    stroke="#dc2626"
+                    strokeWidth={1.2}
+                    strokeDasharray="4 3"
+                    ifOverflow="extendDomain"
+                    label={{
+                      value: `${ln.intersection.y.toFixed(0)} %`,
+                      position: "insideLeft",
+                      fill: "#dc2626",
+                      fontSize: 11,
+                      fontWeight: 700,
+                    }}
+                  />
+                ) : null
+              )}
+              {partitionData.lines.map((ln, idx) =>
+                ln.intersection ? (
+                  <ReferenceDot
+                    key={`dot-${idx}`}
+                    x={ln.intersection.x}
+                    y={ln.intersection.y}
+                    r={4}
+                    fill="#dc2626"
+                    stroke="#fff"
+                    strokeWidth={1.5}
+                  />
+                ) : null
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
+
       ) : (
         <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
           Ajoutez des quantités de granulats à l'étape 3 pour afficher le graphique.
