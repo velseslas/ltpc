@@ -27,29 +27,6 @@ function logPos(mm: number) {
   return Math.log10(mm);
 }
 
-// Log-linear interpolation: find sieve opening (mm) where the cumulative
-// passant equals the target percentage. Reads on the raw material curve.
-function dAtPassant(
-  curve: { ouverture: number; pourcentageTamisat: number }[],
-  targetPct: number
-): number | null {
-  if (!curve || curve.length < 2) return null;
-  // Sort ascending by opening
-  const pts = [...curve].sort((a, b) => a.ouverture - b.ouverture);
-  // Find the bracket where passant crosses targetPct
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const yMin = Math.min(p1.pourcentageTamisat, p2.pourcentageTamisat);
-    const yMax = Math.max(p1.pourcentageTamisat, p2.pourcentageTamisat);
-    if (targetPct >= yMin && targetPct <= yMax && p1.pourcentageTamisat !== p2.pourcentageTamisat) {
-      const t = (targetPct - p1.pourcentageTamisat) / (p2.pourcentageTamisat - p1.pourcentageTamisat);
-      const logD = Math.log10(p1.ouverture) + t * (Math.log10(p2.ouverture) - Math.log10(p1.ouverture));
-      return Math.pow(10, logD);
-    }
-  }
-  return null;
-}
 
 
 export interface MaterialCurve {
@@ -119,37 +96,6 @@ export default function DreuxGorisseChart({
   );
 
   const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
-
-  // Real Dreux-Gorisse 95/5 partition lines.
-  // For each pair of adjacent fractions (sorted by Dmax), build the straight
-  // segment from P95 = (log10(d95_fin), 95) to P05 = (log10(d05_suivant), 5).
-  // These are the TRUE partition lines from the reference document — not a
-  // sinusoidal envelope.
-  // Pour chaque paire (fin → suivant), on trace DEUX droites verticales
-  // parallèles : x = d95 (du fin) et x = d05 (du suivant), allant de y=5 à y=95.
-  // Cf. méthode Dreux-Gorisse (référence document utilisateur).
-  const partitionLines = useMemo(() => {
-    if (materials.length < 2) return [];
-    const sorted = [...materials]
-      .map((m) => ({
-        ...m,
-        dmax: m.curve.reduce((mx, c) => Math.max(mx, c.ouverture), 0),
-      }))
-      .sort((a, b) => a.dmax - b.dmax);
-
-    const lines: { pair: string; d95: number; d05: number }[] = [];
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const d95 = dAtPassant(sorted[i].curve, 95);
-      const d05 = dAtPassant(sorted[i + 1].curve, 5);
-      if (d95 == null || d05 == null) continue;
-      lines.push({
-        pair: `${sorted[i].label} → ${sorted[i + 1].label}`,
-        d95,
-        d05,
-      });
-    }
-    return lines;
-  }, [materials]);
 
   // Conformity: mix curve cumulated pass within ±5 % of reference at each sieve.
   const isConforme = useMemo(() => {
@@ -223,6 +169,8 @@ export default function DreuxGorisseChart({
               <XAxis
                 dataKey="ouverture"
                 scale="log"
+                // Domaine dynamique : borné par dMax (0.063 mm → dMax mm).
+                // Les lignes de référence 5% / 95% s'étendent jusqu'à cette valeur.
                 domain={[0.063, dMax]}
                 type="number"
                 tickFormatter={(v: number) => `${v}`}
@@ -269,44 +217,37 @@ export default function DreuxGorisseChart({
                 )}
               />
 
-              {/* Vraies lignes de partage 95/5 Dreux-Gorisse — une droite
-                  oblique par paire de granulats voisins, de
-                  P95 = (d95 du fin, 95 %) à P05 = (d05 du suivant, 5 %).
-                  Utilise ReferenceLine.segment (API officielle Recharts)
-                  pour un rendu fiable et indépendant des axes Customized. */}
-              {partitionLines.map((ln, idx) => (
-                <ReferenceLine
-                  key={`partition-${idx}`}
-                  ifOverflow="extendDomain"
-                  segment={[
-                    { x: ln.d95, y: 95 },
-                    { x: ln.d05, y: 5 },
-                  ]}
-                  stroke="#ef4444"
-                  strokeWidth={1.8}
-                  strokeDasharray="6 4"
-                />
-              ))}
-              {partitionLines.map((ln, idx) => (
-                <ReferenceDot
-                  key={`p95-${idx}`}
-                  x={ln.d95}
-                  y={95}
-                  r={3.5}
-                  fill="#ef4444"
-                  stroke="#ef4444"
-                />
-              ))}
-              {partitionLines.map((ln, idx) => (
-                <ReferenceDot
-                  key={`p05-${idx}`}
-                  x={ln.d05}
-                  y={5}
-                  r={3.5}
-                  fill="#ef4444"
-                  stroke="#ef4444"
-                />
-              ))}
+              {/* Lignes de référence horizontales 5% et 95% — dynamiques
+                  suivant la valeur de dMax. Elles traversent tout le graphique
+                  de l'abscisse 0.063 mm jusqu'à dMax. */}
+              <ReferenceLine
+                y={95}
+                stroke="#94a3b8"
+                strokeWidth={1.2}
+                strokeDasharray="4 3"
+                ifOverflow="extendDomain"
+                label={{
+                  value: "95%",
+                  position: "right",
+                  fill: "#94a3b8",
+                  fontSize: 10,
+                  fontWeight: 600,
+                }}
+              />
+              <ReferenceLine
+                y={5}
+                stroke="#94a3b8"
+                strokeWidth={1.2}
+                strokeDasharray="4 3"
+                ifOverflow="extendDomain"
+                label={{
+                  value: "5%",
+                  position: "right",
+                  fill: "#94a3b8",
+                  fontSize: 10,
+                  fontWeight: 600,
+                }}
+              />
 
 
 
@@ -401,18 +342,13 @@ export default function DreuxGorisseChart({
         </div>
       )}
 
-      {/* Légende des lignes de partage */}
-      {hasMaterials && partitionLines.length > 0 && (
+      {/* Légende des lignes de référence 5% / 95% */}
+      {hasMaterials && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#ef4444" strokeWidth="1.8" strokeDasharray="6 4" /></svg>
-            Ligne de partage 95/5 Dreux-Gorisse — droite oblique P95 → P05 ({partitionLines.length})
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
+            Lignes de référence 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
           </span>
-          {partitionLines.map((ln, i) => (
-            <span key={i} className="text-[10px] opacity-80">
-              {ln.pair} : P95 = ({ln.d95.toFixed(2)} mm ; 95 %) → P05 = ({ln.d05.toFixed(2)} mm ; 5 %)
-            </span>
-          ))}
         </div>
       )}
 
