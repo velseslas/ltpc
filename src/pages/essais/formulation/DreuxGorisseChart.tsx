@@ -728,7 +728,7 @@ export default function DreuxGorisseChart({
             Lignes 5% et 95% (dynamiques jusqu'à dMax = {dMax} mm)
           </span>
           <span className="flex items-center gap-2">
-            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#dc2626" strokeWidth="1.2" strokeDasharray="4 3" /></svg>
+            <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke="#9CA3AF" strokeWidth="1" strokeDasharray="4 3" /></svg>
             Projection vers l'axe Y (% cumulé)
           </span>
         </div>
