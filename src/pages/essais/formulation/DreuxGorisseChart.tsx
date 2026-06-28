@@ -16,6 +16,56 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
 
+const D_MIN_REF = 0.080;
+
+/** Interpolation log-linéaire : ouverture (mm) où la courbe atteint p%. */
+function dAtPassant(
+  curve: { ouverture: number; pourcentageTamisat: number }[],
+  p: number
+): number | null {
+  const pts = [...curve]
+    .filter((c) => c.ouverture > 0 && Number.isFinite(c.pourcentageTamisat))
+    .sort((a, b) => a.ouverture - b.ouverture);
+  if (pts.length < 2) return null;
+  if (p <= pts[0].pourcentageTamisat) return pts[0].ouverture;
+  if (p >= pts[pts.length - 1].pourcentageTamisat) return pts[pts.length - 1].ouverture;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    if (p >= a.pourcentageTamisat && p <= b.pourcentageTamisat) {
+      if (b.pourcentageTamisat === a.pourcentageTamisat) return a.ouverture;
+      const xa = Math.log10(a.ouverture);
+      const xb = Math.log10(b.ouverture);
+      const t = (p - a.pourcentageTamisat) / (b.pourcentageTamisat - a.pourcentageTamisat);
+      return Math.pow(10, xa + t * (xb - xa));
+    }
+  }
+  return null;
+}
+
+/** Intersection segment/segment ; renvoie null si non sécant. */
+function intersectSegments(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  p3: { x: number; y: number },
+  p4: { x: number; y: number }
+) {
+  const rx = p2.x - p1.x;
+  const ry = p2.y - p1.y;
+  const sx = p4.x - p3.x;
+  const sy = p4.y - p3.y;
+  const denom = rx * sy - ry * sx;
+  if (Math.abs(denom) < 1e-12) return null;
+  const qpx = p3.x - p1.x;
+  const qpy = p3.y - p1.y;
+  const t = (qpx * sy - qpy * sx) / denom;
+  const u = (qpx * ry - qpy * rx) / denom;
+  const EPS = 1e-9;
+  if (t < -EPS || t > 1 + EPS) return null;
+  if (u < -EPS || u > 1 + EPS) return null;
+  return { x: p1.x + t * rx, y: p1.y + t * ry };
+}
+
 // Standard sieve openings (mm) for Dreux-Gorisse
 const ALL_TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
 
