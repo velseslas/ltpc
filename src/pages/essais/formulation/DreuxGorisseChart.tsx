@@ -671,15 +671,15 @@ export default function DreuxGorisseChart({
                           return null;
                         }
                         return (
-                          <g key={`partition-g-${idx}`}>
+                        <g key={`partition-g-${idx}`}>
                             {/* Projection horizontale pointillée vers l'axe Y */}
                             <line
                               x1={xLeft}
                               y1={yi as number}
                               x2={xi as number}
                               y2={yi as number}
-                              stroke="#dc2626"
-                              strokeWidth={1.2}
+                              stroke="#9CA3AF"
+                              strokeWidth={1}
                               strokeDasharray="4 3"
                             />
                             {/* Étiquette pourcentage sur l'axe Y, alignée verticalement avec la projection */}
@@ -687,9 +687,9 @@ export default function DreuxGorisseChart({
                               x={(xLeft as number) + 4}
                               y={yi as number}
                               dy="0.32em"
-                              fill="#dc2626"
+                              fill="#9CA3AF"
                               fontSize={11}
-                              fontWeight={700}
+                              fontWeight={600}
                             >
                               {inter.y.toFixed(1)} %
                             </text>
@@ -698,9 +698,9 @@ export default function DreuxGorisseChart({
                               cx={xi as number}
                               cy={yi as number}
                               r={4}
-                              fill="#dc2626"
-                              stroke="#fff"
-                              strokeWidth={1.5}
+                              fill="#ffffff"
+                              stroke="#3B82F6"
+                              strokeWidth={1}
                             />
                           </g>
                         );
