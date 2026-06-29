@@ -258,7 +258,7 @@ export default function MaterielAffectation() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
             <thead>
               <tr>
-                {["N°", "Matériel", "Client", "Chantier", "Technicien", "Date début", "Date fin", "Statut", "Observations"].map(h => (
+                {["N°", "Matériel", "Quantité", "Client", "Chantier", "Technicien", "Date début", "Date fin", "Statut", "Observations"].map(h => (
                   <th key={h} style={{ border: "1px solid #444", padding: "6px 8px", background: "#f1f5f9", fontWeight: 600, textAlign: "left" }}>{h}</th>
                 ))}
               </tr>
@@ -268,6 +268,7 @@ export default function MaterielAffectation() {
                 <tr key={a.id}>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px", textAlign: "center" }}>{i + 1}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px", fontWeight: 500 }}>{a.materiel_laboratoire?.nom || "—"}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px", textAlign: "center" }}>{a.quantite ?? 1}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.chantiers?.clients?.nom || "—"}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.chantiers?.nom || "—"}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
@@ -279,7 +280,7 @@ export default function MaterielAffectation() {
               ))}
               {reportData.length === 0 && (
                 <tr>
-                  <td colSpan={9} style={{ border: "1px solid #ccc", padding: "16px", textAlign: "center", color: "#888" }}>
+                  <td colSpan={10} style={{ border: "1px solid #ccc", padding: "16px", textAlign: "center", color: "#888" }}>
                     Aucune affectation correspondant aux filtres
                   </td>
                 </tr>
