@@ -268,6 +268,7 @@ const MaterielMaintenanceHistorique = lazy(() => import("./pages/materiel/Materi
 const MaterielAffectationDetail = lazy(() => import("./pages/materiel/MaterielAffectationDetail"));
 const MaterielEtalonnageDetail = lazy(() => import("./pages/materiel/MaterielEtalonnageDetail"));
 const MaterielMaintenanceDetail = lazy(() => import("./pages/materiel/MaterielMaintenanceDetail"));
+const MaterielDecharge = lazy(() => import("./pages/materiel/MaterielDecharge"));
 // Géotechnique - Identification
 // Géotechnique - Compactage
 // Géotechnique - Mécaniques
