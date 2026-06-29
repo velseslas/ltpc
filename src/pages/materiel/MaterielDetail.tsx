@@ -6,6 +6,8 @@ import { Pencil, Trash2, Microscope, Calendar, MapPin, Tag, Hash, Building2, Loa
 import { BackButton } from "@/components/ui/back-button";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useMaterielItem, useDeleteMateriel } from "@/hooks/useMaterielLaboratoire";
+import { useMaterielTimeline, MOUVEMENT_TYPE_LABEL } from "@/hooks/useMouvementsMateriel";
+import { MaterielStatutBadge, MouvementTypeBadge, ItemEtatBadge } from "@/components/materiel/MovementBadges";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -43,6 +45,7 @@ export default function MaterielDetail() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { data: materiel, isLoading } = useMaterielItem(id || "");
+  const { data: timeline } = useMaterielTimeline(id || "");
   const deleteMutation = useDeleteMateriel();
 
   const handleDelete = async () => {
@@ -169,6 +172,60 @@ export default function MaterielDetail() {
             </CardContent>
           </Card>
         )}
+
+        {/* Statut courant & responsable */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm mt-6">
+          <CardHeader><CardTitle className="text-lg">Statut & Responsabilité</CardTitle></CardHeader>
+          <CardContent className="grid md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Statut courant</p>
+              <MaterielStatutBadge statut={(materiel as any).statut_courant || "disponible"} />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Responsable actuel</p>
+              <p className="font-medium">{(materiel as any).responsable_courant_id ? "—" : "Aucun"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Chantier actuel</p>
+              <p className="font-medium">{(materiel as any).chantier_courant_id ? "—" : "Aucun"}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Timeline des mouvements */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm mt-6">
+          <CardHeader><CardTitle className="text-lg">Historique des mouvements</CardTitle></CardHeader>
+          <CardContent>
+            {!timeline?.items?.length ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Aucun mouvement</p>
+            ) : (
+              <ol className="relative border-l border-border ml-3 space-y-4">
+                {timeline.items
+                  .slice()
+                  .sort((a: any, b: any) => new Date(b.materiel_movements.created_at).getTime() - new Date(a.materiel_movements.created_at).getTime())
+                  .map((it: any) => {
+                    const mv = it.materiel_movements;
+                    return (
+                      <li key={it.id} className="ml-6">
+                        <span className="absolute -left-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-primary" />
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <MouvementTypeBadge type={mv.type} />
+                          <span className="font-mono text-sm cursor-pointer hover:underline" onClick={() => navigate(`/materiel/mouvements/${mv.id}`)}>{mv.numero}</span>
+                          <ItemEtatBadge etat={it.etat} />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {format(new Date(mv.created_at), "dd/MM/yyyy HH:mm", { locale: fr })}
+                          {mv.chantiers?.nom && ` · ${mv.chantiers.nom}`}
+                          {mv.entrant && ` · ${mv.entrant.prenom} ${mv.entrant.nom}`}
+                        </p>
+                        {it.observations && <p className="text-sm mt-1">{it.observations}</p>}
+                      </li>
+                    );
+                  })}
+              </ol>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Historique */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm mt-6">
