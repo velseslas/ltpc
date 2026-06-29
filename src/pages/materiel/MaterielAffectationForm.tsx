@@ -54,6 +54,7 @@ export default function MaterielAffectationForm() {
         date_fin: existingAffectation.date_fin || "",
         statut: existingAffectation.statut || "en_cours",
         observations: existingAffectation.observations || "",
+        quantite: String((existingAffectation as any).quantite ?? 1),
       });
       setIsInitialized(true);
     }
