@@ -90,10 +90,21 @@ export default function MaterielAffectation() {
     );
   }, [data, search]);
 
+  const getEffectiveStatut = (a: any): string => {
+    if (a?.statut === "terminee") return "terminee";
+    if (a?.date_fin) {
+      const fin = new Date(a.date_fin);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (!isNaN(fin.getTime()) && fin < today) return "terminee";
+    }
+    return a?.statut || "en_cours";
+  };
+
   const reportData = useMemo(() => {
     if (!data) return [];
     return data.filter((a: any) => {
-      if (fStatut !== "all" && a.statut !== fStatut) return false;
+      if (fStatut !== "all" && getEffectiveStatut(a) !== fStatut) return false;
       if (fClient !== "all" && a.chantiers?.client_id !== fClient) return false;
       if (fChantier !== "all" && a.chantier_id !== fChantier) return false;
       if (fTechnicien !== "all" && a.intervenant_id !== fTechnicien) return false;
@@ -262,7 +273,7 @@ export default function MaterielAffectation() {
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{format(new Date(a.date_debut), "dd/MM/yyyy", { locale: fr })}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.date_fin ? format(new Date(a.date_fin), "dd/MM/yyyy", { locale: fr }) : "—"}</td>
-                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{statutLabel(a.statut)}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{statutLabel(getEffectiveStatut(a))}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.observations || "—"}</td>
                 </tr>
               ))}
@@ -348,7 +359,7 @@ export default function MaterielAffectation() {
                       <td className="py-2 px-3">{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
                       <td className="py-2 px-3">{format(new Date(a.date_debut), "dd/MM/yyyy", { locale: fr })}</td>
                       <td className="py-2 px-3">{a.date_fin ? format(new Date(a.date_fin), "dd/MM/yyyy", { locale: fr }) : "—"}</td>
-                      <td className="py-2 px-3">{statutBadge(a.statut)}</td>
+                      <td className="py-2 px-3">{statutBadge(getEffectiveStatut(a))}</td>
                       <td className="py-2 px-3 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
