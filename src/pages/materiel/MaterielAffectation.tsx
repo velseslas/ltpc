@@ -341,6 +341,7 @@ export default function MaterielAffectation() {
                 <thead className="border-b">
                   <tr className="text-left text-muted-foreground">
                     <th className="py-2 px-3 font-medium">Matériel</th>
+                    <th className="py-2 px-3 font-medium">Quantité</th>
                     <th className="py-2 px-3 font-medium">Client</th>
                     <th className="py-2 px-3 font-medium">Chantier</th>
                     <th className="py-2 px-3 font-medium">Technicien</th>
@@ -354,6 +355,7 @@ export default function MaterielAffectation() {
                   {filtered.map((a: any) => (
                     <tr key={a.id} className="border-b hover:bg-muted/50 transition-colors">
                       <td className="py-2 px-3 font-medium">{a.materiel_laboratoire?.nom || "—"}</td>
+                      <td className="py-2 px-3">{a.quantite ?? 1}</td>
                       <td className="py-2 px-3">{a.chantiers?.clients?.nom || "—"}</td>
                       <td className="py-2 px-3">{a.chantiers?.nom || "—"}</td>
                       <td className="py-2 px-3">{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
