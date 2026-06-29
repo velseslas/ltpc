@@ -90,10 +90,21 @@ export default function MaterielAffectation() {
     );
   }, [data, search]);
 
+  const getEffectiveStatut = (a: any): string => {
+    if (a?.statut === "terminee") return "terminee";
+    if (a?.date_fin) {
+      const fin = new Date(a.date_fin);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (!isNaN(fin.getTime()) && fin < today) return "terminee";
+    }
+    return a?.statut || "en_cours";
+  };
+
   const reportData = useMemo(() => {
     if (!data) return [];
     return data.filter((a: any) => {
-      if (fStatut !== "all" && a.statut !== fStatut) return false;
+      if (fStatut !== "all" && getEffectiveStatut(a) !== fStatut) return false;
       if (fClient !== "all" && a.chantiers?.client_id !== fClient) return false;
       if (fChantier !== "all" && a.chantier_id !== fChantier) return false;
       if (fTechnicien !== "all" && a.intervenant_id !== fTechnicien) return false;
