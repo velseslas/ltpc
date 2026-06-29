@@ -55,6 +55,7 @@ export default function MaterielDashboard() {
     affectationData?.length || 0,
     etalonnageData?.length || 0,
     maintenanceData?.length || 0,
+    0,
   ];
 
   return (
