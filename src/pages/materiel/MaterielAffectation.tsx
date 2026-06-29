@@ -359,7 +359,7 @@ export default function MaterielAffectation() {
                       <td className="py-2 px-3">{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
                       <td className="py-2 px-3">{format(new Date(a.date_debut), "dd/MM/yyyy", { locale: fr })}</td>
                       <td className="py-2 px-3">{a.date_fin ? format(new Date(a.date_fin), "dd/MM/yyyy", { locale: fr }) : "—"}</td>
-                      <td className="py-2 px-3">{statutBadge(a.statut)}</td>
+                      <td className="py-2 px-3">{statutBadge(getEffectiveStatut(a))}</td>
                       <td className="py-2 px-3 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
