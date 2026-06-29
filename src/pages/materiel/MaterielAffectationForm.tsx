@@ -99,6 +99,11 @@ export default function MaterielAffectationForm() {
         missingLabels.push(f.label);
       }
     });
+    const qte = parseInt(form.quantite, 10);
+    if (!missing.has("quantite") && (isNaN(qte) || qte < 1)) {
+      missing.add("quantite");
+      missingLabels.push("Quantité (≥ 1)");
+    }
     if (missing.size > 0) {
       setMissingFields(missing);
       toast.error(`Champs obligatoires manquants : ${missingLabels.join(", ")}`);
@@ -115,6 +120,7 @@ export default function MaterielAffectationForm() {
       date_fin: form.date_fin || null,
       statut: form.statut,
       observations: form.observations,
+      quantite: qte,
     };
     try {
       if (isEditing && id) {
