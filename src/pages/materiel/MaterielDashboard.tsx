@@ -34,6 +34,13 @@ const widgets = [
     path: "/materiel/maintenance",
     color: { bg: "bg-amber-500/10", icon: "text-amber-500" },
   },
+  {
+    title: "Décharge Matériels",
+    description: "Gestion des décharges de matériel",
+    icon: FileMinus,
+    path: "/materiel/decharge",
+    color: { bg: "bg-rose-500/10", icon: "text-rose-500" },
+  },
 ];
 
 export default function MaterielDashboard() {
