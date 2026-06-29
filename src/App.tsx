@@ -714,6 +714,7 @@ const AppRoutes = () => (
       <Route path="/materiel/maintenance/historique" element={<MaterielMaintenanceHistorique />} />
       <Route path="/materiel/maintenance/:id" element={<MaterielMaintenanceDetail />} />
       <Route path="/materiel/maintenance/:id/modifier" element={<MaterielMaintenanceForm />} />
+      <Route path="/materiel/decharge" element={<MaterielDecharge />} />
       <Route path="/facturation" element={<FacturationDashboard />} />
       <Route path="/facturation/factures" element={<FactureListe />} />
       <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
