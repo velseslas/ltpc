@@ -34,7 +34,7 @@ export default function MaterielAffectationForm() {
   const [form, setForm] = useState({
     materiel_id: "", wilaya: "", client_id: "", chantier_id: "",
     intervenant_id: "", date_debut: new Date().toISOString().split("T")[0],
-    date_fin: "", statut: "en_cours", observations: ""
+    date_fin: "", statut: "en_cours", observations: "", quantite: "1"
   });
 
   // Load existing data when editing
