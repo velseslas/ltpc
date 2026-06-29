@@ -1,237 +1,85 @@
 
-# Spécification — Module de répartition des gravillons (méthode graphique Dreux-Gorisse)
+# Module : Gestion des Mouvements de Matériel
 
-> Version révisée. Spécification uniquement, aucun code.
-> Seul le module de **répartition des gravillons** est refondu. Le reste du moteur (eau, ciment, bilan volumique Vgranulats = 1 − Ve − Vc, G/S imposé, mélange de sables par module de finesse) est conservé tel quel.
+Remplace l'actuel placeholder `Décharge Matériels` par un véritable module ERP de traçabilité, branché sur le matériel de laboratoire existant.
 
----
+## 1. Modèle de données (migration Supabase)
 
-## 0. Décisions verrouillées
+Nouvelles tables (toutes en append-only, aucune suppression physique) :
 
-1. **Interprétation A définitivement retenue.** Application séquentielle de la règle 95/5 sur chaque paire de gravillons voisins `(G_k, G_{k+1})`, en utilisant uniquement les **courbes brutes** de chaque fraction. L'interprétation B est abandonnée : il est **interdit** de construire ou d'utiliser une courbe granulométrique d'un mélange déjà calculé (G1+G2) pour déterminer la fraction suivante (G3, G4). Cela introduirait une dépendance circulaire étrangère à la méthode Dreux-Gorisse.
-2. **Méthode strictement graphique et déterministe.** Aucun solveur, aucune optimisation, aucun gradient, aucune moindre carré.
-3. **Aucun fallback inventé.** Toute incohérence géométrique produit une erreur métier explicite.
-4. **Aucune renormalisation artificielle** (cf. §6).
+- `materiel_movements`
+  - `numero` (auto `MVT-YYYY-NNNN`), `type` (enum : `affectation`, `decharge`, `passation`, `restitution`), `statut` (`brouillon`, `valide`, `signe`, `annule`)
+  - `chantier_id`, `technicien_sortant_id`, `technicien_entrant_id`, `responsable_id`
+  - `date_mouvement`, `heure_mouvement`, `motif` (passation), `observations`
+  - `created_by`, `created_at`, `parent_movement_id` (lien décharge → passation → restitution)
+- `movement_items` : `movement_id`, `materiel_id`, `quantite`, `etat` (`bon`, `usage`, `casse`, `manquant`, `a_reparer`), `observations`
+- `movement_signatures` : `movement_id`, `role` (`technicien_sortant`, `technicien_entrant`, `responsable`), `signataire_nom`, `signataire_fonction`, `signature_data` (base64), `signed_at`, `ip_address`, `user_id`
+- `material_responsibility_history` : `materiel_id`, `technicien_id`, `chantier_id`, `date_debut`, `date_fin`, `movement_id_debut`, `movement_id_fin`
+- `material_status_history` : `materiel_id`, `ancien_statut`, `nouveau_statut`, `movement_id`, `changed_by`, `changed_at`, `motif`
+- `movement_documents` : `movement_id`, `type` (decharge/passation/restitution), `pdf_url`, `qr_code_data`, `generated_at`
 
----
+Extension de `materiel_laboratoire` :
+- `statut_courant` enum (`disponible`, `affecte`, `pris_en_charge`, `en_passation`, `restitue`, `en_maintenance`, `hors_service`, `perdu`, `vole`, `reforme`) — défaut `disponible`
+- `responsable_courant_id` (intervenant), `chantier_courant_id`
 
-## 1. Architecture du module
+Triggers PG :
+- `trg_movement_apply` (AFTER INSERT signé) : met à jour `statut_courant`, `responsable_courant_id`, `chantier_courant_id`, et insère dans `material_status_history` + `material_responsibility_history` selon le type.
+- `trg_block_delete` : empêche `DELETE` sur les tables `materiel_movements`, `movement_items`, `movement_signatures`, historiques.
+- Numérotation auto via fonction `next_movement_numero(type)`.
 
-```text
-src/pages/essais/formulation/engine/gravelSplit/
-├── index.ts                # API publique : splitGravels(input) → output
-├── types.ts                # Types I/O et erreurs métier
-├── referenceCurve.ts       # Courbe OAB (réutilise le calcul du Point A existant)
-├── granuloCurve.ts         # Interpolation log-linéaire, inverse dAt(p)
-├── partitionLine.ts        # Ligne de partage 95/5 + intersection avec OAB
-└── pairwiseSplit.ts        # Application séquentielle aux n-1 paires
-```
+RLS :
+- Lecture : tout utilisateur authentifié pour les mouvements le concernant ; admin/manager voient tout.
+- Insertion mouvements : manager/admin + responsable labo. Techniciens : uniquement signature.
+- Aucune `DELETE` policy.
 
-`dreuxGorisseCalculation.ts` n'est modifié qu'en un seul endroit : l'appel au solveur de gravillons est remplacé par `splitGravels(...)`. Après recette, l'ancien solveur (`solveSimplexLeastSquares`, `SIEVE_WEIGHTS`, gradient projeté) est supprimé.
+## 2. Hooks & services (React Query)
 
----
+`src/hooks/useMouvementsMateriel.ts` :
+- `useMovementsList(filters)`, `useMovementDetail(id)`, `useCreateMovement`, `useSignMovement`, `useMaterialTimeline(materielId)`, `useMaterialStatusCounts`, `useAlertes()` (non restitués, en maintenance > X jours, sans responsable).
 
-## 2. Fonctions
+## 3. Routes & écrans (React Router)
 
-| Fichier | Fonction | Rôle |
-|---|---|---|
-| `referenceCurve.ts` | `buildReferenceCurve(dmax, K)` | Polyligne OAB en `(log10 d, %)` |
-| `referenceCurve.ts` | `passantRef(d, curve)` | % cumulé OAB à un tamis donné (informatif uniquement) |
-| `granuloCurve.ts` | `normalizeCurve(tamis[])` | Tri + validation d'une courbe granulo |
-| `granuloCurve.ts` | `passantAt(d, curve)` | Interpolation linéaire en `log10(d)` |
-| `granuloCurve.ts` | `dAt(p, curve)` | Inverse par dichotomie |
-| `partitionLine.ts` | `buildPartitionLine(gFin, gSuivant)` | Renvoie `{P95, P05}` en coordonnées `(log10 d, %)` |
-| `partitionLine.ts` | `intersectWithReference(line, refCurve)` | Intersection segment/polyligne ; **erreur si vide** |
-| `pairwiseSplit.ts` | `computeCutoffs(gravillons[], refCurve)` | Renvoie `[y_1, …, y_{n-1}]` strictement croissantes |
-| `pairwiseSplit.ts` | `cutoffsToProportions(cutoffs)` | Transforme les ordonnées en proportions par différences successives |
-| `index.ts` | `splitGravels(input)` | Orchestration + contrôles métier |
+Sous `/materiel/mouvements` (le widget rose existant pointe ici, libellé renommé "Mouvements Matériel") :
 
-Aucune autre fonction.
+- `/materiel/mouvements` — **Tableau de bord** : cartes statut (Disponible/Affecté/Pris en charge/Maintenance/Perdu/Retard), dernières passations, dernières restitutions, alertes.
+- `/materiel/mouvements/liste` — liste filtrable + recherche, badges colorés, export Excel/PDF, impression.
+- `/materiel/mouvements/nouveau/:type` — formulaire de création (affectation / décharge / passation / restitution) avec sélection multi-matériel, quantités, état, motif.
+- `/materiel/mouvements/:id` — détail : timeline du mouvement, items, signatures, bouton "Signer" pour les rôles concernés, bouton "Générer PDF".
+- `/materiel/mouvements/:id/pdf` — page imprimable A4 (logo, entreprise, n°, QR code, items, déclarations, signatures) → `window.print()`.
+- Onglet **Historique des mouvements** ajouté dans `MaterielDetail.tsx` : timeline verticale (date/heure, type, chantier, technicien, état, utilisateur, lien document) + bandeau "Responsable actuel" toujours visible.
 
----
+Composants partagés :
+- `MovementTimeline`, `MovementStatusBadge`, `SignaturePad` (canvas), `MaterialPicker` (multi-sélection avec quantité/état), `MovementPdfLayout`.
 
-## 3. Entrées / Sorties
+## 4. Règles métier appliquées côté UI + DB
 
-```text
-SplitGravelsInput {
-  dmax_mm:    number,
-  K:          number,
-  gravillons: GravillonInput[],   // 2 à 4 entrées, triées par Dmax croissant
-}
+- Sélecteur de matériel filtré : pour affectation, uniquement `statut_courant = disponible`.
+- Passation interdite si matériel `restitue` / `hors_service`.
+- Restitution clôt la responsabilité et reroute le statut selon l'état saisi (bon → disponible, à réparer → en_maintenance, cassé/perdu → hors_service/perdu).
+- Aucun bouton "Supprimer" ; uniquement "Annuler" (statut `annule`, conservé).
 
-GravillonInput {
-  nom:       string,
-  dmax_mm:   number,
-  tamis:     { ouverture_mm: number, passant_pct: number }[],
-}
+## 5. Signature électronique
 
-SplitGravelsOutput {
-  proportions:     { nom: string, pct: number }[],
-  cutoffs:         { y_pct: number, x_log10d: number }[],
-  partition_lines: { from: Point, to: Point }[],
-  reference_curve: Point[],
-  warnings:        string[],
-}
-```
+`SignaturePad` (canvas HTML5) → image PNG base64 stockée dans `movement_signatures.signature_data`, avec capture nom, fonction, date/heure serveur, IP (via edge function `get-client-ip` légère ou en-tête `x-forwarded-for` lue à la création), user_id.
 
-Toute violation des pré-conditions ou des contrôles (§6) lève une **erreur métier typée**, jamais une correction silencieuse.
+## 6. PDF officiel
 
----
+Génération côté client via la route `/pdf` imprimable (cohérent avec le reste du projet qui utilise `window.print()` + `data-ref="report"`). Contenu : en-tête entreprise (`EntrepriseHeader`), numéro, QR code (lib `qrcode.react` déjà utilisée — sinon ajout), tableau items, déclaration légale selon type, blocs signatures avec images.
 
-## 4. Construction de la ligne de partage (CORRIGÉ)
+## 7. Autorisations
 
-Conformément au document de référence :
+Réutilisation de `useCurrentUserRole` + `AdminOnly` / `NotTechnicien` :
+- `manager` / `admin` / `super_admin` : création de tous les mouvements.
+- `technicien` : lecture de ses mouvements + signature uniquement.
+- Toute action loggée via `log_audit_action` (déjà en place).
 
-> « On trace une ligne de partage joignant le point correspondant à **95 %** des granulats fins au point correspondant à **5 %** des gros granulats. »
+## 8. Alertes & tableau de bord
 
-La ligne de partage est donc construite **dans le repère semi-log de la courbe de référence**, en reliant deux points dont :
-- l'abscisse est lue sur la **courbe brute** de chaque gravillon (`dAt(95)` du fin, `dAt(5)` du suivant) ;
-- l'**ordonnée est la valeur littérale 95 % et 5 %**, pas un passant OAB recalculé.
+Vue SQL `v_alertes_materiel` exposant : retards de restitution (`date_fin_chantier < today` et statut ≠ restitué), maintenance > 30 j, sans responsable, items déclarés `manquant`/`casse`. Affichage en cartes rouges/oranges sur le dashboard du module.
 
-```text
-d95  = dAt(95, G_fin)             // sur la courbe brute du fin
-d05  = dAt( 5, G_suivant)         // sur la courbe brute du suivant
-P95  = ( log10(d95), 95 )
-P05  = ( log10(d05),  5 )
-```
+## Livraison en deux temps
 
-L'ordonnée du point d'intersection de `[P95, P05]` avec la polyligne **OAB** donne le **pourcentage cumulé en volume absolu** du cumul des fractions jusqu'à `G_fin` inclus.
+1. **Étape 1 (cette itération)** : migration SQL complète + triggers + RLS, hooks, dashboard, liste, création/édition des 4 types de mouvements, signature, timeline matériel, mise à jour widget existant.
+2. **Étape 2** : PDF imprimables polish, export Excel, QR code, alertes avancées, raffinements UI.
 
-Cette correction supprime l'erreur de la version précédente qui projetait `P95` et `P05` sur OAB.
-
----
-
-## 5. Calculs géométriques
-
-### 5.1 Repère
-Tous les calculs s'effectuent dans `(X = log10(d_mm), Y = passant_%)`.
-
-### 5.2 Courbe OAB (inchangé)
-- O = (log10(0.080), 0)
-- A = (log10(Dmax/2), pA), avec `pA = 50 − √Dmax + K`
-- B = (log10(Dmax), 100)
-
-### 5.3 Intersection ligne ↔ OAB
-Résolution paramétrique segment/segment (Cramer) sur chacun des 2 segments OAB. On retient l'unique point dont les paramètres `t, u ∈ [0,1]`. Si aucun point valide n'est trouvé → **erreur métier bloquante** (cf. §6 et §7).
-
-### 5.4 Ordonnées de partage → proportions
-Pour `n` gravillons triés par Dmax croissant, on obtient `n−1` ordonnées `y_1 < y_2 < … < y_{n-1}` strictement croissantes, complétées par `y_0 = 0` et `y_n = 100` :
-
-```text
-G_1 = y_1
-G_k = y_k − y_{k-1}    pour k = 2 .. n-1
-G_n = 100 − y_{n-1}
-```
-
-Ces proportions sont exprimées en **% de la part gravier** du mélange.
-
----
-
-## 6. Renormalisation (SUPPRIMÉE)
-
-Démonstration de la conservation exacte :
-
-```text
-Σ G_k = y_1 + (y_2 − y_1) + (y_3 − y_2) + … + (y_{n-1} − y_{n-2}) + (100 − y_{n-1})
-      = 100
-```
-
-La construction par différences successives garantit mathématiquement `Σ G_k = 100 %`. **Aucune renormalisation n'est appliquée.** Si une somme s'écarte de 100 % (même de 0.001 %), c'est nécessairement le signe d'une erreur en amont (ordonnées non monotones, intersection manquée, bug d'interpolation) → erreur métier, pas correction.
-
----
-
-## 7. Fallback (SUPPRIMÉ)
-
-L'ancien fallback « milieu géométrique de `[P95, P05]` » est **supprimé**. Il n'est documenté nulle part dans la méthode Dreux-Gorisse.
-
-Si une ligne de partage ne coupe pas OAB, le moteur lève une erreur métier explicite, par exemple :
-
-```text
-ERREUR — Ligne de partage non sécante avec la courbe de référence OAB.
-Paire : G_fin = "<nom>"  →  G_suivant = "<nom>"
-Cause probable :
-  • Courbes granulométriques incompatibles avec la courbe de référence (Dmax/K).
-  • Fractions mal classées par Dmax croissant.
-  • Données granulométriques incohérentes (passants non monotones, tamis manquants).
-Aucune valeur n'est inventée. Corrigez les données d'entrée puis relancez le calcul.
-```
-
----
-
-## 8. Généralisation à 3 et 4 gravillons
-
-**Statut documentaire** : l'extrait du document de référence n'illustre la règle 95/5 que pour **1 sable + 2 gravillons** (une seule ligne de partage). La généralisation à 3 et 4 gravillons est donc une **extension logique de la règle graphique**, **non démontrée explicitement** par le document, mais cohérente avec son esprit :
-- la règle 95/5 est une règle **locale** entre deux courbes brutes adjacentes ;
-- son application à chaque paire `(G_k, G_{k+1})` n'introduit aucune hypothèse supplémentaire ;
-- aucune courbe de mélange intermédiaire n'est utilisée (interprétation B explicitement rejetée).
-
-Cette distinction doit apparaître clairement dans la JSDoc du module et dans le rapport généré (mention « extension logique » pour n ≥ 3).
-
-Plafond : 4 gravillons. Au-delà → erreur bloquante « non couvert par la méthode Dreux-Gorisse ».
-
----
-
-## 9. Contrôles de cohérence
-
-Effectués dans `splitGravels(...)`, **sans correction silencieuse**. Chaque échec produit un message métier détaillé.
-
-| # | Contrôle | Sévérité |
-|---|---|---|
-| 1 | `gravillons.length ∈ [2, 4]` | Erreur |
-| 2 | Dmax strictement croissants | Erreur |
-| 3 | Chaque courbe contient au moins 3 points et passants monotones décroissants en `log10 d` | Erreur |
-| 4 | `dAt(95)` et `dAt(5)` existent dans les bornes des tamis fournis | Erreur |
-| 5 | **Chaque ligne de partage coupe effectivement OAB** | Erreur (§7) |
-| 6 | **Ordonnées de partage `y_1 < y_2 < … < y_{n-1}` strictement croissantes** | Erreur |
-| 7 | **Chaque proportion `G_k > 0`** strictement | Erreur |
-| 8 | **Σ G_k = 100 % exactement** (à la précision machine, tolérance 1e-6) | Erreur si violé — diagnostic interne |
-| 9 | `d95(G_fin) < d05(G_suivant)` recommandé | Warning (chevauchement granulaire) |
-
-Tout message d'erreur cite : la paire concernée, les valeurs lues (`d95`, `d05`, `y_k`), et la cause probable.
-
----
-
-## 10. Cas particuliers
-
-| Cas | Comportement |
-|---|---|
-| 1 seul gravillon | Court-circuit : `{ G1: 100 % }`. Pas de ligne de partage. |
-| 2 gravillons | 1 ligne de partage, cas standard documenté. |
-| 3 gravillons | 2 lignes successives `(G1,G2)` puis `(G2,G3)`, extension logique (§8). |
-| 4 gravillons | 3 lignes successives, extension logique (§8). |
-| ≥ 5 gravillons | Erreur bloquante. |
-| Sable composé | Sa proportion globale reste imposée par G/S ; le module gravillons n'y touche pas. |
-
----
-
-## 11. Tests unitaires
-
-Sous `src/pages/essais/formulation/engine/gravelSplit/__tests__/` :
-
-1. `referenceCurve.test.ts` — passage par O, A, B pour Dmax ∈ {12.5, 20, 25, 40}.
-2. `granuloCurve.test.ts` — interpolation log-linéaire, `dAt(95)` et `dAt(5)`, clamps hors bornes (erreur, pas extrapolation).
-3. `partitionLine.test.ts` :
-   - `{P95, P05}` avec ordonnées **littérales 95 et 5** (régression du bug corrigé en §4) ;
-   - intersection segment/segment sur les 2 segments OAB ;
-   - cas « aucune intersection » → erreur métier (vérifier le message).
-4. `pairwiseSplit.test.ts` :
-   - **2 gravillons** — reproduction numérique de l'exemple du document, tolérance ±1 % ;
-   - **3 gravillons** — monotonie stricte des `y_k`, somme = 100 % sans normalisation ;
-   - **4 gravillons** — monotonie stricte des `y_k`, somme = 100 % sans normalisation ;
-   - cas dégénéré (courbes plates, fractions inversées) → erreur typée.
-5. `index.test.ts` — orchestration complète + tous les contrôles du §9.
-6. Snapshot end-to-end sur l'exemple du document de référence.
-
----
-
-## 12. Synthèse des changements vs version précédente
-
-| Point | Avant | Après |
-|---|---|---|
-| Interprétation 3-4 gravillons | A ou B à trancher | **A verrouillée, B interdite** |
-| Coordonnées `P95` / `P05` | Ordonnées projetées sur OAB | **Ordonnées littérales 95 et 5** |
-| Renormalisation finale | Prévue | **Supprimée** (somme = 100 % par construction) |
-| Fallback « milieu géométrique » | Prévu | **Supprimé**, erreur métier explicite |
-| Statut 3-4 gravillons | Ambigu | Documenté comme **extension logique** non démontrée |
-| Contrôles | Warnings | **Erreurs métier détaillées** pour les violations critiques |
-
+Souhaitez-vous que je lance l'étape 1 telle quelle, ou ajuster (ex. champs supplémentaires, libellés, périmètre des rôles) ?
