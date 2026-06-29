@@ -118,6 +118,7 @@ export default function MaterielListe() {
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Marque</TableHead>
                   <TableHead>État</TableHead>
+                  <TableHead>Quantité</TableHead>
                   <TableHead>Localisation</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -130,6 +131,7 @@ export default function MaterielListe() {
                     <TableCell className="capitalize">{m.categorie?.replace("_", " ")}</TableCell>
                     <TableCell>{m.marque || "—"}</TableCell>
                     <TableCell>{etatBadge(m.etat)}</TableCell>
+                    <TableCell>{(m as any).quantite ?? 1}</TableCell>
                     <TableCell>{m.localisation || "—"}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
