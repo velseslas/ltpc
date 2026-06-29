@@ -5483,6 +5483,132 @@ export type Database = {
         }
         Relationships: []
       }
+      material_responsibility_history: {
+        Row: {
+          chantier_id: string | null
+          created_at: string
+          date_debut: string
+          date_fin: string | null
+          id: string
+          materiel_id: string
+          movement_id_debut: string | null
+          movement_id_fin: string | null
+          technicien_id: string | null
+        }
+        Insert: {
+          chantier_id?: string | null
+          created_at?: string
+          date_debut?: string
+          date_fin?: string | null
+          id?: string
+          materiel_id: string
+          movement_id_debut?: string | null
+          movement_id_fin?: string | null
+          technicien_id?: string | null
+        }
+        Update: {
+          chantier_id?: string | null
+          created_at?: string
+          date_debut?: string
+          date_fin?: string | null
+          id?: string
+          materiel_id?: string
+          movement_id_debut?: string | null
+          movement_id_fin?: string | null
+          technicien_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_responsibility_history_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_responsibility_history_materiel_id_fkey"
+            columns: ["materiel_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_laboratoire"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_responsibility_history_movement_id_debut_fkey"
+            columns: ["movement_id_debut"]
+            isOneToOne: false
+            referencedRelation: "materiel_movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_responsibility_history_movement_id_fin_fkey"
+            columns: ["movement_id_fin"]
+            isOneToOne: false
+            referencedRelation: "materiel_movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_responsibility_history_technicien_id_fkey"
+            columns: ["technicien_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_status_history: {
+        Row: {
+          ancien_statut:
+            | Database["public"]["Enums"]["materiel_statut_courant"]
+            | null
+          changed_at: string
+          changed_by: string | null
+          id: string
+          materiel_id: string
+          motif: string | null
+          movement_id: string | null
+          nouveau_statut: Database["public"]["Enums"]["materiel_statut_courant"]
+        }
+        Insert: {
+          ancien_statut?:
+            | Database["public"]["Enums"]["materiel_statut_courant"]
+            | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          materiel_id: string
+          motif?: string | null
+          movement_id?: string | null
+          nouveau_statut: Database["public"]["Enums"]["materiel_statut_courant"]
+        }
+        Update: {
+          ancien_statut?:
+            | Database["public"]["Enums"]["materiel_statut_courant"]
+            | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          materiel_id?: string
+          motif?: string | null
+          movement_id?: string | null
+          nouveau_statut?: Database["public"]["Enums"]["materiel_statut_courant"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_status_history_materiel_id_fkey"
+            columns: ["materiel_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_laboratoire"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_status_history_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materiel: {
         Row: {
           created_at: string
@@ -5537,6 +5663,7 @@ export type Database = {
       materiel_laboratoire: {
         Row: {
           categorie: string
+          chantier_courant_id: string | null
           created_at: string
           date_acquisition: string | null
           etat: string
@@ -5549,10 +5676,13 @@ export type Database = {
           observations: string | null
           quantite: number
           reference: string | null
+          responsable_courant_id: string | null
+          statut_courant: Database["public"]["Enums"]["materiel_statut_courant"]
           updated_at: string
         }
         Insert: {
           categorie?: string
+          chantier_courant_id?: string | null
           created_at?: string
           date_acquisition?: string | null
           etat?: string
@@ -5565,10 +5695,13 @@ export type Database = {
           observations?: string | null
           quantite?: number
           reference?: string | null
+          responsable_courant_id?: string | null
+          statut_courant?: Database["public"]["Enums"]["materiel_statut_courant"]
           updated_at?: string
         }
         Update: {
           categorie?: string
+          chantier_courant_id?: string | null
           created_at?: string
           date_acquisition?: string | null
           etat?: string
@@ -5581,9 +5714,211 @@ export type Database = {
           observations?: string | null
           quantite?: number
           reference?: string | null
+          responsable_courant_id?: string | null
+          statut_courant?: Database["public"]["Enums"]["materiel_statut_courant"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "materiel_laboratoire_chantier_courant_id_fkey"
+            columns: ["chantier_courant_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_laboratoire_responsable_courant_id_fkey"
+            columns: ["responsable_courant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiel_movements: {
+        Row: {
+          chantier_id: string | null
+          created_at: string
+          created_by: string | null
+          created_by_nom: string | null
+          date_mouvement: string
+          heure_mouvement: string
+          id: string
+          motif: string | null
+          numero: string
+          observations: string | null
+          parent_movement_id: string | null
+          responsable_id: string | null
+          statut: Database["public"]["Enums"]["mouvement_statut"]
+          technicien_entrant_id: string | null
+          technicien_sortant_id: string | null
+          type: Database["public"]["Enums"]["mouvement_type"]
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_nom?: string | null
+          date_mouvement?: string
+          heure_mouvement?: string
+          id?: string
+          motif?: string | null
+          numero: string
+          observations?: string | null
+          parent_movement_id?: string | null
+          responsable_id?: string | null
+          statut?: Database["public"]["Enums"]["mouvement_statut"]
+          technicien_entrant_id?: string | null
+          technicien_sortant_id?: string | null
+          type: Database["public"]["Enums"]["mouvement_type"]
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_nom?: string | null
+          date_mouvement?: string
+          heure_mouvement?: string
+          id?: string
+          motif?: string | null
+          numero?: string
+          observations?: string | null
+          parent_movement_id?: string | null
+          responsable_id?: string | null
+          statut?: Database["public"]["Enums"]["mouvement_statut"]
+          technicien_entrant_id?: string | null
+          technicien_sortant_id?: string | null
+          type?: Database["public"]["Enums"]["mouvement_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiel_movements_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_movements_parent_movement_id_fkey"
+            columns: ["parent_movement_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_movements_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_movements_technicien_entrant_id_fkey"
+            columns: ["technicien_entrant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_movements_technicien_sortant_id_fkey"
+            columns: ["technicien_sortant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movement_items: {
+        Row: {
+          created_at: string
+          etat: Database["public"]["Enums"]["item_etat"]
+          id: string
+          materiel_id: string
+          movement_id: string
+          observations: string | null
+          quantite: number
+        }
+        Insert: {
+          created_at?: string
+          etat?: Database["public"]["Enums"]["item_etat"]
+          id?: string
+          materiel_id: string
+          movement_id: string
+          observations?: string | null
+          quantite?: number
+        }
+        Update: {
+          created_at?: string
+          etat?: Database["public"]["Enums"]["item_etat"]
+          id?: string
+          materiel_id?: string
+          movement_id?: string
+          observations?: string | null
+          quantite?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movement_items_materiel_id_fkey"
+            columns: ["materiel_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_laboratoire"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movement_items_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movement_signatures: {
+        Row: {
+          id: string
+          ip_address: string | null
+          movement_id: string
+          role: string
+          signataire_fonction: string | null
+          signataire_nom: string
+          signature_data: string | null
+          signed_at: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          movement_id: string
+          role: string
+          signataire_fonction?: string | null
+          signataire_nom: string
+          signature_data?: string | null
+          signed_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          movement_id?: string
+          role?: string
+          signataire_fonction?: string | null
+          signataire_nom?: string
+          signature_data?: string | null
+          signed_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movement_signatures_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "materiel_movements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offre_service_articles: {
         Row: {
@@ -6638,6 +6973,10 @@ export type Database = {
         }
         Returns: string
       }
+      next_movement_numero: {
+        Args: { _type: Database["public"]["Enums"]["mouvement_type"] }
+        Returns: string
+      }
       restore_deleted_essai: { Args: { _deleted_id: string }; Returns: string }
       restore_essai_field: {
         Args: {
@@ -6659,6 +6998,20 @@ export type Database = {
         | "operateur"
         | "lecteur"
       essai_status: "pending" | "in-progress" | "completed" | "cancelled"
+      item_etat: "bon" | "usage" | "casse" | "manquant" | "a_reparer"
+      materiel_statut_courant:
+        | "disponible"
+        | "affecte"
+        | "pris_en_charge"
+        | "en_passation"
+        | "restitue"
+        | "en_maintenance"
+        | "hors_service"
+        | "perdu"
+        | "vole"
+        | "reforme"
+      mouvement_statut: "brouillon" | "valide" | "signe" | "annule"
+      mouvement_type: "affectation" | "decharge" | "passation" | "restitution"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6795,6 +7148,21 @@ export const Constants = {
         "lecteur",
       ],
       essai_status: ["pending", "in-progress", "completed", "cancelled"],
+      item_etat: ["bon", "usage", "casse", "manquant", "a_reparer"],
+      materiel_statut_courant: [
+        "disponible",
+        "affecte",
+        "pris_en_charge",
+        "en_passation",
+        "restitue",
+        "en_maintenance",
+        "hors_service",
+        "perdu",
+        "vole",
+        "reforme",
+      ],
+      mouvement_statut: ["brouillon", "valide", "signe", "annule"],
+      mouvement_type: ["affectation", "decharge", "passation", "restitution"],
     },
   },
 } as const

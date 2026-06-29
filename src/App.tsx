@@ -269,6 +269,10 @@ const MaterielAffectationDetail = lazy(() => import("./pages/materiel/MaterielAf
 const MaterielEtalonnageDetail = lazy(() => import("./pages/materiel/MaterielEtalonnageDetail"));
 const MaterielMaintenanceDetail = lazy(() => import("./pages/materiel/MaterielMaintenanceDetail"));
 const MaterielDecharge = lazy(() => import("./pages/materiel/MaterielDecharge"));
+const MouvementsDashboard = lazy(() => import("./pages/materiel/mouvements/MouvementsDashboard"));
+const MouvementsListe = lazy(() => import("./pages/materiel/mouvements/MouvementsListe"));
+const MouvementForm = lazy(() => import("./pages/materiel/mouvements/MouvementForm"));
+const MouvementDetail = lazy(() => import("./pages/materiel/mouvements/MouvementDetail"));
 // Géotechnique - Identification
 // Géotechnique - Compactage
 // Géotechnique - Mécaniques
@@ -715,6 +719,10 @@ const AppRoutes = () => (
       <Route path="/materiel/maintenance/:id" element={<MaterielMaintenanceDetail />} />
       <Route path="/materiel/maintenance/:id/modifier" element={<MaterielMaintenanceForm />} />
       <Route path="/materiel/decharge" element={<MaterielDecharge />} />
+      <Route path="/materiel/mouvements" element={<MouvementsDashboard />} />
+      <Route path="/materiel/mouvements/liste" element={<MouvementsListe />} />
+      <Route path="/materiel/mouvements/nouveau/:type" element={<MouvementForm />} />
+      <Route path="/materiel/mouvements/:id" element={<MouvementDetail />} />
       <Route path="/facturation" element={<FacturationDashboard />} />
       <Route path="/facturation/factures" element={<FactureListe />} />
       <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
