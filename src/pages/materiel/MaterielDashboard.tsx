@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { List, ArrowLeftRight, Gauge, Wrench } from "lucide-react";
+import { List, ArrowLeftRight, Gauge, Wrench, FileMinus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
