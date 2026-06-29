@@ -63,6 +63,7 @@ export type Database = {
           intervenant_id: string | null
           materiel_id: string
           observations: string | null
+          quantite: number
           statut: string
           updated_at: string
         }
@@ -75,6 +76,7 @@ export type Database = {
           intervenant_id?: string | null
           materiel_id: string
           observations?: string | null
+          quantite?: number
           statut?: string
           updated_at?: string
         }
@@ -87,6 +89,7 @@ export type Database = {
           intervenant_id?: string | null
           materiel_id?: string
           observations?: string | null
+          quantite?: number
           statut?: string
           updated_at?: string
         }
@@ -5544,6 +5547,7 @@ export type Database = {
           nom: string
           numero_serie: string | null
           observations: string | null
+          quantite: number
           reference: string | null
           updated_at: string
         }
@@ -5559,6 +5563,7 @@ export type Database = {
           nom: string
           numero_serie?: string | null
           observations?: string | null
+          quantite?: number
           reference?: string | null
           updated_at?: string
         }
@@ -5574,6 +5579,7 @@ export type Database = {
           nom?: string
           numero_serie?: string | null
           observations?: string | null
+          quantite?: number
           reference?: string | null
           updated_at?: string
         }

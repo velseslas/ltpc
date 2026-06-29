@@ -34,7 +34,7 @@ export default function MaterielAffectationForm() {
   const [form, setForm] = useState({
     materiel_id: "", wilaya: "", client_id: "", chantier_id: "",
     intervenant_id: "", date_debut: new Date().toISOString().split("T")[0],
-    date_fin: "", statut: "en_cours", observations: ""
+    date_fin: "", statut: "en_cours", observations: "", quantite: "1"
   });
 
   // Load existing data when editing
@@ -54,6 +54,7 @@ export default function MaterielAffectationForm() {
         date_fin: existingAffectation.date_fin || "",
         statut: existingAffectation.statut || "en_cours",
         observations: existingAffectation.observations || "",
+        quantite: String((existingAffectation as any).quantite ?? 1),
       });
       setIsInitialized(true);
     }
@@ -86,6 +87,7 @@ export default function MaterielAffectationForm() {
     { key: "chantier_id", label: "Chantier" },
     { key: "intervenant_id", label: "Technicien" },
     { key: "date_debut", label: "Date début" },
+    { key: "quantite", label: "Quantité" },
   ];
 
   const handleSubmit = async () => {
@@ -97,6 +99,11 @@ export default function MaterielAffectationForm() {
         missingLabels.push(f.label);
       }
     });
+    const qte = parseInt(form.quantite, 10);
+    if (!missing.has("quantite") && (isNaN(qte) || qte < 1)) {
+      missing.add("quantite");
+      missingLabels.push("Quantité (≥ 1)");
+    }
     if (missing.size > 0) {
       setMissingFields(missing);
       toast.error(`Champs obligatoires manquants : ${missingLabels.join(", ")}`);
@@ -113,6 +120,7 @@ export default function MaterielAffectationForm() {
       date_fin: form.date_fin || null,
       statut: form.statut,
       observations: form.observations,
+      quantite: qte,
     };
     try {
       if (isEditing && id) {
@@ -188,6 +196,10 @@ export default function MaterielAffectationForm() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Date début<Req /></Label><Input type="date" className={errClass("date_debut")} value={form.date_debut} onChange={e => setForm(p => ({ ...p, date_debut: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>Date fin</Label><Input type="date" value={form.date_fin} onChange={e => setForm(p => ({ ...p, date_fin: e.target.value }))} /></div>
+          </div>
+          <div className="grid gap-2">
+            <Label>Quantité<Req /></Label>
+            <Input type="number" min={1} step={1} className={errClass("quantite")} value={form.quantite} onChange={e => setForm(p => ({ ...p, quantite: e.target.value }))} />
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4 justify-end">

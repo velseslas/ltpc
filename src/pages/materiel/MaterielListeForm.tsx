@@ -23,7 +23,7 @@ export default function MaterielListeForm() {
   const [form, setForm] = useState({
     nom: "", reference: "", numero_serie: "", categorie: "general",
     marque: "", modele: "", date_acquisition: "", etat: "operationnel",
-    localisation: "", observations: ""
+    localisation: "", observations: "", quantite: "1"
   });
 
   useEffect(() => {
@@ -39,18 +39,22 @@ export default function MaterielListeForm() {
         etat: existing.etat || "operationnel",
         localisation: existing.localisation || "",
         observations: existing.observations || "",
+        quantite: String((existing as any).quantite ?? 1),
       });
     }
   }, [existing, isEdit]);
 
   const handleSubmit = async () => {
     if (!form.nom) { toast.error("Le nom est obligatoire"); return; }
+    const qte = parseInt(form.quantite, 10);
+    if (isNaN(qte) || qte < 1) { toast.error("La quantité est obligatoire (≥ 1)"); return; }
+    const payload = { ...form, quantite: qte, date_acquisition: form.date_acquisition || null };
     try {
       if (isEdit && id) {
-        await updateMutation.mutateAsync({ id, ...form, date_acquisition: form.date_acquisition || null });
+        await updateMutation.mutateAsync({ id, ...payload });
         toast.success("Matériel mis à jour");
       } else {
-        await createMutation.mutateAsync({ ...form, date_acquisition: form.date_acquisition || null });
+        await createMutation.mutateAsync(payload);
         toast.success("Matériel ajouté");
       }
       navigate("/materiel/liste");
@@ -117,6 +121,7 @@ export default function MaterielListeForm() {
             <div className="grid gap-2"><Label>Date d'acquisition</Label><Input type="date" value={form.date_acquisition} onChange={e => setForm(p => ({ ...p, date_acquisition: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>Localisation</Label><Input value={form.localisation} onChange={e => setForm(p => ({ ...p, localisation: e.target.value }))} /></div>
           </div>
+          <div className="grid gap-2"><Label>Quantité *</Label><Input type="number" min={1} step={1} value={form.quantite} onChange={e => setForm(p => ({ ...p, quantite: e.target.value }))} /></div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4 justify-end">
             <Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>

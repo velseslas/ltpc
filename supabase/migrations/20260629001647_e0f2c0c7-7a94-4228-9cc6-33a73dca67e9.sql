@@ -1,0 +1,2 @@
+ALTER TABLE public.materiel_laboratoire ADD COLUMN IF NOT EXISTS quantite integer NOT NULL DEFAULT 1;
+ALTER TABLE public.affectation_materiel ADD COLUMN IF NOT EXISTS quantite integer NOT NULL DEFAULT 1;
