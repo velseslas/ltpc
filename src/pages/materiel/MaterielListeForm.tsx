@@ -39,18 +39,22 @@ export default function MaterielListeForm() {
         etat: existing.etat || "operationnel",
         localisation: existing.localisation || "",
         observations: existing.observations || "",
+        quantite: String((existing as any).quantite ?? 1),
       });
     }
   }, [existing, isEdit]);
 
   const handleSubmit = async () => {
     if (!form.nom) { toast.error("Le nom est obligatoire"); return; }
+    const qte = parseInt(form.quantite, 10);
+    if (isNaN(qte) || qte < 1) { toast.error("La quantité est obligatoire (≥ 1)"); return; }
+    const payload = { ...form, quantite: qte, date_acquisition: form.date_acquisition || null };
     try {
       if (isEdit && id) {
-        await updateMutation.mutateAsync({ id, ...form, date_acquisition: form.date_acquisition || null });
+        await updateMutation.mutateAsync({ id, ...payload });
         toast.success("Matériel mis à jour");
       } else {
-        await createMutation.mutateAsync({ ...form, date_acquisition: form.date_acquisition || null });
+        await createMutation.mutateAsync(payload);
         toast.success("Matériel ajouté");
       }
       navigate("/materiel/liste");
