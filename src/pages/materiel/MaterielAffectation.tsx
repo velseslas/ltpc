@@ -273,7 +273,7 @@ export default function MaterielAffectation() {
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.intervenants ? `${a.intervenants.prenom} ${a.intervenants.nom}` : "—"}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{format(new Date(a.date_debut), "dd/MM/yyyy", { locale: fr })}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.date_fin ? format(new Date(a.date_fin), "dd/MM/yyyy", { locale: fr }) : "—"}</td>
-                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{statutLabel(a.statut)}</td>
+                  <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{statutLabel(getEffectiveStatut(a))}</td>
                   <td style={{ border: "1px solid #ccc", padding: "5px 8px" }}>{a.observations || "—"}</td>
                 </tr>
               ))}
