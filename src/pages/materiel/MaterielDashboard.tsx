@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { List, ArrowLeftRight, Gauge, Wrench } from "lucide-react";
+import { List, ArrowLeftRight, Gauge, Wrench, FileMinus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
@@ -34,6 +34,13 @@ const widgets = [
     path: "/materiel/maintenance",
     color: { bg: "bg-amber-500/10", icon: "text-amber-500" },
   },
+  {
+    title: "Décharge Matériels",
+    description: "Gestion des décharges de matériel",
+    icon: FileMinus,
+    path: "/materiel/decharge",
+    color: { bg: "bg-rose-500/10", icon: "text-rose-500" },
+  },
 ];
 
 export default function MaterielDashboard() {
@@ -48,6 +55,7 @@ export default function MaterielDashboard() {
     affectationData?.length || 0,
     etalonnageData?.length || 0,
     maintenanceData?.length || 0,
+    0,
   ];
 
   return (

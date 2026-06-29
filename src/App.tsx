@@ -268,6 +268,7 @@ const MaterielMaintenanceHistorique = lazy(() => import("./pages/materiel/Materi
 const MaterielAffectationDetail = lazy(() => import("./pages/materiel/MaterielAffectationDetail"));
 const MaterielEtalonnageDetail = lazy(() => import("./pages/materiel/MaterielEtalonnageDetail"));
 const MaterielMaintenanceDetail = lazy(() => import("./pages/materiel/MaterielMaintenanceDetail"));
+const MaterielDecharge = lazy(() => import("./pages/materiel/MaterielDecharge"));
 // Géotechnique - Identification
 // Géotechnique - Compactage
 // Géotechnique - Mécaniques
@@ -713,6 +714,7 @@ const AppRoutes = () => (
       <Route path="/materiel/maintenance/historique" element={<MaterielMaintenanceHistorique />} />
       <Route path="/materiel/maintenance/:id" element={<MaterielMaintenanceDetail />} />
       <Route path="/materiel/maintenance/:id/modifier" element={<MaterielMaintenanceForm />} />
+      <Route path="/materiel/decharge" element={<MaterielDecharge />} />
       <Route path="/facturation" element={<FacturationDashboard />} />
       <Route path="/facturation/factures" element={<FactureListe />} />
       <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
