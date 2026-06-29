@@ -1,5 +1,5 @@
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
-import { BackButton } from "@/components/common/BackButton";
+import { BackButton } from "@/components/ui/back-button";
 import { FileMinus } from "lucide-react";
 
 export default function MaterielDecharge() {
