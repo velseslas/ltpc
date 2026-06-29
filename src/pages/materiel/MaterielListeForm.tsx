@@ -23,7 +23,7 @@ export default function MaterielListeForm() {
   const [form, setForm] = useState({
     nom: "", reference: "", numero_serie: "", categorie: "general",
     marque: "", modele: "", date_acquisition: "", etat: "operationnel",
-    localisation: "", observations: ""
+    localisation: "", observations: "", quantite: "1"
   });
 
   useEffect(() => {
