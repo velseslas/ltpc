@@ -39,6 +39,9 @@ export interface ToolResult {
   citations: AICitation[];
   confidence: number;               // 0..1
   duration_ms: number;
+  /** Nombre de lignes/chunks traités — utilisé par le trace de debug. */
+  rows?: number;
+  chunks?: number;
   error?: string;
 }
 
