@@ -114,15 +114,20 @@ export default function LtpcAI() {
           {context?.entity_type && (
             <Badge variant="outline" className="text-[10px] capitalize">Contexte : {context.entity_type}</Badge>
           )}
+          <div className="flex items-center gap-1.5 pl-2 border-l">
+            <Bug className={`h-3.5 w-3.5 ${debugMode ? "text-primary" : "text-muted-foreground"}`} />
+            <Label htmlFor="dbg" className="text-[10px] cursor-pointer">Debug</Label>
+            <Switch id="dbg" checked={debugMode} onCheckedChange={setDebugMode} />
+          </div>
         </header>
 
         <ScrollArea className="flex-1 p-4">
           {!activeId ? (
-            <EmptyIntro onPick={async (q) => { const c = await createM.mutateAsync(undefined); setParams({ c: c.id }); setTimeout(() => sendM.mutate({ conversationId: c.id, content: q, context }), 100); }} />
+            <EmptyIntro onPick={async (q) => { const c = await createM.mutateAsync(undefined); setParams({ c: c.id }); setTimeout(() => sendM.mutate({ conversationId: c.id, content: q, context, debug: debugMode }), 100); }} />
           ) : loadingMessages ? (
             <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : messages.length === 0 ? (
-            <EmptyIntro onPick={(q) => sendM.mutate({ conversationId: activeId, content: q, context })} />
+            <EmptyIntro onPick={(q) => sendM.mutate({ conversationId: activeId, content: q, context, debug: debugMode })} />
           ) : (
             <ul className="space-y-4 max-w-3xl mx-auto">
               {messages.map((m) => <MessageBubble key={m.id} msg={m} />)}
@@ -140,7 +145,7 @@ export default function LtpcAI() {
             id = c.id;
             setParams({ c: id });
           }
-          sendM.mutate({ conversationId: id, content: text, context });
+          sendM.mutate({ conversationId: id, content: text, context, debug: debugMode });
         }} />
       </main>
     </div>
