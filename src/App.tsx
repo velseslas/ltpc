@@ -336,6 +336,8 @@ function ProtectedLayout() {
 const AppRoutes = () => (
   <Routes>
     <Route path="/auth" element={<AuthRedirect />} />
+    {/* Page publique de vérification d'authenticité — accessible sans connexion via QR code */}
+    <Route path="/verification/:token" element={<VerificationPage />} />
 
     {/* Page d'impression A4 dédiée — source de vérité PDF, sans chrome */}
     <Route
