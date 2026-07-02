@@ -235,7 +235,7 @@ export default function MouvementForm() {
                 </Select>
               </div>
               <div>
-                <Label>Client *</Label>
+                <Label>Client <span className="text-destructive">*</span></Label>
                 <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
                   <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionner un client..." : "Choisir d'abord une wilaya"} /></SelectTrigger>
                   <SelectContent>
