@@ -67,7 +67,7 @@ export default function CentrePilotage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3">
-        <BackButton />
+        <BackButton to="/ltpc-ai" />
         <div>
           <h1 className="text-2xl font-bold">Centre de Pilotage IA — Audit V1.0</h1>
           <p className="text-sm text-muted-foreground">

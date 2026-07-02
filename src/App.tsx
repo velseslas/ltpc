@@ -363,6 +363,7 @@ const AppRoutes = () => (
       <Route path="/ltpc-ai" element={<LtpcAI />} />
       <Route path="/ltpc-ai/knowledge" element={<KnowledgeBase />} />
       <Route path="/ltpc-ai/monitoring" element={<Monitoring />} />
+      <Route path="/ltpc-ai/audit" element={<CentrePilotage />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/intervenant" element={<IntervenantSelection />} />
       <Route path="/intervenant/clients" element={<Clients />} />
