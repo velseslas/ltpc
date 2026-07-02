@@ -31,8 +31,8 @@ export default function RapportTechniqueDetail() {
   const { data: questions = [] } = useAIQuestions(id);
   const answerM = useAnswerAIQuestion();
 
-  const analyse = (r?.analyse_ia ?? null) as AIAnalyse | null;
-  const contenu = (r?.contenu_rapport ?? null) as AIRapportContenu | null;
+  const analyse = (r?.analyse_ia ?? null) as unknown as AIAnalyse | null;
+  const contenu = (r?.contenu_rapport ?? null) as unknown as AIRapportContenu | null;
 
   const handleAnalyze = async () => {
     try {
