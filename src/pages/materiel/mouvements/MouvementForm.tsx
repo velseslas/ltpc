@@ -12,8 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useChantiers } from "@/hooks/useChantiers";
+import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useMaterielList } from "@/hooks/useMaterielLaboratoire";
+import { useMaterielList, useAffectationMateriel } from "@/hooks/useMaterielLaboratoire";
+import { wilayas } from "@/data/wilayas";
 import { useCreateMouvement, MouvementType, MOUVEMENT_TYPE_LABEL, ItemEtat, ITEM_ETAT_LABEL } from "@/hooks/useMouvementsMateriel";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,9 +28,14 @@ export default function MouvementForm() {
   const type = (typeParam || "affectation") as MouvementType;
 
   const { data: chantiers } = useChantiers();
+  const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const { data: materiels } = useMaterielList();
+  const { data: affectations } = useAffectationMateriel();
   const createMv = useCreateMouvement();
+
+  const [wilaya, setWilaya] = useState("");
+  const [clientId, setClientId] = useState("");
 
   const [form, setForm] = useState({
     chantier_id: "",
@@ -45,15 +52,72 @@ export default function MouvementForm() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
-  const techniciens = useMemo(
-    () => (intervenants || []).filter((i: any) => (i.role || "").toUpperCase().includes("TECH")),
-    [intervenants]
-  );
+  const isDecharge = type === "decharge";
+
+  // Clients that have at least one chantier in the selected wilaya
+  const filteredClients = useMemo(() => {
+    const cs = (clients as any[]) || [];
+    if (!isDecharge || !wilaya) return cs;
+    const chIds = new Set(((chantiers as any[]) || []).filter((c) => c.ville === wilaya).map((c) => c.client_id));
+    return cs.filter((c) => chIds.has(c.id));
+  }, [clients, chantiers, wilaya, isDecharge]);
+
+  const filteredChantiers = useMemo(() => {
+    let list = (chantiers as any[]) || [];
+    if (isDecharge) {
+      if (wilaya) list = list.filter((c) => c.ville === wilaya);
+      if (clientId) list = list.filter((c) => c.client_id === clientId);
+    }
+    return list;
+  }, [chantiers, wilaya, clientId, isDecharge]);
+
+  // Affectations matching the selected chantier (used for decharge to filter techs + import matos)
+  const chantierAffectations = useMemo(() => {
+    if (!isDecharge || !form.chantier_id) return [] as any[];
+    return ((affectations as any[]) || []).filter((a) => a.chantier_id === form.chantier_id);
+  }, [affectations, form.chantier_id, isDecharge]);
+
+  const techniciens = useMemo(() => {
+    const all = (intervenants || []).filter((i: any) => (i.role || "").toUpperCase().includes("TECH"));
+    if (isDecharge && form.chantier_id) {
+      const ids = new Set(chantierAffectations.map((a: any) => a.intervenant_id).filter(Boolean));
+      return all.filter((i: any) => ids.has(i.id));
+    }
+    return all;
+  }, [intervenants, isDecharge, form.chantier_id, chantierAffectations]);
+
+  // Auto-import matériel from affectations when chantier + technicien are set (decharge only)
+  useEffect(() => {
+    if (!isDecharge) return;
+    if (!form.chantier_id || !form.technicien_entrant_id) return;
+    const rows = chantierAffectations.filter((a: any) => a.intervenant_id === form.technicien_entrant_id);
+    const imported: Item[] = rows
+      .filter((a: any) => a.materiel_id)
+      .map((a: any) => ({
+        materiel_id: a.materiel_id,
+        quantite: a.quantite ?? 1,
+        etat: "bon" as ItemEtat,
+        observations: "",
+      }));
+    // Merge without duplicates, keep any manually added items
+    setItems((prev) => {
+      const map = new Map<string, Item>();
+      imported.forEach((it) => map.set(it.materiel_id, it));
+      prev.forEach((it) => { if (!map.has(it.materiel_id)) map.set(it.materiel_id, it); });
+      return Array.from(map.values());
+    });
+  }, [isDecharge, form.chantier_id, form.technicien_entrant_id, chantierAffectations]);
 
   // Filter material per type
   const availableMaterials = useMemo(() => {
     const all = (materiels as any[]) || [];
-    if (type === "affectation" || type === "decharge") return all.filter((m) => m.statut_courant === "disponible");
+    if (isDecharge) {
+      // For décharge, propose materials from the chantier affectations (fallback: available)
+      const ids = new Set(chantierAffectations.map((a: any) => a.materiel_id).filter(Boolean));
+      const list = all.filter((m) => ids.has(m.id));
+      return list.length ? list : all.filter((m) => m.statut_courant === "disponible");
+    }
+    if (type === "affectation") return all.filter((m) => m.statut_courant === "disponible");
     if (type === "passation" && form.technicien_sortant_id) {
       return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
     }
@@ -61,7 +125,7 @@ export default function MouvementForm() {
       return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
     }
     return all;
-  }, [materiels, type, form.technicien_sortant_id]);
+  }, [materiels, type, isDecharge, chantierAffectations, form.technicien_sortant_id]);
 
   const addSelected = () => {
     const news: Item[] = Object.keys(selected).filter((k) => selected[k]).map((id) => ({
@@ -139,13 +203,40 @@ export default function MouvementForm() {
             <Input type="date" value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
+          {isDecharge && (
+            <>
+              <div>
+                <Label>Wilaya *</Label>
+                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }}>
+                  <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya..." /></SelectTrigger>
+                  <SelectContent>
+                    {wilayas.map((w) => <SelectItem key={w.code} value={w.nom}>{w.code} - {w.nom}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Client *</Label>
+                <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
+                  <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionner un client..." : "Choisir d'abord une wilaya"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredClients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+
           {(type === "affectation" || type === "decharge" || type === "restitution") && (
             <div>
               <Label>Chantier {type !== "restitution" && "*"}</Label>
-              <Select value={form.chantier_id} onValueChange={(v) => setForm({ ...form, chantier_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <Select
+                value={form.chantier_id}
+                onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_entrant_id: "" }); if (isDecharge) setItems([]); }}
+                disabled={isDecharge && !clientId}
+              >
+                <SelectTrigger><SelectValue placeholder={isDecharge && !clientId ? "Choisir d'abord un client" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {(chantiers || []).map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
+                  {filteredChantiers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -166,10 +257,18 @@ export default function MouvementForm() {
           {(type === "affectation" || type === "decharge" || type === "passation") && (
             <div>
               <Label>Technicien {type === "passation" ? "entrant" : "destinataire"} *</Label>
-              <Select value={form.technicien_entrant_id} onValueChange={(v) => setForm({ ...form, technicien_entrant_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <Select
+                value={form.technicien_entrant_id}
+                onValueChange={(v) => setForm({ ...form, technicien_entrant_id: v })}
+                disabled={isDecharge && !form.chantier_id}
+              >
+                <SelectTrigger><SelectValue placeholder={isDecharge && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
+                  {techniciens.length === 0 && isDecharge ? (
+                    <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
+                  ) : (
+                    techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
+                  )}
                 </SelectContent>
               </Select>
             </div>
