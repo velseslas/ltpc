@@ -723,6 +723,10 @@ const AppRoutes = () => (
       <Route path="/materiel/mouvements" element={<MouvementsDashboard />} />
       <Route path="/materiel/mouvements/liste" element={<MouvementsListe />} />
       <Route path="/materiel/mouvements/decharge" element={<MouvementsDechargeListe />} />
+      <Route path="/materiel/mouvements/affectation" element={<MaterielAffectation />} />
+      <Route path="/materiel/mouvements/affectation/nouveau" element={<MaterielAffectationForm />} />
+      <Route path="/materiel/mouvements/affectation/:id" element={<MaterielAffectationDetail />} />
+      <Route path="/materiel/mouvements/affectation/:id/modifier" element={<MaterielAffectationForm />} />
       <Route path="/materiel/mouvements/nouveau/:type" element={<MouvementForm />} />
       <Route path="/materiel/mouvements/:id" element={<MouvementDetail />} />
       <Route path="/facturation" element={<FacturationDashboard />} />
