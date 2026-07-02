@@ -48,18 +48,24 @@ export type ImproveAction =
   | "ameliorer" | "reformuler" | "raccourcir" | "developper"
   | "corriger_style" | "corriger_grammaire" | "plus_technique";
 
+export type AIReviewSeverity = "info" | "warning" | "critique";
+export interface AIReviewObservation {
+  severity: AIReviewSeverity;
+  category: string;
+  message: string;
+}
+
 export interface AIProvider {
   name: string;
   analyzeProblem(rapportId: string): Promise<{ analyse: AIAnalyse; meta: AIMeta }>;
   generateQuestions(rapportId: string): Promise<{ questions: AIQuestion[] }>;
   generateDraftReport(rapportId: string): Promise<{ contenu: AIRapportContenu; meta: AIMeta }>;
   improveText(input: { texte: string; action: ImproveAction; rapportId?: string; contexte?: string }): Promise<{ texte: string; meta: AIMeta }>;
+  reviewReport(rapportId: string): Promise<{ observations: AIReviewObservation[]; score: number | null; meta: AIMeta }>;
   // À implémenter dans les phases suivantes :
   improveReport?(rapportId: string, instructions: string): Promise<{ contenu: AIRapportContenu }>;
   summarizeAttachments?(rapportId: string): Promise<{ resume: string }>;
   classifyProblem?(description: string): Promise<{ categorie: string; confiance: number }>;
-  reviewReport?(rapportId: string): Promise<{ observations: string[] }>;
-  generateOfficialPdf?(rapportId: string): Promise<{ url: string }>;
 }
 
 async function invoke<T>(fn: string, payload: Record<string, unknown>): Promise<T> {
