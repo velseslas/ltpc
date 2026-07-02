@@ -40,8 +40,8 @@ import type { Editor } from "@tiptap/react";
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
-  const s = c.sections;
-  const sections: Array<[string, string]> = [
+  const s = c.sections ?? ({} as Partial<NonNullable<AIRapportContenu["sections"]>>);
+  const sections: Array<[string, string | undefined]> = [
     ["Objet", s.objet], ["Contexte", s.contexte], ["Constatations", s.constatations],
     ["Analyse technique", s.analyse_technique], ["Conséquences", s.consequences],
     ["Recommandations", s.recommandations], ["Conclusion", s.conclusion],
