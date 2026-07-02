@@ -94,8 +94,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
+    // Les clés fournisseurs sont lues par AIProviderFactory. Aucune ne
+    // conditionne l'entrée : si toutes sont absentes, callAIFeature lèvera.
+
+
 
     const body = (await req.json()) as Payload;
     if (!body.user_query || typeof body.user_query !== "string") {
