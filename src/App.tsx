@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
 import LtpcAI from "@/pages/ltpc-ai/LtpcAI";
 const KnowledgeBase = lazy(() => import("@/pages/ltpc-ai/KnowledgeBase"));
+const Monitoring = lazy(() => import("@/pages/ltpc-ai/Monitoring"));
 import LtpcAIFab from "@/components/ltpc-ai/LtpcAIFab";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -361,6 +362,7 @@ const AppRoutes = () => (
       <Route path="/" element={<Index />} />
       <Route path="/ltpc-ai" element={<LtpcAI />} />
       <Route path="/ltpc-ai/knowledge" element={<KnowledgeBase />} />
+      <Route path="/ltpc-ai/monitoring" element={<Monitoring />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/intervenant" element={<IntervenantSelection />} />
       <Route path="/intervenant/clients" element={<Clients />} />
