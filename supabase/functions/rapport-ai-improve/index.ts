@@ -11,20 +11,19 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "texte et action requis" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const provider = getDefaultProvider();
     const userId = getUserIdFromReq(req);
     const userPrompt = promptImproveText({ texte, action: action as ImproveAction, contexte });
 
     try {
-      const result = await provider.call({
+      const result = await callAIFeature("reformulation", {
         messages: [
           { role: "system", content: SYSTEM_INGENIEUR_LABO },
           { role: "user", content: userPrompt },
         ],
         temperature: 0.5,
       });
-      await logAICall({ rapport_id: rapport_id ?? null, operation: `improve:${action}`, provider: provider.name, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
-      return new Response(JSON.stringify({ texte: result.raw.trim(), meta: { model: result.model, durationMs: result.durationMs, tokensTotal: result.tokensTotal } }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      await logAICall({ rapport_id: rapport_id ?? null, operation: `improve:${action}`, provider: result.provider, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
+      return new Response(JSON.stringify({ texte: result.raw.trim(), meta: { model: result.model, provider: result.provider, durationMs: result.durationMs, tokensTotal: result.tokensTotal, attempts: result.attempts } }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       await logAICall({ rapport_id: rapport_id ?? null, operation: `improve:${action}`, provider: "lovable-ai", model: "google/gemini-2.5-flash", prompt_user: userPrompt, status: "error", error: msg, created_by: userId });
