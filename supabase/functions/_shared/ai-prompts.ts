@@ -142,3 +142,31 @@ ${input.reponsesQuestions?.length ? `RÉPONSES AUX QUESTIONS:\n${input.reponsesQ
 
 Retourne uniquement le JSON.`;
 }
+
+export type ImproveAction =
+  | "ameliorer" | "reformuler" | "raccourcir" | "developper"
+  | "corriger_style" | "corriger_grammaire" | "plus_technique";
+
+const ACTION_INSTRUCTIONS: Record<ImproveAction, string> = {
+  ameliorer: "Améliore la qualité rédactionnelle en gardant le sens exact.",
+  reformuler: "Reformule le texte avec une tournure différente, sans en changer le sens.",
+  raccourcir: "Raccourcis le texte à l'essentiel, style concis et technique.",
+  developper: "Développe le texte avec plus de précisions techniques pertinentes, sans rien inventer.",
+  corriger_style: "Corrige le style pour un ton professionnel d'ingénieur laboratoire.",
+  corriger_grammaire: "Corrige uniquement les fautes de grammaire, orthographe et ponctuation. Ne change rien d'autre.",
+  plus_technique: "Rends le texte plus technique et normatif, en utilisant le vocabulaire du contrôle des matériaux.",
+};
+
+export function promptImproveText(input: { texte: string; action: ImproveAction; contexte?: string }): string {
+  return `${ACTION_INSTRUCTIONS[input.action]}
+
+Règles :
+- Ne pas inventer d'information nouvelle.
+- Garder les valeurs numériques et normes exactes.
+- Retourner UNIQUEMENT le texte transformé, sans commentaires, sans balises Markdown de code, sans préambule.
+
+${input.contexte ? `Contexte : ${input.contexte}\n` : ""}Texte source :
+"""
+${input.texte}
+"""`;
+}

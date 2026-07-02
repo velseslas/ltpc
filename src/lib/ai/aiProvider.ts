@@ -44,15 +44,22 @@ export interface AIMeta {
   tokensTotal?: number;
 }
 
+export type ImproveAction =
+  | "ameliorer" | "reformuler" | "raccourcir" | "developper"
+  | "corriger_style" | "corriger_grammaire" | "plus_technique";
+
 export interface AIProvider {
   name: string;
   analyzeProblem(rapportId: string): Promise<{ analyse: AIAnalyse; meta: AIMeta }>;
   generateQuestions(rapportId: string): Promise<{ questions: AIQuestion[] }>;
   generateDraftReport(rapportId: string): Promise<{ contenu: AIRapportContenu; meta: AIMeta }>;
+  improveText(input: { texte: string; action: ImproveAction; rapportId?: string; contexte?: string }): Promise<{ texte: string; meta: AIMeta }>;
   // À implémenter dans les phases suivantes :
   improveReport?(rapportId: string, instructions: string): Promise<{ contenu: AIRapportContenu }>;
   summarizeAttachments?(rapportId: string): Promise<{ resume: string }>;
   classifyProblem?(description: string): Promise<{ categorie: string; confiance: number }>;
+  reviewReport?(rapportId: string): Promise<{ observations: string[] }>;
+  generateOfficialPdf?(rapportId: string): Promise<{ url: string }>;
 }
 
 async function invoke<T>(fn: string, payload: Record<string, unknown>): Promise<T> {
@@ -72,6 +79,14 @@ class LovableAIProvider implements AIProvider {
   }
   generateDraftReport(rapportId: string) {
     return invoke<{ contenu: AIRapportContenu; meta: AIMeta }>("rapport-ai-generer", { rapport_id: rapportId });
+  }
+  improveText(input: { texte: string; action: ImproveAction; rapportId?: string; contexte?: string }) {
+    return invoke<{ texte: string; meta: AIMeta }>("rapport-ai-improve", {
+      rapport_id: input.rapportId ?? null,
+      texte: input.texte,
+      action: input.action,
+      contexte: input.contexte,
+    });
   }
 }
 

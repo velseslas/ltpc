@@ -6991,6 +6991,160 @@ export type Database = {
           },
         ]
       }
+      rapport_templates: {
+        Row: {
+          actif: boolean
+          couleur_primaire: string | null
+          couleur_secondaire: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          entreprise_id: string | null
+          footer_html: string | null
+          header_html: string | null
+          id: string
+          is_default: boolean
+          logo_url: string | null
+          marge_bas: number | null
+          marge_droite: number | null
+          marge_gauche: number | null
+          marge_haut: number | null
+          nom: string
+          numerotation_format: string | null
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          couleur_primaire?: string | null
+          couleur_secondaire?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entreprise_id?: string | null
+          footer_html?: string | null
+          header_html?: string | null
+          id?: string
+          is_default?: boolean
+          logo_url?: string | null
+          marge_bas?: number | null
+          marge_droite?: number | null
+          marge_gauche?: number | null
+          marge_haut?: number | null
+          nom: string
+          numerotation_format?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          couleur_primaire?: string | null
+          couleur_secondaire?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entreprise_id?: string | null
+          footer_html?: string | null
+          header_html?: string | null
+          id?: string
+          is_default?: boolean
+          logo_url?: string | null
+          marge_bas?: number | null
+          marge_droite?: number | null
+          marge_gauche?: number | null
+          marge_haut?: number | null
+          nom?: string
+          numerotation_format?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rapport_versions: {
+        Row: {
+          commentaire: string | null
+          contenu: Json | null
+          created_at: string
+          created_by: string | null
+          editor_html: string | null
+          event_type: string
+          id: string
+          rapport_id: string
+          titre: string | null
+          version: number
+        }
+        Insert: {
+          commentaire?: string | null
+          contenu?: Json | null
+          created_at?: string
+          created_by?: string | null
+          editor_html?: string | null
+          event_type?: string
+          id?: string
+          rapport_id: string
+          titre?: string | null
+          version: number
+        }
+        Update: {
+          commentaire?: string | null
+          contenu?: Json | null
+          created_at?: string
+          created_by?: string | null
+          editor_html?: string | null
+          event_type?: string
+          id?: string
+          rapport_id?: string
+          titre?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_versions_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rapport_workflow_events: {
+        Row: {
+          action: string
+          ancien_statut: string | null
+          commentaire: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          nouveau_statut: string
+          rapport_id: string
+        }
+        Insert: {
+          action: string
+          ancien_statut?: string | null
+          commentaire?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nouveau_statut: string
+          rapport_id: string
+        }
+        Update: {
+          action?: string
+          ancien_statut?: string | null
+          commentaire?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nouveau_statut?: string
+          rapport_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_workflow_events_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rapports_techniques: {
         Row: {
           analyse_ia: Json | null
@@ -7003,6 +7157,7 @@ export type Database = {
           created_by: string | null
           date_probleme: string | null
           description_probleme: string
+          editor_html: string | null
           entreprise: string | null
           gravite: Database["public"]["Enums"]["rapport_gravite"] | null
           id: string
@@ -7016,16 +7171,20 @@ export type Database = {
           pdf_url: string | null
           projet: string | null
           prompt_utilisateur: string | null
+          publie_at: string | null
           qr_token: string | null
           refuse_at: string | null
+          signature_ingenieur_id: string | null
           soumis_at: string | null
           sous_type: string | null
           statut: Database["public"]["Enums"]["rapport_statut"]
           technicien_id: string | null
+          template_id: string | null
           titre: string | null
           updated_at: string
           valide_at: string | null
           version: number
+          version_courante: number
         }
         Insert: {
           analyse_ia?: Json | null
@@ -7038,6 +7197,7 @@ export type Database = {
           created_by?: string | null
           date_probleme?: string | null
           description_probleme: string
+          editor_html?: string | null
           entreprise?: string | null
           gravite?: Database["public"]["Enums"]["rapport_gravite"] | null
           id?: string
@@ -7051,16 +7211,20 @@ export type Database = {
           pdf_url?: string | null
           projet?: string | null
           prompt_utilisateur?: string | null
+          publie_at?: string | null
           qr_token?: string | null
           refuse_at?: string | null
+          signature_ingenieur_id?: string | null
           soumis_at?: string | null
           sous_type?: string | null
           statut?: Database["public"]["Enums"]["rapport_statut"]
           technicien_id?: string | null
+          template_id?: string | null
           titre?: string | null
           updated_at?: string
           valide_at?: string | null
           version?: number
+          version_courante?: number
         }
         Update: {
           analyse_ia?: Json | null
@@ -7073,6 +7237,7 @@ export type Database = {
           created_by?: string | null
           date_probleme?: string | null
           description_probleme?: string
+          editor_html?: string | null
           entreprise?: string | null
           gravite?: Database["public"]["Enums"]["rapport_gravite"] | null
           id?: string
@@ -7086,16 +7251,20 @@ export type Database = {
           pdf_url?: string | null
           projet?: string | null
           prompt_utilisateur?: string | null
+          publie_at?: string | null
           qr_token?: string | null
           refuse_at?: string | null
+          signature_ingenieur_id?: string | null
           soumis_at?: string | null
           sous_type?: string | null
           statut?: Database["public"]["Enums"]["rapport_statut"]
           technicien_id?: string | null
+          template_id?: string | null
           titre?: string | null
           updated_at?: string
           valide_at?: string | null
           version?: number
+          version_courante?: number
         }
         Relationships: [
           {
@@ -7124,6 +7293,13 @@ export type Database = {
             columns: ["modele_id"]
             isOneToOne: false
             referencedRelation: "rapport_modeles_bibliotheque"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapports_techniques_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "rapport_templates"
             referencedColumns: ["id"]
           },
         ]
