@@ -228,16 +228,7 @@ export default function RapportTechniqueDetail() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader><CardTitle className="text-base">Signature électronique</CardTitle></CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Architecture prête : la signature de l'ingénieur validateur (nom, fonction, image signature, cachet du laboratoire)
-                  sera appliquée automatiquement lors de la génération PDF officielle (Phase 5).
-                  Chaque signature laisse une trace horodatée dans l'historique du workflow.
-                </p>
-              </CardContent>
-            </Card>
+            <OfficialDocumentPanel rapport={r} html={html} previewHtml={previewHtml()} />
           </TabsContent>
 
           {/* --- HISTORIQUE --- */}
