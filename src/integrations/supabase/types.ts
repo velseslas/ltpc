@@ -178,6 +178,173 @@ export type Database = {
           },
         ]
       }
+      ai_context_snapshots: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          message_id: string | null
+          payload: Json
+          route: string | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message_id?: string | null
+          payload?: Json
+          route?: string | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message_id?: string | null
+          payload?: Json
+          route?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_context_snapshots_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_context_snapshots_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "ai_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_conversations: {
+        Row: {
+          contexte: Json
+          created_at: string
+          id: string
+          is_archived: boolean
+          is_favorite: boolean
+          last_message_at: string
+          titre: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contexte?: Json
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          is_favorite?: boolean
+          last_message_at?: string
+          titre?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contexte?: Json
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          is_favorite?: boolean
+          last_message_at?: string
+          titre?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_knowledge_chunks: {
+        Row: {
+          chunk_index: number
+          content_tsv: unknown
+          contenu: string
+          created_at: string
+          embedding: Json | null
+          embedding_model: string | null
+          id: string
+          metadata: Json
+          source_id: string
+          source_type: string
+          updated_at: string
+        }
+        Insert: {
+          chunk_index?: number
+          content_tsv?: unknown
+          contenu: string
+          created_at?: string
+          embedding?: Json | null
+          embedding_model?: string | null
+          id?: string
+          metadata?: Json
+          source_id: string
+          source_type: string
+          updated_at?: string
+        }
+        Update: {
+          chunk_index?: number
+          content_tsv?: unknown
+          contenu?: string
+          created_at?: string
+          embedding?: Json | null
+          embedding_model?: string | null
+          id?: string
+          metadata?: Json
+          source_id?: string
+          source_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          citations: Json
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          meta: Json
+          role: string
+          tool_calls: Json | null
+        }
+        Insert: {
+          citations?: Json
+          content?: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          meta?: Json
+          role: string
+          tool_calls?: Json | null
+        }
+        Update: {
+          citations?: Json
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          meta?: Json
+          role?: string
+          tool_calls?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attestations_bonne_execution: {
         Row: {
           chantier_id: string | null
