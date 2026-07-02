@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversationService } from "@/lib/ltpc-ai/ConversationService";
-import { SearchService } from "@/lib/ltpc-ai/SearchService";
+import { AgentOrchestrator } from "@/lib/ltpc-ai/AgentOrchestrator";
 import { ContextService } from "@/lib/ltpc-ai/ContextService";
 import type { AIContext, AIMessage, AICitation } from "@/lib/ltpc-ai/types";
 
