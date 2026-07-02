@@ -248,7 +248,7 @@ export default function MouvementForm() {
 
           {(type === "affectation" || type === "decharge" || type === "passation" || type === "restitution") && (
             <div>
-              <Label>Chantier {type !== "restitution" && "*"}</Label>
+              <Label>Chantier <span className="text-destructive">*</span></Label>
               <Select
                 value={form.chantier_id}
                 onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_sortant_id: "", technicien_entrant_id: "" }); if (isCascade) setItems([]); }}
