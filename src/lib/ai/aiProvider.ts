@@ -93,6 +93,7 @@ class LovableAIProvider implements AIProvider {
       action: input.action,
       contexte: input.contexte,
     });
+  }
   reviewReport(rapportId: string) {
     return invoke<{ observations: AIReviewObservation[]; score: number | null; meta: AIMeta }>("rapport-ai-review", { rapport_id: rapportId });
   }
