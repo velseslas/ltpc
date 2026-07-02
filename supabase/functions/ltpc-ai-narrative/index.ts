@@ -2,6 +2,7 @@
 // Toutes les données factuelles viennent du client (findings, stats, sources).
 // L'IA ne fait que rédiger — jamais inventer de chiffres.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { callAIFeature } from "../_shared/ai-provider.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,28 +18,28 @@ const SYSTEM = `Tu es le rédacteur technique du laboratoire LTPC. Tu rédiges e
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
     const body = await req.json();
     const payload = JSON.stringify({ domain: body.domain, summary: body.summary, findings: body.findings, recommendations: body.recommendations, stats: body.stats }, null, 2).slice(0, 8000);
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: body.model ?? "google/gemini-2.5-flash",
-        temperature: 0.2,
+    try {
+      const result = await callAIFeature("narrative", {
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: "Données du rapport d'analyse :\n```json\n" + payload + "\n```\n\nRédige la synthèse." },
         ],
-      }),
-    });
-    if (res.status === 429) return new Response(JSON.stringify({ error: "Limite atteinte" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (res.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (!res.ok) return new Response(JSON.stringify({ error: `AI Gateway ${res.status}` }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    const data = await res.json();
-    return new Response(JSON.stringify({ narrative: data?.choices?.[0]?.message?.content ?? "" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        temperature: 0.2,
+        model: body.model,
+      });
+      return new Response(JSON.stringify({
+        narrative: result.raw,
+        meta: { model: result.model, provider: result.provider, durationMs: result.durationMs, tokensTotal: result.tokensTotal, attempts: result.attempts },
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const status = msg.startsWith("AI_RATE_LIMIT") ? 429 : msg.startsWith("AI_CREDITS_EXHAUSTED") ? 402 : 500;
+      const label = status === 429 ? "Limite atteinte" : status === 402 ? "Crédits IA épuisés" : msg;
+      return new Response(JSON.stringify({ error: label }), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
   } catch (e) {
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
