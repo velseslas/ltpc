@@ -20,7 +20,7 @@ export function useLaboratoiresMobiles() {
     queryKey: ["laboratoires-mobiles"],
     queryFn: async () => {
       const { data } = await getRepository("laboratoires_mobiles").list();
-      return data as LaboratoireMobileWithRelations[];
+      return data as unknown as LaboratoireMobileWithRelations[];
     },
   });
 }

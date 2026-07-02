@@ -38,7 +38,7 @@ export function useChantiers() {
     queryKey: ["chantiers"],
     queryFn: async () => {
       const { data } = await getRepository("chantiers").list();
-      return data as Chantier[];
+      return data as unknown as Chantier[];
     },
   });
 }
