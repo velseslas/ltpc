@@ -53,44 +53,65 @@ export default function MouvementForm() {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
   const isDecharge = type === "decharge";
+  const isPassation = type === "passation";
+  const isCascade = isDecharge || isPassation;
+
+  // Item état options adapted per movement type (passation = Bon / Défectueux / Hors usage)
+  const etatOptions: { value: ItemEtat; label: string }[] = isPassation
+    ? [
+        { value: "bon", label: "Bon" },
+        { value: "a_reparer", label: "Défectueux" },
+        { value: "casse", label: "Hors usage" },
+      ]
+    : (Object.keys(ITEM_ETAT_LABEL) as ItemEtat[]).map((e) => ({ value: e, label: ITEM_ETAT_LABEL[e] }));
 
   // Clients that have at least one chantier in the selected wilaya
   const filteredClients = useMemo(() => {
     const cs = (clients as any[]) || [];
-    if (!isDecharge || !wilaya) return cs;
+    if (!isCascade || !wilaya) return cs;
     const chIds = new Set(((chantiers as any[]) || []).filter((c) => c.ville === wilaya).map((c) => c.client_id));
     return cs.filter((c) => chIds.has(c.id));
-  }, [clients, chantiers, wilaya, isDecharge]);
+  }, [clients, chantiers, wilaya, isCascade]);
 
   const filteredChantiers = useMemo(() => {
     let list = (chantiers as any[]) || [];
-    if (isDecharge) {
+    if (isCascade) {
       if (wilaya) list = list.filter((c) => c.ville === wilaya);
       if (clientId) list = list.filter((c) => c.client_id === clientId);
     }
     return list;
-  }, [chantiers, wilaya, clientId, isDecharge]);
+  }, [chantiers, wilaya, clientId, isCascade]);
 
-  // Affectations matching the selected chantier (used for decharge to filter techs + import matos)
+  // Affectations matching the selected chantier (used to filter techs + import matos)
   const chantierAffectations = useMemo(() => {
-    if (!isDecharge || !form.chantier_id) return [] as any[];
+    if (!isCascade || !form.chantier_id) return [] as any[];
     return ((affectations as any[]) || []).filter((a) => a.chantier_id === form.chantier_id);
-  }, [affectations, form.chantier_id, isDecharge]);
+  }, [affectations, form.chantier_id, isCascade]);
 
-  const techniciens = useMemo(() => {
+  // Techniciens filtered by chantier affectations (for the sortant/destinataire linked to the chantier)
+  const techniciensChantier = useMemo(() => {
     const all = (intervenants || []).filter((i: any) => (i.role || "").toUpperCase().includes("TECH"));
-    if (isDecharge && form.chantier_id) {
+    if (isCascade && form.chantier_id) {
       const ids = new Set(chantierAffectations.map((a: any) => a.intervenant_id).filter(Boolean));
       return all.filter((i: any) => ids.has(i.id));
     }
     return all;
-  }, [intervenants, isDecharge, form.chantier_id, chantierAffectations]);
+  }, [intervenants, isCascade, form.chantier_id, chantierAffectations]);
 
-  // Auto-import matériel from affectations when chantier + technicien are set (decharge only)
+  // All techniciens (used for technicien entrant on passation, unrestricted)
+  const techniciens = useMemo(
+    () => (intervenants || []).filter((i: any) => (i.role || "").toUpperCase().includes("TECH")),
+    [intervenants]
+  );
+
+  // Auto-import matériel from affectations:
+  // - décharge: from technicien entrant on the chantier
+  // - passation: from technicien sortant on the chantier
   useEffect(() => {
-    if (!isDecharge) return;
-    if (!form.chantier_id || !form.technicien_entrant_id) return;
-    const rows = chantierAffectations.filter((a: any) => a.intervenant_id === form.technicien_entrant_id);
+    if (!isCascade) return;
+    const techId = isDecharge ? form.technicien_entrant_id : form.technicien_sortant_id;
+    if (!form.chantier_id || !techId) return;
+    const rows = chantierAffectations.filter((a: any) => a.intervenant_id === techId);
     const imported: Item[] = rows
       .filter((a: any) => a.materiel_id)
       .map((a: any) => ({
@@ -99,33 +120,32 @@ export default function MouvementForm() {
         etat: "bon" as ItemEtat,
         observations: "",
       }));
-    // Merge without duplicates, keep any manually added items
     setItems((prev) => {
       const map = new Map<string, Item>();
       imported.forEach((it) => map.set(it.materiel_id, it));
       prev.forEach((it) => { if (!map.has(it.materiel_id)) map.set(it.materiel_id, it); });
       return Array.from(map.values());
     });
-  }, [isDecharge, form.chantier_id, form.technicien_entrant_id, chantierAffectations]);
+  }, [isCascade, isDecharge, form.chantier_id, form.technicien_entrant_id, form.technicien_sortant_id, chantierAffectations]);
 
   // Filter material per type
   const availableMaterials = useMemo(() => {
     const all = (materiels as any[]) || [];
-    if (isDecharge) {
-      // For décharge, propose materials from the chantier affectations (fallback: available)
+    if (isDecharge || isPassation) {
       const ids = new Set(chantierAffectations.map((a: any) => a.materiel_id).filter(Boolean));
       const list = all.filter((m) => ids.has(m.id));
-      return list.length ? list : all.filter((m) => m.statut_courant === "disponible");
+      if (list.length) return list;
+      if (isPassation && form.technicien_sortant_id) {
+        return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
+      }
+      return all.filter((m) => m.statut_courant === "disponible");
     }
     if (type === "affectation") return all.filter((m) => m.statut_courant === "disponible");
-    if (type === "passation" && form.technicien_sortant_id) {
-      return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
-    }
     if (type === "restitution" && form.technicien_sortant_id) {
       return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
     }
     return all;
-  }, [materiels, type, isDecharge, chantierAffectations, form.technicien_sortant_id]);
+  }, [materiels, type, isDecharge, isPassation, chantierAffectations, form.technicien_sortant_id]);
 
   const addSelected = () => {
     const news: Item[] = Object.keys(selected).filter((k) => selected[k]).map((id) => ({
@@ -203,11 +223,11 @@ export default function MouvementForm() {
             <Input type="date" value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
-          {isDecharge && (
+          {isCascade && (
             <>
               <div>
                 <Label>Wilaya *</Label>
-                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }}>
+                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }}>
                   <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya..." /></SelectTrigger>
                   <SelectContent>
                     {wilayas.map((w) => <SelectItem key={w.code} value={w.nom}>{w.code} - {w.nom}</SelectItem>)}
@@ -216,7 +236,7 @@ export default function MouvementForm() {
               </div>
               <div>
                 <Label>Client *</Label>
-                <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
+                <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
                   <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionner un client..." : "Choisir d'abord une wilaya"} /></SelectTrigger>
                   <SelectContent>
                     {filteredClients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
@@ -226,15 +246,15 @@ export default function MouvementForm() {
             </>
           )}
 
-          {(type === "affectation" || type === "decharge" || type === "restitution") && (
+          {(type === "affectation" || type === "decharge" || type === "passation" || type === "restitution") && (
             <div>
               <Label>Chantier {type !== "restitution" && "*"}</Label>
               <Select
                 value={form.chantier_id}
-                onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_entrant_id: "" }); if (isDecharge) setItems([]); }}
-                disabled={isDecharge && !clientId}
+                onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_sortant_id: "", technicien_entrant_id: "" }); if (isCascade) setItems([]); }}
+                disabled={isCascade && !clientId}
               >
-                <SelectTrigger><SelectValue placeholder={isDecharge && !clientId ? "Choisir d'abord un client" : "Sélectionner..."} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={isCascade && !clientId ? "Choisir d'abord un client" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
                   {filteredChantiers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
                 </SelectContent>
@@ -245,10 +265,20 @@ export default function MouvementForm() {
           {(type === "passation" || type === "restitution") && (
             <div>
               <Label>Technicien {type === "passation" ? "sortant" : "responsable"} *</Label>
-              <Select value={form.technicien_sortant_id} onValueChange={(v) => setForm({ ...form, technicien_sortant_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <Select
+                value={form.technicien_sortant_id}
+                onValueChange={(v) => setForm({ ...form, technicien_sortant_id: v })}
+                disabled={isPassation && !form.chantier_id}
+              >
+                <SelectTrigger><SelectValue placeholder={isPassation && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
+                  {isPassation && techniciensChantier.length === 0 ? (
+                    <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
+                  ) : (
+                    (isPassation ? techniciensChantier : techniciens).map((i: any) => (
+                      <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -264,11 +294,35 @@ export default function MouvementForm() {
               >
                 <SelectTrigger><SelectValue placeholder={isDecharge && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {techniciens.length === 0 && isDecharge ? (
+                  {isDecharge && techniciensChantier.length === 0 ? (
                     <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
                   ) : (
-                    techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
+                    (isDecharge ? techniciensChantier : techniciens).map((i: any) => (
+                      <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
+                    )
                   )}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div>
+            <Label>Responsable laboratoire</Label>
+            <Select value={form.responsable_id} onValueChange={(v) => setForm({ ...form, responsable_id: v })}>
+              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <SelectContent>
+                {(intervenants || []).map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {type === "passation" && (
+            <div>
+              <Label>Motif *</Label>
+              <Select value={form.motif} onValueChange={(v) => setForm({ ...form, motif: v })}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                <SelectContent>
+                  {MOTIFS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -360,8 +414,8 @@ export default function MouvementForm() {
                       <Select value={it.etat} onValueChange={(v) => updateItem(idx, { etat: v as ItemEtat })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(ITEM_ETAT_LABEL) as ItemEtat[]).map((e) => (
-                            <SelectItem key={e} value={e}>{ITEM_ETAT_LABEL[e]}</SelectItem>
+                          {etatOptions.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
