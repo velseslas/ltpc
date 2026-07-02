@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
@@ -49,15 +49,14 @@ export default function MouvementForm() {
 
   type Item = { materiel_id: string; quantite: number; etat: ItemEtat; observations?: string };
   const [items, setItems] = useState<Item[]>([]);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [showErrors, setShowErrors] = useState(false);
 
   const isDecharge = type === "decharge";
   const isPassation = type === "passation";
   const isCascade = isDecharge || isPassation;
 
   const emptyClass = (value: string | undefined, required: boolean) =>
-    required && (!value || value.trim() === "") ? "animate-border-blink" : "";
+    showErrors && required && (!value || value.trim() === "") ? "animate-border-blink" : "";
 
 
   // Item état options adapted per movement type (passation = Bon / Défectueux / Hors usage)
@@ -151,14 +150,6 @@ export default function MouvementForm() {
     return all;
   }, [materiels, type, isDecharge, isPassation, chantierAffectations, form.technicien_sortant_id]);
 
-  const addSelected = () => {
-    const news: Item[] = Object.keys(selected).filter((k) => selected[k]).map((id) => ({
-      materiel_id: id, quantite: 1, etat: "bon" as ItemEtat,
-    }));
-    setItems([...items, ...news.filter((n) => !items.some((it) => it.materiel_id === n.materiel_id))]);
-    setSelected({});
-    setPickerOpen(false);
-  };
 
   const updateItem = (idx: number, patch: Partial<Item>) => {
     setItems(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
@@ -186,12 +177,12 @@ export default function MouvementForm() {
       if (!form.technicien_sortant_id) { toast.error("Sélectionnez le technicien"); return false; }
     }
     if (!form.responsable_id) { toast.error("Sélectionnez le responsable laboratoire"); return false; }
-    if (!form.observations?.trim()) { toast.error("Renseignez les observations"); return false; }
     return true;
   };
 
 
   const onSubmit = async (signNow: boolean) => {
+    setShowErrors(true);
     if (!validate()) return;
     try {
       const { data: u } = await supabase.auth.getUser();
@@ -343,8 +334,8 @@ export default function MouvementForm() {
 
 
           <div className="md:col-span-2">
-            <Label>Observations <span className="text-destructive">*</span></Label>
-            <Textarea className={emptyClass(form.observations, true)} value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
+            <Label>Observations</Label>
+            <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
           </div>
         </CardContent>
       </Card>
@@ -355,7 +346,7 @@ export default function MouvementForm() {
         </CardHeader>
         <CardContent>
 
-          <div className={items.length === 0 ? "rounded-md border border-transparent animate-border-blink" : ""}>
+          <div className={showErrors && items.length === 0 ? "rounded-md border border-transparent animate-border-blink" : ""}>
             <Table>
               <TableHeader>
                 <TableRow>
