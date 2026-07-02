@@ -177,12 +177,12 @@ export default function MouvementForm() {
       if (!form.technicien_sortant_id) { toast.error("Sélectionnez le technicien"); return false; }
     }
     if (!form.responsable_id) { toast.error("Sélectionnez le responsable laboratoire"); return false; }
-    if (!form.observations?.trim()) { toast.error("Renseignez les observations"); return false; }
     return true;
   };
 
 
   const onSubmit = async (signNow: boolean) => {
+    setShowErrors(true);
     if (!validate()) return;
     try {
       const { data: u } = await supabase.auth.getUser();
@@ -334,8 +334,8 @@ export default function MouvementForm() {
 
 
           <div className="md:col-span-2">
-            <Label>Observations <span className="text-destructive">*</span></Label>
-            <Textarea className={emptyClass(form.observations, true)} value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
+            <Label>Observations</Label>
+            <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
           </div>
         </CardContent>
       </Card>
@@ -346,7 +346,7 @@ export default function MouvementForm() {
         </CardHeader>
         <CardContent>
 
-          <div className={items.length === 0 ? "rounded-md border border-transparent animate-border-blink" : ""}>
+          <div className={showErrors && items.length === 0 ? "rounded-md border border-transparent animate-border-blink" : ""}>
             <Table>
               <TableHeader>
                 <TableRow>
