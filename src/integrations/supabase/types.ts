@@ -6997,6 +6997,7 @@ export type Database = {
         | "technicien"
         | "operateur"
         | "lecteur"
+        | "ingenieur"
       essai_status: "pending" | "in-progress" | "completed" | "cancelled"
       item_etat: "bon" | "usage" | "casse" | "manquant" | "a_reparer"
       materiel_statut_courant:
@@ -7146,6 +7147,7 @@ export const Constants = {
         "technicien",
         "operateur",
         "lecteur",
+        "ingenieur",
       ],
       essai_status: ["pending", "in-progress", "completed", "cancelled"],
       item_etat: ["bon", "usage", "casse", "manquant", "a_reparer"],
