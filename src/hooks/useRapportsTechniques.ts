@@ -151,13 +151,14 @@ export function useCreateRapportTechnique() {
     ) => {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData?.user?.id ?? null;
+      const payload = {
+        ...input,
+        created_by: uid,
+        technicien_id: input.technicien_id ?? uid,
+      } as never;
       const { data, error } = await supabase
         .from("rapports_techniques")
-        .insert({
-          ...input,
-          created_by: uid,
-          technicien_id: input.technicien_id ?? uid,
-        })
+        .insert(payload)
         .select()
         .single();
       if (error) throw error;
