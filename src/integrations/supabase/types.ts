@@ -178,6 +178,54 @@ export type Database = {
           },
         ]
       }
+      ai_alerts: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          message: string
+          metadata: Json
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source_id: string | null
+          source_type: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_context_snapshots: {
         Row: {
           conversation_id: string
@@ -259,6 +307,33 @@ export type Database = {
           titre?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      ai_daily_summaries: {
+        Row: {
+          alerts_count: number
+          contenu: string
+          generated_at: string
+          id: string
+          stats: Json
+          summary_date: string
+        }
+        Insert: {
+          alerts_count?: number
+          contenu: string
+          generated_at?: string
+          id?: string
+          stats?: Json
+          summary_date: string
+        }
+        Update: {
+          alerts_count?: number
+          contenu?: string
+          generated_at?: string
+          id?: string
+          stats?: Json
+          summary_date?: string
         }
         Relationships: []
       }
