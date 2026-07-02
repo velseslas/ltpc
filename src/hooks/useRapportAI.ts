@@ -69,3 +69,39 @@ export function useAnswerAIQuestion() {
     onSuccess: ({ rapportId }) => qc.invalidateQueries({ queryKey: ["rapport_questions_ia", rapportId] }),
   });
 }
+
+// AI Review — jamais destructif : renvoie observations + score + les persiste dans rapport_ai_reviews.
+export function useReviewRapport() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (rapportId: string) => getAIProvider().reviewReport(rapportId),
+    onSuccess: (_d, rapportId) => qc.invalidateQueries({ queryKey: ["rapport_ai_reviews", rapportId] }),
+  });
+}
+
+export interface AIReviewRow {
+  id: string;
+  rapport_id: string;
+  observations: Array<{ severity: "info" | "warning" | "critique"; category: string; message: string }>;
+  score: number | null;
+  model: string | null;
+  duration_ms: number | null;
+  tokens_total: number | null;
+  created_at: string;
+}
+
+export function useAIReviews(rapportId?: string | null) {
+  return useQuery({
+    queryKey: ["rapport_ai_reviews", rapportId],
+    enabled: !!rapportId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rapport_ai_reviews")
+        .select("*")
+        .eq("rapport_id", rapportId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as AIReviewRow[];
+    },
+  });
+}

@@ -878,6 +878,63 @@ export type Database = {
           },
         ]
       }
+      document_archives: {
+        Row: {
+          contenu_snapshot: Json | null
+          created_at: string
+          document_id: string
+          document_type: string
+          generated_by: string | null
+          generated_by_nom: string | null
+          id: string
+          numero: string | null
+          pdf_size: number | null
+          pdf_url: string
+          qr_token: string
+          sha256: string
+          status: string
+          template_id: string | null
+          variables: Json | null
+          version: number
+        }
+        Insert: {
+          contenu_snapshot?: Json | null
+          created_at?: string
+          document_id: string
+          document_type: string
+          generated_by?: string | null
+          generated_by_nom?: string | null
+          id?: string
+          numero?: string | null
+          pdf_size?: number | null
+          pdf_url: string
+          qr_token: string
+          sha256: string
+          status?: string
+          template_id?: string | null
+          variables?: Json | null
+          version?: number
+        }
+        Update: {
+          contenu_snapshot?: Json | null
+          created_at?: string
+          document_id?: string
+          document_type?: string
+          generated_by?: string | null
+          generated_by_nom?: string | null
+          id?: string
+          numero?: string | null
+          pdf_size?: number | null
+          pdf_url?: string
+          qr_token?: string
+          sha256?: string
+          status?: string
+          template_id?: string | null
+          variables?: Json | null
+          version?: number
+        }
+        Relationships: []
+      }
       documents_administratifs: {
         Row: {
           client_id: string | null
@@ -6769,6 +6826,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "rapport_ai_calls_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rapport_ai_reviews: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          duration_ms: number | null
+          id: string
+          model: string | null
+          observations: Json
+          rapport_id: string
+          score: number | null
+          tokens_total: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          duration_ms?: number | null
+          id?: string
+          model?: string | null
+          observations?: Json
+          rapport_id: string
+          score?: number | null
+          tokens_total?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          duration_ms?: number | null
+          id?: string
+          model?: string | null
+          observations?: Json
+          rapport_id?: string
+          score?: number | null
+          tokens_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_ai_reviews_rapport_id_fkey"
             columns: ["rapport_id"]
             isOneToOne: false
             referencedRelation: "rapports_techniques"
