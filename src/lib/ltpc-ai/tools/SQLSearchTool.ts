@@ -10,8 +10,16 @@ const LIMIT = 6;
 export const SQLSearchTool: Tool = {
   name: "SQLSearchTool",
   description: "Recherche par mots-clés (ILIKE) dans les colonnes textuelles des domaines détectés.",
-  supports: (d) => d.keywords.length > 0 && domainsWithSpec(d.domains).length > 0,
-  confidence: (d) => (d.intents.includes("search") ? 0.8 : d.keywords.length ? 0.55 : 0),
+  // Règle stricte : si l'intention est "count" (et pas explicitement "search"),
+  // SQLSearchTool ne doit JAMAIS être candidat — SQLCountTool est seul autorisé.
+  supports: (d) =>
+    !(d.intents.includes("count") && !d.intents.includes("search")) &&
+    d.keywords.length > 0 &&
+    domainsWithSpec(d.domains).length > 0,
+  confidence: (d) =>
+    d.intents.includes("count") && !d.intents.includes("search")
+      ? 0
+      : d.intents.includes("search") ? 0.8 : d.keywords.length ? 0.55 : 0,
   execute: (d) => runTool(SQLSearchTool, async () => {
     const targets = domainsWithSpec(d.domains);
     const items: Array<{ domain: string; count: number; sample: unknown[] }> = [];
