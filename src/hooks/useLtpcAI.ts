@@ -66,7 +66,7 @@ export function useCurrentContext(): { context: AIContext | null; loading: boole
   return { context, loading };
 }
 
-/** Envoi d'un message : recherche interne → edge function → persistance messages user+assistant. */
+/** Envoi d'un message : Router → Tools (client) → edge function → persistance. */
 export function useSendMessage() {
   const qc = useQueryClient();
   return useMutation({
@@ -77,7 +77,8 @@ export function useSendMessage() {
         citations: [], meta: {},
       });
 
-      const { hits, debug: searchDebug } = await SearchService.searchAll(input.content, { limitPerDomain: 6 });
+      // === Agent v1.1 : Router + Tools s'exécutent côté client (RLS naturel) ===
+      const agent = await AgentOrchestrator.run(input.content, input.context);
 
       const { data, error } = await supabase.functions.invoke("ltpc-ai-chat", {
         body: {
@@ -85,8 +86,11 @@ export function useSendMessage() {
           history: history.map((m) => ({ role: m.role === "tool" ? "assistant" : m.role, content: m.content })),
           user_query: input.content,
           context: input.context?.data ?? null,
-          search_hits: hits,
-          search_debug: searchDebug,
+          // Nouveau contrat v1.1 : Gemini reçoit UNIQUEMENT des résultats structurés.
+          tool_results: agent.tool_results,
+          agent_debug: agent.debug,
+          citations: agent.citations,
+          aggregated_confidence: agent.aggregated_confidence,
           debug: input.debug ?? false,
         },
       });
@@ -95,14 +99,15 @@ export function useSendMessage() {
 
       const meta = {
         ...(data.meta ?? {}),
-        ...(input.debug ? { debug: data.debug, search_debug: searchDebug } : {}),
+        confidence: agent.aggregated_confidence,
+        ...(input.debug ? { debug: data.debug, agent_debug: agent.debug } : {}),
       };
 
       const assistant = await ConversationService.addMessage({
         conversation_id: input.conversationId,
         role: "assistant",
         content: String(data.answer ?? ""),
-        citations: (data.citations ?? []) as AICitation[],
+        citations: (data.citations ?? agent.citations) as AICitation[],
         meta,
       });
 
@@ -115,3 +120,4 @@ export function useSendMessage() {
     },
   });
 }
+
