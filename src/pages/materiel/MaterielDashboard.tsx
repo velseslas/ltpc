@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { List, ArrowLeftRight, Gauge, Wrench, FileMinus } from "lucide-react";
+import { List, Gauge, Wrench, FileMinus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
-import { useMaterielList, useAffectationMateriel, useEtalonnageMateriel, useMaintenanceMateriel } from "@/hooks/useMaterielLaboratoire";
+import { useMaterielList, useEtalonnageMateriel, useMaintenanceMateriel } from "@/hooks/useMaterielLaboratoire";
 
 const widgets = [
   {
@@ -12,13 +12,6 @@ const widgets = [
     icon: List,
     path: "/materiel/liste",
     color: { bg: "bg-blue-500/10", icon: "text-blue-500" },
-  },
-  {
-    title: "Affectation Matériel",
-    description: "Gestion des affectations aux chantiers et techniciens",
-    icon: ArrowLeftRight,
-    path: "/materiel/affectation",
-    color: { bg: "bg-emerald-500/10", icon: "text-emerald-500" },
   },
   {
     title: "Étalonnage Matériel",
@@ -46,13 +39,11 @@ const widgets = [
 export default function MaterielDashboard() {
   const navigate = useNavigate();
   const { data: materielData } = useMaterielList();
-  const { data: affectationData } = useAffectationMateriel();
   const { data: etalonnageData } = useEtalonnageMateriel();
   const { data: maintenanceData } = useMaintenanceMateriel();
 
   const counts = [
     materielData?.length || 0,
-    affectationData?.length || 0,
     etalonnageData?.length || 0,
     maintenanceData?.length || 0,
     0,
