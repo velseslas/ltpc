@@ -224,6 +224,60 @@ function Citations({ items }: { items: AICitation[] }) {
   );
 }
 
+function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
+  const sd = meta.search_debug as {
+    original_query?: string; keywords?: string[]; intents?: string[];
+    domains_searched?: string[]; hits_per_domain?: Record<string, number>;
+    totals_per_domain?: Record<string, number>; errors?: Array<{ domain: string; message: string }>;
+  } | undefined;
+  const dbg = meta.debug as {
+    system_prompt_preview?: string; system_prompt_length?: number;
+    hits_sent?: number; history_length?: number;
+  } | undefined;
+  return (
+    <Collapsible className="mt-2">
+      <CollapsibleTrigger className="flex items-center gap-1.5 text-[10px] font-mono text-primary hover:underline">
+        <Bug className="h-3 w-3" /> Debug pipeline <ChevronDown className="h-3 w-3" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2 space-y-2 text-[11px] font-mono bg-muted/40 border rounded-md p-2 overflow-auto">
+        {sd && (
+          <div>
+            <div className="font-semibold text-primary">🔍 Recherche SQL</div>
+            <div>Requête : « {sd.original_query} »</div>
+            <div>Mots-clés retenus : [{(sd.keywords ?? []).join(", ") || "aucun"}]</div>
+            <div>Intentions : [{(sd.intents ?? []).join(", ") || "aucune"}]</div>
+            <div>Domaines interrogés : [{(sd.domains_searched ?? []).join(", ")}]</div>
+            <div className="mt-1 font-semibold text-primary">📊 Totaux base</div>
+            <ul className="pl-3">
+              {Object.entries(sd.totals_per_domain ?? {}).map(([k, v]) => (
+                <li key={k}>{k}: <strong>{v}</strong> · {sd.hits_per_domain?.[k] ?? 0} échantillons envoyés</li>
+              ))}
+            </ul>
+            {sd.errors && sd.errors.length > 0 && (
+              <div className="text-destructive mt-1">
+                <div className="font-semibold">❌ Erreurs</div>
+                {sd.errors.map((e, i) => <div key={i}>• {e.domain}: {e.message}</div>)}
+              </div>
+            )}
+          </div>
+        )}
+        {dbg && (
+          <div>
+            <div className="font-semibold text-primary">📤 Prompt envoyé à Gemini</div>
+            <div>Longueur système : {dbg.system_prompt_length} caractères · {dbg.hits_sent} hits · {dbg.history_length} messages historique</div>
+            {dbg.system_prompt_preview && (
+              <details>
+                <summary className="cursor-pointer">Voir le prompt système complet</summary>
+                <pre className="whitespace-pre-wrap text-[10px] mt-1 max-h-64 overflow-auto bg-background p-2 rounded">{dbg.system_prompt_preview}</pre>
+              </details>
+            )}
+          </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
 function EmptyIntro({ onPick }: { onPick: (q: string) => void }) {
   return (
     <div className="max-w-2xl mx-auto py-8 text-center space-y-6">
