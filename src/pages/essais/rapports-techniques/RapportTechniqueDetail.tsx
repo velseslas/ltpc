@@ -443,7 +443,7 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
         document_id: rapport.id,
         numero: rapport.numero ?? null,
         template: {
-          id: "default",
+          id: "",
           nom: "Template LTPC",
           couleur_primaire: "#1e5a7a",
           couleur_secondaire: "#d4e5f7",
