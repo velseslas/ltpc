@@ -6921,18 +6921,24 @@ export type Database = {
           chantier_id: string | null
           client_id: string | null
           contenu_rapport: Json | null
+          contexte_auto: Json | null
           created_at: string
           created_by: string | null
           date_probleme: string | null
           description_probleme: string
+          entreprise: string | null
           gravite: Database["public"]["Enums"]["rapport_gravite"] | null
           id: string
           ingenieur_id: string | null
+          last_autosave_at: string | null
           materiau: string | null
+          metadonnees: Json | null
           modele_id: string | null
           motif_refus: string | null
           numero: string | null
           pdf_url: string | null
+          projet: string | null
+          prompt_utilisateur: string | null
           qr_token: string | null
           refuse_at: string | null
           soumis_at: string | null
@@ -6950,18 +6956,24 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           contenu_rapport?: Json | null
+          contexte_auto?: Json | null
           created_at?: string
           created_by?: string | null
           date_probleme?: string | null
           description_probleme: string
+          entreprise?: string | null
           gravite?: Database["public"]["Enums"]["rapport_gravite"] | null
           id?: string
           ingenieur_id?: string | null
+          last_autosave_at?: string | null
           materiau?: string | null
+          metadonnees?: Json | null
           modele_id?: string | null
           motif_refus?: string | null
           numero?: string | null
           pdf_url?: string | null
+          projet?: string | null
+          prompt_utilisateur?: string | null
           qr_token?: string | null
           refuse_at?: string | null
           soumis_at?: string | null
@@ -6979,18 +6991,24 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           contenu_rapport?: Json | null
+          contexte_auto?: Json | null
           created_at?: string
           created_by?: string | null
           date_probleme?: string | null
           description_probleme?: string
+          entreprise?: string | null
           gravite?: Database["public"]["Enums"]["rapport_gravite"] | null
           id?: string
           ingenieur_id?: string | null
+          last_autosave_at?: string | null
           materiau?: string | null
+          metadonnees?: Json | null
           modele_id?: string | null
           motif_refus?: string | null
           numero?: string | null
           pdf_url?: string | null
+          projet?: string | null
+          prompt_utilisateur?: string | null
           qr_token?: string | null
           refuse_at?: string | null
           soumis_at?: string | null
