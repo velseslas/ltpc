@@ -1,6 +1,6 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { getDefaultProvider } from "../_shared/ai-provider.ts";
+import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 
@@ -48,10 +48,9 @@ ${editorHtml.substring(0, 12000)}
 
 Retourne uniquement le JSON.`;
 
-    const provider = getDefaultProvider();
     const userId = getUserIdFromReq(req);
     try {
-      const result = await provider.call({
+      const result = await callAIFeature("review", {
         messages: [
           { role: "system", content: SYSTEM_INGENIEUR_LABO },
           { role: "user", content: prompt },
@@ -73,7 +72,7 @@ Retourne uniquement le JSON.`;
         tokens_total: result.tokensTotal,
         created_by: userId,
       });
-      await logAICall({ rapport_id, operation: "review", provider: provider.name, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: prompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
+      await logAICall({ rapport_id, operation: "review", provider: result.provider, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: prompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
 
       return new Response(JSON.stringify({ observations, score, meta: { model: result.model, durationMs: result.durationMs, tokensTotal: result.tokensTotal } }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     } catch (e) {

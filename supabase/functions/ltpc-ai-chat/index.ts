@@ -2,6 +2,7 @@
 // exécutés côté client (RLS respectées). Gemini raisonne / synthétise / rédige,
 // jamais il ne recalcule. Rétro-compatible : accepte encore search_hits/search_debug.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { callAIFeature } from "../_shared/ai-provider.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -93,8 +94,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
+    // Les clés fournisseurs sont lues par AIProviderFactory. Aucune ne
+    // conditionne l'entrée : si toutes sont absentes, callAIFeature lèvera.
+
+
 
     const body = (await req.json()) as Payload;
     if (!body.user_query || typeof body.user_query !== "string") {
@@ -129,26 +132,27 @@ Deno.serve(async (req) => {
       { role: "user", content: body.user_query },
     ];
 
-    const started = Date.now();
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, messages, temperature: 0.2 }),
-    });
-
-    if (res.status === 429) return new Response(JSON.stringify({ error: "Limite atteinte, réessayez." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (res.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (!res.ok) {
-      const t = await res.text();
-      console.error("[ltpc-ai-chat] Gateway error", res.status, t);
-      return new Response(JSON.stringify({ error: `AI Gateway: ${res.status} ${t}` }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let answer = "";
+    let durationMs = 0;
+    let tokensTotal: number | null = null;
+    let usedModel = model;
+    let usedProvider = "lovable";
+    let attempts: Array<{ provider: string; model: string; error?: string }> = [];
+    try {
+      const result = await callAIFeature("chat", { messages, model, temperature: 0.2 });
+      answer = result.raw;
+      durationMs = result.durationMs;
+      tokensTotal = result.tokensTotal ?? null;
+      usedModel = result.model;
+      usedProvider = result.provider;
+      attempts = result.attempts;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.startsWith("AI_RATE_LIMIT")) return new Response(JSON.stringify({ error: "Limite atteinte, réessayez." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (msg.startsWith("AI_CREDITS_EXHAUSTED")) return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      console.error("[ltpc-ai-chat] AI factory error", msg);
+      return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-
-    const data = await res.json();
-    const answer: string = data?.choices?.[0]?.message?.content ?? "";
-    const durationMs = Date.now() - started;
 
     // Filtre les citations effectivement citées dans la réponse.
     const usedIds = new Set<string>();
@@ -161,9 +165,10 @@ Deno.serve(async (req) => {
       intents: agentDebug?.router.intents,
       domains: agentDebug?.router.domains,
       systemChars: systemContent.length,
-      durationMs, model,
-      tokens: data?.usage?.total_tokens ?? null,
+      durationMs, model: usedModel, provider: usedProvider,
+      tokens: tokensTotal,
       answerLen: answer.length,
+      attempts,
     }));
 
     const debugOut = body.debug ? {
@@ -173,14 +178,16 @@ Deno.serve(async (req) => {
       agent_debug: agentDebug ?? null,
       history_length: body.history?.length ?? 0,
       gemini_duration_ms: durationMs,
+      provider: usedProvider,
+      attempts,
     } : null;
 
     return new Response(JSON.stringify({
       answer,
       citations: finalCitations,
       meta: {
-        model, durationMs,
-        tokensTotal: data?.usage?.total_tokens ?? null,
+        model: usedModel, provider: usedProvider, durationMs,
+        tokensTotal,
         confidence: body.aggregated_confidence ?? agentDebug?.aggregated_confidence ?? null,
       },
       debug: debugOut,

@@ -1,6 +1,6 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { getDefaultProvider } from "../_shared/ai-provider.ts";
+import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptGenerationRapport } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 
@@ -34,10 +34,9 @@ Deno.serve(async (req) => {
       reponsesQuestions,
     });
 
-    const provider = getDefaultProvider();
     const userId = getUserIdFromReq(req);
     try {
-      const result = await provider.call({
+      const result = await callAIFeature("redaction", {
         messages: [
           { role: "system", content: SYSTEM_INGENIEUR_LABO },
           { role: "user", content: userPrompt },
@@ -53,7 +52,7 @@ Deno.serve(async (req) => {
         statut: r.statut === "brouillon" ? "en_cours" : r.statut,
       }).eq("id", rapport_id);
 
-      await logAICall({ rapport_id, operation: "generer", provider: provider.name, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
+      await logAICall({ rapport_id, operation: "generer", provider: result.provider, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
 
       return new Response(JSON.stringify({ contenu: result.parsed, meta: { model: result.model, durationMs: result.durationMs, tokensTotal: result.tokensTotal } }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     } catch (e) {
