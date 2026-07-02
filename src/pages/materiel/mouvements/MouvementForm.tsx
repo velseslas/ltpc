@@ -338,38 +338,10 @@ export default function MouvementForm() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Matériels concernés ({items.length})</CardTitle>
-            <Button variant="outline" onClick={() => setPickerOpen(!pickerOpen)}>
-              <Plus className="h-4 w-4 mr-2" /> Ajouter du matériel
-            </Button>
-          </div>
+          <CardTitle>Matériels concernés ({items.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {pickerOpen && (
-            <div className="mb-4 border rounded-lg p-3 max-h-72 overflow-auto">
-              {availableMaterials.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Aucun matériel disponible pour ce mouvement
-                </p>
-              ) : (
-                <>
-                  {availableMaterials.map((m: any) => (
-                    <label key={m.id} className="flex items-center gap-3 p-2 hover:bg-muted/40 rounded cursor-pointer">
-                      <Checkbox checked={!!selected[m.id]} onCheckedChange={(c) => setSelected({ ...selected, [m.id]: !!c })} />
-                      <div className="flex-1">
-                        <p className="font-medium">{m.nom}</p>
-                        <p className="text-xs text-muted-foreground">{m.reference || "—"} · {m.numero_serie || "—"}</p>
-                      </div>
-                    </label>
-                  ))}
-                  <div className="mt-2 flex justify-end">
-                    <Button size="sm" onClick={addSelected}>Ajouter la sélection</Button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+
 
           <Table>
             <TableHeader>
