@@ -219,7 +219,7 @@ export default function MouvementForm() {
         <CardHeader><CardTitle>Informations générales</CardTitle></CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>Date du mouvement *</Label>
+            <Label>Date du mouvement <span className="text-destructive">*</span></Label>
             <Input type="date" value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
