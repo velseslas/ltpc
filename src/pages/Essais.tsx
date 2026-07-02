@@ -1,4 +1,4 @@
-import { Box, Gem, Landmark, Hammer, ShieldAlert } from "lucide-react";
+import { Box, Gem, Landmark, Hammer, ShieldAlert, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -43,6 +43,15 @@ const Essais = () => {
       gradient: "from-rose-500/20 to-red-500/10",
       iconColor: "text-rose-500",
       path: "/essais/acier"
+    },
+    {
+      id: "redaction-rapport",
+      title: "Rédaction de rapport technique",
+      description: "Rédiger et consulter les rapports techniques des essais",
+      icon: FileText,
+      gradient: "from-violet-500/20 to-purple-500/10",
+      iconColor: "text-violet-500",
+      path: "/essais/redaction-rapport-technique"
     },
   ];
 

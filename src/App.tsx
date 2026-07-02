@@ -35,6 +35,7 @@ const CentraleBetonForm = lazy(() => import("./pages/producteurs/CentraleBetonFo
 const CentraleBetonDetail = lazy(() => import("./pages/producteurs/CentraleBetonDetail"));
 const FormulationForm = lazy(() => import("./pages/producteurs/FormulationForm"));
 const Essais = lazy(() => import("./pages/Essais"));
+const RedactionRapportTechnique = lazy(() => import("./pages/essais/RedactionRapportTechnique"));
 const EssaisAudit = lazy(() => import("./pages/essais/EssaisAudit"));
 const EssaiBeton = lazy(() => import("./pages/essais/EssaiBeton"));
 const EssaiGranulat = lazy(() => import("./pages/essais/EssaiGranulat"));
@@ -407,6 +408,7 @@ const AppRoutes = () => (
       <Route path="/rh/techniciens/:id" element={<TechnicienDetail />} />
       <Route path="/rh/documents" element={<Documents />} />
       <Route path="/essais" element={<Essais />} />
+      <Route path="/essais/redaction-rapport-technique" element={<RedactionRapportTechnique />} />
       <Route path="/essais/audit" element={<EssaisAudit />} />
       <Route path="/essais/granulat" element={<EssaiGranulat />} />
       <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
