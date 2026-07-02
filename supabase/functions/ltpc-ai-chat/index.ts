@@ -175,14 +175,16 @@ Deno.serve(async (req) => {
       agent_debug: agentDebug ?? null,
       history_length: body.history?.length ?? 0,
       gemini_duration_ms: durationMs,
+      provider: usedProvider,
+      attempts,
     } : null;
 
     return new Response(JSON.stringify({
       answer,
       citations: finalCitations,
       meta: {
-        model, durationMs,
-        tokensTotal: data?.usage?.total_tokens ?? null,
+        model: usedModel, provider: usedProvider, durationMs,
+        tokensTotal,
         confidence: body.aggregated_confidence ?? agentDebug?.aggregated_confidence ?? null,
       },
       debug: debugOut,
