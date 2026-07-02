@@ -59,7 +59,7 @@ export default function KnowledgeBase() {
   return (
     <div className="container mx-auto p-6 space-y-6 max-w-6xl">
       <div className="flex items-center gap-3">
-        <BackButton />
+        <BackButton to="/ltpc-ai" />
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2"><Database className="h-6 w-6" /> Base de connaissance LTPC AI</h1>
           <p className="text-sm text-muted-foreground">Indexation vectorielle des sources internes du laboratoire — utilisée par le copilote pour répondre avec citations.</p>

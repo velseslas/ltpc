@@ -360,6 +360,7 @@ const AppRoutes = () => (
     <Route element={<ProtectedLayout />}>
       <Route path="/" element={<Index />} />
       <Route path="/ltpc-ai" element={<LtpcAI />} />
+      <Route path="/ltpc-ai/knowledge" element={<KnowledgeBase />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/intervenant" element={<IntervenantSelection />} />
       <Route path="/intervenant/clients" element={<Clients />} />
