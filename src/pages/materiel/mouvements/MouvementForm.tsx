@@ -264,7 +264,7 @@ export default function MouvementForm() {
 
           {(type === "passation" || type === "restitution") && (
             <div>
-              <Label>Technicien {type === "passation" ? "sortant" : "responsable"} *</Label>
+              <Label>Technicien {type === "passation" ? "sortant" : "responsable"} <span className="text-destructive">*</span></Label>
               <Select
                 value={form.technicien_sortant_id}
                 onValueChange={(v) => setForm({ ...form, technicien_sortant_id: v })}
