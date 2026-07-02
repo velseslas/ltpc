@@ -61,6 +61,11 @@ export interface RapportTechnique {
   pdf_url: string | null;
   qr_token: string | null;
   last_autosave_at: string | null;
+  version_courante?: number;
+  template_id?: string | null;
+  signature_ingenieur_id?: string | null;
+  publie_at?: string | null;
+  editor_html?: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
