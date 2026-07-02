@@ -234,6 +234,8 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
     router?: { intents: string[]; domains: string[]; keywords: string[]; confidence: number };
     tools_selected?: string[];
     tools_executed?: Array<{ tool: string; confidence: number; ok: boolean; duration_ms: number; rows?: number; chunks?: number; error?: string }>;
+    tools_scores?: Array<{ tool: string; score: number; supported: boolean; selected: boolean; reason?: string }>;
+    selection_reason?: string;
     aggregated_confidence?: number;
     total_tool_duration_ms?: number;
   } | undefined;
@@ -250,10 +252,32 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
         {ad && (
           <div>
             <div className="font-semibold text-primary">🧭 Agent Router</div>
-            <div>Intentions : [{(ad.router?.intents ?? []).join(", ") || "aucune"}]</div>
-            <div>Domaines : [{(ad.router?.domains ?? []).join(", ") || "aucun"}]</div>
+            <div>Intent : <strong>[{(ad.router?.intents ?? []).join(", ") || "aucune"}]</strong></div>
+            <div>Domain : <strong>[{(ad.router?.domains ?? []).join(", ") || "aucun"}]</strong></div>
             <div>Mots-clés : [{(ad.router?.keywords ?? []).join(", ") || "aucun"}]</div>
             <div>Confiance router : {((ad.router?.confidence ?? 0) * 100).toFixed(0)} %</div>
+            {ad.selection_reason && (
+              <div className="mt-1 italic text-muted-foreground">💡 {ad.selection_reason}</div>
+            )}
+            <div className="mt-1 font-semibold text-primary">
+              🎯 Tool sélectionné : {ad.tools_selected?.[0] ?? "—"}
+            </div>
+            {ad.tools_scores && ad.tools_scores.length > 0 && (
+              <>
+                <div className="mt-1 font-semibold text-primary">📊 Scores de tous les outils</div>
+                <ul className="pl-3">
+                  {ad.tools_scores
+                    .slice()
+                    .sort((a, b) => Number(b.selected) - Number(a.selected) || b.score - a.score)
+                    .map((s, i) => (
+                      <li key={i} className={s.selected ? "text-primary" : "text-muted-foreground"}>
+                        {s.selected ? "✅" : s.supported ? "•" : "✕"} <strong>{s.tool}</strong> · score {s.score.toFixed(2)}
+                        {s.reason ? ` · ${s.reason}` : ""}
+                      </li>
+                    ))}
+                </ul>
+              </>
+            )}
             <div className="mt-1 font-semibold text-primary">🔧 Outils exécutés ({ad.tools_executed?.length ?? 0})</div>
             <ul className="pl-3">
               {(ad.tools_executed ?? []).map((t, i) => (
