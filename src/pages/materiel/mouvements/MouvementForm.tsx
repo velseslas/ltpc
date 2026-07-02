@@ -203,13 +203,40 @@ export default function MouvementForm() {
             <Input type="date" value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
+          {isDecharge && (
+            <>
+              <div>
+                <Label>Wilaya *</Label>
+                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }}>
+                  <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya..." /></SelectTrigger>
+                  <SelectContent>
+                    {wilayas.map((w) => <SelectItem key={w.code} value={w.nom}>{w.code} - {w.nom}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Client *</Label>
+                <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
+                  <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionner un client..." : "Choisir d'abord une wilaya"} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredClients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+
           {(type === "affectation" || type === "decharge" || type === "restitution") && (
             <div>
               <Label>Chantier {type !== "restitution" && "*"}</Label>
-              <Select value={form.chantier_id} onValueChange={(v) => setForm({ ...form, chantier_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <Select
+                value={form.chantier_id}
+                onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_entrant_id: "" }); if (isDecharge) setItems([]); }}
+                disabled={isDecharge && !clientId}
+              >
+                <SelectTrigger><SelectValue placeholder={isDecharge && !clientId ? "Choisir d'abord un client" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {(chantiers || []).map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
+                  {filteredChantiers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
