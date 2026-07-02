@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BackButton } from "@/components/BackButton";
+import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
