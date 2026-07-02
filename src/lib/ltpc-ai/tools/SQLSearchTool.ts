@@ -1,5 +1,5 @@
 // SQLSearchTool — recherche ILIKE par mots-clés dans les domaines détectés.
-import { supabase } from "@/integrations/supabase/client";
+import { sb } from "./sbAny";
 import type { Tool, RouterDecision } from "./types";
 import type { AICitation } from "../types";
 import { DOMAIN_SPECS, domainsWithSpec, buildIlikeOr } from "./DomainSpecs";
@@ -20,7 +20,7 @@ export const SQLSearchTool: Tool = {
     await Promise.all(targets.map(async (dom) => {
       const spec = DOMAIN_SPECS[dom]!;
       const or = buildIlikeOr(spec.searchFields, d.keywords);
-      let q = supabase.from(spec.table).select(spec.select)
+      let q = sb.from(spec.table).select(spec.select)
         .order(spec.orderBy.column, { ascending: spec.orderBy.ascending, nullsFirst: false })
         .limit(LIMIT);
       if (or) q = q.or(or);
@@ -49,8 +49,8 @@ export const SQLSearchTool: Tool = {
       data: { matches: items, keywords: d.keywords },
       citations,
       confidence: rows > 0 ? 0.85 : 0.4,
-      // @ts-expect-error trace meta
       rows,
     };
   }),
 };
+

@@ -1,5 +1,5 @@
 // SQLCountTool — comptes exacts par domaine (repond aux "combien de X ?").
-import { supabase } from "@/integrations/supabase/client";
+import { sb } from "./sbAny";
 import type { Tool, RouterDecision } from "./types";
 import { DOMAIN_SPECS, domainsWithSpec } from "./DomainSpecs";
 import { runTool } from "./runTool";
@@ -15,7 +15,7 @@ export const SQLCountTool: Tool = {
     let ok = true; let errMsg: string | undefined;
     await Promise.all(targets.map(async (dom) => {
       const spec = DOMAIN_SPECS[dom]!;
-      const { count, error } = await supabase.from(spec.table).select("id", { count: "exact", head: true });
+      const { count, error } = await sb.from(spec.table).select("id", { count: "exact", head: true });
       if (error) { ok = false; errMsg = error.message; counts[dom] = 0; }
       else counts[dom] = count ?? 0;
     }));
@@ -27,9 +27,8 @@ export const SQLCountTool: Tool = {
       citations: [],
       confidence: ok ? 1 : 0.4,
       error: errMsg,
-      // rows meta (repris par le trace)
-      // @ts-expect-error extra property tolerated for trace
       rows: totalRows,
     };
   }),
 };
+

@@ -46,7 +46,6 @@ export const SQLStatisticsTool: Tool = {
       data: { domain: "compression", n: values.length, mean_MPa: +mean.toFixed(2), stddev: +sd.toFixed(2), cv_pct: +cv.toFixed(2), min, max, slope_recent_MPa_per_step: +stats.slope(values.slice(0, 30)).toFixed(3) },
       citations: [],
       confidence: 0.95,
-      // @ts-expect-error trace meta
       rows: values.length,
     };
   }),

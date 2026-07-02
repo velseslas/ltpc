@@ -1,5 +1,5 @@
 // SQLListTool — retourne les N derniers enregistrements par domaine.
-import { supabase } from "@/integrations/supabase/client";
+import { sb } from "./sbAny";
 import type { Tool, RouterDecision } from "./types";
 import type { AICitation } from "../types";
 import { DOMAIN_SPECS, domainsWithSpec } from "./DomainSpecs";
@@ -19,7 +19,7 @@ export const SQLListTool: Tool = {
     let rows = 0;
     await Promise.all(targets.map(async (dom) => {
       const spec = DOMAIN_SPECS[dom]!;
-      const { data, error } = await supabase.from(spec.table)
+      const { data, error } = await sb.from(spec.table)
         .select(spec.select)
         .order(spec.orderBy.column, { ascending: spec.orderBy.ascending, nullsFirst: false })
         .limit(LIMIT);
@@ -45,8 +45,8 @@ export const SQLListTool: Tool = {
       data: { lists: items },
       citations,
       confidence: 0.9,
-      // @ts-expect-error trace meta
       rows,
     };
   }),
 };
+
