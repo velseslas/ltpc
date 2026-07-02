@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Printer, CheckCircle2, PenLine } from "lucide-react";
-import { useMouvement, useMouvementItems, useMouvementSignatures, useSignMouvement, useValidateMouvement, MOUVEMENT_TYPE_LABEL, ITEM_ETAT_LABEL } from "@/hooks/useMouvementsMateriel";
+import { useMouvement, useMouvementItems, useSignMouvement, useValidateMouvement, MOUVEMENT_TYPE_LABEL, ITEM_ETAT_LABEL } from "@/hooks/useMouvementsMateriel";
 import { MouvementTypeBadge, MouvementStatutBadge, ItemEtatBadge } from "@/components/materiel/MovementBadges";
 import { SignaturePad } from "@/components/materiel/SignaturePad";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
@@ -28,7 +28,6 @@ export default function MouvementDetail() {
   const navigate = useNavigate();
   const { data: m } = useMouvement(id);
   const { data: items } = useMouvementItems(id);
-  const { data: sigs } = useMouvementSignatures(id);
   const sign = useSignMouvement();
   const validate = useValidateMouvement();
 
@@ -124,23 +123,6 @@ export default function MouvementDetail() {
           <CardHeader><CardTitle>Déclaration</CardTitle></CardHeader>
           <CardContent>
             <p className="italic text-sm">{DECLARATIONS[m.type]}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader><CardTitle>Signatures ({sigs?.length || 0})</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              {(sigs || []).map((s: any) => (
-                <div key={s.id} className="border rounded-lg p-4">
-                  <p className="text-xs uppercase text-muted-foreground">{s.role}</p>
-                  <p className="font-semibold">{s.signataire_nom}</p>
-                  {s.signataire_fonction && <p className="text-sm text-muted-foreground">{s.signataire_fonction}</p>}
-                  <p className="text-xs mt-1">{format(new Date(s.signed_at), "dd/MM/yyyy HH:mm", { locale: fr })}</p>
-                  {s.signature_data && <img src={s.signature_data} alt="signature" className="mt-2 h-20 bg-white border rounded" />}
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       </div>
