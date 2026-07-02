@@ -6705,6 +6705,77 @@ export type Database = {
         }
         Relationships: []
       }
+      rapport_ai_calls: {
+        Row: {
+          cost_credits: number | null
+          created_at: string
+          created_by: string | null
+          duration_ms: number | null
+          error: string | null
+          id: string
+          model: string
+          operation: string
+          parsed_json: Json | null
+          prompt_system: string | null
+          prompt_user: string | null
+          provider: string
+          rapport_id: string | null
+          raw_response: string | null
+          status: string
+          tokens_input: number | null
+          tokens_output: number | null
+          tokens_total: number | null
+        }
+        Insert: {
+          cost_credits?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          model: string
+          operation: string
+          parsed_json?: Json | null
+          prompt_system?: string | null
+          prompt_user?: string | null
+          provider?: string
+          rapport_id?: string | null
+          raw_response?: string | null
+          status?: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          tokens_total?: number | null
+        }
+        Update: {
+          cost_credits?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          model?: string
+          operation?: string
+          parsed_json?: Json | null
+          prompt_system?: string | null
+          prompt_user?: string | null
+          provider?: string
+          rapport_id?: string | null
+          raw_response?: string | null
+          status?: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          tokens_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_ai_calls_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rapport_categories: {
         Row: {
           created_at: string
@@ -6884,7 +6955,9 @@ export type Database = {
           ordre: number
           question: string
           rapport_id: string
+          repondu_at: string | null
           reponse: string | null
+          reponse_utilisateur: string | null
         }
         Insert: {
           answered_at?: string | null
@@ -6893,7 +6966,9 @@ export type Database = {
           ordre?: number
           question: string
           rapport_id: string
+          repondu_at?: string | null
           reponse?: string | null
+          reponse_utilisateur?: string | null
         }
         Update: {
           answered_at?: string | null
@@ -6902,7 +6977,9 @@ export type Database = {
           ordre?: number
           question?: string
           rapport_id?: string
+          repondu_at?: string | null
           reponse?: string | null
+          reponse_utilisateur?: string | null
         }
         Relationships: [
           {
