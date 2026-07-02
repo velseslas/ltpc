@@ -2,7 +2,7 @@
 // Exécution : `bun src/lib/ltpc-ai/__tests__/routing.test.ts`
 // Aucune dépendance Supabase — on utilise des mocks conformes à `Tool`.
 import { AIIntentRouter } from "../router/AIIntentRouter";
-import { selectTools } from "../tools/ToolRegistry";
+import { selectTools } from "../tools/selectTools";
 import type { Tool, RouterDecision } from "../tools/types";
 
 // -- utils ---------------------------------------------------------------
