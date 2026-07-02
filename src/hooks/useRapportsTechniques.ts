@@ -179,7 +179,7 @@ export function useUpdateRapportTechnique() {
     }: Partial<RapportTechnique> & { id: string }) => {
       const { data, error } = await supabase
         .from("rapports_techniques")
-        .update(updates)
+        .update(updates as never)
         .eq("id", id)
         .select()
         .single();
