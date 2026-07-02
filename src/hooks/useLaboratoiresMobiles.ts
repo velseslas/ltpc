@@ -12,22 +12,15 @@ export type LaboratoireMobileWithRelations = LaboratoireMobile & {
   chantiers: { id: string; nom: string; ville: string | null } | null;
 };
 
+import { getRepository } from "@/lib/repositories";
+
+// Utilise la couche Repository partagée avec LTPC AI.
 export function useLaboratoiresMobiles() {
   return useQuery({
     queryKey: ["laboratoires-mobiles"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("laboratoires_mobiles")
-        .select(`
-          *,
-          intervenants(*),
-          clients(id, nom),
-          chantiers(id, nom, ville)
-        `)
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
-      return data as LaboratoireMobileWithRelations[];
+      const { data } = await getRepository("laboratoires_mobiles").list();
+      return data as unknown as LaboratoireMobileWithRelations[];
     },
   });
 }

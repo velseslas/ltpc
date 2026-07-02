@@ -233,7 +233,14 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
   const ad = meta.agent_debug as {
     router?: { intents: string[]; domains: string[]; keywords: string[]; confidence: number };
     tools_selected?: string[];
-    tools_executed?: Array<{ tool: string; confidence: number; ok: boolean; duration_ms: number; rows?: number; chunks?: number; error?: string }>;
+    tools_executed?: Array<{
+      tool: string; confidence: number; ok: boolean; duration_ms: number; rows?: number; chunks?: number; error?: string;
+      repo_debug?: Array<{
+        repository: string; table: string; operation: string; select: string;
+        filters: Record<string, unknown>; sql_preview: string;
+        rows_returned: number; count_exact?: number; warning?: string; duration_ms: number;
+      }>;
+    }>;
     tools_scores?: Array<{ tool: string; score: number; supported: boolean; selected: boolean; reason?: string }>;
     selection_reason?: string;
     aggregated_confidence?: number;
@@ -281,11 +288,37 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
             <div className="mt-1 font-semibold text-primary">🔧 Outils exécutés ({ad.tools_executed?.length ?? 0})</div>
             <ul className="pl-3">
               {(ad.tools_executed ?? []).map((t, i) => (
-                <li key={i}>
-                  {t.ok ? "✅" : "❌"} <strong>{t.tool}</strong> · conf {(t.confidence * 100).toFixed(0)}% · {t.duration_ms} ms
-                  {typeof t.rows === "number" ? ` · ${t.rows} lignes` : ""}
-                  {typeof t.chunks === "number" ? ` · ${t.chunks} chunks` : ""}
-                  {t.error ? ` · ⚠ ${t.error}` : ""}
+                <li key={i} className="mb-1">
+                  <div>
+                    {t.ok ? "✅" : "❌"} <strong>{t.tool}</strong> · conf {(t.confidence * 100).toFixed(0)}% · {t.duration_ms} ms
+                    {typeof t.rows === "number" ? ` · ${t.rows} lignes` : ""}
+                    {typeof t.chunks === "number" ? ` · ${t.chunks} chunks` : ""}
+                    {t.error ? ` · ⚠ ${t.error}` : ""}
+                  </div>
+                  {t.repo_debug && t.repo_debug.length > 0 && (
+                    <ul className="pl-4 mt-0.5 space-y-1">
+                      {t.repo_debug.map((r, j) => (
+                        <li key={j} className="bg-background/60 border rounded p-1.5">
+                          <div className="text-primary/80">
+                            📁 <strong>{r.repository}</strong> · table <code>{r.table}</code> · {r.operation} · {r.duration_ms} ms
+                          </div>
+                          <div>Filtres : <code>{JSON.stringify(r.filters)}</code></div>
+                          <div>SQL : <code className="whitespace-pre-wrap break-all">{r.sql_preview}</code></div>
+                          <div>
+                            Résultat : <strong>{r.count_exact ?? r.rows_returned}</strong> lignes
+                            {typeof r.count_exact === "number" && r.count_exact !== r.rows_returned
+                              ? ` (chargées : ${r.rows_returned})` : ""}
+                          </div>
+                          {r.warning && (
+                            <div className="text-amber-600 dark:text-amber-400">⚠ {r.warning}</div>
+                          )}
+                          <div className="text-muted-foreground text-[10px]">
+                            ✓ Même source que l'écran de l'application (Repository partagé)
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>

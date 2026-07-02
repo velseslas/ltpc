@@ -43,6 +43,13 @@ export interface ToolResult {
   rows?: number;
   chunks?: number;
   error?: string;
+  /** Traces Repository (table, filtres, SQL preview, count exact, warnings). */
+  repo_debug?: Array<{
+    repository: string; table: string; operation: string;
+    select: string; filters: Record<string, unknown>;
+    sql_preview: string; rows_returned: number; count_exact?: number;
+    warning?: string; duration_ms: number;
+  }>;
 }
 
 export interface Tool {
@@ -67,6 +74,7 @@ export interface ToolTrace {
   rows?: number;
   chunks?: number;
   error?: string;
+  repo_debug?: ToolResult["repo_debug"];
 }
 
 export interface ToolScoreTrace {
