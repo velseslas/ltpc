@@ -17,7 +17,7 @@ export interface AIMessage {
   content: string;
   citations: AICitation[];
   tool_calls?: unknown;
-  meta: { model?: string; tokens?: number; tokensTotal?: number | null; durationMs?: number; confidence?: number; debug?: unknown; search_debug?: unknown };
+  meta: { model?: string; tokens?: number; tokensTotal?: number | null; durationMs?: number; confidence?: number; debug?: unknown; search_debug?: unknown; agent_debug?: unknown };
   created_at: string;
 }
 
