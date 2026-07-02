@@ -125,23 +125,6 @@ export default function MouvementDetail() {
             <p className="italic text-sm">{DECLARATIONS[m.type]}</p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader><CardTitle>Signatures ({sigs?.length || 0})</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              {(sigs || []).map((s: any) => (
-                <div key={s.id} className="border rounded-lg p-4">
-                  <p className="text-xs uppercase text-muted-foreground">{s.role}</p>
-                  <p className="font-semibold">{s.signataire_nom}</p>
-                  {s.signataire_fonction && <p className="text-sm text-muted-foreground">{s.signataire_fonction}</p>}
-                  <p className="text-xs mt-1">{format(new Date(s.signed_at), "dd/MM/yyyy HH:mm", { locale: fr })}</p>
-                  {s.signature_data && <img src={s.signature_data} alt="signature" className="mt-2 h-20 bg-white border rounded" />}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {m.type !== "decharge" && (
