@@ -49,15 +49,15 @@ export default function MouvementForm() {
 
   type Item = { materiel_id: string; quantite: number; etat: ItemEtat; observations?: string };
   const [items, setItems] = useState<Item[]>([]);
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [showErrors, setShowErrors] = useState(false);
 
   const isDecharge = type === "decharge";
   const isPassation = type === "passation";
   const isCascade = isDecharge || isPassation;
 
   const emptyClass = (value: string | undefined, required: boolean) =>
-    required && (!value || value.trim() === "") ? "animate-border-blink" : "";
+    showErrors && required && (!value || value.trim() === "") ? "animate-border-blink" : "";
 
 
   // Item état options adapted per movement type (passation = Bon / Défectueux / Hors usage)
