@@ -65,7 +65,11 @@ export default function MouvementsDashboard() {
             {TYPES.map((t) => (
               <button
                 key={t.type}
-                onClick={() => navigate(t.type === "decharge" ? "/materiel/mouvements/decharge" : `/materiel/mouvements/nouveau/${t.type}`)}
+                onClick={() => {
+                  if (t.type === "decharge") navigate("/materiel/mouvements/decharge");
+                  else if (t.type === "affectation") navigate("/materiel/mouvements/affectation");
+                  else navigate(`/materiel/mouvements/nouveau/${t.type}`);
+                }}
                 className="border border-border rounded-xl p-4 text-left hover:border-primary/60 transition group"
               >
                 <div className={`w-12 h-12 rounded-xl ${t.color} flex items-center justify-center mb-3 group-hover:scale-110 transition`}>
