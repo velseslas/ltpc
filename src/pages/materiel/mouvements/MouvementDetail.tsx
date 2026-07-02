@@ -145,34 +145,36 @@ export default function MouvementDetail() {
         </Card>
       </div>
 
-      <Card className="print:hidden">
-        <CardHeader><CardTitle className="flex items-center gap-2"><PenLine className="h-4 w-4" /> Ajouter une signature</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid md:grid-cols-3 gap-3">
-            <div>
-              <Label>Rôle</Label>
-              <select className="w-full border rounded-md h-10 px-3 bg-background" value={sigForm.role} onChange={(e) => setSigForm({ ...sigForm, role: e.target.value })}>
-                <option value="technicien">Technicien</option>
-                <option value="technicien_sortant">Technicien sortant</option>
-                <option value="technicien_entrant">Technicien entrant</option>
-                <option value="responsable">Responsable laboratoire</option>
-              </select>
+      {m.type !== "decharge" && (
+        <Card className="print:hidden">
+          <CardHeader><CardTitle className="flex items-center gap-2"><PenLine className="h-4 w-4" /> Ajouter une signature</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid md:grid-cols-3 gap-3">
+              <div>
+                <Label>Rôle</Label>
+                <select className="w-full border rounded-md h-10 px-3 bg-background" value={sigForm.role} onChange={(e) => setSigForm({ ...sigForm, role: e.target.value })}>
+                  <option value="technicien">Technicien</option>
+                  <option value="technicien_sortant">Technicien sortant</option>
+                  <option value="technicien_entrant">Technicien entrant</option>
+                  <option value="responsable">Responsable laboratoire</option>
+                </select>
+              </div>
+              <div>
+                <Label>Nom *</Label>
+                <Input value={sigForm.nom} onChange={(e) => setSigForm({ ...sigForm, nom: e.target.value })} />
+              </div>
+              <div>
+                <Label>Fonction</Label>
+                <Input value={sigForm.fonction} onChange={(e) => setSigForm({ ...sigForm, fonction: e.target.value })} />
+              </div>
             </div>
-            <div>
-              <Label>Nom *</Label>
-              <Input value={sigForm.nom} onChange={(e) => setSigForm({ ...sigForm, nom: e.target.value })} />
+            <SignaturePad value={sigForm.data || undefined} onChange={(d) => setSigForm({ ...sigForm, data: d })} />
+            <div className="flex justify-end">
+              <Button onClick={handleSign} disabled={sign.isPending}>Enregistrer la signature</Button>
             </div>
-            <div>
-              <Label>Fonction</Label>
-              <Input value={sigForm.fonction} onChange={(e) => setSigForm({ ...sigForm, fonction: e.target.value })} />
-            </div>
-          </div>
-          <SignaturePad value={sigForm.data || undefined} onChange={(d) => setSigForm({ ...sigForm, data: d })} />
-          <div className="flex justify-end">
-            <Button onClick={handleSign} disabled={sign.isPending}>Enregistrer la signature</Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
