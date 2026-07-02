@@ -97,13 +97,19 @@ export interface RapportListFilters {
   search?: string;
 }
 
+export type RapportListItem = RapportTechnique & {
+  rapport_categories?: { nom: string; slug: string } | null;
+  clients?: { nom: string } | null;
+  chantiers?: { nom: string } | null;
+};
+
 export function useRapportsTechniques(filters: RapportListFilters = {}) {
   return useQuery({
     queryKey: ["rapports_techniques", filters],
     queryFn: async () => {
       let q = supabase
         .from("rapports_techniques")
-        .select("*, rapport_categories(nom, slug), clients(nom_client), chantiers(nom)")
+        .select("*, rapport_categories(nom, slug), clients(nom), chantiers(nom)")
         .order("created_at", { ascending: false });
       if (filters.statuts && filters.statuts.length) {
         q = q.in("statut", filters.statuts);
@@ -116,11 +122,7 @@ export function useRapportsTechniques(filters: RapportListFilters = {}) {
       }
       const { data, error } = await q;
       if (error) throw error;
-      return data as (RapportTechnique & {
-        rapport_categories?: { nom: string; slug: string } | null;
-        clients?: { nom_client: string } | null;
-        chantiers?: { nom: string } | null;
-      })[];
+      return (data ?? []) as unknown as RapportListItem[];
     },
   });
 }
