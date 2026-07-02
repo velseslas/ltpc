@@ -29,10 +29,9 @@ Deno.serve(async (req) => {
       categorie: (r as { rapport_categories?: { nom?: string } | null }).rapport_categories?.nom ?? null,
     });
 
-    const provider = getDefaultProvider();
     const userId = getUserIdFromReq(req);
     try {
-      const result = await provider.call({
+      const result = await callAIFeature("questions", {
         messages: [
           { role: "system", content: SYSTEM_INGENIEUR_LABO },
           { role: "user", content: userPrompt },
@@ -56,7 +55,7 @@ Deno.serve(async (req) => {
         await admin.from("rapport_questions_ia").insert(rows as never);
       }
 
-      await logAICall({ rapport_id, operation: "questions", provider: provider.name, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
+      await logAICall({ rapport_id, operation: "questions", provider: result.provider, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
 
       return new Response(JSON.stringify({ questions }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     } catch (e) {
