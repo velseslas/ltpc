@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, RefreshCw, Database, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
-import BackButton from "@/components/BackButton";
+import { BackButton } from "@/components/ui/back-button";
 import { KnowledgeService, type IndexableSource } from "@/lib/ltpc-ai/KnowledgeService";
 
 const SOURCES: { key: IndexableSource; label: string; description: string }[] = [

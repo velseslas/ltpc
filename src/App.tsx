@@ -9,6 +9,7 @@ import { PermissionProvider } from "@/hooks/usePermissionContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
 import LtpcAI from "@/pages/ltpc-ai/LtpcAI";
+const KnowledgeBase = lazy(() => import("@/pages/ltpc-ai/KnowledgeBase"));
 import LtpcAIFab from "@/components/ltpc-ai/LtpcAIFab";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
