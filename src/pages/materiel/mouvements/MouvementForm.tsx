@@ -223,11 +223,11 @@ export default function MouvementForm() {
             <Input type="date" value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
-          {isDecharge && (
+          {isCascade && (
             <>
               <div>
                 <Label>Wilaya *</Label>
-                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }}>
+                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }}>
                   <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya..." /></SelectTrigger>
                   <SelectContent>
                     {wilayas.map((w) => <SelectItem key={w.code} value={w.nom}>{w.code} - {w.nom}</SelectItem>)}
@@ -236,7 +236,7 @@ export default function MouvementForm() {
               </div>
               <div>
                 <Label>Client *</Label>
-                <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
+                <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
                   <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionner un client..." : "Choisir d'abord une wilaya"} /></SelectTrigger>
                   <SelectContent>
                     {filteredClients.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
@@ -246,15 +246,15 @@ export default function MouvementForm() {
             </>
           )}
 
-          {(type === "affectation" || type === "decharge" || type === "restitution") && (
+          {(type === "affectation" || type === "decharge" || type === "passation" || type === "restitution") && (
             <div>
               <Label>Chantier {type !== "restitution" && "*"}</Label>
               <Select
                 value={form.chantier_id}
-                onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_entrant_id: "" }); if (isDecharge) setItems([]); }}
-                disabled={isDecharge && !clientId}
+                onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_sortant_id: "", technicien_entrant_id: "" }); if (isCascade) setItems([]); }}
+                disabled={isCascade && !clientId}
               >
-                <SelectTrigger><SelectValue placeholder={isDecharge && !clientId ? "Choisir d'abord un client" : "Sélectionner..."} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={isCascade && !clientId ? "Choisir d'abord un client" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
                   {filteredChantiers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}
                 </SelectContent>
@@ -265,10 +265,20 @@ export default function MouvementForm() {
           {(type === "passation" || type === "restitution") && (
             <div>
               <Label>Technicien {type === "passation" ? "sortant" : "responsable"} *</Label>
-              <Select value={form.technicien_sortant_id} onValueChange={(v) => setForm({ ...form, technicien_sortant_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <Select
+                value={form.technicien_sortant_id}
+                onValueChange={(v) => setForm({ ...form, technicien_sortant_id: v })}
+                disabled={isPassation && !form.chantier_id}
+              >
+                <SelectTrigger><SelectValue placeholder={isPassation && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
+                  {isPassation && techniciensChantier.length === 0 ? (
+                    <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
+                  ) : (
+                    (isPassation ? techniciensChantier : techniciens).map((i: any) => (
+                      <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -284,11 +294,35 @@ export default function MouvementForm() {
               >
                 <SelectTrigger><SelectValue placeholder={isDecharge && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {techniciens.length === 0 && isDecharge ? (
+                  {isDecharge && techniciensChantier.length === 0 ? (
                     <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
                   ) : (
-                    techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
+                    (isDecharge ? techniciensChantier : techniciens).map((i: any) => (
+                      <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
+                    )
                   )}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div>
+            <Label>Responsable laboratoire</Label>
+            <Select value={form.responsable_id} onValueChange={(v) => setForm({ ...form, responsable_id: v })}>
+              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <SelectContent>
+                {(intervenants || []).map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {type === "passation" && (
+            <div>
+              <Label>Motif *</Label>
+              <Select value={form.motif} onValueChange={(v) => setForm({ ...form, motif: v })}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                <SelectContent>
+                  {MOTIFS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
