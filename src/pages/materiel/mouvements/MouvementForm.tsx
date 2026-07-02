@@ -50,7 +50,8 @@ export default function MouvementForm() {
   type Item = { materiel_id: string; quantite: number; etat: ItemEtat; observations?: string };
   const [items, setItems] = useState<Item[]>([]);
   const [showErrors, setShowErrors] = useState(false);
-  const [showErrors, setShowErrors] = useState(false);
+
+  const isDecharge = type === "decharge";
 
   const isDecharge = type === "decharge";
   const isPassation = type === "passation";
