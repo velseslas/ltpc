@@ -272,6 +272,7 @@ const MaterielDecharge = lazy(() => import("./pages/materiel/MaterielDecharge"))
 const MouvementsDashboard = lazy(() => import("./pages/materiel/mouvements/MouvementsDashboard"));
 const MouvementsListe = lazy(() => import("./pages/materiel/mouvements/MouvementsListe"));
 const MouvementsDechargeListe = lazy(() => import("./pages/materiel/mouvements/MouvementsDechargeListe"));
+const MouvementsPassationListe = lazy(() => import("./pages/materiel/mouvements/MouvementsPassationListe"));
 const MouvementForm = lazy(() => import("./pages/materiel/mouvements/MouvementForm"));
 const MouvementDetail = lazy(() => import("./pages/materiel/mouvements/MouvementDetail"));
 // Géotechnique - Identification
@@ -723,6 +724,7 @@ const AppRoutes = () => (
       <Route path="/materiel/mouvements" element={<MouvementsDashboard />} />
       <Route path="/materiel/mouvements/liste" element={<MouvementsListe />} />
       <Route path="/materiel/mouvements/decharge" element={<MouvementsDechargeListe />} />
+      <Route path="/materiel/mouvements/passation" element={<MouvementsPassationListe />} />
       <Route path="/materiel/mouvements/affectation" element={<MaterielAffectation />} />
       <Route path="/materiel/mouvements/affectation/nouveau" element={<MaterielAffectationForm />} />
       <Route path="/materiel/mouvements/affectation/:id" element={<MaterielAffectationDetail />} />
