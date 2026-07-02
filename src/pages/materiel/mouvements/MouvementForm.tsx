@@ -330,7 +330,7 @@ export default function MouvementForm() {
 
 
           <div className="md:col-span-2">
-            <Label>Observations</Label>
+            <Label>Observations <span className="text-destructive">*</span></Label>
             <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
           </div>
         </CardContent>
