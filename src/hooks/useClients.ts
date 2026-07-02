@@ -1,22 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { getRepository } from "@/lib/repositories";
 
 export type Client = Tables<"clients">;
 export type ClientInsert = TablesInsert<"clients">;
 export type ClientUpdate = TablesUpdate<"clients">;
 
+// Utilise la couche Repository partagée avec LTPC AI — garantit que l'écran
+// « Clients » et une question « Combien de clients ? » lisent la même requête.
 export function useClients() {
   return useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
-      return data;
+      const { data } = await getRepository("clients").list();
+      return data as Client[];
     },
   });
 }

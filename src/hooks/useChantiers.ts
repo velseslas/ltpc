@@ -30,16 +30,14 @@ export interface ChantierInsert {
   date_fin?: string | null;
 }
 
+import { getRepository } from "@/lib/repositories";
+
+// Utilise la couche Repository partagée avec LTPC AI.
 export function useChantiers() {
   return useQuery({
     queryKey: ["chantiers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("chantiers")
-        .select("*")
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
+      const { data } = await getRepository("chantiers").list();
       return data as Chantier[];
     },
   });
