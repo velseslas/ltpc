@@ -1,4 +1,4 @@
-import { Box, Gem, Landmark, Hammer, ShieldAlert } from "lucide-react";
+import { Box, Gem, Landmark, Hammer, ShieldAlert, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
