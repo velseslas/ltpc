@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Printer, CheckCircle2, PenLine } from "lucide-react";
-import { useMouvement, useMouvementItems, useMouvementSignatures, useSignMouvement, useValidateMouvement, MOUVEMENT_TYPE_LABEL, ITEM_ETAT_LABEL } from "@/hooks/useMouvementsMateriel";
+import { useMouvement, useMouvementItems, useSignMouvement, useValidateMouvement, MOUVEMENT_TYPE_LABEL, ITEM_ETAT_LABEL } from "@/hooks/useMouvementsMateriel";
 import { MouvementTypeBadge, MouvementStatutBadge, ItemEtatBadge } from "@/components/materiel/MovementBadges";
 import { SignaturePad } from "@/components/materiel/SignaturePad";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
