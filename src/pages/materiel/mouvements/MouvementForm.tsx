@@ -257,10 +257,18 @@ export default function MouvementForm() {
           {(type === "affectation" || type === "decharge" || type === "passation") && (
             <div>
               <Label>Technicien {type === "passation" ? "entrant" : "destinataire"} *</Label>
-              <Select value={form.technicien_entrant_id} onValueChange={(v) => setForm({ ...form, technicien_entrant_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <Select
+                value={form.technicien_entrant_id}
+                onValueChange={(v) => setForm({ ...form, technicien_entrant_id: v })}
+                disabled={isDecharge && !form.chantier_id}
+              >
+                <SelectTrigger><SelectValue placeholder={isDecharge && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
+                  {techniciens.length === 0 && isDecharge ? (
+                    <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
+                  ) : (
+                    techniciens.map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
+                  )}
                 </SelectContent>
               </Select>
             </div>
