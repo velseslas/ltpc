@@ -190,6 +190,7 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
           <ReactMarkdown>{msg.content.replace(/\[ref:[a-z_]+:[0-9a-f-]{8,}\]/gi, "")}</ReactMarkdown>
         </div>
         {msg.citations && msg.citations.length > 0 && <Citations items={msg.citations} />}
+        {(msg.meta?.debug || msg.meta?.search_debug) && <DebugPanel meta={msg.meta} />}
         {msg.meta?.model && (
           <div className="text-[10px] text-muted-foreground mt-1">
             {msg.meta.model}{msg.meta.durationMs ? ` · ${(msg.meta.durationMs / 1000).toFixed(1)}s` : ""}{msg.meta.tokensTotal ? ` · ${msg.meta.tokensTotal} tok` : ""}
