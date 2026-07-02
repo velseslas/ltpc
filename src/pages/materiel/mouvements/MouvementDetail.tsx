@@ -28,7 +28,6 @@ export default function MouvementDetail() {
   const navigate = useNavigate();
   const { data: m } = useMouvement(id);
   const { data: items } = useMouvementItems(id);
-  const { data: sigs } = useMouvementSignatures(id);
   const sign = useSignMouvement();
   const validate = useValidateMouvement();
 
