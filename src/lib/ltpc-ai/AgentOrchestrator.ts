@@ -27,11 +27,11 @@ function dedupCitations(cs: AICitation[]): AICitation[] {
 export const AgentOrchestrator = {
   async run(query: string, context?: AIContext | null): Promise<AgentResult> {
     const decision = AIIntentRouter.route(query, context);
-    const tools = ToolRegistry.pick(decision);
+    const { picked: tools, scores, reason } = ToolRegistry.pickWithTrace(decision);
 
     const results = await Promise.all(tools.map((t) => t.execute(decision)));
 
-    const traces: ToolTrace[] = results.map((r, i) => ({
+    const traces: ToolTrace[] = results.map((r) => ({
       tool: r.tool,
       confidence: r.confidence,
       ok: r.ok,
@@ -60,6 +60,8 @@ export const AgentOrchestrator = {
       },
       tools_selected: tools.map((t) => t.name),
       tools_executed: traces,
+      tools_scores: scores,
+      selection_reason: reason,
       aggregated_confidence: aggregated,
       total_tool_duration_ms: traces.reduce((s, t) => s + t.duration_ms, 0),
     };

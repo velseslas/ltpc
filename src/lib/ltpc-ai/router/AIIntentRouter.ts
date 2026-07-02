@@ -19,7 +19,10 @@ const norm = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 const INTENT_PATTERNS: Array<{ intent: ToolIntent; re: RegExp; weight: number }> = [
-  { intent: "count",      re: /\b(combien|nombre de|nb\s|total(?:\s|$)|comptez?|compte)\b/i, weight: 0.9 },
+  // count — priorité maximale, doit toujours produire intent=count avant tout autre.
+  // Couvre : combien, combien de, nombre de, total de/des/d', j'ai combien,
+  // nous avons combien, on a combien, combien avons-nous, nb, comptez, compte.
+  { intent: "count",      re: /\b(combien|nombre\s+de|nb\s|total\s+(?:de|des|d['’])|comptez?|compte)\b/i, weight: 0.95 },
   { intent: "list",       re: /\b(liste|listez?|donne(?:z|r)?|montre(?:z|r)?|affiche(?:z|r)?|quels?|quelles?|tous les|toutes les|derniers?|dernières?)\b/i, weight: 0.7 },
   { intent: "search",     re: /\b(cherche|trouve|où|ou est|concernant|à propos|sur le|sur la|contenant)\b/i, weight: 0.7 },
   { intent: "compare",    re: /\b(compare(?:r|z)?|comparaison|versus|vs\b|différence entre|par rapport à)\b/i, weight: 0.85 },
