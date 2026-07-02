@@ -162,12 +162,18 @@ export default function MouvementForm() {
   const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
 
   const validate = () => {
-    if (!items.length) { toast.error("Ajoutez au moins un matériel"); return false; }
+    if (!form.date_mouvement) { toast.error("Sélectionnez la date du mouvement"); return false; }
+    if (isCascade) {
+      if (!wilaya) { toast.error("Sélectionnez une wilaya"); return false; }
+      if (!clientId) { toast.error("Sélectionnez un client"); return false; }
+    }
+    if (!items.length) { toast.error("Aucun matériel importé — vérifiez l'affectation du technicien"); return false; }
     if (type === "affectation" || type === "decharge") {
       if (!form.chantier_id) { toast.error("Sélectionnez un chantier"); return false; }
       if (!form.technicien_entrant_id) { toast.error("Sélectionnez un technicien destinataire"); return false; }
     }
     if (type === "passation") {
+      if (!form.chantier_id) { toast.error("Sélectionnez un chantier"); return false; }
       if (!form.technicien_sortant_id || !form.technicien_entrant_id) { toast.error("Sélectionnez les deux techniciens"); return false; }
       if (form.technicien_sortant_id === form.technicien_entrant_id) { toast.error("Les deux techniciens doivent être différents"); return false; }
       if (!form.motif) { toast.error("Sélectionnez le motif"); return false; }
@@ -175,8 +181,11 @@ export default function MouvementForm() {
     if (type === "restitution") {
       if (!form.technicien_sortant_id) { toast.error("Sélectionnez le technicien"); return false; }
     }
+    if (!form.responsable_id) { toast.error("Sélectionnez le responsable laboratoire"); return false; }
+    if (!form.observations?.trim()) { toast.error("Renseignez les observations"); return false; }
     return true;
   };
+
 
   const onSubmit = async (signNow: boolean) => {
     if (!validate()) return;
@@ -219,14 +228,14 @@ export default function MouvementForm() {
         <CardHeader><CardTitle>Informations générales</CardTitle></CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label>Date du mouvement *</Label>
+            <Label>Date du mouvement <span className="text-destructive">*</span></Label>
             <Input type="date" value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
           {isCascade && (
             <>
               <div>
-                <Label>Wilaya *</Label>
+                <Label>Wilaya <span className="text-destructive">*</span></Label>
                 <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }}>
                   <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya..." /></SelectTrigger>
                   <SelectContent>
@@ -235,7 +244,7 @@ export default function MouvementForm() {
                 </Select>
               </div>
               <div>
-                <Label>Client *</Label>
+                <Label>Client <span className="text-destructive">*</span></Label>
                 <Select value={clientId} onValueChange={(v) => { setClientId(v); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }} disabled={!wilaya}>
                   <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionner un client..." : "Choisir d'abord une wilaya"} /></SelectTrigger>
                   <SelectContent>
@@ -248,7 +257,7 @@ export default function MouvementForm() {
 
           {(type === "affectation" || type === "decharge" || type === "passation" || type === "restitution") && (
             <div>
-              <Label>Chantier {type !== "restitution" && "*"}</Label>
+              <Label>Chantier <span className="text-destructive">*</span></Label>
               <Select
                 value={form.chantier_id}
                 onValueChange={(v) => { setForm({ ...form, chantier_id: v, technicien_sortant_id: "", technicien_entrant_id: "" }); if (isCascade) setItems([]); }}
@@ -264,7 +273,7 @@ export default function MouvementForm() {
 
           {(type === "passation" || type === "restitution") && (
             <div>
-              <Label>Technicien {type === "passation" ? "sortant" : "responsable"} *</Label>
+              <Label>Technicien {type === "passation" ? "sortant" : "responsable"} <span className="text-destructive">*</span></Label>
               <Select
                 value={form.technicien_sortant_id}
                 onValueChange={(v) => setForm({ ...form, technicien_sortant_id: v })}
@@ -286,18 +295,18 @@ export default function MouvementForm() {
 
           {(type === "affectation" || type === "decharge" || type === "passation") && (
             <div>
-              <Label>Technicien {type === "passation" ? "entrant" : "destinataire"} *</Label>
+              <Label>Technicien {type === "passation" ? "entrant" : "destinataire"} <span className="text-destructive">*</span></Label>
               <Select
                 value={form.technicien_entrant_id}
                 onValueChange={(v) => setForm({ ...form, technicien_entrant_id: v })}
-                disabled={isDecharge && !form.chantier_id}
+                disabled={(isDecharge || isPassation) && !form.chantier_id}
               >
-                <SelectTrigger><SelectValue placeholder={isDecharge && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={(isDecharge || isPassation) && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {isDecharge && techniciensChantier.length === 0 ? (
+                  {(isDecharge || isPassation) && techniciensChantier.length === 0 ? (
                     <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
                   ) : (
-                    (isDecharge ? techniciensChantier : techniciens).map((i: any) => (
+                    ((isDecharge || isPassation) ? techniciensChantier : techniciens).map((i: any) => (
                       <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
                     )
                   )}
@@ -307,7 +316,7 @@ export default function MouvementForm() {
           )}
 
           <div>
-            <Label>Responsable laboratoire</Label>
+            <Label>Responsable laboratoire <span className="text-destructive">*</span></Label>
             <Select value={form.responsable_id} onValueChange={(v) => setForm({ ...form, responsable_id: v })}>
               <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
               <SelectContent>
@@ -318,7 +327,7 @@ export default function MouvementForm() {
 
           {type === "passation" && (
             <div>
-              <Label>Motif *</Label>
+              <Label>Motif <span className="text-destructive">*</span></Label>
               <Select value={form.motif} onValueChange={(v) => setForm({ ...form, motif: v })}>
                 <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
                 <SelectContent>
@@ -328,30 +337,9 @@ export default function MouvementForm() {
             </div>
           )}
 
-          <div>
-            <Label>Responsable laboratoire</Label>
-            <Select value={form.responsable_id} onValueChange={(v) => setForm({ ...form, responsable_id: v })}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
-              <SelectContent>
-                {(intervenants || []).map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {type === "passation" && (
-            <div>
-              <Label>Motif *</Label>
-              <Select value={form.motif} onValueChange={(v) => setForm({ ...form, motif: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
-                <SelectContent>
-                  {MOTIFS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div className="md:col-span-2">
-            <Label>Observations</Label>
+            <Label>Observations <span className="text-destructive">*</span></Label>
             <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
           </div>
         </CardContent>
@@ -359,38 +347,10 @@ export default function MouvementForm() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Matériels concernés ({items.length})</CardTitle>
-            <Button variant="outline" onClick={() => setPickerOpen(!pickerOpen)}>
-              <Plus className="h-4 w-4 mr-2" /> Ajouter du matériel
-            </Button>
-          </div>
+          <CardTitle>Matériels concernés ({items.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {pickerOpen && (
-            <div className="mb-4 border rounded-lg p-3 max-h-72 overflow-auto">
-              {availableMaterials.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  Aucun matériel disponible pour ce mouvement
-                </p>
-              ) : (
-                <>
-                  {availableMaterials.map((m: any) => (
-                    <label key={m.id} className="flex items-center gap-3 p-2 hover:bg-muted/40 rounded cursor-pointer">
-                      <Checkbox checked={!!selected[m.id]} onCheckedChange={(c) => setSelected({ ...selected, [m.id]: !!c })} />
-                      <div className="flex-1">
-                        <p className="font-medium">{m.nom}</p>
-                        <p className="text-xs text-muted-foreground">{m.reference || "—"} · {m.numero_serie || "—"}</p>
-                      </div>
-                    </label>
-                  ))}
-                  <div className="mt-2 flex justify-end">
-                    <Button size="sm" onClick={addSelected}>Ajouter la sélection</Button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+
 
           <Table>
             <TableHeader>
