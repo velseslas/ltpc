@@ -272,6 +272,7 @@ const MaterielDecharge = lazy(() => import("./pages/materiel/MaterielDecharge"))
 const MouvementsDashboard = lazy(() => import("./pages/materiel/mouvements/MouvementsDashboard"));
 const MouvementsListe = lazy(() => import("./pages/materiel/mouvements/MouvementsListe"));
 const MouvementsDechargeListe = lazy(() => import("./pages/materiel/mouvements/MouvementsDechargeListe"));
+const MouvementsPassationListe = lazy(() => import("./pages/materiel/mouvements/MouvementsPassationListe"));
 const MouvementForm = lazy(() => import("./pages/materiel/mouvements/MouvementForm"));
 const MouvementDetail = lazy(() => import("./pages/materiel/mouvements/MouvementDetail"));
 // Géotechnique - Identification
