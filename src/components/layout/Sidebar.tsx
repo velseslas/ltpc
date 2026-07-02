@@ -41,6 +41,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { data: userChantiers } = useCurrentUserChantiers();
 
   const visibleItems = menuItems.filter((item) => {
+    // Items sans permission (ex. LTPC AI) toujours visibles
+    if (!item.permission) return true;
     // Dashboard always visible
     if (item.permission === "dashboard.voir") return true;
     
