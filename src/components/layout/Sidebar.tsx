@@ -9,6 +9,7 @@ import {
   Receipt,
   FileText,
   Settings,
+  Sparkles,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -18,6 +19,7 @@ import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 
 const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
+  { title: "LTPC AI", path: "/ltpc-ai", icon: Sparkles },
   { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
   { title: "RH", path: "/rh", icon: UserCog, permission: "rh.voir" },
   { title: "Essais", path: "/essais", icon: FlaskConical, permission: "essais.voir" },
@@ -39,6 +41,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { data: userChantiers } = useCurrentUserChantiers();
 
   const visibleItems = menuItems.filter((item) => {
+    // Items sans permission (ex. LTPC AI) toujours visibles
+    if (!item.permission) return true;
     // Dashboard always visible
     if (item.permission === "dashboard.voir") return true;
     

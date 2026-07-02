@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { PermissionProvider } from "@/hooks/usePermissionContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
+import LtpcAI from "@/pages/ltpc-ai/LtpcAI";
+import LtpcAIFab from "@/components/ltpc-ai/LtpcAIFab";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -328,6 +330,7 @@ function ProtectedLayout() {
       <PermissionProvider>
         <MainLayout>
           <Outlet />
+          <LtpcAIFab />
         </MainLayout>
       </PermissionProvider>
     </ProtectedRoute>
@@ -355,6 +358,7 @@ const AppRoutes = () => (
     {/* All protected routes with persistent layout */}
     <Route element={<ProtectedLayout />}>
       <Route path="/" element={<Index />} />
+      <Route path="/ltpc-ai" element={<LtpcAI />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/intervenant" element={<IntervenantSelection />} />
       <Route path="/intervenant/clients" element={<Clients />} />
