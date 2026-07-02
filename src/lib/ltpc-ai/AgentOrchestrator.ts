@@ -39,6 +39,7 @@ export const AgentOrchestrator = {
       rows: r.rows,
       chunks: r.chunks,
       error: r.error,
+      repo_debug: r.repo_debug,
     }));
 
     const okResults = results.filter((r) => r.ok);
