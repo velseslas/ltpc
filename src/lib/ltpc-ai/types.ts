@@ -43,6 +43,16 @@ export interface AISearchHit {
   score?: number;
 }
 
+export interface AISearchDebug {
+  original_query: string;
+  keywords: string[];
+  intents: string[];
+  domains_searched: string[];
+  hits_per_domain: Record<string, number>;
+  totals_per_domain: Record<string, number>;
+  errors: Array<{ domain: string; message: string }>;
+}
+
 export interface AIContext {
   route: string;
   entity_type?: string;
