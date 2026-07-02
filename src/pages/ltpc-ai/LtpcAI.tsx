@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Bot, Plus, Star, Archive, Trash2, Send, Loader2, ExternalLink, Sparkles, Search, MessageSquare } from "lucide-react";
+import { Bot, Plus, Star, Archive, Trash2, Send, Loader2, ExternalLink, Sparkles, Search, MessageSquare, Bug, ChevronDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +30,8 @@ export default function LtpcAI() {
   const [params, setParams] = useSearchParams();
   const activeId = params.get("c");
   const [tab, setTab] = useState<"active" | "favorite" | "archived">("active");
-  const [search, setSearch] = useState("");
+  const [debugMode, setDebugMode] = useState<boolean>(() => localStorage.getItem("ltpc-ai-debug") === "1");
+  useEffect(() => { localStorage.setItem("ltpc-ai-debug", debugMode ? "1" : "0"); }, [debugMode]);
 
   const { data: conversations = [] } = useConversations(tab);
   const { data: messages = [], isLoading: loadingMessages } = useMessages(activeId);
