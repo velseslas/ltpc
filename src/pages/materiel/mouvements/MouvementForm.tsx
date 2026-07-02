@@ -162,12 +162,18 @@ export default function MouvementForm() {
   const removeItem = (idx: number) => setItems(items.filter((_, i) => i !== idx));
 
   const validate = () => {
-    if (!items.length) { toast.error("Ajoutez au moins un matériel"); return false; }
+    if (!form.date_mouvement) { toast.error("Sélectionnez la date du mouvement"); return false; }
+    if (isCascade) {
+      if (!wilaya) { toast.error("Sélectionnez une wilaya"); return false; }
+      if (!clientId) { toast.error("Sélectionnez un client"); return false; }
+    }
+    if (!items.length) { toast.error("Aucun matériel importé — vérifiez l'affectation du technicien"); return false; }
     if (type === "affectation" || type === "decharge") {
       if (!form.chantier_id) { toast.error("Sélectionnez un chantier"); return false; }
       if (!form.technicien_entrant_id) { toast.error("Sélectionnez un technicien destinataire"); return false; }
     }
     if (type === "passation") {
+      if (!form.chantier_id) { toast.error("Sélectionnez un chantier"); return false; }
       if (!form.technicien_sortant_id || !form.technicien_entrant_id) { toast.error("Sélectionnez les deux techniciens"); return false; }
       if (form.technicien_sortant_id === form.technicien_entrant_id) { toast.error("Les deux techniciens doivent être différents"); return false; }
       if (!form.motif) { toast.error("Sélectionnez le motif"); return false; }
@@ -175,8 +181,11 @@ export default function MouvementForm() {
     if (type === "restitution") {
       if (!form.technicien_sortant_id) { toast.error("Sélectionnez le technicien"); return false; }
     }
+    if (!form.responsable_id) { toast.error("Sélectionnez le responsable laboratoire"); return false; }
+    if (!form.observations?.trim()) { toast.error("Renseignez les observations"); return false; }
     return true;
   };
+
 
   const onSubmit = async (signNow: boolean) => {
     if (!validate()) return;
