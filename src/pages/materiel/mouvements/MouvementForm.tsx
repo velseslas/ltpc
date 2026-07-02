@@ -414,8 +414,8 @@ export default function MouvementForm() {
                       <Select value={it.etat} onValueChange={(v) => updateItem(idx, { etat: v as ItemEtat })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(ITEM_ETAT_LABEL) as ItemEtat[]).map((e) => (
-                            <SelectItem key={e} value={e}>{ITEM_ETAT_LABEL[e]}</SelectItem>
+                          {etatOptions.map((o) => (
+                            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
