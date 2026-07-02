@@ -106,4 +106,4 @@ group("Selection : pas de count → SQLSearchTool peut être choisi normalement"
 
 // ------------------------------------------------------------------------
 console.log(`\n${failed === 0 ? "✅" : "❌"} ${passed} passés · ${failed} échoués`);
-if (failed > 0) process.exit(1);
+if (failed > 0) (globalThis as { process?: { exit: (n: number) => void } }).process?.exit(1);
