@@ -355,49 +355,50 @@ export default function MouvementForm() {
         </CardHeader>
         <CardContent>
 
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Matériel</TableHead><TableHead>Référence</TableHead>
-                <TableHead className="w-24">Qté</TableHead><TableHead className="w-40">État</TableHead>
-                <TableHead>Observations</TableHead><TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((it, idx) => {
-                const mat = (materiels as any[])?.find((m) => m.id === it.materiel_id);
-                return (
-                  <TableRow key={idx}>
-                    <TableCell className="font-medium">{mat?.nom}</TableCell>
-                    <TableCell>{mat?.reference || "—"}</TableCell>
-                    <TableCell>
-                      <Input type="number" min={1} value={it.quantite} onChange={(e) => updateItem(idx, { quantite: parseInt(e.target.value) || 1 })} />
-                    </TableCell>
-                    <TableCell>
-                      <Select value={it.etat} onValueChange={(v) => updateItem(idx, { etat: v as ItemEtat })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {etatOptions.map((o) => (
-                            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Input value={it.observations || ""} onChange={(e) => updateItem(idx, { observations: e.target.value })} />
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => removeItem(idx)}><Trash2 className="h-4 w-4" /></Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-              {!items.length && (
-                <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">Aucun matériel ajouté</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
+          <div className={items.length === 0 ? "rounded-md border border-transparent animate-border-blink" : ""}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Matériel</TableHead><TableHead>Référence</TableHead>
+                  <TableHead className="w-24">Qté</TableHead><TableHead className="w-40">État</TableHead>
+                  <TableHead>Observations</TableHead><TableHead className="w-12"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((it, idx) => {
+                  const mat = (materiels as any[])?.find((m) => m.id === it.materiel_id);
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell className="font-medium">{mat?.nom}</TableCell>
+                      <TableCell>{mat?.reference || "—"}</TableCell>
+                      <TableCell>
+                        <Input type="number" min={1} value={it.quantite} onChange={(e) => updateItem(idx, { quantite: parseInt(e.target.value) || 1 })} />
+                      </TableCell>
+                      <TableCell>
+                        <Select value={it.etat} onValueChange={(v) => updateItem(idx, { etat: v as ItemEtat })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {etatOptions.map((o) => (
+                              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Input value={it.observations || ""} onChange={(e) => updateItem(idx, { observations: e.target.value })} />
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => removeItem(idx)}><Trash2 className="h-4 w-4" /></Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {!items.length && (
+                  <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">Aucun matériel ajouté</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
