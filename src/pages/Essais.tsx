@@ -44,6 +44,15 @@ const Essais = () => {
       iconColor: "text-rose-500",
       path: "/essais/acier"
     },
+    {
+      id: "redaction-rapport",
+      title: "Rédaction de rapport technique",
+      description: "Rédiger et consulter les rapports techniques des essais",
+      icon: FileText,
+      gradient: "from-violet-500/20 to-purple-500/10",
+      iconColor: "text-violet-500",
+      path: "/essais/redaction-rapport-technique"
+    },
   ];
 
   if (isAdmin) {
