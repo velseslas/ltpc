@@ -230,9 +230,16 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
     domains_searched?: string[]; hits_per_domain?: Record<string, number>;
     totals_per_domain?: Record<string, number>; errors?: Array<{ domain: string; message: string }>;
   } | undefined;
+  const ad = meta.agent_debug as {
+    router?: { intents: string[]; domains: string[]; keywords: string[]; confidence: number };
+    tools_selected?: string[];
+    tools_executed?: Array<{ tool: string; confidence: number; ok: boolean; duration_ms: number; rows?: number; chunks?: number; error?: string }>;
+    aggregated_confidence?: number;
+    total_tool_duration_ms?: number;
+  } | undefined;
   const dbg = meta.debug as {
     system_prompt_preview?: string; system_prompt_length?: number;
-    hits_sent?: number; history_length?: number;
+    hits_sent?: number; history_length?: number; tools_received?: number; gemini_duration_ms?: number;
   } | undefined;
   return (
     <Collapsible className="mt-2">
@@ -240,31 +247,43 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
         <Bug className="h-3 w-3" /> Debug pipeline <ChevronDown className="h-3 w-3" />
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2 space-y-2 text-[11px] font-mono bg-muted/40 border rounded-md p-2 overflow-auto">
-        {sd && (
+        {ad && (
           <div>
-            <div className="font-semibold text-primary">🔍 Recherche SQL</div>
-            <div>Requête : « {sd.original_query} »</div>
-            <div>Mots-clés retenus : [{(sd.keywords ?? []).join(", ") || "aucun"}]</div>
-            <div>Intentions : [{(sd.intents ?? []).join(", ") || "aucune"}]</div>
-            <div>Domaines interrogés : [{(sd.domains_searched ?? []).join(", ")}]</div>
-            <div className="mt-1 font-semibold text-primary">📊 Totaux base</div>
+            <div className="font-semibold text-primary">🧭 Agent Router</div>
+            <div>Intentions : [{(ad.router?.intents ?? []).join(", ") || "aucune"}]</div>
+            <div>Domaines : [{(ad.router?.domains ?? []).join(", ") || "aucun"}]</div>
+            <div>Mots-clés : [{(ad.router?.keywords ?? []).join(", ") || "aucun"}]</div>
+            <div>Confiance router : {((ad.router?.confidence ?? 0) * 100).toFixed(0)} %</div>
+            <div className="mt-1 font-semibold text-primary">🔧 Outils exécutés ({ad.tools_executed?.length ?? 0})</div>
             <ul className="pl-3">
-              {Object.entries(sd.totals_per_domain ?? {}).map(([k, v]) => (
-                <li key={k}>{k}: <strong>{v}</strong> · {sd.hits_per_domain?.[k] ?? 0} échantillons envoyés</li>
+              {(ad.tools_executed ?? []).map((t, i) => (
+                <li key={i}>
+                  {t.ok ? "✅" : "❌"} <strong>{t.tool}</strong> · conf {(t.confidence * 100).toFixed(0)}% · {t.duration_ms} ms
+                  {typeof t.rows === "number" ? ` · ${t.rows} lignes` : ""}
+                  {typeof t.chunks === "number" ? ` · ${t.chunks} chunks` : ""}
+                  {t.error ? ` · ⚠ ${t.error}` : ""}
+                </li>
               ))}
             </ul>
-            {sd.errors && sd.errors.length > 0 && (
-              <div className="text-destructive mt-1">
-                <div className="font-semibold">❌ Erreurs</div>
-                {sd.errors.map((e, i) => <div key={i}>• {e.domain}: {e.message}</div>)}
-              </div>
-            )}
+            <div className="mt-1">Total outils : {ad.total_tool_duration_ms} ms · Confiance agrégée : <strong>{ad.aggregated_confidence} %</strong></div>
+          </div>
+        )}
+        {sd && (
+          <div>
+            <div className="font-semibold text-primary">🔍 (Legacy) Recherche SQL</div>
+            <div>Requête : « {sd.original_query} »</div>
+            <div>Domaines : [{(sd.domains_searched ?? []).join(", ")}]</div>
+            <ul className="pl-3">
+              {Object.entries(sd.totals_per_domain ?? {}).map(([k, v]) => (
+                <li key={k}>{k}: <strong>{v}</strong></li>
+              ))}
+            </ul>
           </div>
         )}
         {dbg && (
           <div>
-            <div className="font-semibold text-primary">📤 Prompt envoyé à Gemini</div>
-            <div>Longueur système : {dbg.system_prompt_length} caractères · {dbg.hits_sent} hits · {dbg.history_length} messages historique</div>
+            <div className="font-semibold text-primary">📤 Prompt Gemini</div>
+            <div>Système : {dbg.system_prompt_length} car. · {dbg.tools_received ?? dbg.hits_sent ?? 0} résultats · Gemini : {dbg.gemini_duration_ms ?? "?"} ms</div>
             {dbg.system_prompt_preview && (
               <details>
                 <summary className="cursor-pointer">Voir le prompt système complet</summary>
@@ -277,6 +296,7 @@ function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
     </Collapsible>
   );
 }
+
 
 function EmptyIntro({ onPick }: { onPick: (q: string) => void }) {
   return (
