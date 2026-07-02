@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Bot, Plus, Star, Archive, Trash2, Send, Loader2, ExternalLink, Sparkles, Search, MessageSquare } from "lucide-react";
+import { Bot, Plus, Star, Archive, Trash2, Send, Loader2, ExternalLink, Sparkles, Search, MessageSquare, Bug, ChevronDown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,6 +31,8 @@ export default function LtpcAI() {
   const activeId = params.get("c");
   const [tab, setTab] = useState<"active" | "favorite" | "archived">("active");
   const [search, setSearch] = useState("");
+  const [debugMode, setDebugMode] = useState<boolean>(() => localStorage.getItem("ltpc-ai-debug") === "1");
+  useEffect(() => { localStorage.setItem("ltpc-ai-debug", debugMode ? "1" : "0"); }, [debugMode]);
 
   const { data: conversations = [] } = useConversations(tab);
   const { data: messages = [], isLoading: loadingMessages } = useMessages(activeId);
@@ -109,15 +114,20 @@ export default function LtpcAI() {
           {context?.entity_type && (
             <Badge variant="outline" className="text-[10px] capitalize">Contexte : {context.entity_type}</Badge>
           )}
+          <div className="flex items-center gap-1.5 pl-2 border-l">
+            <Bug className={`h-3.5 w-3.5 ${debugMode ? "text-primary" : "text-muted-foreground"}`} />
+            <Label htmlFor="dbg" className="text-[10px] cursor-pointer">Debug</Label>
+            <Switch id="dbg" checked={debugMode} onCheckedChange={setDebugMode} />
+          </div>
         </header>
 
         <ScrollArea className="flex-1 p-4">
           {!activeId ? (
-            <EmptyIntro onPick={async (q) => { const c = await createM.mutateAsync(undefined); setParams({ c: c.id }); setTimeout(() => sendM.mutate({ conversationId: c.id, content: q, context }), 100); }} />
+            <EmptyIntro onPick={async (q) => { const c = await createM.mutateAsync(undefined); setParams({ c: c.id }); setTimeout(() => sendM.mutate({ conversationId: c.id, content: q, context, debug: debugMode }), 100); }} />
           ) : loadingMessages ? (
             <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : messages.length === 0 ? (
-            <EmptyIntro onPick={(q) => sendM.mutate({ conversationId: activeId, content: q, context })} />
+            <EmptyIntro onPick={(q) => sendM.mutate({ conversationId: activeId, content: q, context, debug: debugMode })} />
           ) : (
             <ul className="space-y-4 max-w-3xl mx-auto">
               {messages.map((m) => <MessageBubble key={m.id} msg={m} />)}
@@ -135,7 +145,7 @@ export default function LtpcAI() {
             id = c.id;
             setParams({ c: id });
           }
-          sendM.mutate({ conversationId: id, content: text, context });
+          sendM.mutate({ conversationId: id, content: text, context, debug: debugMode });
         }} />
       </main>
     </div>
@@ -180,6 +190,7 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
           <ReactMarkdown>{msg.content.replace(/\[ref:[a-z_]+:[0-9a-f-]{8,}\]/gi, "")}</ReactMarkdown>
         </div>
         {msg.citations && msg.citations.length > 0 && <Citations items={msg.citations} />}
+        {(msg.meta?.debug || msg.meta?.search_debug) && <DebugPanel meta={msg.meta} />}
         {msg.meta?.model && (
           <div className="text-[10px] text-muted-foreground mt-1">
             {msg.meta.model}{msg.meta.durationMs ? ` · ${(msg.meta.durationMs / 1000).toFixed(1)}s` : ""}{msg.meta.tokensTotal ? ` · ${msg.meta.tokensTotal} tok` : ""}
@@ -210,6 +221,60 @@ function Citations({ items }: { items: AICitation[] }) {
         ))}
       </ul>
     </Card>
+  );
+}
+
+function DebugPanel({ meta }: { meta: AIMessage["meta"] }) {
+  const sd = meta.search_debug as {
+    original_query?: string; keywords?: string[]; intents?: string[];
+    domains_searched?: string[]; hits_per_domain?: Record<string, number>;
+    totals_per_domain?: Record<string, number>; errors?: Array<{ domain: string; message: string }>;
+  } | undefined;
+  const dbg = meta.debug as {
+    system_prompt_preview?: string; system_prompt_length?: number;
+    hits_sent?: number; history_length?: number;
+  } | undefined;
+  return (
+    <Collapsible className="mt-2">
+      <CollapsibleTrigger className="flex items-center gap-1.5 text-[10px] font-mono text-primary hover:underline">
+        <Bug className="h-3 w-3" /> Debug pipeline <ChevronDown className="h-3 w-3" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2 space-y-2 text-[11px] font-mono bg-muted/40 border rounded-md p-2 overflow-auto">
+        {sd && (
+          <div>
+            <div className="font-semibold text-primary">🔍 Recherche SQL</div>
+            <div>Requête : « {sd.original_query} »</div>
+            <div>Mots-clés retenus : [{(sd.keywords ?? []).join(", ") || "aucun"}]</div>
+            <div>Intentions : [{(sd.intents ?? []).join(", ") || "aucune"}]</div>
+            <div>Domaines interrogés : [{(sd.domains_searched ?? []).join(", ")}]</div>
+            <div className="mt-1 font-semibold text-primary">📊 Totaux base</div>
+            <ul className="pl-3">
+              {Object.entries(sd.totals_per_domain ?? {}).map(([k, v]) => (
+                <li key={k}>{k}: <strong>{v}</strong> · {sd.hits_per_domain?.[k] ?? 0} échantillons envoyés</li>
+              ))}
+            </ul>
+            {sd.errors && sd.errors.length > 0 && (
+              <div className="text-destructive mt-1">
+                <div className="font-semibold">❌ Erreurs</div>
+                {sd.errors.map((e, i) => <div key={i}>• {e.domain}: {e.message}</div>)}
+              </div>
+            )}
+          </div>
+        )}
+        {dbg && (
+          <div>
+            <div className="font-semibold text-primary">📤 Prompt envoyé à Gemini</div>
+            <div>Longueur système : {dbg.system_prompt_length} caractères · {dbg.hits_sent} hits · {dbg.history_length} messages historique</div>
+            {dbg.system_prompt_preview && (
+              <details>
+                <summary className="cursor-pointer">Voir le prompt système complet</summary>
+                <pre className="whitespace-pre-wrap text-[10px] mt-1 max-h-64 overflow-auto bg-background p-2 rounded">{dbg.system_prompt_preview}</pre>
+              </details>
+            )}
+          </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 

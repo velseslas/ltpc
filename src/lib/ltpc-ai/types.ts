@@ -17,7 +17,7 @@ export interface AIMessage {
   content: string;
   citations: AICitation[];
   tool_calls?: unknown;
-  meta: { model?: string; tokens?: number; tokensTotal?: number | null; durationMs?: number; confidence?: number };
+  meta: { model?: string; tokens?: number; tokensTotal?: number | null; durationMs?: number; confidence?: number; debug?: unknown; search_debug?: unknown };
   created_at: string;
 }
 
@@ -41,6 +41,16 @@ export interface AISearchHit {
   snippet: string;
   url?: string | null;
   score?: number;
+}
+
+export interface AISearchDebug {
+  original_query: string;
+  keywords: string[];
+  intents: string[];
+  domains_searched: string[];
+  hits_per_domain: Record<string, number>;
+  totals_per_domain: Record<string, number>;
+  errors: Array<{ domain: string; message: string }>;
 }
 
 export interface AIContext {

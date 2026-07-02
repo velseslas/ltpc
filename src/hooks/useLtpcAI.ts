@@ -70,14 +70,14 @@ export function useCurrentContext(): { context: AIContext | null; loading: boole
 export function useSendMessage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { conversationId: string; content: string; context?: AIContext | null }) => {
+    mutationFn: async (input: { conversationId: string; content: string; context?: AIContext | null; debug?: boolean }) => {
       const history = await ConversationService.messages(input.conversationId);
       await ConversationService.addMessage({
         conversation_id: input.conversationId, role: "user", content: input.content,
         citations: [], meta: {},
       });
 
-      const hits = await SearchService.searchAll(input.content, { limitPerDomain: 4 });
+      const { hits, debug: searchDebug } = await SearchService.searchAll(input.content, { limitPerDomain: 6 });
 
       const { data, error } = await supabase.functions.invoke("ltpc-ai-chat", {
         body: {
@@ -86,17 +86,24 @@ export function useSendMessage() {
           user_query: input.content,
           context: input.context?.data ?? null,
           search_hits: hits,
+          search_debug: searchDebug,
+          debug: input.debug ?? false,
         },
       });
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(String(data.error));
+
+      const meta = {
+        ...(data.meta ?? {}),
+        ...(input.debug ? { debug: data.debug, search_debug: searchDebug } : {}),
+      };
 
       const assistant = await ConversationService.addMessage({
         conversation_id: input.conversationId,
         role: "assistant",
         content: String(data.answer ?? ""),
         citations: (data.citations ?? []) as AICitation[],
-        meta: data.meta ?? {},
+        meta,
       });
 
       if (input.context) await ConversationService.saveContext(input.conversationId, input.context, assistant.id);
