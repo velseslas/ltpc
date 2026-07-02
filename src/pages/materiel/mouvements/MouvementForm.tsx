@@ -12,8 +12,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useChantiers } from "@/hooks/useChantiers";
+import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useMaterielList } from "@/hooks/useMaterielLaboratoire";
+import { useMaterielList, useAffectationMateriel } from "@/hooks/useMaterielLaboratoire";
+import { wilayas } from "@/data/wilayas";
 import { useCreateMouvement, MouvementType, MOUVEMENT_TYPE_LABEL, ItemEtat, ITEM_ETAT_LABEL } from "@/hooks/useMouvementsMateriel";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,9 +28,14 @@ export default function MouvementForm() {
   const type = (typeParam || "affectation") as MouvementType;
 
   const { data: chantiers } = useChantiers();
+  const { data: clients } = useClients();
   const { data: intervenants } = useIntervenants();
   const { data: materiels } = useMaterielList();
+  const { data: affectations } = useAffectationMateriel();
   const createMv = useCreateMouvement();
+
+  const [wilaya, setWilaya] = useState("");
+  const [clientId, setClientId] = useState("");
 
   const [form, setForm] = useState({
     chantier_id: "",
