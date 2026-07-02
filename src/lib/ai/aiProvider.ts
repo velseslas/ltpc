@@ -80,6 +80,14 @@ class LovableAIProvider implements AIProvider {
   generateDraftReport(rapportId: string) {
     return invoke<{ contenu: AIRapportContenu; meta: AIMeta }>("rapport-ai-generer", { rapport_id: rapportId });
   }
+  improveText(input: { texte: string; action: ImproveAction; rapportId?: string; contexte?: string }) {
+    return invoke<{ texte: string; meta: AIMeta }>("rapport-ai-improve", {
+      rapport_id: input.rapportId ?? null,
+      texte: input.texte,
+      action: input.action,
+      contexte: input.contexte,
+    });
+  }
 }
 
 let currentProvider: AIProvider = new LovableAIProvider();
