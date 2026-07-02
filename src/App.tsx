@@ -411,6 +411,9 @@ const AppRoutes = () => (
       <Route path="/rh/documents" element={<Documents />} />
       <Route path="/essais" element={<Essais />} />
       <Route path="/essais/redaction-rapport-technique" element={<RedactionRapportTechnique />} />
+      <Route path="/essais/rapports-techniques" element={<RedactionRapportTechnique />} />
+      <Route path="/essais/rapports-techniques/nouveau" element={<NouveauRapportTechnique />} />
+      <Route path="/essais/rapports-techniques/:id" element={<RapportTechniqueDetail />} />
       <Route path="/essais/audit" element={<EssaisAudit />} />
       <Route path="/essais/granulat" element={<EssaiGranulat />} />
       <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
