@@ -2,6 +2,7 @@
 // exécutés côté client (RLS respectées). Gemini raisonne / synthétise / rédige,
 // jamais il ne recalcule. Rétro-compatible : accepte encore search_hits/search_debug.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { callAIFeature } from "../_shared/ai-provider.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
