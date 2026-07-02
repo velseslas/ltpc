@@ -1,85 +1,89 @@
+# Assistant IA de rédaction de rapports techniques
 
-# Module : Gestion des Mouvements de Matériel
+Module complet permettant à un technicien de décrire un problème, à une IA (Gemini 2.5 Flash) de l'analyser et de rédiger un projet de rapport, puis à un ingénieur de valider et générer un PDF officiel archivé.
 
-Remplace l'actuel placeholder `Décharge Matériels` par un véritable module ERP de traçabilité, branché sur le matériel de laboratoire existant.
+## Note sur le modèle IA
 
-## 1. Modèle de données (migration Supabase)
+Vous avez demandé **Gemini 2.5 Flash via l'API Google AI Studio** (clé Google).
 
-Nouvelles tables (toutes en append-only, aucune suppression physique) :
+Deux options — je recommande la 1 :
+1. **Lovable AI Gateway → `google/gemini-2.5-flash`** : aucune clé à fournir, facturé sur vos crédits Lovable, même modèle, appel serveur via edge function. Zéro configuration.
+2. **Google AI Studio direct** : vous fournissez `GOOGLE_AI_API_KEY` (secret sécurisé), appel serveur via edge function vers `generativelanguage.googleapis.com`.
 
-- `materiel_movements`
-  - `numero` (auto `MVT-YYYY-NNNN`), `type` (enum : `affectation`, `decharge`, `passation`, `restitution`), `statut` (`brouillon`, `valide`, `signe`, `annule`)
-  - `chantier_id`, `technicien_sortant_id`, `technicien_entrant_id`, `responsable_id`
-  - `date_mouvement`, `heure_mouvement`, `motif` (passation), `observations`
-  - `created_by`, `created_at`, `parent_movement_id` (lien décharge → passation → restitution)
-- `movement_items` : `movement_id`, `materiel_id`, `quantite`, `etat` (`bon`, `usage`, `casse`, `manquant`, `a_reparer`), `observations`
-- `movement_signatures` : `movement_id`, `role` (`technicien_sortant`, `technicien_entrant`, `responsable`), `signataire_nom`, `signataire_fonction`, `signature_data` (base64), `signed_at`, `ip_address`, `user_id`
-- `material_responsibility_history` : `materiel_id`, `technicien_id`, `chantier_id`, `date_debut`, `date_fin`, `movement_id_debut`, `movement_id_fin`
-- `material_status_history` : `materiel_id`, `ancien_statut`, `nouveau_statut`, `movement_id`, `changed_by`, `changed_at`, `motif`
-- `movement_documents` : `movement_id`, `type` (decharge/passation/restitution), `pdf_url`, `qr_code_data`, `generated_at`
+Je propose de partir sur **l'option 1** sauf indication contraire — même modèle, aucune clé à gérer. Dites-moi si vous préférez l'option 2.
 
-Extension de `materiel_laboratoire` :
-- `statut_courant` enum (`disponible`, `affecte`, `pris_en_charge`, `en_passation`, `restitue`, `en_maintenance`, `hors_service`, `perdu`, `vole`, `reforme`) — défaut `disponible`
-- `responsable_courant_id` (intervenant), `chantier_courant_id`
+## Rôles (réutilisation existante)
 
-Triggers PG :
-- `trg_movement_apply` (AFTER INSERT signé) : met à jour `statut_courant`, `responsable_courant_id`, `chantier_courant_id`, et insère dans `material_status_history` + `material_responsibility_history` selon le type.
-- `trg_block_delete` : empêche `DELETE` sur les tables `materiel_movements`, `movement_items`, `movement_signatures`, historiques.
-- Numérotation auto via fonction `next_movement_numero(type)`.
+Mapping via la table `user_roles` existante :
+- `TECHNICIEN` → peut créer/décrire/joindre/sauver brouillon
+- `INGENIEUR` (à créer si absent) ou `RESPONSABLE` → peut modifier, valider, signer
+- `SUPER_ADMIN` / `ADMIN` → gère modèles, catégories, prompts système, en-têtes
 
-RLS :
-- Lecture : tout utilisateur authentifié pour les mouvements le concernant ; admin/manager voient tout.
-- Insertion mouvements : manager/admin + responsable labo. Techniciens : uniquement signature.
-- Aucune `DELETE` policy.
+Je vérifierai les rôles présents avant impl. et je créerai un rôle `ingenieur` uniquement si nécessaire.
 
-## 2. Hooks & services (React Query)
+## Architecture (aperçu technique)
 
-`src/hooks/useMouvementsMateriel.ts` :
-- `useMovementsList(filters)`, `useMovementDetail(id)`, `useCreateMovement`, `useSignMovement`, `useMaterialTimeline(materielId)`, `useMaterialStatusCounts`, `useAlertes()` (non restitués, en maintenance > X jours, sans responsable).
+**Tables Supabase** :
+- `rapports_techniques` — id, numero (RAPP-YYYY-NNN), titre, description_probleme, categorie, sous_type, client_id, chantier_id, materiau, statut (brouillon/en_cours/a_completer/en_attente_validation/valide/refuse/archive), technicien_id, ingenieur_id, analyse_ia (jsonb: type, confiance, gravite, essais_recommandes, normes, causes, risques), contenu_rapport (jsonb structuré : objet/contexte/constatations/analyse/consequences/recommandations/conclusion), version, valide_at, pdf_url, qr_token
+- `rapport_pieces_jointes` — id, rapport_id, type (photo/pdf/essai/document), nom, url, essai_ref
+- `rapport_questions_ia` — id, rapport_id, question, reponse, ordre
+- `rapport_historique` — id, rapport_id, user_id, action, ancien_contenu jsonb, nouveau_contenu jsonb, timestamp
+- `rapport_modeles_bibliotheque` — id, categorie, titre, prompt_template, structure_default (jsonb) — 21+ modèles seedés
+- `rapport_categories` — id, nom, ordre, icone (Béton, Granulats, Ciment, Adjuvant, Acier, Chantier, Essais, Non-conformités, Réclamations, Audit, Autres)
 
-## 3. Routes & écrans (React Router)
+**RLS** : techniciens voient leurs rapports + ceux de leur périmètre (Wilaya/Chantier), ingénieurs voient tout, admin voit tout. `GRANT` explicites sur chaque table.
 
-Sous `/materiel/mouvements` (le widget rose existant pointe ici, libellé renommé "Mouvements Matériel") :
+**Bucket Storage** : `rapports-techniques` (photos, PDFs joints, rapports générés).
 
-- `/materiel/mouvements` — **Tableau de bord** : cartes statut (Disponible/Affecté/Pris en charge/Maintenance/Perdu/Retard), dernières passations, dernières restitutions, alertes.
-- `/materiel/mouvements/liste` — liste filtrable + recherche, badges colorés, export Excel/PDF, impression.
-- `/materiel/mouvements/nouveau/:type` — formulaire de création (affectation / décharge / passation / restitution) avec sélection multi-matériel, quantités, état, motif.
-- `/materiel/mouvements/:id` — détail : timeline du mouvement, items, signatures, bouton "Signer" pour les rôles concernés, bouton "Générer PDF".
-- `/materiel/mouvements/:id/pdf` — page imprimable A4 (logo, entreprise, n°, QR code, items, déclarations, signatures) → `window.print()`.
-- Onglet **Historique des mouvements** ajouté dans `MaterielDetail.tsx` : timeline verticale (date/heure, type, chantier, technicien, état, utilisateur, lien document) + bandeau "Responsable actuel" toujours visible.
+**Edge Functions** :
+- `rapport-analyser` — reçoit description + pièces, retourne analyse structurée (Output.object schema Zod)
+- `rapport-questions` — génère questions complémentaires selon lacunes détectées
+- `rapport-generer` — produit le rapport structuré en 7 sections
+- `rapport-pdf` — assemble le PDF final via composant impression (`data-ref="report"`, `-webkit-print-color-adjust: exact`)
 
-Composants partagés :
-- `MovementTimeline`, `MovementStatusBadge`, `SignaturePad` (canvas), `MaterialPicker` (multi-sélection avec quantité/état), `MovementPdfLayout`.
+## Livraison par phases
 
-## 4. Règles métier appliquées côté UI + DB
+### Phase 1 — Fondations base de données + navigation
+- Migrations : 6 tables + RLS + GRANT + bucket storage
+- Seed catégories + 21 modèles de bibliothèque
+- Route `/essais/rapports-techniques` + refonte du widget (déjà en place) en page fonctionnelle
+- Layout principal : bibliothèque à gauche, zone centrale, header avec onglets (Nouveau / Brouillons / En attente / Validés / Archivés)
+- Filtres + recherche + badges de compteurs par onglet
 
-- Sélecteur de matériel filtré : pour affectation, uniquement `statut_courant = disponible`.
-- Passation interdite si matériel `restitue` / `hors_service`.
-- Restitution clôt la responsabilité et reroute le statut selon l'état saisi (bon → disponible, à réparer → en_maintenance, cassé/perdu → hors_service/perdu).
-- Aucun bouton "Supprimer" ; uniquement "Annuler" (statut `annule`, conservé).
+### Phase 2 — Création & description
+- Formulaire "Nouveau rapport" : sélection catégorie/sous-type (depuis bibliothèque), grand textarea description, sélection Client → Chantier (cascade), matériau, date
+- Upload multi-fichiers : photos, PDFs, documents (Storage)
+- Sélection d'essais existants du laboratoire (picker vers `essais_*`)
+- Sauvegarde brouillon auto + manuel
 
-## 5. Signature électronique
+### Phase 3 — Moteur IA (analyse + questions + génération)
+- Edge function `rapport-analyser` avec prompt système "ingénieur senior spécialisé laboratoire de contrôle des matériaux" : ton neutre/juridique/technique, jamais inventer, "Information non disponible" si manque
+- Affichage carte d'analyse (type détecté, badge de confiance, gravité, matériaux, essais recommandés, normes, causes probables, risques)
+- Edge function `rapport-questions` : détecte lacunes, pose questions ciblées, l'utilisateur répond, l'IA intègre
+- Edge function `rapport-generer` : produit contenu structuré en 7 sections (Objet / Contexte / Constatations / Analyse technique / Conséquences / Recommandations / Conclusion) avec distinction Faits / Hypothèses / Analyses / Recommandations / Conclusions
 
-`SignaturePad` (canvas HTML5) → image PNG base64 stockée dans `movement_signatures.signature_data`, avec capture nom, fonction, date/heure serveur, IP (via edge function `get-client-ip` légère ou en-tête `x-forwarded-for` lue à la création), user_id.
+### Phase 4 — Éditeur & workflow de validation
+- Éditeur riche (Tiptap) : gras, listes, tableaux, images inline, insertion résultats d'essais et références normatives
+- Boutons de workflow selon rôle : Enregistrer brouillon / Marquer à compléter / Soumettre validation / Valider / Refuser
+- Historique complet (utilisateur, date, ancien contenu, nouveau contenu) — diff visuel version à version
+- Signature électronique ingénieur (image signature depuis `parametres_signature`)
 
-## 6. PDF officiel
+### Phase 5 — PDF officiel + archivage
+- Composant impression avec logo, en-tête laboratoire, référence auto `RAPP-YYYY-NNN`, projet, client, entreprise, date, 7 sections, signature/cachet, QR code de vérification (token public → page de vérification), pagination, pied de page
+- Génération PDF via `window.print()` sur route dédiée + option `html2pdf` pour téléchargement direct
+- Archivage : upload dans bucket + `pdf_url` en base + verrouillage lecture seule après validation
 
-Génération côté client via la route `/pdf` imprimable (cohérent avec le reste du projet qui utilise `window.print()` + `data-ref="report"`). Contenu : en-tête entreprise (`EntrepriseHeader`), numéro, QR code (lib `qrcode.react` déjà utilisée — sinon ajout), tableau items, déclaration légale selon type, blocs signatures avec images.
+### Phase 6 — Historique, recherche IA, statistiques
+- Page Historique avec filtres avancés (client, chantier, date, type, catégorie, statut, ingénieur, technicien, mot-clé)
+- Recherche full-text (Postgres tsvector) sur titre + description + contenu + pièces jointes indexées
+- Recherche sémantique IA optionnelle : le mot-clé déclenche un appel Gemini qui reformule et étend la requête
+- Dashboard admin : rapports par mois, taux validation, temps moyen technicien→validation, catégories les plus fréquentes
 
-## 7. Autorisations
+## Points à confirmer avant Phase 1
 
-Réutilisation de `useCurrentUserRole` + `AdminOnly` / `NotTechnicien` :
-- `manager` / `admin` / `super_admin` : création de tous les mouvements.
-- `technicien` : lecture de ses mouvements + signature uniquement.
-- Toute action loggée via `log_audit_action` (déjà en place).
+1. **Modèle IA** : je pars sur Lovable AI Gateway `google/gemini-2.5-flash` (aucune clé) — OK ? Sinon je bascule sur clé Google AI Studio.
+2. **Rôle "ingénieur"** : je crée un nouveau rôle `ingenieur` dans user_roles, ou je mappe sur `RESPONSABLE` existant ? (je vérifierai la liste des rôles actuels)
+3. **QR code de vérification** : page publique `/verifier/:token` qui affiche un résumé signé du rapport — OK ?
+4. **Périmètre du contenu inséré par IA** : autorisez-vous l'IA à citer nommément des normes (EN 206, NF P18, ASTM…) même sans document joint, ou uniquement les normes présentes dans la base ?
 
-## 8. Alertes & tableau de bord
-
-Vue SQL `v_alertes_materiel` exposant : retards de restitution (`date_fin_chantier < today` et statut ≠ restitué), maintenance > 30 j, sans responsable, items déclarés `manquant`/`casse`. Affichage en cartes rouges/oranges sur le dashboard du module.
-
-## Livraison en deux temps
-
-1. **Étape 1 (cette itération)** : migration SQL complète + triggers + RLS, hooks, dashboard, liste, création/édition des 4 types de mouvements, signature, timeline matériel, mise à jour widget existant.
-2. **Étape 2** : PDF imprimables polish, export Excel, QR code, alertes avancées, raffinements UI.
-
-Souhaitez-vous que je lance l'étape 1 telle quelle, ou ajuster (ex. champs supplémentaires, libellés, périmètre des rôles) ?
+Répondez sur ces 4 points (ou dites "go phase 1 avec vos défauts") et je démarre l'implémentation phase par phase.

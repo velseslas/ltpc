@@ -6705,6 +6705,334 @@ export type Database = {
         }
         Relationships: []
       }
+      rapport_categories: {
+        Row: {
+          created_at: string
+          icone: string | null
+          id: string
+          nom: string
+          ordre: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nom: string
+          ordre?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icone?: string | null
+          id?: string
+          nom?: string
+          ordre?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rapport_historique: {
+        Row: {
+          action: string
+          ancien_contenu: Json | null
+          commentaire: string | null
+          created_at: string
+          id: string
+          nouveau_contenu: Json | null
+          rapport_id: string
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          action: string
+          ancien_contenu?: Json | null
+          commentaire?: string | null
+          created_at?: string
+          id?: string
+          nouveau_contenu?: Json | null
+          rapport_id: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          action?: string
+          ancien_contenu?: Json | null
+          commentaire?: string | null
+          created_at?: string
+          id?: string
+          nouveau_contenu?: Json | null
+          rapport_id?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_historique_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rapport_modeles_bibliotheque: {
+        Row: {
+          actif: boolean
+          categorie_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          ordre: number
+          prompt_template: string | null
+          slug: string
+          structure_default: Json
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          categorie_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          ordre?: number
+          prompt_template?: string | null
+          slug: string
+          structure_default?: Json
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          categorie_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          ordre?: number
+          prompt_template?: string | null
+          slug?: string
+          structure_default?: Json
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_modeles_bibliotheque_categorie_id_fkey"
+            columns: ["categorie_id"]
+            isOneToOne: false
+            referencedRelation: "rapport_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rapport_pieces_jointes: {
+        Row: {
+          created_at: string
+          essai_ref: string | null
+          id: string
+          meta: Json | null
+          nom: string
+          rapport_id: string
+          storage_path: string | null
+          type: string
+          uploaded_by: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          essai_ref?: string | null
+          id?: string
+          meta?: Json | null
+          nom: string
+          rapport_id: string
+          storage_path?: string | null
+          type: string
+          uploaded_by?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          essai_ref?: string | null
+          id?: string
+          meta?: Json | null
+          nom?: string
+          rapport_id?: string
+          storage_path?: string | null
+          type?: string
+          uploaded_by?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_pieces_jointes_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rapport_questions_ia: {
+        Row: {
+          answered_at: string | null
+          created_at: string
+          id: string
+          ordre: number
+          question: string
+          rapport_id: string
+          reponse: string | null
+        }
+        Insert: {
+          answered_at?: string | null
+          created_at?: string
+          id?: string
+          ordre?: number
+          question: string
+          rapport_id: string
+          reponse?: string | null
+        }
+        Update: {
+          answered_at?: string | null
+          created_at?: string
+          id?: string
+          ordre?: number
+          question?: string
+          rapport_id?: string
+          reponse?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_questions_ia_rapport_id_fkey"
+            columns: ["rapport_id"]
+            isOneToOne: false
+            referencedRelation: "rapports_techniques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rapports_techniques: {
+        Row: {
+          analyse_ia: Json | null
+          categorie_id: string | null
+          chantier_id: string | null
+          client_id: string | null
+          contenu_rapport: Json | null
+          created_at: string
+          created_by: string | null
+          date_probleme: string | null
+          description_probleme: string
+          gravite: Database["public"]["Enums"]["rapport_gravite"] | null
+          id: string
+          ingenieur_id: string | null
+          materiau: string | null
+          modele_id: string | null
+          motif_refus: string | null
+          numero: string | null
+          pdf_url: string | null
+          qr_token: string | null
+          refuse_at: string | null
+          soumis_at: string | null
+          sous_type: string | null
+          statut: Database["public"]["Enums"]["rapport_statut"]
+          technicien_id: string | null
+          titre: string | null
+          updated_at: string
+          valide_at: string | null
+          version: number
+        }
+        Insert: {
+          analyse_ia?: Json | null
+          categorie_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
+          contenu_rapport?: Json | null
+          created_at?: string
+          created_by?: string | null
+          date_probleme?: string | null
+          description_probleme: string
+          gravite?: Database["public"]["Enums"]["rapport_gravite"] | null
+          id?: string
+          ingenieur_id?: string | null
+          materiau?: string | null
+          modele_id?: string | null
+          motif_refus?: string | null
+          numero?: string | null
+          pdf_url?: string | null
+          qr_token?: string | null
+          refuse_at?: string | null
+          soumis_at?: string | null
+          sous_type?: string | null
+          statut?: Database["public"]["Enums"]["rapport_statut"]
+          technicien_id?: string | null
+          titre?: string | null
+          updated_at?: string
+          valide_at?: string | null
+          version?: number
+        }
+        Update: {
+          analyse_ia?: Json | null
+          categorie_id?: string | null
+          chantier_id?: string | null
+          client_id?: string | null
+          contenu_rapport?: Json | null
+          created_at?: string
+          created_by?: string | null
+          date_probleme?: string | null
+          description_probleme?: string
+          gravite?: Database["public"]["Enums"]["rapport_gravite"] | null
+          id?: string
+          ingenieur_id?: string | null
+          materiau?: string | null
+          modele_id?: string | null
+          motif_refus?: string | null
+          numero?: string | null
+          pdf_url?: string | null
+          qr_token?: string | null
+          refuse_at?: string | null
+          soumis_at?: string | null
+          sous_type?: string | null
+          statut?: Database["public"]["Enums"]["rapport_statut"]
+          technicien_id?: string | null
+          titre?: string | null
+          updated_at?: string
+          valide_at?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapports_techniques_categorie_id_fkey"
+            columns: ["categorie_id"]
+            isOneToOne: false
+            referencedRelation: "rapport_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapports_techniques_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapports_techniques_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapports_techniques_modele_id_fkey"
+            columns: ["modele_id"]
+            isOneToOne: false
+            referencedRelation: "rapport_modeles_bibliotheque"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_definitions: {
         Row: {
           alias_of: Database["public"]["Enums"]["app_role"] | null
@@ -6977,6 +7305,7 @@ export type Database = {
         Args: { _type: Database["public"]["Enums"]["mouvement_type"] }
         Returns: string
       }
+      next_rapport_numero: { Args: never; Returns: string }
       restore_deleted_essai: { Args: { _deleted_id: string }; Returns: string }
       restore_essai_field: {
         Args: {
@@ -6997,6 +7326,7 @@ export type Database = {
         | "technicien"
         | "operateur"
         | "lecteur"
+        | "ingenieur"
       essai_status: "pending" | "in-progress" | "completed" | "cancelled"
       item_etat: "bon" | "usage" | "casse" | "manquant" | "a_reparer"
       materiel_statut_courant:
@@ -7012,6 +7342,15 @@ export type Database = {
         | "reforme"
       mouvement_statut: "brouillon" | "valide" | "signe" | "annule"
       mouvement_type: "affectation" | "decharge" | "passation" | "restitution"
+      rapport_gravite: "faible" | "moderee" | "elevee" | "critique"
+      rapport_statut:
+        | "brouillon"
+        | "en_cours"
+        | "a_completer"
+        | "en_attente_validation"
+        | "valide"
+        | "refuse"
+        | "archive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -7146,6 +7485,7 @@ export const Constants = {
         "technicien",
         "operateur",
         "lecteur",
+        "ingenieur",
       ],
       essai_status: ["pending", "in-progress", "completed", "cancelled"],
       item_etat: ["bon", "usage", "casse", "manquant", "a_reparer"],
@@ -7163,6 +7503,16 @@ export const Constants = {
       ],
       mouvement_statut: ["brouillon", "valide", "signe", "annule"],
       mouvement_type: ["affectation", "decharge", "passation", "restitution"],
+      rapport_gravite: ["faible", "moderee", "elevee", "critique"],
+      rapport_statut: [
+        "brouillon",
+        "en_cours",
+        "a_completer",
+        "en_attente_validation",
+        "valide",
+        "refuse",
+        "archive",
+      ],
     },
   },
 } as const
