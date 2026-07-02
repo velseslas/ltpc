@@ -40,12 +40,17 @@ export interface RapportTechnique {
   sous_type: string | null;
   client_id: string | null;
   chantier_id: string | null;
+  entreprise: string | null;
+  projet: string | null;
   materiau: string | null;
   date_probleme: string | null;
   statut: RapportStatut;
   analyse_ia: Record<string, unknown> | null;
   gravite: RapportGravite | null;
   contenu_rapport: Record<string, unknown> | null;
+  contexte_auto: Record<string, unknown> | null;
+  prompt_utilisateur: string | null;
+  metadonnees: Record<string, unknown> | null;
   version: number;
   technicien_id: string | null;
   ingenieur_id: string | null;
@@ -55,6 +60,7 @@ export interface RapportTechnique {
   motif_refus: string | null;
   pdf_url: string | null;
   qr_token: string | null;
+  last_autosave_at: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
