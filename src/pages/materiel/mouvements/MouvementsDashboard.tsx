@@ -67,6 +67,7 @@ export default function MouvementsDashboard() {
                 key={t.type}
                 onClick={() => {
                   if (t.type === "decharge") navigate("/materiel/mouvements/decharge");
+                  else if (t.type === "passation") navigate("/materiel/mouvements/passation");
                   else if (t.type === "affectation") navigate("/materiel/mouvements/affectation");
                   else navigate(`/materiel/mouvements/nouveau/${t.type}`);
                 }}
