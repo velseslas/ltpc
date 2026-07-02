@@ -416,3 +416,160 @@ function QuestionsPanel({ questions, onAnswer, onReanalyze }: {
     </Card>
   );
 }
+
+// ==================== Phase 5 — Génération documentaire officielle ====================
+function OfficialDocumentPanel({ rapport, html, previewHtml }: {
+  rapport: { id: string; numero: string | null; titre: string | null; statut: RapportStatut; entreprise: string | null; projet: string | null; valide_at: string | null };
+  html: string;
+  previewHtml: string;
+}) {
+  const { data: entreprise } = useEntreprise();
+  const { data: archives = [] } = useDocumentArchives("rapport_technique", rapport.id);
+  const { data: reviews = [] } = useAIReviews(rapport.id);
+  const reviewM = useReviewRapport();
+  const genM = useGenerateOfficialDocument();
+  const lastReview = reviews[0] ?? null;
+  const canGenerate = rapport.statut === "valide" || rapport.statut === "archive";
+
+  const runReview = async () => {
+    try { await reviewM.mutateAsync(rapport.id); toast({ title: "Revue IA terminée" }); }
+    catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
+  };
+
+  const runGenerate = async () => {
+    try {
+      const res = await genM.mutateAsync({
+        document_type: "rapport_technique",
+        document_id: rapport.id,
+        numero: rapport.numero ?? null,
+        template: {
+          id: "default",
+          nom: "Template LTPC",
+          couleur_primaire: "#1e5a7a",
+          couleur_secondaire: "#d4e5f7",
+          police: "Times New Roman, Georgia, serif",
+          taille_titre: 18,
+          taille_corps: 11,
+          marge_mm: { top: 15, right: 15, bottom: 20, left: 15 },
+          logo_url: entreprise?.logo_url ?? null,
+          cachet_url: (entreprise as { cachet_url?: string | null } | null)?.cachet_url ?? null,
+          orientation: "portrait",
+          format: "A4",
+        },
+        variables: {
+          numero_rapport: rapport.numero ?? null,
+          date: rapport.valide_at ?? new Date().toISOString(),
+          titre: rapport.titre ?? null,
+          objet: rapport.titre ?? null,
+          entreprise: rapport.entreprise ?? null,
+          projet: rapport.projet ?? null,
+          laboratoire: entreprise?.nom ?? "Laboratoire",
+        },
+        body_html: previewHtml || html,
+        signature: {
+          ingenieur_nom: (entreprise as { representant?: string | null } | null)?.representant ?? null,
+          ingenieur_fonction: "Ingénieur validateur",
+          cachet_url: (entreprise as { cachet_url?: string | null } | null)?.cachet_url ?? null,
+          date_validation: rapport.valide_at ?? new Date().toISOString(),
+        },
+        qr_verification_base_url: `${window.location.origin}/verification`,
+      });
+      toast({ title: "PDF officiel généré", description: `Version ${res.version} archivée` });
+      if (res.public_url) window.open(res.public_url, "_blank");
+    } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
+  };
+
+  const openArchive = async (pdfPath: string) => {
+    try { const url = await getSignedArchiveUrl(pdfPath, 3600); window.open(url, "_blank"); }
+    catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
+  };
+
+  const sevColor: Record<string, string> = {
+    info: "bg-blue-100 text-blue-800",
+    warning: "bg-amber-100 text-amber-800",
+    critique: "bg-red-100 text-red-800",
+  };
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" /> Revue IA avant génération
+            {lastReview?.score !== null && lastReview?.score !== undefined && (
+              <Badge variant="outline" className="ml-auto">Score {lastReview.score}/100</Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            L'IA vérifie sections manquantes, incohérences, contradictions, recommandations non justifiées et références d'essais absentes.
+            Elle n'écrit jamais dans le rapport — l'ingénieur décide.
+          </p>
+          <Button size="sm" variant="outline" onClick={runReview} disabled={reviewM.isPending}>
+            {reviewM.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            Lancer la revue IA
+          </Button>
+          {lastReview && (
+            <div className="space-y-2">
+              {lastReview.observations.length === 0 ? (
+                <div className="flex items-center gap-2 text-emerald-700 text-sm"><CheckCircle2 className="h-4 w-4" /> Aucune observation — rapport conforme.</div>
+              ) : lastReview.observations.map((o, i) => (
+                <div key={i} className="border rounded p-2 flex items-start gap-2">
+                  <Badge className={sevColor[o.severity] ?? ""}>{o.severity}</Badge>
+                  <div className="text-sm">
+                    <div className="font-medium">{o.category}</div>
+                    <div className="text-muted-foreground">{o.message}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-primary" /> Génération du PDF officiel
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Génère un document PDF officiel avec en-tête, pied de page, pagination, QR code de vérification, signature et cachet.
+            Chaque génération crée une nouvelle version archivée immuable avec empreinte SHA-256.
+          </p>
+          {!canGenerate && (
+            <div className="flex items-center gap-2 text-amber-700 text-sm"><AlertTriangle className="h-4 w-4" /> Le rapport doit être validé avant génération officielle.</div>
+          )}
+          <Button onClick={runGenerate} disabled={!canGenerate || genM.isPending}>
+            {genM.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+            Générer PDF officiel
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><Archive className="h-4 w-4" /> Archives ({archives.length})</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          {archives.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucune archive officielle générée.</p>
+          ) : archives.map(a => (
+            <div key={a.id} className="border rounded p-3 flex items-center gap-3 flex-wrap">
+              <Badge variant="outline">v{a.version}</Badge>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{a.numero ?? "—"}</div>
+                <div className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString("fr-FR")} · {a.generated_by_nom ?? "—"} · {a.pdf_size ? `${Math.round(a.pdf_size / 1024)} Ko` : ""}</div>
+                <div className="text-xs text-muted-foreground truncate font-mono">SHA-256 : {a.sha256.substring(0, 32)}…</div>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => openArchive(a.pdf_url)}><Eye className="h-4 w-4 mr-1" /> Ouvrir</Button>
+              <Button size="sm" variant="ghost" asChild>
+                <a href={`/verification/${a.qr_token}`} target="_blank" rel="noreferrer">Vérifier</a>
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </>
+  );
+}
