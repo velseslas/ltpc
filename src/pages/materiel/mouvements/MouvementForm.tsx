@@ -226,7 +226,7 @@ export default function MouvementForm() {
           {isCascade && (
             <>
               <div>
-                <Label>Wilaya *</Label>
+                <Label>Wilaya <span className="text-destructive">*</span></Label>
                 <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setClientId(""); setForm({ ...form, chantier_id: "", technicien_sortant_id: "", technicien_entrant_id: "" }); setItems([]); }}>
                   <SelectTrigger><SelectValue placeholder="Sélectionner une wilaya..." /></SelectTrigger>
                   <SelectContent>
