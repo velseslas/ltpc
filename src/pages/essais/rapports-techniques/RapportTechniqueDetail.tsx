@@ -23,11 +23,14 @@ import {
 import {
   useAnalyzeRapport, useGenerateAIQuestions, useGenerateDraftReport,
   useAIQuestions, useAnswerAIQuestion,
+  useReviewRapport, useAIReviews,
 } from "@/hooks/useRapportAI";
 import {
   useRapportVersions, useSaveVersion, useRestoreVersion,
   useWorkflowEvents, useWorkflowTransition, type WorkflowAction,
 } from "@/hooks/useRapportWorkflow";
+import { useDocumentArchives, useGenerateOfficialDocument, getSignedArchiveUrl } from "@/hooks/useDocumentArchives";
+import { useEntreprise } from "@/hooks/useEntreprise";
 import type { AIAnalyse, AIRapportContenu } from "@/lib/ai/aiProvider";
 import { renderTemplate } from "@/lib/rapports/templateEngine";
 import { toast } from "@/hooks/use-toast";
