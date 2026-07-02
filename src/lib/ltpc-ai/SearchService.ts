@@ -1,14 +1,14 @@
-// SearchService — recherche globale respectant les RLS (appels via le client Supabase de l'utilisateur).
-// Couvre : rapports techniques, essais (compression + béton), formulations, matériaux, chantiers,
-// clients, entreprises (intervenants), documents, non-conformités (via rapport_categories).
-// Architecture prête pour être remplacée/complétée par un moteur sémantique (pgvector).
+// SearchService — recherche globale respectant les RLS (client Supabase utilisateur).
+// Domaines couverts : rapports techniques, essais compression, formulations, matériel,
+// chantiers, clients, intervenants, documents archivés.
+// Interface stable — remplaçable par un moteur sémantique (pgvector) sans casser l'UI.
 import { supabase } from "@/integrations/supabase/client";
 import type { AISearchHit } from "./types";
 
-type Domain =
+export type SearchDomain =
   | "rapport_technique" | "essai_compression" | "formulation"
   | "materiel" | "chantier" | "client" | "intervenant"
-  | "document_archive" | "non_conformite";
+  | "document_archive";
 
 const clip = (s: string | null | undefined, n = 160) =>
   !s ? "" : s.length > n ? s.slice(0, n) + "…" : s;
@@ -16,15 +16,15 @@ const clip = (s: string | null | undefined, n = 160) =>
 async function searchRapports(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("rapports_techniques")
-    .select("id, numero, titre, description, statut, entreprise, projet")
-    .or(`titre.ilike.%${q}%,description.ilike.%${q}%,numero.ilike.%${q}%,entreprise.ilike.%${q}%,projet.ilike.%${q}%`)
+    .select("id, numero, titre, description_probleme, statut, entreprise, projet")
+    .or(`titre.ilike.%${q}%,description_probleme.ilike.%${q}%,numero.ilike.%${q}%,entreprise.ilike.%${q}%,projet.ilike.%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "rapport_technique",
     source_id: r.id,
     label: r.titre ?? r.numero ?? "Rapport",
     reference: r.numero,
-    snippet: clip(`${r.statut ?? ""} — ${r.description ?? r.projet ?? ""}`),
+    snippet: clip(`${r.statut ?? ""} — ${r.description_probleme ?? r.projet ?? ""}`),
     url: `/essais/rapports-techniques/${r.id}`,
   }));
 }
@@ -32,15 +32,15 @@ async function searchRapports(q: string, limit: number): Promise<AISearchHit[]> 
 async function searchEssais(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("echantillons_compression")
-    .select("id, numero_chantier, formulation, resistance_visee, chantier_id, date_prelevement")
-    .or(`formulation.ilike.%${q}%`)
+    .select("id, numero, numero_chantier, ouvrage, classe_resistance, statut, date_coulage")
+    .or(`ouvrage.ilike.%${q}%,classe_resistance.ilike.%${q}%,numero.ilike.%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "essai_compression",
     source_id: r.id,
-    label: `Compression #${r.numero_chantier ?? "?"} — ${r.formulation ?? ""}`,
-    reference: r.formulation ?? null,
-    snippet: clip(`Résistance visée ${r.resistance_visee ?? "?"} MPa · ${r.date_prelevement ?? ""}`),
+    label: `Compression ${r.numero ?? "#" + (r.numero_chantier ?? "?")} — ${r.ouvrage ?? ""}`,
+    reference: String(r.numero ?? r.numero_chantier ?? ""),
+    snippet: clip(`Classe ${r.classe_resistance ?? "?"} · ${r.statut ?? ""} · ${r.date_coulage ?? ""}`),
     url: `/essais/beton-durci/compression`,
   }));
 }
@@ -48,15 +48,15 @@ async function searchEssais(q: string, limit: number): Promise<AISearchHit[]> {
 async function searchFormulations(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("formulations")
-    .select("id, code, designation, classe_resistance, client_id")
-    .or(`code.ilike.%${q}%,designation.ilike.%${q}%,classe_resistance.ilike.%${q}%`)
+    .select("id, nom, resistance_28j, classe_exposition, slump_souhaite")
+    .ilike("nom", `%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "formulation",
     source_id: r.id,
-    label: `${r.code ?? ""} ${r.designation ?? ""}`.trim() || "Formulation",
-    reference: r.code,
-    snippet: clip(`Classe ${r.classe_resistance ?? "?"}`),
+    label: r.nom ?? "Formulation",
+    reference: r.nom,
+    snippet: clip(`R28j ${r.resistance_28j ?? "?"} MPa · ${r.classe_exposition ?? ""} · Slump ${r.slump_souhaite ?? "?"}`),
     url: `/essais/formulation`,
   }));
 }
@@ -64,15 +64,15 @@ async function searchFormulations(q: string, limit: number): Promise<AISearchHit
 async function searchChantiers(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("chantiers")
-    .select("id, nom, code, wilaya, client_id")
-    .or(`nom.ilike.%${q}%,code.ilike.%${q}%,wilaya.ilike.%${q}%`)
+    .select("id, nom, adresse, ville, statut")
+    .or(`nom.ilike.%${q}%,ville.ilike.%${q}%,adresse.ilike.%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "chantier",
     source_id: r.id,
-    label: r.nom ?? r.code ?? "Chantier",
-    reference: r.code,
-    snippet: clip(`Wilaya ${r.wilaya ?? "?"}`),
+    label: r.nom ?? "Chantier",
+    reference: null,
+    snippet: clip(`${r.ville ?? ""} · ${r.statut ?? ""} · ${r.adresse ?? ""}`),
     url: `/intervenant/chantiers/${r.id}`,
   }));
 }
@@ -80,15 +80,15 @@ async function searchChantiers(q: string, limit: number): Promise<AISearchHit[]>
 async function searchClients(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("clients")
-    .select("id, raison_sociale, code, wilaya, telephone")
-    .or(`raison_sociale.ilike.%${q}%,code.ilike.%${q}%,wilaya.ilike.%${q}%`)
+    .select("id, nom, ville, telephone, contact")
+    .or(`nom.ilike.%${q}%,ville.ilike.%${q}%,contact.ilike.%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "client",
     source_id: r.id,
-    label: r.raison_sociale ?? "Client",
-    reference: r.code,
-    snippet: clip(`${r.wilaya ?? ""} · ${r.telephone ?? ""}`),
+    label: r.nom ?? "Client",
+    reference: null,
+    snippet: clip(`${r.ville ?? ""} · ${r.contact ?? ""} · ${r.telephone ?? ""}`),
     url: `/intervenant/clients/${r.id}`,
   }));
 }
@@ -96,15 +96,15 @@ async function searchClients(q: string, limit: number): Promise<AISearchHit[]> {
 async function searchIntervenants(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("intervenants")
-    .select("id, nom, prenom, fonction, email")
-    .or(`nom.ilike.%${q}%,prenom.ilike.%${q}%,fonction.ilike.%${q}%,email.ilike.%${q}%`)
+    .select("id, nom, prenom, role, specialite, email")
+    .or(`nom.ilike.%${q}%,prenom.ilike.%${q}%,role.ilike.%${q}%,specialite.ilike.%${q}%,email.ilike.%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "intervenant",
     source_id: r.id,
-    label: `${r.prenom ?? ""} ${r.nom ?? ""}`.trim(),
-    reference: r.fonction,
-    snippet: clip(r.email ?? ""),
+    label: `${r.prenom ?? ""} ${r.nom ?? ""}`.trim() || "Intervenant",
+    reference: r.role ?? r.specialite,
+    snippet: clip(`${r.role ?? ""} · ${r.email ?? ""}`),
     url: `/rh`,
   }));
 }
@@ -112,15 +112,15 @@ async function searchIntervenants(q: string, limit: number): Promise<AISearchHit
 async function searchMateriel(q: string, limit: number): Promise<AISearchHit[]> {
   const { data } = await supabase
     .from("materiel_laboratoire")
-    .select("id, code, designation, marque, statut_courant")
-    .or(`code.ilike.%${q}%,designation.ilike.%${q}%,marque.ilike.%${q}%`)
+    .select("id, nom, reference, marque, modele, statut_courant, categorie")
+    .or(`nom.ilike.%${q}%,reference.ilike.%${q}%,marque.ilike.%${q}%,modele.ilike.%${q}%,categorie.ilike.%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "materiel",
     source_id: r.id,
-    label: `${r.code ?? ""} ${r.designation ?? ""}`.trim(),
-    reference: r.code,
-    snippet: clip(`${r.marque ?? ""} · ${r.statut_courant ?? ""}`),
+    label: `${r.reference ?? ""} ${r.nom ?? ""}`.trim(),
+    reference: r.reference,
+    snippet: clip(`${r.marque ?? ""} ${r.modele ?? ""} · ${r.categorie ?? ""} · ${r.statut_courant ?? ""}`),
     url: `/materiel/liste`,
   }));
 }
@@ -131,7 +131,7 @@ async function searchDocuments(q: string, limit: number): Promise<AISearchHit[]>
     .select("id, numero, document_type, version, created_at")
     .ilike("numero", `%${q}%`)
     .limit(limit);
-  return (data ?? []).map(r => ({
+  return (data ?? []).map((r) => ({
     source_type: "document_archive",
     source_id: r.id,
     label: `${r.numero ?? "Document"} v${r.version ?? 1}`,
@@ -140,7 +140,7 @@ async function searchDocuments(q: string, limit: number): Promise<AISearchHit[]>
   }));
 }
 
-const DOMAIN_MAP: Record<Domain, (q: string, l: number) => Promise<AISearchHit[]>> = {
+const DOMAIN_MAP: Record<SearchDomain, (q: string, l: number) => Promise<AISearchHit[]>> = {
   rapport_technique: searchRapports,
   essai_compression: searchEssais,
   formulation: searchFormulations,
@@ -149,22 +149,19 @@ const DOMAIN_MAP: Record<Domain, (q: string, l: number) => Promise<AISearchHit[]
   intervenant: searchIntervenants,
   materiel: searchMateriel,
   document_archive: searchDocuments,
-  non_conformite: async () => [],
 };
 
 export const SearchService = {
-  domains: Object.keys(DOMAIN_MAP) as Domain[],
-
-  async searchAll(query: string, opts: { domains?: Domain[]; limitPerDomain?: number } = {}): Promise<AISearchHit[]> {
+  domains: Object.keys(DOMAIN_MAP) as SearchDomain[],
+  async searchAll(query: string, opts: { domains?: SearchDomain[]; limitPerDomain?: number } = {}): Promise<AISearchHit[]> {
     const q = query.trim();
     if (!q) return [];
     const limit = opts.limitPerDomain ?? 5;
-    const domains = opts.domains ?? (Object.keys(DOMAIN_MAP) as Domain[]);
-    const results = await Promise.allSettled(domains.map(d => DOMAIN_MAP[d](q, limit)));
-    return results.flatMap(r => r.status === "fulfilled" ? r.value : []);
+    const domains = opts.domains ?? (Object.keys(DOMAIN_MAP) as SearchDomain[]);
+    const results = await Promise.allSettled(domains.map((d) => DOMAIN_MAP[d](q, limit)));
+    return results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
   },
-
-  async searchDomain(domain: Domain, query: string, limit = 10): Promise<AISearchHit[]> {
+  async searchDomain(domain: SearchDomain, query: string, limit = 10): Promise<AISearchHit[]> {
     return DOMAIN_MAP[domain](query, limit);
   },
 };

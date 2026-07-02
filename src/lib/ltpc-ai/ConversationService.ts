@@ -17,7 +17,7 @@ export const ConversationService = {
     if (opts.favorite !== undefined) q = q.eq("is_favorite", opts.favorite);
     const { data, error } = await q;
     if (error) throw error;
-    return (data ?? []).map(toConv);
+    return (data ?? []).map((r) => toConv(r as Row));
   },
 
   async get(id: string): Promise<AIConversation | null> {
@@ -29,15 +29,14 @@ export const ConversationService = {
     const { data: userRes } = await supabase.auth.getUser();
     const user_id = userRes.user?.id;
     if (!user_id) throw new Error("Utilisateur non authentifié");
-    const { data, error } = await supabase.from("ai_conversations")
-      .insert({ user_id, titre, contexte })
-      .select("*").single();
+    const payload = { user_id, titre, contexte } as never;
+    const { data, error } = await supabase.from("ai_conversations").insert(payload).select("*").single();
     if (error) throw error;
     return toConv(data as Row);
   },
 
   async update(id: string, patch: Partial<Pick<AIConversation, "titre" | "is_favorite" | "is_archived" | "contexte">>) {
-    const { error } = await supabase.from("ai_conversations").update(patch).eq("id", id);
+    const { error } = await supabase.from("ai_conversations").update(patch as never).eq("id", id);
     if (error) throw error;
   },
 
@@ -50,32 +49,35 @@ export const ConversationService = {
     const { data, error } = await supabase.from("ai_messages")
       .select("*").eq("conversation_id", conversation_id).order("created_at");
     if (error) throw error;
-    return (data ?? []).map(m => toMsg(m as Row));
+    return (data ?? []).map((m) => toMsg(m as Row));
   },
 
   async addMessage(msg: Omit<AIMessage, "id" | "created_at">): Promise<AIMessage> {
-    const { data, error } = await supabase.from("ai_messages")
-      .insert({
-        conversation_id: msg.conversation_id,
-        role: msg.role,
-        content: msg.content,
-        citations: msg.citations ?? [],
-        tool_calls: msg.tool_calls ?? null,
-        meta: msg.meta ?? {},
-      }).select("*").single();
+    const payload = {
+      conversation_id: msg.conversation_id,
+      role: msg.role,
+      content: msg.content,
+      citations: msg.citations ?? [],
+      tool_calls: msg.tool_calls ?? null,
+      meta: msg.meta ?? {},
+    } as never;
+    const { data, error } = await supabase.from("ai_messages").insert(payload).select("*").single();
     if (error) throw error;
-    await supabase.from("ai_conversations").update({ last_message_at: new Date().toISOString() }).eq("id", msg.conversation_id);
+    await supabase.from("ai_conversations")
+      .update({ last_message_at: new Date().toISOString() } as never)
+      .eq("id", msg.conversation_id);
     return toMsg(data as Row);
   },
 
   async saveContext(conversation_id: string, ctx: AIContext, message_id?: string) {
-    await supabase.from("ai_context_snapshots").insert({
+    const payload = {
       conversation_id,
       message_id: message_id ?? null,
       route: ctx.route,
       entity_type: ctx.entity_type ?? null,
       entity_id: ctx.entity_id ?? null,
       payload: ctx.data ?? {},
-    });
+    } as never;
+    await supabase.from("ai_context_snapshots").insert(payload);
   },
 };
