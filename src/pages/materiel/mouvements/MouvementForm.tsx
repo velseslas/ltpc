@@ -286,18 +286,18 @@ export default function MouvementForm() {
 
           {(type === "affectation" || type === "decharge" || type === "passation") && (
             <div>
-              <Label>Technicien {type === "passation" ? "entrant" : "destinataire"} *</Label>
+              <Label>Technicien {type === "passation" ? "entrant" : "destinataire"} <span className="text-destructive">*</span></Label>
               <Select
                 value={form.technicien_entrant_id}
                 onValueChange={(v) => setForm({ ...form, technicien_entrant_id: v })}
-                disabled={isDecharge && !form.chantier_id}
+                disabled={(isDecharge || isPassation) && !form.chantier_id}
               >
-                <SelectTrigger><SelectValue placeholder={isDecharge && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={(isDecharge || isPassation) && !form.chantier_id ? "Choisir d'abord un chantier" : "Sélectionner..."} /></SelectTrigger>
                 <SelectContent>
-                  {isDecharge && techniciensChantier.length === 0 ? (
+                  {(isDecharge || isPassation) && techniciensChantier.length === 0 ? (
                     <div className="px-2 py-3 text-xs text-muted-foreground">Aucun technicien affecté à ce chantier</div>
                   ) : (
-                    (isDecharge ? techniciensChantier : techniciens).map((i: any) => (
+                    ((isDecharge || isPassation) ? techniciensChantier : techniciens).map((i: any) => (
                       <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)
                     )
                   )}
@@ -307,7 +307,7 @@ export default function MouvementForm() {
           )}
 
           <div>
-            <Label>Responsable laboratoire</Label>
+            <Label>Responsable laboratoire <span className="text-destructive">*</span></Label>
             <Select value={form.responsable_id} onValueChange={(v) => setForm({ ...form, responsable_id: v })}>
               <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
               <SelectContent>
@@ -318,7 +318,7 @@ export default function MouvementForm() {
 
           {type === "passation" && (
             <div>
-              <Label>Motif *</Label>
+              <Label>Motif <span className="text-destructive">*</span></Label>
               <Select value={form.motif} onValueChange={(v) => setForm({ ...form, motif: v })}>
                 <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
                 <SelectContent>
@@ -328,27 +328,6 @@ export default function MouvementForm() {
             </div>
           )}
 
-          <div>
-            <Label>Responsable laboratoire</Label>
-            <Select value={form.responsable_id} onValueChange={(v) => setForm({ ...form, responsable_id: v })}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
-              <SelectContent>
-                {(intervenants || []).map((i: any) => <SelectItem key={i.id} value={i.id}>{i.prenom} {i.nom}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {type === "passation" && (
-            <div>
-              <Label>Motif *</Label>
-              <Select value={form.motif} onValueChange={(v) => setForm({ ...form, motif: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
-                <SelectContent>
-                  {MOTIFS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div className="md:col-span-2">
             <Label>Observations</Label>
