@@ -172,11 +172,34 @@ async function htmlToPdf(html: string, orientation: "portrait" | "paysage" = "po
   host.style.position = "fixed";
   host.style.left = "-99999px";
   host.style.top = "0";
-  host.style.width = orientation === "portrait" ? "794px" : "1123px"; // 210mm/297mm @96dpi
+  host.style.width = orientation === "portrait" ? "794px" : "1123px";
+  // Neutralise l'héritage des variables CSS (oklch de Tailwind casse html2canvas)
+  host.style.color = "#111111";
+  host.style.backgroundColor = "#ffffff";
+  host.style.fontFamily = "Times New Roman, Georgia, serif";
   host.innerHTML = html;
   document.body.appendChild(host);
   try {
-    const canvas = await html2canvas(host, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+    const canvas = await html2canvas(host, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      imageTimeout: 8000,
+      onclone: (doc) => {
+        // Force les couleurs en sRGB pour éviter les fonctions oklch/oklab non supportées par html2canvas
+        const style = doc.createElement("style");
+        style.textContent = `
+          *, *::before, *::after {
+            box-shadow: none !important;
+            text-shadow: none !important;
+            filter: none !important;
+          }
+        `;
+        doc.head.appendChild(style);
+      },
+    });
     const imgData = canvas.toDataURL("image/jpeg", 0.92);
     const pdf = new jsPDF({ orientation: orientation === "paysage" ? "l" : "p", unit: "mm", format: "a4" });
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -187,7 +210,6 @@ async function htmlToPdf(html: string, orientation: "portrait" | "paysage" = "po
     if (imgHeight <= pageHeight) {
       pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
     } else {
-      // Découpe naïve page par page
       let remaining = imgHeight;
       while (remaining > 0) {
         pdf.addImage(imgData, "JPEG", 0, y, imgWidth, imgHeight);
@@ -196,6 +218,9 @@ async function htmlToPdf(html: string, orientation: "portrait" | "paysage" = "po
       }
     }
     return pdf;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`Échec du rendu PDF (html2canvas): ${msg}`);
   } finally {
     host.remove();
   }
