@@ -52,8 +52,6 @@ export default function MouvementForm() {
   const [showErrors, setShowErrors] = useState(false);
 
   const isDecharge = type === "decharge";
-
-  const isDecharge = type === "decharge";
   const isPassation = type === "passation";
   const isCascade = isDecharge || isPassation;
 
