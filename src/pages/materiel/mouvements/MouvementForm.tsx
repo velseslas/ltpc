@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useClients } from "@/hooks/useClients";
 import { useIntervenants } from "@/hooks/useIntervenants";
@@ -49,7 +49,7 @@ export default function MouvementForm() {
 
   type Item = { materiel_id: string; quantite: number; etat: ItemEtat; observations?: string };
   const [items, setItems] = useState<Item[]>([]);
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [showErrors, setShowErrors] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
   const isDecharge = type === "decharge";
@@ -151,14 +151,6 @@ export default function MouvementForm() {
     return all;
   }, [materiels, type, isDecharge, isPassation, chantierAffectations, form.technicien_sortant_id]);
 
-  const addSelected = () => {
-    const news: Item[] = Object.keys(selected).filter((k) => selected[k]).map((id) => ({
-      materiel_id: id, quantite: 1, etat: "bon" as ItemEtat,
-    }));
-    setItems([...items, ...news.filter((n) => !items.some((it) => it.materiel_id === n.materiel_id))]);
-    setSelected({});
-    setPickerOpen(false);
-  };
 
   const updateItem = (idx: number, patch: Partial<Item>) => {
     setItems(items.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
