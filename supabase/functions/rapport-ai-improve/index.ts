@@ -1,5 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { getDefaultProvider } from "../_shared/ai-provider.ts";
+import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptImproveText, type ImproveAction } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 
