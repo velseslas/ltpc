@@ -69,6 +69,14 @@ export interface ToolTrace {
   error?: string;
 }
 
+export interface ToolScoreTrace {
+  tool: string;
+  score: number;
+  supported: boolean;
+  selected: boolean;
+  reason?: string;
+}
+
 export interface AgentDebug {
   router: {
     intents: ToolIntent[];
@@ -78,7 +86,9 @@ export interface AgentDebug {
   };
   tools_selected: string[];
   tools_executed: ToolTrace[];
-  aggregated_confidence: number;    // 0..100 (moyenne pondérée)
+  tools_scores: ToolScoreTrace[];        // NEW — score de tous les outils, sélectionnés ou non
+  selection_reason: string;              // NEW — explication humaine du choix
+  aggregated_confidence: number;         // 0..100 (moyenne pondérée)
   total_tool_duration_ms: number;
 }
 
