@@ -52,15 +52,72 @@ export default function MouvementForm() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
-  const techniciens = useMemo(
-    () => (intervenants || []).filter((i: any) => (i.role || "").toUpperCase().includes("TECH")),
-    [intervenants]
-  );
+  const isDecharge = type === "decharge";
+
+  // Clients that have at least one chantier in the selected wilaya
+  const filteredClients = useMemo(() => {
+    const cs = (clients as any[]) || [];
+    if (!isDecharge || !wilaya) return cs;
+    const chIds = new Set(((chantiers as any[]) || []).filter((c) => c.ville === wilaya).map((c) => c.client_id));
+    return cs.filter((c) => chIds.has(c.id));
+  }, [clients, chantiers, wilaya, isDecharge]);
+
+  const filteredChantiers = useMemo(() => {
+    let list = (chantiers as any[]) || [];
+    if (isDecharge) {
+      if (wilaya) list = list.filter((c) => c.ville === wilaya);
+      if (clientId) list = list.filter((c) => c.client_id === clientId);
+    }
+    return list;
+  }, [chantiers, wilaya, clientId, isDecharge]);
+
+  // Affectations matching the selected chantier (used for decharge to filter techs + import matos)
+  const chantierAffectations = useMemo(() => {
+    if (!isDecharge || !form.chantier_id) return [] as any[];
+    return ((affectations as any[]) || []).filter((a) => a.chantier_id === form.chantier_id);
+  }, [affectations, form.chantier_id, isDecharge]);
+
+  const techniciens = useMemo(() => {
+    const all = (intervenants || []).filter((i: any) => (i.role || "").toUpperCase().includes("TECH"));
+    if (isDecharge && form.chantier_id) {
+      const ids = new Set(chantierAffectations.map((a: any) => a.intervenant_id).filter(Boolean));
+      return all.filter((i: any) => ids.has(i.id));
+    }
+    return all;
+  }, [intervenants, isDecharge, form.chantier_id, chantierAffectations]);
+
+  // Auto-import matériel from affectations when chantier + technicien are set (decharge only)
+  useEffect(() => {
+    if (!isDecharge) return;
+    if (!form.chantier_id || !form.technicien_entrant_id) return;
+    const rows = chantierAffectations.filter((a: any) => a.intervenant_id === form.technicien_entrant_id);
+    const imported: Item[] = rows
+      .filter((a: any) => a.materiel_id)
+      .map((a: any) => ({
+        materiel_id: a.materiel_id,
+        quantite: a.quantite ?? 1,
+        etat: "bon" as ItemEtat,
+        observations: "",
+      }));
+    // Merge without duplicates, keep any manually added items
+    setItems((prev) => {
+      const map = new Map<string, Item>();
+      imported.forEach((it) => map.set(it.materiel_id, it));
+      prev.forEach((it) => { if (!map.has(it.materiel_id)) map.set(it.materiel_id, it); });
+      return Array.from(map.values());
+    });
+  }, [isDecharge, form.chantier_id, form.technicien_entrant_id, chantierAffectations]);
 
   // Filter material per type
   const availableMaterials = useMemo(() => {
     const all = (materiels as any[]) || [];
-    if (type === "affectation" || type === "decharge") return all.filter((m) => m.statut_courant === "disponible");
+    if (isDecharge) {
+      // For décharge, propose materials from the chantier affectations (fallback: available)
+      const ids = new Set(chantierAffectations.map((a: any) => a.materiel_id).filter(Boolean));
+      const list = all.filter((m) => ids.has(m.id));
+      return list.length ? list : all.filter((m) => m.statut_courant === "disponible");
+    }
+    if (type === "affectation") return all.filter((m) => m.statut_courant === "disponible");
     if (type === "passation" && form.technicien_sortant_id) {
       return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
     }
@@ -68,7 +125,7 @@ export default function MouvementForm() {
       return all.filter((m) => m.responsable_courant_id === form.technicien_sortant_id);
     }
     return all;
-  }, [materiels, type, form.technicien_sortant_id]);
+  }, [materiels, type, isDecharge, chantierAffectations, form.technicien_sortant_id]);
 
   const addSelected = () => {
     const news: Item[] = Object.keys(selected).filter((k) => selected[k]).map((id) => ({
