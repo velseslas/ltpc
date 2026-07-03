@@ -20,7 +20,6 @@ import {
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 import {
   calculateMixDesign,
-  optimizeMix,
   determineDmax,
   calculatePointA,
   type GranulatInput,
@@ -130,7 +129,7 @@ const DMAX_MAP: Record<string, number> = {
   gravier3: 25,
 };
 
-type CalcMode = "none" | "calculate" | "optimize" | "manual";
+type CalcMode = "none" | "calculate" | "manual";
 
 export default function ProportionsStep({
   sableConcasseQte,
@@ -377,17 +376,8 @@ export default function ProportionsStep({
     setCalcMode("calculate");
   }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, applyResult]);
 
-  // BUTTON 2: Optimize Curve
-  const handleOptimize = useCallback(() => {
-    if (!validateAllSteps()) return;
-    if (!validateDensities()) return;
+  // Phase 4 : bouton "Optimiser" supprimé (méthode graphique Dreux-Gorisse uniquement).
 
-    const inputs = buildInputs();
-    const optimized = optimizeMix(inputs, dMaxReel, classeRheologique);
-    const result = calculateMixDesign(inputs, optimized);
-    applyResult(result, optimized);
-    setCalcMode("optimize");
-  }, [buildInputs, dMaxReel, classeRheologique, validateDensities, validateAllSteps, applyResult]);
 
   // BUTTON 3: Manual Mode
   const handleManualMode = useCallback(() => {
@@ -693,14 +683,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               <Calculator className="w-4 h-4" />
               Calculer les proportions
             </Button>
-            <Button
-              onClick={handleOptimize}
-              variant="outline"
-              className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
-            >
-              <Sparkles className="w-4 h-4" />
-              Optimiser la courbe
-            </Button>
+            {/* Phase 4 : bouton "Optimiser la courbe" supprimé (solveur numérique retiré). */}
             <Button
               onClick={handleManualMode}
               variant={calcMode === "manual" ? "default" : "outline"}
@@ -717,11 +700,9 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               <Badge variant="outline" className={cn(
                 "text-xs",
                 calcMode === "calculate" && "bg-primary/10 text-primary border-primary/30",
-                calcMode === "optimize" && "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
                 calcMode === "manual" && "bg-amber-500/10 text-amber-500 border-amber-500/30",
               )}>
                 {calcMode === "calculate" && "Mode : Calcul Dreux classique"}
-                {calcMode === "optimize" && "Mode : Courbe optimisée"}
                 {calcMode === "manual" && "Mode : Ajustement manuel"}
               </Badge>
             </div>

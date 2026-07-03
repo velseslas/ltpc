@@ -1,23 +1,36 @@
 /**
- * Dreux-Gorisse automatic concrete mix design calculation engine.
+ * Dreux-Gorisse automatic concrete mix design calculation engine (v3 — Phase 4).
  *
- * Improvements (v2):
- *  - Dynamic cement density (fallback 3110 kg/m³)
- *  - MF / reference curve convergence loop (max 5 iterations)
- *  - Correction sand cap (≤ 30%) applied in both standard and optimized calc
- *  - Dreux-weighted sieves in the least-squares solver
- *  - Curve quality metrics (RMSE, max deviation)
- *  - Point A verification (warning if > 2% deviation)
- *  - Final physical sanity checks (mass density, paste/aggregate volume ratio)
- *  - More robust projected-gradient solver (adaptive learning rate,
- *    gradient-norm stopping criterion, early stopping)
- *  - Convergence report and exhaustive consistency checks
+ * CONFORMITÉ STRICTE — cf. .lovable/plan.md (Phase 4).
  *
- * Full backward compatibility:
- *  - All public function signatures are preserved
- *  - All previously emitted fields are still emitted with the same semantics
- *  - New diagnostics are exposed as OPTIONAL fields on CalculationResult
+ * Flux imposé :
+ *   1. Eau (kg/m³)      → donnée, jamais recalculée.
+ *   2. Ciment (kg/m³)   → donné, jamais recalculé.
+ *   3. Volumes          : Ve = eau/1000, Vc = ciment/ρc, Vair = airOcclus/1000,
+ *                         Vgranulats = 1 − (Ve + Vc + Vair).
+ *   4. G/S imposé       → Vsable = Vgranulats / (1 + G/S), Vgravier = Vgranulats − Vsable.
+ *                         G/S JAMAIS modifié, jamais optimisé, jamais recalculé.
+ *   5. Sable composé    : 1 sable = 100 %, 2 sables = formule module de finesse
+ *                         s1 = (MFc − MF2) / (MF1 − MF2). ≥3 sables = ERREUR
+ *                         bloquante (non couvert par la méthode).
+ *   6. Gravillons       : méthode graphique 95/5 exclusivement, via le module
+ *                         `engine/gravelSplit/` (splitGravels). AUCUN solveur
+ *                         numérique dans le chemin de production.
+ *
+ * Point A — bascule par Dmax (décision métier utilisateur, cf. plan Phase 4) :
+ *   Dmax ≤ 20 mm : pA = 50 − √Dmax + K              (formule canonique)
+ *   Dmax >  20 mm : pA = 38 + 12·G' + 4·(MF − 2)   (variante linéaire bornée)
+ *   Convention K = G' (documentée comme AMBIGUÏTÉ MÉTIER dans l'audit — la
+ *   littérature Dreux définit K comme correction vibration/serrage/forme qui
+ *   n'est pas saisie dans l'UI ; on utilise G' faute de donnée dédiée).
+ *
+ * Suppressions Phase 4 :
+ *   - Boucle de convergence MF (5 itérations) : remplacée par un unique passage.
+ *   - Solveur `solveSimplexLeastSquares` : marqué @deprecated, non utilisé.
+ *   - `optimizeMix` : marqué @deprecated, kept for backward-compat imports only.
  */
+
+import { splitGravels, GravelSplitError, type GravillonInput as SplitGravillonInput } from "./engine/gravelSplit";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -105,7 +118,7 @@ export interface CalculationInputs {
 
 export interface PointA {
   dA: number;   // mm (Dmax / 2)
-  pA: number;   // % (35 + 10*G' + 3*(MF-2)), clamped 38-50
+  pA: number;   // % — bascule Dmax (cf. calculatePointA). Borné [38, 50] côté variante linéaire.
 }
 
 /** Optional curve-quality diagnostics. */
@@ -211,12 +224,29 @@ export function determineDmax(granulats: GranulatInput[]): number {
   return maxD > 0 ? maxD : 25;
 }
 
-/** Point A: dA = Dmax/2 ; PA = 38 + 12·G' + 4·(MF-2), clamped [38, 50]. */
+/**
+ * Point A avec bascule par Dmax (décision Phase 4) :
+ *   Dmax ≤ 20 mm : pA = 50 − √Dmax + K   (canonique — Dreux & Festa)
+ *   Dmax >  20 mm : pA = 38 + 12·G' + 4·(MF − 2), borné [38, 50]  (variante linéaire)
+ *
+ * AMBIGUÏTÉ MÉTIER : K, historiquement correction (vibration + serrage + forme),
+ * n'est pas saisi séparément dans l'UI. On utilise K = G' (coeffGranulaire),
+ * seule donnée disponible. À valider par un ingénieur si vibration ≠ normale.
+ */
 export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange: number | null): PointA {
   const dA = dMax / 2;
   const mf = mfMelange ?? 2.5;
-  const pARaw = 38 + (12 * coeffGranulaire) + (4 * (mf - 2));
-  const pA = Math.max(38, Math.min(50, Math.round(pARaw * 100) / 100));
+  let pA: number;
+  if (dMax <= 20) {
+    // Formule canonique — bornage soft pour éviter les valeurs aberrantes.
+    const K = coeffGranulaire; // AMBIGUÏTÉ MÉTIER — documenté ci-dessus.
+    const raw = 50 - Math.sqrt(dMax) + K;
+    pA = Math.round(raw * 100) / 100;
+  } else {
+    // Variante linéaire bornée [38, 50] pour gros granulats.
+    const raw = 38 + (12 * coeffGranulaire) + (4 * (mf - 2));
+    pA = Math.max(38, Math.min(50, Math.round(raw * 100) / 100));
+  }
   return { dA, pA };
 }
 
@@ -405,62 +435,44 @@ export function calculateMixDesign(
   const dMaxReel = determineDmax(granulats);
   const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
 
-  // ----- MF / reference-curve convergence loop ---------------------------
+  // ----- Distribution en UNE SEULE PASSE (Phase 4 : boucle MF supprimée) -----
+  // Dreux-Gorisse ne prescrit pas de recalcul rétroactif du MF : MF cible → distribution figée.
   const mfInitial = inputs.mfCible ?? 2.5;
-  let mfCurrent = mfInitial;
-  let mfPrev = mfInitial;
-  let iterations = 0;
+  const mfCurrent = mfInitial;
+  const iterations = 1;
   let sableMasses: Record<string, number> = {};
   let gravierMasses: Record<string, number> = {};
-  let referenceCurve: { ouverture: number; pourcentage: number }[] = [];
   let pointA = calculatePointA(dMaxReel, coeffGranulaire, mfCurrent);
+  let referenceCurve: { ouverture: number; pourcentage: number }[] =
+    generateReferenceCurve(dMaxReel, mfCurrent, pointA);
   let mfMelange: number | null = null;
 
-  const MAX_ITER = 5;
-  const TOL = 0.01;
+  if (hasPresetMasses) {
+    sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
+    gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
+  } else {
+    sableMasses = distributeSand(Vsable, activeSables, mfCurrent);
+    gravierMasses = distributeGravel(Vgravier, activeGraviers, dMaxReel, coeffGranulaire);
+  }
 
-  for (let i = 0; i < MAX_ITER; i++) {
-    iterations = i + 1;
-    pointA = calculatePointA(dMaxReel, coeffGranulaire, mfCurrent);
-    referenceCurve = generateReferenceCurve(dMaxReel, mfCurrent, pointA);
-
-    if (hasPresetMasses) {
-      sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
-      gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
-    } else {
-      sableMasses = distributeSand(Vsable, activeSables, mfCurrent, referenceCurve);
-      gravierMasses = distributeGravel(Vgravier, activeGraviers, referenceCurve);
-    }
-
-    // Re-compute MF mélange from current volumetric proportions
+  // MF mélange calculé A POSTERIORI (informatif uniquement — n'entre pas dans le calcul).
+  {
     const localVolumes: Record<string, number> = {};
     for (const s of activeSables) {
       const m = sableMasses[s.key] ?? 0;
       localVolumes[s.key] = s.densite > 0 ? m / s.densite : 0;
     }
-    const computedMf = computeWeightedSandModuleFinesse(
+    mfMelange = computeWeightedSandModuleFinesse(
       activeSables.map((s) => ({
         active: true,
         moduleFinesse: mfPerSand[s.key],
         proportion: localVolumes[s.key] ?? 0,
       }))
     );
-
-    if (computedMf == null) {
-      mfMelange = null;
-      break;
-    }
-
-    mfMelange = computedMf;
-    if (Math.abs(computedMf - mfPrev) < TOL) {
-      break;
-    }
-    mfPrev = mfCurrent;
-    mfCurrent = computedMf;
-
-    // For preset masses there is no point iterating (no redistribution happens).
-    if (hasPresetMasses) break;
   }
+  // mfPrev conservé pour compatibilité du ConvergenceReport en aval.
+  const mfPrev = mfInitial;
+
 
   // ----- Apply correction-sand cap in standard calculation --------------
   if (!hasPresetMasses) {
@@ -616,7 +628,6 @@ function distributeSand(
   totalVolume: number,
   sables: GranulatInput[],
   mfCible?: number,
-  referenceCurve?: { ouverture: number; pourcentage: number }[]
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (sables.length === 0) return result;
@@ -627,43 +638,43 @@ function distributeSand(
     return result;
   }
 
-  if (sables.length === 2 && typeof mfCible === "number" && mfCible > 0) {
+  if (sables.length === 2) {
+    if (typeof mfCible !== "number" || mfCible <= 0) {
+      throw new Error(
+        "Répartition des sables impossible : MF cible manquant ou invalide. " +
+        "Renseignez le MF cible dans l'étape précédente."
+      );
+    }
     const sorted = [...sables].sort((a, b) => (b.moduleFinesse ?? 0) - (a.moduleFinesse ?? 0));
     const sand1 = sorted[0];
     const sand2 = sorted[1];
     const mf1 = sand1.moduleFinesse;
     const mf2 = sand2.moduleFinesse;
 
-    if (typeof mf1 === "number" && mf1 > 0 && typeof mf2 === "number" && mf2 > 0 && Math.abs(mf1 - mf2) > 0.001) {
-      let s1 = (mfCible - mf2) / (mf1 - mf2);
-      s1 = Math.max(MIN_FRACTION, Math.min(1 - MIN_FRACTION, s1));
-      let s2 = 1 - s1;
-      if (s2 < MIN_FRACTION) {
-        s2 = MIN_FRACTION;
-        s1 = 1 - MIN_FRACTION;
-      }
-      result[sand1.key] = sand1.densite > 0 ? totalVolume * s1 * sand1.densite : 0;
-      result[sand2.key] = sand2.densite > 0 ? totalVolume * s2 * sand2.densite : 0;
-      return result;
+    if (typeof mf1 !== "number" || mf1 <= 0 || typeof mf2 !== "number" || mf2 <= 0) {
+      throw new Error(
+        `Modules de finesse manquants ou invalides pour "${sand1.label}" (MF=${mf1}) et/ou "${sand2.label}" (MF=${mf2}).`
+      );
     }
-  }
-
-  if (referenceCurve && referenceCurve.length > 0) {
-    let proportions = solveSimplexLeastSquares(sables, referenceCurve);
-    const missing = sables.filter(s => (proportions[s.key] ?? 0) < MIN_FRACTION);
-    if (missing.length > 0) proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
-    for (const s of sables) {
-      const vol = totalVolume * (proportions[s.key] ?? 0);
-      result[s.key] = s.densite > 0 ? vol * s.densite : 0;
+    if (Math.abs(mf1 - mf2) < 0.001) {
+      throw new Error(
+        `Les deux sables ont un module de finesse quasi-identique (MF1=${mf1}, MF2=${mf2}). ` +
+        "La formule Dreux-Gorisse s1 = (MFc − MF2)/(MF1 − MF2) est indéterminée."
+      );
     }
+    let s1 = (mfCible - mf2) / (mf1 - mf2);
+    s1 = Math.max(MIN_FRACTION, Math.min(1 - MIN_FRACTION, s1));
+    const s2 = 1 - s1;
+    result[sand1.key] = sand1.densite > 0 ? totalVolume * s1 * sand1.densite : 0;
+    result[sand2.key] = sand2.densite > 0 ? totalVolume * s2 * sand2.densite : 0;
     return result;
   }
 
-  const volumeEach = totalVolume / sables.length;
-  for (const s of sables) {
-    result[s.key] = s.densite > 0 ? volumeEach * s.densite : 0;
-  }
-  return result;
+  // ≥3 sables → NON COUVERT par Dreux-Gorisse. Erreur bloquante (Phase 4).
+  throw new Error(
+    `Dreux-Gorisse ne couvre que 1 ou 2 sables. Vous en avez sélectionné ${sables.length}. ` +
+    "Réduisez la sélection à 1 ou 2 sables dans l'étape matériaux."
+  );
 }
 
 /**
@@ -912,11 +923,21 @@ function solveSimplexLeastSquares(
   return enforceMinimumProportions(rawResult, MIN_FRACTION);
 }
 
-/** Distribute gravel volume using least-squares optimization. */
+/**
+ * Répartition des gravillons — méthode graphique Dreux-Gorisse 95/5 (Phase 4).
+ *
+ * Délègue au module `engine/gravelSplit/splitGravels()` :
+ *   - Trace des lignes P95(G_k) → P05(G_{k+1}) dans le repère (log10 d, %) ;
+ *   - Calcule les intersections avec la courbe de référence OAB ;
+ *   - Déduit les proportions par différences successives (Σ = 100 % par construction).
+ *
+ * AUCUN solveur numérique. AUCUNE optimisation.
+ */
 function distributeGravel(
   totalVolume: number,
   graviers: GranulatInput[],
-  referenceCurve?: { ouverture: number; pourcentage: number }[]
+  dMax: number,
+  coeffGranulaire: number,
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (graviers.length === 0) return result;
@@ -927,16 +948,36 @@ function distributeGravel(
     return result;
   }
 
-  let proportions: Record<string, number>;
-  if (referenceCurve && referenceCurve.length > 0) {
-    proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
-  } else {
-    const eq = 1 / graviers.length;
-    proportions = Object.fromEntries(graviers.map(g => [g.key, eq]));
-  }
+  // Construction de l'entrée splitGravels — tri par Dmax strictement croissant.
+  const sorted = [...graviers].sort((a, b) => {
+    const da = a.dMax ?? maxOpeningFromCurve(a);
+    const db = b.dMax ?? maxOpeningFromCurve(b);
+    return da - db;
+  });
 
-  const missing = graviers.filter(g => (proportions[g.key] ?? 0) < MIN_FRACTION);
-  if (missing.length > 0) proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
+  const input = {
+    dmax_mm: dMax,
+    K: coeffGranulaire, // Convention Phase 4 (cf. calculatePointA).
+    gravillons: sorted.map<SplitGravillonInput>((g) => ({
+      nom: g.label,
+      dmax_mm: g.dMax ?? maxOpeningFromCurve(g),
+      tamis: g.curve.map((c) => ({ ouverture_mm: c.ouverture, passant_pct: c.pourcentageTamisat })),
+    })),
+  };
+
+  let proportions: Record<string, number>;
+  try {
+    const out = splitGravels(input);
+    proportions = {};
+    for (let i = 0; i < sorted.length; i++) {
+      proportions[sorted[i].key] = (out.proportions[i]?.pct ?? 0) / 100;
+    }
+  } catch (e) {
+    if (e instanceof GravelSplitError) {
+      throw new Error(`Méthode graphique 95/5 : ${e.message}`);
+    }
+    throw e;
+  }
 
   for (const g of graviers) {
     const vol = totalVolume * (proportions[g.key] ?? 0);
@@ -945,88 +986,33 @@ function distributeGravel(
   return result;
 }
 
+/** Récupère le Dmax effectif d'un granulat à partir de sa courbe (dernier tamis > 0 % passant < 100 %). */
+function maxOpeningFromCurve(g: GranulatInput): number {
+  if (!g.curve || g.curve.length === 0) return 0;
+  const sorted = [...g.curve].sort((a, b) => b.ouverture - a.ouverture);
+  for (const pt of sorted) {
+    if (pt.pourcentageTamisat < 100) return pt.ouverture;
+  }
+  return sorted[0].ouverture;
+}
+
 // ---------------------------------------------------------------------------
-// Mix optimization (legacy entry point — kept signature-compatible)
+// ---------------------------------------------------------------------------
+// @deprecated — Phase 4 : le solveur numérique n'est plus utilisé.
+// `optimizeMix` est conservé pour compatibilité d'import mais renvoie
+// désormais strictement le résultat de `calculateMixDesign` (méthode
+// graphique 95/5). Aucun ajustement rétroactif.
 // ---------------------------------------------------------------------------
 
 /**
- * Optimize the mix to minimize deviation from the Dreux-Gorisse reference curve.
- *
- * CONSTRAINTS:
- * - Correction sand (0/1) ≤ 30% of total sand volume
- * - Total volumes Vsable and Vgravier remain constant
- * - G/S ratio is NEVER changed
- * - Each material keeps a minimum proportion
+ * @deprecated Phase 4 — supprimé du chemin de production. Renvoie le résultat
+ * strict de `calculateMixDesign` (méthode graphique Dreux-Gorisse).
  */
 export function optimizeMix(
   inputs: CalculationInputs,
-  dMax: number,
+  _dMax: number,
   _classeConsistance: string
 ): Record<string, number> {
-  const { granulats, coeffGranulaire } = inputs;
-  const baseline = calculateMixDesign(inputs);
-  const masses = { ...baseline.masses };
-
-  const pointA = baseline.pointA;
-  const mfForN = computeWeightedSandModuleFinesse(
-    granulats
-      .filter(g => g.active && g.isSable)
-      .map((s) => ({
-        active: true,
-        moduleFinesse: s.moduleFinesse,
-        proportion: s.densite > 0 ? (masses[s.key] ?? 0) / s.densite : 0,
-      }))
-  ) ?? 2.5;
-  const referenceCurve = generateReferenceCurve(dMax, mfForN, pointA);
-  if (referenceCurve.length === 0) return masses;
-
-  const activeGranulats = granulats.filter(g => g.active);
-  if (activeGranulats.length < 2) return masses;
-  void coeffGranulaire;
-
-  const activeSables = granulats.filter(g => g.active && g.isSable);
-  const activeGraviers = granulats.filter(g => g.active && !g.isSable);
-
-  const totalSableVolume = activeSables.reduce((s, g) => {
-    const m = masses[g.key] ?? 0;
-    return s + (g.densite > 0 ? m / g.densite : 0);
-  }, 0);
-  const totalGravierVolume = activeGraviers.reduce((s, g) => {
-    const m = masses[g.key] ?? 0;
-    return s + (g.densite > 0 ? m / g.densite : 0);
-  }, 0);
-
-  if (activeSables.length >= 2 && totalSableVolume > 0) {
-    const proportions = solveSimplexLeastSquares(activeSables, referenceCurve);
-
-    for (const s of activeSables) {
-      if ((s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2)) &&
-          (proportions[s.key] ?? 0) > MAX_CORRECTION_SAND_FRACTION) {
-        proportions[s.key] = MAX_CORRECTION_SAND_FRACTION;
-        const others = activeSables.filter(o => o.key !== s.key);
-        const othersTotal = others.reduce((sum, o) => sum + (proportions[o.key] ?? 0), 0);
-        const remaining = 1 - MAX_CORRECTION_SAND_FRACTION;
-        for (const o of others) {
-          proportions[o.key] = othersTotal > 0
-            ? ((proportions[o.key] ?? 0) / othersTotal) * remaining
-            : remaining / others.length;
-        }
-      }
-    }
-
-    for (const s of activeSables) {
-      const vol = totalSableVolume * (proportions[s.key] ?? 0);
-      masses[s.key] = s.densite > 0 ? vol * s.densite : 0;
-    }
-  }
-
-  if (activeGraviers.length >= 2 && totalGravierVolume > 0) {
-    const proportions = solveSimplexLeastSquares(activeGraviers, referenceCurve);
-    for (const g of activeGraviers) {
-      const vol = totalGravierVolume * (proportions[g.key] ?? 0);
-      masses[g.key] = g.densite > 0 ? vol * g.densite : 0;
-    }
-  }
-
-  return masses;
+  return calculateMixDesign(inputs).masses;
 }
+

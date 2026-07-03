@@ -1,89 +1,66 @@
-# Assistant IA de rédaction de rapports techniques
+## Objectif
+Rendre le moteur de formulation strictement conforme à la méthode graphique Dreux-Gorisse. Supprimer le solveur numérique du chemin de production. Aucun invention silencieuse : les ambiguïtés levées par vos réponses sont documentées dans le code.
 
-Module complet permettant à un technicien de décrire un problème, à une IA (Gemini 2.5 Flash) de l'analyser et de rédiger un projet de rapport, puis à un ingénieur de valider et générer un PDF officiel archivé.
+## Décisions métier validées
+1. **Point A** : bascule par Dmax — `Dmax ≤ 20 mm` → canonique `pA = 50 − √Dmax + K` (K = G' + correction MF) — `Dmax > 20 mm` → linéaire `pA = 38 + 12·G' + 4·(MF−2)` bornée [38, 50].
+2. **Bouton « Optimize Curve »** : suppression complète de l'UI.
+3. **≥3 sables** : erreur bloquante avec message explicite (Dreux ne couvre que 1-2 sables).
+4. **Boucle MF** : suppression — une seule passe (MF cible → distribution figée → pas de recalcul).
 
-## Note sur le modèle IA
+## Corrections — Lot 1 (bloquant)
 
-Vous avez demandé **Gemini 2.5 Flash via l'API Google AI Studio** (clé Google).
+### B1. Brancher `splitGravels()` conforme dans le flux principal
+- Fichier : `src/pages/essais/formulation/engine/dreuxGorisseCalculation.ts`
+- Remplacer le contenu de `distributeGravel` (`:916-946`) :
+  - Si 1 gravillon → `100 %`.
+  - Si ≥2 gravillons → appel `splitGravels({ gravillons, refCurve })` de `engine/gravelSplit/index.ts`.
+  - Propager `GravelSplitError` avec message métier.
+- Supprimer `solveSimplexLeastSquares` de ce chemin.
 
-Deux options — je recommande la 1 :
-1. **Lovable AI Gateway → `google/gemini-2.5-flash`** : aucune clé à fournir, facturé sur vos crédits Lovable, même modèle, appel serveur via edge function. Zéro configuration.
-2. **Google AI Studio direct** : vous fournissez `GOOGLE_AI_API_KEY` (secret sécurisé), appel serveur via edge function vers `generativelanguage.googleapis.com`.
+### B2. Formule Point A avec bascule Dmax
+- `dreuxGorisseCalculation.ts:214-221` (`calculatePointA`) : implémenter la bascule Dmax≤20/>20.
+- `engine/gravelSplit/referenceCurve.ts` : accepter la même règle (paramètre `pA` calculé côté appelant plutôt que reconstruit).
+- Corriger le commentaire JSDoc (`:108`).
 
-Je propose de partir sur **l'option 1** sauf indication contraire — même modèle, aucune clé à gérer. Dites-moi si vous préférez l'option 2.
+### B3. Suppression bouton Optimize
+- `src/pages/essais/formulation/ProportionsStep.tsx:381-390` : retirer `handleOptimize` et le bouton associé.
+- `dreuxGorisseCalculation.ts` : marquer `optimizeMix` `@deprecated`, non exporté.
 
-## Rôles (réutilisation existante)
+### B4. Blocage ≥3 sables
+- `dreuxGorisseCalculation.ts:651-666` (`distributeSand`) : si `sables.length > 2` → throw erreur explicite « Dreux-Gorisse ne couvre que 1 ou 2 sables. Réduisez la sélection matériaux. ». Retirer le fallback solveur pour les sables.
 
-Mapping via la table `user_roles` existante :
-- `TECHNICIEN` → peut créer/décrire/joindre/sauver brouillon
-- `INGENIEUR` (à créer si absent) ou `RESPONSABLE` → peut modifier, valider, signer
-- `SUPER_ADMIN` / `ADMIN` → gère modèles, catégories, prompts système, en-têtes
+### B5. Une seule passe MF
+- `dreuxGorisseCalculation.ts:408-463` : supprimer la boucle 5-itérations. Calcul en une passe : MF cible → distribution figée.
 
-Je vérifierai les rôles présents avant impl. et je créerai un rôle `ingenieur` uniquement si nécessaire.
+## Corrections — Lot 2 (important)
 
-## Architecture (aperçu technique)
+### I1. Exposer `airOcclus` dans l'UI
+- `ProportionsStep.tsx:346` : lire depuis l'input matériaux (adjuvant entraîneur d'air) au lieu du `0` hardcodé.
 
-**Tables Supabase** :
-- `rapports_techniques` — id, numero (RAPP-YYYY-NNN), titre, description_probleme, categorie, sous_type, client_id, chantier_id, materiau, statut (brouillon/en_cours/a_completer/en_attente_validation/valide/refuse/archive), technicien_id, ingenieur_id, analyse_ia (jsonb: type, confiance, gravite, essais_recommandes, normes, causes, risques), contenu_rapport (jsonb structuré : objet/contexte/constatations/analyse/consequences/recommandations/conclusion), version, valide_at, pdf_url, qr_token
-- `rapport_pieces_jointes` — id, rapport_id, type (photo/pdf/essai/document), nom, url, essai_ref
-- `rapport_questions_ia` — id, rapport_id, question, reponse, ordre
-- `rapport_historique` — id, rapport_id, user_id, action, ancien_contenu jsonb, nouveau_contenu jsonb, timestamp
-- `rapport_modeles_bibliotheque` — id, categorie, titre, prompt_template, structure_default (jsonb) — 21+ modèles seedés
-- `rapport_categories` — id, nom, ordre, icone (Béton, Granulats, Ciment, Adjuvant, Acier, Chantier, Essais, Non-conformités, Réclamations, Audit, Autres)
+### I2. `calcVolumes` affiché
+- `ProportionsStep.tsx:425-435` : utiliser la densité ciment réelle et inclure Vair : `Vg = 1 − Ve − Vc − Vair`.
 
-**RLS** : techniciens voient leurs rapports + ceux de leur périmètre (Wilaya/Chantier), ingénieurs voient tout, admin voit tout. `GRANT` explicites sur chaque table.
+### I3. Vérifications finales étendues + panneau Debug
+- Ajout dans `DebugDreuxPanel.tsx` :
+  - Erreur max, erreur moyenne, RMSE de la courbe de mélange vs OAB.
+  - Tamis présentant le plus grand écart.
+  - Vérification `Vsable + Vgravier = Vgranulats` (tol 1e-6) et `Vsable/Vgravier = G/S` (tol 1e-6).
+  - Vérification `Σ volumes = 1000 L`.
 
-**Bucket Storage** : `rapports-techniques` (photos, PDFs joints, rapports générés).
+## Non-corrigé (signalé comme ambiguïté / hors périmètre)
+- `DOCUMENT_EXAMPLE` (`documentExampleValidation.ts:35`) laissé à `null` — je ne dispose pas des valeurs de référence du livre. À remplir manuellement par vous, ou fournissez le tableau et je l'intègre.
+- Tests Vitest du module `gravelSplit` : non activés dans ce lot.
 
-**Edge Functions** :
-- `rapport-analyser` — reçoit description + pièces, retourne analyse structurée (Output.object schema Zod)
-- `rapport-questions` — génère questions complémentaires selon lacunes détectées
-- `rapport-generer` — produit le rapport structuré en 7 sections
-- `rapport-pdf` — assemble le PDF final via composant impression (`data-ref="report"`, `-webkit-print-color-adjust: exact`)
+## Livrable final
+Après application : rapport structuré (✅/⚠/❌) commité dans `.lovable/audit-dreux-gorisse-phase4.md` avec pour chaque étape : fichier, fonction, formule, entrées, sorties, conformité.
 
-## Livraison par phases
+## Ordre d'exécution
+1. B2 (Point A bascule) — base pour les autres modules.
+2. B1 (brancher splitGravels).
+3. B4 + B5 (bloquer ≥3 sables, supprimer boucle MF).
+4. B3 (supprimer bouton Optimize).
+5. I1 + I2 (air occlus + calcVolumes affiché).
+6. I3 (métriques Debug).
+7. Rédaction rapport d'audit final.
 
-### Phase 1 — Fondations base de données + navigation
-- Migrations : 6 tables + RLS + GRANT + bucket storage
-- Seed catégories + 21 modèles de bibliothèque
-- Route `/essais/rapports-techniques` + refonte du widget (déjà en place) en page fonctionnelle
-- Layout principal : bibliothèque à gauche, zone centrale, header avec onglets (Nouveau / Brouillons / En attente / Validés / Archivés)
-- Filtres + recherche + badges de compteurs par onglet
-
-### Phase 2 — Création & description
-- Formulaire "Nouveau rapport" : sélection catégorie/sous-type (depuis bibliothèque), grand textarea description, sélection Client → Chantier (cascade), matériau, date
-- Upload multi-fichiers : photos, PDFs, documents (Storage)
-- Sélection d'essais existants du laboratoire (picker vers `essais_*`)
-- Sauvegarde brouillon auto + manuel
-
-### Phase 3 — Moteur IA (analyse + questions + génération)
-- Edge function `rapport-analyser` avec prompt système "ingénieur senior spécialisé laboratoire de contrôle des matériaux" : ton neutre/juridique/technique, jamais inventer, "Information non disponible" si manque
-- Affichage carte d'analyse (type détecté, badge de confiance, gravité, matériaux, essais recommandés, normes, causes probables, risques)
-- Edge function `rapport-questions` : détecte lacunes, pose questions ciblées, l'utilisateur répond, l'IA intègre
-- Edge function `rapport-generer` : produit contenu structuré en 7 sections (Objet / Contexte / Constatations / Analyse technique / Conséquences / Recommandations / Conclusion) avec distinction Faits / Hypothèses / Analyses / Recommandations / Conclusions
-
-### Phase 4 — Éditeur & workflow de validation
-- Éditeur riche (Tiptap) : gras, listes, tableaux, images inline, insertion résultats d'essais et références normatives
-- Boutons de workflow selon rôle : Enregistrer brouillon / Marquer à compléter / Soumettre validation / Valider / Refuser
-- Historique complet (utilisateur, date, ancien contenu, nouveau contenu) — diff visuel version à version
-- Signature électronique ingénieur (image signature depuis `parametres_signature`)
-
-### Phase 5 — PDF officiel + archivage
-- Composant impression avec logo, en-tête laboratoire, référence auto `RAPP-YYYY-NNN`, projet, client, entreprise, date, 7 sections, signature/cachet, QR code de vérification (token public → page de vérification), pagination, pied de page
-- Génération PDF via `window.print()` sur route dédiée + option `html2pdf` pour téléchargement direct
-- Archivage : upload dans bucket + `pdf_url` en base + verrouillage lecture seule après validation
-
-### Phase 6 — Historique, recherche IA, statistiques
-- Page Historique avec filtres avancés (client, chantier, date, type, catégorie, statut, ingénieur, technicien, mot-clé)
-- Recherche full-text (Postgres tsvector) sur titre + description + contenu + pièces jointes indexées
-- Recherche sémantique IA optionnelle : le mot-clé déclenche un appel Gemini qui reformule et étend la requête
-- Dashboard admin : rapports par mois, taux validation, temps moyen technicien→validation, catégories les plus fréquentes
-
-## Points à confirmer avant Phase 1
-
-1. **Modèle IA** : je pars sur Lovable AI Gateway `google/gemini-2.5-flash` (aucune clé) — OK ? Sinon je bascule sur clé Google AI Studio.
-2. **Rôle "ingénieur"** : je crée un nouveau rôle `ingenieur` dans user_roles, ou je mappe sur `RESPONSABLE` existant ? (je vérifierai la liste des rôles actuels)
-3. **QR code de vérification** : page publique `/verifier/:token` qui affiche un résumé signé du rapport — OK ?
-4. **Périmètre du contenu inséré par IA** : autorisez-vous l'IA à citer nommément des normes (EN 206, NF P18, ASTM…) même sans document joint, ou uniquement les normes présentes dans la base ?
-
-Répondez sur ces 4 points (ou dites "go phase 1 avec vos défauts") et je démarre l'implémentation phase par phase.
+Confirmez-vous ce plan pour que je lance les corrections ?
