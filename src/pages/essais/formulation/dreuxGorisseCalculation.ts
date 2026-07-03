@@ -224,12 +224,29 @@ export function determineDmax(granulats: GranulatInput[]): number {
   return maxD > 0 ? maxD : 25;
 }
 
-/** Point A: dA = Dmax/2 ; PA = 38 + 12·G' + 4·(MF-2), clamped [38, 50]. */
+/**
+ * Point A avec bascule par Dmax (décision Phase 4) :
+ *   Dmax ≤ 20 mm : pA = 50 − √Dmax + K   (canonique — Dreux & Festa)
+ *   Dmax >  20 mm : pA = 38 + 12·G' + 4·(MF − 2), borné [38, 50]  (variante linéaire)
+ *
+ * AMBIGUÏTÉ MÉTIER : K, historiquement correction (vibration + serrage + forme),
+ * n'est pas saisi séparément dans l'UI. On utilise K = G' (coeffGranulaire),
+ * seule donnée disponible. À valider par un ingénieur si vibration ≠ normale.
+ */
 export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange: number | null): PointA {
   const dA = dMax / 2;
   const mf = mfMelange ?? 2.5;
-  const pARaw = 38 + (12 * coeffGranulaire) + (4 * (mf - 2));
-  const pA = Math.max(38, Math.min(50, Math.round(pARaw * 100) / 100));
+  let pA: number;
+  if (dMax <= 20) {
+    // Formule canonique — bornage soft pour éviter les valeurs aberrantes.
+    const K = coeffGranulaire; // AMBIGUÏTÉ MÉTIER — documenté ci-dessus.
+    const raw = 50 - Math.sqrt(dMax) + K;
+    pA = Math.round(raw * 100) / 100;
+  } else {
+    // Variante linéaire bornée [38, 50] pour gros granulats.
+    const raw = 38 + (12 * coeffGranulaire) + (4 * (mf - 2));
+    pA = Math.max(38, Math.min(50, Math.round(raw * 100) / 100));
+  }
   return { dA, pA };
 }
 
