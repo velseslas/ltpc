@@ -683,14 +683,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               <Calculator className="w-4 h-4" />
               Calculer les proportions
             </Button>
-            <Button
-              onClick={handleOptimize}
-              variant="outline"
-              className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
-            >
-              <Sparkles className="w-4 h-4" />
-              Optimiser la courbe
-            </Button>
+            {/* Phase 4 : bouton "Optimiser la courbe" supprimé (solveur numérique retiré). */}
             <Button
               onClick={handleManualMode}
               variant={calcMode === "manual" ? "default" : "outline"}
