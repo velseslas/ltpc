@@ -997,87 +997,22 @@ function maxOpeningFromCurve(g: GranulatInput): number {
 }
 
 // ---------------------------------------------------------------------------
-// Mix optimization (legacy entry point — kept signature-compatible)
+// ---------------------------------------------------------------------------
+// @deprecated — Phase 4 : le solveur numérique n'est plus utilisé.
+// `optimizeMix` est conservé pour compatibilité d'import mais renvoie
+// désormais strictement le résultat de `calculateMixDesign` (méthode
+// graphique 95/5). Aucun ajustement rétroactif.
 // ---------------------------------------------------------------------------
 
 /**
- * Optimize the mix to minimize deviation from the Dreux-Gorisse reference curve.
- *
- * CONSTRAINTS:
- * - Correction sand (0/1) ≤ 30% of total sand volume
- * - Total volumes Vsable and Vgravier remain constant
- * - G/S ratio is NEVER changed
- * - Each material keeps a minimum proportion
+ * @deprecated Phase 4 — supprimé du chemin de production. Renvoie le résultat
+ * strict de `calculateMixDesign` (méthode graphique Dreux-Gorisse).
  */
 export function optimizeMix(
   inputs: CalculationInputs,
-  dMax: number,
+  _dMax: number,
   _classeConsistance: string
 ): Record<string, number> {
-  const { granulats, coeffGranulaire } = inputs;
-  const baseline = calculateMixDesign(inputs);
-  const masses = { ...baseline.masses };
-
-  const pointA = baseline.pointA;
-  const mfForN = computeWeightedSandModuleFinesse(
-    granulats
-      .filter(g => g.active && g.isSable)
-      .map((s) => ({
-        active: true,
-        moduleFinesse: s.moduleFinesse,
-        proportion: s.densite > 0 ? (masses[s.key] ?? 0) / s.densite : 0,
-      }))
-  ) ?? 2.5;
-  const referenceCurve = generateReferenceCurve(dMax, mfForN, pointA);
-  if (referenceCurve.length === 0) return masses;
-
-  const activeGranulats = granulats.filter(g => g.active);
-  if (activeGranulats.length < 2) return masses;
-  void coeffGranulaire;
-
-  const activeSables = granulats.filter(g => g.active && g.isSable);
-  const activeGraviers = granulats.filter(g => g.active && !g.isSable);
-
-  const totalSableVolume = activeSables.reduce((s, g) => {
-    const m = masses[g.key] ?? 0;
-    return s + (g.densite > 0 ? m / g.densite : 0);
-  }, 0);
-  const totalGravierVolume = activeGraviers.reduce((s, g) => {
-    const m = masses[g.key] ?? 0;
-    return s + (g.densite > 0 ? m / g.densite : 0);
-  }, 0);
-
-  if (activeSables.length >= 2 && totalSableVolume > 0) {
-    const proportions = solveSimplexLeastSquares(activeSables, referenceCurve);
-
-    for (const s of activeSables) {
-      if ((s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2)) &&
-          (proportions[s.key] ?? 0) > MAX_CORRECTION_SAND_FRACTION) {
-        proportions[s.key] = MAX_CORRECTION_SAND_FRACTION;
-        const others = activeSables.filter(o => o.key !== s.key);
-        const othersTotal = others.reduce((sum, o) => sum + (proportions[o.key] ?? 0), 0);
-        const remaining = 1 - MAX_CORRECTION_SAND_FRACTION;
-        for (const o of others) {
-          proportions[o.key] = othersTotal > 0
-            ? ((proportions[o.key] ?? 0) / othersTotal) * remaining
-            : remaining / others.length;
-        }
-      }
-    }
-
-    for (const s of activeSables) {
-      const vol = totalSableVolume * (proportions[s.key] ?? 0);
-      masses[s.key] = s.densite > 0 ? vol * s.densite : 0;
-    }
-  }
-
-  if (activeGraviers.length >= 2 && totalGravierVolume > 0) {
-    const proportions = solveSimplexLeastSquares(activeGraviers, referenceCurve);
-    for (const g of activeGraviers) {
-      const vol = totalGravierVolume * (proportions[g.key] ?? 0);
-      masses[g.key] = g.densite > 0 ? vol * g.densite : 0;
-    }
-  }
-
-  return masses;
+  return calculateMixDesign(inputs).masses;
 }
+
