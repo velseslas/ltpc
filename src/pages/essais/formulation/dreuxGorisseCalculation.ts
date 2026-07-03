@@ -628,7 +628,6 @@ function distributeSand(
   totalVolume: number,
   sables: GranulatInput[],
   mfCible?: number,
-  referenceCurve?: { ouverture: number; pourcentage: number }[]
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (sables.length === 0) return result;
@@ -639,43 +638,43 @@ function distributeSand(
     return result;
   }
 
-  if (sables.length === 2 && typeof mfCible === "number" && mfCible > 0) {
+  if (sables.length === 2) {
+    if (typeof mfCible !== "number" || mfCible <= 0) {
+      throw new Error(
+        "Répartition des sables impossible : MF cible manquant ou invalide. " +
+        "Renseignez le MF cible dans l'étape précédente."
+      );
+    }
     const sorted = [...sables].sort((a, b) => (b.moduleFinesse ?? 0) - (a.moduleFinesse ?? 0));
     const sand1 = sorted[0];
     const sand2 = sorted[1];
     const mf1 = sand1.moduleFinesse;
     const mf2 = sand2.moduleFinesse;
 
-    if (typeof mf1 === "number" && mf1 > 0 && typeof mf2 === "number" && mf2 > 0 && Math.abs(mf1 - mf2) > 0.001) {
-      let s1 = (mfCible - mf2) / (mf1 - mf2);
-      s1 = Math.max(MIN_FRACTION, Math.min(1 - MIN_FRACTION, s1));
-      let s2 = 1 - s1;
-      if (s2 < MIN_FRACTION) {
-        s2 = MIN_FRACTION;
-        s1 = 1 - MIN_FRACTION;
-      }
-      result[sand1.key] = sand1.densite > 0 ? totalVolume * s1 * sand1.densite : 0;
-      result[sand2.key] = sand2.densite > 0 ? totalVolume * s2 * sand2.densite : 0;
-      return result;
+    if (typeof mf1 !== "number" || mf1 <= 0 || typeof mf2 !== "number" || mf2 <= 0) {
+      throw new Error(
+        `Modules de finesse manquants ou invalides pour "${sand1.label}" (MF=${mf1}) et/ou "${sand2.label}" (MF=${mf2}).`
+      );
     }
-  }
-
-  if (referenceCurve && referenceCurve.length > 0) {
-    let proportions = solveSimplexLeastSquares(sables, referenceCurve);
-    const missing = sables.filter(s => (proportions[s.key] ?? 0) < MIN_FRACTION);
-    if (missing.length > 0) proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
-    for (const s of sables) {
-      const vol = totalVolume * (proportions[s.key] ?? 0);
-      result[s.key] = s.densite > 0 ? vol * s.densite : 0;
+    if (Math.abs(mf1 - mf2) < 0.001) {
+      throw new Error(
+        `Les deux sables ont un module de finesse quasi-identique (MF1=${mf1}, MF2=${mf2}). ` +
+        "La formule Dreux-Gorisse s1 = (MFc − MF2)/(MF1 − MF2) est indéterminée."
+      );
     }
+    let s1 = (mfCible - mf2) / (mf1 - mf2);
+    s1 = Math.max(MIN_FRACTION, Math.min(1 - MIN_FRACTION, s1));
+    const s2 = 1 - s1;
+    result[sand1.key] = sand1.densite > 0 ? totalVolume * s1 * sand1.densite : 0;
+    result[sand2.key] = sand2.densite > 0 ? totalVolume * s2 * sand2.densite : 0;
     return result;
   }
 
-  const volumeEach = totalVolume / sables.length;
-  for (const s of sables) {
-    result[s.key] = s.densite > 0 ? volumeEach * s.densite : 0;
-  }
-  return result;
+  // ≥3 sables → NON COUVERT par Dreux-Gorisse. Erreur bloquante (Phase 4).
+  throw new Error(
+    `Dreux-Gorisse ne couvre que 1 ou 2 sables. Vous en avez sélectionné ${sables.length}. ` +
+    "Réduisez la sélection à 1 ou 2 sables dans l'étape matériaux."
+  );
 }
 
 /**
