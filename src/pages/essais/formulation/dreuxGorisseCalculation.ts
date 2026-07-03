@@ -1,22 +1,33 @@
 /**
- * Dreux-Gorisse automatic concrete mix design calculation engine.
+ * Dreux-Gorisse automatic concrete mix design calculation engine (v3 — Phase 4).
  *
- * Improvements (v2):
- *  - Dynamic cement density (fallback 3110 kg/m³)
- *  - MF / reference curve convergence loop (max 5 iterations)
- *  - Correction sand cap (≤ 30%) applied in both standard and optimized calc
- *  - Dreux-weighted sieves in the least-squares solver
- *  - Curve quality metrics (RMSE, max deviation)
- *  - Point A verification (warning if > 2% deviation)
- *  - Final physical sanity checks (mass density, paste/aggregate volume ratio)
- *  - More robust projected-gradient solver (adaptive learning rate,
- *    gradient-norm stopping criterion, early stopping)
- *  - Convergence report and exhaustive consistency checks
+ * CONFORMITÉ STRICTE — cf. .lovable/plan.md (Phase 4).
  *
- * Full backward compatibility:
- *  - All public function signatures are preserved
- *  - All previously emitted fields are still emitted with the same semantics
- *  - New diagnostics are exposed as OPTIONAL fields on CalculationResult
+ * Flux imposé :
+ *   1. Eau (kg/m³)      → donnée, jamais recalculée.
+ *   2. Ciment (kg/m³)   → donné, jamais recalculé.
+ *   3. Volumes          : Ve = eau/1000, Vc = ciment/ρc, Vair = airOcclus/1000,
+ *                         Vgranulats = 1 − (Ve + Vc + Vair).
+ *   4. G/S imposé       → Vsable = Vgranulats / (1 + G/S), Vgravier = Vgranulats − Vsable.
+ *                         G/S JAMAIS modifié, jamais optimisé, jamais recalculé.
+ *   5. Sable composé    : 1 sable = 100 %, 2 sables = formule module de finesse
+ *                         s1 = (MFc − MF2) / (MF1 − MF2). ≥3 sables = ERREUR
+ *                         bloquante (non couvert par la méthode).
+ *   6. Gravillons       : méthode graphique 95/5 exclusivement, via le module
+ *                         `engine/gravelSplit/` (splitGravels). AUCUN solveur
+ *                         numérique dans le chemin de production.
+ *
+ * Point A — bascule par Dmax (décision métier utilisateur, cf. plan Phase 4) :
+ *   Dmax ≤ 20 mm : pA = 50 − √Dmax + K              (formule canonique)
+ *   Dmax >  20 mm : pA = 38 + 12·G' + 4·(MF − 2)   (variante linéaire bornée)
+ *   Convention K = G' (documentée comme AMBIGUÏTÉ MÉTIER dans l'audit — la
+ *   littérature Dreux définit K comme correction vibration/serrage/forme qui
+ *   n'est pas saisie dans l'UI ; on utilise G' faute de donnée dédiée).
+ *
+ * Suppressions Phase 4 :
+ *   - Boucle de convergence MF (5 itérations) : remplacée par un unique passage.
+ *   - Solveur `solveSimplexLeastSquares` : marqué @deprecated, non utilisé.
+ *   - `optimizeMix` : marqué @deprecated, kept for backward-compat imports only.
  */
 
 // ---------------------------------------------------------------------------
