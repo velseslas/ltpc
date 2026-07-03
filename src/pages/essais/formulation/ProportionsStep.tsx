@@ -700,11 +700,9 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               <Badge variant="outline" className={cn(
                 "text-xs",
                 calcMode === "calculate" && "bg-primary/10 text-primary border-primary/30",
-                calcMode === "optimize" && "bg-emerald-500/10 text-emerald-500 border-emerald-500/30",
                 calcMode === "manual" && "bg-amber-500/10 text-amber-500 border-amber-500/30",
               )}>
                 {calcMode === "calculate" && "Mode : Calcul Dreux classique"}
-                {calcMode === "optimize" && "Mode : Courbe optimisée"}
                 {calcMode === "manual" && "Mode : Ajustement manuel"}
               </Badge>
             </div>
