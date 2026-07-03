@@ -20,7 +20,6 @@ import {
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 import {
   calculateMixDesign,
-  optimizeMix,
   determineDmax,
   calculatePointA,
   type GranulatInput,
