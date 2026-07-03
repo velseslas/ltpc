@@ -923,11 +923,21 @@ function solveSimplexLeastSquares(
   return enforceMinimumProportions(rawResult, MIN_FRACTION);
 }
 
-/** Distribute gravel volume using least-squares optimization. */
+/**
+ * Répartition des gravillons — méthode graphique Dreux-Gorisse 95/5 (Phase 4).
+ *
+ * Délègue au module `engine/gravelSplit/splitGravels()` :
+ *   - Trace des lignes P95(G_k) → P05(G_{k+1}) dans le repère (log10 d, %) ;
+ *   - Calcule les intersections avec la courbe de référence OAB ;
+ *   - Déduit les proportions par différences successives (Σ = 100 % par construction).
+ *
+ * AUCUN solveur numérique. AUCUNE optimisation.
+ */
 function distributeGravel(
   totalVolume: number,
   graviers: GranulatInput[],
-  referenceCurve?: { ouverture: number; pourcentage: number }[]
+  dMax: number,
+  coeffGranulaire: number,
 ): Record<string, number> {
   const result: Record<string, number> = {};
   if (graviers.length === 0) return result;
@@ -938,22 +948,52 @@ function distributeGravel(
     return result;
   }
 
-  let proportions: Record<string, number>;
-  if (referenceCurve && referenceCurve.length > 0) {
-    proportions = solveSimplexLeastSquares(graviers, referenceCurve, TAMIS_OPENINGS);
-  } else {
-    const eq = 1 / graviers.length;
-    proportions = Object.fromEntries(graviers.map(g => [g.key, eq]));
-  }
+  // Construction de l'entrée splitGravels — tri par Dmax strictement croissant.
+  const sorted = [...graviers].sort((a, b) => {
+    const da = a.dMax ?? maxOpeningFromCurve(a);
+    const db = b.dMax ?? maxOpeningFromCurve(b);
+    return da - db;
+  });
 
-  const missing = graviers.filter(g => (proportions[g.key] ?? 0) < MIN_FRACTION);
-  if (missing.length > 0) proportions = enforceMinimumProportions(proportions, MIN_FRACTION);
+  const input = {
+    dmax_mm: dMax,
+    K: coeffGranulaire, // Convention Phase 4 (cf. calculatePointA).
+    gravillons: sorted.map<SplitGravillonInput>((g) => ({
+      nom: g.label,
+      dmax_mm: g.dMax ?? maxOpeningFromCurve(g),
+      tamis: g.curve.map((c) => ({ ouverture_mm: c.ouverture, passant_pct: c.pourcentageTamisat })),
+    })),
+  };
+
+  let proportions: Record<string, number>;
+  try {
+    const out = splitGravels(input);
+    proportions = {};
+    for (let i = 0; i < sorted.length; i++) {
+      proportions[sorted[i].key] = (out.proportions[i]?.pct ?? 0) / 100;
+    }
+  } catch (e) {
+    if (e instanceof GravelSplitError) {
+      throw new Error(`Méthode graphique 95/5 : ${e.message}`);
+    }
+    throw e;
+  }
 
   for (const g of graviers) {
     const vol = totalVolume * (proportions[g.key] ?? 0);
     result[g.key] = g.densite > 0 ? vol * g.densite : 0;
   }
   return result;
+}
+
+/** Récupère le Dmax effectif d'un granulat à partir de sa courbe (dernier tamis > 0 % passant < 100 %). */
+function maxOpeningFromCurve(g: GranulatInput): number {
+  if (!g.curve || g.curve.length === 0) return 0;
+  const sorted = [...g.curve].sort((a, b) => b.ouverture - a.ouverture);
+  for (const pt of sorted) {
+    if (pt.pourcentageTamisat < 100) return pt.ouverture;
+  }
+  return sorted[0].ouverture;
 }
 
 // ---------------------------------------------------------------------------
