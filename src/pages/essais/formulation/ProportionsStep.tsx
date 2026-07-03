@@ -129,7 +129,7 @@ const DMAX_MAP: Record<string, number> = {
   gravier3: 25,
 };
 
-type CalcMode = "none" | "calculate" | "optimize" | "manual";
+type CalcMode = "none" | "calculate" | "manual";
 
 export default function ProportionsStep({
   sableConcasseQte,
