@@ -30,6 +30,8 @@
  *   - `optimizeMix` : marqué @deprecated, kept for backward-compat imports only.
  */
 
+import { splitGravels, GravelSplitError, type GravillonInput as SplitGravillonInput } from "./engine/gravelSplit";
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
