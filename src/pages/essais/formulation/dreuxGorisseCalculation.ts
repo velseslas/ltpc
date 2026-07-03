@@ -435,62 +435,44 @@ export function calculateMixDesign(
   const dMaxReel = determineDmax(granulats);
   const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
 
-  // ----- MF / reference-curve convergence loop ---------------------------
+  // ----- Distribution en UNE SEULE PASSE (Phase 4 : boucle MF supprimée) -----
+  // Dreux-Gorisse ne prescrit pas de recalcul rétroactif du MF : MF cible → distribution figée.
   const mfInitial = inputs.mfCible ?? 2.5;
-  let mfCurrent = mfInitial;
-  let mfPrev = mfInitial;
-  let iterations = 0;
+  const mfCurrent = mfInitial;
+  const iterations = 1;
   let sableMasses: Record<string, number> = {};
   let gravierMasses: Record<string, number> = {};
-  let referenceCurve: { ouverture: number; pourcentage: number }[] = [];
   let pointA = calculatePointA(dMaxReel, coeffGranulaire, mfCurrent);
+  let referenceCurve: { ouverture: number; pourcentage: number }[] =
+    generateReferenceCurve(dMaxReel, mfCurrent, pointA);
   let mfMelange: number | null = null;
 
-  const MAX_ITER = 5;
-  const TOL = 0.01;
+  if (hasPresetMasses) {
+    sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
+    gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
+  } else {
+    sableMasses = distributeSand(Vsable, activeSables, mfCurrent);
+    gravierMasses = distributeGravel(Vgravier, activeGraviers, dMaxReel, coeffGranulaire);
+  }
 
-  for (let i = 0; i < MAX_ITER; i++) {
-    iterations = i + 1;
-    pointA = calculatePointA(dMaxReel, coeffGranulaire, mfCurrent);
-    referenceCurve = generateReferenceCurve(dMaxReel, mfCurrent, pointA);
-
-    if (hasPresetMasses) {
-      sableMasses = Object.fromEntries(activeSables.map(s => [s.key, presetMasses?.[s.key] ?? 0]));
-      gravierMasses = Object.fromEntries(activeGraviers.map(g => [g.key, presetMasses?.[g.key] ?? 0]));
-    } else {
-      sableMasses = distributeSand(Vsable, activeSables, mfCurrent, referenceCurve);
-      gravierMasses = distributeGravel(Vgravier, activeGraviers, referenceCurve);
-    }
-
-    // Re-compute MF mélange from current volumetric proportions
+  // MF mélange calculé A POSTERIORI (informatif uniquement — n'entre pas dans le calcul).
+  {
     const localVolumes: Record<string, number> = {};
     for (const s of activeSables) {
       const m = sableMasses[s.key] ?? 0;
       localVolumes[s.key] = s.densite > 0 ? m / s.densite : 0;
     }
-    const computedMf = computeWeightedSandModuleFinesse(
+    mfMelange = computeWeightedSandModuleFinesse(
       activeSables.map((s) => ({
         active: true,
         moduleFinesse: mfPerSand[s.key],
         proportion: localVolumes[s.key] ?? 0,
       }))
     );
-
-    if (computedMf == null) {
-      mfMelange = null;
-      break;
-    }
-
-    mfMelange = computedMf;
-    if (Math.abs(computedMf - mfPrev) < TOL) {
-      break;
-    }
-    mfPrev = mfCurrent;
-    mfCurrent = computedMf;
-
-    // For preset masses there is no point iterating (no redistribution happens).
-    if (hasPresetMasses) break;
   }
+  // mfPrev conservé pour compatibilité du ConvergenceReport en aval.
+  const mfPrev = mfInitial;
+
 
   // ----- Apply correction-sand cap in standard calculation --------------
   if (!hasPresetMasses) {
