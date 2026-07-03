@@ -376,17 +376,8 @@ export default function ProportionsStep({
     setCalcMode("calculate");
   }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, applyResult]);
 
-  // BUTTON 2: Optimize Curve
-  const handleOptimize = useCallback(() => {
-    if (!validateAllSteps()) return;
-    if (!validateDensities()) return;
+  // Phase 4 : bouton "Optimiser" supprimé (méthode graphique Dreux-Gorisse uniquement).
 
-    const inputs = buildInputs();
-    const optimized = optimizeMix(inputs, dMaxReel, classeRheologique);
-    const result = calculateMixDesign(inputs, optimized);
-    applyResult(result, optimized);
-    setCalcMode("optimize");
-  }, [buildInputs, dMaxReel, classeRheologique, validateDensities, validateAllSteps, applyResult]);
 
   // BUTTON 3: Manual Mode
   const handleManualMode = useCallback(() => {
