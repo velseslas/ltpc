@@ -118,7 +118,7 @@ export interface CalculationInputs {
 
 export interface PointA {
   dA: number;   // mm (Dmax / 2)
-  pA: number;   // % (35 + 10*G' + 3*(MF-2)), clamped 38-50
+  pA: number;   // % — bascule Dmax (cf. calculatePointA). Borné [38, 50] côté variante linéaire.
 }
 
 /** Optional curve-quality diagnostics. */
