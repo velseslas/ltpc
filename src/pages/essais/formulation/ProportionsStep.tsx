@@ -293,8 +293,9 @@ export default function ProportionsStep({
       airOcclus: 0,
       granulats: granulatInputs,
       mfCible: mfMelangeStocke ?? undefined,
+      dMaxUser: typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0 ? dMaxUser : undefined,
     };
-  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs, mfMelangeStocke]);
+  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs, mfMelangeStocke, dMaxUser]);
 
   const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
     const errors = result.volumeErrors;
@@ -311,18 +312,43 @@ export default function ProportionsStep({
     setHasCalculated(true);
   }, [onQuantityChange]);
 
+  // Phase 6 : ERREUR BLOQUANTE si une courbe réelle manque pour un granulat actif.
+  const validateRealCurves = useCallback((): boolean => {
+    const missing: string[] = [];
+    for (const g of granulatInputs) {
+      if (!g.active) continue;
+      if (!g.curve || g.curve.length === 0) {
+        missing.push(`${g.label} — courbe granulométrique (rapport GR) manquante`);
+      }
+    }
+    if (missing.length > 0) {
+      setMissingReports(missing);
+      setMissingReportsOpen(true);
+      return false;
+    }
+    return true;
+  }, [granulatInputs]);
+
   // BUTTON 1: Calculate Proportions
   const handleCalculate = useCallback(() => {
     if (!validateAllSteps()) return;
     if (!validateDensities()) return;
+    if (!validateRealCurves()) return;
 
-    const inputs = buildInputs();
-    const result = calculateMixDesign(inputs);
-    applyResult(result, result.masses);
-    onQuantityChange?.("eau", inputs.eau.toString());
-    onQuantityChange?.("ciment", inputs.ciment.toString());
-    setCalcMode("calculate");
-  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, applyResult]);
+    try {
+      const inputs = buildInputs();
+      const result = calculateMixDesign(inputs);
+      applyResult(result, result.masses);
+      onQuantityChange?.("eau", inputs.eau.toString());
+      onQuantityChange?.("ciment", inputs.ciment.toString());
+      setCalcMode("calculate");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setCalculationErrors([msg]);
+      setCalcResult(null);
+      setHasCalculated(false);
+    }
+  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, validateRealCurves, applyResult]);
 
   // Phase 4 : bouton "Optimiser" supprimé (méthode graphique Dreux-Gorisse uniquement).
 
