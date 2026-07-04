@@ -160,7 +160,6 @@ export default function PointAEStep({
   }, [dmax, kValue, ks, kp]);
 
   // Phase 6 : plus de notification au parent — le moteur est source unique du Point A.
-  void xAResult; void yA;
 
   useEffect(() => { onVibrationChange?.(vibration); }, [vibration]);
   useEffect(() => { onFormeChange?.(forme); }, [forme]);
