@@ -460,7 +460,10 @@ export function calculateMixDesign(
     }
   }
 
-  const dMaxReel = determineDmax(granulats);
+  const dMaxAuto = determineDmax(granulats);
+  const dMaxReel = (typeof inputs.dMaxUser === "number" && Number.isFinite(inputs.dMaxUser) && inputs.dMaxUser > 0)
+    ? inputs.dMaxUser
+    : dMaxAuto;
   const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
 
   // ----- Distribution en UNE SEULE PASSE (Phase 4 : boucle MF supprimée) -----
