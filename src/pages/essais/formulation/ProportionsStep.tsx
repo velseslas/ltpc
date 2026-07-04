@@ -823,16 +823,16 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
 
             {calcResult ? (
               <DreuxGorisseChart
-                dMax={dMaxReel}
+                dMax={calcResult.dMax}
                 classeRheologique={classeRheologique}
-                materials={demoMaterials}
+                materials={chartMaterials}
                 sables={sables}
                 graviers={graviers}
                 pointA={calcResult.pointA}
                 referenceCurve={calcResult.referenceCurve}
                 mixCurve={calcResult.mixCurve}
                 mfMelange={mfMelange ?? 2.5}
-                onFractionsChange={handleFractionsChange}
+                gravelSplit={calcResult.gravelSplit}
               />
             ) : (
               <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
@@ -847,7 +847,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
       {hasCalculated && (
         <StabilityAnalysisPanel
           mfMelange={mfMelange}
-          materials={demoMaterials}
+          materials={chartMaterials}
           pct38={pct38}
           pct1525={pct1525}
           isWithinEnvelope={null}
