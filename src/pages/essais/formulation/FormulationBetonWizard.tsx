@@ -550,6 +550,11 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
         onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
       }
     }
+
+    if (essaiType === "granulometrie" && onCurveExtracted) {
+      const curve = extractCurveFromReport(sample.resultats as Record<string, unknown>);
+      if (curve) onCurveExtracted(granulatKey, curve);
+    }
   };
 
   // Get the prefix for this essai type
