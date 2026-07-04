@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal, CheckCircle2, AlertCircle, Plus, Minus } from "lucide-react";
+import { Calculator, AlertTriangle, SlidersHorizontal, CheckCircle2, AlertCircle, Plus, Minus } from "lucide-react";
 import StabilityAnalysisPanel from "./StabilityAnalysisPanel";
 import DebugDreuxPanel from "./DebugDreuxPanel";
 import {
@@ -20,7 +20,6 @@ import {
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 import {
   calculateMixDesign,
-  determineDmax,
   type GranulatInput,
   type CalculationInputs,
   type CalculationResult,
