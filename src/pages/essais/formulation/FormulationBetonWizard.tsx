@@ -1700,6 +1700,7 @@ export default function FormulationBetonWizard() {
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
           granulatDensites={granulatDensites}
           granulatModuleFinesse={granulatModuleFinesse}
+          granulatCurveByKey={granulatCurves}
           granulatLabels={granulatLabels}
           mfMelangeStocke={mfIdeal ? parseFloat(mfIdeal) || null : null}
           dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
