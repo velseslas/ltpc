@@ -523,9 +523,13 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
           const mfData = extractModuleFinesseFromReport(best.resultats as Record<string, unknown>);
           if (mfData?.moduleFinesse) onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
         }
+        if (essaiType === "granulometrie" && onCurveExtracted) {
+          const curve = extractCurveFromReport(best.resultats as Record<string, unknown>);
+          if (curve) onCurveExtracted(granulatKey, curve);
+        }
       }
     }
-  }, [filtered, selectedRapport, granulatKey, essaiType, onDensityExtracted, onModuleFinesseExtracted]);
+  }, [filtered, selectedRapport, granulatKey, essaiType, onDensityExtracted, onModuleFinesseExtracted, onCurveExtracted]);
 
   // When a MV report is selected, extract density and call back
   const handleReportSelect = (reportId: string) => {
