@@ -879,23 +879,6 @@ function maxOpeningFromCurve(g: GranulatInput): number {
   return sorted[0].ouverture;
 }
 
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// @deprecated — Phase 4 : le solveur numérique n'est plus utilisé.
-// `optimizeMix` est conservé pour compatibilité d'import mais renvoie
-// désormais strictement le résultat de `calculateMixDesign` (méthode
-// graphique 95/5). Aucun ajustement rétroactif.
-// ---------------------------------------------------------------------------
+// Phase 6 : optimizeMix supprimé (code mort).
 
-/**
- * @deprecated Phase 4 — supprimé du chemin de production. Renvoie le résultat
- * strict de `calculateMixDesign` (méthode graphique Dreux-Gorisse).
- */
-export function optimizeMix(
-  inputs: CalculationInputs,
-  _dMax: number,
-  _classeConsistance: string
-): Record<string, number> {
-  return calculateMixDesign(inputs).masses;
-}
 
