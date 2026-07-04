@@ -80,7 +80,7 @@ interface PointAEStepProps {
   onMfIdealChange?: (v: string) => void;
   dosageCiment: string; // from step 2 / step 3
   showError?: boolean;
-  onPointAChange?: (xA: number, yA: number) => void;
+  // Phase 6 : onPointAChange retiré — le Point A officiel provient exclusivement de calcResult.pointA (moteur).
   onVibrationChange?: (v: string) => void;
   onFormeChange?: (v: string) => void;
   vibrationValue?: string;
@@ -98,7 +98,7 @@ export default function PointAEStep({
   onMfIdealChange,
   dosageCiment,
   showError = false,
-  onPointAChange,
+  
   onVibrationChange,
   onFormeChange,
   vibrationValue = "",
@@ -159,12 +159,7 @@ export default function PointAEStep({
     return Math.round(raw * 100) / 100;
   }, [dmax, kValue, ks, kp]);
 
-  // Notify parent
-  useEffect(() => {
-    if (xAResult && yA !== null && onPointAChange) {
-      onPointAChange(xAResult.xA, yA);
-    }
-  }, [xAResult, yA]);
+  // Phase 6 : plus de notification au parent — le moteur est source unique du Point A.
 
   useEffect(() => { onVibrationChange?.(vibration); }, [vibration]);
   useEffect(() => { onFormeChange?.(forme); }, [forme]);

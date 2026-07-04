@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Sparkles, AlertTriangle, Info, SlidersHorizontal, CheckCircle2, AlertCircle, Plus, Minus } from "lucide-react";
+import { Calculator, AlertTriangle, SlidersHorizontal, CheckCircle2, AlertCircle, Plus, Minus } from "lucide-react";
 import StabilityAnalysisPanel from "./StabilityAnalysisPanel";
 import DebugDreuxPanel from "./DebugDreuxPanel";
 import {
@@ -20,14 +20,14 @@ import {
 import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 import {
   calculateMixDesign,
-  determineDmax,
   type GranulatInput,
   type CalculationInputs,
   type CalculationResult,
 } from "./dreuxGorisseCalculation";
 
-// Standard sieve openings (mm) for Dreux-Gorisse
+// Phase 6 : TAMIS_OPENINGS conservée uniquement pour dimensionner l'axe X du chart.
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
+void TAMIS_OPENINGS;
 
 interface ValidationData {
   resistance28j: string;
@@ -60,13 +60,12 @@ interface ProportionsStepProps {
   coefficientGranulaire: string;
   coefficientCompacite: string;
   classeRheologique: string;
-  granulatCurves?: MaterialCurve[];
+  /** Phase 6 : source UNIQUE des courbes granulométriques — courbes réelles extraites des rapports GR. */
   granulatCurveByKey?: Record<string, { ouverture: number; pourcentageTamisat: number }[]>;
   granulatDensites?: Record<string, number>;
   granulatModuleFinesse?: Record<string, number>;
   granulatLabels?: Record<string, string>;
   dMaxUser?: number | null;
-  pointAOverride?: { xA: number; yA: number } | null;
   calcEau: string;
   calcCiment: string;
   calcRatioGS: string;
@@ -87,41 +86,8 @@ interface GranulatSlider {
   isSable: boolean;
 }
 
-// Demo granulometric curves generator
-function generateDemoCurve(type: string): { ouverture: number; pourcentageTamisat: number }[] {
-  switch (type) {
-    case "sable1":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 4 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(4 / 0.063)) * 100),
-      }));
-    case "sable2":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 2 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(2 / 0.063)) * 100),
-      }));
-    case "gravier1":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 10 ? 100 : ouv <= 2 ? 0 : Math.min(100, ((ouv - 2) / (10 - 2)) * 100),
-      }));
-    case "gravier2":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 20 ? 100 : ouv <= 6.3 ? 0 : Math.min(100, ((ouv - 6.3) / (20 - 6.3)) * 100),
-      }));
-    case "gravier3":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 31.5 ? 100 : ouv <= 12.5 ? 0 : Math.min(100, ((ouv - 12.5) / (31.5 - 12.5)) * 100),
-      }));
-    default:
-      return [];
-  }
-}
-
-// Phase 6 : DMAX_MAP supprimé. Le Dmax provient exclusivement du matériau
-// (courbe granulométrique / champ dMax en base) ou du Dmax saisi (dMaxUser).
+// Phase 6 : generateDemoCurve, DMAX_MAP, pointAOverride, graphFractions — TOUS SUPPRIMÉS.
+// Aucun fallback : les courbes proviennent exclusivement des rapports GR (granulatCurveByKey).
 
 type CalcMode = "none" | "calculate" | "manual";
 
@@ -142,13 +108,11 @@ export default function ProportionsStep({
   coefficientGranulaire,
   coefficientCompacite,
   classeRheologique,
-  granulatCurves,
   granulatCurveByKey,
   granulatDensites = {},
   granulatModuleFinesse = {},
   granulatLabels = {},
   dMaxUser,
-  pointAOverride,
   calcEau,
   calcCiment,
   calcRatioGS,
@@ -168,12 +132,6 @@ export default function ProportionsStep({
   const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
-  // Fractions individuelles 95/5 émises par le graphique Dreux-Gorisse
-  const [graphFractions, setGraphFractions] = useState<Array<{ label: string; pct: number }>>([]);
-  const handleFractionsChange = useCallback(
-    (f: Array<{ label: string; pct: number }>) => setGraphFractions(f),
-    []
-  );
 
   const mfMelangeEffectif = useMemo(
     () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
@@ -210,14 +168,14 @@ export default function ProportionsStep({
   const ratioGS = sables > 0 ? (graviers / sables).toFixed(2) : "-";
   const ratioEC = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
 
-  // Build granulat inputs for calculation engine
+  // Build granulat inputs for calculation engine — courbes réelles OBLIGATOIRES.
   const granulatInputs = useMemo<GranulatInput[]>(() => {
-    const items: { key: string; label: string; active: boolean; isSable: boolean; isSableCorrecteur: boolean; curveType: string }[] = [
-      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, isSableCorrecteur: false, curveType: "sable1" },
-      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, isSableCorrecteur: true, curveType: "sable2" },
-      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, isSableCorrecteur: false, curveType: "gravier1" },
-      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, isSableCorrecteur: false, curveType: "gravier2" },
-      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, isSableCorrecteur: false, curveType: "gravier3" },
+    const items: { key: string; label: string; active: boolean; isSable: boolean; isSableCorrecteur: boolean }[] = [
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, isSableCorrecteur: false },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, isSableCorrecteur: true },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, isSableCorrecteur: false },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, isSableCorrecteur: false },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, isSableCorrecteur: false },
     ];
     return items.map(item => ({
       key: item.key,
@@ -227,11 +185,8 @@ export default function ProportionsStep({
       isSableCorrecteur: item.isSableCorrecteur,
       densite: granulatDensites[item.key] ?? 0,
       moduleFinesse: granulatModuleFinesse[item.key],
-      // Phase 6 / 2a : courbe réelle si extraite du rapport granulométrique de ce
-      // granulat (matching par `key`). Sinon, on garde temporairement la courbe
-      // démo — la sous-phase 2b supprimera ce fallback et rendra l'absence bloquante.
-      curve: granulatCurveByKey?.[item.key] ?? generateDemoCurve(item.curveType),
-      // Phase 6 : plus de DMAX_MAP. Le Dmax est extrait de la courbe par determineDmax().
+      // Phase 6 : courbe RÉELLE uniquement. `[]` = signal "manquant" (erreur bloquante déclenchée à la validation).
+      curve: granulatCurveByKey?.[item.key] ?? [],
       dMax: undefined,
     }));
   }, [
@@ -239,14 +194,8 @@ export default function ProportionsStep({
     granulatDensites, granulatModuleFinesse, granulatLabels, granulatCurveByKey,
   ]);
 
-  // Dmax réel (priorité à la valeur utilisateur étape 4)
-  const dMaxAuto = useMemo(() => determineDmax(granulatInputs), [granulatInputs]);
-  const dMaxReel = useMemo(() => {
-    if (typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0) {
-      return dMaxUser;
-    }
-    return dMaxAuto;
-  }, [dMaxUser, dMaxAuto]);
+  // Phase 6 : Dmax = source unique = calcResult.dMax (produit par le moteur). Avant calcul on lit dMaxUser (input étape 4) pour l'affichage du header.
+  const dMaxReel = calcResult?.dMax ?? (typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0 ? dMaxUser : 0);
 
   // Validate imported material data
   const validateDensities = useCallback((): boolean => {
@@ -344,8 +293,9 @@ export default function ProportionsStep({
       airOcclus: 0,
       granulats: granulatInputs,
       mfCible: mfMelangeStocke ?? undefined,
+      dMaxUser: typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0 ? dMaxUser : undefined,
     };
-  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs, mfMelangeStocke]);
+  }, [calcEau, calcCiment, calcRatioGS, coefficientCompacite, coefficientGranulaire, granulatInputs, mfMelangeStocke, dMaxUser]);
 
   const applyResult = useCallback((result: CalculationResult, massesSource: Record<string, number>) => {
     const errors = result.volumeErrors;
@@ -362,18 +312,43 @@ export default function ProportionsStep({
     setHasCalculated(true);
   }, [onQuantityChange]);
 
+  // Phase 6 : ERREUR BLOQUANTE si une courbe réelle manque pour un granulat actif.
+  const validateRealCurves = useCallback((): boolean => {
+    const missing: string[] = [];
+    for (const g of granulatInputs) {
+      if (!g.active) continue;
+      if (!g.curve || g.curve.length === 0) {
+        missing.push(`${g.label} — courbe granulométrique (rapport GR) manquante`);
+      }
+    }
+    if (missing.length > 0) {
+      setMissingReports(missing);
+      setMissingReportsOpen(true);
+      return false;
+    }
+    return true;
+  }, [granulatInputs]);
+
   // BUTTON 1: Calculate Proportions
   const handleCalculate = useCallback(() => {
     if (!validateAllSteps()) return;
     if (!validateDensities()) return;
+    if (!validateRealCurves()) return;
 
-    const inputs = buildInputs();
-    const result = calculateMixDesign(inputs);
-    applyResult(result, result.masses);
-    onQuantityChange?.("eau", inputs.eau.toString());
-    onQuantityChange?.("ciment", inputs.ciment.toString());
-    setCalcMode("calculate");
-  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, applyResult]);
+    try {
+      const inputs = buildInputs();
+      const result = calculateMixDesign(inputs);
+      applyResult(result, result.masses);
+      onQuantityChange?.("eau", inputs.eau.toString());
+      onQuantityChange?.("ciment", inputs.ciment.toString());
+      setCalcMode("calculate");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setCalculationErrors([msg]);
+      setCalcResult(null);
+      setHasCalculated(false);
+    }
+  }, [buildInputs, onQuantityChange, validateDensities, validateAllSteps, validateRealCurves, applyResult]);
 
   // Phase 4 : bouton "Optimiser" supprimé (méthode graphique Dreux-Gorisse uniquement).
 
@@ -424,30 +399,24 @@ export default function ProportionsStep({
     return { Ve, Vc, Vg, Vsable, Vgravier, volumeCheck };
   }, [calcEau, calcCiment, calcRatioGS]);
 
-  // Generate granulometric curves for chart
-  // Phase 6 / 2a : privilégie la courbe réelle extraite (granulatCurveByKey) sur le démo.
-  const demoMaterials = useMemo<MaterialCurve[]>(() => {
-    if (granulatCurves && granulatCurves.length > 0) return granulatCurves;
-    const materials: MaterialCurve[] = [];
-    const pick = (key: string, demoType: string) =>
-      granulatCurveByKey?.[key] ?? generateDemoCurve(demoType);
-    if (sable1Active && sc > 0) {
-      materials.push({ label: granulatLabels["sableConcasse"] || "Sable 0/4", quantity: sc, curve: pick("sableConcasse", "sable1") });
+  // Phase 6 : materials pour le chart = courbes réelles uniquement (aucun démo).
+  const chartMaterials = useMemo<MaterialCurve[]>(() => {
+    const items: Array<{ key: string; label: string; active: boolean; quantity: number }> = [
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, quantity: sc },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, quantity: sf },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, quantity: g1 },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, quantity: g2 },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, quantity: g3 },
+    ];
+    const out: MaterialCurve[] = [];
+    for (const it of items) {
+      if (!it.active || it.quantity <= 0) continue;
+      const curve = granulatCurveByKey?.[it.key];
+      if (!curve || curve.length === 0) continue; // pas de fallback
+      out.push({ label: it.label, quantity: it.quantity, curve });
     }
-    if (sable2Active && sf > 0) {
-      materials.push({ label: granulatLabels["sableFin"] || "Sable 0/1", quantity: sf, curve: pick("sableFin", "sable2") });
-    }
-    if (gravier1Active && g1 > 0) {
-      materials.push({ label: granulatLabels["gravillons1"] || "Gravillon 3/8", quantity: g1, curve: pick("gravillons1", "gravier1") });
-    }
-    if (gravier2Active && g2 > 0) {
-      materials.push({ label: granulatLabels["gravier2"] || "Gravier 8/15", quantity: g2, curve: pick("gravier2", "gravier2") });
-    }
-    if (gravier3Active && g3 > 0) {
-      materials.push({ label: granulatLabels["gravier3"] || "Gravier 15/25", quantity: g3, curve: pick("gravier3", "gravier3") });
-    }
-    return materials;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves, granulatCurveByKey, granulatLabels]);
+    return out;
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurveByKey, granulatLabels]);
 
   const sliders: GranulatSlider[] = [
     { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
@@ -880,16 +849,16 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
 
             {calcResult ? (
               <DreuxGorisseChart
-                dMax={dMaxReel}
+                dMax={calcResult.dMax}
                 classeRheologique={classeRheologique}
-                materials={demoMaterials}
+                materials={chartMaterials}
                 sables={sables}
                 graviers={graviers}
                 pointA={calcResult.pointA}
                 referenceCurve={calcResult.referenceCurve}
                 mixCurve={calcResult.mixCurve}
                 mfMelange={mfMelange ?? 2.5}
-                onFractionsChange={handleFractionsChange}
+                gravelSplit={calcResult.gravelSplit}
               />
             ) : (
               <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
@@ -904,7 +873,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
       {hasCalculated && (
         <StabilityAnalysisPanel
           mfMelange={mfMelange}
-          materials={demoMaterials}
+          materials={chartMaterials}
           pct38={pct38}
           pct1525={pct1525}
           isWithinEnvelope={null}
@@ -1027,45 +996,65 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
 
           <div className="overflow-x-auto">
             {(() => {
-              // Map fractions 95/5 (label normalisé) — provient du graphique Dreux-Gorisse.
-              const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
-              const fractionByLabel = new Map<string, number>();
-              for (const f of graphFractions) fractionByLabel.set(norm(f.label), f.pct);
+              if (!calcResult) {
+                return (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    Lancez « Calculer les proportions » pour afficher le récapitulatif.
+                  </p>
+                );
+              }
 
-              // Binders (eau, ciment, adjuvant) → conservés tels quels.
-              const binders = components.filter((c) => !fractionByLabel.has(norm(c.label)));
-              const granulats = components.filter((c) => fractionByLabel.has(norm(c.label)));
+              // Phase 6 : SOURCE UNIQUE = calcResult (moteur). Aucune donnée recalculée.
+              const gravelPctByKey = new Map<string, number>();
+              for (const p of calcResult.gravelSplit.proportions) {
+                gravelPctByKey.set(p.key, p.pct);
+              }
 
-              const bindersVolumeL = binders.reduce((s, b) => {
-                return s + (b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0);
-              }, 0);
-              const granulatsVolumeL = Math.max(0, 1000 - bindersVolumeL);
+              type Row = {
+                label: string; mass: number; volumeL: number; density: number; pctVol: number; pct95: number | null;
+              };
+              const rows: Row[] = [];
 
-              // Adapter les masses des granulats à partir des fractions 95/5.
-              const granulatsRows = granulats.map((g) => {
-                const pct95 = fractionByLabel.get(norm(g.label)) ?? 0;
-                const volumeL = (pct95 / 100) * granulatsVolumeL;
-                const mass = g.density > 0 ? volumeL * g.density : 0;
-                const pctVol = volumeL / 1000 * 100;
-                return { ...g, volumeL, mass, pctVol, pct95 };
-              });
-              const bindersRows = binders.map((b) => {
+              // Binders — masses lues telles quelles (eau, ciment, adjuvant).
+              const binders: Array<{ label: string; value: number; density: number }> = [
+                { label: "Eau", value: eau, density: 1.0 },
+                { label: "Ciment", value: ciment, density: 3.11 },
+              ];
+              if (adjuvant > 0) binders.push({ label: "Adjuvant", value: adjuvant, density: 1.05 });
+              for (const b of binders) {
                 const volumeL = b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0;
-                const pctVol = volumeL / 1000 * 100;
-                return { ...b, volumeL, mass: b.value, pctVol, pct95: null as number | null };
-              });
-              const rows = [...bindersRows, ...granulatsRows];
+                rows.push({ label: b.label, mass: b.value, volumeL, density: b.density, pctVol: volumeL / 10, pct95: null });
+              }
+
+              // Granulats — masses = calcResult.masses ; % granulats = calcResult.gravelSplit.proportions (gravillons).
+              for (const g of granulatInputs) {
+                if (!g.active) continue;
+                const mass = calcResult.masses[g.key] ?? 0;
+                if (mass <= 0) continue;
+                const densityKgL = g.densite > 0 ? g.densite / 1000 : 0;
+                const volumeL = (calcResult.volumes.detail[g.key] ?? 0) * 1000;
+                rows.push({
+                  label: g.label,
+                  mass,
+                  volumeL,
+                  density: densityKgL,
+                  pctVol: volumeL / 10,
+                  pct95: gravelPctByKey.has(g.key) ? gravelPctByKey.get(g.key)! : null,
+                });
+              }
+
               const totalMass = rows.reduce((s, r) => s + r.mass, 0);
               const totalVolL = rows.reduce((s, r) => s + r.volumeL, 0);
-              const totalPct = totalVolL / 10; // = totalVolL/1000*100
+              const totalPct = totalVolL / 10;
               const isOk = Math.abs(totalPct - 100) < 0.5;
+              const total95 = rows.reduce((s, r) => s + (r.pct95 ?? 0), 0);
 
               return (
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="bg-muted">
                       <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
-                      <th className="border border-border p-2.5 text-right font-semibold">% granulats (95/5)</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">% gravillons (95/5)</th>
                       <th className="border border-border p-2.5 text-right font-semibold">% volume</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
@@ -1089,9 +1078,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                   <tfoot>
                     <tr className={cn("bg-primary/10", !isOk && "animate-border-blink")}>
                       <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
-                      <td className="border border-border p-2.5 text-right font-bold text-foreground">
-                        {granulatsRows.reduce((s, r) => s + r.pct95, 0).toFixed(1)}%
-                      </td>
+                      <td className="border border-border p-2.5 text-right font-bold text-foreground">{total95.toFixed(1)}%</td>
                       <td className={cn("border border-border p-2.5 text-right font-bold", isOk ? "text-emerald-500" : "text-destructive")}>
                         {totalPct.toFixed(1)}%
                       </td>
@@ -1106,6 +1093,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               );
             })()}
           </div>
+
         </CardContent>
       </Card>
 

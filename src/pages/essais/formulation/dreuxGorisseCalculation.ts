@@ -26,8 +26,8 @@
  *
  * Suppressions Phase 4 :
  *   - Boucle de convergence MF (5 itérations) : remplacée par un unique passage.
- *   - Solveur `solveSimplexLeastSquares` : marqué @deprecated, non utilisé.
- *   - `optimizeMix` : marqué @deprecated, kept for backward-compat imports only.
+ * Suppressions Phase 6 :
+ *   - `solveSimplexLeastSquares`, `projectOntoSimplex`, `enforceMinimumProportions`, `sieveWeight`, `optimizeMix` : code mort définitivement retiré.
  */
 
 import { splitGravels, GravelSplitError, type GravillonInput as SplitGravillonInput } from "./engine/gravelSplit";
@@ -52,39 +52,7 @@ const MIN_FRACTION = 0.02;
 /** Maximum proportion (volume) allowed for correction sand. */
 const MAX_CORRECTION_SAND_FRACTION = 0.30;
 
-/** Dreux-inspired sieve weighting (higher weight on fine sieves). */
-const SIEVE_WEIGHTS: Record<number, number> = {
-  0.08: 5.0,
-  0.16: 4.0,
-  0.315: 3.0,
-  0.63: 2.0,
-  1.25: 1.5,
-  2.5: 1.0,
-  5: 0.8,
-  10: 0.7,
-  20: 0.6,
-  40: 0.5,
-};
-
-/**
- * Returns the Dreux weight for a given sieve opening.
- * Picks the closest pre-defined weight (log-distance). Defaults to 1.0 when no
- * close reference exists, preserving the legacy unweighted behavior.
- */
-function sieveWeight(opening: number): number {
-  const keys = Object.keys(SIEVE_WEIGHTS).map(Number);
-  let best = 1.0;
-  let bestDist = Infinity;
-  for (const k of keys) {
-    const dist = Math.abs(Math.log10(opening) - Math.log10(k));
-    if (dist < bestDist) {
-      bestDist = dist;
-      best = SIEVE_WEIGHTS[k];
-    }
-  }
-  // Only apply weight when reasonably close to a reference sieve (log distance < 0.2)
-  return bestDist < 0.2 ? best : 1.0;
-}
+// Phase 6 : SIEVE_WEIGHTS et sieveWeight supprimés — plus aucun solveur numérique.
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -115,6 +83,23 @@ export interface CalculationInputs {
   densiteCiment?: number;
   /** Optional adjuvant volume (L/m³) used only in physical diagnostics. */
   volumeAdjuvant?: number;
+  /** Phase 6 : Dmax imposé par l'utilisateur (étape 4). Priorité absolue sur determineDmax(). */
+  dMaxUser?: number;
+}
+
+/** Ligne de partage 95/5 exportée en coordonnées mm — SOURCE UNIQUE (Phase 6). */
+export interface PartitionLineOut {
+  pair: string;
+  from: { d_mm: number; y_pct: number };   // P95 du gravillon fin
+  to: { d_mm: number; y_pct: number };     // P05 du gravillon suivant
+  intersection: { d_mm: number; y_pct: number }; // sur OAB
+}
+
+export interface GravelSplitReport {
+  proportions: Array<{ key: string; label: string; pct: number }>;
+  cutoffs: Array<{ d_mm: number; y_pct: number }>;
+  partitionLines: PartitionLineOut[];
+  warnings: string[];
 }
 
 export interface PointA {
@@ -183,6 +168,10 @@ export interface CalculationResult {
   referenceCurve: { ouverture: number; pourcentage: number }[];
   /** Courbe granulométrique du mélange final — SOURCE UNIQUE (Phase 6). */
   mixCurve: { ouverture: number; pourcentage: number }[];
+  /** Répartition graphique 95/5 exposée par le moteur — SOURCE UNIQUE (Phase 6). */
+  gravelSplit: GravelSplitReport;
+  /** Dmax final utilisé par le moteur — alias explicite (Phase 6). */
+  dMax: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -439,7 +428,10 @@ export function calculateMixDesign(
     }
   }
 
-  const dMaxReel = determineDmax(granulats);
+  const dMaxAuto = determineDmax(granulats);
+  const dMaxReel = (typeof inputs.dMaxUser === "number" && Number.isFinite(inputs.dMaxUser) && inputs.dMaxUser > 0)
+    ? inputs.dMaxUser
+    : dMaxAuto;
   const hasPresetMasses = !!presetMasses && Object.keys(presetMasses).length > 0;
 
   // ----- Distribution en UNE SEULE PASSE (Phase 4 : boucle MF supprimée) -----
@@ -588,6 +580,9 @@ export function calculateMixDesign(
     durationMs: Math.round((t1 - t0) * 100) / 100,
   };
 
+  // ----- Gravel split (méthode graphique 95/5) — exposé pour toute l'UI -----
+  const gravelSplit = buildGravelSplitReport(activeGraviers, dMaxReel, coeffGranulaire);
+
   return {
     masses,
     volumes: {
@@ -605,6 +600,7 @@ export function calculateMixDesign(
     },
     pointA,
     dMaxReel,
+    dMax: dMaxReel,
     volumeCheck,
     volumeErrors,
     warnings,
@@ -618,7 +614,71 @@ export function calculateMixDesign(
     },
     referenceCurve,
     mixCurve: finalMixCurve,
+    gravelSplit,
   };
+}
+
+/**
+ * Construit un GravelSplitReport (proportions + lignes de partage + intersections)
+ * à partir des gravillons actifs. Source unique consommée par l'UI (chart, récap, debug).
+ */
+function buildGravelSplitReport(
+  graviers: GranulatInput[],
+  dMax: number,
+  coeffGranulaire: number
+): GravelSplitReport {
+  if (graviers.length === 0) {
+    return { proportions: [], cutoffs: [], partitionLines: [], warnings: [] };
+  }
+  if (graviers.length === 1) {
+    const g = graviers[0];
+    return {
+      proportions: [{ key: g.key, label: g.label, pct: 100 }],
+      cutoffs: [],
+      partitionLines: [],
+      warnings: [],
+    };
+  }
+  const sorted = [...graviers].sort((a, b) => {
+    const da = a.dMax ?? maxOpeningFromCurve(a);
+    const db = b.dMax ?? maxOpeningFromCurve(b);
+    return da - db;
+  });
+  try {
+    const out = splitGravels({
+      dmax_mm: dMax,
+      K: coeffGranulaire,
+      gravillons: sorted.map<SplitGravillonInput>((g) => ({
+        nom: g.label,
+        dmax_mm: g.dMax ?? maxOpeningFromCurve(g),
+        tamis: g.curve.map((c) => ({ ouverture_mm: c.ouverture, passant_pct: c.pourcentageTamisat })),
+      })),
+    });
+    const proportions = sorted.map((g, i) => ({
+      key: g.key,
+      label: g.label,
+      pct: out.proportions[i]?.pct ?? 0,
+    }));
+    const partitionLines: PartitionLineOut[] = out.partition_lines.map((line, i) => {
+      const cut = out.cutoffs[i];
+      return {
+        pair: line.pair,
+        from: { d_mm: Math.pow(10, line.from.x), y_pct: line.from.y },
+        to: { d_mm: Math.pow(10, line.to.x), y_pct: line.to.y },
+        intersection: { d_mm: Math.pow(10, cut.x_log10d), y_pct: cut.y_pct },
+      };
+    });
+    const cutoffs = out.cutoffs.map((c) => ({
+      d_mm: Math.pow(10, c.x_log10d),
+      y_pct: c.y_pct,
+    }));
+    return { proportions, cutoffs, partitionLines, warnings: out.warnings };
+  } catch (e) {
+    if (e instanceof GravelSplitError) {
+      throw new Error(`Méthode graphique 95/5 : ${e.message}`);
+    }
+    throw e;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -742,195 +802,9 @@ function enforceCorrectionSandCap(
   return out;
 }
 
-/** Project a vector onto the standard simplex (Σ pi = 1, pi ≥ 0). */
-function projectOntoSimplex(values: number[]): number[] {
-  const n = values.length;
-  const result = [...values];
-  for (let iter = 0; iter < 20; iter++) {
-    for (let i = 0; i < n; i++) if (result[i] < 0) result[i] = 0;
-    const sum = result.reduce((a, b) => a + b, 0);
-    if (Math.abs(sum - 1.0) < 1e-9) break;
-    if (sum === 0) {
-      for (let i = 0; i < n; i++) result[i] = 1 / n;
-      break;
-    }
-    for (let i = 0; i < n; i++) result[i] /= sum;
-  }
-  return result;
-}
+// Phase 6 : projectOntoSimplex, enforceMinimumProportions, solveSimplexLeastSquares
+// définitivement supprimés (code mort — solveur numérique retiré en Phase 4).
 
-/**
- * Raise every fraction below `minFraction` to that floor, subtracting the
- * deficit proportionally from fractions above the floor. Sums to 1.
- */
-function enforceMinimumProportions(proportions: Record<string, number>, minFraction: number): Record<string, number> {
-  const keys = Object.keys(proportions);
-  const n = keys.length;
-  if (n <= 1) return proportions;
-
-  const result = { ...proportions };
-  if (minFraction * n > 1.0) {
-    const eq = 1 / n;
-    for (const k of keys) result[k] = eq;
-    return result;
-  }
-
-  let needsRedistribution = true;
-  for (let iter = 0; iter < 10 && needsRedistribution; iter++) {
-    needsRedistribution = false;
-    let deficit = 0;
-    let surplusTotal = 0;
-    for (const k of keys) {
-      if (result[k] < minFraction) {
-        deficit += minFraction - result[k];
-        result[k] = minFraction;
-        needsRedistribution = true;
-      } else {
-        surplusTotal += result[k] - minFraction;
-      }
-    }
-    if (deficit > 0 && surplusTotal > 0) {
-      for (const k of keys) {
-        if (result[k] > minFraction) {
-          const surplus = result[k] - minFraction;
-          const reduction = (surplus / surplusTotal) * deficit;
-          result[k] = Math.max(minFraction, result[k] - reduction);
-        }
-      }
-    }
-  }
-
-  const sum = keys.reduce((s, k) => s + result[k], 0);
-  if (sum > 0 && Math.abs(sum - 1.0) > 1e-9) {
-    for (const k of keys) result[k] /= sum;
-  }
-  return result;
-}
-
-/**
- * Solve least-squares proportions on the simplex for a granulat group, with
- * Dreux-weighted sieves and an adaptive projected-gradient solver.
- *
- * Minimizes: Σ wᵢ · (Σ pⱼ · Pⱼ(dᵢ) − P_ref(dᵢ))²    s.t. Σ pⱼ = 1, pⱼ ≥ 0
- */
-function solveSimplexLeastSquares(
-  group: GranulatInput[],
-  referenceCurve: { ouverture: number; pourcentage: number }[],
-  sieves: number[] = TAMIS_OPENINGS
-): Record<string, number> {
-  const n = group.length;
-  if (n === 0) return {};
-  if (n === 1) return { [group[0].key]: 1.0 };
-
-  const relevantSieves = sieves.filter(s => {
-    const hasRef = referenceCurve.some(r => Math.abs(r.ouverture - s) < 0.001);
-    const hasData = group.some(g => g.curve.some(c => Math.abs(c.ouverture - s) < 0.001));
-    return hasRef && hasData;
-  });
-
-  if (relevantSieves.length === 0) {
-    const eq = 1 / n;
-    return Object.fromEntries(group.map(g => [g.key, eq]));
-  }
-
-  const weights = relevantSieves.map(sieveWeight);
-
-  const interpAt = (curve: { ouverture: number; pourcentageTamisat: number }[], sieve: number): number => {
-    const pt = curve.find(c => Math.abs(c.ouverture - sieve) < 0.001);
-    if (pt) return pt.pourcentageTamisat;
-    const sorted = [...curve].sort((a, b) => a.ouverture - b.ouverture);
-    if (sorted.length === 0) return 0;
-    if (sieve <= sorted[0].ouverture) return sorted[0].pourcentageTamisat;
-    if (sieve >= sorted[sorted.length - 1].ouverture) return sorted[sorted.length - 1].pourcentageTamisat;
-    for (let i = 0; i < sorted.length - 1; i++) {
-      if (sieve >= sorted[i].ouverture && sieve <= sorted[i + 1].ouverture) {
-        const t = (Math.log10(sieve) - Math.log10(sorted[i].ouverture)) /
-                  (Math.log10(sorted[i + 1].ouverture) - Math.log10(sorted[i].ouverture));
-        return sorted[i].pourcentageTamisat + t * (sorted[i + 1].pourcentageTamisat - sorted[i].pourcentageTamisat);
-      }
-    }
-    return 0;
-  };
-
-  const A: number[][] = relevantSieves.map(sieve => group.map(g => interpAt(g.curve, sieve)));
-  const b: number[] = relevantSieves.map(sieve => {
-    const pt = referenceCurve.find(r => Math.abs(r.ouverture - sieve) < 0.001);
-    return pt ? pt.pourcentage : 0;
-  });
-
-  const cost = (p: number[]): number => {
-    let c = 0;
-    for (let s = 0; s < A.length; s++) {
-      let mix = 0;
-      for (let j = 0; j < n; j++) mix += p[j] * A[s][j];
-      const r = mix - b[s];
-      c += weights[s] * r * r;
-    }
-    return c;
-  };
-
-  // For 2 materials: weighted 1D sweep (cheap and analytical-ish)
-  if (n === 2) {
-    let bestP = 0.5;
-    let bestErr = Infinity;
-    const lo = MIN_FRACTION;
-    const hi = 1 - MIN_FRACTION;
-    for (let p = lo; p <= hi + 0.0005; p += 0.001) {
-      const err = cost([p, 1 - p]);
-      if (err < bestErr) {
-        bestErr = err;
-        bestP = Math.min(hi, Math.max(lo, p));
-      }
-    }
-    const raw = { [group[0].key]: bestP, [group[1].key]: 1 - bestP };
-    return enforceMinimumProportions(raw, MIN_FRACTION);
-  }
-
-  // For ≥3 materials: adaptive projected-gradient descent
-  let props = projectOntoSimplex(group.map(() => 1 / n));
-  let lr = 0.0001;
-  let prevCost = cost(props);
-  const maxIter = 5000;
-  let stallCount = 0;
-
-  for (let iter = 0; iter < maxIter; iter++) {
-    const grad = new Array(n).fill(0);
-    for (let s = 0; s < A.length; s++) {
-      let mix = 0;
-      for (let j = 0; j < n; j++) mix += props[j] * A[s][j];
-      const residual = mix - b[s];
-      for (let i = 0; i < n; i++) grad[i] += 2 * weights[s] * residual * A[s][i];
-    }
-
-    // Gradient-norm stop
-    const gradNorm = Math.sqrt(grad.reduce((s, g) => s + g * g, 0));
-    if (gradNorm < 1e-4) break;
-
-    const trial = projectOntoSimplex(props.map((p, i) => p - lr * grad[i]));
-    const trialCost = cost(trial);
-
-    if (trialCost > prevCost) {
-      // Cost increased — shrink learning rate and retry (don't update props)
-      lr *= 0.5;
-      if (lr < 1e-9) break;
-      continue;
-    }
-
-    // Early stop on negligible improvement
-    if (Math.abs(prevCost - trialCost) < 1e-7) {
-      stallCount++;
-      if (stallCount > 20) break;
-    } else {
-      stallCount = 0;
-    }
-
-    props = trial;
-    prevCost = trialCost;
-  }
-
-  const rawResult = Object.fromEntries(group.map((g, i) => [g.key, props[i]]));
-  return enforceMinimumProportions(rawResult, MIN_FRACTION);
-}
 
 /**
  * Répartition des gravillons — méthode graphique Dreux-Gorisse 95/5 (Phase 4).
@@ -1005,23 +879,6 @@ function maxOpeningFromCurve(g: GranulatInput): number {
   return sorted[0].ouverture;
 }
 
-// ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// @deprecated — Phase 4 : le solveur numérique n'est plus utilisé.
-// `optimizeMix` est conservé pour compatibilité d'import mais renvoie
-// désormais strictement le résultat de `calculateMixDesign` (méthode
-// graphique 95/5). Aucun ajustement rétroactif.
-// ---------------------------------------------------------------------------
+// Phase 6 : optimizeMix supprimé (code mort).
 
-/**
- * @deprecated Phase 4 — supprimé du chemin de production. Renvoie le résultat
- * strict de `calculateMixDesign` (méthode graphique Dreux-Gorisse).
- */
-export function optimizeMix(
-  inputs: CalculationInputs,
-  _dMax: number,
-  _classeConsistance: string
-): Record<string, number> {
-  return calculateMixDesign(inputs).masses;
-}
 
