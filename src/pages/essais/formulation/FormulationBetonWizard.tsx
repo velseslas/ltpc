@@ -1653,6 +1653,7 @@ export default function FormulationBetonWizard() {
           showError={errorSteps.includes(4)}
           onDensityExtracted={handleDensityExtracted}
           onModuleFinesseExtracted={handleModuleFinesseExtracted}
+          onCurveExtracted={handleCurveExtracted}
         />
       </div>
 
