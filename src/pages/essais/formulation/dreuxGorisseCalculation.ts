@@ -26,8 +26,8 @@
  *
  * Suppressions Phase 4 :
  *   - Boucle de convergence MF (5 itérations) : remplacée par un unique passage.
- *   - Solveur `solveSimplexLeastSquares` : marqué @deprecated, non utilisé.
- *   - `optimizeMix` : marqué @deprecated, kept for backward-compat imports only.
+ * Suppressions Phase 6 :
+ *   - `solveSimplexLeastSquares`, `projectOntoSimplex`, `enforceMinimumProportions`, `sieveWeight`, `optimizeMix` : code mort définitivement retiré.
  */
 
 import { splitGravels, GravelSplitError, type GravillonInput as SplitGravillonInput } from "./engine/gravelSplit";
