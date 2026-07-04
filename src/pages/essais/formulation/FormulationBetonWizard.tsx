@@ -354,6 +354,28 @@ function extractModuleFinesseFromReport(resultats: Record<string, unknown>): Pic
   return null;
 }
 
+// Phase 6 sous-phase 2a : extraction de la courbe granulométrique réelle
+// depuis un rapport `echantillons_granulometrie.resultats.tamis`.
+// Renvoie null si aucune donnée exploitable — la sous-phase 2b transformera
+// cette absence en erreur bloquante (suppression de `generateDemoCurve`).
+export type ExtractedCurvePoint = { ouverture: number; pourcentageTamisat: number };
+
+function extractCurveFromReport(resultats: Record<string, unknown>): ExtractedCurvePoint[] | null {
+  const tamis = resultats?.tamis;
+  if (!Array.isArray(tamis) || tamis.length === 0) return null;
+  const points: ExtractedCurvePoint[] = [];
+  for (const raw of tamis) {
+    if (!raw || typeof raw !== "object") continue;
+    const t = raw as Record<string, unknown>;
+    const ouverture = asFiniteNumber(t.ouverture);
+    const passant = asFiniteNumber(t.passant);
+    if (ouverture == null || ouverture <= 0 || passant == null) continue;
+    points.push({ ouverture, pourcentageTamisat: passant });
+  }
+  if (points.length === 0) return null;
+  return points.sort((a, b) => a.ouverture - b.ouverture);
+}
+
 function asFiniteNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string" && value.trim() !== "") {
