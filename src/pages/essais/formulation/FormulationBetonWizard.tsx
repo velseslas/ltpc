@@ -926,7 +926,7 @@ export default function FormulationBetonWizard() {
   const [formeAE, setFormeAE] = useState("");
   const [kpAE, setKpAE] = useState("10");
   const [mfIdeal, setMfIdeal] = useState("");
-  const [pointACoords, setPointACoords] = useState<{ xA: number; yA: number } | null>(null);
+  // Phase 6 : pointACoords / setPointACoords supprimés — Point A affiché via calcResult.pointA uniquement.
 
   // Step 5 - essai
   const [affaissementCible, setAffaissementCible] = useState("");
