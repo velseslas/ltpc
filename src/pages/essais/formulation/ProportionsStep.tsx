@@ -864,8 +864,8 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           materials={chartMaterials}
           pct38={pct38}
           pct1525={pct1525}
-          smallGravelLabel={granulatLabels["gravillons1"] || "Gravier 1"}
-          largeGravelLabel={granulatLabels["gravier3"] || "Gravier 3"}
+          smallGravelLabel={smallGravel?.label || "petit gravier"}
+          largeGravelLabel={largeGravel?.label || "gros gravier"}
           isWithinEnvelope={null}
         />
       )}
