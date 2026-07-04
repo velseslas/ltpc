@@ -616,6 +616,8 @@ export function calculateMixDesign(
       volumePate: Math.round(volumePate * 1000) / 1000,
       ratioPateGranulats: Math.round(ratioPateGranulats * 1000) / 1000,
     },
+    referenceCurve,
+    mixCurve: finalMixCurve,
   };
 }
 
