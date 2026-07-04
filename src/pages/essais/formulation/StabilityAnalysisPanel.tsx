@@ -1,8 +1,20 @@
+/**
+ * Phase 10 — StabilityAnalysisPanel refondu.
+ *
+ * Ce panneau n'effectue AUCUN calcul métier Dreux-Gorisse. Il lit uniquement
+ * `calcResult` (produit par `calculateMixDesign`) et les courbes granulométriques
+ * réelles des matériaux sélectionnés par l'utilisateur, puis émet un diagnostic
+ * de qualité (équilibre granulaire, ségrégation, trou granulaire, fuseau).
+ *
+ * Aucune référence à des noms commerciaux (3/8, 8/15, 15/25) — toutes les
+ * décisions se basent sur les Dmax réels et sur les volumes/masses calculés
+ * par le moteur.
+ */
+
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -16,10 +28,27 @@ import {
   Waves,
 } from "lucide-react";
 import type { MaterialCurve } from "./DreuxGorisseChart";
+import type { CalculationResult } from "./dreuxGorisseCalculation";
 
-// Standard sieve openings
+// ---------------------------------------------------------------------------
+// Constantes uniques (Étape 4) — plages Dreux-Gorisse par défaut
+// ---------------------------------------------------------------------------
+export const DEFAULT_BALANCE_RULES = {
+  /** Part du sable dans (sables + graviers), en %. */
+  sable: { min: 35, max: 45 },
+  /** Part de la plus petite fraction de gravier dans le total gravier, en %. */
+  smallestGravel: { min: 10, max: 20 },
+  /** Part de chaque fraction intermédiaire dans le total gravier, en %. */
+  middleGravel: { min: 20, max: 30 },
+  /** Part de la plus grosse fraction dans le total gravier, en %. */
+  largestGravel: { min: 20, max: 35 },
+} as const;
+
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 interface Issue {
   id: string;
   icon: React.ReactNode;
@@ -30,26 +59,37 @@ interface Issue {
   level: "ok" | "warn" | "danger";
 }
 
+type FractionKind = "small" | "middle" | "large";
+
+interface FractionRow {
+  label: string;
+  pct: number;
+  kind: FractionKind | "sand";
+  range: { min: number; max: number };
+  status: "ok" | "low" | "high";
+}
+
 interface StabilityAnalysisPanelProps {
-  mfMelange: number | null;
-  materials: MaterialCurve[];
-  /** Percentage of the smallest gravel within total gravel */
-  pct38?: number;
-  /** Percentage of the largest gravel within total gravel */
-  pct1525?: number;
-  /** Label of the smallest gravel (from real product) */
-  smallGravelLabel?: string;
-  /** Label of the largest gravel (from real product) */
-  largeGravelLabel?: string;
-  /** Whether mix curve stays within Dreux envelope */
+  calcResult: CalculationResult;
+  /** Sables sélectionnés (courbes réelles). */
+  sandMaterials: MaterialCurve[];
+  /** Gravillons sélectionnés (courbes réelles). */
+  gravelMaterials: MaterialCurve[];
+  /** Optionnel : la courbe reste-t-elle dans le fuseau Dreux ? */
   isWithinEnvelope?: boolean | null;
 }
 
-/** Detect granular gap: a sudden drop >30% between consecutive sieves on the mix curve */
-function detectGranularGap(materials: MaterialCurve[]): { found: boolean; sieve1: number; sieve2: number; drop: number } | null {
-  if (materials.length === 0) return null;
+// ---------------------------------------------------------------------------
+// Helpers purs
+// ---------------------------------------------------------------------------
+function getDmax(mat: MaterialCurve): number {
+  return mat.curve.length > 0 ? Math.max(...mat.curve.map(p => p.ouverture)) : 0;
+}
 
-  // Compute weighted mix curve
+function detectGranularGap(
+  materials: MaterialCurve[],
+): { found: boolean; sieve1: number; sieve2: number; drop: number } | null {
+  if (materials.length === 0) return null;
   const totalQty = materials.reduce((s, m) => s + m.quantity, 0);
   if (totalQty === 0) return null;
 
@@ -67,10 +107,8 @@ function detectGranularGap(materials: MaterialCurve[]): { found: boolean; sieve1
     return { ouverture: ouv, pct: wp };
   });
 
-  // Check consecutive differences (ascending sieves → pct should increase)
   for (let i = 1; i < mixPass.length; i++) {
     const diff = mixPass[i].pct - mixPass[i - 1].pct;
-    // A jump >30% between two consecutive sieves indicates a gap
     if (diff > 30) {
       return {
         found: true,
@@ -83,24 +121,97 @@ function detectGranularGap(materials: MaterialCurve[]): { found: boolean; sieve1
   return null;
 }
 
+function statusOf(pct: number, range: { min: number; max: number }): "ok" | "low" | "high" {
+  if (pct < range.min) return "low";
+  if (pct > range.max) return "high";
+  return "ok";
+}
+
+// ---------------------------------------------------------------------------
+// Composant
+// ---------------------------------------------------------------------------
 export default function StabilityAnalysisPanel({
-  mfMelange,
-  materials,
-  pct38,
-  pct1525,
-  smallGravelLabel,
-  largeGravelLabel,
+  calcResult,
+  sandMaterials,
+  gravelMaterials,
   isWithinEnvelope,
 }: StabilityAnalysisPanelProps) {
   const analysis = useMemo(() => {
     const issues: Issue[] = [];
-    let score = 100;
-    const mf = mfMelange ?? 2.65;
+    const mf = calcResult.moduleFinesse?.melange ?? 2.65;
 
-    // 1. MF < 2.4 — Excess fines
+    // --- Étape 1-3 : gravillons triés par Dmax réel + parts sur volume gravier
+    const gravelsSorted = [...gravelMaterials]
+      .filter(g => g.quantity > 0)
+      .map(g => ({ ...g, dMax: getDmax(g) }))
+      .sort((a, b) => a.dMax - b.dMax);
+
+    const volGravier = calcResult.volumes.gravier;
+    const volSable = calcResult.volumes.sable;
+    const volGranTotal = volSable + volGravier;
+
+    // Volumes par matériau (m³) — sources : calcResult.volumes.detail est indexé par key,
+    // mais MaterialCurve n'expose pas la key. On retombe donc sur les masses/densités
+    // implicites via `quantity` (kg/m³) proportionnellement au total gravier.
+    const totalGravelQty = gravelsSorted.reduce((s, g) => s + g.quantity, 0);
+    const gravelRows: FractionRow[] = gravelsSorted.map((g, idx) => {
+      const pct = totalGravelQty > 0 ? (g.quantity / totalGravelQty) * 100 : 0;
+      let kind: FractionKind;
+      let range: { min: number; max: number };
+      if (gravelsSorted.length === 1) {
+        kind = "large";
+        range = DEFAULT_BALANCE_RULES.largestGravel;
+      } else if (idx === 0) {
+        kind = "small";
+        range = DEFAULT_BALANCE_RULES.smallestGravel;
+      } else if (idx === gravelsSorted.length - 1) {
+        kind = "large";
+        range = DEFAULT_BALANCE_RULES.largestGravel;
+      } else {
+        kind = "middle";
+        range = DEFAULT_BALANCE_RULES.middleGravel;
+      }
+      return { label: g.label, pct, kind, range, status: statusOf(pct, range) };
+    });
+
+    // Sable (part dans sable + gravier)
+    const sablePct = volGranTotal > 0 ? (volSable / volGranTotal) * 100 : 0;
+    const sableRow: FractionRow = {
+      label: "Sables (total)",
+      pct: sablePct,
+      kind: "sand",
+      range: DEFAULT_BALANCE_RULES.sable,
+      status: statusOf(sablePct, DEFAULT_BALANCE_RULES.sable),
+    };
+
+    const rows: FractionRow[] = [sableRow, ...gravelRows];
+
+    // --- Étape 6 : score
+    let balanceScore = 100;
+
+    // Sable
+    if (sableRow.status !== "ok") {
+      const penalty = 15;
+      balanceScore -= penalty;
+      issues.push({
+        id: "sand-balance",
+        icon: <Waves className="w-4 h-4" />,
+        title: sableRow.status === "high"
+          ? "Répartition des sables déséquilibrée — excès de sable"
+          : "Répartition des sables déséquilibrée — manque de sable",
+        description: `Les sables représentent ${sablePct.toFixed(1)}% du squelette granulaire (plage ${sableRow.range.min}–${sableRow.range.max}%).`,
+        penalty,
+        actions: sableRow.status === "high"
+          ? ["Réduire la proportion totale de sable", "Augmenter la proportion de graviers"]
+          : ["Augmenter la proportion totale de sable", "Vérifier la cohérence du squelette granulaire"],
+        level: "warn",
+      });
+    }
+
+    // MF
     if (mf < 2.4) {
       const penalty = 20;
-      score -= penalty;
+      balanceScore -= penalty;
       issues.push({
         id: "mf-low",
         icon: <Waves className="w-4 h-4" />,
@@ -113,12 +224,9 @@ export default function StabilityAnalysisPanel({
         ],
         level: mf < 2.2 ? "danger" : "warn",
       });
-    }
-
-    // 2. MF > 2.8 — Coarse sand
-    if (mf > 2.8) {
+    } else if (mf > 2.8) {
       const penalty = 20;
-      score -= penalty;
+      balanceScore -= penalty;
       issues.push({
         id: "mf-high",
         icon: <TrendingUp className="w-4 h-4" />,
@@ -133,36 +241,77 @@ export default function StabilityAnalysisPanel({
       });
     }
 
-    // 3. Excess small gravel
-    if (pct38 !== undefined && pct38 > 10) {
-      const penalty = 15;
-      score -= penalty;
-      const small = smallGravelLabel || "petit gravier";
-      const large = largeGravelLabel || "gros gravier";
+    // Petite fraction
+    const small = gravelRows.find(r => r.kind === "small");
+    if (small && small.status !== "ok") {
+      const penalty = 10;
+      balanceScore -= penalty;
       issues.push({
-        id: "excess-38",
+        id: "small-fraction",
         icon: <Layers className="w-4 h-4" />,
-        title: `Trop de ${small} — risque de ségrégation`,
-        description: `Le ${small} représente ${pct38.toFixed(1)}% des graviers (limite : 10%). Un excès favorise la ségrégation.`,
+        title: small.status === "high"
+          ? "Excès de petites fractions — risque de ségrégation"
+          : "Manque de petites fractions",
+        description: `La fraction « ${small.label} » représente ${small.pct.toFixed(1)}% des graviers (plage ${small.range.min}–${small.range.max}%).`,
         penalty,
-        actions: [
-          `Réduire la quantité de ${small}`,
-          `Redistribuer vers un gravier intermédiaire ou le ${large}`,
-        ],
-        level: pct38 > 15 ? "danger" : "warn",
+        actions: small.status === "high"
+          ? [`Réduire la quantité de « ${small.label} »`, "Redistribuer vers les fractions intermédiaires ou supérieures"]
+          : [`Augmenter la quantité de « ${small.label} »`, "Vérifier l'équilibre du squelette granulaire"],
+        level: "warn",
       });
     }
 
-    // 4. Granular gap
-    const gap = detectGranularGap(materials);
+    // Fractions intermédiaires
+    for (const mid of gravelRows.filter(r => r.kind === "middle")) {
+      if (mid.status !== "ok") {
+        const penalty = 10;
+        balanceScore -= penalty;
+        issues.push({
+          id: `middle-${mid.label}`,
+          icon: <Layers className="w-4 h-4" />,
+          title: mid.status === "high"
+            ? "Excès de fractions intermédiaires"
+            : "Manque de fractions intermédiaires",
+          description: `La fraction « ${mid.label} » représente ${mid.pct.toFixed(1)}% des graviers (plage ${mid.range.min}–${mid.range.max}%).`,
+          penalty,
+          actions: mid.status === "high"
+            ? [`Réduire la quantité de « ${mid.label} »`]
+            : [`Augmenter la quantité de « ${mid.label} »`],
+          level: "warn",
+        });
+      }
+    }
+
+    // Plus grosse fraction
+    const large = gravelRows.find(r => r.kind === "large");
+    if (large && large.status !== "ok") {
+      const penalty = 15;
+      balanceScore -= penalty;
+      issues.push({
+        id: "large-fraction",
+        icon: <TrendingDown className="w-4 h-4" />,
+        title: large.status === "low"
+          ? "Manque de grosses fractions — instabilité possible"
+          : "Excès de grosses fractions",
+        description: `La fraction « ${large.label} » représente ${large.pct.toFixed(1)}% des graviers (plage ${large.range.min}–${large.range.max}%).`,
+        penalty,
+        actions: large.status === "low"
+          ? [`Augmenter la proportion de « ${large.label} »`, "Vérifier l'équilibre du squelette granulaire"]
+          : [`Réduire la proportion de « ${large.label} »`, "Redistribuer vers les fractions intermédiaires"],
+        level: "warn",
+      });
+    }
+
+    // Trou granulaire (mélange complet : sables + graviers)
+    const gap = detectGranularGap([...sandMaterials, ...gravelMaterials]);
     if (gap) {
-      const penalty = 25;
-      score -= penalty;
+      const penalty = 20;
+      balanceScore -= penalty;
       issues.push({
         id: "granular-gap",
         icon: <AlertTriangle className="w-4 h-4" />,
-        title: "Discontinuité granulométrique — risque de ségrégation",
-        description: `Variation brutale de ${gap.drop}% entre les tamis ${gap.sieve1} mm et ${gap.sieve2} mm. Ce trou granulaire compromet l'empilement.`,
+        title: "Trou granulaire détecté",
+        description: `Variation brutale de ${gap.drop}% entre les tamis ${gap.sieve1} mm et ${gap.sieve2} mm. Ce trou compromet l'empilement granulaire.`,
         penalty,
         actions: [
           "Ajouter une fraction intermédiaire pour combler le trou",
@@ -172,29 +321,10 @@ export default function StabilityAnalysisPanel({
       });
     }
 
-    // 5. Lack of coarse aggregate
-    if (pct1525 !== undefined && pct1525 < 25) {
-      const penalty = 15;
-      score -= penalty;
-      const large = largeGravelLabel || "gros gravier";
-      issues.push({
-        id: "lack-coarse",
-        icon: <TrendingDown className="w-4 h-4" />,
-        title: "Manque de squelette granulaire — instabilité possible",
-        description: `Le ${large} ne représente que ${pct1525.toFixed(1)}% des graviers (minimum recommandé : 25%).`,
-        penalty,
-        actions: [
-          `Augmenter la proportion de ${large}`,
-          "Vérifier l'équilibre du squelette granulaire",
-        ],
-        level: pct1525 < 15 ? "danger" : "warn",
-      });
-    }
-
-    // 6. Curve outside envelope
+    // Fuseau
     if (isWithinEnvelope === false) {
-      const penalty = 20;
-      score -= penalty;
+      const penalty = 15;
+      balanceScore -= penalty;
       issues.push({
         id: "out-envelope",
         icon: <AlertCircle className="w-4 h-4" />,
@@ -209,56 +339,41 @@ export default function StabilityAnalysisPanel({
       });
     }
 
-    score = Math.max(0, score);
+    balanceScore = Math.max(0, Math.min(100, balanceScore));
 
+    let grade: string;
     let globalLevel: "ok" | "warn" | "danger";
-    let globalLabel: string;
     let GlobalIcon: typeof ShieldCheck;
+    if (balanceScore >= 90) { grade = "Excellent"; globalLevel = "ok"; GlobalIcon = ShieldCheck; }
+    else if (balanceScore >= 80) { grade = "Très bon"; globalLevel = "ok"; GlobalIcon = ShieldCheck; }
+    else if (balanceScore >= 65) { grade = "Bon"; globalLevel = "warn"; GlobalIcon = ShieldAlert; }
+    else if (balanceScore >= 50) { grade = "Moyen"; globalLevel = "warn"; GlobalIcon = ShieldAlert; }
+    else { grade = "À corriger"; globalLevel = "danger"; GlobalIcon = ShieldX; }
 
-    if (score > 80) {
-      globalLevel = "ok";
-      globalLabel = "Granulométrie stable";
-      GlobalIcon = ShieldCheck;
-    } else if (score >= 60) {
-      globalLevel = "warn";
-      globalLabel = "Acceptable avec ajustement";
-      GlobalIcon = ShieldAlert;
-    } else {
-      globalLevel = "danger";
-      globalLabel = "Risque élevé de ségrégation";
-      GlobalIcon = ShieldX;
-    }
+    // Diagnostic lisible
+    const summary = issues.length === 0
+      ? "La formulation est parfaitement équilibrée selon les plages Dreux-Gorisse."
+      : issues.length === 1
+        ? "La formulation est globalement équilibrée avec un point d'attention mineur."
+        : `La formulation présente ${issues.length} points d'attention à corriger pour améliorer la compacité.`;
 
-    return { issues, score, globalLevel, globalLabel, GlobalIcon };
-  }, [mfMelange, materials, pct38, pct1525, smallGravelLabel, largeGravelLabel, isWithinEnvelope]);
+    return { issues, balanceScore, grade, globalLevel, GlobalIcon, rows, summary };
+  }, [calcResult, sandMaterials, gravelMaterials, isWithinEnvelope]);
 
-  const { issues, score, globalLevel, globalLabel, GlobalIcon } = analysis;
+  const { issues, balanceScore, grade, globalLevel, GlobalIcon, rows, summary } = analysis;
 
   const colorMap = {
-    ok: {
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/30",
-      text: "text-emerald-600",
-      badge: "bg-emerald-500",
-      progress: "bg-emerald-500",
-    },
-    warn: {
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/30",
-      text: "text-amber-600",
-      badge: "bg-amber-500",
-      progress: "bg-amber-500",
-    },
-    danger: {
-      bg: "bg-destructive/10",
-      border: "border-destructive/30",
-      text: "text-destructive",
-      badge: "bg-destructive",
-      progress: "bg-destructive",
-    },
+    ok: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-600", badge: "bg-emerald-500", progress: "bg-emerald-500" },
+    warn: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-600", badge: "bg-amber-500", progress: "bg-amber-500" },
+    danger: { bg: "bg-destructive/10", border: "border-destructive/30", text: "text-destructive", badge: "bg-destructive", progress: "bg-destructive" },
   };
-
   const c = colorMap[globalLevel];
+
+  const statusPill = (status: "ok" | "low" | "high") => {
+    if (status === "ok") return <span className="text-emerald-600 font-medium">✓ Conforme</span>;
+    if (status === "low") return <span className="text-amber-600 font-medium">⚠ Insuffisante</span>;
+    return <span className="text-amber-600 font-medium">⚠ Excédentaire</span>;
+  };
 
   return (
     <Card className={cn("border bg-card/80 backdrop-blur-sm", c.border)}>
@@ -271,17 +386,17 @@ export default function StabilityAnalysisPanel({
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-base font-bold text-foreground">
-                Analyse de stabilité & ségrégation
+                Indice d'équilibre granulaire
               </h3>
               <Badge className={cn("text-[10px] text-white border-0", c.badge)}>
-                Score : {score}/100
+                {balanceScore}/100
               </Badge>
               <Badge variant="outline" className={cn("text-[10px]", c.border, c.text)}>
-                {globalLabel}
+                {grade}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              Détection automatique des risques de ségrégation, manque de cohésion et défauts granulométriques.
+              Audit automatique de la formulation calculée par le moteur Dreux-Gorisse (source : <code>calcResult</code>).
             </p>
           </div>
         </div>
@@ -289,28 +404,62 @@ export default function StabilityAnalysisPanel({
         {/* Score bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Score de stabilité</span>
-            <span className={cn("font-bold", c.text)}>{score}/100</span>
+            <span>Score d'équilibre</span>
+            <span className={cn("font-bold", c.text)}>{balanceScore}/100</span>
           </div>
           <div className="h-3 w-full rounded-full bg-muted/50 overflow-hidden">
             <div
               className={cn("h-full rounded-full transition-all duration-700", c.progress)}
-              style={{ width: `${score}%` }}
+              style={{ width: `${balanceScore}%` }}
             />
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground">
-            <span>0 — Critique</span>
-            <span>60 — Acceptable</span>
-            <span>80 — Stable</span>
-            <span>100</span>
+            <span>0 — À corriger</span>
+            <span>50 — Moyen</span>
+            <span>65 — Bon</span>
+            <span>80 — Très bon</span>
+            <span>90+ — Excellent</span>
           </div>
+        </div>
+
+        {/* Répartition détaillée (Étape 7) */}
+        <div className="rounded-lg border border-border bg-muted/30 overflow-hidden">
+          <div className="px-4 py-2 border-b border-border bg-muted/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Répartition du squelette granulaire
+            </p>
+          </div>
+          <div className="divide-y divide-border">
+            {rows.map((r, i) => (
+              <div key={i} className="px-4 py-2.5 flex items-center gap-3 text-sm">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground truncate">{r.label}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Plage attendue : {r.range.min}–{r.range.max} %
+                    {r.kind === "sand" && " (sable / (sable + gravier))"}
+                    {r.kind !== "sand" && " (fraction / total gravier)"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-foreground tabular-nums">{r.pct.toFixed(1)} %</p>
+                  <p className="text-[10px]">{statusPill(r.status)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Diagnostic textuel */}
+        <div className={cn("rounded-lg border p-3 text-xs", c.border, c.bg)}>
+          <p className={cn("font-semibold mb-1", c.text)}>Diagnostic</p>
+          <p className="text-foreground">{summary}</p>
         </div>
 
         {/* Issues list */}
         {issues.length > 0 ? (
           <div className="space-y-3">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Problèmes détectés ({issues.length})
+              Points d'attention ({issues.length})
             </p>
             {issues.map((issue) => {
               const ic = colorMap[issue.level];
@@ -357,25 +506,25 @@ export default function StabilityAnalysisPanel({
           </div>
         )}
 
-        {/* Penalty breakdown */}
-        {issues.length > 0 && (
-          <div className="rounded-lg bg-muted/50 p-3 space-y-2">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Détail des pénalités</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {issues.map((issue) => (
-                <div key={issue.id} className="flex items-center gap-1.5 text-xs text-foreground">
-                  <span className={cn("w-2 h-2 rounded-full shrink-0", colorMap[issue.level].badge)} />
-                  <span className="truncate">{issue.id === "mf-low" ? "MF bas" : issue.id === "mf-high" ? "MF élevé" : issue.id === "excess-38" ? `Excès ${smallGravelLabel || "petit gravier"}` : issue.id === "granular-gap" ? "Trou granulaire" : issue.id === "lack-coarse" ? `Manque ${largeGravelLabel || "gros gravier"}` : "Hors fuseau"}</span>
-                  <span className="font-bold text-muted-foreground ml-auto">−{issue.penalty}</span>
-                </div>
+        {/* Warnings moteur (Étape 8) — lecture pure de calcResult */}
+        {(calcResult.warnings?.length || calcResult.volumeErrors?.length || calcResult.gravelSplit?.warnings?.length) ? (
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Diagnostics moteur (lecture pure)
+            </p>
+            <ul className="space-y-1">
+              {calcResult.volumeErrors?.map((w, i) => (
+                <li key={`ve-${i}`} className="text-xs text-destructive">• {w}</li>
               ))}
-              <div className="flex items-center gap-1.5 text-xs font-bold text-foreground col-span-full border-t border-border pt-1.5 mt-1">
-                <span>Score final</span>
-                <span className={cn("ml-auto", c.text)}>{score}/100</span>
-              </div>
-            </div>
+              {calcResult.warnings?.map((w, i) => (
+                <li key={`w-${i}`} className="text-xs text-amber-600">• {w}</li>
+              ))}
+              {calcResult.gravelSplit?.warnings?.map((w, i) => (
+                <li key={`gs-${i}`} className="text-xs text-amber-600">• {w}</li>
+              ))}
+            </ul>
           </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
