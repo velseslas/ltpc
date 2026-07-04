@@ -179,6 +179,10 @@ export interface CalculationResult {
   convergenceReport?: ConvergenceReport;
   /** Physical mix diagnostics (density, paste/aggregate ratio). */
   physicalChecks?: PhysicalChecks;
+  /** Courbe de référence OAB — SOURCE UNIQUE (Phase 6). Aucun consommateur ne doit la recalculer. */
+  referenceCurve: { ouverture: number; pourcentage: number }[];
+  /** Courbe granulométrique du mélange final — SOURCE UNIQUE (Phase 6). */
+  mixCurve: { ouverture: number; pourcentage: number }[];
 }
 
 // ---------------------------------------------------------------------------
