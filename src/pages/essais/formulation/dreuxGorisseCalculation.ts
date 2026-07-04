@@ -235,7 +235,9 @@ export function determineDmax(granulats: GranulatInput[]): number {
  * seule donnée disponible. À valider par un ingénieur si vibration ≠ normale.
  */
 export function calculatePointA(dMax: number, coeffGranulaire: number, mfMelange: number | null): PointA {
-  const dA = dMax / 2;
+  // XA : règle unique Dreux-Gorisse (module AFNOR au-delà de 20 mm).
+  // Voir engine/pointAxAbscissa.ts — SEULE source pour XA (UI + moteur).
+  const { xA: dA } = calculateXA(dMax);
   const mf = mfMelange ?? 2.5;
   let pA: number;
   if (dMax <= 20) {
