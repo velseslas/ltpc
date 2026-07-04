@@ -970,45 +970,65 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
 
           <div className="overflow-x-auto">
             {(() => {
-              // Map fractions 95/5 (label normalisé) — provient du graphique Dreux-Gorisse.
-              const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
-              const fractionByLabel = new Map<string, number>();
-              for (const f of graphFractions) fractionByLabel.set(norm(f.label), f.pct);
+              if (!calcResult) {
+                return (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    Lancez « Calculer les proportions » pour afficher le récapitulatif.
+                  </p>
+                );
+              }
 
-              // Binders (eau, ciment, adjuvant) → conservés tels quels.
-              const binders = components.filter((c) => !fractionByLabel.has(norm(c.label)));
-              const granulats = components.filter((c) => fractionByLabel.has(norm(c.label)));
+              // Phase 6 : SOURCE UNIQUE = calcResult (moteur). Aucune donnée recalculée.
+              const gravelPctByKey = new Map<string, number>();
+              for (const p of calcResult.gravelSplit.proportions) {
+                gravelPctByKey.set(p.key, p.pct);
+              }
 
-              const bindersVolumeL = binders.reduce((s, b) => {
-                return s + (b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0);
-              }, 0);
-              const granulatsVolumeL = Math.max(0, 1000 - bindersVolumeL);
+              type Row = {
+                label: string; mass: number; volumeL: number; density: number; pctVol: number; pct95: number | null;
+              };
+              const rows: Row[] = [];
 
-              // Adapter les masses des granulats à partir des fractions 95/5.
-              const granulatsRows = granulats.map((g) => {
-                const pct95 = fractionByLabel.get(norm(g.label)) ?? 0;
-                const volumeL = (pct95 / 100) * granulatsVolumeL;
-                const mass = g.density > 0 ? volumeL * g.density : 0;
-                const pctVol = volumeL / 1000 * 100;
-                return { ...g, volumeL, mass, pctVol, pct95 };
-              });
-              const bindersRows = binders.map((b) => {
+              // Binders — masses lues telles quelles (eau, ciment, adjuvant).
+              const binders: Array<{ label: string; value: number; density: number }> = [
+                { label: "Eau", value: eau, density: 1.0 },
+                { label: "Ciment", value: ciment, density: 3.11 },
+              ];
+              if (adjuvant > 0) binders.push({ label: "Adjuvant", value: adjuvant, density: 1.05 });
+              for (const b of binders) {
                 const volumeL = b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0;
-                const pctVol = volumeL / 1000 * 100;
-                return { ...b, volumeL, mass: b.value, pctVol, pct95: null as number | null };
-              });
-              const rows = [...bindersRows, ...granulatsRows];
+                rows.push({ label: b.label, mass: b.value, volumeL, density: b.density, pctVol: volumeL / 10, pct95: null });
+              }
+
+              // Granulats — masses = calcResult.masses ; % granulats = calcResult.gravelSplit.proportions (gravillons).
+              for (const g of granulatInputs) {
+                if (!g.active) continue;
+                const mass = calcResult.masses[g.key] ?? 0;
+                if (mass <= 0) continue;
+                const densityKgL = g.densite > 0 ? g.densite / 1000 : 0;
+                const volumeL = (calcResult.volumes.detail[g.key] ?? 0) * 1000;
+                rows.push({
+                  label: g.label,
+                  mass,
+                  volumeL,
+                  density: densityKgL,
+                  pctVol: volumeL / 10,
+                  pct95: gravelPctByKey.has(g.key) ? gravelPctByKey.get(g.key)! : null,
+                });
+              }
+
               const totalMass = rows.reduce((s, r) => s + r.mass, 0);
               const totalVolL = rows.reduce((s, r) => s + r.volumeL, 0);
-              const totalPct = totalVolL / 10; // = totalVolL/1000*100
+              const totalPct = totalVolL / 10;
               const isOk = Math.abs(totalPct - 100) < 0.5;
+              const total95 = rows.reduce((s, r) => s + (r.pct95 ?? 0), 0);
 
               return (
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="bg-muted">
                       <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
-                      <th className="border border-border p-2.5 text-right font-semibold">% granulats (95/5)</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">% gravillons (95/5)</th>
                       <th className="border border-border p-2.5 text-right font-semibold">% volume</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
@@ -1032,9 +1052,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                   <tfoot>
                     <tr className={cn("bg-primary/10", !isOk && "animate-border-blink")}>
                       <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
-                      <td className="border border-border p-2.5 text-right font-bold text-foreground">
-                        {granulatsRows.reduce((s, r) => s + r.pct95, 0).toFixed(1)}%
-                      </td>
+                      <td className="border border-border p-2.5 text-right font-bold text-foreground">{total95.toFixed(1)}%</td>
                       <td className={cn("border border-border p-2.5 text-right font-bold", isOk ? "text-emerald-500" : "text-destructive")}>
                         {totalPct.toFixed(1)}%
                       </td>
@@ -1049,6 +1067,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               );
             })()}
           </div>
+
         </CardContent>
       </Card>
 
