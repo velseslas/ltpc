@@ -227,13 +227,16 @@ export default function ProportionsStep({
       isSableCorrecteur: item.isSableCorrecteur,
       densite: granulatDensites[item.key] ?? 0,
       moduleFinesse: granulatModuleFinesse[item.key],
-      curve: generateDemoCurve(item.curveType),
+      // Phase 6 / 2a : courbe réelle si extraite du rapport granulométrique de ce
+      // granulat (matching par `key`). Sinon, on garde temporairement la courbe
+      // démo — la sous-phase 2b supprimera ce fallback et rendra l'absence bloquante.
+      curve: granulatCurveByKey?.[item.key] ?? generateDemoCurve(item.curveType),
       // Phase 6 : plus de DMAX_MAP. Le Dmax est extrait de la courbe par determineDmax().
       dMax: undefined,
     }));
   }, [
     sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active,
-    granulatDensites, granulatModuleFinesse, granulatLabels,
+    granulatDensites, granulatModuleFinesse, granulatLabels, granulatCurveByKey,
   ]);
 
   // Dmax réel (priorité à la valeur utilisateur étape 4)
