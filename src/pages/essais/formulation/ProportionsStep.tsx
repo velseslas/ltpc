@@ -21,7 +21,6 @@ import DreuxGorisseChart, { type MaterialCurve } from "./DreuxGorisseChart";
 import {
   calculateMixDesign,
   determineDmax,
-  calculatePointA,
   type GranulatInput,
   type CalculationInputs,
   type CalculationResult,
@@ -120,14 +119,8 @@ function generateDemoCurve(type: string): { ouverture: number; pourcentageTamisa
   }
 }
 
-// Dmax mapping per granulat key
-const DMAX_MAP: Record<string, number> = {
-  sableFin: 1,
-  sableConcasse: 4,
-  gravillons1: 8,
-  gravier2: 15,
-  gravier3: 25,
-};
+// Phase 6 : DMAX_MAP supprimé. Le Dmax provient exclusivement du matériau
+// (courbe granulométrique / champ dMax en base) ou du Dmax saisi (dMaxUser).
 
 type CalcMode = "none" | "calculate" | "manual";
 
@@ -233,7 +226,8 @@ export default function ProportionsStep({
       densite: granulatDensites[item.key] ?? 0,
       moduleFinesse: granulatModuleFinesse[item.key],
       curve: generateDemoCurve(item.curveType),
-      dMax: DMAX_MAP[item.key] || undefined,
+      // Phase 6 : plus de DMAX_MAP. Le Dmax est extrait de la courbe par determineDmax().
+      dMax: undefined,
     }));
   }, [
     sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active,
@@ -557,13 +551,13 @@ export default function ProportionsStep({
             </div>
           )}
 
-          {/* Point A display */}
+          {/* Point A display — Phase 6 : source unique = calcResult.pointA (pointAOverride ignoré). */}
           {calcResult && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div className="bg-red-500/10 rounded-lg p-2.5 text-center border border-red-500/20">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Point A (Dreux)</p>
                 <p className="text-sm font-semibold text-foreground">
-                  dA = {pointAOverride ? pointAOverride.xA.toFixed(1) : calcResult.pointA.dA} mm — PA = {pointAOverride ? pointAOverride.yA.toFixed(1) : calcResult.pointA.pA.toFixed(1)}%
+                  dA = {calcResult.pointA.dA} mm — PA = {calcResult.pointA.pA.toFixed(1)}%
                 </p>
               </div>
               <div className="bg-muted/50 rounded-lg p-2.5 text-center">
@@ -864,7 +858,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           </Card>
         )}
 
-        {/* Dreux-Gorisse Chart */}
+        {/* Dreux-Gorisse Chart — rendu uniquement après calcul (source unique = moteur). */}
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm min-w-0">
           <CardContent className="p-6 space-y-4">
             <div>
@@ -876,16 +870,24 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               </p>
             </div>
 
-            <DreuxGorisseChart
-              dMax={dMaxReel}
-              classeRheologique={classeRheologique}
-              materials={demoMaterials}
-              sables={sables}
-              graviers={graviers}
-              pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
-              mfMelange={mfMelange ?? 2.5}
-              onFractionsChange={handleFractionsChange}
-            />
+            {calcResult ? (
+              <DreuxGorisseChart
+                dMax={dMaxReel}
+                classeRheologique={classeRheologique}
+                materials={demoMaterials}
+                sables={sables}
+                graviers={graviers}
+                pointA={calcResult.pointA}
+                referenceCurve={calcResult.referenceCurve}
+                mixCurve={calcResult.mixCurve}
+                mfMelange={mfMelange ?? 2.5}
+                onFractionsChange={handleFractionsChange}
+              />
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+                Lancez « Calculer les proportions » pour afficher le graphique.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
