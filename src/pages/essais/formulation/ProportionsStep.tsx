@@ -25,9 +25,8 @@ import {
   type CalculationResult,
 } from "./dreuxGorisseCalculation";
 
-// Phase 6 : TAMIS_OPENINGS conservée uniquement pour dimensionner l'axe X du chart.
-const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
-void TAMIS_OPENINGS;
+// Phase 8 : plus aucun tableau de tamis local — le moteur et le chart les gèrent.
+
 
 interface ValidationData {
   resistance28j: string;
@@ -171,11 +170,11 @@ export default function ProportionsStep({
   // Build granulat inputs for calculation engine — courbes réelles OBLIGATOIRES.
   const granulatInputs = useMemo<GranulatInput[]>(() => {
     const items: { key: string; label: string; active: boolean; isSable: boolean; isSableCorrecteur: boolean }[] = [
-      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, isSableCorrecteur: false },
-      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, isSableCorrecteur: true },
-      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, isSableCorrecteur: false },
-      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, isSableCorrecteur: false },
-      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, isSableCorrecteur: false },
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, isSable: true, isSableCorrecteur: false },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, isSable: true, isSableCorrecteur: true },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, isSable: false, isSableCorrecteur: false },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, isSable: false, isSableCorrecteur: false },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, isSable: false, isSableCorrecteur: false },
     ];
     return items.map(item => ({
       key: item.key,
@@ -372,11 +371,11 @@ export default function ProportionsStep({
     { label: "Eau", value: eau, unit: "L", density: 1.0 },
     { label: "Ciment", value: ciment, unit: "kg", density: 3.11 },
     { label: "Adjuvant", value: adjuvant, unit: "kg", density: 1.05, active: adjuvant > 0 },
-    { label: granulatLabels["sableConcasse"] || "Sable 0/4", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
-    { label: granulatLabels["sableFin"] || "Sable 0/1", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
-    { label: granulatLabels["gravillons1"] || "Gravillon 3/8", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
-    { label: granulatLabels["gravier2"] || "Gravier 8/15", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
-    { label: granulatLabels["gravier3"] || "Gravier 15/25", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
+    { label: granulatLabels["sableConcasse"] || "Sable 1", value: sc, unit: "kg", density: getDensite("sableConcasse"), active: sable1Active },
+    { label: granulatLabels["sableFin"] || "Sable 2", value: sf, unit: "kg", density: getDensite("sableFin"), active: sable2Active },
+    { label: granulatLabels["gravillons1"] || "Gravier 1", value: g1, unit: "kg", density: getDensite("gravillons1"), active: gravier1Active },
+    { label: granulatLabels["gravier2"] || "Gravier 2", value: g2, unit: "kg", density: getDensite("gravier2"), active: gravier2Active },
+    { label: granulatLabels["gravier3"] || "Gravier 3", value: g3, unit: "kg", density: getDensite("gravier3"), active: gravier3Active },
   ].filter(c => ('active' in c ? c.active : true) && c.value > 0);
 
   const totalVolume = materiaux.reduce((sum, c) => {
@@ -402,11 +401,11 @@ export default function ProportionsStep({
   // Phase 6 : materials pour le chart = courbes réelles uniquement (aucun démo).
   const chartMaterials = useMemo<MaterialCurve[]>(() => {
     const items: Array<{ key: string; label: string; active: boolean; quantity: number }> = [
-      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, quantity: sc },
-      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, quantity: sf },
-      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, quantity: g1 },
-      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, quantity: g2 },
-      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, quantity: g3 },
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, quantity: sc },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, quantity: sf },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, quantity: g1 },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, quantity: g2 },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, quantity: g3 },
     ];
     const out: MaterialCurve[] = [];
     for (const it of items) {
@@ -419,11 +418,11 @@ export default function ProportionsStep({
   }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurveByKey, granulatLabels]);
 
   const sliders: GranulatSlider[] = [
-    { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
-    { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800, isSable: true },
-    { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200, isSable: false },
-    { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200, isSable: false },
-    { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200, isSable: false },
+    { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
+    { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, value: getVal("sableFin", sableFinQte), color: "#10b981", max: 800, isSable: true },
+    { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, value: getVal("gravillons1", gravillons1Qte), color: "#8b5cf6", max: 1200, isSable: false },
+    { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, value: getVal("gravier2", gravier2Qte), color: "#ef4444", max: 1200, isSable: false },
+    { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, value: getVal("gravier3", gravier3Qte), color: "#06b6d4", max: 1200, isSable: false },
   ].filter(s => s.active);
 
   // MF warning
@@ -845,6 +844,8 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           materials={chartMaterials}
           pct38={pct38}
           pct1525={pct1525}
+          smallGravelLabel={granulatLabels["gravillons1"] || "Gravier 1"}
+          largeGravelLabel={granulatLabels["gravier3"] || "Gravier 3"}
           isWithinEnvelope={null}
         />
       )}

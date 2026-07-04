@@ -338,7 +338,7 @@ export default function DreuxGorisseChart({
                   (sortedMaterials : du plus fin au plus gros). Cela garantit que
                   la 1re courbe = orange (sable fin), 2e = vert (sable), 3e = violet
                   (gravier intermédiaire), 4e = rouge (gravier grossier), même si
-                  les labels ne correspondent pas exactement aux gabarits 8/15, 15/25… */}
+                  les labels des produits ne suivent pas une nomenclature fixe. */}
               {materials.map((mat) => {
                 const orderedIdx = sortedMaterials.findIndex((m) => m.label === mat.label);
                 const colorIdx = orderedIdx >= 0 ? orderedIdx : materials.indexOf(mat);
