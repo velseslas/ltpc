@@ -230,41 +230,36 @@ export default function DebugDreuxPanel({ inputs, result }: DebugDreuxPanelProps
                 })()}
               </Section>
 
-              {/* ÉTAPES 10-12 : Lignes de partage (moteur graphique) */}
-              <Section title="Étapes 10 → 12 — Lignes de partage 95/5 et intersections OAB (moteur graphique, lecture seule)">
-                {gravelSplit.error && (
+              {/* ÉTAPES 10-12 : Lignes de partage (LECTURE PURE du moteur) */}
+              <Section title="Étapes 10 → 12 — Lignes de partage 95/5 et intersections OAB (lecture de result.gravelSplit)">
+                {gravelSplit.partitionLines.length === 0 && (
                   <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-100/40 dark:bg-amber-900/20 p-2 rounded">
                     <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                    <span>{gravelSplit.error}</span>
+                    <span>Méthode graphique non applicable ({activeGraviers.length} gravillon(s) actif(s)).</span>
                   </div>
                 )}
-                {gravelSplit.out && (
-                  <>
-                    {gravelSplit.out.partition_lines.map((line, i) => {
-                      const cut = gravelSplit.out!.cutoffs[i];
-                      return (
-                        <div key={i} className="text-xs space-y-0.5 border-l-2 border-amber-400 pl-2 my-2">
-                          <div className="font-medium">{line.pair}</div>
-                          <div className="font-mono text-muted-foreground">
-                            P95 = ({fmt(line.from.x, 4)}, {fmt(line.from.y, 1)}) → d95 = {fmt(Math.pow(10, line.from.x), 3)} mm
-                          </div>
-                          <div className="font-mono text-muted-foreground">
-                            P05 = ({fmt(line.to.x, 4)}, {fmt(line.to.y, 1)}) → d05 = {fmt(Math.pow(10, line.to.x), 3)} mm
-                          </div>
-                          <div className="font-mono text-muted-foreground">
-                            Intersection OAB = ({fmt(cut.x_log10d, 4)}, {fmt(cut.y_pct, 2)}) → ordonnée retenue = <span className="font-bold text-foreground">{fmt(cut.y_pct, 2)} %</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div className="text-[10px] text-muted-foreground italic mt-2">
-                      Proportions graphiques (référence métier) : {gravelSplit.out.proportions.map(p => `${p.nom} = ${fmt(p.pct, 2)}%`).join(" · ")}
+                {gravelSplit.partitionLines.map((line, i) => (
+                  <div key={i} className="text-xs space-y-0.5 border-l-2 border-amber-400 pl-2 my-2">
+                    <div className="font-medium">{line.pair}</div>
+                    <div className="font-mono text-muted-foreground">
+                      P95 = ({fmt(Math.log10(line.from.d_mm), 4)}, {fmt(line.from.y_pct, 1)}) → d95 = {fmt(line.from.d_mm, 3)} mm
                     </div>
-                    {gravelSplit.out.warnings.map((w, i) => (
-                      <div key={i} className="text-[10px] text-amber-700 dark:text-amber-400">⚠ {w}</div>
-                    ))}
-                  </>
+                    <div className="font-mono text-muted-foreground">
+                      P05 = ({fmt(Math.log10(line.to.d_mm), 4)}, {fmt(line.to.y_pct, 1)}) → d05 = {fmt(line.to.d_mm, 3)} mm
+                    </div>
+                    <div className="font-mono text-muted-foreground">
+                      Intersection OAB = ({fmt(Math.log10(line.intersection.d_mm), 4)}, {fmt(line.intersection.y_pct, 2)}) → ordonnée retenue = <span className="font-bold text-foreground">{fmt(line.intersection.y_pct, 2)} %</span>
+                    </div>
+                  </div>
+                ))}
+                {gravelSplit.proportions.length > 0 && (
+                  <div className="text-[10px] text-muted-foreground italic mt-2">
+                    Proportions moteur : {gravelSplit.proportions.map(p => `${p.label} = ${fmt(p.pct, 2)}%`).join(" · ")}
+                  </div>
                 )}
+                {gravelSplit.warnings.map((w, i) => (
+                  <div key={i} className="text-[10px] text-amber-700 dark:text-amber-400">⚠ {w}</div>
+                ))}
               </Section>
 
               {/* ÉTAPE 13-14 : Volumes et masses des fractions */}
