@@ -140,22 +140,32 @@ export default function StabilityAnalysisPanel({
     const issues: Issue[] = [];
     const mf = calcResult.moduleFinesse?.melange ?? 2.65;
 
-    // --- Étape 1-3 : gravillons triés par Dmax réel + parts sur volume gravier
-    const gravelsSorted = [...gravelMaterials]
-      .filter(g => g.quantity > 0)
-      .map(g => ({ ...g, dMax: getDmax(g) }))
-      .sort((a, b) => a.dMax - b.dMax);
-
+    // --- Étape 1-3 : gravillons triés par Dmax réel + parts sur Vsquelette
+    //
+    // RÉFÉRENTIEL UNIQUE (Phase 10) :
+    //   Vsquelette = Vsables + Vgraviers   (jamais eau/ciment/air/adjuvant)
+    //   % sable        = Vsables / Vsquelette * 100
+    //   % gravier_i    = Vgravier_i / Vgraviers * 100
+    //   % sable_i      = Vsable_i / Vsables * 100
+    //
+    // Les volumes réels par matériau sont lus dans calcResult.volumes.detail
+    // (clé = key moteur). Aucune conversion masse/volume n'est refaite ici.
+    const volDetail = calcResult.volumes.detail || {};
     const volGravier = calcResult.volumes.gravier;
     const volSable = calcResult.volumes.sable;
-    const volGranTotal = volSable + volGravier;
+    const volSquelette = volSable + volGravier;
 
-    // Volumes par matériau (m³) — sources : calcResult.volumes.detail est indexé par key,
-    // mais MaterialCurve n'expose pas la key. On retombe donc sur les masses/densités
-    // implicites via `quantity` (kg/m³) proportionnellement au total gravier.
-    const totalGravelQty = gravelsSorted.reduce((s, g) => s + g.quantity, 0);
+    const gravelsSorted = [...gravelMaterials]
+      .filter(g => g.quantity > 0)
+      .map(g => ({
+        ...g,
+        dMax: getDmax(g),
+        volume: g.key && volDetail[g.key] !== undefined ? volDetail[g.key] : 0,
+      }))
+      .sort((a, b) => a.dMax - b.dMax);
+
     const gravelRows: FractionRow[] = gravelsSorted.map((g, idx) => {
-      const pct = totalGravelQty > 0 ? (g.quantity / totalGravelQty) * 100 : 0;
+      const pct = volGravier > 0 ? (g.volume / volGravier) * 100 : 0;
       let kind: FractionKind;
       let range: { min: number; max: number };
       if (gravelsSorted.length === 1) {
@@ -174,8 +184,8 @@ export default function StabilityAnalysisPanel({
       return { label: g.label, pct, kind, range, status: statusOf(pct, range) };
     });
 
-    // Sable (part dans sable + gravier)
-    const sablePct = volGranTotal > 0 ? (volSable / volGranTotal) * 100 : 0;
+    // Sable total (part du sable dans le squelette granulaire)
+    const sablePct = volSquelette > 0 ? (volSable / volSquelette) * 100 : 0;
     const sableRow: FractionRow = {
       label: "Sables (total)",
       pct: sablePct,

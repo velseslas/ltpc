@@ -25,6 +25,8 @@ function getTamisForDmax(dMax: number) {
 }
 
 export interface MaterialCurve {
+  /** Clé moteur (ex: "sableConcasse", "gravillons1") — permet au consommateur de retrouver le volume réel dans calcResult.volumes.detail. */
+  key?: string;
   label: string;
   quantity: number;
   curve: { ouverture: number; pourcentageTamisat: number }[];
