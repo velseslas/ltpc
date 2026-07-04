@@ -847,14 +847,11 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
       </div>
 
       {/* Stability & Segregation Analysis */}
-      {hasCalculated && (
+      {hasCalculated && calcResult && (
         <StabilityAnalysisPanel
-          mfMelange={mfMelange}
-          materials={chartMaterials}
-          pct38={pct38}
-          pct1525={pct1525}
-          smallGravelLabel={smallGravel?.label || "petit gravier"}
-          largeGravelLabel={largeGravel?.label || "gros gravier"}
+          calcResult={calcResult}
+          sandMaterials={sandMaterials}
+          gravelMaterials={gravelMaterials}
           isWithinEnvelope={null}
         />
       )}
