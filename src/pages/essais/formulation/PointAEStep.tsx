@@ -80,7 +80,7 @@ interface PointAEStepProps {
   onMfIdealChange?: (v: string) => void;
   dosageCiment: string; // from step 2 / step 3
   showError?: boolean;
-  onPointAChange?: (xA: number, yA: number) => void;
+  // Phase 6 : onPointAChange retiré — le Point A officiel provient exclusivement de calcResult.pointA (moteur).
   onVibrationChange?: (v: string) => void;
   onFormeChange?: (v: string) => void;
   vibrationValue?: string;
