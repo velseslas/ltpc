@@ -79,8 +79,9 @@ interface DreuxGorisseChartProps {
   referenceCurve: { ouverture: number; pourcentage: number }[];
   /** Courbe de mélange produite par le moteur (Phase 6 : source unique). */
   mixCurve: { ouverture: number; pourcentage: number }[];
+  /** Rapport de répartition 95/5 issu du moteur (Phase 6 : source unique). */
+  gravelSplit: GravelSplitReport;
   mfMelange?: number;
-  onFractionsChange?: (fractions: Array<{ label: string; pct: number }>) => void;
 }
 
 export default function DreuxGorisseChart({
@@ -92,15 +93,16 @@ export default function DreuxGorisseChart({
   pointA,
   referenceCurve,
   mixCurve,
+  gravelSplit,
   mfMelange = 2.5,
-  onFractionsChange,
 }: DreuxGorisseChartProps) {
+  void classeRheologique;
   const totalAggregats = sables + graviers;
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
   const pctGravier = totalAggregats > 0 ? ((graviers / totalAggregats) * 100).toFixed(1) : "-";
 
 
-  // Conformity: mix curve cumulated pass within ±5 % of reference at each sieve.
+  // Conformity: mix curve cumulated pass within ±8 % of reference at each sieve.
   const isConforme = useMemo(() => {
     if (mixCurve.length === 0) return null;
     for (const mp of mixCurve) {
@@ -135,13 +137,9 @@ export default function DreuxGorisseChart({
   }, [tamis, referenceCurve, materials, mixCurve, dMax]);
 
 
-  // ===== Méthode graphique 95/5 — droites de partage et fractions =====
-  // Association stricte des séries pour la méthode 95/5 :
-  // Sable 0/1 → Sable 0/4 → Gravier 8/15 → Gravier 15/25.
-  // Les matériaux non standards restent triés physiquement en fallback.
+  // Phase 6 — sortedMaterials : uniquement pour l'affichage ordonné (couleurs). Aucun calcul métier ici.
   const sortedMaterials = useMemo(() => {
     const usedLabels = new Set<string>();
-
     const ordered = STRICT_PARTITION_ORDER
       .map((seriesId) => materials.find((m) => getMaterialSeriesId(m.label) === seriesId))
       .filter((m): m is MaterialCurve => {
@@ -149,148 +147,17 @@ export default function DreuxGorisseChart({
         usedLabels.add(m.label);
         return true;
       });
-
-    if (ordered.length === STRICT_PARTITION_ORDER.length) return ordered;
-
-    const fallback = materials
-      .filter((m) => !usedLabels.has(m.label))
-      .sort((a, b) => getCurveFinenessKey(a) - getCurveFinenessKey(b));
-
-    return [...ordered, ...fallback];
+    const rest = materials.filter((m) => !usedLabels.has(m.label));
+    return [...ordered, ...rest];
   }, [materials]);
 
-  const partitionData = useMemo(() => {
-    if (sortedMaterials.length < 2) {
-      return { lines: [] as Array<{
-        pair: string;
-        from: { x: number; y: number };
-        to: { x: number; y: number };
-        intersection: { x: number; y: number } | null;
-      }>, fractions: [] as Array<{ label: string; pct: number }> };
-    }
-
-    // OAB en coordonnées (mm, %).
-    const O = { x: D_MIN_REF, y: 0 };
-    const A = { x: pointA.dA, y: pointA.pA };
-    const B = { x: dMax, y: 100 };
-
-    // Intersection en (log10 d, %).
-    const Olog = { x: Math.log10(O.x), y: O.y };
-    const Alog = { x: Math.log10(A.x), y: A.y };
-    const Blog = { x: Math.log10(B.x), y: B.y };
-
-    const lines: Array<{
-      pair: string;
-      from: { x: number; y: number };
-      to: { x: number; y: number };
-      intersection: { x: number; y: number } | null;
-    }> = [];
-    const cutoffs: number[] = []; // Y1, Y2, Y3… dans l'ordre des paires (du plus fin au plus gros)
-
-    for (let i = 0; i < sortedMaterials.length - 1; i++) {
-      const fin = sortedMaterials[i];
-      const suivant = sortedMaterials[i + 1];
-      const finSeriesId = getMaterialSeriesId(fin.label);
-      const suivantSeriesId = getMaterialSeriesId(suivant.label);
-      let d95 = dAtPassantForSeries(fin.curve, 95, finSeriesId);
-      let d05 = dAtPassantForSeries(suivant.curve, 5, suivantSeriesId);
-      // Garde-fous : si la courbe ne fournit pas l'ordonnée, on retombe sur
-      // l'extrémité raisonnable (max pour le fin, min utile pour le suivant).
-      if (d95 == null) {
-        d95 = fin.curve.reduce((mx, p) => (p.ouverture > mx ? p.ouverture : mx), 0) || 0.063;
-      }
-      if (d05 == null) {
-        const nonZero = suivant.curve.filter((p) => p.pourcentageTamisat > 0);
-        d05 = nonZero.length
-          ? nonZero.reduce((mn, p) => (p.ouverture < mn ? p.ouverture : mn), Infinity)
-          : 0.063;
-      }
-      const from = { x: d95, y: 95 };
-      const to = { x: d05, y: 5 };
-
-      const P95log = { x: Math.log10(d95), y: 95 };
-      const P05log = { x: Math.log10(d05), y: 5 };
-
-      // Tentative d'intersection avec les segments OA puis AB.
-      const seg1 = intersectSegments(P95log, P05log, Olog, Alog);
-      const seg2 = intersectSegments(P95log, P05log, Alog, Blog);
-      const candidates = [seg1, seg2].filter((p): p is { x: number; y: number } => p !== null);
-      let intersection: { x: number; y: number } | null = null;
-      if (candidates.length > 0) {
-        candidates.sort((a, b) => Math.abs(a.y - A.y) - Math.abs(b.y - A.y));
-        const chosen = candidates[0];
-        intersection = { x: Math.pow(10, chosen.x), y: chosen.y };
-      } else {
-        // Fallback : intersection avec la droite OAB prolongée
-        // en cherchant le y sur la référence à mi-chemin (interp x).
-        const midLogX = (P95log.x + P05log.x) / 2;
-        // y de la référence par interpolation linéaire en log
-        const refY = (() => {
-          const refCurve = referenceCurve;
-          for (let k = 0; k < refCurve.length - 1; k++) {
-            const a = refCurve[k];
-            const b = refCurve[k + 1];
-            const xa = Math.log10(a.ouverture);
-            const xb = Math.log10(b.ouverture);
-            if (midLogX >= xa && midLogX <= xb) {
-              const t = (midLogX - xa) / (xb - xa || 1);
-              return a.pourcentage + t * (b.pourcentage - a.pourcentage);
-            }
-          }
-          return 50;
-        })();
-        intersection = { x: Math.pow(10, midLogX), y: refY };
-      }
-      cutoffs.push(Math.min(100, Math.max(0, intersection.y)));
-      lines.push({ pair: `${fin.label} → ${suivant.label}`, from, to, intersection });
-    }
-
-    // Les cutoffs sont déjà dans l'ordre cumulé (fin → gros) : Y1, Y2, Y3…
-    // Forçage de la monotonie croissante pour éviter toute inversion numérique.
-    const sortedCutoffs: number[] = [];
-    let last = 0;
-    for (const c of cutoffs) {
-      const v = Math.max(c, last);
-      sortedCutoffs.push(v);
-      last = v;
-    }
-
-    const fractions: Array<{ label: string; pct: number }> = [];
-    let prev = 0;
-    for (let i = 0; i < sortedMaterials.length; i++) {
-      let pct: number;
-      if (i < sortedCutoffs.length) {
-        pct = sortedCutoffs[i] - prev;
-        prev = sortedCutoffs[i];
-      } else {
-        pct = 100 - prev;
-      }
-      fractions.push({ label: sortedMaterials[i].label, pct: Math.max(0, pct) });
-    }
-
-    // Normalisation finale pour garantir un total strict de 100.0 %.
-    const total = fractions.reduce((s, f) => s + f.pct, 0);
-    if (total > 0 && Math.abs(total - 100) > 1e-6) {
-      const k = 100 / total;
-      fractions.forEach((f) => (f.pct = f.pct * k));
-    }
-
-    return { lines, fractions, sortedCutoffs };
-  }, [sortedMaterials, pointA, dMax, referenceCurve]);
+  // Phase 6 : lignes de partage lues DIRECTEMENT depuis gravelSplit (moteur). Aucun recalcul.
+  const partitionLines = gravelSplit.partitionLines;
+  const gravelProportions = gravelSplit.proportions;
 
   const hasMaterials = materials.length > 0;
 
-  // Émission des fractions individuelles 95/5 vers le parent (récap 1 m³).
-  const lastFractionsRef = useRef<string>("");
-  useEffect(() => {
-    if (!onFractionsChange) return;
-    const payload = partitionData.fractions.map((f) => ({ label: f.label, pct: f.pct }));
-    const sig = JSON.stringify(payload);
-    if (sig !== lastFractionsRef.current) {
-      lastFractionsRef.current = sig;
-      onFractionsChange(payload);
-    }
-  }, [partitionData.fractions, onFractionsChange]);
+
 
 
   return (
