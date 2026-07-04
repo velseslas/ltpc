@@ -430,16 +430,36 @@ export default function ProportionsStep({
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
   const needsSable2Correction = mfWarning && !sable2Active;
 
-  // Stability analysis: compute gravel fraction percentages
+  // Phase 9 : suppression de l'hypothèse "slot 1 = petit, slot 3 = gros".
+  // Les gravillons actifs sont triés par dMax réel (extrait de la courbe granulo).
+  const activeGravelsSorted = useMemo(() => {
+    const slots: Array<{ key: string; label: string; active: boolean; qty: number }> = [
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, qty: g1 },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, qty: g2 },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, qty: g3 },
+    ];
+    return slots
+      .filter(s => s.active && s.qty > 0)
+      .map(s => {
+        const curve = granulatCurveByKey?.[s.key] || [];
+        const dMax = curve.length > 0 ? Math.max(...curve.map(c => c.ouverture)) : 0;
+        return { ...s, dMax };
+      })
+      .sort((a, b) => a.dMax - b.dMax);
+  }, [gravier1Active, gravier2Active, gravier3Active, g1, g2, g3, granulatCurveByKey, granulatLabels]);
+
+  const smallGravel = activeGravelsSorted[0];
+  const largeGravel = activeGravelsSorted.length > 1 ? activeGravelsSorted[activeGravelsSorted.length - 1] : undefined;
+
   const pct38 = useMemo(() => {
-    if (!gravier1Active || graviers === 0) return undefined;
-    return (g1 / graviers) * 100;
-  }, [g1, graviers, gravier1Active]);
+    if (!smallGravel || graviers === 0) return undefined;
+    return (smallGravel.qty / graviers) * 100;
+  }, [smallGravel, graviers]);
 
   const pct1525 = useMemo(() => {
-    if (!gravier3Active || graviers === 0) return undefined;
-    return (g3 / graviers) * 100;
-  }, [g3, graviers, gravier3Active]);
+    if (!largeGravel || graviers === 0) return undefined;
+    return (largeGravel.qty / graviers) * 100;
+  }, [largeGravel, graviers]);
 
   useEffect(() => {
     onMfCorrectionNeeded?.(needsSable2Correction);
