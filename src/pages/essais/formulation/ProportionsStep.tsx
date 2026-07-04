@@ -864,7 +864,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
           </Card>
         )}
 
-        {/* Dreux-Gorisse Chart */}
+        {/* Dreux-Gorisse Chart — rendu uniquement après calcul (source unique = moteur). */}
         <Card className="border-border/50 bg-card/80 backdrop-blur-sm min-w-0">
           <CardContent className="p-6 space-y-4">
             <div>
@@ -876,16 +876,24 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               </p>
             </div>
 
-            <DreuxGorisseChart
-              dMax={dMaxReel}
-              classeRheologique={classeRheologique}
-              materials={demoMaterials}
-              sables={sables}
-              graviers={graviers}
-              pointA={pointAOverride ? { dA: pointAOverride.xA, pA: pointAOverride.yA } : (calcResult?.pointA ?? null)}
-              mfMelange={mfMelange ?? 2.5}
-              onFractionsChange={handleFractionsChange}
-            />
+            {calcResult ? (
+              <DreuxGorisseChart
+                dMax={dMaxReel}
+                classeRheologique={classeRheologique}
+                materials={demoMaterials}
+                sables={sables}
+                graviers={graviers}
+                pointA={calcResult.pointA}
+                referenceCurve={calcResult.referenceCurve}
+                mixCurve={calcResult.mixCurve}
+                mfMelange={mfMelange ?? 2.5}
+                onFractionsChange={handleFractionsChange}
+              />
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+                Lancez « Calculer les proportions » pour afficher le graphique.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
