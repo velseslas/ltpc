@@ -386,24 +386,17 @@ export default function DreuxGorisseChart({
 
                   return (
                     <g>
-                      {partitionData.lines.map((ln, idx) => {
-                        const x1 = xScale(ln.from.x);
-                        const y1 = yScale(ln.from.y);
-                        const x2 = xScale(ln.to.x);
-                        const y2 = yScale(ln.to.y);
+                      {partitionLines.map((ln, idx) => {
+                        const x1 = xScale(ln.from.d_mm);
+                        const y1 = yScale(ln.from.y_pct);
+                        const x2 = xScale(ln.to.d_mm);
+                        const y2 = yScale(ln.to.y_pct);
                         if (![x1, y1, x2, y2].every((v) => Number.isFinite(v))) return null;
-                        const inter = ln.intersection;
-                        const xi = inter ? xScale(inter.x) : null;
-                        const yi = inter ? yScale(inter.y) : null;
-                        // Les droites obliques 95/5 sont calculées en arrière-plan
-                        // mais ne sont plus dessinées pour épurer le graphique.
-                        // On ne garde que la projection horizontale + intersection.
-                        if (!inter || !Number.isFinite(xi as number) || !Number.isFinite(yi as number)) {
-                          return null;
-                        }
+                        const xi = xScale(ln.intersection.d_mm);
+                        const yi = yScale(ln.intersection.y_pct);
+                        if (!Number.isFinite(xi as number) || !Number.isFinite(yi as number)) return null;
                         return (
                         <g key={`partition-g-${idx}`}>
-                            {/* Projection horizontale pointillée vers l'axe Y */}
                             <line
                               x1={xLeft}
                               y1={yi as number}
@@ -413,7 +406,6 @@ export default function DreuxGorisseChart({
                               strokeWidth={1}
                               strokeDasharray="4 3"
                             />
-                            {/* Étiquette pourcentage sur l'axe Y, alignée verticalement avec la projection */}
                             <text
                               x={(xLeft as number) + 4}
                               y={yi as number}
@@ -422,9 +414,8 @@ export default function DreuxGorisseChart({
                               fontSize={11}
                               fontWeight={600}
                             >
-                              {inter.y.toFixed(1)} %
+                              {ln.intersection.y_pct.toFixed(1)} %
                             </text>
-                            {/* Point d'intersection sur la courbe de référence OAB */}
                             <circle
                               cx={xi as number}
                               cy={yi as number}
@@ -440,6 +431,7 @@ export default function DreuxGorisseChart({
                   );
                 }}
               />
+
 
             </ComposedChart>
           </ResponsiveContainer>
