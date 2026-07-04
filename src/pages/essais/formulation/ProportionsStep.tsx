@@ -399,10 +399,25 @@ export default function ProportionsStep({
   }, [calcEau, calcCiment, calcRatioGS]);
 
   // Phase 6 : materials pour le chart = courbes réelles uniquement (aucun démo).
-  const chartMaterials = useMemo<MaterialCurve[]>(() => {
-    const items: Array<{ key: string; label: string; active: boolean; quantity: number }> = [
+  // Phase 10 : on sépare sables / graviers pour le StabilityAnalysisPanel
+  // (qui trie les graviers par Dmax réel, sans hypothèse de slot).
+  const sandMaterials = useMemo<MaterialCurve[]>(() => {
+    const items = [
       { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, quantity: sc },
       { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 2", active: sable2Active, quantity: sf },
+    ];
+    const out: MaterialCurve[] = [];
+    for (const it of items) {
+      if (!it.active || it.quantity <= 0) continue;
+      const curve = granulatCurveByKey?.[it.key];
+      if (!curve || curve.length === 0) continue;
+      out.push({ label: it.label, quantity: it.quantity, curve });
+    }
+    return out;
+  }, [sable1Active, sable2Active, sc, sf, granulatCurveByKey, granulatLabels]);
+
+  const gravelMaterials = useMemo<MaterialCurve[]>(() => {
+    const items = [
       { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, quantity: g1 },
       { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, quantity: g2 },
       { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, quantity: g3 },
@@ -411,11 +426,16 @@ export default function ProportionsStep({
     for (const it of items) {
       if (!it.active || it.quantity <= 0) continue;
       const curve = granulatCurveByKey?.[it.key];
-      if (!curve || curve.length === 0) continue; // pas de fallback
+      if (!curve || curve.length === 0) continue;
       out.push({ label: it.label, quantity: it.quantity, curve });
     }
     return out;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurveByKey, granulatLabels]);
+  }, [gravier1Active, gravier2Active, gravier3Active, g1, g2, g3, granulatCurveByKey, granulatLabels]);
+
+  const chartMaterials = useMemo<MaterialCurve[]>(
+    () => [...sandMaterials, ...gravelMaterials],
+    [sandMaterials, gravelMaterials],
+  );
 
   const sliders: GranulatSlider[] = [
     { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 1", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
@@ -429,37 +449,6 @@ export default function ProportionsStep({
   const mfMelange = mfMelangeEffectif;
   const mfWarning = mfMelange !== null && mfMelange > 2.8;
   const needsSable2Correction = mfWarning && !sable2Active;
-
-  // Phase 9 : suppression de l'hypothèse "slot 1 = petit, slot 3 = gros".
-  // Les gravillons actifs sont triés par dMax réel (extrait de la courbe granulo).
-  const activeGravelsSorted = useMemo(() => {
-    const slots: Array<{ key: string; label: string; active: boolean; qty: number }> = [
-      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravier 1", active: gravier1Active, qty: g1 },
-      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 2", active: gravier2Active, qty: g2 },
-      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 3", active: gravier3Active, qty: g3 },
-    ];
-    return slots
-      .filter(s => s.active && s.qty > 0)
-      .map(s => {
-        const curve = granulatCurveByKey?.[s.key] || [];
-        const dMax = curve.length > 0 ? Math.max(...curve.map(c => c.ouverture)) : 0;
-        return { ...s, dMax };
-      })
-      .sort((a, b) => a.dMax - b.dMax);
-  }, [gravier1Active, gravier2Active, gravier3Active, g1, g2, g3, granulatCurveByKey, granulatLabels]);
-
-  const smallGravel = activeGravelsSorted[0];
-  const largeGravel = activeGravelsSorted.length > 1 ? activeGravelsSorted[activeGravelsSorted.length - 1] : undefined;
-
-  const pct38 = useMemo(() => {
-    if (!smallGravel || graviers === 0) return undefined;
-    return (smallGravel.qty / graviers) * 100;
-  }, [smallGravel, graviers]);
-
-  const pct1525 = useMemo(() => {
-    if (!largeGravel || graviers === 0) return undefined;
-    return (largeGravel.qty / graviers) * 100;
-  }, [largeGravel, graviers]);
 
   useEffect(() => {
     onMfCorrectionNeeded?.(needsSable2Correction);
