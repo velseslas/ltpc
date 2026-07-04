@@ -411,7 +411,7 @@ export default function ProportionsStep({
       if (!it.active || it.quantity <= 0) continue;
       const curve = granulatCurveByKey?.[it.key];
       if (!curve || curve.length === 0) continue;
-      out.push({ label: it.label, quantity: it.quantity, curve });
+      out.push({ key: it.key, label: it.label, quantity: it.quantity, curve });
     }
     return out;
   }, [sable1Active, sable2Active, sc, sf, granulatCurveByKey, granulatLabels]);
@@ -427,7 +427,7 @@ export default function ProportionsStep({
       if (!it.active || it.quantity <= 0) continue;
       const curve = granulatCurveByKey?.[it.key];
       if (!curve || curve.length === 0) continue;
-      out.push({ label: it.label, quantity: it.quantity, curve });
+      out.push({ key: it.key, label: it.label, quantity: it.quantity, curve });
     }
     return out;
   }, [gravier1Active, gravier2Active, gravier3Active, g1, g2, g3, granulatCurveByKey, granulatLabels]);
