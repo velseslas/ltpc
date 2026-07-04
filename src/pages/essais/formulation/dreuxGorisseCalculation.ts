@@ -200,6 +200,10 @@ export interface CalculationResult {
   referenceCurve: { ouverture: number; pourcentage: number }[];
   /** Courbe granulométrique du mélange final — SOURCE UNIQUE (Phase 6). */
   mixCurve: { ouverture: number; pourcentage: number }[];
+  /** Répartition graphique 95/5 exposée par le moteur — SOURCE UNIQUE (Phase 6). */
+  gravelSplit: GravelSplitReport;
+  /** Dmax final utilisé par le moteur — alias explicite (Phase 6). */
+  dMax: number;
 }
 
 // ---------------------------------------------------------------------------
