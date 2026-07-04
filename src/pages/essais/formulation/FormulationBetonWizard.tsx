@@ -947,8 +947,8 @@ export default function FormulationBetonWizard() {
     setGranulatCurves(prev => ({ ...prev, [key]: curve }));
   };
 
-  // Phase 6 : nettoyage automatique — un granulat désactivé OU dont le produit change
-  // NE DOIT PAS conserver ses courbes / densités / MF en mémoire (fuite éliminée).
+  // Phase 6/8 : nettoyage automatique — un granulat désactivé OU dont le produit change
+  // NE DOIT PAS conserver ses courbes / densités / MF / quantités / ids en mémoire.
   useEffect(() => {
     const activeMap: Record<string, string | null> = {
       sableConcasse: sable1Active ? (sableConcasseProduitId || null) : null,
@@ -988,6 +988,12 @@ export default function FormulationBetonWizard() {
       }
       return changed ? next : prev;
     });
+    // Phase 8 : quantités + ids fantômes → purge quand le slot est inactif.
+    if (!sable1Active) { setSableConcasseQte(""); setSableConcasseProducteurId(""); setSableConcasseProduitId(""); }
+    if (!sable2Active) { setSableFinQte(""); setSableFinProducteurId(""); setSableFinProduitId(""); }
+    if (!gravier1Active) { setGravillons1Qte(""); setGravillons1ProducteurId(""); setGravillons1ProduitId(""); }
+    if (!gravier2Active) { setGravier2Qte(""); setGravier2ProducteurId(""); setGravier2ProduitId(""); }
+    if (!gravier3Active) { setGravier3Qte(""); setGravier3ProducteurId(""); setGravier3ProduitId(""); }
   }, [
     sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active,
     sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId,
