@@ -42,8 +42,10 @@ export function buildReferenceCurve(dmax_mm: number, K: number): ReferenceCurve 
     );
   }
 
+  // XA via règle unique Dreux-Gorisse (Dmax ≤ 20 : Dmax/2 ; Dmax > 20 : module AFNOR).
+  const { xA } = calculateXA(dmax_mm);
   const O: Point2D = { x: Math.log10(D_MIN_MM), y: 0 };
-  const A: Point2D = { x: Math.log10(dmax_mm / 2), y: pA };
+  const A: Point2D = { x: Math.log10(xA), y: pA };
   const B: Point2D = { x: Math.log10(dmax_mm), y: 100 };
 
   return { dmax_mm, K, pA, polyline: [O, A, B] };
