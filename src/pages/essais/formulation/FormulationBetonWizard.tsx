@@ -814,6 +814,7 @@ function EssaiStep({
                         granulatKey={mat.granulatKey}
                         onDensityExtracted={onDensityExtracted}
                         onModuleFinesseExtracted={onModuleFinesseExtracted}
+                        onCurveExtracted={onCurveExtracted}
                       />
                     ))}
                   </div>
