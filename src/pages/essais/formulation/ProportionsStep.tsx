@@ -425,26 +425,29 @@ export default function ProportionsStep({
   }, [calcEau, calcCiment, calcRatioGS]);
 
   // Generate granulometric curves for chart
+  // Phase 6 / 2a : privilégie la courbe réelle extraite (granulatCurveByKey) sur le démo.
   const demoMaterials = useMemo<MaterialCurve[]>(() => {
     if (granulatCurves && granulatCurves.length > 0) return granulatCurves;
     const materials: MaterialCurve[] = [];
+    const pick = (key: string, demoType: string) =>
+      granulatCurveByKey?.[key] ?? generateDemoCurve(demoType);
     if (sable1Active && sc > 0) {
-      materials.push({ label: granulatLabels["sableConcasse"] || "Sable 0/4", quantity: sc, curve: generateDemoCurve("sable1") });
+      materials.push({ label: granulatLabels["sableConcasse"] || "Sable 0/4", quantity: sc, curve: pick("sableConcasse", "sable1") });
     }
     if (sable2Active && sf > 0) {
-      materials.push({ label: granulatLabels["sableFin"] || "Sable 0/1", quantity: sf, curve: generateDemoCurve("sable2") });
+      materials.push({ label: granulatLabels["sableFin"] || "Sable 0/1", quantity: sf, curve: pick("sableFin", "sable2") });
     }
     if (gravier1Active && g1 > 0) {
-      materials.push({ label: granulatLabels["gravillons1"] || "Gravillon 3/8", quantity: g1, curve: generateDemoCurve("gravier1") });
+      materials.push({ label: granulatLabels["gravillons1"] || "Gravillon 3/8", quantity: g1, curve: pick("gravillons1", "gravier1") });
     }
     if (gravier2Active && g2 > 0) {
-      materials.push({ label: granulatLabels["gravier2"] || "Gravier 8/15", quantity: g2, curve: generateDemoCurve("gravier2") });
+      materials.push({ label: granulatLabels["gravier2"] || "Gravier 8/15", quantity: g2, curve: pick("gravier2", "gravier2") });
     }
     if (gravier3Active && g3 > 0) {
-      materials.push({ label: granulatLabels["gravier3"] || "Gravier 15/25", quantity: g3, curve: generateDemoCurve("gravier3") });
+      materials.push({ label: granulatLabels["gravier3"] || "Gravier 15/25", quantity: g3, curve: pick("gravier3", "gravier3") });
     }
     return materials;
-  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves, granulatLabels]);
+  }, [sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active, sc, sf, g1, g2, g3, granulatCurves, granulatCurveByKey, granulatLabels]);
 
   const sliders: GranulatSlider[] = [
     { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, value: getVal("sableConcasse", sableConcasseQte), color: "#f59e0b", max: 1200, isSable: true },
