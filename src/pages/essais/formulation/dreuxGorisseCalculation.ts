@@ -52,39 +52,7 @@ const MIN_FRACTION = 0.02;
 /** Maximum proportion (volume) allowed for correction sand. */
 const MAX_CORRECTION_SAND_FRACTION = 0.30;
 
-/** Dreux-inspired sieve weighting (higher weight on fine sieves). */
-const SIEVE_WEIGHTS: Record<number, number> = {
-  0.08: 5.0,
-  0.16: 4.0,
-  0.315: 3.0,
-  0.63: 2.0,
-  1.25: 1.5,
-  2.5: 1.0,
-  5: 0.8,
-  10: 0.7,
-  20: 0.6,
-  40: 0.5,
-};
-
-/**
- * Returns the Dreux weight for a given sieve opening.
- * Picks the closest pre-defined weight (log-distance). Defaults to 1.0 when no
- * close reference exists, preserving the legacy unweighted behavior.
- */
-function sieveWeight(opening: number): number {
-  const keys = Object.keys(SIEVE_WEIGHTS).map(Number);
-  let best = 1.0;
-  let bestDist = Infinity;
-  for (const k of keys) {
-    const dist = Math.abs(Math.log10(opening) - Math.log10(k));
-    if (dist < bestDist) {
-      bestDist = dist;
-      best = SIEVE_WEIGHTS[k];
-    }
-  }
-  // Only apply weight when reasonably close to a reference sieve (log distance < 0.2)
-  return bestDist < 0.2 ? best : 1.0;
-}
+// Phase 6 : SIEVE_WEIGHTS et sieveWeight supprimés — plus aucun solveur numérique.
 
 // ---------------------------------------------------------------------------
 // Public types
