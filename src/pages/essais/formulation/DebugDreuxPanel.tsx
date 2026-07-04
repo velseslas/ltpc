@@ -27,6 +27,7 @@ import type {
 } from "./dreuxGorisseCalculation";
 import { splitGravels, GravelSplitError } from "./engine/gravelSplit";
 import type { SplitGravelsOutput } from "./engine/gravelSplit";
+import { calculateXA, sieveToModule } from "./engine/pointAxAbscissa";
 
 interface DebugDreuxPanelProps {
   inputs: CalculationInputs;
