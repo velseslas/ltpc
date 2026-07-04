@@ -19,6 +19,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Info, Eye, MapPin } from "lucide-react";
+import {
+  calculateXA as calculateXACore,
+  sieveToModule as sieveToModuleCore,
+  moduleToSieve as moduleToSieveCore,
+} from "./engine/pointAxAbscissa";
 
 // ─── AFNOR Sieve Module Table ───
 // Maps AFNOR module number to sieve opening (mm)
