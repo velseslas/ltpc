@@ -1181,14 +1181,15 @@ export default function FormulationBetonWizard() {
     setEauQte(f.eau_quantite != null ? String(f.eau_quantite) : "");
 
     // Activate sections based on the source data (covers duplicate + edit)
-    setSable1Active(!!(f.sable_concasse_producteur_id || f.sable_concasse_quantite));
-    setSable2Active(!!(f.sable_fin_producteur_id || f.sable_fin_quantite));
-    setGravier1Active(!!(f.gravillons1_producteur_id || f.gravillons1_quantite));
-    setGravier2Active(!!(f.gravier2_producteur_id || f.gravier2_quantite));
-    setGravier3Active(!!(f.gravier3_producteur_id || f.gravier3_quantite));
-    setCimentActive(!!(f.ciment_producteur_id || f.ciment_quantite));
-    setAdjuvantActive(!!(f.adjuvant_producteur_id || f.adjuvant_quantite));
-    setEauActive(!!(f.eau_producteur_id || f.eau_quantite));
+    // Phase 8 : actif = producteur ET produit renseignés (la seule règle).
+    setSable1Active(!!(f.sable_concasse_producteur_id && f.sable_concasse_produit_id));
+    setSable2Active(!!(f.sable_fin_producteur_id && f.sable_fin_produit_id));
+    setGravier1Active(!!(f.gravillons1_producteur_id && f.gravillons1_produit_id));
+    setGravier2Active(!!(f.gravier2_producteur_id && f.gravier2_produit_id));
+    setGravier3Active(!!(f.gravier3_producteur_id && f.gravier3_produit_id));
+    setCimentActive(!!(f.ciment_producteur_id && f.ciment_produit_id));
+    setAdjuvantActive(!!(f.adjuvant_producteur_id && f.adjuvant_produit_id));
+    setEauActive(!!(f.eau_producteur_id && f.eau_produit_id));
 
     const initialEau = formatNumberInput(f.eau_calculee) || formatNumberInput(f.eau_quantite);
     const initialCiment = formatNumberInput(f.ciment_calcule) || formatNumberInput(f.ciment_quantite);
