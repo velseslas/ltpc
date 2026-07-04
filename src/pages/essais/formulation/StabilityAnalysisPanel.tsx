@@ -108,8 +108,8 @@ export default function StabilityAnalysisPanel({
         description: `MF = ${mf.toFixed(2)} < 2.4 — La proportion de fines est trop élevée, augmentant la demande en eau et le retrait.`,
         penalty,
         actions: [
-          "Réduire la proportion de sable fin (0/1)",
-          "Augmenter la proportion de sable grossier (0/4)",
+          "Réduire la proportion du sable le plus fin",
+          "Augmenter la proportion du sable le plus grossier",
         ],
         level: mf < 2.2 ? "danger" : "warn",
       });
@@ -126,7 +126,7 @@ export default function StabilityAnalysisPanel({
         description: `MF = ${mf.toFixed(2)} > 2.8 — Manque de fines compromettant la cohésion et la pompabilité du béton.`,
         penalty,
         actions: [
-          "Augmenter la proportion de sable fin (0/1)",
+          "Augmenter la proportion du sable le plus fin",
           "Ajuster les proportions entre les sables",
         ],
         level: mf > 3.0 ? "danger" : "warn",
