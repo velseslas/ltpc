@@ -1681,7 +1681,7 @@ export default function FormulationBetonWizard() {
           onMfIdealChange={setMfIdeal}
           dosageCiment={calcCiment}
           showError={allErrorSteps.includes(6)}
-          onPointAChange={(xA, yA) => setPointACoords({ xA, yA })}
+          /* Phase 6 : onPointAChange retiré — PointAEStep reste informatif seul, calcResult.pointA fait autorité. */
           vibrationValue={vibrationAE}
           onVibrationChange={setVibrationAE}
           formeValue={formeAE}
