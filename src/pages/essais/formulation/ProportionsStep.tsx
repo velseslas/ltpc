@@ -994,86 +994,87 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                 );
               }
 
-              // Phase 6 : SOURCE UNIQUE = calcResult (moteur). Aucune donnée recalculée.
-              const gravelPctByKey = new Map<string, number>();
-              for (const p of calcResult.gravelSplit.proportions) {
-                gravelPctByKey.set(p.key, p.pct);
-              }
+              // Phase 9 : SOURCE UNIQUE = calcResult (moteur). Aucune donnée recalculée.
+              // La colonne "% gravillons (95/5)" est supprimée : elle appartient au Debug/graphique,
+              // pas au tableau de composition. Le % composition est basé sur le volume Dreux
+              // total = Eau + Ciment + Air + Sables + Graviers. L'adjuvant est affiché mais
+              // exclu du dénominateur (règle Dreux-Gorisse).
 
               type Row = {
-                label: string; mass: number; volumeL: number; density: number; pctVol: number; pct95: number | null;
+                label: string; mass: number; volumeL: number; density: number; inDenom: boolean;
               };
               const rows: Row[] = [];
 
-              // Binders — masses lues telles quelles (eau, ciment, adjuvant).
-              const binders: Array<{ label: string; value: number; density: number }> = [
-                { label: "Eau", value: eau, density: 1.0 },
-                { label: "Ciment", value: ciment, density: 3.11 },
-              ];
-              if (adjuvant > 0) binders.push({ label: "Adjuvant", value: adjuvant, density: 1.05 });
-              for (const b of binders) {
-                const volumeL = b.density > 0 ? (b.value / (b.density * 1000)) * 1000 : 0;
-                rows.push({ label: b.label, mass: b.value, volumeL, density: b.density, pctVol: volumeL / 10, pct95: null });
-              }
+              // Eau et ciment : dans le dénominateur (composition Dreux).
+              const eauVolL = (eau / (1.0 * 1000)) * 1000;
+              rows.push({ label: "Eau", mass: eau, volumeL: eauVolL, density: 1.0, inDenom: true });
+              const cimentVolL = (ciment / (3.11 * 1000)) * 1000;
+              rows.push({ label: "Ciment", mass: ciment, volumeL: cimentVolL, density: 3.11, inDenom: true });
 
-              // Granulats — masses = calcResult.masses ; % granulats = calcResult.gravelSplit.proportions (gravillons).
+              // Granulats : masses/volumes lus directement depuis le moteur.
               for (const g of granulatInputs) {
                 if (!g.active) continue;
                 const mass = calcResult.masses[g.key] ?? 0;
                 if (mass <= 0) continue;
                 const densityKgL = g.densite > 0 ? g.densite / 1000 : 0;
                 const volumeL = (calcResult.volumes.detail[g.key] ?? 0) * 1000;
-                rows.push({
-                  label: g.label,
-                  mass,
-                  volumeL,
-                  density: densityKgL,
-                  pctVol: volumeL / 10,
-                  pct95: gravelPctByKey.has(g.key) ? gravelPctByKey.get(g.key)! : null,
-                });
+                rows.push({ label: g.label, mass, volumeL, density: densityKgL, inDenom: true });
               }
 
+              // Air occlus : volume issu du moteur, sans masse.
+              const airVolL = (calcResult.volumes.air ?? 0) * 1000;
+              if (airVolL > 0) {
+                rows.push({ label: "Air occlus", mass: 0, volumeL: airVolL, density: 0, inDenom: true });
+              }
+
+              // Adjuvant : affiché mais HORS dénominateur.
+              if (adjuvant > 0) {
+                const adjVolL = (adjuvant / (1.05 * 1000)) * 1000;
+                rows.push({ label: "Adjuvant", mass: adjuvant, volumeL: adjVolL, density: 1.05, inDenom: false });
+              }
+
+              const totalVolDenom = rows.filter(r => r.inDenom).reduce((s, r) => s + r.volumeL, 0);
               const totalMass = rows.reduce((s, r) => s + r.mass, 0);
-              const totalVolL = rows.reduce((s, r) => s + r.volumeL, 0);
-              const totalPct = totalVolL / 10;
-              const isOk = Math.abs(totalPct - 100) < 0.5;
-              const total95 = rows.reduce((s, r) => s + (r.pct95 ?? 0), 0);
+              const totalPctDenom = rows
+                .filter(r => r.inDenom)
+                .reduce((s, r) => s + (totalVolDenom > 0 ? (r.volumeL / totalVolDenom) * 100 : 0), 0);
+              const isOk = Math.abs(totalPctDenom - 100) < 0.05;
 
               return (
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="bg-muted">
                       <th className="border border-border p-2.5 text-left font-semibold">Matériau</th>
-                      <th className="border border-border p-2.5 text-right font-semibold">% gravillons (95/5)</th>
-                      <th className="border border-border p-2.5 text-right font-semibold">% volume</th>
+                      <th className="border border-border p-2.5 text-right font-semibold">% composition</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Volume (L)</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Densité</th>
                       <th className="border border-border p-2.5 text-right font-semibold">Poids (kg/m³)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((r, i) => (
-                      <tr key={r.label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                        <td className="border border-border p-2.5 text-foreground">{r.label}</td>
-                        <td className="border border-border p-2.5 text-right text-foreground">
-                          {r.pct95 !== null ? `${r.pct95.toFixed(1)}%` : "—"}
-                        </td>
-                        <td className="border border-border p-2.5 text-right text-foreground">{r.pctVol.toFixed(1)}%</td>
-                        <td className="border border-border p-2.5 text-right text-foreground">{r.density > 0 ? r.volumeL.toFixed(1) : "-"}</td>
-                        <td className="border border-border p-2.5 text-right text-foreground">{r.density > 0 ? r.density.toFixed(2) : "-"}</td>
-                        <td className="border border-border p-2.5 text-right font-semibold text-foreground">{Math.round(r.mass)}</td>
-                      </tr>
-                    ))}
+                    {rows.map((r, i) => {
+                      const pct = r.inDenom && totalVolDenom > 0 ? (r.volumeL / totalVolDenom) * 100 : null;
+                      return (
+                        <tr key={r.label} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                          <td className="border border-border p-2.5 text-foreground">{r.label}</td>
+                          <td className="border border-border p-2.5 text-right text-foreground">
+                            {pct !== null ? `${pct.toFixed(1)}%` : "—"}
+                          </td>
+                          <td className="border border-border p-2.5 text-right text-foreground">{r.volumeL > 0 ? r.volumeL.toFixed(1) : "-"}</td>
+                          <td className="border border-border p-2.5 text-right text-foreground">{r.density > 0 ? r.density.toFixed(2) : "-"}</td>
+                          <td className="border border-border p-2.5 text-right font-semibold text-foreground">{r.mass > 0 ? Math.round(r.mass) : "—"}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                   <tfoot>
                     <tr className={cn("bg-primary/10", !isOk && "animate-border-blink")}>
-                      <td className="border border-border p-2.5 font-bold text-foreground">Total</td>
-                      <td className="border border-border p-2.5 text-right font-bold text-foreground">{total95.toFixed(1)}%</td>
+                      <td className="border border-border p-2.5 font-bold text-foreground">Total (hors adjuvant)</td>
                       <td className={cn("border border-border p-2.5 text-right font-bold", isOk ? "text-emerald-500" : "text-destructive")}>
-                        {totalPct.toFixed(1)}%
+                        {totalPctDenom.toFixed(1)}%
                       </td>
                       <td className={cn("border border-border p-2.5 text-right font-bold", isOk ? "text-emerald-500" : "text-destructive")}>
-                        {totalVolL.toFixed(1)} L
+                        {totalVolDenom.toFixed(1)} L
                       </td>
                       <td className="border border-border p-2.5 text-right text-muted-foreground">—</td>
                       <td className="border border-border p-2.5 text-right text-xl font-bold text-primary">{Math.round(totalMass)}</td>
