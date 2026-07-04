@@ -458,26 +458,25 @@ export default function DreuxGorisseChart({
       )}
 
       {/* Tableau récapitulatif des fractions individuelles (méthode graphique 95/5) */}
-      {hasMaterials && partitionData.fractions.length > 0 && (
+      {hasMaterials && gravelProportions.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
-            Fractions individuelles — Méthode graphique 95/5 Dreux-Gorisse
+            Fractions individuelles — Méthode graphique 95/5 Dreux-Gorisse (moteur)
           </p>
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-xs">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-3 py-2 text-left font-semibold text-foreground">Constituant</th>
-                  <th className="px-3 py-2 text-right font-semibold text-foreground">% cumulé lu</th>
+                  <th className="px-3 py-2 text-left font-semibold text-foreground">Gravillon</th>
+                  <th className="px-3 py-2 text-right font-semibold text-foreground">% cumulé OAB</th>
                   <th className="px-3 py-2 text-right font-semibold text-foreground">% fraction</th>
                 </tr>
               </thead>
               <tbody>
-                {partitionData.fractions.map((f, i) => {
-                  const sortedCutoffs = partitionData.sortedCutoffs ?? [];
-                  const cum = i < sortedCutoffs.length ? sortedCutoffs[i] : 100;
+                {gravelProportions.map((f, i) => {
+                  const cum = i < gravelSplit.cutoffs.length ? gravelSplit.cutoffs[i].y_pct : 100;
                   return (
-                    <tr key={f.label} className="border-t border-border">
+                    <tr key={f.key} className="border-t border-border">
                       <td className="px-3 py-2 text-foreground">{f.label}</td>
                       <td className="px-3 py-2 text-right font-mono text-muted-foreground">
                         {typeof cum === "number" ? `${cum.toFixed(1)} %` : "—"}
@@ -492,17 +491,18 @@ export default function DreuxGorisseChart({
                   <td className="px-3 py-2 font-semibold text-foreground">Total</td>
                   <td className="px-3 py-2"></td>
                   <td className="px-3 py-2 text-right font-mono font-bold text-foreground">
-                    {partitionData.fractions.reduce((s, f) => s + f.pct, 0).toFixed(1)} %
+                    {gravelProportions.reduce((s, f) => s + f.pct, 0).toFixed(1)} %
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
           <p className="text-[10px] text-muted-foreground italic">
-            Calcul par soustractions successives des ordonnées d'intersection des droites P95(d₉₅, 95%) → P05(d₀₅, 5%) avec la courbe de référence OAB.
+            Source : calcResult.gravelSplit (moteur Dreux-Gorisse — méthode graphique 95/5).
           </p>
         </div>
       )}
+
 
 
       {/* Conformity badge */}
