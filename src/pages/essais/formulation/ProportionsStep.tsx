@@ -25,8 +25,9 @@ import {
   type CalculationResult,
 } from "./dreuxGorisseCalculation";
 
-// Standard sieve openings (mm) for Dreux-Gorisse
+// Phase 6 : TAMIS_OPENINGS conservée uniquement pour dimensionner l'axe X du chart.
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
+void TAMIS_OPENINGS;
 
 interface ValidationData {
   resistance28j: string;
@@ -59,13 +60,12 @@ interface ProportionsStepProps {
   coefficientGranulaire: string;
   coefficientCompacite: string;
   classeRheologique: string;
-  granulatCurves?: MaterialCurve[];
+  /** Phase 6 : source UNIQUE des courbes granulométriques — courbes réelles extraites des rapports GR. */
   granulatCurveByKey?: Record<string, { ouverture: number; pourcentageTamisat: number }[]>;
   granulatDensites?: Record<string, number>;
   granulatModuleFinesse?: Record<string, number>;
   granulatLabels?: Record<string, string>;
   dMaxUser?: number | null;
-  pointAOverride?: { xA: number; yA: number } | null;
   calcEau: string;
   calcCiment: string;
   calcRatioGS: string;
