@@ -86,41 +86,8 @@ interface GranulatSlider {
   isSable: boolean;
 }
 
-// Demo granulometric curves generator
-function generateDemoCurve(type: string): { ouverture: number; pourcentageTamisat: number }[] {
-  switch (type) {
-    case "sable1":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 4 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(4 / 0.063)) * 100),
-      }));
-    case "sable2":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 2 ? 100 : Math.min(100, (Math.log10(ouv / 0.063) / Math.log10(2 / 0.063)) * 100),
-      }));
-    case "gravier1":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 10 ? 100 : ouv <= 2 ? 0 : Math.min(100, ((ouv - 2) / (10 - 2)) * 100),
-      }));
-    case "gravier2":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 20 ? 100 : ouv <= 6.3 ? 0 : Math.min(100, ((ouv - 6.3) / (20 - 6.3)) * 100),
-      }));
-    case "gravier3":
-      return TAMIS_OPENINGS.map(ouv => ({
-        ouverture: ouv,
-        pourcentageTamisat: ouv >= 31.5 ? 100 : ouv <= 12.5 ? 0 : Math.min(100, ((ouv - 12.5) / (31.5 - 12.5)) * 100),
-      }));
-    default:
-      return [];
-  }
-}
-
-// Phase 6 : DMAX_MAP supprimé. Le Dmax provient exclusivement du matériau
-// (courbe granulométrique / champ dMax en base) ou du Dmax saisi (dMaxUser).
+// Phase 6 : generateDemoCurve, DMAX_MAP, pointAOverride, graphFractions — TOUS SUPPRIMÉS.
+// Aucun fallback : les courbes proviennent exclusivement des rapports GR (granulatCurveByKey).
 
 type CalcMode = "none" | "calculate" | "manual";
 
@@ -141,13 +108,11 @@ export default function ProportionsStep({
   coefficientGranulaire,
   coefficientCompacite,
   classeRheologique,
-  granulatCurves,
   granulatCurveByKey,
   granulatDensites = {},
   granulatModuleFinesse = {},
   granulatLabels = {},
   dMaxUser,
-  pointAOverride,
   calcEau,
   calcCiment,
   calcRatioGS,
@@ -167,12 +132,6 @@ export default function ProportionsStep({
   const [calculationErrors, setCalculationErrors] = useState<string[]>([]);
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
-  // Fractions individuelles 95/5 émises par le graphique Dreux-Gorisse
-  const [graphFractions, setGraphFractions] = useState<Array<{ label: string; pct: number }>>([]);
-  const handleFractionsChange = useCallback(
-    (f: Array<{ label: string; pct: number }>) => setGraphFractions(f),
-    []
-  );
 
   const mfMelangeEffectif = useMemo(
     () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
@@ -209,14 +168,14 @@ export default function ProportionsStep({
   const ratioGS = sables > 0 ? (graviers / sables).toFixed(2) : "-";
   const ratioEC = ciment > 0 ? (eau / ciment).toFixed(2) : "-";
 
-  // Build granulat inputs for calculation engine
+  // Build granulat inputs for calculation engine — courbes réelles OBLIGATOIRES.
   const granulatInputs = useMemo<GranulatInput[]>(() => {
-    const items: { key: string; label: string; active: boolean; isSable: boolean; isSableCorrecteur: boolean; curveType: string }[] = [
-      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, isSableCorrecteur: false, curveType: "sable1" },
-      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, isSableCorrecteur: true, curveType: "sable2" },
-      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, isSableCorrecteur: false, curveType: "gravier1" },
-      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, isSableCorrecteur: false, curveType: "gravier2" },
-      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, isSableCorrecteur: false, curveType: "gravier3" },
+    const items: { key: string; label: string; active: boolean; isSable: boolean; isSableCorrecteur: boolean }[] = [
+      { key: "sableConcasse", label: granulatLabels["sableConcasse"] || "Sable 0/4", active: sable1Active, isSable: true, isSableCorrecteur: false },
+      { key: "sableFin", label: granulatLabels["sableFin"] || "Sable 0/1", active: sable2Active, isSable: true, isSableCorrecteur: true },
+      { key: "gravillons1", label: granulatLabels["gravillons1"] || "Gravillon 3/8", active: gravier1Active, isSable: false, isSableCorrecteur: false },
+      { key: "gravier2", label: granulatLabels["gravier2"] || "Gravier 8/15", active: gravier2Active, isSable: false, isSableCorrecteur: false },
+      { key: "gravier3", label: granulatLabels["gravier3"] || "Gravier 15/25", active: gravier3Active, isSable: false, isSableCorrecteur: false },
     ];
     return items.map(item => ({
       key: item.key,
@@ -226,11 +185,8 @@ export default function ProportionsStep({
       isSableCorrecteur: item.isSableCorrecteur,
       densite: granulatDensites[item.key] ?? 0,
       moduleFinesse: granulatModuleFinesse[item.key],
-      // Phase 6 / 2a : courbe réelle si extraite du rapport granulométrique de ce
-      // granulat (matching par `key`). Sinon, on garde temporairement la courbe
-      // démo — la sous-phase 2b supprimera ce fallback et rendra l'absence bloquante.
-      curve: granulatCurveByKey?.[item.key] ?? generateDemoCurve(item.curveType),
-      // Phase 6 : plus de DMAX_MAP. Le Dmax est extrait de la courbe par determineDmax().
+      // Phase 6 : courbe RÉELLE uniquement. `[]` = signal "manquant" (erreur bloquante déclenchée à la validation).
+      curve: granulatCurveByKey?.[item.key] ?? [],
       dMax: undefined,
     }));
   }, [
@@ -238,14 +194,8 @@ export default function ProportionsStep({
     granulatDensites, granulatModuleFinesse, granulatLabels, granulatCurveByKey,
   ]);
 
-  // Dmax réel (priorité à la valeur utilisateur étape 4)
-  const dMaxAuto = useMemo(() => determineDmax(granulatInputs), [granulatInputs]);
-  const dMaxReel = useMemo(() => {
-    if (typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0) {
-      return dMaxUser;
-    }
-    return dMaxAuto;
-  }, [dMaxUser, dMaxAuto]);
+  // Phase 6 : Dmax = source unique = calcResult.dMax (produit par le moteur). Avant calcul on lit dMaxUser (input étape 4) pour l'affichage du header.
+  const dMaxReel = calcResult?.dMax ?? (typeof dMaxUser === "number" && Number.isFinite(dMaxUser) && dMaxUser > 0 ? dMaxUser : 0);
 
   // Validate imported material data
   const validateDensities = useCallback((): boolean => {
