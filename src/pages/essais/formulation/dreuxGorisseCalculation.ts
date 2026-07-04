@@ -115,6 +115,23 @@ export interface CalculationInputs {
   densiteCiment?: number;
   /** Optional adjuvant volume (L/m³) used only in physical diagnostics. */
   volumeAdjuvant?: number;
+  /** Phase 6 : Dmax imposé par l'utilisateur (étape 4). Priorité absolue sur determineDmax(). */
+  dMaxUser?: number;
+}
+
+/** Ligne de partage 95/5 exportée en coordonnées mm — SOURCE UNIQUE (Phase 6). */
+export interface PartitionLineOut {
+  pair: string;
+  from: { d_mm: number; y_pct: number };   // P95 du gravillon fin
+  to: { d_mm: number; y_pct: number };     // P05 du gravillon suivant
+  intersection: { d_mm: number; y_pct: number }; // sur OAB
+}
+
+export interface GravelSplitReport {
+  proportions: Array<{ key: string; label: string; pct: number }>;
+  cutoffs: Array<{ d_mm: number; y_pct: number }>;
+  partitionLines: PartitionLineOut[];
+  warnings: string[];
 }
 
 export interface PointA {
