@@ -143,6 +143,7 @@ export default function ProportionsStep({
   coefficientCompacite,
   classeRheologique,
   granulatCurves,
+  granulatCurveByKey,
   granulatDensites = {},
   granulatModuleFinesse = {},
   granulatLabels = {},
