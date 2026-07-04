@@ -13,63 +13,9 @@ import {
   Customized,
 } from "recharts";
 
-
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
-import type { PointA } from "./dreuxGorisseCalculation";
-
-const D_MIN_REF = 0.080;
-
-/** Interpolation log-linéaire : ouverture (mm) où la courbe atteint p%.
- *  Fallback robuste : si p est hors plage, renvoie l'ouverture du point le
- *  plus proche afin de toujours produire une ligne de partage exploitable. */
-function dAtPassant(
-  curve: { ouverture: number; pourcentageTamisat: number }[],
-  p: number
-): number | null {
-  const pts = [...curve]
-    .filter((c) => c.ouverture > 0 && Number.isFinite(c.pourcentageTamisat))
-    .sort((a, b) => a.ouverture - b.ouverture);
-  if (pts.length === 0) return null;
-  if (pts.length === 1) return pts[0].ouverture;
-  if (p <= pts[0].pourcentageTamisat) return pts[0].ouverture;
-  if (p >= pts[pts.length - 1].pourcentageTamisat) return pts[pts.length - 1].ouverture;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i];
-    const b = pts[i + 1];
-    if (p >= a.pourcentageTamisat && p <= b.pourcentageTamisat) {
-      if (b.pourcentageTamisat === a.pourcentageTamisat) return a.ouverture;
-      const xa = Math.log10(a.ouverture);
-      const xb = Math.log10(b.ouverture);
-      const t = (p - a.pourcentageTamisat) / (b.pourcentageTamisat - a.pourcentageTamisat);
-      return Math.pow(10, xa + t * (xb - xa));
-    }
-  }
-  return pts[pts.length - 1].ouverture;
-}
-
-/** Intersection segment/segment ; renvoie null si non sécant. */
-function intersectSegments(
-  p1: { x: number; y: number },
-  p2: { x: number; y: number },
-  p3: { x: number; y: number },
-  p4: { x: number; y: number }
-) {
-  const rx = p2.x - p1.x;
-  const ry = p2.y - p1.y;
-  const sx = p4.x - p3.x;
-  const sy = p4.y - p3.y;
-  const denom = rx * sy - ry * sx;
-  if (Math.abs(denom) < 1e-12) return null;
-  const qpx = p3.x - p1.x;
-  const qpy = p3.y - p1.y;
-  const t = (qpx * sy - qpy * sx) / denom;
-  const u = (qpx * ry - qpy * rx) / denom;
-  const EPS = 1e-9;
-  if (t < -EPS || t > 1 + EPS) return null;
-  if (u < -EPS || u > 1 + EPS) return null;
-  return { x: p1.x + t * rx, y: p1.y + t * ry };
-}
+import type { PointA, GravelSplitReport } from "./dreuxGorisseCalculation";
 
 // Standard sieve openings (mm) for Dreux-Gorisse
 const ALL_TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
@@ -77,12 +23,6 @@ const ALL_TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 
 function getTamisForDmax(dMax: number) {
   return ALL_TAMIS_OPENINGS.filter(t => t <= dMax + 0.001);
 }
-
-function logPos(mm: number) {
-  return Math.log10(mm);
-}
-
-
 
 export interface MaterialCurve {
   label: string;
@@ -93,10 +33,6 @@ export interface MaterialCurve {
 type MaterialSeriesId = "sable01" | "sable04" | "gravier815" | "gravier1525" | "other";
 
 const STRICT_PARTITION_ORDER: MaterialSeriesId[] = ["sable01", "sable04", "gravier815", "gravier1525"];
-const SERIES_LOWER_5MM: Partial<Record<MaterialSeriesId, number>> = {
-  gravier815: 6.3,
-  gravier1525: 12.5,
-};
 
 function normalizeMaterialLabel(label: string) {
   return label
@@ -119,59 +55,9 @@ function getMaterialSeriesId(label: string): MaterialSeriesId {
   return "other";
 }
 
-function getCurveFinenessKey(material: MaterialCurve) {
-  const d50 = dAtPassant(material.curve, 50);
-  const dMaxMat = material.curve.reduce((mx, p) => (p.ouverture > mx ? p.ouverture : mx), 0);
-  return d50 ?? dMaxMat;
-}
-
-function interpolatePassantAtOpening(
-  curve: { ouverture: number; pourcentageTamisat: number }[],
-  opening: number
-) {
-  const pts = [...curve]
-    .filter((c) => c.ouverture > 0 && Number.isFinite(c.pourcentageTamisat))
-    .sort((a, b) => a.ouverture - b.ouverture);
-  if (pts.length === 0) return null;
-  if (opening <= pts[0].ouverture) return pts[0].pourcentageTamisat;
-  if (opening >= pts[pts.length - 1].ouverture) return pts[pts.length - 1].pourcentageTamisat;
-
-  const targetLogX = Math.log10(opening);
-  for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i];
-    const b = pts[i + 1];
-    if (opening >= a.ouverture && opening <= b.ouverture) {
-      const xa = Math.log10(a.ouverture);
-      const xb = Math.log10(b.ouverture);
-      const t = (targetLogX - xa) / (xb - xa || 1);
-      return a.pourcentageTamisat + t * (b.pourcentageTamisat - a.pourcentageTamisat);
-    }
-  }
-  return null;
-}
-
-function dAtPassantForSeries(
-  curve: { ouverture: number; pourcentageTamisat: number }[],
-  p: number,
-  seriesId: MaterialSeriesId
-) {
-  const lowerLimit = p === 5 ? SERIES_LOWER_5MM[seriesId] : undefined;
-
-  if (!lowerLimit) return dAtPassant(curve, p);
-
-  const lowerPassant = interpolatePassantAtOpening(curve, lowerLimit);
-  if (lowerPassant !== null && lowerPassant >= p) return lowerLimit;
-
-  const restrictedCurve = [
-    ...(lowerPassant !== null ? [{ ouverture: lowerLimit, pourcentageTamisat: lowerPassant }] : []),
-    ...curve.filter((c) => c.ouverture > lowerLimit + 1e-9),
-  ];
-
-  return dAtPassant(restrictedCurve, p) ?? lowerLimit;
-}
-
-// Phase 6 — computeMixCurve local supprimée : la courbe de mélange est
-// désormais fournie par calculateMixDesign() via props (source unique).
+// Phase 6 — computeMixCurve, dAtPassant, dAtPassantForSeries, intersectSegments,
+// SERIES_LOWER_5MM, getCurveFinenessKey, interpolatePassantAtOpening, MATERIAL_COLOR_BY_SERIES
+// TOUS supprimés : le composant devient un LECTEUR PUR de calcResult.
 
 const MATERIAL_COLORS = [
   "#f59e0b",
@@ -180,22 +66,6 @@ const MATERIAL_COLORS = [
   "#ef4444",
   "#06b6d4",
 ];
-
-// Couleur fixe par type de matériau pour garantir l'association demandée :
-// Sable 0/1 → orange, Sable 0/4 → vert, Gravier 8/15 → violet, Gravier 15/25 → rouge.
-const MATERIAL_COLOR_BY_SERIES: Record<MaterialSeriesId, string> = {
-  sable01: "#f59e0b",
-  sable04: "#10b981",
-  gravier815: "#8b5cf6",
-  gravier1525: "#ef4444",
-  other: "#06b6d4",
-};
-
-function getMaterialColor(label: string, fallbackIndex: number) {
-  const seriesId = getMaterialSeriesId(label);
-  if (seriesId !== "other") return MATERIAL_COLOR_BY_SERIES[seriesId];
-  return MATERIAL_COLORS[fallbackIndex % MATERIAL_COLORS.length];
-}
 
 interface DreuxGorisseChartProps {
   dMax: number;
