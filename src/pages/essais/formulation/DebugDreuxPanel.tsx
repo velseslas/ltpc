@@ -11,7 +11,6 @@
  * Aucun calcul, aucune formule, aucun algorithme du moteur n'est modifié.
  */
 
-import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -25,9 +24,7 @@ import type {
   CalculationInputs,
   CalculationResult,
 } from "./dreuxGorisseCalculation";
-import { splitGravels, GravelSplitError } from "./engine/gravelSplit";
-import type { SplitGravelsOutput } from "./engine/gravelSplit";
-import { calculateXA, sieveToModule } from "./engine/pointAxAbscissa";
+import { calculateXA } from "./engine/pointAxAbscissa";
 
 interface DebugDreuxPanelProps {
   inputs: CalculationInputs;
