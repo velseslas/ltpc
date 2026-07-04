@@ -100,7 +100,7 @@ export default function DebugDreuxPanel({ inputs, result }: DebugDreuxPanelProps
 
   const dCim = densiteCiment && densiteCiment > 0 ? densiteCiment : 3110;
 
-  const { volumes, moduleFinesse, pointA, dMaxReel, masses, volumeErrors, warnings, physicalChecks, convergenceReport, curveQuality } =
+  const { volumes, moduleFinesse, pointA, dMaxReel, masses, volumeErrors, warnings, physicalChecks, convergenceReport, curveQuality, gravelSplit } =
     result;
 
   const activeSables = granulats.filter(g => g.active && g.isSable);
@@ -113,33 +113,8 @@ export default function DebugDreuxPanel({ inputs, result }: DebugDreuxPanelProps
   const slopeOA = (A.y - O.y) / (A.x - O.x);
   const slopeAB = (B.y - A.y) / (B.x - A.x);
 
-  // --- Étapes 10-12 : lignes de partage (moteur graphique en LECTURE SEULE) -
-  const gravelSplit: { out?: SplitGravelsOutput; error?: string } = useMemo(() => {
-    if (activeGraviers.length < 2 || activeGraviers.length > 4) {
-      return { error: `Moteur graphique non applicable (${activeGraviers.length} gravillons, attendu 2–4).` };
-    }
-    try {
-      const out = splitGravels({
-        dmax_mm: dMaxReel,
-        K: coeffGranulaire,
-        gravillons: activeGraviers
-          .slice()
-          .sort((a, b) => (a.dMax ?? 0) - (b.dMax ?? 0))
-          .map(g => ({
-            nom: g.label,
-            dmax_mm: g.dMax ?? 0,
-            tamis: g.curve.map(c => ({
-              ouverture_mm: c.ouverture,
-              passant_pct: c.pourcentageTamisat,
-            })),
-          })),
-      });
-      return { out };
-    } catch (e) {
-      if (e instanceof GravelSplitError) return { error: `${e.code} — ${e.message}` };
-      return { error: (e as Error).message };
-    }
-  }, [activeGraviers, dMaxReel, coeffGranulaire]);
+  // Phase 6 — Lignes de partage : LECTURE PURE de result.gravelSplit (moteur).
+  // Aucun splitGravels local, aucun recalcul. Le Debug n'est qu'un afficheur.
 
   // --- Contrôles -----------------------------------------------------------
   const sumVol = volumes.eau + volumes.ciment + volumes.air + volumes.granulatsTotal;
