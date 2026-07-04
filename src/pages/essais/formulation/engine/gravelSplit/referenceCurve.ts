@@ -13,6 +13,7 @@
 
 import type { Point2D } from "./types";
 import { GravelSplitError } from "./types";
+import { calculateXA } from "../pointAxAbscissa";
 
 const D_MIN_MM = 0.080;
 
