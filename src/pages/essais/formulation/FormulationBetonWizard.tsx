@@ -354,6 +354,28 @@ function extractModuleFinesseFromReport(resultats: Record<string, unknown>): Pic
   return null;
 }
 
+// Phase 6 sous-phase 2a : extraction de la courbe granulométrique réelle
+// depuis un rapport `echantillons_granulometrie.resultats.tamis`.
+// Renvoie null si aucune donnée exploitable — la sous-phase 2b transformera
+// cette absence en erreur bloquante (suppression de `generateDemoCurve`).
+export type ExtractedCurvePoint = { ouverture: number; pourcentageTamisat: number };
+
+function extractCurveFromReport(resultats: Record<string, unknown>): ExtractedCurvePoint[] | null {
+  const tamis = resultats?.tamis;
+  if (!Array.isArray(tamis) || tamis.length === 0) return null;
+  const points: ExtractedCurvePoint[] = [];
+  for (const raw of tamis) {
+    if (!raw || typeof raw !== "object") continue;
+    const t = raw as Record<string, unknown>;
+    const ouverture = asFiniteNumber(t.ouverture);
+    const passant = asFiniteNumber(t.passant);
+    if (ouverture == null || ouverture <= 0 || passant == null) continue;
+    points.push({ ouverture, pourcentageTamisat: passant });
+  }
+  if (points.length === 0) return null;
+  return points.sort((a, b) => a.ouverture - b.ouverture);
+}
+
 function asFiniteNumber(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string" && value.trim() !== "") {
@@ -469,11 +491,12 @@ function RapportMessageDialog({ open, onClose, message, type }: { open: boolean;
   );
 }
 
-function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted, onModuleFinesseExtracted }: {
+function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom, essaiType, essaiTitle, basePath, granulatKey, onDensityExtracted, onModuleFinesseExtracted, onCurveExtracted }: {
   essaiNom: string; table: GranulatTable; carriereId: string; produitNom: string; carriereNom: string; essaiType: string; essaiTitle: string; basePath: string;
   granulatKey?: string;
   onDensityExtracted?: (key: string, density: number) => void;
   onModuleFinesseExtracted?: (key: string, moduleFinesse: number) => void;
+  onCurveExtracted?: (key: string, curve: ExtractedCurvePoint[]) => void;
 }) {
   const { data: samples = [] } = useGranulatSamples(table, carriereId);
   const filtered = samples.filter((s: any) => s.produit === produitNom);
@@ -500,9 +523,13 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
           const mfData = extractModuleFinesseFromReport(best.resultats as Record<string, unknown>);
           if (mfData?.moduleFinesse) onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
         }
+        if (essaiType === "granulometrie" && onCurveExtracted) {
+          const curve = extractCurveFromReport(best.resultats as Record<string, unknown>);
+          if (curve) onCurveExtracted(granulatKey, curve);
+        }
       }
     }
-  }, [filtered, selectedRapport, granulatKey, essaiType, onDensityExtracted, onModuleFinesseExtracted]);
+  }, [filtered, selectedRapport, granulatKey, essaiType, onDensityExtracted, onModuleFinesseExtracted, onCurveExtracted]);
 
   // When a MV report is selected, extract density and call back
   const handleReportSelect = (reportId: string) => {
@@ -522,6 +549,11 @@ function GranulatEssaiRow({ essaiNom, table, carriereId, produitNom, carriereNom
       if (mfData?.moduleFinesse) {
         onModuleFinesseExtracted(granulatKey, mfData.moduleFinesse);
       }
+    }
+
+    if (essaiType === "granulometrie" && onCurveExtracted) {
+      const curve = extractCurveFromReport(sample.resultats as Record<string, unknown>);
+      if (curve) onCurveExtracted(granulatKey, curve);
     }
   };
 
@@ -693,6 +725,7 @@ function EssaiStep({
   showError = false,
   onDensityExtracted,
   onModuleFinesseExtracted,
+  onCurveExtracted,
 }: {
   sable1Active: boolean; sable2Active: boolean; gravier1Active: boolean; gravier2Active: boolean; gravier3Active: boolean;
   cimentActive: boolean; eauActive: boolean;
@@ -704,6 +737,7 @@ function EssaiStep({
   showError?: boolean;
   onDensityExtracted?: (key: string, density: number) => void;
   onModuleFinesseExtracted?: (key: string, moduleFinesse: number) => void;
+  onCurveExtracted?: (key: string, curve: ExtractedCurvePoint[]) => void;
 }) {
   const [staticDialogOpen, setStaticDialogOpen] = useState(false);
   // Get product names
@@ -780,6 +814,7 @@ function EssaiStep({
                         granulatKey={mat.granulatKey}
                         onDensityExtracted={onDensityExtracted}
                         onModuleFinesseExtracted={onModuleFinesseExtracted}
+                        onCurveExtracted={onCurveExtracted}
                       />
                     ))}
                   </div>
@@ -900,11 +935,16 @@ export default function FormulationBetonWizard() {
   // Step 5 - données granulats importées depuis les rapports
   const [granulatDensites, setGranulatDensites] = useState<Record<string, number>>({});
   const [granulatModuleFinesse, setGranulatModuleFinesse] = useState<Record<string, number>>({});
+  // Phase 6 / 2a : courbes granulométriques réelles extraites des rapports GR
+  const [granulatCurves, setGranulatCurves] = useState<Record<string, ExtractedCurvePoint[]>>({});
   const handleDensityExtracted = (key: string, density: number) => {
     setGranulatDensites(prev => ({ ...prev, [key]: density }));
   };
   const handleModuleFinesseExtracted = (key: string, moduleFinesse: number) => {
     setGranulatModuleFinesse(prev => ({ ...prev, [key]: moduleFinesse }));
+  };
+  const handleCurveExtracted = (key: string, curve: ExtractedCurvePoint[]) => {
+    setGranulatCurves(prev => ({ ...prev, [key]: curve }));
   };
 
   const mfImporteEtape6 = useMemo(() => {
@@ -1613,6 +1653,7 @@ export default function FormulationBetonWizard() {
           showError={errorSteps.includes(4)}
           onDensityExtracted={handleDensityExtracted}
           onModuleFinesseExtracted={handleModuleFinesseExtracted}
+          onCurveExtracted={handleCurveExtracted}
         />
       </div>
 
@@ -1659,6 +1700,7 @@ export default function FormulationBetonWizard() {
           coefficientGranulaire={coefficientGranulaire} coefficientCompacite={coefficientCompacite} classeRheologique={classeRheologiqueAuto}
           granulatDensites={granulatDensites}
           granulatModuleFinesse={granulatModuleFinesse}
+          granulatCurveByKey={granulatCurves}
           granulatLabels={granulatLabels}
           mfMelangeStocke={mfIdeal ? parseFloat(mfIdeal) || null : null}
           dMaxUser={dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null}
