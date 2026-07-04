@@ -234,14 +234,28 @@ export default function DebugDreuxPanel({ inputs, result }: DebugDreuxPanelProps
 
               {/* ÉTAPE 8-9 : Point A et OAB */}
               <Section title="Étapes 8 → 9 — Point A et courbe de référence OAB">
-                <Row label="Dmax réel" formula="max(Dmax granulats actifs)" values="—" result={fmt(dMaxReel, 1)} unit="mm" />
-                <Row label="dA" formula="Dmax / 2" values={`${fmt(dMaxReel, 1)} / 2`} result={fmt(pointA.dA, 2)} unit="mm" />
-                <Row label="pA (moteur principal)" formula="38 + 12·G' + 4·(MF−2), borné [38,50]" values={`G'=${fmt(coeffGranulaire, 3)} • MF=${fmt(moduleFinesse.melange, 2)}`} result={fmt(pointA.pA, 2)} unit="%" />
-                <Row label="O (origine)" formula="(log₁₀ 0.08, 0)" values={`log₁₀(0.08) = ${fmt(O.x, 4)}`} result={`(${fmt(O.x, 4)}, 0)`} unit="" />
-                <Row label="A" formula="(log₁₀(dA), pA)" values={`log₁₀(${fmt(pointA.dA, 2)})`} result={`(${fmt(A.x, 4)}, ${fmt(A.y, 2)})`} unit="" />
-                <Row label="B" formula="(log₁₀(Dmax), 100)" values={`log₁₀(${fmt(dMaxReel, 1)})`} result={`(${fmt(B.x, 4)}, 100)`} unit="" />
-                <Row label="Pente OA" formula="(pA − 0) / (xA − xO)" values={`${fmt(A.y, 2)} / ${fmt(A.x - O.x, 4)}`} result={fmt(slopeOA, 3)} unit="" />
-                <Row label="Pente AB" formula="(100 − pA) / (xB − xA)" values={`${fmt(100 - A.y, 2)} / ${fmt(B.x - A.x, 4)}`} result={fmt(slopeAB, 3)} unit="" />
+                {(() => {
+                  const xaInfo = calculateXA(dMaxReel);
+                  const ancienXA = dMaxReel / 2;
+                  const ecart = pointA.dA - ancienXA;
+                  return (
+                    <>
+                      <Row label="Dmax réel" formula="max(Dmax granulats actifs)" values="—" result={fmt(dMaxReel, 1)} unit="mm" />
+                      <Row label="Module(Dmax)" formula="sieveToModule(Dmax)" values="—" result={fmt(xaInfo.moduleDmax, 2)} unit="" />
+                      <Row label="Module(XA)" formula={dMaxReel <= 20 ? "sieveToModule(Dmax/2)" : "(Module(Dmax) + 38) / 2"} values="—" result={fmt(xaInfo.moduleXA, 2)} unit="" />
+                      <Row label="XA (nouveau)" formula="règle Dreux-Gorisse unique" values={xaInfo.method} result={fmt(pointA.dA, 2)} unit="mm" />
+                      <Row label="XA (ancien = Dmax/2)" formula="ancienne règle (supprimée)" values={`${fmt(dMaxReel, 1)} / 2`} result={fmt(ancienXA, 2)} unit="mm" />
+                      <Row label="Écart XA nouveau − ancien" formula="XA_new − Dmax/2" values={dMaxReel <= 20 ? "identique par définition" : "bascule module AFNOR"} result={fmt(ecart, 3)} unit="mm" />
+                      <Row label="Méthode utilisée" formula={dMaxReel <= 20 ? "Cas 1 (Dmax ≤ 20)" : "Cas 2 (Dmax > 20, module AFNOR)"} values="—" result={dMaxReel <= 20 ? "Dmax/2" : "Module AFNOR"} unit="" />
+                      <Row label="pA (moteur principal)" formula={dMaxReel <= 20 ? "50 − √Dmax + K" : "38 + 12·G' + 4·(MF−2), borné [38,50]"} values={`G'=${fmt(coeffGranulaire, 3)} • MF=${fmt(moduleFinesse.melange, 2)}`} result={fmt(pointA.pA, 2)} unit="%" />
+                      <Row label="O (origine)" formula="(log₁₀ 0.08, 0)" values={`log₁₀(0.08) = ${fmt(O.x, 4)}`} result={`(${fmt(O.x, 4)}, 0)`} unit="" />
+                      <Row label="A" formula="(log₁₀(XA), pA)" values={`log₁₀(${fmt(pointA.dA, 2)})`} result={`(${fmt(A.x, 4)}, ${fmt(A.y, 2)})`} unit="" />
+                      <Row label="B" formula="(log₁₀(Dmax), 100)" values={`log₁₀(${fmt(dMaxReel, 1)})`} result={`(${fmt(B.x, 4)}, 100)`} unit="" />
+                      <Row label="Pente OA" formula="(pA − 0) / (xA − xO)" values={`${fmt(A.y, 2)} / ${fmt(A.x - O.x, 4)}`} result={fmt(slopeOA, 3)} unit="" />
+                      <Row label="Pente AB" formula="(100 − pA) / (xB − xA)" values={`${fmt(100 - A.y, 2)} / ${fmt(B.x - A.x, 4)}`} result={fmt(slopeAB, 3)} unit="" />
+                    </>
+                  );
+                })()}
               </Section>
 
               {/* ÉTAPES 10-12 : Lignes de partage (moteur graphique) */}
