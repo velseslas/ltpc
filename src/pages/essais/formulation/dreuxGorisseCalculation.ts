@@ -612,6 +612,9 @@ export function calculateMixDesign(
     durationMs: Math.round((t1 - t0) * 100) / 100,
   };
 
+  // ----- Gravel split (méthode graphique 95/5) — exposé pour toute l'UI -----
+  const gravelSplit = buildGravelSplitReport(activeGraviers, dMaxReel, coeffGranulaire);
+
   return {
     masses,
     volumes: {
@@ -629,6 +632,7 @@ export function calculateMixDesign(
     },
     pointA,
     dMaxReel,
+    dMax: dMaxReel,
     volumeCheck,
     volumeErrors,
     warnings,
@@ -642,7 +646,71 @@ export function calculateMixDesign(
     },
     referenceCurve,
     mixCurve: finalMixCurve,
+    gravelSplit,
   };
+}
+
+/**
+ * Construit un GravelSplitReport (proportions + lignes de partage + intersections)
+ * à partir des gravillons actifs. Source unique consommée par l'UI (chart, récap, debug).
+ */
+function buildGravelSplitReport(
+  graviers: GranulatInput[],
+  dMax: number,
+  coeffGranulaire: number
+): GravelSplitReport {
+  if (graviers.length === 0) {
+    return { proportions: [], cutoffs: [], partitionLines: [], warnings: [] };
+  }
+  if (graviers.length === 1) {
+    const g = graviers[0];
+    return {
+      proportions: [{ key: g.key, label: g.label, pct: 100 }],
+      cutoffs: [],
+      partitionLines: [],
+      warnings: [],
+    };
+  }
+  const sorted = [...graviers].sort((a, b) => {
+    const da = a.dMax ?? maxOpeningFromCurve(a);
+    const db = b.dMax ?? maxOpeningFromCurve(b);
+    return da - db;
+  });
+  try {
+    const out = splitGravels({
+      dmax_mm: dMax,
+      K: coeffGranulaire,
+      gravillons: sorted.map<SplitGravillonInput>((g) => ({
+        nom: g.label,
+        dmax_mm: g.dMax ?? maxOpeningFromCurve(g),
+        tamis: g.curve.map((c) => ({ ouverture_mm: c.ouverture, passant_pct: c.pourcentageTamisat })),
+      })),
+    });
+    const proportions = sorted.map((g, i) => ({
+      key: g.key,
+      label: g.label,
+      pct: out.proportions[i]?.pct ?? 0,
+    }));
+    const partitionLines: PartitionLineOut[] = out.partition_lines.map((line, i) => {
+      const cut = out.cutoffs[i];
+      return {
+        pair: line.pair,
+        from: { d_mm: Math.pow(10, line.from.x), y_pct: line.from.y },
+        to: { d_mm: Math.pow(10, line.to.x), y_pct: line.to.y },
+        intersection: { d_mm: Math.pow(10, cut.x_log10d), y_pct: cut.y_pct },
+      };
+    });
+    const cutoffs = out.cutoffs.map((c) => ({
+      d_mm: Math.pow(10, c.x_log10d),
+      y_pct: c.y_pct,
+    }));
+    return { proportions, cutoffs, partitionLines, warnings: out.warnings };
+  } catch (e) {
+    if (e instanceof GravelSplitError) {
+      throw new Error(`Méthode graphique 95/5 : ${e.message}`);
+    }
+    throw e;
+  }
 }
 
 // ---------------------------------------------------------------------------
