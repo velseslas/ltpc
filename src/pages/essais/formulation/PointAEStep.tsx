@@ -98,7 +98,7 @@ export default function PointAEStep({
   onMfIdealChange,
   dosageCiment,
   showError = false,
-  onPointAChange,
+  
   onVibrationChange,
   onFormeChange,
   vibrationValue = "",
