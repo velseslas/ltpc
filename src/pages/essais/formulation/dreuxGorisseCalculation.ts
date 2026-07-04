@@ -31,6 +31,7 @@
  */
 
 import { splitGravels, GravelSplitError, type GravillonInput as SplitGravillonInput } from "./engine/gravelSplit";
+import { calculateXA } from "./engine/pointAxAbscissa";
 
 // ---------------------------------------------------------------------------
 // Constants
