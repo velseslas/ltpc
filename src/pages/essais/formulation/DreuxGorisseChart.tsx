@@ -16,7 +16,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
-import { type PointA, generateReferenceCurve } from "./dreuxGorisseCalculation";
+import type { PointA } from "./dreuxGorisseCalculation";
 
 const D_MIN_REF = 0.080;
 
@@ -170,26 +170,8 @@ function dAtPassantForSeries(
   return dAtPassant(restrictedCurve, p) ?? lowerLimit;
 }
 
-// Compute mix curve
-function computeMixCurve(materials: MaterialCurve[], dMax: number) {
-  const totalQty = materials.reduce((sum, m) => sum + m.quantity, 0);
-  if (totalQty === 0) return [];
-
-  const tamis = getTamisForDmax(dMax);
-  return tamis.map((ouv) => {
-    let weightedPass = 0;
-    for (const mat of materials) {
-      const point = mat.curve.find((p) => Math.abs(p.ouverture - ouv) < 0.001);
-      const passPercent = point
-        ? point.pourcentageTamisat
-        : ouv > (mat.curve[mat.curve.length - 1]?.ouverture || 0)
-          ? 100
-          : 0;
-      weightedPass += (passPercent * mat.quantity) / totalQty;
-    }
-    return { ouverture: ouv, pourcentage: parseFloat(weightedPass.toFixed(1)) };
-  });
-}
+// Phase 6 — computeMixCurve local supprimée : la courbe de mélange est
+// désormais fournie par calculateMixDesign() via props (source unique).
 
 const MATERIAL_COLORS = [
   "#f59e0b",
@@ -221,7 +203,12 @@ interface DreuxGorisseChartProps {
   materials: MaterialCurve[];
   sables: number;
   graviers: number;
-  pointA?: PointA | null;
+  /** Point A produit par le moteur (Phase 6 : source unique — jamais recalculé ici). */
+  pointA: PointA;
+  /** Courbe OAB produite par le moteur (Phase 6 : source unique). */
+  referenceCurve: { ouverture: number; pourcentage: number }[];
+  /** Courbe de mélange produite par le moteur (Phase 6 : source unique). */
+  mixCurve: { ouverture: number; pourcentage: number }[];
   mfMelange?: number;
   onFractionsChange?: (fractions: Array<{ label: string; pct: number }>) => void;
 }
@@ -232,7 +219,9 @@ export default function DreuxGorisseChart({
   materials,
   sables,
   graviers,
-  pointA: pointAProp,
+  pointA,
+  referenceCurve,
+  mixCurve,
   mfMelange = 2.5,
   onFractionsChange,
 }: DreuxGorisseChartProps) {
@@ -240,15 +229,6 @@ export default function DreuxGorisseChart({
   const pctSable = totalAggregats > 0 ? ((sables / totalAggregats) * 100).toFixed(1) : "-";
   const pctGravier = totalAggregats > 0 ? ((graviers / totalAggregats) * 100).toFixed(1) : "-";
 
-  // Use provided Point A or fallback
-  const pointA = pointAProp ?? { dA: dMax / 2, pA: 45 };
-
-  const referenceCurve = useMemo(
-    () => generateReferenceCurve(dMax, mfMelange, pointA),
-    [dMax, mfMelange, pointA]
-  );
-
-  const mixCurve = useMemo(() => computeMixCurve(materials, dMax), [materials, dMax]);
 
   // Conformity: mix curve cumulated pass within ±5 % of reference at each sieve.
   const isConforme = useMemo(() => {
