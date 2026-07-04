@@ -33,10 +33,14 @@ interface Issue {
 interface StabilityAnalysisPanelProps {
   mfMelange: number | null;
   materials: MaterialCurve[];
-  /** Percentage of 3/8 within total gravel */
+  /** Percentage of the smallest gravel within total gravel */
   pct38?: number;
-  /** Percentage of 15/25 within total gravel */
+  /** Percentage of the largest gravel within total gravel */
   pct1525?: number;
+  /** Label of the smallest gravel (from real product) */
+  smallGravelLabel?: string;
+  /** Label of the largest gravel (from real product) */
+  largeGravelLabel?: string;
   /** Whether mix curve stays within Dreux envelope */
   isWithinEnvelope?: boolean | null;
 }
@@ -84,6 +88,8 @@ export default function StabilityAnalysisPanel({
   materials,
   pct38,
   pct1525,
+  smallGravelLabel,
+  largeGravelLabel,
   isWithinEnvelope,
 }: StabilityAnalysisPanelProps) {
   const analysis = useMemo(() => {
@@ -127,19 +133,21 @@ export default function StabilityAnalysisPanel({
       });
     }
 
-    // 3. Excess 3/8
+    // 3. Excess small gravel
     if (pct38 !== undefined && pct38 > 10) {
       const penalty = 15;
       score -= penalty;
+      const small = smallGravelLabel || "petit gravier";
+      const large = largeGravelLabel || "gros gravier";
       issues.push({
         id: "excess-38",
         icon: <Layers className="w-4 h-4" />,
-        title: "Trop de 3/8 — risque de ségrégation",
-        description: `Le gravillon 3/8 représente ${pct38.toFixed(1)}% des graviers (limite : 10%). Un excès favorise la ségrégation.`,
+        title: `Trop de ${small} — risque de ségrégation`,
+        description: `Le ${small} représente ${pct38.toFixed(1)}% des graviers (limite : 10%). Un excès favorise la ségrégation.`,
         penalty,
         actions: [
-          "Réduire la quantité de gravillon 3/8",
-          "Redistribuer vers le 8/15 ou 15/25",
+          `Réduire la quantité de ${small}`,
+          `Redistribuer vers un gravier intermédiaire ou le ${large}`,
         ],
         level: pct38 > 15 ? "danger" : "warn",
       });
@@ -168,14 +176,15 @@ export default function StabilityAnalysisPanel({
     if (pct1525 !== undefined && pct1525 < 25) {
       const penalty = 15;
       score -= penalty;
+      const large = largeGravelLabel || "gros gravier";
       issues.push({
         id: "lack-coarse",
         icon: <TrendingDown className="w-4 h-4" />,
         title: "Manque de squelette granulaire — instabilité possible",
-        description: `Le gravier 15/25 ne représente que ${pct1525.toFixed(1)}% des graviers (minimum recommandé : 25%).`,
+        description: `Le ${large} ne représente que ${pct1525.toFixed(1)}% des graviers (minimum recommandé : 25%).`,
         penalty,
         actions: [
-          "Augmenter la proportion de gravier 15/25",
+          `Augmenter la proportion de ${large}`,
           "Vérifier l'équilibre du squelette granulaire",
         ],
         level: pct1525 < 15 ? "danger" : "warn",
@@ -221,7 +230,7 @@ export default function StabilityAnalysisPanel({
     }
 
     return { issues, score, globalLevel, globalLabel, GlobalIcon };
-  }, [mfMelange, materials, pct38, pct1525, isWithinEnvelope]);
+  }, [mfMelange, materials, pct38, pct1525, smallGravelLabel, largeGravelLabel, isWithinEnvelope]);
 
   const { issues, score, globalLevel, globalLabel, GlobalIcon } = analysis;
 
@@ -356,7 +365,7 @@ export default function StabilityAnalysisPanel({
               {issues.map((issue) => (
                 <div key={issue.id} className="flex items-center gap-1.5 text-xs text-foreground">
                   <span className={cn("w-2 h-2 rounded-full shrink-0", colorMap[issue.level].badge)} />
-                  <span className="truncate">{issue.id === "mf-low" ? "MF bas" : issue.id === "mf-high" ? "MF élevé" : issue.id === "excess-38" ? "Excès 3/8" : issue.id === "granular-gap" ? "Trou granulaire" : issue.id === "lack-coarse" ? "Manque 15/25" : "Hors fuseau"}</span>
+                  <span className="truncate">{issue.id === "mf-low" ? "MF bas" : issue.id === "mf-high" ? "MF élevé" : issue.id === "excess-38" ? `Excès ${smallGravelLabel || "petit gravier"}` : issue.id === "granular-gap" ? "Trou granulaire" : issue.id === "lack-coarse" ? `Manque ${largeGravelLabel || "gros gravier"}` : "Hors fuseau"}</span>
                   <span className="font-bold text-muted-foreground ml-auto">−{issue.penalty}</span>
                 </div>
               ))}
