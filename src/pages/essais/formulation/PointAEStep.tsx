@@ -159,12 +159,8 @@ export default function PointAEStep({
     return Math.round(raw * 100) / 100;
   }, [dmax, kValue, ks, kp]);
 
-  // Notify parent
-  useEffect(() => {
-    if (xAResult && yA !== null && onPointAChange) {
-      onPointAChange(xAResult.xA, yA);
-    }
-  }, [xAResult, yA]);
+  // Phase 6 : plus de notification au parent — le moteur est source unique du Point A.
+  void xAResult; void yA;
 
   useEffect(() => { onVibrationChange?.(vibration); }, [vibration]);
   useEffect(() => { onFormeChange?.(forme); }, [forme]);
