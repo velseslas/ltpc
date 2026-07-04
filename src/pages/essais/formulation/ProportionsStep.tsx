@@ -61,6 +61,7 @@ interface ProportionsStepProps {
   coefficientCompacite: string;
   classeRheologique: string;
   granulatCurves?: MaterialCurve[];
+  granulatCurveByKey?: Record<string, { ouverture: number; pourcentageTamisat: number }[]>;
   granulatDensites?: Record<string, number>;
   granulatModuleFinesse?: Record<string, number>;
   granulatLabels?: Record<string, string>;
