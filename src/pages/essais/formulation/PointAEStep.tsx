@@ -19,75 +19,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Info, Eye, MapPin } from "lucide-react";
+import {
+  calculateXA as calculateXACore,
+  sieveToModule as sieveToModuleCore,
+  moduleToSieve as moduleToSieveCore,
+} from "./engine/pointAxAbscissa";
 
-// ─── AFNOR Sieve Module Table ───
-// Maps AFNOR module number to sieve opening (mm)
-const MODULE_TO_SIEVE: { module: number; ouverture: number }[] = [
-  { module: 20, ouverture: 0.08 },
-  { module: 22, ouverture: 0.1 },
-  { module: 23, ouverture: 0.125 },
-  { module: 24, ouverture: 0.16 },
-  { module: 25, ouverture: 0.2 },
-  { module: 26, ouverture: 0.25 },
-  { module: 27, ouverture: 0.315 },
-  { module: 28, ouverture: 0.4 },
-  { module: 29, ouverture: 0.5 },
-  { module: 30, ouverture: 0.63 },
-  { module: 31, ouverture: 0.8 },
-  { module: 32, ouverture: 1 },
-  { module: 33, ouverture: 1.25 },
-  { module: 34, ouverture: 1.6 },
-  { module: 35, ouverture: 2 },
-  { module: 36, ouverture: 2.5 },
-  { module: 37, ouverture: 3.15 },
-  { module: 38, ouverture: 4 },
-  { module: 39, ouverture: 5 },
-  { module: 40, ouverture: 6.3 },
-  { module: 41, ouverture: 8 },
-  { module: 42, ouverture: 10 },
-  { module: 43, ouverture: 12.5 },
-  { module: 44, ouverture: 16 },
-  { module: 45, ouverture: 20 },
-  { module: 46, ouverture: 25 },
-  { module: 47, ouverture: 31.5 },
-  { module: 48, ouverture: 40 },
-  { module: 49, ouverture: 50 },
-  { module: 50, ouverture: 63 },
-  { module: 51, ouverture: 80 },
-];
-
-/** Convert a sieve opening (mm) to its AFNOR module number (interpolated) */
-function sieveToModule(d: number): number {
-  if (d <= MODULE_TO_SIEVE[0].ouverture) return MODULE_TO_SIEVE[0].module;
-  if (d >= MODULE_TO_SIEVE[MODULE_TO_SIEVE.length - 1].ouverture)
-    return MODULE_TO_SIEVE[MODULE_TO_SIEVE.length - 1].module;
-  for (let i = 0; i < MODULE_TO_SIEVE.length - 1; i++) {
-    if (d >= MODULE_TO_SIEVE[i].ouverture && d <= MODULE_TO_SIEVE[i + 1].ouverture) {
-      const ratio =
-        (Math.log10(d) - Math.log10(MODULE_TO_SIEVE[i].ouverture)) /
-        (Math.log10(MODULE_TO_SIEVE[i + 1].ouverture) - Math.log10(MODULE_TO_SIEVE[i].ouverture));
-      return MODULE_TO_SIEVE[i].module + ratio * (MODULE_TO_SIEVE[i + 1].module - MODULE_TO_SIEVE[i].module);
-    }
-  }
-  return 38;
-}
-
-/** Convert an AFNOR module number to sieve opening (mm) (interpolated) */
-function moduleToSieve(m: number): number {
-  if (m <= MODULE_TO_SIEVE[0].module) return MODULE_TO_SIEVE[0].ouverture;
-  if (m >= MODULE_TO_SIEVE[MODULE_TO_SIEVE.length - 1].module)
-    return MODULE_TO_SIEVE[MODULE_TO_SIEVE.length - 1].ouverture;
-  for (let i = 0; i < MODULE_TO_SIEVE.length - 1; i++) {
-    if (m >= MODULE_TO_SIEVE[i].module && m <= MODULE_TO_SIEVE[i + 1].module) {
-      const ratio =
-        (m - MODULE_TO_SIEVE[i].module) /
-        (MODULE_TO_SIEVE[i + 1].module - MODULE_TO_SIEVE[i].module);
-      return MODULE_TO_SIEVE[i].ouverture *
-        Math.pow(MODULE_TO_SIEVE[i + 1].ouverture / MODULE_TO_SIEVE[i].ouverture, ratio);
-    }
-  }
-  return 4;
-}
+// ─── Sieve / Module helpers (délégués au module unique) ───
+const sieveToModule = sieveToModuleCore;
+const moduleToSieve = moduleToSieveCore;
 
 // ─── K Abaque (Dreux) ───
 // K depends on: vibration, forme, dosage ciment
@@ -124,19 +64,10 @@ function lookupK(vibration: VibrationK, forme: FormeK, dosage: DosageK): number 
   return K_ABAQUE[vibration]?.[forme]?.[dosage] ?? 0;
 }
 
-// ─── xA Calculation ───
+// ─── xA Calculation (source unique : engine/pointAxAbscissa) ───
 function calculateXA(dmax: number): { xA: number; method: string } {
-  if (dmax <= 20) {
-    return { xA: dmax / 2, method: `Dmax ≤ 20 mm → xA = Dmax / 2 = ${(dmax / 2).toFixed(1)} mm` };
-  }
-  // Dmax > 20: use granulometric module method
-  const moduleDmax = sieveToModule(dmax);
-  const moduleXA = (moduleDmax + 38) / 2;
-  const xA = moduleToSieve(moduleXA);
-  return {
-    xA: Math.round(xA * 10) / 10,
-    method: `Dmax > 20 mm → Module(Dmax) = ${moduleDmax.toFixed(1)}, Module(xA) = (${moduleDmax.toFixed(1)} + 38) / 2 = ${moduleXA.toFixed(1)} → xA ≈ ${(Math.round(xA * 10) / 10).toFixed(1)} mm`,
-  };
+  const r = calculateXACore(dmax);
+  return { xA: r.xA, method: r.method };
 }
 
 // ─── Props ───
