@@ -947,6 +947,52 @@ export default function FormulationBetonWizard() {
     setGranulatCurves(prev => ({ ...prev, [key]: curve }));
   };
 
+  // Phase 6 : nettoyage automatique — un granulat désactivé OU dont le produit change
+  // NE DOIT PAS conserver ses courbes / densités / MF en mémoire (fuite éliminée).
+  useEffect(() => {
+    const activeMap: Record<string, string | null> = {
+      sableConcasse: sable1Active ? (sableConcasseProduitId || null) : null,
+      sableFin: sable2Active ? (sableFinProduitId || null) : null,
+      gravillons1: gravier1Active ? (gravillons1ProduitId || null) : null,
+      gravier2: gravier2Active ? (gravier2ProduitId || null) : null,
+      gravier3: gravier3Active ? (gravier3ProduitId || null) : null,
+    };
+    // Sur désactivation → suppression totale des données du granulat.
+    setGranulatCurves(prev => {
+      const next = { ...prev };
+      let changed = false;
+      for (const k of Object.keys(next)) {
+        if (activeMap[k] === null || activeMap[k] === undefined) {
+          delete next[k]; changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+    setGranulatDensites(prev => {
+      const next = { ...prev };
+      let changed = false;
+      for (const k of Object.keys(next)) {
+        if (activeMap[k] === null || activeMap[k] === undefined) {
+          delete next[k]; changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+    setGranulatModuleFinesse(prev => {
+      const next = { ...prev };
+      let changed = false;
+      for (const k of Object.keys(next)) {
+        if (activeMap[k] === null || activeMap[k] === undefined) {
+          delete next[k]; changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [
+    sable1Active, sable2Active, gravier1Active, gravier2Active, gravier3Active,
+    sableConcasseProduitId, sableFinProduitId, gravillons1ProduitId, gravier2ProduitId, gravier3ProduitId,
+  ]);
+
   const mfImporteEtape6 = useMemo(() => {
     const sableConcasseMf = granulatModuleFinesse.sableConcasse;
     const sableFinMf = granulatModuleFinesse.sableFin;
