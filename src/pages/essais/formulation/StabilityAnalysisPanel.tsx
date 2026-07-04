@@ -1,14 +1,23 @@
 /**
- * Phase 10 — StabilityAnalysisPanel refondu.
+ * Phase 11 — StabilityAnalysisPanel : classification purement par Dmax.
  *
  * Ce panneau n'effectue AUCUN calcul métier Dreux-Gorisse. Il lit uniquement
  * `calcResult` (produit par `calculateMixDesign`) et les courbes granulométriques
  * réelles des matériaux sélectionnés par l'utilisateur, puis émet un diagnostic
  * de qualité (équilibre granulaire, ségrégation, trou granulaire, fuseau).
  *
- * Aucune référence à des noms commerciaux (3/8, 8/15, 15/25) — toutes les
- * décisions se basent sur les Dmax réels et sur les volumes/masses calculés
- * par le moteur.
+ * Règle de classification (UNIQUE) :
+ *   dMax ≤ 10          → Petites fractions
+ *   10 < dMax ≤ 16     → Fractions intermédiaires
+ *   16 < dMax ≤ 31.5   → Grosses fractions
+ *   dMax > 31.5        → Ignoré (hors domaine Dreux classique)
+ *
+ * Aucune regex sur les libellés, aucune dépendance aux slots gravier1/2/3,
+ * aucune référence à "3/8", "8/15", "15/25".
+ *
+ * Pourcentages TOUJOURS calculés par rapport au volume total gravillons :
+ *   pct = volumeFraction / volumeTotalGraviers * 100
+ * où volumeTotalGraviers = calcResult.volumes.gravier.
  */
 
 import { useMemo } from "react";
@@ -31,17 +40,17 @@ import type { MaterialCurve } from "./DreuxGorisseChart";
 import type { CalculationResult } from "./dreuxGorisseCalculation";
 
 // ---------------------------------------------------------------------------
-// Constantes uniques (Étape 4) — plages Dreux-Gorisse par défaut
+// Constantes UNIQUES — plages Dreux-Gorisse (aucune valeur codée ailleurs)
 // ---------------------------------------------------------------------------
-export const DEFAULT_BALANCE_RULES = {
-  /** Part du sable dans (sables + graviers), en %. */
-  sable: { min: 35, max: 45 },
-  /** Part de la plus petite fraction de gravier dans le total gravier, en %. */
-  smallestGravel: { min: 10, max: 20 },
-  /** Part de chaque fraction intermédiaire dans le total gravier, en %. */
-  middleGravel: { min: 20, max: 30 },
-  /** Part de la plus grosse fraction dans le total gravier, en %. */
-  largestGravel: { min: 20, max: 35 },
+
+/** Plage attendue de la part du sable dans (sables + graviers), en %. */
+export const SAND_LIMIT = { min: 35, max: 45 } as const;
+
+/** Plages attendues par classe de gravillon (en % du volume total graviers). */
+export const FRACTION_LIMITS = {
+  small: { min: 10, max: 20 },
+  medium: { min: 20, max: 35 },
+  large: { min: 20, max: 35 },
 } as const;
 
 const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40];
@@ -49,6 +58,16 @@ const TAMIS_OPENINGS = [0.063, 0.125, 0.25, 0.5, 1, 2, 4, 6.3, 8, 10, 12.5, 16, 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+type FractionClass = "small" | "medium" | "large";
+
+interface ClassifiedGravel {
+  label: string;
+  dMax: number;
+  volume: number;
+  pct: number;
+  klass: FractionClass;
+}
+
 interface Issue {
   id: string;
   icon: React.ReactNode;
@@ -59,23 +78,19 @@ interface Issue {
   level: "ok" | "warn" | "danger";
 }
 
-type FractionKind = "small" | "middle" | "large";
-
-interface FractionRow {
+interface ClassRow {
+  klass: FractionClass | "sand";
   label: string;
   pct: number;
-  kind: FractionKind | "sand";
   range: { min: number; max: number };
   status: "ok" | "low" | "high";
+  members: string[]; // libellés réels des matériaux agrégés
 }
 
 interface StabilityAnalysisPanelProps {
   calcResult: CalculationResult;
-  /** Sables sélectionnés (courbes réelles). */
   sandMaterials: MaterialCurve[];
-  /** Gravillons sélectionnés (courbes réelles). */
   gravelMaterials: MaterialCurve[];
-  /** Optionnel : la courbe reste-t-elle dans le fuseau Dreux ? */
   isWithinEnvelope?: boolean | null;
 }
 
@@ -84,6 +99,27 @@ interface StabilityAnalysisPanelProps {
 // ---------------------------------------------------------------------------
 function getDmax(mat: MaterialCurve): number {
   return mat.curve.length > 0 ? Math.max(...mat.curve.map(p => p.ouverture)) : 0;
+}
+
+/** Classification UNIQUE par Dmax réel. Retourne null si hors domaine. */
+function classifyByDmax(dMax: number): FractionClass | null {
+  if (dMax <= 0) return null;
+  if (dMax <= 10) return "small";
+  if (dMax <= 16) return "medium";
+  if (dMax <= 31.5) return "large";
+  return null; // > 31.5 mm : ignoré
+}
+
+const CLASS_META: Record<FractionClass, { label: string; range: { min: number; max: number } }> = {
+  small: { label: "Petites fractions", range: FRACTION_LIMITS.small },
+  medium: { label: "Fractions intermédiaires", range: FRACTION_LIMITS.medium },
+  large: { label: "Grosses fractions", range: FRACTION_LIMITS.large },
+};
+
+function statusOf(pct: number, range: { min: number; max: number }): "ok" | "low" | "high" {
+  if (pct < range.min) return "low";
+  if (pct > range.max) return "high";
+  return "ok";
 }
 
 function detectGranularGap(
@@ -121,12 +157,6 @@ function detectGranularGap(
   return null;
 }
 
-function statusOf(pct: number, range: { min: number; max: number }): "ok" | "low" | "high" {
-  if (pct < range.min) return "low";
-  if (pct > range.max) return "high";
-  return "ok";
-}
-
 // ---------------------------------------------------------------------------
 // Composant
 // ---------------------------------------------------------------------------
@@ -140,63 +170,64 @@ export default function StabilityAnalysisPanel({
     const issues: Issue[] = [];
     const mf = calcResult.moduleFinesse?.melange ?? 2.65;
 
-    // --- Étape 1-3 : gravillons triés par Dmax réel + parts sur Vsquelette
-    //
-    // RÉFÉRENTIEL UNIQUE (Phase 10) :
+    // --- Volumes de référence (lecture pure) --------------------------------
+    // RÉFÉRENTIEL UNIQUE :
     //   Vsquelette = Vsables + Vgraviers   (jamais eau/ciment/air/adjuvant)
     //   % sable        = Vsables / Vsquelette * 100
     //   % gravier_i    = Vgravier_i / Vgraviers * 100
-    //   % sable_i      = Vsable_i / Vsables * 100
-    //
-    // Les volumes réels par matériau sont lus dans calcResult.volumes.detail
-    // (clé = key moteur). Aucune conversion masse/volume n'est refaite ici.
+    //   % classe       = Σ Vgravier_i(classe) / Vgraviers * 100
     const volDetail = calcResult.volumes.detail || {};
     const volGravier = calcResult.volumes.gravier;
     const volSable = calcResult.volumes.sable;
     const volSquelette = volSable + volGravier;
 
-    const gravelsSorted = [...gravelMaterials]
+    // --- Classification des gravillons UNIQUEMENT par dMax réel ------------
+    const classified: ClassifiedGravel[] = gravelMaterials
       .filter(g => g.quantity > 0)
-      .map(g => ({
-        ...g,
-        dMax: getDmax(g),
-        volume: g.key && volDetail[g.key] !== undefined ? volDetail[g.key] : 0,
-      }))
-      .sort((a, b) => a.dMax - b.dMax);
+      .map(g => {
+        const dMax = getDmax(g);
+        const volume = g.key && volDetail[g.key] !== undefined ? volDetail[g.key] : 0;
+        const pct = volGravier > 0 ? (volume / volGravier) * 100 : 0;
+        const klass = classifyByDmax(dMax);
+        return { label: g.label, dMax, volume, pct, klass: klass ?? "large" };
+      })
+      // Ignorer les hors-domaine (dMax > 31.5 mm)
+      .filter(g => classifyByDmax(g.dMax) !== null);
 
-    const gravelRows: FractionRow[] = gravelsSorted.map((g, idx) => {
-      const pct = volGravier > 0 ? (g.volume / volGravier) * 100 : 0;
-      let kind: FractionKind;
-      let range: { min: number; max: number };
-      if (gravelsSorted.length === 1) {
-        kind = "large";
-        range = DEFAULT_BALANCE_RULES.largestGravel;
-      } else if (idx === 0) {
-        kind = "small";
-        range = DEFAULT_BALANCE_RULES.smallestGravel;
-      } else if (idx === gravelsSorted.length - 1) {
-        kind = "large";
-        range = DEFAULT_BALANCE_RULES.largestGravel;
-      } else {
-        kind = "middle";
-        range = DEFAULT_BALANCE_RULES.middleGravel;
-      }
-      return { label: g.label, pct, kind, range, status: statusOf(pct, range) };
-    });
+    // --- Agrégation par classe ---------------------------------------------
+    const buildClassRow = (klass: FractionClass): ClassRow | null => {
+      const members = classified.filter(c => c.klass === klass);
+      if (members.length === 0) return null;
+      const pct = members.reduce((s, m) => s + m.pct, 0);
+      const meta = CLASS_META[klass];
+      return {
+        klass,
+        label: meta.label,
+        pct,
+        range: meta.range,
+        status: statusOf(pct, meta.range),
+        members: members.map(m => m.label),
+      };
+    };
+
+    const classRows: ClassRow[] = (["small", "medium", "large"] as FractionClass[])
+      .map(buildClassRow)
+      .filter((r): r is ClassRow => r !== null);
 
     // Sable total (part du sable dans le squelette granulaire)
     const sablePct = volSquelette > 0 ? (volSable / volSquelette) * 100 : 0;
-    const sableRow: FractionRow = {
+    const sableRow: ClassRow = {
+      klass: "sand",
       label: "Sables (total)",
       pct: sablePct,
-      kind: "sand",
-      range: DEFAULT_BALANCE_RULES.sable,
-      status: statusOf(sablePct, DEFAULT_BALANCE_RULES.sable),
+      range: SAND_LIMIT,
+      status: statusOf(sablePct, SAND_LIMIT),
+      members: sandMaterials.filter(s => s.quantity > 0).map(s => s.label),
     };
 
-    const rows: FractionRow[] = [sableRow, ...gravelRows];
+    const rows: ClassRow[] = [sableRow, ...classRows];
 
-    // --- Étape 6 : score
+    // --- Score --------------------------------------------------------------
     let balanceScore = 100;
 
     // Sable
@@ -251,63 +282,29 @@ export default function StabilityAnalysisPanel({
       });
     }
 
-    // Petite fraction
-    const small = gravelRows.find(r => r.kind === "small");
-    if (small && small.status !== "ok") {
-      const penalty = 10;
-      balanceScore -= penalty;
-      issues.push({
-        id: "small-fraction",
-        icon: <Layers className="w-4 h-4" />,
-        title: small.status === "high"
-          ? "Excès de petites fractions — risque de ségrégation"
-          : "Manque de petites fractions",
-        description: `La fraction « ${small.label} » représente ${small.pct.toFixed(1)}% des graviers (plage ${small.range.min}–${small.range.max}%).`,
-        penalty,
-        actions: small.status === "high"
-          ? [`Réduire la quantité de « ${small.label} »`, "Redistribuer vers les fractions intermédiaires ou supérieures"]
-          : [`Augmenter la quantité de « ${small.label} »`, "Vérifier l'équilibre du squelette granulaire"],
-        level: "warn",
-      });
-    }
+    // Classes de gravillons
+    const classIssueSpec: Record<FractionClass, { penalty: number; icon: React.ReactNode }> = {
+      small: { penalty: 10, icon: <Layers className="w-4 h-4" /> },
+      medium: { penalty: 10, icon: <Layers className="w-4 h-4" /> },
+      large: { penalty: 15, icon: <TrendingDown className="w-4 h-4" /> },
+    };
 
-    // Fractions intermédiaires
-    for (const mid of gravelRows.filter(r => r.kind === "middle")) {
-      if (mid.status !== "ok") {
-        const penalty = 10;
-        balanceScore -= penalty;
-        issues.push({
-          id: `middle-${mid.label}`,
-          icon: <Layers className="w-4 h-4" />,
-          title: mid.status === "high"
-            ? "Excès de fractions intermédiaires"
-            : "Manque de fractions intermédiaires",
-          description: `La fraction « ${mid.label} » représente ${mid.pct.toFixed(1)}% des graviers (plage ${mid.range.min}–${mid.range.max}%).`,
-          penalty,
-          actions: mid.status === "high"
-            ? [`Réduire la quantité de « ${mid.label} »`]
-            : [`Augmenter la quantité de « ${mid.label} »`],
-          level: "warn",
-        });
-      }
-    }
-
-    // Plus grosse fraction
-    const large = gravelRows.find(r => r.kind === "large");
-    if (large && large.status !== "ok") {
-      const penalty = 15;
-      balanceScore -= penalty;
+    for (const row of classRows) {
+      if (row.status === "ok") continue;
+      const spec = classIssueSpec[row.klass as FractionClass];
+      balanceScore -= spec.penalty;
+      const membersTxt = row.members.length > 0 ? ` (${row.members.join(" + ")})` : "";
       issues.push({
-        id: "large-fraction",
-        icon: <TrendingDown className="w-4 h-4" />,
-        title: large.status === "low"
-          ? "Manque de grosses fractions — instabilité possible"
-          : "Excès de grosses fractions",
-        description: `La fraction « ${large.label} » représente ${large.pct.toFixed(1)}% des graviers (plage ${large.range.min}–${large.range.max}%).`,
-        penalty,
-        actions: large.status === "low"
-          ? [`Augmenter la proportion de « ${large.label} »`, "Vérifier l'équilibre du squelette granulaire"]
-          : [`Réduire la proportion de « ${large.label} »`, "Redistribuer vers les fractions intermédiaires"],
+        id: `class-${row.klass}`,
+        icon: spec.icon,
+        title: row.status === "high"
+          ? `Excès de ${row.label.toLowerCase()}`
+          : `Manque de ${row.label.toLowerCase()}`,
+        description: `« ${row.label} »${membersTxt} représente ${row.pct.toFixed(1)}% des graviers (plage ${row.range.min}–${row.range.max}%).`,
+        penalty: spec.penalty,
+        actions: row.status === "high"
+          ? [`Réduire la proportion de « ${row.label.toLowerCase()} »`, "Redistribuer vers les autres classes granulaires"]
+          : [`Augmenter la proportion de « ${row.label.toLowerCase()} »`, "Vérifier l'équilibre du squelette granulaire"],
         level: "warn",
       });
     }
@@ -360,7 +357,6 @@ export default function StabilityAnalysisPanel({
     else if (balanceScore >= 50) { grade = "Moyen"; globalLevel = "warn"; GlobalIcon = ShieldAlert; }
     else { grade = "À corriger"; globalLevel = "danger"; GlobalIcon = ShieldX; }
 
-    // Diagnostic lisible
     const summary = issues.length === 0
       ? "La formulation est parfaitement équilibrée selon les plages Dreux-Gorisse."
       : issues.length === 1
@@ -432,11 +428,11 @@ export default function StabilityAnalysisPanel({
           </div>
         </div>
 
-        {/* Répartition détaillée (Étape 7) */}
+        {/* Répartition par classes (dMax réel) */}
         <div className="rounded-lg border border-border bg-muted/30 overflow-hidden">
           <div className="px-4 py-2 border-b border-border bg-muted/50">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Répartition du squelette granulaire
+              Répartition du squelette granulaire (par classe Dmax)
             </p>
           </div>
           <div className="divide-y divide-border">
@@ -444,10 +440,15 @@ export default function StabilityAnalysisPanel({
               <div key={i} className="px-4 py-2.5 flex items-center gap-3 text-sm">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground truncate">{r.label}</p>
+                  {r.members.length > 0 && (
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      ({r.members.join(" + ")})
+                    </p>
+                  )}
                   <p className="text-[10px] text-muted-foreground">
                     Plage attendue : {r.range.min}–{r.range.max} %
-                    {r.kind === "sand" && " (sable / (sable + gravier))"}
-                    {r.kind !== "sand" && " (fraction / total gravier)"}
+                    {r.klass === "sand" && " (sable / (sable + gravier))"}
+                    {r.klass !== "sand" && " (fraction / total gravier)"}
                   </p>
                 </div>
                 <div className="text-right">
@@ -516,7 +517,7 @@ export default function StabilityAnalysisPanel({
           </div>
         )}
 
-        {/* Warnings moteur (Étape 8) — lecture pure de calcResult */}
+        {/* Warnings moteur — lecture pure de calcResult */}
         {(calcResult.warnings?.length || calcResult.volumeErrors?.length || calcResult.gravelSplit?.warnings?.length) ? (
           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
