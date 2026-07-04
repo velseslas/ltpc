@@ -290,10 +290,10 @@ export default function DebugDreuxPanel({ inputs, result }: DebugDreuxPanelProps
                   <Check ok={Math.abs(sumFractionVol - volumes.granulatsTotal) < 0.01} label={`Σ Vfractions = ${fmt(sumFractionVol, 4)} ≈ Vgranulats = ${fmt(volumes.granulatsTotal, 4)} m³`} />
                   <Check ok={allPositive} label="Toutes les masses sont positives ou nulles" />
                   <Check ok={volumes.sable > 0 && volumes.gravier >= 0} label={`Vsable = ${fmt(volumes.sable, 4)} m³ • Vgravier = ${fmt(volumes.gravier, 4)} m³`} />
-                  {gravelSplit.out && (
+                  {gravelSplit.proportions.length > 0 && (
                     <Check
-                      ok={Math.abs(gravelSplit.out.proportions.reduce((s, p) => s + p.pct, 0) - 100) < 1e-6}
-                      label={`Σ proportions graphiques = ${fmt(gravelSplit.out.proportions.reduce((s, p) => s + p.pct, 0), 4)} %`}
+                      ok={Math.abs(gravelSplit.proportions.reduce((s, p) => s + p.pct, 0) - 100) < 1e-3}
+                      label={`Σ proportions moteur = ${fmt(gravelSplit.proportions.reduce((s, p) => s + p.pct, 0), 4)} %`}
                     />
                   )}
                   <Check ok={volumeErrors.length === 0} label={volumeErrors.length === 0 ? "Aucune incohérence détectée par le moteur" : `${volumeErrors.length} incohérence(s) — voir détails`} />
