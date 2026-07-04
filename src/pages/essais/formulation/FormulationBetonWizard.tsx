@@ -935,11 +935,16 @@ export default function FormulationBetonWizard() {
   // Step 5 - données granulats importées depuis les rapports
   const [granulatDensites, setGranulatDensites] = useState<Record<string, number>>({});
   const [granulatModuleFinesse, setGranulatModuleFinesse] = useState<Record<string, number>>({});
+  // Phase 6 / 2a : courbes granulométriques réelles extraites des rapports GR
+  const [granulatCurves, setGranulatCurves] = useState<Record<string, ExtractedCurvePoint[]>>({});
   const handleDensityExtracted = (key: string, density: number) => {
     setGranulatDensites(prev => ({ ...prev, [key]: density }));
   };
   const handleModuleFinesseExtracted = (key: string, moduleFinesse: number) => {
     setGranulatModuleFinesse(prev => ({ ...prev, [key]: moduleFinesse }));
+  };
+  const handleCurveExtracted = (key: string, curve: ExtractedCurvePoint[]) => {
+    setGranulatCurves(prev => ({ ...prev, [key]: curve }));
   };
 
   const mfImporteEtape6 = useMemo(() => {
