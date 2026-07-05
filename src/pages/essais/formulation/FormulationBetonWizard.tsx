@@ -1588,6 +1588,16 @@ export default function FormulationBetonWizard() {
                   className={cn("bg-secondary border-border", !calcRatioGS.trim() && "animate-border-blink")}
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm">Adjuvant (L/m³)</Label>
+                <Input
+                  type="number" step="0.1" min="0"
+                  value={calcAdjuvant}
+                  onChange={(e) => setCalcAdjuvant(e.target.value)}
+                  placeholder="ex: 3.5"
+                  className="bg-secondary border-border"
+                />
+              </div>
               {cimentWarning && (
                 <div className="col-span-full flex items-start gap-2 p-3 rounded-md border border-amber-500/50 bg-amber-500/10 text-sm text-amber-700 dark:text-amber-400">
                   <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
