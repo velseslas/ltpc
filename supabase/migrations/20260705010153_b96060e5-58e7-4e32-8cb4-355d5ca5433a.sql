@@ -1,0 +1,1 @@
+ALTER TABLE public.formulations ADD COLUMN IF NOT EXISTS adjuvant_calcule numeric;

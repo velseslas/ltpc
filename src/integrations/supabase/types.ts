@@ -5032,6 +5032,7 @@ export type Database = {
       }
       formulations: {
         Row: {
+          adjuvant_calcule: number | null
           adjuvant_producteur_id: string | null
           adjuvant_produit_id: string | null
           adjuvant_quantite: number | null
@@ -5083,6 +5084,7 @@ export type Database = {
           vibration_ae: string | null
         }
         Insert: {
+          adjuvant_calcule?: number | null
           adjuvant_producteur_id?: string | null
           adjuvant_produit_id?: string | null
           adjuvant_quantite?: number | null
@@ -5134,6 +5136,7 @@ export type Database = {
           vibration_ae?: string | null
         }
         Update: {
+          adjuvant_calcule?: number | null
           adjuvant_producteur_id?: string | null
           adjuvant_produit_id?: string | null
           adjuvant_quantite?: number | null
