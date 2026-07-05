@@ -1440,6 +1440,7 @@ export default function FormulationBetonWizard() {
       eau_calculee: calcEau ? parseFloat(calcEau) : null,
       ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
       ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
+      adjuvant_calcule: calcAdjuvant ? parseFloat(calcAdjuvant) : null,
       coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
       coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
       dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
