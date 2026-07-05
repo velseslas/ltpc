@@ -999,18 +999,41 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               const cimentVolL = (ciment / (3.11 * 1000)) * 1000;
               rows.push({ label: "Ciment", mass: ciment, volumeL: cimentVolL, density: 3.11, inDenom: true });
 
-              // Granulats : masses/volumes lus directement depuis le moteur.
+              // Granulats : en mode "calculate" on lit le moteur ; en mode "manual" on lit
+              // les masses ajustées par l'utilisateur (localOverrides) et on recalcule le volume.
+              const isManual = calcMode === "manual";
+              let manualGranVolTotal = 0;
               for (const g of granulatInputs) {
                 if (!g.active) continue;
-                const mass = calcResult.masses[g.key] ?? 0;
-                if (mass <= 0) continue;
                 const densityKgL = g.densite > 0 ? g.densite / 1000 : 0;
-                const volumeL = (calcResult.volumes.detail[g.key] ?? 0) * 1000;
+                let mass: number;
+                let volumeL: number;
+                if (isManual) {
+                  const originalQte =
+                    g.key === "sableConcasse" ? sableConcasseQte :
+                    g.key === "sableFin" ? sableFinQte :
+                    g.key === "gravillons1" ? gravillons1Qte :
+                    g.key === "gravier2" ? gravier2Qte :
+                    g.key === "gravier3" ? gravier3Qte : "";
+                  mass = parseFloat(getVal(g.key, originalQte)) || 0;
+                  volumeL = densityKgL > 0 ? mass / densityKgL : 0;
+                  manualGranVolTotal += volumeL;
+                } else {
+                  mass = calcResult.masses[g.key] ?? 0;
+                  volumeL = (calcResult.volumes.detail[g.key] ?? 0) * 1000;
+                }
+                if (mass <= 0) continue;
                 rows.push({ label: g.label, mass, volumeL, density: densityKgL, inDenom: true });
               }
 
-              // Air occlus : volume issu du moteur, sans masse.
-              const airVolL = (calcResult.volumes.air ?? 0) * 1000;
+              // Air occlus : en mode auto, volume issu du moteur ; en mode manuel, on ajuste
+              // pour que le total (eau + ciment + granulats + air) fasse 1 m³.
+              let airVolL: number;
+              if (isManual) {
+                airVolL = Math.max(0, 1000 - eauVolL - cimentVolL - manualGranVolTotal);
+              } else {
+                airVolL = (calcResult.volumes.air ?? 0) * 1000;
+              }
               if (airVolL > 0) {
                 rows.push({ label: "Air occlus", mass: 0, volumeL: airVolL, density: 0, inDenom: true });
               }
