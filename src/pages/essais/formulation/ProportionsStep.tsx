@@ -116,6 +116,7 @@ export default function ProportionsStep({
   calcEau,
   calcCiment,
   calcRatioGS,
+  calcAdjuvant,
   onQuantityChange,
   validationData,
   onStepErrors,
