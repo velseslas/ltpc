@@ -1065,6 +1065,7 @@ export default function FormulationBetonWizard() {
   const [calcEau, setCalcEau] = useState("");
   const [calcCiment, setCalcCiment] = useState("");
   const [calcRatioGS, setCalcRatioGS] = useState("");
+  const [calcAdjuvant, setCalcAdjuvant] = useState("");
 
   // Auto-derived fields
   const classeResistanceAuto = useMemo(() => {
