@@ -1056,7 +1056,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                           </td>
                           <td className="border border-border p-2.5 text-right text-foreground">{r.volumeL > 0 ? r.volumeL.toFixed(1) : "-"}</td>
                           <td className="border border-border p-2.5 text-right text-foreground">{r.density > 0 ? r.density.toFixed(2) : "-"}</td>
-                          <td className="border border-border p-2.5 text-right font-semibold text-foreground">{r.mass > 0 ? Math.round(r.mass) : "—"}</td>
+                          <td className="border border-border p-2.5 text-right font-semibold text-foreground">{r.mass > 0 ? (r.label === "Adjuvant" ? r.mass.toFixed(2) : Math.round(r.mass)) : "—"}</td>
                         </tr>
                       );
                     })}
