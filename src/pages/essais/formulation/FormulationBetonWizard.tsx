@@ -1215,6 +1215,8 @@ export default function FormulationBetonWizard() {
     setCalcEau(initialEau);
     setCalcCiment(initialCiment);
     setCalcRatioGS(initialRatioGS);
+    setCalcAdjuvant(formatNumberInput((f as any).adjuvant_calcule) || "");
+
 
     setCoefficientGranulaire(formatNumberInput(f.coefficient_granulaire) || deriveDefaultCoefficientGranulaire(Number(initialDmax)));
     setCoefficientCompacite(formatNumberInput(f.coefficient_compacite) || deriveDefaultCoefficientCompacite(Number(initialDmax)));
