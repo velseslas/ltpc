@@ -1774,6 +1774,7 @@ export default function FormulationBetonWizard() {
           calcEau={calcEau}
           calcCiment={calcCiment}
           calcRatioGS={calcRatioGS}
+          calcAdjuvant={calcAdjuvant}
           onStepErrors={setErrorSteps}
           onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{
