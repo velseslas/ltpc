@@ -1065,6 +1065,7 @@ export default function FormulationBetonWizard() {
   const [calcEau, setCalcEau] = useState("");
   const [calcCiment, setCalcCiment] = useState("");
   const [calcRatioGS, setCalcRatioGS] = useState("");
+  const [calcAdjuvant, setCalcAdjuvant] = useState("");
 
   // Auto-derived fields
   const classeResistanceAuto = useMemo(() => {
@@ -1214,6 +1215,8 @@ export default function FormulationBetonWizard() {
     setCalcEau(initialEau);
     setCalcCiment(initialCiment);
     setCalcRatioGS(initialRatioGS);
+    setCalcAdjuvant(formatNumberInput((f as any).adjuvant_calcule) || "");
+
 
     setCoefficientGranulaire(formatNumberInput(f.coefficient_granulaire) || deriveDefaultCoefficientGranulaire(Number(initialDmax)));
     setCoefficientCompacite(formatNumberInput(f.coefficient_compacite) || deriveDefaultCoefficientCompacite(Number(initialDmax)));
@@ -1437,6 +1440,7 @@ export default function FormulationBetonWizard() {
       eau_calculee: calcEau ? parseFloat(calcEau) : null,
       ciment_calcule: calcCiment ? parseFloat(calcCiment) : null,
       ratio_gs: calcRatioGS ? parseFloat(calcRatioGS) : null,
+      adjuvant_calcule: calcAdjuvant ? parseFloat(calcAdjuvant) : null,
       coefficient_granulaire: coefficientGranulaire ? parseFloat(coefficientGranulaire) : null,
       coefficient_compacite: coefficientCompacite ? parseFloat(coefficientCompacite) : null,
       dmax_utilisateur: dmaxUtilisateur ? parseFloat(dmaxUtilisateur) : null,
@@ -1582,6 +1586,16 @@ export default function FormulationBetonWizard() {
                   onChange={(e) => setCalcRatioGS(e.target.value)}
                   placeholder="ex: 1.8"
                   className={cn("bg-secondary border-border", !calcRatioGS.trim() && "animate-border-blink")}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm">Adjuvant (L/m³)</Label>
+                <Input
+                  type="number" step="0.1" min="0"
+                  value={calcAdjuvant}
+                  onChange={(e) => setCalcAdjuvant(e.target.value)}
+                  placeholder="ex: 3.5"
+                  className="bg-secondary border-border"
                 />
               </div>
               {cimentWarning && (
@@ -1760,6 +1774,7 @@ export default function FormulationBetonWizard() {
           calcEau={calcEau}
           calcCiment={calcCiment}
           calcRatioGS={calcRatioGS}
+          calcAdjuvant={calcAdjuvant}
           onStepErrors={setErrorSteps}
           onMfCorrectionNeeded={setMfCorrectionNeeded}
           validationData={{

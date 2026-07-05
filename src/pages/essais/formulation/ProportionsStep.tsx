@@ -68,6 +68,7 @@ interface ProportionsStepProps {
   calcEau: string;
   calcCiment: string;
   calcRatioGS: string;
+  calcAdjuvant?: string;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
@@ -115,6 +116,7 @@ export default function ProportionsStep({
   calcEau,
   calcCiment,
   calcRatioGS,
+  calcAdjuvant,
   onQuantityChange,
   validationData,
   onStepErrors,
@@ -1014,7 +1016,13 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
               }
 
               // Adjuvant : affiché mais HORS dénominateur.
-              if (adjuvant > 0) {
+              // Priorité : quantité en litres saisie en Étape 2 (calcAdjuvant, L/m³) ;
+              // sinon fallback sur la masse (kg) déclarée en Étape 3 convertie via densité 1.05.
+              const adjL = parseFloat(calcAdjuvant || "") || 0;
+              if (adjL > 0) {
+                const adjMass = adjL * 1.05;
+                rows.push({ label: "Adjuvant", mass: adjMass, volumeL: adjL, density: 1.05, inDenom: false });
+              } else if (adjuvant > 0) {
                 const adjVolL = (adjuvant / (1.05 * 1000)) * 1000;
                 rows.push({ label: "Adjuvant", mass: adjuvant, volumeL: adjVolL, density: 1.05, inDenom: false });
               }
