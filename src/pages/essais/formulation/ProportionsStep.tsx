@@ -68,6 +68,7 @@ interface ProportionsStepProps {
   calcEau: string;
   calcCiment: string;
   calcRatioGS: string;
+  calcAdjuvant?: string;
   onQuantityChange?: (key: string, value: string) => void;
   validationData?: ValidationData;
   onStepErrors?: (errorSteps: number[]) => void;
