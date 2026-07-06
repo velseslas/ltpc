@@ -21,6 +21,8 @@ interface ProduitFormDialogProps {
   editingProduit?: { id: string; nom: string; densite?: number | null } | null;
 }
 
+const SHOW_DENSITE_TYPES = ["adjuvant"];
+
 export function ProduitFormDialog({ open, onOpenChange, producteurId, producteurType, editingProduit }: ProduitFormDialogProps) {
   const [nom, setNom] = useState("");
   const [densite, setDensite] = useState("");
@@ -29,6 +31,7 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
   const updateProduit = useUpdateProduit();
 
   const isEditing = !!editingProduit;
+  const showDensite = SHOW_DENSITE_TYPES.includes(producteurType);
 
   useEffect(() => {
     if (editingProduit) {
@@ -49,7 +52,7 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
       return;
     }
 
-    const densiteValue = densite.trim() ? parseFloat(densite) : null;
+    const densiteValue = showDensite && densite.trim() ? parseFloat(densite) : null;
 
     try {
       if (isEditing) {
@@ -113,18 +116,20 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
                 </p>
               )}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="densite">Densité</Label>
-              <Input
-                id="densite"
-                type="number"
-                step="0.001"
-                min="0"
-                value={densite}
-                onChange={(e) => setDensite(e.target.value)}
-                placeholder="Ex: 2.650"
-              />
-            </div>
+            {showDensite && (
+              <div className="grid gap-2">
+                <Label htmlFor="densite">Densité</Label>
+                <Input
+                  id="densite"
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  value={densite}
+                  onChange={(e) => setDensite(e.target.value)}
+                  placeholder="Ex: 2.650"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleCancel}>
