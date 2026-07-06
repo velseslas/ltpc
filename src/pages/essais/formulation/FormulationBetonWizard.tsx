@@ -700,7 +700,7 @@ function RapportPopupContent({ essaiType, sampleId, essaiTitle }: { essaiType: s
       <div className="mt-6 pt-4 border-t border-gray-300">
         <div className="flex justify-between items-end">
           <div className="text-sm text-gray-600">
-            <p>Opérateur: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
+            <p>Technicien: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
           </div>
           <div className="text-center">
             {entreprise?.cachet_url ? (

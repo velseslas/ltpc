@@ -197,7 +197,7 @@ export default function PlaqueDataEntry() {
             <div><p className="text-sm text-muted-foreground">Type de sol</p><p className="font-medium text-foreground">{echantillon.type_sol}</p></div>
             <div><p className="text-sm text-muted-foreground">Date de prélèvement</p><p className="font-medium text-foreground">{format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p></div>
             <div><p className="text-sm text-muted-foreground">Date d'essai</p><p className="font-medium text-foreground">{(echantillon as any).date_essai ? format(new Date((echantillon as any).date_essai), "dd/MM/yyyy", { locale: fr }) : "-"}</p></div>
-            <div><p className="text-sm text-muted-foreground">Opérateur</p><p className="font-medium text-foreground">{echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p></div>
+            <div><p className="text-sm text-muted-foreground">Technicien</p><p className="font-medium text-foreground">{echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p></div>
           </div>
         </CardContent>
       </Card>

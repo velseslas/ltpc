@@ -215,7 +215,7 @@ const TractionFendageDetail = () => {
         {/* Opérateur */}
         <Card>
           <CardHeader>
-            <CardTitle>Opérateur</CardTitle>
+            <CardTitle>Technicien</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="font-medium">

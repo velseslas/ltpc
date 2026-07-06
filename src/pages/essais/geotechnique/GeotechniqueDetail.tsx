@@ -641,7 +641,7 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
               </div>
             )}
             <div>
-              <p className="text-sm text-muted-foreground">Opérateur</p>
+              <p className="text-sm text-muted-foreground">Technicien</p>
               <p className="font-medium text-foreground">
                 {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}
               </p>

@@ -239,7 +239,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 <div className="mt-1">
                   <img 
                     src={echantillon.intervenants.signature_url} 
-                    alt="Signature opérateur" 
+                    alt="Signature technicien" 
                     className="max-h-16 object-contain print:max-h-12"
                   />
                 </div>
