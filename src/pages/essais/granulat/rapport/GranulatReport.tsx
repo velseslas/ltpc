@@ -357,10 +357,19 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             margin-bottom: 8px !important;
             border-radius: 6px !important;
           }
-          [data-ref="report"] [data-report-header] img,
-          [data-ref="report"] [data-report-header] svg {
+          [data-ref="report"] [data-report-header] img:not([data-qr-wrapper] img),
+          [data-ref="report"] [data-report-header] svg:not([data-qr-wrapper] svg) {
             max-height: 54px !important;
             width: auto !important;
+          }
+          [data-ref="report"] [data-qr-wrapper] {
+            width: var(--qr-size, 96px) !important;
+            height: var(--qr-size, 96px) !important;
+          }
+          [data-ref="report"] [data-qr-wrapper] svg {
+            width: var(--qr-size, 96px) !important;
+            height: var(--qr-size, 96px) !important;
+            max-height: none !important;
           }
           [data-ref="report"] [data-report-header] + div.border-t-2 {
             margin-bottom: 8px !important;
