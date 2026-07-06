@@ -314,7 +314,7 @@ export default function LimitesAtterbergReport() {
         <div className="mt-8 pt-4 border-t border-gray-300">
           <div className="flex justify-between items-end">
             <div className="text-sm text-gray-600">
-              <p>Opérateur: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
+              <p>Technicien: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
               {echantillon.intervenants?.signature_url && (
                 <div className="mt-2"><img src={echantillon.intervenants.signature_url} alt="Signature" className="max-h-16 object-contain" /></div>
               )}

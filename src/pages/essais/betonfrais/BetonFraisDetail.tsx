@@ -213,7 +213,7 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
               )}
               {echantillon.intervenants && (
                 <div className="col-span-2">
-                  <p className="text-sm text-muted-foreground">Opérateur</p>
+                  <p className="text-sm text-muted-foreground">Technicien</p>
                   <p className="font-medium">
                     {echantillon.intervenants.prenom} {echantillon.intervenants.nom}
                   </p>

@@ -70,7 +70,7 @@ const CarottageDetail = () => {
           <h2 className="text-lg font-semibold mb-3">Identification</h2>
           <InfoRow label="Client" value={echantillon.clients?.nom} />
           <InfoRow label="Chantier" value={echantillon.chantiers?.nom} />
-          <InfoRow label="Opérateur" value={echantillon.intervenants ? `${echantillon.intervenants.nom} ${echantillon.intervenants.prenom || ""}` : null} />
+          <InfoRow label="Technicien" value={echantillon.intervenants ? `${echantillon.intervenants.nom} ${echantillon.intervenants.prenom || ""}` : null} />
           <InfoRow label="Date de prélèvement" value={format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })} />
           <InfoRow label="Ouvrage" value={echantillon.ouvrage} />
           <InfoRow label="Partie d'ouvrage" value={echantillon.partie_ouvrage} />

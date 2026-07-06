@@ -32,7 +32,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Analyse Granulométrique": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -45,7 +45,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Forme des Granulats": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -57,7 +57,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Masse Volumique et Absorption": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -74,7 +74,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Teneur en Eau": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -86,7 +86,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Équivalent de Sable": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -100,7 +100,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Bleu de Méthylène": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -114,7 +114,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Matière Organique": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -127,7 +127,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Los Angeles": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -143,7 +143,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Micro-Deval": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -157,7 +157,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Friabilité des Sables": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -170,7 +170,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Coefficient d'Écrasement": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
@@ -187,7 +187,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai d'Affaissement": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Centrale à béton" },
@@ -204,7 +204,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Masse Volumique du Béton Frais": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Centrale à béton" },
@@ -217,7 +217,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Teneur en Air du Béton Frais": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Centrale à béton" },
@@ -229,7 +229,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai de Température": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Centrale à béton" },
@@ -242,7 +242,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
     { label: "N° Échantillon" },
     { label: "Date de coulage" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Centrale à béton" },
@@ -258,7 +258,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
     { label: "N° Échantillon" },
     { label: "Date de coulage" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Mesures", type: "table", colSpan: 2, tableHeaders: ["Éprouvette N°", "Diamètre d (mm)", "Longueur L (mm)", "Charge F (kN)", "fct (MPa)"], tableRows: 4 },
@@ -269,7 +269,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
     { label: "N° Échantillon" },
     { label: "Date de coulage" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "fc de référence (MPa)" },
@@ -280,7 +280,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Perméabilité à l'Eau": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Pression appliquée (kPa)" },
@@ -293,7 +293,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Limites d'Atterberg": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -309,7 +309,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Analyse Granulométrique des Sols": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -320,7 +320,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Teneur en Eau Pondérale": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -331,7 +331,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Classification des Sols": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -349,7 +349,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Proctor Normal": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Type de sol" },
@@ -362,7 +362,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Proctor Modifié": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Type de sol" },
@@ -375,7 +375,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai CBR": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Type de sol" },
@@ -389,7 +389,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Densité en Place": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Point kilométrique / Localisation" },
@@ -401,7 +401,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Cisaillement Direct": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -416,7 +416,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Compression Simple": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -429,7 +429,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Triaxial": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -445,7 +445,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Œdométrique": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur (m)" },
@@ -463,7 +463,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Pénétromètre Dynamique": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Localisation / PK" },
@@ -475,7 +475,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai Pressiométrique": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Profondeur d'essai (m)" },
@@ -489,7 +489,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Essai de Plaque": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Localisation / PK" },
@@ -506,7 +506,7 @@ const feuilleFieldsConfig: Record<string, FieldConfig[]> = {
   "Densitomètre à Membrane": [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Client" },
     { label: "Chantier" },
     { label: "Localisation / PK" },
@@ -523,7 +523,7 @@ export default function FeuilleEssaiDialog({ open, onOpenChange, normeTitle, nor
   const fields = feuilleFieldsConfig[normeTitle] || [
     { label: "N° Échantillon" },
     { label: "Date d'essai" },
-    { label: "Opérateur" },
+    { label: "Technicien" },
     { label: "Carrière / Provenance" },
     { label: "Client" },
     { label: "Chantier" },
