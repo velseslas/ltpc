@@ -294,10 +294,20 @@ export default function FormulationForm() {
         { label: isEditMode ? "Modifier formulation" : "Nouvelle formulation" }
       ]} />
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">
-          {isEditMode ? "Modifier la Formulation" : "Nouvelle Formulation"}
-        </h1>
+      <div className="flex items-center gap-4 mb-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate(`/intervenant/producteurs/centrale/${centraleId}`)}
+          className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">
+            {isEditMode ? "Modifier la Formulation" : "Nouvelle Formulation"}
+          </h1>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
