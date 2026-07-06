@@ -21,6 +21,8 @@ interface ProduitFormDialogProps {
   editingProduit?: { id: string; nom: string; densite?: number | null } | null;
 }
 
+const SHOW_DENSITE_TYPES = ["adjuvant"];
+
 export function ProduitFormDialog({ open, onOpenChange, producteurId, producteurType, editingProduit }: ProduitFormDialogProps) {
   const [nom, setNom] = useState("");
   const [densite, setDensite] = useState("");
@@ -29,6 +31,7 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
   const updateProduit = useUpdateProduit();
 
   const isEditing = !!editingProduit;
+  const showDensite = SHOW_DENSITE_TYPES.includes(producteurType);
 
   useEffect(() => {
     if (editingProduit) {
