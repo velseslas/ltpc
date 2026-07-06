@@ -52,7 +52,7 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
       return;
     }
 
-    const densiteValue = densite.trim() ? parseFloat(densite) : null;
+    const densiteValue = showDensite && densite.trim() ? parseFloat(densite) : null;
 
     try {
       if (isEditing) {
