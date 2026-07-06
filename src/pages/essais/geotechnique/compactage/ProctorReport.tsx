@@ -216,7 +216,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
         {/* Signature */}
         <div className="flex justify-between mt-12 text-sm">
           <div className="text-center">
-            <p className="font-bold mb-8">L'opérateur</p>
+            <p className="font-bold mb-8">Le technicien</p>
             {echantillon.intervenants?.signature_url && (
               <img src={echantillon.intervenants.signature_url} alt="Signature" className="h-16 mx-auto mb-2" />
             )}
