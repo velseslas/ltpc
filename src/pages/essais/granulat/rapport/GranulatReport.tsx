@@ -206,7 +206,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                 </tr>
               )}
               <tr>
-                <td className="border border-black px-3 py-1 font-medium text-black">Carrière / Fournisseur</td>
+                <td className="border border-black px-3 py-1 font-medium text-black">Carrière</td>
                 <td className="border border-black px-3 py-1 text-black">{echantillon.carrieres?.nom || "-"}</td>
                 <td className="border border-black px-3 py-1 font-medium text-black">Produit</td>
                 <td className="border border-black px-3 py-1 text-black">{echantillon.produit}</td>
