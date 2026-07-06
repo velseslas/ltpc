@@ -234,7 +234,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
         <div className="report-footer mt-6 pt-3 border-t border-gray-300 print:mt-3 print:pt-2">
           <div className="flex justify-between items-end">
             <div className="text-sm text-gray-600 print:text-xs">
-              <p>Opérateur: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
+              <p>Technicien: {echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : "-"}</p>
               {echantillon.intervenants?.signature_url && (
                 <div className="mt-1">
                   <img 
