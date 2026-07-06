@@ -441,8 +441,26 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           [data-ref="report"][data-essai-type="forme-granulats"] ul { margin: 2px 0 !important; }
           [data-ref="report"][data-essai-type="forme-granulats"] ul li { line-height: 1.2 !important; }
           [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] { padding: 4px !important; margin-bottom: 4px !important; }
-          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] img,
-          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] svg { max-height: 46px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] img:not([data-qr-wrapper] img),
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-report-header] svg:not([data-qr-wrapper] svg) { max-height: 46px !important; }
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-qr-wrapper] {
+            width: var(--qr-size, 96px) !important;
+            height: var(--qr-size, 96px) !important;
+          }
+          [data-ref="report"][data-essai-type="forme-granulats"] [data-qr-wrapper] svg {
+            width: var(--qr-size, 96px) !important;
+            height: var(--qr-size, 96px) !important;
+            max-height: none !important;
+          }
+          [data-ref="report"][data-essai-type="bleu-methylene"] [data-qr-wrapper] {
+            width: var(--qr-size, 96px) !important;
+            height: var(--qr-size, 96px) !important;
+          }
+          [data-ref="report"][data-essai-type="bleu-methylene"] [data-qr-wrapper] svg {
+            width: var(--qr-size, 96px) !important;
+            height: var(--qr-size, 96px) !important;
+            max-height: none !important;
+          }
           [data-ref="report"][data-essai-type="forme-granulats"] .report-footer { margin-top: 4px !important; padding-top: 4px !important; }
           [data-ref="report"][data-essai-type="forme-granulats"] .p-3 { padding: 4px !important; }
         }
