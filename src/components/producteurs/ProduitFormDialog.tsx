@@ -116,18 +116,20 @@ export function ProduitFormDialog({ open, onOpenChange, producteurId, producteur
                 </p>
               )}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="densite">Densité</Label>
-              <Input
-                id="densite"
-                type="number"
-                step="0.001"
-                min="0"
-                value={densite}
-                onChange={(e) => setDensite(e.target.value)}
-                placeholder="Ex: 2.650"
-              />
-            </div>
+            {showDensite && (
+              <div className="grid gap-2">
+                <Label htmlFor="densite">Densité</Label>
+                <Input
+                  id="densite"
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  value={densite}
+                  onChange={(e) => setDensite(e.target.value)}
+                  placeholder="Ex: 2.650"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleCancel}>
