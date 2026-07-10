@@ -1400,9 +1400,8 @@ export default function FormulationReport() {
               </thead>
               <tbody>
                 {TAMIS_STD.map((ouv) => {
-                  // mélange = somme(passant_i × pct_i / 100)
+                  // mélange = Σ(passant_i × masse_i) / masse_totale — extrapolation 100% au-dessus du dernier tamis
                   let melange = 0;
-                  let totalPct = 0;
                   granulatsList.forEach((g) => {
                     const qty =
                       g.key === "sable_concasse" ? formulation.sable_concasse_quantite || 0 :
@@ -1411,11 +1410,14 @@ export default function FormulationReport() {
                       g.key === "gravier2" ? formulation.gravier2_quantite || 0 :
                       g.key === "gravier3" ? formulation.gravier3_quantite || 0 : 0;
                     const pct = totalGranulats > 0 ? (qty / totalGranulats) * 100 : 0;
-                    const passant = getPassant(g.g?.granulometrie, ouv);
-                    if (passant !== null) {
-                      melange += (passant * pct) / 100;
-                      totalPct += pct;
-                    }
+                    const passantRaw = getPassant(g.g?.granulometrie, ouv);
+                    const passant =
+                      passantRaw !== null
+                        ? Number(passantRaw)
+                        : ouv > (maxOuvByKey[g.key] || 0)
+                        ? 100
+                        : 0;
+                    melange += (passant * pct) / 100;
                   });
                   return (
                     <tr key={ouv}>
@@ -1429,7 +1431,7 @@ export default function FormulationReport() {
                         );
                       })}
                       <td className="border border-black px-1 py-0.5 text-center font-bold text-black bg-yellow-50">
-                        {totalPct === 0 ? "—" : fmt(melange, 1)}
+                        {totalGranulats === 0 ? "—" : fmt(melange, 1)}
                       </td>
                     </tr>
                   );
