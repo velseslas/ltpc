@@ -60,11 +60,11 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
     (async () => {
       setPreparing(true);
       try {
-        console.log(`${LOG} vérification / génération du PDF officiel...`);
+        import.meta.env.DEV && console.log(`${LOG} vérification / génération du PDF officiel...`);
         const blob = await onGeneratePdf();
         if (cancelled) return;
         if (blob) {
-          console.log(`${LOG} PDF prêt (${blob.size} octets)`);
+          import.meta.env.DEV && console.log(`${LOG} PDF prêt (${blob.size} octets)`);
           setCachedBlob(blob);
           setPdfSize(blob.size);
           const url = URL.createObjectURL(blob);
@@ -118,7 +118,7 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
     setLoading(true);
     setNotice(null);
     try {
-      console.log(`${LOG} action utilisateur = ${channel}`);
+      import.meta.env.DEV && console.log(`${LOG} action utilisateur = ${channel}`);
       const result = await DocumentShareService.share(
         {
           meta,
@@ -130,7 +130,7 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
         channel,
       );
 
-      console.log(`${LOG} résultat`, result);
+      import.meta.env.DEV && console.log(`${LOG} résultat`, result);
 
       if (result.action === "cancelled") return;
 

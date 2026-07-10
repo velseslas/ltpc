@@ -84,7 +84,7 @@ class WebShareProvider implements ShareProvider {
     const url = meta.secureUrl || (typeof window !== "undefined" ? window.location.href : "");
     const finalFileName = fileName || `${(meta.documentNumber || meta.documentName).replace(/\s+/g, "-")}.pdf`;
 
-    console.log(`${LOG} share() channel=${channel}`, {
+    import.meta.env.DEV && console.log(`${LOG} share() channel=${channel}`, {
       hasGetPdf: !!getPdf,
       canShare: this.canShare(),
       canShareFiles: this.canShareFiles(),
@@ -94,7 +94,7 @@ class WebShareProvider implements ShareProvider {
     if (channel === "copy-link") {
       try {
         await navigator.clipboard.writeText(url);
-        console.log(`${LOG} lien copié`);
+        import.meta.env.DEV && console.log(`${LOG} lien copié`);
         return { ok: true, channel, action: "copied" };
       } catch (err) {
         console.error(`${LOG} copie lien échouée`, err);
@@ -138,20 +138,20 @@ class WebShareProvider implements ShareProvider {
     // 1) Web Share API avec fichier (préféré)
     if (getPdf && this.canShareFiles()) {
       try {
-        console.log(`${LOG} génération du PDF pour partage natif...`);
+        import.meta.env.DEV && console.log(`${LOG} génération du PDF pour partage natif...`);
         const blob = await getPdf();
         if (blob) {
           const file = new File([blob], finalFileName, { type: "application/pdf" });
           if (navigator.canShare({ files: [file] })) {
-            console.log(`${LOG} appel navigator.share (fichier)`);
+            import.meta.env.DEV && console.log(`${LOG} appel navigator.share (fichier)`);
             await navigator.share({ title: subject, text: message, files: [file] });
-            console.log(`${LOG} partage natif réussi`);
+            import.meta.env.DEV && console.log(`${LOG} partage natif réussi`);
             return { ok: true, channel, action: "shared" };
           }
         }
       } catch (err) {
         if (err instanceof Error && err.name === "AbortError") {
-          console.log(`${LOG} partage annulé par l'utilisateur`);
+          import.meta.env.DEV && console.log(`${LOG} partage annulé par l'utilisateur`);
           return { ok: false, channel, action: "cancelled" };
         }
         console.warn(`${LOG} partage natif fichier échoué, fallback téléchargement`, err);
@@ -203,7 +203,7 @@ class WebShareProvider implements ShareProvider {
       return { ok: false, channel, action: "error", message: "Aucun PDF disponible." };
     }
     try {
-      console.log(`${LOG} téléchargement du PDF...`);
+      import.meta.env.DEV && console.log(`${LOG} téléchargement du PDF...`);
       const blob = await getPdf();
       if (!blob) return { ok: false, channel, action: "error", message: "Erreur lors de la génération du PDF." };
       const url = URL.createObjectURL(blob);
@@ -212,7 +212,7 @@ class WebShareProvider implements ShareProvider {
       a.download = fileName;
       a.click();
       URL.revokeObjectURL(url);
-      console.log(`${LOG} PDF téléchargé : ${fileName}`);
+      import.meta.env.DEV && console.log(`${LOG} PDF téléchargé : ${fileName}`);
       return { ok: true, channel, action: "downloaded" };
     } catch (err) {
       console.error(`${LOG} téléchargement échoué`, err);
