@@ -71,13 +71,22 @@ export function useNotifications() {
       }
 
       // 3. Check for compression samples needing attention (based on jours_essai)
-      const { data: compressionSamples, error: compressionError } = await supabase
+      let compressionQuery = supabase
         .from("echantillons_compression")
-        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, clients:client_id(nom), chantiers:chantier_id(nom)")
+        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, chantier_id, clients:client_id(nom), chantiers:chantier_id(nom)")
         .in("statut", ["a-faire", "en-cours"]);
+      if (isTechnicien) {
+        if (allowedChantierIds.length === 0) {
+          compressionQuery = compressionQuery.eq("chantier_id", "00000000-0000-0000-0000-000000000000");
+        } else {
+          compressionQuery = compressionQuery.in("chantier_id", allowedChantierIds);
+        }
+      }
+      const { data: compressionSamples, error: compressionError } = await compressionQuery;
 
       if (!compressionError && compressionSamples) {
         compressionSamples.forEach((sample) => {
+
           if (sample.date_coulage && sample.jours_essai) {
             const coulageDate = parseISO(sample.date_coulage);
             const joursEssaiData = sample.jours_essai as Array<{ jour: number; nombre: number }>;
