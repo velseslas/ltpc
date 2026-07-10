@@ -811,12 +811,13 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                               <div className="flex items-center gap-1 shrink-0">
                                 <Input
                                   type="number"
-                                  value={s.value}
+                                  value={String(v)}
                                   onChange={(e) => handleInputChange(s.key, e.target.value)}
                                   className="w-20 h-8 text-right text-sm"
                                   min={0}
                                   max={s.max}
                                 />
+
                                 <span className="text-xs text-muted-foreground">kg</span>
                                 <Badge variant="secondary" className="text-[10px] tabular-nums w-14 justify-center">
                                   {pct.toFixed(1)}%
