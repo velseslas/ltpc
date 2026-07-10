@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateContrat, useUpdateContrat } from "@/hooks/useContrats";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { toast } from "sonner";
 
 const contractSchema = z.object({
@@ -97,21 +97,8 @@ export function ContractFormDialog({
   const uploadFile = async (file: File): Promise<{ url: string; name: string } | null> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${clientId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    
-    const { error: uploadError } = await supabase.storage
-      .from('contrats')
-      .upload(fileName, file);
-
-    if (uploadError) {
-      console.error('Upload error:', uploadError);
-      throw new Error('Erreur lors du téléchargement du fichier');
-    }
-
-    const { data } = supabase.storage
-      .from('contrats')
-      .getPublicUrl(fileName);
-
-    return { url: data.publicUrl, name: file.name };
+    const { publicUrl } = await DocumentRepository.uploadContrat(fileName, file);
+    return { url: publicUrl, name: file.name };
   };
 
   const onSubmit = async (data: ContractFormData) => {

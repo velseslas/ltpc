@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, FileText, X } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 
 export default function MaterielEtalonnageForm() {
   const navigate = useNavigate();

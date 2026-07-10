@@ -11,7 +11,7 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { usePaiementEspece, useUpdatePaiementEspece } from "@/hooks/useFacturation";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { toast } from "sonner";
 import { Upload, Loader2 } from "lucide-react";
 
@@ -55,10 +55,8 @@ export default function EspeceEdit() {
     try {
       const ext = file.name.split(".").pop();
       const path = `recus/recu-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("documents-administratifs").upload(path, file);
-      if (error) throw error;
-      const { data: urlData } = supabase.storage.from("documents-administratifs").getPublicUrl(path);
-      setForm(p => ({ ...p, recu_url: urlData.publicUrl }));
+      const { publicUrl } = await DocumentRepository.uploadAdministratif(path, file);
+      setForm(p => ({ ...p, recu_url: publicUrl }));
       toast.success("Reçu uploadé");
     } catch { toast.error("Erreur lors de l'upload"); }
     finally { setUploading(false); }
