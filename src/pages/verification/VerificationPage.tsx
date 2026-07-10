@@ -5,40 +5,68 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, ShieldCheck, FileText, Download, Loader2 } from "lucide-react";
-import { getSignedArchiveUrl } from "@/hooks/useDocumentArchives";
 
 // Page publique de vérification — accessible sans authentification via QR code.
-// L'architecture est prête ; l'aspect sera étendu (comparaison hash, journal, etc.).
+// Utilise l'Edge Function sécurisée `verify-archive` (RC2) qui :
+//  - ne renvoie aucune donnée interne (variables, contenu_snapshot, uuid émetteur)
+//  - vérifie le statut et l'expiration
+//  - retourne une URL signée courte durée pour le PDF officiel
+interface PublicArchive {
+  document_type: string;
+  numero: string | null;
+  version: number;
+  created_at: string;
+  generated_by_nom: string | null;
+  pdf_size: number | null;
+  sha256: string;
+  status: string;
+}
+interface VerifyResponse {
+  valid: boolean;
+  reason?: string;
+  archive?: PublicArchive;
+  signed_url?: string | null;
+}
+
 export default function VerificationPage() {
   const { token = "" } = useParams();
   const [loading, setLoading] = useState(true);
-  const [archive, setArchive] = useState<Record<string, unknown> | null>(null);
-  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [result, setResult] = useState<VerifyResponse | null>(null);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("document_archives")
-        .select("*")
-        .eq("qr_token", token)
-        .maybeSingle();
-      setArchive(data as Record<string, unknown> | null);
-      if (data && (data as { pdf_url?: string }).pdf_url) {
-        try {
-          const u = await getSignedArchiveUrl((data as { pdf_url: string }).pdf_url, 3600);
-          setSignedUrl(u);
-        } catch { /* ignore */ }
+      try {
+        const { data, error } = await supabase.functions.invoke<VerifyResponse>("verify-archive", {
+          body: { token, ttl: 3600 },
+        });
+        if (error) {
+          setResult({ valid: false, reason: "network_error" });
+        } else {
+          setResult(data ?? { valid: false, reason: "empty_response" });
+        }
+      } catch {
+        setResult({ valid: false, reason: "network_error" });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, [token]);
 
-  const authentic = !!archive && (archive as { status?: string }).status === "active";
-  const a = archive as {
-    document_type?: string; numero?: string; version?: number; sha256?: string;
-    generated_by_nom?: string; created_at?: string; pdf_size?: number;
-  } | null;
+  const authentic = !!result?.valid && result.archive?.status === "active";
+  const a = result?.archive ?? null;
+  const signedUrl = result?.signed_url ?? null;
+
+  const reasonLabel = (r?: string) => {
+    switch (r) {
+      case "invalid_token": return "Le jeton QR est invalide.";
+      case "not_found_or_expired": return "Le document est introuvable, révoqué ou expiré.";
+      case "lookup_failed":
+      case "internal_error":
+      case "network_error": return "Vérification indisponible pour le moment.";
+      default: return "Le jeton QR n'a pas pu être vérifié.";
+    }
+  };
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-muted/30 p-4">
@@ -52,22 +80,19 @@ export default function VerificationPage() {
         <CardContent className="space-y-4">
           {loading ? (
             <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Vérification…</div>
-          ) : !archive ? (
+          ) : !authentic ? (
             <div className="flex items-center gap-2 text-destructive">
               <XCircle className="h-5 w-5" />
               <div>
-                <div className="font-semibold">Document introuvable</div>
-                <div className="text-sm text-muted-foreground">Le jeton QR est invalide ou révoqué.</div>
+                <div className="font-semibold">Document non authentifié</div>
+                <div className="text-sm text-muted-foreground">{reasonLabel(result?.reason)}</div>
               </div>
             </div>
           ) : (
             <>
               <div className="flex items-center gap-2">
-                {authentic ? (
-                  <><CheckCircle2 className="h-6 w-6 text-emerald-600" /><span className="font-semibold text-emerald-700">Document authentique</span></>
-                ) : (
-                  <><XCircle className="h-6 w-6 text-destructive" /><span className="font-semibold text-destructive">Document révoqué</span></>
-                )}
+                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                <span className="font-semibold text-emerald-700">Document authentique</span>
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div><div className="text-muted-foreground">Type</div><div className="font-medium">{a?.document_type}</div></div>
