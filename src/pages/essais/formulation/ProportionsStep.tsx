@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -134,6 +134,14 @@ export default function ProportionsStep({
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
 
+  // PHASE FINALE — Drapeau explicite pour distinguer :
+  //  - une modification RÉELLE d'un slider par l'utilisateur (déclenche le recalcul)
+  //  - une mise à jour des sliders provenant de applyResult() (aucun recalcul)
+  // useRef pour éviter tout re-render et casser toute boucle de synchronisation.
+  const manualUserEditRef = useRef(false);
+  // Compteur d'audit : nombre d'appels réels à calculateMixDesign().
+  const calcCallCountRef = useRef(0);
+
   const mfMelangeEffectif = useMemo(
     () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
     [mfMelangeStocke, calcResult]
@@ -145,11 +153,13 @@ export default function ProportionsStep({
 
   const handleSliderChange = (key: string, val: number) => {
     const strVal = val.toString();
+    manualUserEditRef.current = true;
     setLocalOverrides(prev => ({ ...prev, [key]: strVal }));
     onQuantityChange?.(key, strVal);
   };
 
   const handleInputChange = (key: string, val: string) => {
+    manualUserEditRef.current = true;
     setLocalOverrides(prev => ({ ...prev, [key]: val }));
     onQuantityChange?.(key, val);
   };
@@ -308,6 +318,9 @@ export default function ProportionsStep({
       newOverrides[key] = formattedMass;
       onQuantityChange?.(key, formattedMass);
     }
+    // PHASE FINALE — Ces setLocalOverrides ne DOIVENT PAS être interprétés
+    // comme une édition utilisateur : on remet explicitement le drapeau à false.
+    manualUserEditRef.current = false;
     setLocalOverrides(newOverrides);
     setCalcResult(result);
     setHasCalculated(true);
@@ -338,11 +351,15 @@ export default function ProportionsStep({
 
     try {
       const inputs = buildInputs();
+      calcCallCountRef.current += 1;
       const result = calculateMixDesign(inputs);
       applyResult(result, result.masses);
       onQuantityChange?.("eau", inputs.eau.toString());
       onQuantityChange?.("ciment", inputs.ciment.toString());
       setCalcMode("calculate");
+      // PHASE FINALE — Audit unicité de calcResult
+      // eslint-disable-next-line no-console
+      console.info(`[Dreux-Gorisse][AUDIT] calculateMixDesign() total calls = ${calcCallCountRef.current} (source: handleCalculate)`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setCalculationErrors([msg]);
@@ -456,10 +473,15 @@ export default function ProportionsStep({
     onMfCorrectionNeeded?.(needsSable2Correction);
   }, [needsSable2Correction, onMfCorrectionNeeded]);
 
-  // Manual mode : recompute engine result (mixCurve, pointA, MF, référence) live
-  // from current slider masses so the chart reflects manual adjustments.
+  // PHASE FINALE — Mode manuel : le moteur n'est relancé que si l'utilisateur
+  // a EXPLICITEMENT bougé un slider/input (manualUserEditRef === true).
+  // Les mises à jour de localOverrides provenant de applyResult() sont
+  // ignorées ici (le drapeau est remis à false dans applyResult).
   useEffect(() => {
     if (calcMode !== "manual" || !hasCalculated) return;
+    if (!manualUserEditRef.current) return;
+    // Consommer le drapeau avant le calcul : un seul recalcul par édition.
+    manualUserEditRef.current = false;
     try {
       const inputs = buildInputs();
       const presetMasses: Record<string, number> = {
@@ -469,9 +491,12 @@ export default function ProportionsStep({
         gravier2: g2,
         gravier3: g3,
       };
+      calcCallCountRef.current += 1;
       const result = calculateMixDesign(inputs, presetMasses);
       setCalcResult(result);
       setCalculationErrors(result.volumeErrors);
+      // eslint-disable-next-line no-console
+      console.info(`[Dreux-Gorisse][AUDIT] calculateMixDesign() total calls = ${calcCallCountRef.current} (source: manual slider edit)`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setCalculationErrors([msg]);
