@@ -39,6 +39,7 @@ export default function LaboratoireMobileForm() {
   const { data: allLabosMobiles } = useLaboratoiresMobiles();
   const createMutation = useCreateLaboratoireMobile();
   const updateMutation = useUpdateLaboratoireMobile();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
     client_id: "",
