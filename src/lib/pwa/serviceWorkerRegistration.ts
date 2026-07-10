@@ -1,7 +1,4 @@
-// Phase 7.5 — C3 : Wrapper d'enregistrement du futur Service Worker.
-//
-// ⚠️ INFRASTRUCTURE UNIQUEMENT — aucun cache, aucun fetch handler, aucune logique
-// offline. Le Service Worker lui-même (`public/sw.js`) sera créé en Phase 8.
+// Phase 7.5 (C3) + Phase 8 — Wrapper d'enregistrement du Service Worker.
 //
 // Contraintes appliquées :
 //   • Ne jamais enregistrer en dev (import.meta.env.PROD)
@@ -10,6 +7,7 @@
 //   • Ne jamais enregistrer hors HTTPS (sauf localhost)
 //   • Kill-switch `?sw=off` — désenregistre les SW existants
 //   • Hooks de mise à jour exposés (onUpdateAvailable / onControllerChange)
+//   • SKIP_WAITING piloté par l'utilisateur (jamais de MAJ silencieuse)
 
 export interface ServiceWorkerHooks {
   onReady?: (registration: ServiceWorkerRegistration) => void;
@@ -20,6 +18,7 @@ export interface ServiceWorkerHooks {
 
 const SW_URL = "/sw.js";
 
+// --- Contexte -------------------------------------------------------------
 function isPreviewHost(): boolean {
   if (typeof window === "undefined") return false;
   const h = window.location.hostname;
@@ -34,45 +33,28 @@ function isPreviewHost(): boolean {
     h.endsWith(".beta.lovable.dev")
   );
 }
-
 function isInIframe(): boolean {
-  try {
-    return typeof window !== "undefined" && window.self !== window.top;
-  } catch {
-    return true;
-  }
+  try { return typeof window !== "undefined" && window.self !== window.top; }
+  catch { return true; }
 }
-
 function isSecureContextOrLocalhost(): boolean {
   if (typeof window === "undefined") return false;
   if (window.isSecureContext) return true;
   const h = window.location.hostname;
   return h === "localhost" || h === "127.0.0.1" || h === "::1";
 }
-
 function hasKillSwitch(): boolean {
   if (typeof window === "undefined") return false;
-  try {
-    return new URLSearchParams(window.location.search).get("sw") === "off";
-  } catch {
-    return false;
-  }
+  try { return new URLSearchParams(window.location.search).get("sw") === "off"; }
+  catch { return false; }
 }
-
 async function unregisterAll(): Promise<void> {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
   try {
     const regs = await navigator.serviceWorker.getRegistrations();
     await Promise.all(regs.map((r) => r.unregister().catch(() => false)));
-  } catch {
-    /* noop */
-  }
+  } catch { /* noop */ }
 }
-
-/**
- * Détermine si l'enregistrement est autorisé dans le contexte courant.
- * Exposé pour les tests / diagnostics.
- */
 export function canRegisterServiceWorker(): boolean {
   if (typeof window === "undefined" || typeof navigator === "undefined") return false;
   if (!("serviceWorker" in navigator)) return false;
@@ -84,42 +66,80 @@ export function canRegisterServiceWorker(): boolean {
   return true;
 }
 
-/**
- * Point d'entrée unique. À appeler depuis `main.tsx`.
- * Aucune régression possible : refuse silencieusement dans tous les contextes non-prod.
- */
+// --- Bus d'événements -----------------------------------------------------
+type UpdateListener = (reg: ServiceWorkerRegistration) => void;
+type ControllerListener = () => void;
+
+const updateListeners = new Set<UpdateListener>();
+const controllerListeners = new Set<ControllerListener>();
+let currentRegistration: ServiceWorkerRegistration | null = null;
+
+export function onUpdateAvailable(l: UpdateListener): () => void {
+  updateListeners.add(l);
+  // Si déjà connu, notifier immédiatement.
+  if (currentRegistration?.waiting) l(currentRegistration);
+  return () => { updateListeners.delete(l); };
+}
+export function onControllerChange(l: ControllerListener): () => void {
+  controllerListeners.add(l);
+  return () => { controllerListeners.delete(l); };
+}
+export function getCurrentRegistration(): ServiceWorkerRegistration | null {
+  return currentRegistration;
+}
+export async function applyPendingUpdate(): Promise<void> {
+  const waiting = currentRegistration?.waiting;
+  if (!waiting) return;
+  try { waiting.postMessage({ type: "SKIP_WAITING" }); } catch { /* noop */ }
+}
+
+function notifyUpdate(reg: ServiceWorkerRegistration): void {
+  updateListeners.forEach((l) => { try { l(reg); } catch { /* noop */ } });
+}
+function notifyController(): void {
+  controllerListeners.forEach((l) => { try { l(); } catch { /* noop */ } });
+}
+
+// --- Enregistrement -------------------------------------------------------
 export async function registerServiceWorker(hooks: ServiceWorkerHooks = {}): Promise<ServiceWorkerRegistration | null> {
-  // Kill-switch ou contexte interdit → désenregistrer tout SW existant.
   if (hasKillSwitch() || isPreviewHost() || isInIframe() || !import.meta.env.PROD) {
     await unregisterAll();
     return null;
   }
   if (!canRegisterServiceWorker()) return null;
 
-  // Vérifie que le fichier existe avant d'enregistrer (évite les 404 bruyants en Phase 7.5).
+  // Vérifie que le fichier existe avant d'enregistrer.
   try {
     const head = await fetch(SW_URL, { method: "HEAD" });
     if (!head.ok) return null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 
   try {
     const registration = await navigator.serviceWorker.register(SW_URL, { scope: "/" });
+    currentRegistration = registration;
 
-    // Hook : mise à jour disponible
+    const handleUpdate = () => {
+      notifyUpdate(registration);
+      hooks.onUpdateAvailable?.(registration);
+    };
+
+    // Si un worker est déjà en attente (rechargement après build), notifier.
+    if (registration.waiting && navigator.serviceWorker.controller) {
+      handleUpdate();
+    }
+
     registration.addEventListener("updatefound", () => {
       const installing = registration.installing;
       if (!installing) return;
       installing.addEventListener("statechange", () => {
         if (installing.state === "installed" && navigator.serviceWorker.controller) {
-          hooks.onUpdateAvailable?.(registration);
+          handleUpdate();
         }
       });
     });
 
-    // Hook : nouveau controller (post-skipWaiting)
     navigator.serviceWorker.addEventListener("controllerchange", () => {
+      notifyController();
       hooks.onControllerChange?.();
     });
 
@@ -131,7 +151,6 @@ export async function registerServiceWorker(hooks: ServiceWorkerHooks = {}): Pro
   }
 }
 
-/** Utilitaire manuel — désenregistre tous les SW du site. */
 export async function unregisterServiceWorker(): Promise<void> {
   await unregisterAll();
 }
