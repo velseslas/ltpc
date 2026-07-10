@@ -482,20 +482,35 @@ export default function FormulationReport() {
     }
   };
 
+  // Max ouverture disponible dans la courbe granulo de chaque matériau (mm)
+  const maxOuvByKey: Record<string, number> = {};
+  granulatsList.forEach((g) => {
+    const tamis = g.g?.granulometrie?.tamis || [];
+    maxOuvByKey[g.key] = tamis.reduce(
+      (mx: number, t: any) => Math.max(mx, Number(t.ouverture) || 0),
+      0
+    );
+  });
+
   const courbeData = TAMIS_STD.slice().sort((a, b) => a - b).map((ouv) => {
     const row: any = { ouverture: ouv, label: String(ouv) };
     let melange = 0;
-    let totalPct = 0;
+    // Pondération par masse totale (méthode Dreux-Gorisse — cf. computeMixCurveFromMasses)
     granulatsList.forEach((g) => {
-      const pct = totalGranulats > 0 ? (getQty(g.key) / totalGranulats) * 100 : 0;
-      const passant = getPassant(g.g?.granulometrie, ouv);
-      if (passant !== null) {
-        row[g.key] = passant;
-        melange += (passant * pct) / 100;
-        totalPct += pct;
-      }
+      const qty = getQty(g.key);
+      const pct = totalGranulats > 0 ? (qty / totalGranulats) * 100 : 0;
+      const passantRaw = getPassant(g.g?.granulometrie, ouv);
+      // Extrapolation : au-dessus de l'ouverture max de la courbe → 100% (tout passe)
+      const passant =
+        passantRaw !== null
+          ? Number(passantRaw)
+          : ouv > (maxOuvByKey[g.key] || 0)
+          ? 100
+          : 0;
+      row[g.key] = passantRaw !== null ? Number(passantRaw) : null;
+      melange += (passant * pct) / 100;
     });
-    row.melange = totalPct > 0 ? Number(melange.toFixed(1)) : null;
+    row.melange = totalGranulats > 0 ? Number(melange.toFixed(1)) : null;
     return row;
   });
 
@@ -1385,9 +1400,8 @@ export default function FormulationReport() {
               </thead>
               <tbody>
                 {TAMIS_STD.map((ouv) => {
-                  // mélange = somme(passant_i × pct_i / 100)
+                  // mélange = Σ(passant_i × masse_i) / masse_totale — extrapolation 100% au-dessus du dernier tamis
                   let melange = 0;
-                  let totalPct = 0;
                   granulatsList.forEach((g) => {
                     const qty =
                       g.key === "sable_concasse" ? formulation.sable_concasse_quantite || 0 :
@@ -1396,11 +1410,14 @@ export default function FormulationReport() {
                       g.key === "gravier2" ? formulation.gravier2_quantite || 0 :
                       g.key === "gravier3" ? formulation.gravier3_quantite || 0 : 0;
                     const pct = totalGranulats > 0 ? (qty / totalGranulats) * 100 : 0;
-                    const passant = getPassant(g.g?.granulometrie, ouv);
-                    if (passant !== null) {
-                      melange += (passant * pct) / 100;
-                      totalPct += pct;
-                    }
+                    const passantRaw = getPassant(g.g?.granulometrie, ouv);
+                    const passant =
+                      passantRaw !== null
+                        ? Number(passantRaw)
+                        : ouv > (maxOuvByKey[g.key] || 0)
+                        ? 100
+                        : 0;
+                    melange += (passant * pct) / 100;
                   });
                   return (
                     <tr key={ouv}>
@@ -1414,7 +1431,7 @@ export default function FormulationReport() {
                         );
                       })}
                       <td className="border border-black px-1 py-0.5 text-center font-bold text-black bg-yellow-50">
-                        {totalPct === 0 ? "—" : fmt(melange, 1)}
+                        {totalGranulats === 0 ? "—" : fmt(melange, 1)}
                       </td>
                     </tr>
                   );
