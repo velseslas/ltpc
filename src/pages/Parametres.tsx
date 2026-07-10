@@ -12,7 +12,8 @@ import {
   PenTool, 
   QrCode, 
   Settings,
-  UserCog
+  UserCog,
+  Brain
 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
@@ -127,6 +128,15 @@ const Parametres = () => {
       gradient: "from-cyan-500/20 to-teal-500/10",
       iconColor: "text-cyan-500",
       path: "/parametres/roles"
+    },
+    {
+      id: "ia-api",
+      title: "IA & API",
+      description: "Configuration des assistants IA et des clés API",
+      icon: Brain,
+      gradient: "from-violet-500/20 to-fuchsia-500/10",
+      iconColor: "text-violet-500",
+      path: "/parametres/ia-api"
     },
     {
       id: "systeme",

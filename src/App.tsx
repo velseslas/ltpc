@@ -194,6 +194,7 @@ const SignatureSettings = lazy(() => import("./pages/parametres/SignatureSetting
 const QRCodeSettings = lazy(() => import("./pages/parametres/QRCodeSettings"));
 const SystemeSettings = lazy(() => import("./pages/parametres/SystemeSettings"));
 const RolesPermissions = lazy(() => import("./pages/parametres/RolesPermissions"));
+const IAAPISettings = lazy(() => import("./pages/parametres/IAAPISettings"));
 const RH = lazy(() => import("./pages/RH"));
 const Postes = lazy(() => import("./pages/rh/Postes"));
 const PosteForm = lazy(() => import("./pages/rh/PosteForm"));
@@ -804,6 +805,7 @@ const AppRoutes = () => (
       <Route path="/parametres/qrcode" element={<QRCodeSettings />} />
       <Route path="/parametres/systeme" element={<SystemeSettings />} />
       <Route path="/parametres/roles" element={<RolesPermissions />} />
+      <Route path="/parametres/ia-api" element={<IAAPISettings />} />
     </Route>
     
     <Route path="*" element={<NotFound />} />
