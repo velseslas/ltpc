@@ -805,6 +805,7 @@ const AppRoutes = () => (
       <Route path="/parametres/qrcode" element={<QRCodeSettings />} />
       <Route path="/parametres/systeme" element={<SystemeSettings />} />
       <Route path="/parametres/roles" element={<RolesPermissions />} />
+      <Route path="/parametres/ia-api" element={<IAAPISettings />} />
     </Route>
     
     <Route path="*" element={<NotFound />} />
