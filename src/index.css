@@ -324,6 +324,24 @@
   main {
     padding: 0 !important;
     margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  /* Prevent trailing blank pages: neutralize forced min-heights and trailing margins */
+  html, body, #root, main, [class*="min-h-screen"], [class*="min-h-full"] {
+    min-height: 0 !important;
+  }
+
+  [data-ref="report"] {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  [data-ref="report"] > *:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   /* Color fidelity */
