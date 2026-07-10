@@ -49,8 +49,8 @@ const DENSITE_CIMENT_DEFAULT = 3110;
 /** Minimum proportion enforced for any active fraction to avoid silent drops. */
 const MIN_FRACTION = 0.02;
 
-/** Maximum proportion (volume) allowed for correction sand. */
-const MAX_CORRECTION_SAND_FRACTION = 0.30;
+// Phase finale : plafond 70/30 sur sable correcteur SUPPRIMÉ.
+// La méthode Dreux-Gorisse pure (95/5 graphique + formule MF) est l'unique autorité.
 
 // Phase 6 : SIEVE_WEIGHTS et sieveWeight supprimés — plus aucun solveur numérique.
 
