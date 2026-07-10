@@ -35,7 +35,11 @@ function repoFor<T>(table: string, select = STANDARD_SELECT) {
 
 function useDocumentsCRUD<T extends DocumentBase>(tableName: TableName) {
   const queryClient = useQueryClient();
-  const repo = repoFor<T & { clients: { nom: string } | null; chantiers: { nom: string } | null }>(tableName);
+  type Row = T & {
+    clients: { nom: string; representant: string | null; adresse: string | null; ville: string | null } | null;
+    chantiers: { nom: string } | null;
+  };
+  const repo = repoFor<Row>(tableName);
 
   const query = useQuery({
     queryKey: [tableName],
