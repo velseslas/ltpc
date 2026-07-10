@@ -12,7 +12,8 @@ import {
   PenTool, 
   QrCode, 
   Settings,
-  UserCog
+  UserCog,
+  Brain
 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
