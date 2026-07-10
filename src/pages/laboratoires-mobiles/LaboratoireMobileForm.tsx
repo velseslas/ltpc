@@ -86,19 +86,25 @@ export default function LaboratoireMobileForm() {
 
   useEffect(() => {
     if (labo) {
+      const chantier = allChantiers?.find(c => c.id === labo.chantier_id);
+      // Prefer chantier status when it's already normalized to en_cours/termine
+      const chantierStatut = chantier?.statut;
+      const rawStatut = (chantierStatut === "en_cours" || chantierStatut === "termine")
+        ? chantierStatut
+        : (labo.statut === "termine" ? "termine" : "en_cours");
       setFormData({
         client_id: labo.client_id || "",
         chantier_id: labo.chantier_id || "",
-        date_debut: labo.date_debut ? new Date(labo.date_debut) : null,
-        date_fin: labo.date_fin ? new Date(labo.date_fin) : null,
-        statut: labo.statut || "disponible",
+        date_debut: labo.date_debut ? new Date(labo.date_debut) : (chantier?.date_debut ? new Date(chantier.date_debut) : null),
+        date_fin: labo.date_fin ? new Date(labo.date_fin) : (chantier?.date_fin ? new Date(chantier.date_fin) : null),
+        statut: rawStatut,
         responsable_id: labo.responsable_id || "",
         date_affectation: (labo as any).date_affectation ? new Date((labo as any).date_affectation) : null,
         date_fin_affectation: (labo as any).date_fin_affectation ? new Date((labo as any).date_fin_affectation) : null,
         notes_affectation: (labo as any).notes_affectation || "",
       });
     }
-  }, [labo]);
+  }, [labo, allChantiers]);
 
   // Reset chantier when client changes
   useEffect(() => {
