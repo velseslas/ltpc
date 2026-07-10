@@ -269,9 +269,10 @@ export default function LaboratoireMobileForm() {
                   </SelectTrigger>
                   <SelectContent>
                     {filteredChantiers?.map((chantier) => {
+                      const isCurrent = chantier.id === formData.chantier_id;
                       const inCompression = chantiersInCompression.has(chantier.id);
-                      const isDisabled = inCompression;
-                      const disabledReason = inCompression ? "(Utilisé en compression)" : "";
+                      const isDisabled = inCompression && !isCurrent;
+                      const disabledReason = inCompression && !isCurrent ? "(Utilisé en compression)" : "";
 
                       return (
                         <SelectItem 
