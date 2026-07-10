@@ -118,16 +118,7 @@ Le règlement se fera par espèce ou par chèque bancaire au nom de {{labName}}.
 export function useContratArticles(contratId: string) {
   return useQuery({
     queryKey: ["contrat_articles", contratId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contrat_articles")
-        .select("*")
-        .eq("contrat_id", contratId)
-        .order("article_number", { ascending: true });
-
-      if (error) throw error;
-      return data as ContratArticle[];
-    },
+    queryFn: async () => (await repo.list({ filters: { contrat_id: contratId } })).data,
     enabled: !!contratId,
   });
 }
@@ -137,12 +128,8 @@ export function useUpsertContratArticles() {
 
   return useMutation({
     mutationFn: async (articles: { contrat_id: string; article_number: number; titre: string; contenu: string }[]) => {
-      const { data, error } = await supabase
-        .from("contrat_articles")
-        .upsert(articles, { onConflict: "contrat_id,article_number" })
-        .select();
-
-      if (error) throw error;
+      const { data, error } = await repo.upsert(articles as Partial<ContratArticle>[], { onConflict: "contrat_id,article_number" });
+      if (error) throw new Error(error);
       return data;
     },
     onSuccess: (_, variables) => {
@@ -152,3 +139,4 @@ export function useUpsertContratArticles() {
     },
   });
 }
+
