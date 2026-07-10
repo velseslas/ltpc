@@ -130,6 +130,15 @@ const Parametres = () => {
       path: "/parametres/roles"
     },
     {
+      id: "ia-api",
+      title: "IA & API",
+      description: "Configuration des assistants IA et des clés API",
+      icon: Brain,
+      gradient: "from-violet-500/20 to-fuchsia-500/10",
+      iconColor: "text-violet-500",
+      path: "/parametres/ia-api"
+    },
+    {
       id: "systeme",
       title: "Système",
       description: "Configuration générale du système",
