@@ -464,9 +464,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           [data-ref="report"][data-essai-type="forme-granulats"] .report-footer { margin-top: 4px !important; padding-top: 4px !important; }
           [data-ref="report"][data-essai-type="forme-granulats"] .p-3 { padding: 4px !important; }
 
-          /* Granulométrie: courbe en paysage sur la 2e page */
-          @page granulo-landscape { size: A4 landscape; margin: 8mm; }
-
+          /* Granulométrie: courbe pivotée pour rendu "paysage" sur la 2e page (portrait A4) */
           [data-ref="report"][data-essai-type="granulometrie"] {
             position: static !important;
             width: 194mm !important;
@@ -479,16 +477,31 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
             break-inside: auto !important;
           }
           [data-ref="report"][data-essai-type="granulometrie"] .chart-landscape-page {
-            page: granulo-landscape;
             page-break-before: always !important;
             break-before: page !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            width: 100% !important;
+            position: relative !important;
+            width: 194mm !important;
+            height: 281mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
           }
-          [data-ref="report"][data-essai-type="granulometrie"] .chart-landscape-page .recharts-responsive-container {
+          [data-ref="report"][data-essai-type="granulometrie"] .chart-landscape-inner {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            width: 281mm !important;
+            height: 194mm !important;
+            transform: translate(-50%, -50%) rotate(-90deg) !important;
+            transform-origin: center center !important;
+            padding: 6mm !important;
+            box-sizing: border-box !important;
+          }
+          [data-ref="report"][data-essai-type="granulometrie"] .chart-landscape-inner .chart-container {
             width: 100% !important;
-            height: 480px !important;
+            height: calc(194mm - 40mm) !important;
           }
         }
       `}</style>

@@ -133,46 +133,48 @@ export default function GranulometrieReportContent({ resultats, produit }: Granu
       {/* Courbe granulométrique */}
       {chartData.length > 0 && (
         <div className="chart-landscape-page">
-          <h3 className="font-bold text-sm mb-2 underline">Courbe granulométrique</h3>
-          <div className="border border-[#4a90a4] p-4 bg-white">
-            <div style={{ width: '100%', height: 280 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={chartData}
-                  margin={{ top: 10, right: 30, left: 10, bottom: 30 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                  <XAxis 
-                    dataKey="ouverture" 
-                    scale="log"
-                    domain={['auto', 'auto']}
-                    tickFormatter={(value) => `${value}`}
-                    label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11 } }}
-                    tick={{ fontSize: 10 }}
-                  />
-                  <YAxis 
-                    domain={[0, 100]} 
-                    tickFormatter={(value) => `${value}%`}
-                    label={{ value: 'Tamisât cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
-                    tick={{ fontSize: 10 }}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => [`${value.toFixed(2)}%`, 'Tamisât']}
-                    labelFormatter={(label) => `Tamis: ${label} mm`}
-                  />
-                  <ReferenceLine y={50} stroke="#999" strokeDasharray="5 5" />
-                  <Line 
-                    type="monotone" 
-                    dataKey="passant" 
-                    stroke="#4a90a4" 
-                    strokeWidth={2}
-                    dot={{ fill: '#4a90a4', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          <div className="chart-landscape-inner">
+            <h3 className="font-bold text-sm mb-2 underline">Courbe granulométrique</h3>
+            <div className="border border-[#4a90a4] p-4 bg-white">
+              <div style={{ width: '100%', height: 280 }} className="chart-container">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 10, right: 30, left: 10, bottom: 30 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                    <XAxis 
+                      dataKey="ouverture" 
+                      scale="log"
+                      domain={['auto', 'auto']}
+                      tickFormatter={(value) => `${value}`}
+                      label={{ value: 'Ouverture tamis (mm)', position: 'bottom', offset: 10, style: { fontSize: 11 } }}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <YAxis 
+                      domain={[0, 100]} 
+                      tickFormatter={(value) => `${value}%`}
+                      label={{ value: 'Tamisât cumulé (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <Tooltip 
+                      formatter={(value: number) => [`${value.toFixed(2)}%`, 'Tamisât']}
+                      labelFormatter={(label) => `Tamis: ${label} mm`}
+                    />
+                    <ReferenceLine y={50} stroke="#999" strokeDasharray="5 5" />
+                    <Line 
+                      type="monotone" 
+                      dataKey="passant" 
+                      stroke="#4a90a4" 
+                      strokeWidth={2}
+                      dot={{ fill: '#4a90a4', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-center text-gray-500 mt-2">Échelle logarithmique des ouvertures</p>
             </div>
-            <p className="text-xs text-center text-gray-500 mt-2">Échelle logarithmique des ouvertures</p>
           </div>
         </div>
       )}
