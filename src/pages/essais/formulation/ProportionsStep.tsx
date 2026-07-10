@@ -318,6 +318,9 @@ export default function ProportionsStep({
       newOverrides[key] = formattedMass;
       onQuantityChange?.(key, formattedMass);
     }
+    // PHASE FINALE — Ces setLocalOverrides ne DOIVENT PAS être interprétés
+    // comme une édition utilisateur : on remet explicitement le drapeau à false.
+    manualUserEditRef.current = false;
     setLocalOverrides(newOverrides);
     setCalcResult(result);
     setHasCalculated(true);
