@@ -2,14 +2,31 @@
 // Objectif : garantir que les comptes/listes affichés dans les écrans et les
 // réponses des outils IA proviennent EXACTEMENT de la même requête. Interdit de
 // dupliquer un `.from("table")` ailleurs pour les domaines couverts ici.
+//
+// Phase 2 : le Repository supporte aussi les filtres avancés (in/gte/lte/or/ilike)
+// et les mutations (insert/update/delete/upsert) — ce qui permet aux hooks
+// existants d'être migrés sans perdre de fonctionnalité.
 import { supabase } from "@/integrations/supabase/client";
 
 export interface RepoOrder { column: string; ascending: boolean }
 
+/** Filtre avancé — extensions au-delà de l'égalité simple. */
+export type RepoAdvancedFilter =
+  | { op: "eq"; value: unknown }
+  | { op: "neq"; value: unknown }
+  | { op: "in"; value: readonly (string | number)[] }
+  | { op: "gt" | "gte" | "lt" | "lte"; value: number | string }
+  | { op: "like" | "ilike"; value: string }
+  | { op: "is"; value: null | boolean }
+  | { op: "or"; value: string /* ex: "nom.ilike.%foo%,ville.ilike.%foo%" */ };
+
+/** Un filtre peut être une valeur brute (eq) ou un objet {op,value}. */
+export type RepoFilter = unknown | RepoAdvancedFilter;
+
 export interface RepoDebug {
   repository: string;
   table: string;
-  operation: "list" | "count" | "search" | "getById";
+  operation: "list" | "count" | "search" | "getById" | "insert" | "update" | "delete" | "upsert";
   select: string;
   order?: RepoOrder;
   filters: Record<string, unknown>;
@@ -24,6 +41,7 @@ export interface RepoDebug {
 export interface RepoListResult<T> { data: T[]; count: number; debug: RepoDebug }
 export interface RepoCountResult { count: number; debug: RepoDebug }
 export interface RepoSingleResult<T> { data: T | null; debug: RepoDebug }
+export interface RepoMutationResult<T> { data: T[]; error: string | null; debug: RepoDebug }
 
 export interface RepositoryConfig {
   /** Identifiant logique (ex: "clients", "chantiers"). */
@@ -44,10 +62,47 @@ function esc(v: unknown): string {
   return `'${String(v).replace(/'/g, "''")}'`;
 }
 
+function isAdvancedFilter(v: unknown): v is RepoAdvancedFilter {
+  return typeof v === "object" && v !== null && "op" in v && "value" in v;
+}
+
+function applyFilters<Q extends { eq: Function; neq: Function; in: Function; gt: Function; gte: Function; lt: Function; lte: Function; like: Function; ilike: Function; is: Function; or: Function }>(
+  q: Q,
+  filters: Record<string, RepoFilter>,
+): Q {
+  let out = q;
+  for (const [k, v] of Object.entries(filters)) {
+    if (v === undefined) continue;
+    if (isAdvancedFilter(v)) {
+      switch (v.op) {
+        case "eq": out = (out as any).eq(k, v.value); break;
+        case "neq": out = (out as any).neq(k, v.value); break;
+        case "in": out = (out as any).in(k, v.value); break;
+        case "gt": out = (out as any).gt(k, v.value); break;
+        case "gte": out = (out as any).gte(k, v.value); break;
+        case "lt": out = (out as any).lt(k, v.value); break;
+        case "lte": out = (out as any).lte(k, v.value); break;
+        case "like": out = (out as any).like(k, v.value); break;
+        case "ilike": out = (out as any).ilike(k, v.value); break;
+        case "is": out = (out as any).is(k, v.value); break;
+        case "or": out = (out as any).or(v.value); break;
+      }
+    } else if (v === null) {
+      out = (out as any).is(k, null);
+    } else {
+      out = (out as any).eq(k, v);
+    }
+  }
+  return out;
+}
+
 function previewSql(op: string, table: string, select: string, filters: Record<string, unknown>, order?: RepoOrder, limit?: number): string {
   const where = Object.entries(filters)
     .filter(([, v]) => v !== undefined)
-    .map(([k, v]) => `${k} = ${esc(v)}`)
+    .map(([k, v]) => {
+      if (isAdvancedFilter(v)) return `${k} ${v.op} ${Array.isArray((v as any).value) ? `(${((v as any).value as unknown[]).map(esc).join(",")})` : esc((v as any).value)}`;
+      return `${k} = ${esc(v)}`;
+    })
     .join(" AND ");
   const cols = op === "count" ? "count(*)" : select;
   let sql = `SELECT ${cols} FROM public.${table}`;
@@ -67,7 +122,7 @@ export class Repository<T = Record<string, unknown>> {
   async list(opts: {
     select?: string;
     order?: RepoOrder;
-    filters?: Record<string, unknown>;
+    filters?: Record<string, RepoFilter>;
     limit?: number;
   } = {}): Promise<RepoListResult<T>> {
     const t0 = performance.now();
@@ -75,10 +130,7 @@ export class Repository<T = Record<string, unknown>> {
     const order = opts.order ?? this.config.defaultOrder;
     const filters = opts.filters ?? {};
     let q = sb.from(this.config.table).select(select, { count: "exact" });
-    for (const [k, v] of Object.entries(filters)) {
-      if (v === undefined) continue;
-      if (v === null) q = q.is(k, null); else q = q.eq(k, v);
-    }
+    q = applyFilters(q, filters);
     if (order) q = q.order(order.column, { ascending: order.ascending });
     if (opts.limit) q = q.limit(opts.limit);
     const { data, error, count } = await q;
@@ -99,13 +151,10 @@ export class Repository<T = Record<string, unknown>> {
   }
 
   /** Comptage exact — utilise le MÊME chemin que list() pour garantir la cohérence. */
-  async count(filters: Record<string, unknown> = {}): Promise<RepoCountResult> {
+  async count(filters: Record<string, RepoFilter> = {}): Promise<RepoCountResult> {
     const t0 = performance.now();
     let q = sb.from(this.config.table).select("id", { count: "exact", head: true });
-    for (const [k, v] of Object.entries(filters)) {
-      if (v === undefined) continue;
-      if (v === null) q = q.is(k, null); else q = q.eq(k, v);
-    }
+    q = applyFilters(q, filters);
     const { error, count } = await q;
     const debug: RepoDebug = {
       repository: this.config.name, table: this.config.table, operation: "count",
@@ -160,5 +209,105 @@ export class Repository<T = Record<string, unknown>> {
       duration_ms: Math.round(performance.now() - t0),
     };
     return { data: (data ?? null) as T | null, debug };
+  }
+
+  // ---------- Mutations ----------
+
+  /** INSERT — retourne les lignes créées (avec SELECT * par défaut). */
+  async insert(values: Partial<T> | Partial<T>[], opts: { select?: string } = {}): Promise<RepoMutationResult<T>> {
+    const t0 = performance.now();
+    const sel = opts.select ?? "*";
+    const { data, error } = await sb.from(this.config.table).insert(values).select(sel);
+    const rows = Array.isArray(data) ? data.length : 0;
+    return {
+      data: (data ?? []) as T[],
+      error: error?.message ?? null,
+      debug: {
+        repository: this.config.name, table: this.config.table, operation: "insert",
+        select: sel, filters: {},
+        sql_preview: `INSERT INTO public.${this.config.table} (…) VALUES (…) RETURNING ${sel}`,
+        rows_returned: rows,
+        warning: error ? `Erreur: ${error.message}` : undefined,
+        duration_ms: Math.round(performance.now() - t0),
+      },
+    };
+  }
+
+  /** UPDATE avec filtres — supporte `{col: value}` et filtres avancés. */
+  async update(values: Partial<T>, filters: Record<string, RepoFilter>, opts: { select?: string } = {}): Promise<RepoMutationResult<T>> {
+    const t0 = performance.now();
+    const sel = opts.select ?? "*";
+    let q = sb.from(this.config.table).update(values);
+    q = applyFilters(q, filters);
+    const { data, error } = await q.select(sel);
+    const rows = Array.isArray(data) ? data.length : 0;
+    return {
+      data: (data ?? []) as T[],
+      error: error?.message ?? null,
+      debug: {
+        repository: this.config.name, table: this.config.table, operation: "update",
+        select: sel, filters,
+        sql_preview: `UPDATE public.${this.config.table} SET … WHERE ${Object.keys(filters).map(k => `${k}=?`).join(" AND ") || "true"} RETURNING ${sel}`,
+        rows_returned: rows,
+        warning: error ? `Erreur: ${error.message}` : undefined,
+        duration_ms: Math.round(performance.now() - t0),
+      },
+    };
+  }
+
+  /** UPSERT — insertion ou mise à jour selon clé (par défaut: primary key). */
+  async upsert(values: Partial<T> | Partial<T>[], opts: { onConflict?: string; select?: string } = {}): Promise<RepoMutationResult<T>> {
+    const t0 = performance.now();
+    const sel = opts.select ?? "*";
+    let q = sb.from(this.config.table).upsert(values, opts.onConflict ? { onConflict: opts.onConflict } : undefined);
+    const { data, error } = await q.select(sel);
+    const rows = Array.isArray(data) ? data.length : 0;
+    return {
+      data: (data ?? []) as T[],
+      error: error?.message ?? null,
+      debug: {
+        repository: this.config.name, table: this.config.table, operation: "upsert",
+        select: sel, filters: opts.onConflict ? { onConflict: opts.onConflict } : {},
+        sql_preview: `INSERT INTO public.${this.config.table} … ON CONFLICT (${opts.onConflict ?? "id"}) DO UPDATE RETURNING ${sel}`,
+        rows_returned: rows,
+        warning: error ? `Erreur: ${error.message}` : undefined,
+        duration_ms: Math.round(performance.now() - t0),
+      },
+    };
+  }
+
+  /** DELETE avec filtres. Refuse une suppression sans filtre pour éviter les accidents. */
+  async delete(filters: Record<string, RepoFilter>): Promise<RepoMutationResult<T>> {
+    const t0 = performance.now();
+    if (!filters || Object.keys(filters).length === 0) {
+      return {
+        data: [],
+        error: "Refus: DELETE sans filtre interdit",
+        debug: {
+          repository: this.config.name, table: this.config.table, operation: "delete",
+          select: "-", filters: {},
+          sql_preview: `-- refused: DELETE without WHERE`,
+          rows_returned: 0,
+          warning: "DELETE sans filtre bloqué par le Repository (sécurité).",
+          duration_ms: 0,
+        },
+      };
+    }
+    let q = sb.from(this.config.table).delete();
+    q = applyFilters(q, filters);
+    const { data, error } = await q.select("*");
+    const rows = Array.isArray(data) ? data.length : 0;
+    return {
+      data: (data ?? []) as T[],
+      error: error?.message ?? null,
+      debug: {
+        repository: this.config.name, table: this.config.table, operation: "delete",
+        select: "*", filters,
+        sql_preview: `DELETE FROM public.${this.config.table} WHERE ${Object.keys(filters).map(k => `${k}=?`).join(" AND ")} RETURNING *`,
+        rows_returned: rows,
+        warning: error ? `Erreur: ${error.message}` : undefined,
+        duration_ms: Math.round(performance.now() - t0),
+      },
+    };
   }
 }
