@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInDays, parseISO, isAfter, isBefore, addDays } from "date-fns";
+import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
+import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 
 export interface Notification {
   id: string;
@@ -13,17 +15,29 @@ export interface Notification {
 }
 
 export function useNotifications() {
+  const { data: role } = useCurrentUserRole();
+  const { data: userChantiers } = useCurrentUserChantiers();
+  const isTechnicien = role === "technicien" || role === "operateur";
+  const allowedChantierIds = userChantiers?.chantierIds ?? [];
+
   return useQuery({
-    queryKey: ["notifications"],
+    queryKey: ["notifications", role, allowedChantierIds.join(",")],
+    enabled: !isTechnicien || !!userChantiers,
     queryFn: async (): Promise<Notification[]> => {
       const notifications: Notification[] = [];
       const today = new Date();
+      const allowedSet = new Set(allowedChantierIds);
+
 
       // 1. Check for overdue essais (pending or in-progress for more than 7 days)
-      const { data: essais, error: essaisError } = await supabase
-        .from("essais")
-        .select("id, nom, reference, statut, date_reception")
-        .in("statut", ["pending", "in-progress"]);
+      // Techniciens: skip generic essais (no chantier scoping available here)
+      const { data: essais, error: essaisError } = isTechnicien
+        ? { data: [], error: null }
+        : await supabase
+            .from("essais")
+            .select("id, nom, reference, statut, date_reception")
+            .in("statut", ["pending", "in-progress"]);
+
 
       if (!essaisError && essais) {
         essais.forEach((essai) => {
@@ -57,13 +71,22 @@ export function useNotifications() {
       }
 
       // 3. Check for compression samples needing attention (based on jours_essai)
-      const { data: compressionSamples, error: compressionError } = await supabase
+      let compressionQuery = supabase
         .from("echantillons_compression")
-        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, clients:client_id(nom), chantiers:chantier_id(nom)")
+        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, chantier_id, clients:client_id(nom), chantiers:chantier_id(nom)")
         .in("statut", ["a-faire", "en-cours"]);
+      if (isTechnicien) {
+        if (allowedChantierIds.length === 0) {
+          compressionQuery = compressionQuery.eq("chantier_id", "00000000-0000-0000-0000-000000000000");
+        } else {
+          compressionQuery = compressionQuery.in("chantier_id", allowedChantierIds);
+        }
+      }
+      const { data: compressionSamples, error: compressionError } = await compressionQuery;
 
       if (!compressionError && compressionSamples) {
         compressionSamples.forEach((sample) => {
+
           if (sample.date_coulage && sample.jours_essai) {
             const coulageDate = parseISO(sample.date_coulage);
             const joursEssaiData = sample.jours_essai as Array<{ jour: number; nombre: number }>;
@@ -123,11 +146,14 @@ export function useNotifications() {
         });
       }
 
-      // 3. Check for equipment calibration
-      const { data: materiel, error: materielError } = await supabase
-        .from("materiel")
-        .select("id, nom, reference, date_prochain_etalonnage, statut")
-        .not("date_prochain_etalonnage", "is", null);
+      // 3. Check for equipment calibration (skip for techniciens — not scoped by chantier)
+      const { data: materiel, error: materielError } = isTechnicien
+        ? { data: [], error: null }
+        : await supabase
+            .from("materiel")
+            .select("id, nom, reference, date_prochain_etalonnage, statut")
+            .not("date_prochain_etalonnage", "is", null);
+
 
       if (!materielError && materiel) {
         materiel.forEach((equip) => {
