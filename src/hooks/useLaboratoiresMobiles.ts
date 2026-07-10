@@ -94,10 +94,9 @@ export function useLaboMobileChantiers() {
   return useQuery({
     queryKey: ["laboratoires-mobiles-chantiers"],
     queryFn: async () => {
-      const { data } = await chantiersRepo.list({ filters: { chantier_id: { op: "is", value: null } } });
-      // Note: with filter `is null`, we get null rows. We want non-null instead:
-      const { data: all } = await chantiersRepo.list();
-      return new Set(all.filter(r => r.chantier_id).map(r => r.chantier_id as string));
+      const { data } = await chantiersRepo.list();
+      return new Set(data.filter(r => r.chantier_id).map(r => r.chantier_id as string));
     },
   });
 }
+
