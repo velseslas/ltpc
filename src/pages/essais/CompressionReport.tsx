@@ -705,8 +705,8 @@ const CompressionReport = () => {
         #root [data-ref="report"] table,
         #root [data-ref="report"] td,
         #root [data-ref="report"] th {
-          height: 18px !important;
-          min-height: 18px !important;
+          height: 22px !important;
+          min-height: 22px !important;
         }
 
         ${isPrintRoute ? `
@@ -821,7 +821,7 @@ const CompressionReport = () => {
 
           /* Compact compression report so 12 specimens fit on a single A4 page */
           [data-ref="report"] [data-pdf-page] { page-break-after: avoid !important; break-after: avoid !important; }
-          [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 5px !important; }
           [data-ref="report"] .mb-4 { margin-bottom: 5px !important; }
           [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
           [data-ref="report"] .mt-8 { margin-top: 6px !important; }
@@ -837,20 +837,20 @@ const CompressionReport = () => {
           #root [data-ref="report"] th {
             font-size: 8.5pt !important;
             padding: 3px 5px !important;
-            height: 18px !important;
-            min-height: 18px !important;
+            height: 22px !important;
+            min-height: 22px !important;
             line-height: 1.2 !important;
           }
           #root [data-ref="report"] .formulation-table th,
           #root [data-ref="report"] .formulation-table td {
             font-size: 8pt !important;
             padding: 3px 4px !important;
-            height: 18px !important;
-            min-height: 18px !important;
+            height: 22px !important;
+            min-height: 22px !important;
             line-height: 1.2 !important;
           }
 
-          [data-ref="report"] [data-report-footer] { margin-top: 6px !important; padding-top: 5px !important; }
+          [data-ref="report"] [data-report-footer] { margin-top: 4px !important; padding-top: 4px !important; }
           [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
           [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
           /* Keep footer with the results table to avoid overflow to page 2 */
