@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export type Intervenant = Tables<"intervenants">;
 export type IntervenantInsert = TablesInsert<"intervenants">;
@@ -10,97 +10,61 @@ export type IntervenantWithPoste = Intervenant & {
   postes: { id: string; nom: string } | null;
 };
 
+const repo = getRepositoryForTable<IntervenantWithPoste>("intervenants", {
+  defaultSelect: `*, postes(id, nom)`,
+  defaultOrder: { column: "nom", ascending: true },
+});
+const statsRepo = getRepositoryForTable<{ statut: string }>("intervenants", {
+  defaultSelect: "statut",
+});
+
 export function useIntervenants() {
   return useQuery({
     queryKey: ["intervenants"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("intervenants")
-        .select(`
-          *,
-          postes(id, nom)
-        `)
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
-      return data as IntervenantWithPoste[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useIntervenant(id: string) {
   return useQuery({
     queryKey: ["intervenants", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("intervenants")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.getById(id, "*")).data,
     enabled: !!id,
   });
 }
 
 export function useCreateIntervenant() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (intervenant: IntervenantInsert) => {
-      const { data, error } = await supabase
-        .from("intervenants")
-        .insert(intervenant)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(intervenant as Partial<IntervenantWithPoste>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["intervenants"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["intervenants"] }),
   });
 }
 
 export function useUpdateIntervenant() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: IntervenantUpdate & { id: string }) => {
-      const { data, error } = await supabase
-        .from("intervenants")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(updates as Partial<IntervenantWithPoste>, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["intervenants"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["intervenants"] }),
   });
 }
 
 export function useDeleteIntervenant() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("intervenants")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["intervenants"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["intervenants"] }),
   });
 }
 
@@ -108,12 +72,7 @@ export function useIntervenantsStats() {
   return useQuery({
     queryKey: ["intervenants-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("intervenants")
-        .select("statut");
-      
-      if (error) throw error;
-      
+      const { data } = await statsRepo.list();
       return {
         total: data.length,
         active: data.filter(i => i.statut === "active").length,

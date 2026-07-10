@@ -1,27 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const repo = getRepositoryForTable<any>("prix_essais", {
+  defaultOrder: { column: "categorie", ascending: true },
+});
 
 export function usePrixEssais() {
   return useQuery({
     queryKey: ["prix-essais"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("prix_essais")
-        .select("*")
-        .order("categorie", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useCreatePrixEssai() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (item: any) => {
-      const { data, error } = await (supabase as any).from("prix_essais").insert(item).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(item);
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["prix-essais"] }),
   });
@@ -30,10 +29,11 @@ export function useCreatePrixEssai() {
 export function useUpdatePrixEssai() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async ({ id, ...item }: any) => {
-      const { data, error } = await (supabase as any).from("prix_essais").update(item).eq("id", id).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(item, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["prix-essais"] }),
   });
@@ -43,8 +43,8 @@ export function useDeletePrixEssai() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("prix_essais").delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["prix-essais"] }),
   });

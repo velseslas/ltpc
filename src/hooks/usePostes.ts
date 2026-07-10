@@ -1,95 +1,61 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export type Poste = Tables<"postes">;
 export type PosteInsert = TablesInsert<"postes">;
 export type PosteUpdate = TablesUpdate<"postes">;
 
+const repo = getRepositoryForTable<Poste>("postes", {
+  defaultOrder: { column: "nom", ascending: true },
+});
+
 export function usePostes() {
   return useQuery({
     queryKey: ["postes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("postes")
-        .select("*")
-        .order("nom");
-
-      if (error) throw error;
-      return data as Poste[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function usePoste(id: string) {
   return useQuery({
     queryKey: ["postes", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("postes")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-      return data as Poste;
-    },
+    queryFn: async () => (await repo.getById(id)).data,
     enabled: !!id,
   });
 }
 
 export function useCreatePoste() {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (poste: PosteInsert) => {
-      const { data, error } = await supabase
-        .from("postes")
-        .insert(poste)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(poste as Partial<Poste>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["postes"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["postes"] }),
   });
 }
 
 export function useUpdatePoste() {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...poste }: PosteUpdate & { id: string }) => {
-      const { data, error } = await supabase
-        .from("postes")
-        .update(poste)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(poste as Partial<Poste>, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["postes"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["postes"] }),
   });
 }
 
 export function useDeletePoste() {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("postes").delete().eq("id", id);
-
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["postes"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["postes"] }),
   });
 }
