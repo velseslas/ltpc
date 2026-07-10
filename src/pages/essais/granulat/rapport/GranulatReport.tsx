@@ -463,6 +463,33 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
           }
           [data-ref="report"][data-essai-type="forme-granulats"] .report-footer { margin-top: 4px !important; padding-top: 4px !important; }
           [data-ref="report"][data-essai-type="forme-granulats"] .p-3 { padding: 4px !important; }
+
+          /* Granulométrie: courbe en paysage sur la 2e page */
+          @page granulo-landscape { size: A4 landscape; margin: 8mm; }
+
+          [data-ref="report"][data-essai-type="granulometrie"] {
+            position: static !important;
+            width: 194mm !important;
+            min-height: 0 !important;
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
+          [data-ref="report"][data-essai-type="granulometrie"] > * {
+            page-break-inside: auto !important;
+            break-inside: auto !important;
+          }
+          [data-ref="report"][data-essai-type="granulometrie"] .chart-landscape-page {
+            page: granulo-landscape;
+            page-break-before: always !important;
+            break-before: page !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            width: 100% !important;
+          }
+          [data-ref="report"][data-essai-type="granulometrie"] .chart-landscape-page .recharts-responsive-container {
+            width: 100% !important;
+            height: 480px !important;
+          }
         }
       `}</style>
     </div>
