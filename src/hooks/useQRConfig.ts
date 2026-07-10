@@ -1,6 +1,7 @@
+// Phase 3-ter — Migré vers BaseRepository (via getRepositoryForTable).
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories/registry";
 
 export interface QRConfig {
   enabled: boolean;
@@ -8,6 +9,14 @@ export interface QRConfig {
   color: string;
   includeLogo: boolean;
   position: string;
+}
+
+interface QRRow {
+  activer_qrcode: boolean | null;
+  taille_qrcode: string | null;
+  couleur_qrcode: string | null;
+  inclure_logo: boolean | null;
+  position_qrcode: string | null;
 }
 
 const DEFAULT: QRConfig = {
@@ -31,12 +40,11 @@ export function useQRConfig(): QRConfig {
   const { data } = useQuery({
     queryKey: ["parametres_qrcode_public"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("parametres_qrcode")
-        .select("activer_qrcode, taille_qrcode, couleur_qrcode, inclure_logo, position_qrcode")
-        .maybeSingle();
-      if (error) return null;
-      return data;
+      const repo = getRepositoryForTable<QRRow>("parametres_qrcode", {
+        defaultSelect: "activer_qrcode, taille_qrcode, couleur_qrcode, inclure_logo, position_qrcode",
+      });
+      const { data } = await repo.list({ limit: 1 });
+      return data[0] ?? null;
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -51,7 +59,6 @@ export function useQRConfig(): QRConfig {
         position: data.position_qrcode || "bas-droite",
       };
 
-  // Sync CSS var so print stylesheet honors the configured size
   useEffect(() => {
     document.documentElement.style.setProperty("--qr-size", `${config.sizePx}px`);
   }, [config.sizePx]);

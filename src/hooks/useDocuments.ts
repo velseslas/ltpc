@@ -1,5 +1,6 @@
+// Phase 3-ter — Migré vers BaseRepository (via getRepositoryForTable).
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories/registry";
 
 export interface DocumentBase {
   id: string;
@@ -16,102 +17,66 @@ export interface DocumentBase {
   updated_at: string;
 }
 
-export interface LettreEngagement extends DocumentBase {
-  montant: number | null;
-}
-
-export interface OffreService extends DocumentBase {
-  description: string | null;
-}
-
-export interface OffrePrix extends DocumentBase {
-  montant_ht: number | null;
-  montant_ttc: number | null;
-}
-
-export interface AttestationBonneExecution extends DocumentBase {
-  date_debut: string | null;
-  date_fin: string | null;
-}
+export interface LettreEngagement extends DocumentBase { montant: number | null }
+export interface OffreService extends DocumentBase { description: string | null }
+export interface OffrePrix extends DocumentBase { montant_ht: number | null; montant_ttc: number | null }
+export interface AttestationBonneExecution extends DocumentBase { date_debut: string | null; date_fin: string | null }
 
 type TableName = "lettres_engagement" | "offres_service" | "offres_prix" | "attestations_bonne_execution";
 
+const STANDARD_SELECT = "*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)";
+
+function repoFor<T>(table: string, select = STANDARD_SELECT) {
+  return getRepositoryForTable<T>(table, {
+    defaultSelect: select,
+    defaultOrder: { column: "created_at", ascending: false },
+  });
+}
+
 function useDocumentsCRUD<T extends DocumentBase>(tableName: TableName) {
   const queryClient = useQueryClient();
+  type Row = T & {
+    clients: { nom: string; representant: string | null; adresse: string | null; ville: string | null } | null;
+    chantiers: { nom: string } | null;
+  };
+  const repo = repoFor<Row>(tableName);
 
   const query = useQuery({
     queryKey: [tableName],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select("*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as unknown as (T & { clients: { nom: string } | null; chantiers: { nom: string } | null })[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 
   const create = useMutation({
     mutationFn: async (doc: Omit<T, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
-        .from(tableName)
-        .insert(doc as any)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(doc as Partial<Row>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [tableName] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [tableName] }),
   });
 
   const update = useMutation({
     mutationFn: async ({ id, ...rest }: { id: string } & Partial<T>) => {
-      const { data, error } = await supabase
-        .from(tableName)
-        .update(rest as any)
-        .eq("id", id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(rest as Partial<Row>, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [tableName] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [tableName] }),
   });
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from(tableName).delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [tableName] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [tableName] }),
   });
 
   return { query, create, update, remove };
 }
 
 export function useLettresEngagement() {
-  const queryClient = useQueryClient();
-  const base = useDocumentsCRUD<LettreEngagement>("lettres_engagement");
-
-  const query = useQuery({
-    queryKey: ["lettres_engagement"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("lettres_engagement")
-        .select("*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as unknown as (LettreEngagement & { clients: { nom: string; representant: string | null; adresse: string | null; ville: string | null } | null; chantiers: { nom: string } | null })[];
-    },
-  });
-
-  return { ...base, query };
+  return useDocumentsCRUD<LettreEngagement>("lettres_engagement");
 }
 
 export function useOffresService() {
@@ -128,16 +93,14 @@ export function useAttestationsBonneExecution() {
 
 export function useDossierAdministratif() {
   const queryClient = useQueryClient();
+  const repo = repoFor<Record<string, unknown>>("documents_administratifs", "*, clients:client_id(nom)");
 
   const query = useQuery({
     queryKey: ["documents_administratifs_list"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("documents_administratifs")
-        .select("*, clients:client_id(nom)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data || []).map((item: any) => ({
+      const { data } = await repo.list();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data as any[]).map((item: any) => ({
         ...item,
         date_document: item.created_at,
         numero: null,
@@ -149,52 +112,37 @@ export function useDossierAdministratif() {
   });
 
   const create = useMutation({
-    mutationFn: async (doc: any) => {
-      const { data, error } = await supabase
-        .from("documents_administratifs")
-        .insert({
-          titre: doc.titre,
-          client_id: doc.client_id || null,
-          document_url: doc.document_url || null,
-          document_nom: doc.document_nom || null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+    mutationFn: async (doc: { titre: string; client_id?: string | null; document_url?: string | null; document_nom?: string | null }) => {
+      const { data, error } = await repo.insert({
+        titre: doc.titre,
+        client_id: doc.client_id || null,
+        document_url: doc.document_url || null,
+        document_nom: doc.document_nom || null,
+      });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents_administratifs_list"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents_administratifs_list"] }),
   });
 
   const update = useMutation({
-    mutationFn: async ({ id, ...rest }: any) => {
-      const { data, error } = await supabase
-        .from("documents_administratifs")
-        .update({
-          titre: rest.titre,
-          client_id: rest.client_id || null,
-        })
-        .eq("id", id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ id, ...rest }: { id: string; titre: string; client_id?: string | null }) => {
+      const { data, error } = await repo.update({
+        titre: rest.titre,
+        client_id: rest.client_id || null,
+      }, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents_administratifs_list"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents_administratifs_list"] }),
   });
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("documents_administratifs").delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents_administratifs_list"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["documents_administratifs_list"] }),
   });
 
   return { query, create, update, remove };
@@ -202,16 +150,14 @@ export function useDossierAdministratif() {
 
 export function useContratsDocuments() {
   const queryClient = useQueryClient();
+  const repo = repoFor<Record<string, unknown>>("contrats");
 
   const query = useQuery({
     queryKey: ["contrats_documents"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contrats")
-        .select("*, clients:client_id(nom, representant, adresse, ville), chantiers:chantier_id(nom)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data || []).map((item: any) => ({
+      const { data } = await repo.list();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data as any[]).map((item: any) => ({
         ...item,
         date_document: item.date_signature,
         numero: null,
@@ -223,21 +169,17 @@ export function useContratsDocuments() {
   });
 
   const create = useMutation({
-    mutationFn: async (doc: any) => {
-      const { data, error } = await supabase
-        .from("contrats")
-        .insert({
-          titre: doc.titre,
-          client_id: doc.client_id || null,
-          chantier_id: doc.chantier_id || null,
-          statut: doc.statut || "brouillon",
-          date_signature: doc.date_debut || doc.date_document || null,
-          date_expiration: doc.date_fin || null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+    mutationFn: async (doc: { titre: string; client_id?: string | null; chantier_id?: string | null; statut?: string; date_debut?: string | null; date_document?: string | null; date_fin?: string | null }) => {
+      const { data, error } = await repo.insert({
+        titre: doc.titre,
+        client_id: doc.client_id || null,
+        chantier_id: doc.chantier_id || null,
+        statut: doc.statut || "brouillon",
+        date_signature: doc.date_debut || doc.date_document || null,
+        date_expiration: doc.date_fin || null,
+      });
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contrats_documents"] });
@@ -246,22 +188,17 @@ export function useContratsDocuments() {
   });
 
   const update = useMutation({
-    mutationFn: async ({ id, ...rest }: any) => {
-      const { data, error } = await supabase
-        .from("contrats")
-        .update({
-          titre: rest.titre,
-          client_id: rest.client_id || null,
-          chantier_id: rest.chantier_id || null,
-          statut: rest.statut,
-          date_signature: rest.date_debut || rest.date_document || null,
-          date_expiration: rest.date_fin || null,
-        })
-        .eq("id", id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ id, ...rest }: { id: string; titre?: string; client_id?: string | null; chantier_id?: string | null; statut?: string; date_debut?: string | null; date_document?: string | null; date_fin?: string | null }) => {
+      const { data, error } = await repo.update({
+        titre: rest.titre,
+        client_id: rest.client_id || null,
+        chantier_id: rest.chantier_id || null,
+        statut: rest.statut,
+        date_signature: rest.date_debut || rest.date_document || null,
+        date_expiration: rest.date_fin || null,
+      }, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contrats_documents"] });
@@ -271,8 +208,8 @@ export function useContratsDocuments() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("contrats").delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contrats_documents"] });
