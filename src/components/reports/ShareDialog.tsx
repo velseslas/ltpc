@@ -157,7 +157,7 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
             )}
             <Button
               onClick={() => runShare("auto")}
-              disabled={loading || (!canShare && !onGeneratePdf)}
+              disabled={loading}
               className="gradient-primary text-primary-foreground"
             >
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
