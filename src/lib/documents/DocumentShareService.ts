@@ -154,8 +154,16 @@ class WebShareProvider implements ShareProvider {
       // Continue vers fallback
     }
 
-    // Fallback ultime : téléchargement
-    return this.downloadPdf(getPdf, finalFileName, channel);
+    // Fallback : téléchargement du PDF s'il existe
+    if (getPdf) return this.downloadPdf(getPdf, finalFileName, channel);
+
+    // Dernier recours : copier le lien sécurisé dans le presse-papiers
+    try {
+      await navigator.clipboard.writeText(url);
+      return { ok: true, channel, action: "copied", message: "Lien copié dans le presse-papiers." };
+    } catch {
+      return { ok: false, channel, action: "error", message: "Partage indisponible sur ce navigateur." };
+    }
   }
 
   private async downloadPdf(getPdf: SharePayload["getPdf"], fileName: string, channel: ShareChannel): Promise<ShareResult> {
