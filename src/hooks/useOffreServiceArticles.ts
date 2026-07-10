@@ -136,16 +136,7 @@ Le Laboratoire :
 export function useOffreServiceArticles(offreId: string) {
   return useQuery({
     queryKey: ["offre_service_articles", offreId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("offre_service_articles")
-        .select("*")
-        .eq("offre_service_id", offreId)
-        .order("article_number", { ascending: true });
-
-      if (error) throw error;
-      return data as OffreServiceArticle[];
-    },
+    queryFn: async () => (await repo.list({ filters: { offre_service_id: offreId } })).data,
     enabled: !!offreId,
   });
 }
@@ -157,12 +148,8 @@ export function useUpsertOffreServiceArticles() {
     mutationFn: async (
       articles: { offre_service_id: string; article_number: number; titre: string; contenu: string }[],
     ) => {
-      const { data, error } = await supabase
-        .from("offre_service_articles")
-        .upsert(articles, { onConflict: "offre_service_id,article_number" })
-        .select();
-
-      if (error) throw error;
+      const { data, error } = await repo.upsert(articles as Partial<OffreServiceArticle>[], { onConflict: "offre_service_id,article_number" });
+      if (error) throw new Error(error);
       return data;
     },
     onSuccess: (_, variables) => {
@@ -174,3 +161,4 @@ export function useUpsertOffreServiceArticles() {
     },
   });
 }
+
