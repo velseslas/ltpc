@@ -814,32 +814,38 @@ const CompressionReport = () => {
 
           /* Compact compression report so 12 specimens fit on a single A4 page */
           [data-ref="report"] [data-pdf-page] { page-break-after: avoid !important; break-after: avoid !important; }
-          [data-ref="report"] .mb-6 { margin-bottom: 10px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 8px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 12px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 8px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 8px !important; }
-          [data-ref="report"] [data-report-header] { padding: 10px !important; }
-          [data-ref="report"] [data-report-header] h1 { font-size: 14px !important; margin-bottom: 2px !important; }
-          [data-ref="report"] [data-report-header] p { font-size: 10px !important; line-height: 1.3 !important; margin-bottom: 2px !important; }
+          [data-ref="report"] .mb-6 { margin-bottom: 6px !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: 5px !important; }
+          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
+          [data-ref="report"] .mt-8 { margin-top: 6px !important; }
+          [data-ref="report"] .mt-4 { margin-top: 5px !important; }
+          [data-ref="report"] .mt-2 { margin-top: 3px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 5px !important; }
+          [data-ref="report"] .pt-3 { padding-top: 4px !important; }
+          [data-ref="report"] [data-report-header] { padding: 8px !important; }
+          [data-ref="report"] [data-report-header] h1 { font-size: 13px !important; margin-bottom: 2px !important; }
+          [data-ref="report"] [data-report-header] p { font-size: 9px !important; line-height: 1.2 !important; margin-bottom: 1px !important; }
           #root [data-ref="report"] table,
           #root [data-ref="report"] td,
           #root [data-ref="report"] th {
-            font-size: 9pt !important;
-            padding: 4px 6px !important;
-            height: 18px !important;
-            line-height: 1.3 !important;
+            font-size: 8.5pt !important;
+            padding: 2px 5px !important;
+            height: 14px !important;
+            line-height: 1.2 !important;
           }
           #root [data-ref="report"] .formulation-table th,
           #root [data-ref="report"] .formulation-table td {
-            font-size: 8.5pt !important;
-            padding: 4px 6px !important;
-            height: 18px !important;
-            line-height: 1.3 !important;
+            font-size: 8pt !important;
+            padding: 2px 4px !important;
+            height: 14px !important;
+            line-height: 1.2 !important;
           }
-          [data-ref="report"] [data-report-footer] { margin-top: 10px !important; padding-top: 8px !important; }
-          [data-ref="report"] [data-report-footer] img { max-height: 45px !important; }
-          [data-ref="report"] h3 { font-size: 11pt !important; margin-bottom: 3px !important; }
+          [data-ref="report"] [data-report-footer] { margin-top: 6px !important; padding-top: 5px !important; }
+          [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
+          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
+          /* Keep footer with the results table to avoid overflow to page 2 */
+          [data-ref="report"] [data-report-footer] { page-break-inside: avoid !important; break-inside: avoid !important; }
+
         }
       `}</style>
     </div>
