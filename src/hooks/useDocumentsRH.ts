@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface DocumentRH {
   id: string;
@@ -18,23 +17,17 @@ export interface DocumentRH {
   };
 }
 
+const repo = getRepositoryForTable<DocumentRH>("documents_rh", {
+  defaultSelect: `*, intervenant:intervenants(id, nom, prenom)`,
+  defaultOrder: { column: "created_at", ascending: false },
+});
+
 export function useDocumentsRH() {
   const queryClient = useQueryClient();
 
   const { data: documents = [], isLoading, error } = useQuery({
     queryKey: ["documents_rh"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("documents_rh")
-        .select(`
-          *,
-          intervenant:intervenants(id, nom, prenom)
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as DocumentRH[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 
   const createDocument = useMutation({
@@ -44,22 +37,17 @@ export function useDocumentsRH() {
       nom_fichier?: string;
       url_fichier?: string;
     }) => {
-      const { data, error } = await supabase
-        .from("documents_rh")
-        .insert(document)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const { data, error: err } = await repo.insert(document as Partial<DocumentRH>);
+      if (err) throw new Error(err);
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents_rh"] });
       toast.success("Document créé avec succès");
     },
-    onError: (error) => {
+    onError: (err) => {
       toast.error("Erreur lors de la création du document");
-      console.error(error);
+      console.error(err);
     },
   });
 
@@ -74,51 +62,34 @@ export function useDocumentsRH() {
       nom_fichier?: string;
       url_fichier?: string;
     }) => {
-      const { data, error } = await supabase
-        .from("documents_rh")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const { data, error: err } = await repo.update(updates as Partial<DocumentRH>, { id });
+      if (err) throw new Error(err);
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents_rh"] });
       toast.success("Document mis à jour avec succès");
     },
-    onError: (error) => {
+    onError: (err) => {
       toast.error("Erreur lors de la mise à jour du document");
-      console.error(error);
+      console.error(err);
     },
   });
 
   const deleteDocument = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("documents_rh")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      const { error: err } = await repo.delete({ id });
+      if (err) throw new Error(err);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents_rh"] });
       toast.success("Document supprimé avec succès");
     },
-    onError: (error) => {
+    onError: (err) => {
       toast.error("Erreur lors de la suppression du document");
-      console.error(error);
+      console.error(err);
     },
   });
 
-  return {
-    documents,
-    isLoading,
-    error,
-    createDocument,
-    updateDocument,
-    deleteDocument,
-  };
+  return { documents, isLoading, error, createDocument, updateDocument, deleteDocument };
 }

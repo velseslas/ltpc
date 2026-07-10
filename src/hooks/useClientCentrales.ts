@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface ClientCentrale {
   id: string;
@@ -21,99 +21,58 @@ export interface ClientCentrale {
   } | null;
 }
 
+const SELECT = `*, centrales_beton ( id, nom, ville, contact, telephone, capacite ), chantiers ( id, nom )`;
+const repo = getRepositoryForTable<ClientCentrale>("client_centrales", {
+  defaultSelect: SELECT,
+  defaultOrder: { column: "created_at", ascending: false },
+});
+
 export function useClientCentrales(clientId: string) {
   return useQuery({
     queryKey: ["client_centrales", clientId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("client_centrales")
-        .select(`
-          *,
-          centrales_beton (
-            id,
-            nom,
-            ville,
-            contact,
-            telephone,
-            capacite
-          ),
-          chantiers (
-            id,
-            nom
-          )
-        `)
-        .eq("client_id", clientId)
-        .order("created_at", { ascending: false });
-      
-      if (error) throw error;
-      return data as ClientCentrale[];
-    },
+    queryFn: async () => (await repo.list({ filters: { client_id: clientId } })).data,
     enabled: !!clientId,
   });
 }
 
 export function useAddClientCentrale() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ clientId, centraleId, chantierId }: { clientId: string; centraleId: string; chantierId?: string }) => {
-      const { data, error } = await supabase
-        .from("client_centrales")
-        .insert({ 
-          client_id: clientId, 
-          centrale_id: centraleId,
-          chantier_id: chantierId || null
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert({
+        client_id: clientId,
+        centrale_id: centraleId,
+        chantier_id: chantierId || null,
+      } as Partial<ClientCentrale>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["client_centrales", variables.clientId] });
-    },
+    onSuccess: (_, variables) => qc.invalidateQueries({ queryKey: ["client_centrales", variables.clientId] }),
   });
 }
 
 export function useUpdateClientCentrale() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, clientId, centraleId, chantierId }: { id: string; clientId: string; centraleId: string; chantierId?: string }) => {
-      const { data, error } = await supabase
-        .from("client_centrales")
-        .update({ 
-          centrale_id: centraleId,
-          chantier_id: chantierId || null
-        })
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ id, clientId: _clientId, centraleId, chantierId }: { id: string; clientId: string; centraleId: string; chantierId?: string }) => {
+      const { data, error } = await repo.update(
+        { centrale_id: centraleId, chantier_id: chantierId || null } as Partial<ClientCentrale>,
+        { id },
+      );
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["client_centrales", variables.clientId] });
-    },
+    onSuccess: (_, variables) => qc.invalidateQueries({ queryKey: ["client_centrales", variables.clientId] }),
   });
 }
 
 export function useRemoveClientCentrale() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, clientId }: { id: string; clientId: string }) => {
-      const { error } = await supabase
-        .from("client_centrales")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+    mutationFn: async ({ id }: { id: string; clientId: string }) => {
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["client_centrales", variables.clientId] });
-    },
+    onSuccess: (_, variables) => qc.invalidateQueries({ queryKey: ["client_centrales", variables.clientId] }),
   });
 }
