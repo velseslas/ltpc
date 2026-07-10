@@ -827,14 +827,14 @@ const CompressionReport = () => {
           #root [data-ref="report"] th {
             font-size: 9pt !important;
             padding: 4px 6px !important;
-            height: 24px !important;
+            height: 18px !important;
             line-height: 1.3 !important;
           }
           #root [data-ref="report"] .formulation-table th,
           #root [data-ref="report"] .formulation-table td {
             font-size: 8.5pt !important;
             padding: 4px 6px !important;
-            height: 24px !important;
+            height: 18px !important;
             line-height: 1.3 !important;
           }
           [data-ref="report"] [data-report-footer] { margin-top: 10px !important; padding-top: 8px !important; }
