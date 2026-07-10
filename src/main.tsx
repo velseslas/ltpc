@@ -256,6 +256,11 @@ async function bootstrap() {
   } catch { /* noop */ }
   const { default: App } = await import("./App.tsx");
   createRoot(document.getElementById("root")!).render(<App />);
+  // Phase 7.5 — C3 : enregistrement du futur Service Worker (silencieux en preview/dev).
+  try {
+    const { registerServiceWorker } = await import("./lib/pwa/serviceWorkerRegistration");
+    void registerServiceWorker();
+  } catch { /* noop */ }
 }
 
 void bootstrap();
