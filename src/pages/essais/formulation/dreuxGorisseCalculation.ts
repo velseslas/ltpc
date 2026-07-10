@@ -473,10 +473,9 @@ export function calculateMixDesign(
   const mfPrev = mfInitial;
 
 
-  // ----- Apply correction-sand cap in standard calculation --------------
-  if (!hasPresetMasses) {
-    sableMasses = enforceCorrectionSandCap(sableMasses, activeSables, Vsable);
-  }
+  // Phase finale : plus aucun plafond artificiel sur le sable correcteur.
+  // Les proportions issues de distributeSand() (formule MF Dreux-Gorisse) sont
+  // désormais définitives — la méthode graphique 95/5 est l'unique autorité.
 
   // Final volumes / masses
   const masses: Record<string, number> = {};
