@@ -4,6 +4,7 @@
 // - Les outils LTPC AI (SQLCountTool, SQLListTool, …) lisent ici.
 // Résultat : impossible que l'IA compte X et que l'écran affiche Y.
 import { Repository, type RepositoryConfig } from "./BaseRepository";
+import { supabase } from "@/integrations/supabase/client";
 
 // Déclaration figée — équivalent DOMAIN_SPECS mais partagé UI ↔ IA.
 export const REPOSITORY_CONFIGS = {
@@ -134,4 +135,65 @@ export function getRepositoryForTable<T = Record<string, unknown>>(
   CACHE.set(key, repo as unknown as Repository);
   return repo;
 }
+
+// ---------- Phase 3-bis : appels RPC & Edge Functions centralisés ----------
+// Les hooks ne doivent plus appeler directement `supabase.rpc(...)` ni
+// `supabase.functions.invoke(...)`. Ces helpers unifient l'accès et
+// permettront à la future PWA d'ajouter cache/retry/queue si besoin.
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sb = supabase as unknown as any;
+
+export interface RpcDebug {
+  repository: "RpcRepository";
+  operation: "rpc";
+  function: string;
+  duration_ms: number;
+  warning?: string;
+}
+
+export async function callRpc<T = unknown>(name: string, args: Record<string, unknown> = {}): Promise<{ data: T | null; error: string | null; debug: RpcDebug }> {
+  const t0 = performance.now();
+  const { data, error } = await sb.rpc(name, args);
+  return {
+    data: (data as T) ?? null,
+    error: error?.message ?? null,
+    debug: {
+      repository: "RpcRepository",
+      operation: "rpc",
+      function: name,
+      duration_ms: Math.round(performance.now() - t0),
+      warning: error?.message,
+    },
+  };
+}
+
+export async function callEdgeFunction<T = unknown>(name: string, body?: unknown): Promise<{ data: T | null; error: string | null; debug: RpcDebug }> {
+  const t0 = performance.now();
+  const { data, error } = await sb.functions.invoke(name, body !== undefined ? { body } : undefined);
+  return {
+    data: (data as T) ?? null,
+    error: error?.message ?? null,
+    debug: {
+      repository: "RpcRepository",
+      operation: "rpc",
+      function: `edge:${name}`,
+      duration_ms: Math.round(performance.now() - t0),
+      warning: error?.message,
+    },
+  };
+}
+
+// ---------- Phase 3-bis : PWA extension points sur Repository ----------
+// Le vrai branchement (cache local, offline, queue, retry) sera implémenté
+// dans une phase dédiée. Ici on ne pose que les crochets, désactivés.
+export interface RepositoryHooks {
+  onDebug?: (debug: unknown) => void;
+  offlineFallback?: (payload: unknown) => Promise<unknown | null>;
+  enqueueMutation?: (payload: unknown) => Promise<void>;
+  retryPolicy?: { retries: number; backoffMs: number };
+}
+export const REPOSITORY_HOOKS: RepositoryHooks = {
+  // no-op — sera branché en Phase PWA.
+};
 
