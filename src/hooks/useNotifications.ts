@@ -146,11 +146,14 @@ export function useNotifications() {
         });
       }
 
-      // 3. Check for equipment calibration
-      const { data: materiel, error: materielError } = await supabase
-        .from("materiel")
-        .select("id, nom, reference, date_prochain_etalonnage, statut")
-        .not("date_prochain_etalonnage", "is", null);
+      // 3. Check for equipment calibration (skip for techniciens — not scoped by chantier)
+      const { data: materiel, error: materielError } = isTechnicien
+        ? { data: [], error: null }
+        : await supabase
+            .from("materiel")
+            .select("id, nom, reference, date_prochain_etalonnage, statut")
+            .not("date_prochain_etalonnage", "is", null);
+
 
       if (!materielError && materiel) {
         materiel.forEach((equip) => {
