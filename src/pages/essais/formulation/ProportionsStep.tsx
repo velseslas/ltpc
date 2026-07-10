@@ -456,6 +456,29 @@ export default function ProportionsStep({
     onMfCorrectionNeeded?.(needsSable2Correction);
   }, [needsSable2Correction, onMfCorrectionNeeded]);
 
+  // Manual mode : recompute engine result (mixCurve, pointA, MF, référence) live
+  // from current slider masses so the chart reflects manual adjustments.
+  useEffect(() => {
+    if (calcMode !== "manual" || !hasCalculated) return;
+    try {
+      const inputs = buildInputs();
+      const presetMasses: Record<string, number> = {
+        sableConcasse: sc,
+        sableFin: sf,
+        gravillons1: g1,
+        gravier2: g2,
+        gravier3: g3,
+      };
+      const result = calculateMixDesign(inputs, presetMasses);
+      setCalcResult(result);
+      setCalculationErrors(result.volumeErrors);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setCalculationErrors([msg]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calcMode, hasCalculated, sc, sf, g1, g2, g3, calcEau, calcCiment, calcRatioGS, coefficientGranulaire, coefficientCompacite, dMaxUser]);
+
   return (
     <div className="space-y-6">
       {/* Calculation Parameters Card */}
