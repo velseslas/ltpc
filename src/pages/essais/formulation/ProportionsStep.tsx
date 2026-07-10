@@ -663,13 +663,10 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
             </div>
           )}
 
-          {/* Phase 7 : bloc "Proportions des sables — Formule MF cible" SUPPRIMÉ.
-              Il recomputait s1 = (MFc − MF2)/(MF1 − MF2) sans appliquer le plafond
-              30 % du sable correcteur, ce qui divergeait du moteur (ex. 61,6/38,4
-              affiché ici vs 70/30 réellement produit par calculateMixDesign après
-              enforceCorrectionSandCap). Les proportions finales sont désormais
-              affichées uniquement par le bloc "Répartition par fraction" ci-dessous,
-              qui lit directement calcResult.volumes.detail (source unique). */}
+          {/* Phase finale : proportions des sables affichées uniquement via
+              "Répartition par fraction" ci-dessous, source unique = calcResult.
+              Le plafond 70/30 sur sable correcteur a été supprimé — la méthode
+              Dreux-Gorisse pure (formule MF + graphique 95/5) est l'autorité. */}
 
           {calcResult && (
             <div className="space-y-2">
