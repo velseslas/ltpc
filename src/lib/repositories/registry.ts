@@ -110,3 +110,28 @@ export function getRepository(name: RepositoryName): Repository {
 export function tableFor(name: RepositoryName): string {
   return REPOSITORY_CONFIGS[name].table;
 }
+
+/**
+ * Phase 3 — Repository ad-hoc pour une table non déclarée dans REPOSITORY_CONFIGS.
+ * Permet aux hooks CRUD simples (adjuvants, carrieres, …) de passer par BaseRepository
+ * sans polluer le registry métier partagé avec LTPC AI.
+ * Les hooks fournissent leur `defaultSelect` / `defaultOrder` via les options d'appel.
+ */
+export function getRepositoryForTable<T = Record<string, unknown>>(
+  table: string,
+  opts: { defaultSelect?: string; defaultOrder?: { column: string; ascending: boolean }; searchFields?: string[] } = {},
+): Repository<T> {
+  const key = `__adhoc__:${table}`;
+  const cached = CACHE.get(key) as Repository<T> | undefined;
+  if (cached) return cached;
+  const repo = new Repository<T>({
+    name: table,
+    table,
+    defaultSelect: opts.defaultSelect ?? "*",
+    defaultOrder: opts.defaultOrder,
+    searchFields: opts.searchFields,
+  });
+  CACHE.set(key, repo as unknown as Repository);
+  return repo;
+}
+
