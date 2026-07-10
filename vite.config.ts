@@ -35,7 +35,9 @@ export default defineConfig(({ mode }) => ({
         sourcemap: false,
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: false, // maj proposée à l'utilisateur, jamais silencieuse
+        // MAJ jamais silencieuse : le nouveau SW est activé au rechargement
+        // demandé explicitement par l'utilisateur (PWAUpdatePrompt).
+        skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2,ttf}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: "/index.html",
