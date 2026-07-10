@@ -16,3 +16,9 @@ verify_jwt = false
 
 [functions.ltpc-ai-narrative]
 verify_jwt = true
+
+# Public QR verification endpoint (RC2). Accepts anonymous calls,
+# scoped by a random 24+ byte token; returns limited metadata and a
+# short-lived signed URL only. Internal fields never exposed.
+[functions.verify-archive]
+verify_jwt = false

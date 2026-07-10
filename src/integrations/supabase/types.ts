@@ -8084,6 +8084,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_archive_by_token: {
+        Args: { _max_age_days?: number; _token: string }
+        Returns: {
+          created_at: string
+          document_type: string
+          generated_by_nom: string
+          numero: string
+          pdf_path: string
+          pdf_size: number
+          sha256: string
+          status: string
+          version: number
+        }[]
+      }
     }
     Enums: {
       app_role:
