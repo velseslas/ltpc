@@ -25,15 +25,12 @@ export function useCurrentUserChantiers() {
 
       const intervenantId = utilisateur.intervenant_id;
 
-      // Source of truth: laboratoires_mobiles.responsable_id
+      // Source of truth: laboratoires_mobiles.responsable_id ("Technicien affecté").
+      // We ignore the RH `affectations` table (generic project assignments).
       const { data: labos } = await labosRepo.list({
         select: "chantier_id",
-        filters: {
-          responsable_id: intervenantId,
-          chantier_id: { op: "is", value: null } as any, // placeholder to allow next filter
-        },
+        filters: { responsable_id: intervenantId },
       });
-      // Re-filter locally because Repository can't express "not is null" cleanly here.
       const chantierIdSet = new Set<string>();
       (labos as Array<{ chantier_id: string | null }>).forEach((l) => {
         if (l.chantier_id) chantierIdSet.add(l.chantier_id);
