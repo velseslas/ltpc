@@ -196,10 +196,28 @@ export default function DebugDreuxPanel({ inputs, result }: DebugDreuxPanelProps
                   );
                 })}
                 <Row
-                  label="MF mélange"
-                  formula="Σ (MFᵢ × Vᵢ) / ΣVᵢ"
-                  values={`MF cible = ${fmt(mfCible, 2)}`}
+                  label="MF cible (entrée)"
+                  formula="donnée d'entrée (jamais substituée)"
+                  values="—"
+                  result={fmt(mfCible, 2)}
+                  unit=""
+                />
+                <Row
+                  label="MF obtenu (mélange)"
+                  formula="Σ (MFᵢ × Mᵢ) / ΣMᵢ — à partir des masses finales"
+                  values="calculé après méthode graphique 95/5"
                   result={fmt(moduleFinesse.melange, 2)}
+                  unit=""
+                />
+                <Row
+                  label="Écart MF"
+                  formula="|MF obtenu − MF cible|"
+                  values="—"
+                  result={
+                    typeof moduleFinesse.melange === "number" && typeof mfCible === "number"
+                      ? fmt(Math.abs(moduleFinesse.melange - mfCible), 2)
+                      : "—"
+                  }
                   unit=""
                 />
               </Section>
