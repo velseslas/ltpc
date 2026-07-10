@@ -69,6 +69,10 @@ export function Navbar() {
 
           <div className="relative" ref={userMenuRef}>
             <button
+              type="button"
+              aria-label="Menu utilisateur"
+              aria-haspopup="menu"
+              aria-expanded={userMenuOpen}
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className={cn(
                 "flex items-center gap-2 px-2 py-1 rounded-lg transition-colors cursor-pointer",

@@ -57,6 +57,8 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
+          type="button"
+          aria-label={totalCount > 0 ? `Notifications (${totalCount} non lues)` : "Notifications"}
           className={cn(
             "relative flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group w-full",
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
