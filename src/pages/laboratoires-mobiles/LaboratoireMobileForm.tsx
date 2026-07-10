@@ -53,6 +53,36 @@ export default function LaboratoireMobileForm() {
     notes_affectation: "",
   });
 
+  const effectiveClientId = formData.client_id || (isEditing ? labo?.client_id || "" : "");
+  const effectiveChantierId = formData.chantier_id || (
+    isEditing && effectiveClientId === (labo?.client_id || "") ? labo?.chantier_id || "" : ""
+  );
+  const effectiveResponsableId = formData.responsable_id || (isEditing ? labo?.responsable_id || "" : "");
+
+  const currentChantierOption = useMemo(() => {
+    if (!effectiveChantierId) return null;
+    const existing = allChantiers?.find(c => c.id === effectiveChantierId);
+    if (existing) return existing;
+    if (labo?.chantiers?.id === effectiveChantierId) {
+      return {
+        id: labo.chantiers.id,
+        client_id: effectiveClientId || labo.client_id || null,
+        nom: labo.chantiers.nom,
+        adresse: null,
+        ville: labo.chantiers.ville ?? null,
+        contact: null,
+        telephone: null,
+        description: null,
+        statut: labo.statut || "en_cours",
+        date_debut: labo.date_debut,
+        date_fin: labo.date_fin,
+        created_at: "",
+        updated_at: "",
+      };
+    }
+    return null;
+  }, [allChantiers, effectiveChantierId, effectiveClientId, labo]);
+
   // Get chantiers used in compression tests
   const chantiersInCompression = useMemo(() => {
     if (!echantillonsCompression) return new Set<string>();
@@ -75,9 +105,13 @@ export default function LaboratoireMobileForm() {
 
   // Filter chantiers by selected client
   const filteredChantiers = useMemo(() => {
-    if (!allChantiers || !formData.client_id) return [];
-    return allChantiers.filter(c => c.client_id === formData.client_id);
-  }, [allChantiers, formData.client_id]);
+    if (!effectiveClientId) return [];
+    const list = allChantiers?.filter(c => c.client_id === effectiveClientId) ?? [];
+    if (currentChantierOption && !list.some(c => c.id === currentChantierOption.id)) {
+      return [...list, currentChantierOption];
+    }
+    return list;
+  }, [allChantiers, effectiveClientId, currentChantierOption]);
 
   // Filter technicians only
   const techniciens = useMemo(() => {
@@ -126,8 +160,8 @@ export default function LaboratoireMobileForm() {
 
   // Auto-import date_debut + date_affectation from chantier
   useEffect(() => {
-    if (formData.chantier_id && allChantiers) {
-      const selectedChantier = allChantiers.find(c => c.id === formData.chantier_id);
+    if (effectiveChantierId && allChantiers) {
+      const selectedChantier = allChantiers.find(c => c.id === effectiveChantierId);
       if (selectedChantier?.date_debut) {
         const d = new Date(selectedChantier.date_debut as string);
         setFormData(prev => ({
@@ -137,12 +171,12 @@ export default function LaboratoireMobileForm() {
         }));
       }
     }
-  }, [formData.chantier_id, allChantiers]);
+  }, [effectiveChantierId, allChantiers]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.client_id || !formData.chantier_id) {
+    if (!effectiveClientId || !effectiveChantierId) {
       toast({ 
         title: "Erreur", 
         description: "Veuillez sélectionner un client et un chantier", 
@@ -152,19 +186,23 @@ export default function LaboratoireMobileForm() {
     }
 
     try {
+      const clientId = effectiveClientId;
+      const chantierId = effectiveChantierId;
+      const responsableId = effectiveResponsableId;
+
       // Generate nom from client and chantier
-      const selectedClient = clients?.find(c => c.id === formData.client_id);
-      const selectedChantier = allChantiers?.find(c => c.id === formData.chantier_id);
+      const selectedClient = clients?.find(c => c.id === clientId) || labo?.clients;
+      const selectedChantier = allChantiers?.find(c => c.id === chantierId) || currentChantierOption || labo?.chantiers;
       const nom = `${selectedClient?.nom || ""} - ${selectedChantier?.nom || ""}`;
 
       const dataToSubmit: any = {
         nom,
-        client_id: formData.client_id,
-        chantier_id: formData.chantier_id,
+        client_id: clientId,
+        chantier_id: chantierId,
         date_debut: formData.date_debut ? format(formData.date_debut, "yyyy-MM-dd") : null,
         date_fin: formData.date_fin ? format(formData.date_fin, "yyyy-MM-dd") : null,
         statut: formData.statut,
-        responsable_id: formData.responsable_id || null,
+        responsable_id: responsableId || null,
         date_affectation: formData.date_affectation ? format(formData.date_affectation, "yyyy-MM-dd") : null,
         date_fin_affectation: formData.date_fin_affectation ? format(formData.date_fin_affectation, "yyyy-MM-dd") : null,
         notes_affectation: formData.notes_affectation || null,
@@ -182,7 +220,7 @@ export default function LaboratoireMobileForm() {
       }
 
       // Sync statut + dates on the chantier so the widget reflects the choice
-      if (formData.chantier_id) {
+      if (chantierId) {
         await supabase
           .from("chantiers")
           .update({
@@ -190,7 +228,7 @@ export default function LaboratoireMobileForm() {
             date_debut: dataToSubmit.date_debut,
             date_fin: dataToSubmit.date_fin,
           })
-          .eq("id", formData.chantier_id);
+          .eq("id", chantierId);
         queryClient.invalidateQueries({ queryKey: ["chantiers"] });
       }
 
@@ -242,8 +280,8 @@ export default function LaboratoireMobileForm() {
               <div className="space-y-2">
                 <Label htmlFor="client">Client *</Label>
                 <Select 
-                  value={formData.client_id} 
-                  onValueChange={(v) => setFormData({ ...formData, client_id: v })}
+                  value={effectiveClientId} 
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, client_id: v, chantier_id: prev.client_id === v ? prev.chantier_id : "" }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un client" />
@@ -260,16 +298,17 @@ export default function LaboratoireMobileForm() {
               <div className="space-y-2">
                 <Label htmlFor="chantier">Chantier *</Label>
                 <Select 
-                  value={formData.chantier_id} 
-                  onValueChange={(v) => setFormData({ ...formData, chantier_id: v })}
-                  disabled={!formData.client_id}
+                  key={`chantier-${effectiveClientId}-${effectiveChantierId}`}
+                  value={effectiveChantierId} 
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, chantier_id: v }))}
+                  disabled={!effectiveClientId}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={formData.client_id ? "Sélectionner un chantier" : "Sélectionner d'abord un client"} />
+                    <SelectValue placeholder={effectiveClientId ? "Sélectionner un chantier" : "Sélectionner d'abord un client"} />
                   </SelectTrigger>
                   <SelectContent>
                     {filteredChantiers?.map((chantier) => {
-                      const isCurrent = chantier.id === formData.chantier_id;
+                      const isCurrent = chantier.id === effectiveChantierId;
                       const inCompression = chantiersInCompression.has(chantier.id);
                       const isDisabled = inCompression && !isCurrent;
                       const disabledReason = inCompression && !isCurrent ? "(Utilisé en compression)" : "";
@@ -361,7 +400,7 @@ export default function LaboratoireMobileForm() {
                 <Label htmlFor="statut">Statut</Label>
                 <Select 
                   value={formData.statut} 
-                  onValueChange={(v) => setFormData({ ...formData, statut: v })}
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, statut: v }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -375,8 +414,9 @@ export default function LaboratoireMobileForm() {
               <div className="space-y-2">
                 <Label htmlFor="technicien">Technicien affecté</Label>
                 <Select 
-                  value={formData.responsable_id} 
-                  onValueChange={(v) => setFormData({ ...formData, responsable_id: v })}
+                  key={`technicien-${effectiveResponsableId}`}
+                  value={effectiveResponsableId} 
+                  onValueChange={(v) => setFormData(prev => ({ ...prev, responsable_id: v }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un technicien" />
