@@ -1,14 +1,18 @@
 project_id = "retsfiqxzkwooxqyxczx"
 
+# Admin-only endpoints — require a valid JWT at the gateway.
+# In-code checks (getClaims + role check via has_role) remain as defense-in-depth.
 [functions.create-user]
-verify_jwt = false
+verify_jwt = true
 
 [functions.update-user]
-verify_jwt = false
+verify_jwt = true
 
+# Public pre-login endpoint (resolves username → email so the user can sign in).
+# Must accept anonymous calls; protected by strict input validation, exact-match
+# lookup only, and constant-shape responses to prevent user enumeration.
 [functions.lookup-user-email]
 verify_jwt = false
 
 [functions.ltpc-ai-narrative]
 verify_jwt = true
-
