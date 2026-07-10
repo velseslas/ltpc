@@ -132,7 +132,7 @@ export default function GranulometrieReportContent({ resultats, produit }: Granu
 
       {/* Courbe granulométrique */}
       {chartData.length > 0 && (
-        <div>
+        <div className="chart-landscape-page">
           <h3 className="font-bold text-sm mb-2 underline">Courbe granulométrique</h3>
           <div className="border border-[#4a90a4] p-4 bg-white">
             <div style={{ width: '100%', height: 280 }}>
