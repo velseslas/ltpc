@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface OffreServiceArticle {
   id: string;
@@ -10,6 +10,11 @@ export interface OffreServiceArticle {
   created_at: string;
   updated_at: string;
 }
+
+const repo = getRepositoryForTable<OffreServiceArticle>("offre_service_articles", {
+  defaultOrder: { column: "article_number", ascending: true },
+});
+
 
 export const DEFAULT_OFFRE_ARTICLES: { number: number; titre: string; contenu: string }[] = [
   {
