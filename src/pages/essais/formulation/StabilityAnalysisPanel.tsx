@@ -310,7 +310,13 @@ export default function StabilityAnalysisPanel({
     }
 
     // Trou granulaire (mélange complet : sables + graviers)
-    const gap = detectGranularGap([...sandMaterials, ...gravelMaterials]);
+    // Source unique : masses issues de calcResult.masses (jamais des sliders).
+    const massesFromEngine = calcResult.masses || {};
+    const materialsForGap: MaterialCurve[] = [...sandMaterials, ...gravelMaterials].map(m => ({
+      ...m,
+      quantity: (m.key && massesFromEngine[m.key] !== undefined) ? massesFromEngine[m.key] : m.quantity,
+    }));
+    const gap = detectGranularGap(materialsForGap);
     if (gap) {
       const penalty = 20;
       balanceScore -= penalty;
