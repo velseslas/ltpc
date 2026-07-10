@@ -403,19 +403,37 @@ export default function ProportionsStep({
   }, 0);
   const components = materiaux;
 
-  // Volume breakdown computed from inputs (always up-to-date)
+  // Volume breakdown — SOURCE UNIQUE = calcResult.volumes lorsque disponible.
+  // Fallback local (avant calcul) : inclut l'air occlus pour éviter la tautologie
+  // Ve + Vc + (1 − Ve − Vc) = 1.
   const calcVolumes = useMemo(() => {
+    if (calcResult) {
+      const v = calcResult.volumes;
+      const Vsquelette = v.sable + v.gravier;
+      const sum = v.eau + v.ciment + v.air + Vsquelette;
+      return {
+        Ve: v.eau,
+        Vc: v.ciment,
+        Vair: v.air,
+        Vg: Vsquelette,
+        Vsable: v.sable,
+        Vgravier: v.gravier,
+        volumeCheck: sum,
+      };
+    }
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const gsVal = parseFloat(calcRatioGS) || 0;
+    const airVal = 25 / 1000;
+    const dCim = 3110;
     const Ve = eauVal / 1000;
-    const Vc = cimentVal / 3110;
-    const Vg = 1 - (Ve + Vc);
+    const Vc = cimentVal / dCim;
+    const Vg = Math.max(0, 1 - (Ve + Vc + airVal));
     const Vsable = gsVal > 0 ? Vg / (1 + gsVal) : 0;
     const Vgravier = gsVal > 0 ? Vg - Vsable : 0;
-    const volumeCheck = Ve + Vc + Vg;
-    return { Ve, Vc, Vg, Vsable, Vgravier, volumeCheck };
-  }, [calcEau, calcCiment, calcRatioGS]);
+    const volumeCheck = Ve + Vc + airVal + Vg;
+    return { Ve, Vc, Vair: airVal, Vg, Vsable, Vgravier, volumeCheck };
+  }, [calcResult, calcEau, calcCiment, calcRatioGS]);
 
   // Phase 6 : materials pour le chart = courbes réelles uniquement (aucun démo).
   // Phase 10 : on sépare sables / graviers pour le StabilityAnalysisPanel
