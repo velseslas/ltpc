@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save, Truck, CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -87,34 +87,42 @@ export default function LaboratoireMobileForm() {
     );
   }, [intervenants]);
 
-  useEffect(() => {
-    if (labo) {
-      const chantier = allChantiers?.find(c => c.id === labo.chantier_id);
-      // Prefer chantier status when it's already normalized to en_cours/termine
-      const chantierStatut = chantier?.statut;
-      const rawStatut = (chantierStatut === "en_cours" || chantierStatut === "termine")
-        ? chantierStatut
-        : (labo.statut === "termine" ? "termine" : "en_cours");
-      setFormData({
-        client_id: labo.client_id || "",
-        chantier_id: labo.chantier_id || "",
-        date_debut: labo.date_debut ? new Date(labo.date_debut) : (chantier?.date_debut ? new Date(chantier.date_debut) : null),
-        date_fin: labo.date_fin ? new Date(labo.date_fin) : (chantier?.date_fin ? new Date(chantier.date_fin) : null),
-        statut: rawStatut,
-        responsable_id: labo.responsable_id || "",
-        date_affectation: (labo as any).date_affectation ? new Date((labo as any).date_affectation) : null,
-        date_fin_affectation: (labo as any).date_fin_affectation ? new Date((labo as any).date_fin_affectation) : null,
-        notes_affectation: (labo as any).notes_affectation || "",
-      });
-    }
-  }, [labo, allChantiers]);
+  const hasInitializedRef = useRef(false);
 
-  // Reset chantier when client changes
   useEffect(() => {
-    if (!isEditing && formData.client_id) {
+    if (!labo || hasInitializedRef.current) return;
+    // Wait for chantiers so we can prefer the chantier's persisted statut/dates
+    if (isEditing && !allChantiers) return;
+    const chantier = allChantiers?.find(c => c.id === labo.chantier_id);
+    const chantierStatut = chantier?.statut;
+    const rawStatut = (chantierStatut === "en_cours" || chantierStatut === "termine")
+      ? chantierStatut
+      : (labo.statut === "termine" ? "termine" : "en_cours");
+    setFormData({
+      client_id: labo.client_id || "",
+      chantier_id: labo.chantier_id || "",
+      date_debut: labo.date_debut ? new Date(labo.date_debut) : (chantier?.date_debut ? new Date(chantier.date_debut) : null),
+      date_fin: labo.date_fin ? new Date(labo.date_fin) : (chantier?.date_fin ? new Date(chantier.date_fin) : null),
+      statut: rawStatut,
+      responsable_id: labo.responsable_id || "",
+      date_affectation: (labo as any).date_affectation ? new Date((labo as any).date_affectation) : null,
+      date_fin_affectation: (labo as any).date_fin_affectation ? new Date((labo as any).date_fin_affectation) : null,
+      notes_affectation: (labo as any).notes_affectation || "",
+    });
+    hasInitializedRef.current = true;
+  }, [labo, allChantiers, isEditing]);
+
+  // Reset chantier when client changes (only after initial load, and only if user changes it manually)
+  useEffect(() => {
+    if (!hasInitializedRef.current) return;
+    // Skip if current chantier still belongs to the selected client
+    if (!formData.client_id) return;
+    if (!formData.chantier_id) return;
+    const currentChantier = allChantiers?.find(c => c.id === formData.chantier_id);
+    if (currentChantier && currentChantier.client_id !== formData.client_id) {
       setFormData(prev => ({ ...prev, chantier_id: "" }));
     }
-  }, [formData.client_id, isEditing]);
+  }, [formData.client_id, formData.chantier_id, allChantiers]);
 
   // Auto-import date_debut + date_affectation from chantier
   useEffect(() => {
@@ -261,9 +269,10 @@ export default function LaboratoireMobileForm() {
                   </SelectTrigger>
                   <SelectContent>
                     {filteredChantiers?.map((chantier) => {
+                      const isCurrent = chantier.id === formData.chantier_id;
                       const inCompression = chantiersInCompression.has(chantier.id);
-                      const isDisabled = inCompression;
-                      const disabledReason = inCompression ? "(Utilisé en compression)" : "";
+                      const isDisabled = inCompression && !isCurrent;
+                      const disabledReason = inCompression && !isCurrent ? "(Utilisé en compression)" : "";
 
                       return (
                         <SelectItem 
