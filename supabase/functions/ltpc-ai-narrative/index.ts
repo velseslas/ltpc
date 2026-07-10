@@ -3,6 +3,7 @@
 // L'IA ne fait que rédiger — jamais inventer de chiffres.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { callAIFeature } from "../_shared/ai-provider.ts";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +18,8 @@ const SYSTEM = `Tu es le rédacteur technique du laboratoire LTPC. Tu rédiges e
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const _rl = await enforceRateLimit(req, { scope: "ltpc-ai-narrative", userLimit: 20, ipLimit: 40, windowSec: 60 });
+  if (_rl) return _rl;
   try {
     const body = await req.json();
     const payload = JSON.stringify({ domain: body.domain, summary: body.summary, findings: body.findings, recommendations: body.recommendations, stats: body.stats }, null, 2).slice(0, 8000);

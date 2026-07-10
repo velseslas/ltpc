@@ -9,6 +9,7 @@
 // Sortie : { indexed: number, chunks: number, skipped: number }
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -76,6 +77,8 @@ const TABLE_FOR: Record<string, { table: string; cols: string }> = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const _rl = await enforceRateLimit(req, { scope: "ltpc-ai-rag-index", userLimit: 10, ipLimit: 20, windowSec: 60 });
+  if (_rl) return _rl;
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     const supaUrl = Deno.env.get("SUPABASE_URL");

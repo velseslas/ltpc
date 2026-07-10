@@ -1,6 +1,7 @@
 // Génère des embeddings via Lovable AI Gateway.
 // Entrée : { texts: string[], model?: string }. Sortie : { embeddings: number[][], model }.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +12,8 @@ const DEFAULT_MODEL = "google/gemini-embedding-001";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const _rl = await enforceRateLimit(req, { scope: "ltpc-ai-embed", userLimit: 30, ipLimit: 60, windowSec: 60 });
+  if (_rl) return _rl;
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");

@@ -3,9 +3,12 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptAnalyseProbleme } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const _rl = await enforceRateLimit(req, { scope: "rapport-ai-analyser", userLimit: 15, ipLimit: 30, windowSec: 60 });
+  if (_rl) return _rl;
   try {
     const body = await req.json();
     const { rapport_id } = body;
