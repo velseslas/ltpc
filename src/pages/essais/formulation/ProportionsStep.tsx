@@ -774,17 +774,20 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                 const Veau = eau / 1000;
                 const Vcim = ciment / 3110;
                 const Vadj = adjuvant / (1.05 * 1000);
+                // Masses arrondies au kg entier — même représentation que le Récapitulatif 1 m³
+                const roundedMasses: Record<string, number> = {};
                 const granulatVolumes: Record<string, number> = {};
                 let Vgranulats = 0;
                 for (const s of sliders) {
                   const d = getDensite(s.key); // kg/L
-                  const v = parseFloat(s.value) || 0;
-                  const vol = d > 0 ? v / (d * 1000) : 0;
+                  const vRounded = Math.round(parseFloat(s.value) || 0);
+                  roundedMasses[s.key] = vRounded;
+                  const vol = d > 0 ? vRounded / (d * 1000) : 0;
                   granulatVolumes[s.key] = vol;
                   Vgranulats += vol;
                 }
                 const totalVol = Veau + Vcim + Vadj + Vgranulats;
-                const totalGranulats = sliders.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
+                const totalGranulats = sliders.reduce((sum, s) => sum + (roundedMasses[s.key] ?? 0), 0);
                 // Total m³ visé = 1.000 m³ → % = totalVol / 1 * 100
                 const totalPct = totalVol * 100;
                 const isOk = Math.abs(totalPct - 100) < 0.1 && totalGranulats > 0;
@@ -792,7 +795,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                   <>
                     <div className="space-y-3 pt-1">
                       {sliders.map((s) => {
-                        const v = parseFloat(s.value) || 0;
+                        const v = roundedMasses[s.key] ?? 0;
                         const pct = totalVol > 0 ? (granulatVolumes[s.key] / totalVol) * 100 : 0;
                         const step = 5;
                         return (
@@ -808,12 +811,13 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                               <div className="flex items-center gap-1 shrink-0">
                                 <Input
                                   type="number"
-                                  value={s.value}
+                                  value={String(v)}
                                   onChange={(e) => handleInputChange(s.key, e.target.value)}
                                   className="w-20 h-8 text-right text-sm"
                                   min={0}
                                   max={s.max}
                                 />
+
                                 <span className="text-xs text-muted-foreground">kg</span>
                                 <Badge variant="secondary" className="text-[10px] tabular-nums w-14 justify-center">
                                   {pct.toFixed(1)}%
@@ -861,7 +865,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                     >
                       <span className="text-xs font-semibold uppercase tracking-wider">Total granulats</span>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold">{totalGranulats.toFixed(1)} kg</span>
+                        <span className="text-sm font-bold">{totalGranulats} kg</span>
                         <Badge
                           className={cn(
                             "text-xs font-bold border-0",
