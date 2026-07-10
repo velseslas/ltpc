@@ -21,6 +21,7 @@ import {
   GranulatEssais,
 } from "@/hooks/useFormulationGranulatsEssais";
 import { useFormulationContext } from "@/hooks/useFormulationContext";
+import { calculatePointA, generateReferenceCurve, computeWeightedSandModuleFinesse } from "./dreuxGorisseCalculation";
 import {
   LineChart,
   Line,
