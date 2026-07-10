@@ -1,0 +1,162 @@
+/* =========================================================================
+ * LTPC ERP — Feuille de style d'impression unique (print.css)
+ * -------------------------------------------------------------------------
+ * Objectif : offrir une qualité d'impression professionnelle identique
+ * sur TOUS les rapports (essais, documents, facturation, RH, matériel).
+ *
+ * ⚠️  Cette feuille est destinée au futur pipeline PrintService.
+ *     Elle n'est PAS encore importée globalement : chaque famille de
+ *     rapports sera migrée progressivement (voir print-engine-v2-plan.md).
+ *
+ * Conventions attendues côté rapports (post-migration) :
+ *   - Conteneur principal : <div data-print-root> ... </div>
+ *   - Section imprimable  : data-print-section
+ *   - Zone à masquer      : class="print-hide" ou data-print-hide
+ *   - Saut de page        : data-print-break-before | data-print-break-after
+ *   - Bloc insécable      : data-print-keep-together
+ * ========================================================================= */
+
+/* Format A4 — portrait par défaut ---------------------------------------- */
+@page {
+  size: A4 portrait;
+  margin: 12mm 12mm 14mm 12mm;
+}
+
+/* Orientation paysage : activée via <html class="print-orientation-landscape"> */
+@media print {
+  html.print-orientation-landscape {
+    /* Les @page ne sont pas conditionnables par classe : on utilise
+       @page dédié via une règle nommée + `page: landscape` sur la racine. */
+  }
+}
+@page landscape {
+  size: A4 landscape;
+  margin: 10mm 10mm 12mm 10mm;
+}
+html.print-orientation-landscape body {
+  page: landscape;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Styles activés uniquement à l'impression                                  */
+/* ------------------------------------------------------------------------- */
+@media print {
+  /* Rendu couleur fidèle (logos, badges, en-têtes colorés) */
+  html, body, * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Masquer la chrome applicative pendant l'impression */
+  .print-hide,
+  [data-print-hide],
+  nav[data-app-nav],
+  aside[data-app-sidebar],
+  header[data-app-header],
+  [data-print-chrome] {
+    display: none !important;
+  }
+
+  /* Un seul conteneur imprimable prend toute la page */
+  [data-print-root] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Typographie d'impression */
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+  h1 { font-size: 16pt; }
+  h2 { font-size: 13pt; }
+  h3 { font-size: 12pt; }
+  small { font-size: 9pt; }
+
+  /* Pagination -------------------------------------------------------- */
+  [data-print-break-before] { break-before: page; page-break-before: always; }
+  [data-print-break-after]  { break-after: page;  page-break-after: always;  }
+  [data-print-keep-together],
+  tr, thead, tfoot,
+  figure, .signature-block, .qr-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  /* Tableaux ---------------------------------------------------------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table, th, td {
+    border-color: #000 !important;
+  }
+  th, td {
+    padding: 4px 6px;
+    vertical-align: top;
+  }
+  th {
+    background: #f1f5f9 !important;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  /* QR Codes, signatures, cachets, logos ------------------------------ */
+  .qr-block,
+  [data-qr-wrapper] {
+    display: inline-block;
+    background: #fff !important;
+  }
+  .qr-block svg,
+  [data-qr-wrapper] svg {
+    width: 100%;
+    height: auto;
+  }
+  .signature-block,
+  [data-signature] {
+    text-align: center;
+    margin-top: 8mm;
+  }
+  .signature-block img,
+  [data-signature] img,
+  .stamp img,
+  [data-stamp] img,
+  [data-logo] img {
+    max-width: 100%;
+    height: auto;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  /* Liens : ne pas révéler les URL derrière (encombrant) */
+  a[href]:after { content: ""; }
+
+  /* Images : évite de couper au milieu */
+  img, svg { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* ------------------------------------------------------------------------- */
+/* Aperçu écran (optionnel) — activé quand PrintService applique             */
+/* la classe `print-mode` sur <html>, avant l'ouverture du dialogue.         */
+/* Utile pour tests visuels ; sans effet sur le rendu papier réel.           */
+/* ------------------------------------------------------------------------- */
+html.print-mode [data-print-hide],
+html.print-mode .print-hide {
+  visibility: hidden;
+}
