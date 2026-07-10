@@ -1,6 +1,14 @@
 // Phase 9 — Repository unique pour les notifications persistantes.
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as _supabase } from "@/integrations/supabase/client";
 import type { NotificationInput, PersistedNotification, NotificationCategory, NotificationPriority } from "./types";
+
+// Types Supabase régénérés post-migration — cast souple pour tables récentes.
+const supabase = _supabase as unknown as {
+  from: (t: string) => any;
+  auth: typeof _supabase.auth;
+  channel: typeof _supabase.channel;
+  removeChannel: typeof _supabase.removeChannel;
+};
 
 export interface ListFilters {
   category?: NotificationCategory | "all";
@@ -18,7 +26,7 @@ export const NotificationRepository = {
     const uid = auth.user?.id;
     if (!uid) return [];
 
-    let q = supabase.from("notifications" as never).select("*").eq("user_id", uid);
+    let q = supabase.from("notifications").select("*").eq("user_id", uid);
     if (filters.category && filters.category !== "all") q = q.eq("category", filters.category);
     if (filters.priority && filters.priority !== "all") q = q.eq("priority", filters.priority);
     if (filters.unreadOnly) q = q.eq("is_read", false);
@@ -29,7 +37,7 @@ export const NotificationRepository = {
 
     const { data, error } = await q;
     if (error) throw error;
-    return (data ?? []) as unknown as PersistedNotification[];
+    return (data ?? []) as PersistedNotification[];
   },
 
   async unreadCount(): Promise<number> {
@@ -37,7 +45,7 @@ export const NotificationRepository = {
     const uid = auth.user?.id;
     if (!uid) return 0;
     const { count } = await supabase
-      .from("notifications" as never)
+      .from("notifications")
       .select("id", { count: "exact", head: true })
       .eq("user_id", uid).eq("is_read", false).eq("is_archived", false);
     return count ?? 0;
@@ -61,13 +69,13 @@ export const NotificationRepository = {
       source: input.source ?? "system",
       role: input.role ?? null,
     };
-    const { data, error } = await supabase.from("notifications" as never).insert(payload).select().single();
+    const { data, error } = await supabase.from("notifications").insert(payload).select().single();
     if (error) { console.warn("[NotificationRepository] create failed", error); return null; }
-    return data as unknown as PersistedNotification;
+    return data as PersistedNotification;
   },
 
   async markRead(id: string): Promise<void> {
-    await supabase.from("notifications" as never)
+    await supabase.from("notifications")
       .update({ is_read: true, read_at: new Date().toISOString() }).eq("id", id);
   },
 
@@ -75,16 +83,16 @@ export const NotificationRepository = {
     const { data: auth } = await supabase.auth.getUser();
     const uid = auth.user?.id;
     if (!uid) return;
-    await supabase.from("notifications" as never)
+    await supabase.from("notifications")
       .update({ is_read: true, read_at: new Date().toISOString() })
       .eq("user_id", uid).eq("is_read", false);
   },
 
   async archive(id: string): Promise<void> {
-    await supabase.from("notifications" as never).update({ is_archived: true }).eq("id", id);
+    await supabase.from("notifications").update({ is_archived: true }).eq("id", id);
   },
 
   async remove(id: string): Promise<void> {
-    await supabase.from("notifications" as never).delete().eq("id", id);
+    await supabase.from("notifications").delete().eq("id", id);
   },
 };

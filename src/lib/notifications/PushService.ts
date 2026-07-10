@@ -1,7 +1,8 @@
 // Phase 9 — Service Push Web (WebPush API).
 // N'effectue une souscription réelle que si une clé VAPID publique est
 // disponible (VITE_VAPID_PUBLIC_KEY). Sinon, expose une API "stub" cohérente.
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as _supabase } from "@/integrations/supabase/client";
+const supabase = _supabase as unknown as { from: (t: string) => any; auth: typeof _supabase.auth };
 
 const VAPID_PUBLIC_KEY: string | undefined = (import.meta as { env?: Record<string, string> }).env?.VITE_VAPID_PUBLIC_KEY;
 
@@ -62,9 +63,10 @@ export const PushService = {
       const reg = await navigator.serviceWorker.getRegistration();
       if (!reg) return { ok: false, reason: "no-sw" };
       const existing = await reg.pushManager.getSubscription();
+      const key = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const sub = existing ?? await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: key.buffer.slice(key.byteOffset, key.byteOffset + key.byteLength) as ArrayBuffer,
       });
       await this.registerSubscription(sub);
       return { ok: true, subscription: sub };
@@ -80,7 +82,7 @@ export const PushService = {
     try {
       const { data: auth } = await supabase.auth.getUser();
       if (auth.user) {
-        await supabase.from("push_subscriptions" as never).delete()
+        await supabase.from("push_subscriptions").delete()
           .eq("user_id", auth.user.id).eq("endpoint", sub.endpoint);
       }
       return await sub.unsubscribe();
@@ -90,9 +92,9 @@ export const PushService = {
   async registerSubscription(sub: PushSubscription): Promise<void> {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
-    const raw = sub.toJSON() as { endpoint: string; keys?: { p256dh?: string; auth?: string } };
-    if (!raw.keys?.p256dh || !raw.keys?.auth) return;
-    await supabase.from("push_subscriptions" as never).upsert({
+    const raw = sub.toJSON() as { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
+    if (!raw.endpoint || !raw.keys?.p256dh || !raw.keys?.auth) return;
+    await supabase.from("push_subscriptions").upsert({
       user_id: auth.user.id,
       endpoint: raw.endpoint,
       p256dh: raw.keys.p256dh,
