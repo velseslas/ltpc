@@ -80,7 +80,7 @@ export default function NotificationPreferences() {
 
   return (
     <>
-      <AppBreadcrumb items={[{ label: "Paramètres", href: "/parametres" }, { label: "Notifications" }]} />
+      <AppBreadcrumb items={[{ label: "Paramètres", path: "/parametres" }, { label: "Notifications" }]} />
       <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" onClick={() => navigate("/parametres")}>
           <ArrowLeft className="w-5 h-5" />
