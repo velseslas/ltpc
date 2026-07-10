@@ -26,7 +26,27 @@ export interface StorageUploadOptions {
 }
 
 // PWA extension hook — sera plus tard branché sur IndexedDB / file d'attente.
-// Aucune implémentation active en Phase 3-bis : simple point d'extension.
+// Aucune implémentation active en Phase 4 : simples points d'extension.
+export interface StorageCacheProvider {
+  get?: (bucket: string, path: string) => Promise<Blob | null>;
+  set?: (bucket: string, path: string, blob: Blob) => Promise<void>;
+  invalidate?: (bucket: string, path: string) => Promise<void>;
+}
+export interface StorageOfflineQueue {
+  enqueue?: (op: Omit<StorageDebug, "files_returned" | "duration_ms">, payload?: unknown) => Promise<void>;
+  drain?: () => Promise<void>;
+}
+export interface StorageRetryPolicy {
+  shouldRetry?: (attempt: number, error: string) => boolean;
+  delayMs?: (attempt: number) => number;
+}
+export interface StorageConflictResolver {
+  onConflict?: (bucket: string, path: string, localSha?: string, remoteSha?: string) => Promise<"keep-local" | "keep-remote" | "duplicate">;
+}
+export interface StorageSyncProvider {
+  syncPath?: (bucket: string, path: string) => Promise<void>;
+  syncAll?: () => Promise<void>;
+}
 export interface StorageHooks {
   beforeOperation?: (debug: Omit<StorageDebug, "files_returned" | "duration_ms">) => void | Promise<void>;
   afterOperation?: (debug: StorageDebug) => void | Promise<void>;
@@ -34,6 +54,12 @@ export interface StorageHooks {
   offlineFallback?: <T>(debug: Omit<StorageDebug, "files_returned" | "duration_ms">) => Promise<T | null>;
   /** Enqueue une mutation storage pour rejeu offline. Non branché pour l'instant. */
   enqueueMutation?: (debug: Omit<StorageDebug, "files_returned" | "duration_ms">) => Promise<void>;
+  // PWA extension points — architecture only, non branchés.
+  cacheProvider?: StorageCacheProvider;
+  offlineQueue?: StorageOfflineQueue;
+  retryPolicy?: StorageRetryPolicy;
+  conflictResolver?: StorageConflictResolver;
+  syncProvider?: StorageSyncProvider;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

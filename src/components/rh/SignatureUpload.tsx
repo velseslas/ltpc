@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Upload, X, Loader2, PenTool } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { toast } from "sonner";
 
 interface SignatureUploadProps {
@@ -43,26 +43,14 @@ export function SignatureUpload({ currentSignatureUrl, onSignatureChange, employ
       if (currentSignatureUrl) {
         const oldPath = currentSignatureUrl.split("/signatures/")[1];
         if (oldPath) {
-          await supabase.storage.from("signatures").remove([oldPath]);
+          await DocumentRepository.deleteSignature(oldPath);
         }
       }
 
-      // Upload new signature
-      const { error: uploadError } = await supabase.storage
-        .from("signatures")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+      // Upload new signature via StorageRepository
+      const { publicUrl } = await DocumentRepository.uploadSignature(filePath, file, { upsert: true });
 
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("signatures")
-        .getPublicUrl(filePath);
-
-      onSignatureChange(urlData.publicUrl);
+      onSignatureChange(publicUrl);
       toast.success("Signature téléchargée avec succès");
     } catch (error) {
       console.error("Error uploading signature:", error);
@@ -82,7 +70,7 @@ export function SignatureUpload({ currentSignatureUrl, onSignatureChange, employ
     try {
       const path = currentSignatureUrl.split("/signatures/")[1];
       if (path) {
-        await supabase.storage.from("signatures").remove([path]);
+        await DocumentRepository.deleteSignature(path);
       }
       onSignatureChange(null);
       toast.success("Signature supprimée");

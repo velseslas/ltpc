@@ -113,9 +113,37 @@ export class DocumentRepository {
   }
 
   // -------- Rapports techniques (bucket rapports-techniques) --------
-  // Réservé aux modules Rapports/DocumentGenerator. Exposé ici en simple passe-plat.
+  // Utilisé par les hooks Rapports pour pièces jointes.
 
   static rapportsTechniquesBucket() {
     return getStorageRepository(STORAGE_BUCKETS.rapportsTechniques);
   }
+
+  static async uploadRapportPiece(path: string, file: File, opts: { upsert?: boolean; contentType?: string } = {}): Promise<{ path: string }> {
+    const repo = getStorageRepository(STORAGE_BUCKETS.rapportsTechniques);
+    const up = await repo.upload(path, file, { upsert: opts.upsert ?? false, contentType: opts.contentType });
+    if (up.error || !up.data) throw new Error(up.error ?? "Échec upload");
+    return { path: up.data.path };
+  }
+
+  static async signedRapportUrl(path: string, ttlSec = 3600): Promise<string | null> {
+    const repo = getStorageRepository(STORAGE_BUCKETS.rapportsTechniques);
+    const { data } = await repo.createSignedUrl(path, ttlSec);
+    return data?.signedUrl ?? null;
+  }
+
+  static async deleteRapportPiece(paths: string | string[]): Promise<StorageResult<{ removed: number }>> {
+    return getStorageRepository(STORAGE_BUCKETS.rapportsTechniques).delete(paths);
+  }
+
+  // -------- Documents officiels (bucket documents-officiels) --------
+  // Utilisé par DocumentGenerator pour les archives PDF.
+
+  static async uploadOfficiel(path: string, blob: Blob, opts: { upsert?: boolean; contentType?: string } = {}): Promise<{ path: string }> {
+    const repo = getStorageRepository(STORAGE_BUCKETS.documentsOfficiels);
+    const up = await repo.upload(path, blob, { upsert: opts.upsert ?? false, contentType: opts.contentType });
+    if (up.error || !up.data) throw new Error(up.error ?? "Échec upload");
+    return { path: up.data.path };
+  }
 }
+

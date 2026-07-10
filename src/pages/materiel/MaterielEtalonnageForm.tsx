@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, FileText, X } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 
 export default function MaterielEtalonnageForm() {
   const navigate = useNavigate();
@@ -58,12 +58,8 @@ export default function MaterielEtalonnageForm() {
     try {
       const ext = file.name.split(".").pop();
       const fileName = `certificat-${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("certificats-etalonnage")
-        .upload(fileName, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from("certificats-etalonnage").getPublicUrl(fileName);
-      setForm(p => ({ ...p, certificat_url: data.publicUrl, certificat_nom: file.name }));
+      const { publicUrl } = await DocumentRepository.uploadCertificatEtalonnage(fileName, file, { upsert: true });
+      setForm(p => ({ ...p, certificat_url: publicUrl, certificat_nom: file.name }));
       toast.success("Certificat téléversé");
     } catch (err: any) {
       toast.error("Erreur lors du téléversement : " + (err.message || "inconnue"));

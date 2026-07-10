@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { toast } from "sonner";
 
 interface DossierFormDialogProps {
@@ -41,20 +41,9 @@ export function DossierFormDialog({ open, onOpenChange, onCreate }: DossierFormD
       let documentNom: string | null = null;
 
       if (file) {
-        const ext = file.name.split(".").pop();
         const filePath = `${Date.now()}_${file.name}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("documents-administratifs")
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabase.storage
-          .from("documents-administratifs")
-          .getPublicUrl(filePath);
-
-        documentUrl = urlData.publicUrl;
+        const { publicUrl } = await DocumentRepository.uploadAdministratif(filePath, file);
+        documentUrl = publicUrl;
         documentNom = file.name;
       }
 

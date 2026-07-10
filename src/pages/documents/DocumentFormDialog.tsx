@@ -9,7 +9,7 @@ import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { Building2, MapPin, User, Hash, Upload, FileText } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { toast } from "sonner";
 
 export interface DocumentFormData {
@@ -157,10 +157,8 @@ const DocumentFormDialog = ({
     try {
       const ext = file.name.split(".").pop();
       const path = `attestations/${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("documents-administratifs").upload(path, file);
-      if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from("documents-administratifs").getPublicUrl(path);
-      setForm((prev) => ({ ...prev, document_url: urlData.publicUrl, document_nom: file.name }));
+      const { publicUrl } = await DocumentRepository.uploadAdministratif(path, file);
+      setForm((prev) => ({ ...prev, document_url: publicUrl, document_nom: file.name }));
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de l'upload du document");
