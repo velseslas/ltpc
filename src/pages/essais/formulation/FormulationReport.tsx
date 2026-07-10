@@ -482,20 +482,35 @@ export default function FormulationReport() {
     }
   };
 
+  // Max ouverture disponible dans la courbe granulo de chaque matériau (mm)
+  const maxOuvByKey: Record<string, number> = {};
+  granulatsList.forEach((g) => {
+    const tamis = g.g?.granulometrie?.tamis || [];
+    maxOuvByKey[g.key] = tamis.reduce(
+      (mx: number, t: any) => Math.max(mx, Number(t.ouverture) || 0),
+      0
+    );
+  });
+
   const courbeData = TAMIS_STD.slice().sort((a, b) => a - b).map((ouv) => {
     const row: any = { ouverture: ouv, label: String(ouv) };
     let melange = 0;
-    let totalPct = 0;
+    // Pondération par masse totale (méthode Dreux-Gorisse — cf. computeMixCurveFromMasses)
     granulatsList.forEach((g) => {
-      const pct = totalGranulats > 0 ? (getQty(g.key) / totalGranulats) * 100 : 0;
-      const passant = getPassant(g.g?.granulometrie, ouv);
-      if (passant !== null) {
-        row[g.key] = passant;
-        melange += (passant * pct) / 100;
-        totalPct += pct;
-      }
+      const qty = getQty(g.key);
+      const pct = totalGranulats > 0 ? (qty / totalGranulats) * 100 : 0;
+      const passantRaw = getPassant(g.g?.granulometrie, ouv);
+      // Extrapolation : au-dessus de l'ouverture max de la courbe → 100% (tout passe)
+      const passant =
+        passantRaw !== null
+          ? Number(passantRaw)
+          : ouv > (maxOuvByKey[g.key] || 0)
+          ? 100
+          : 0;
+      row[g.key] = passantRaw !== null ? Number(passantRaw) : null;
+      melange += (passant * pct) / 100;
     });
-    row.melange = totalPct > 0 ? Number(melange.toFixed(1)) : null;
+    row.melange = totalGranulats > 0 ? Number(melange.toFixed(1)) : null;
     return row;
   });
 
