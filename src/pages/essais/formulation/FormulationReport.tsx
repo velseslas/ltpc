@@ -482,20 +482,38 @@ export default function FormulationReport() {
     }
   };
 
+  // Masse-pondération du mélange — même convention que le moteur Dreux-Gorisse
+  // (computeMixCurveFromMasses) : passant = 100 au-dessus de la courbe du
+  // granulat, 0 en dessous, et division par la masse totale de TOUS les
+  // granulats actifs (pas seulement ceux qui ont une donnée au tamis).
+  const activeGranulats = granulatsList.filter((g) => getQty(g.key) > 0);
+  const totalMasseGranulats = activeGranulats.reduce((s, g) => s + getQty(g.key), 0);
+
+  const getPassantWithFallback = (granulo: any, ouv: number): number => {
+    const direct = getPassant(granulo, ouv);
+    if (direct !== null) return direct;
+    const tamis = (granulo?.tamis ?? []) as Array<{ ouverture: number; passant: number }>;
+    if (tamis.length === 0) return 0;
+    const maxOuv = Math.max(...tamis.map((t) => Number(t.ouverture)));
+    return ouv > maxOuv ? 100 : 0;
+  };
+
   const courbeData = TAMIS_STD.slice().sort((a, b) => a - b).map((ouv) => {
     const row: any = { ouverture: ouv, label: String(ouv) };
     let melange = 0;
-    let totalPct = 0;
     granulatsList.forEach((g) => {
-      const pct = totalGranulats > 0 ? (getQty(g.key) / totalGranulats) * 100 : 0;
       const passant = getPassant(g.g?.granulometrie, ouv);
-      if (passant !== null) {
-        row[g.key] = passant;
-        melange += (passant * pct) / 100;
-        totalPct += pct;
-      }
+      if (passant !== null) row[g.key] = passant;
     });
-    row.melange = totalPct > 0 ? Number(melange.toFixed(1)) : null;
+    if (totalMasseGranulats > 0) {
+      activeGranulats.forEach((g) => {
+        const pass = getPassantWithFallback(g.g?.granulometrie, ouv);
+        melange += (pass * getQty(g.key)) / totalMasseGranulats;
+      });
+      row.melange = Number(melange.toFixed(1));
+    } else {
+      row.melange = null;
+    }
     return row;
   });
 
@@ -1385,23 +1403,15 @@ export default function FormulationReport() {
               </thead>
               <tbody>
                 {TAMIS_STD.map((ouv) => {
-                  // mélange = somme(passant_i × pct_i / 100)
+                  // mélange = Σ(passant_i × masse_i) / Σ masses — même convention
+                  // que le moteur : passant = 100 au-dessus de la courbe, 0 en dessous.
                   let melange = 0;
-                  let totalPct = 0;
-                  granulatsList.forEach((g) => {
-                    const qty =
-                      g.key === "sable_concasse" ? formulation.sable_concasse_quantite || 0 :
-                      g.key === "sable_fin" ? formulation.sable_fin_quantite || 0 :
-                      g.key === "gravillons1" ? formulation.gravillons1_quantite || 0 :
-                      g.key === "gravier2" ? formulation.gravier2_quantite || 0 :
-                      g.key === "gravier3" ? formulation.gravier3_quantite || 0 : 0;
-                    const pct = totalGranulats > 0 ? (qty / totalGranulats) * 100 : 0;
-                    const passant = getPassant(g.g?.granulometrie, ouv);
-                    if (passant !== null) {
-                      melange += (passant * pct) / 100;
-                      totalPct += pct;
-                    }
-                  });
+                  if (totalMasseGranulats > 0) {
+                    activeGranulats.forEach((g) => {
+                      const pass = getPassantWithFallback(g.g?.granulometrie, ouv);
+                      melange += (pass * getQty(g.key)) / totalMasseGranulats;
+                    });
+                  }
                   return (
                     <tr key={ouv}>
                       <td className="border border-black px-1 py-0.5 text-center font-medium text-black">{ouv}</td>
@@ -1414,7 +1424,7 @@ export default function FormulationReport() {
                         );
                       })}
                       <td className="border border-black px-1 py-0.5 text-center font-bold text-black bg-yellow-50">
-                        {totalPct === 0 ? "—" : fmt(melange, 1)}
+                        {totalMasseGranulats === 0 ? "—" : fmt(melange, 1)}
                       </td>
                     </tr>
                   );
