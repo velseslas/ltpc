@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRepositoryForTable } from "@/lib/repositories";
 
 const SELECT_WITH_CLIENT = "*, clients(id, nom)";
-const repo = getRepositoryForTable("paiements_cheque", {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const repo = getRepositoryForTable<any>("paiements_cheque", {
   defaultSelect: SELECT_WITH_CLIENT,
   defaultOrder: { column: "date_emission", ascending: false },
 });
