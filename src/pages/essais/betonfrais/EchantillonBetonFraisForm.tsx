@@ -287,11 +287,13 @@ export default function EchantillonBetonFraisForm({
         form.setValue("ouvrage", pendingData.ouvrage);
         form.setValue("destination_beton", pendingData.destination_beton);
 
+        setPrevClientId(pendingData.client_id ?? echantillon?.client_id ?? "");
         setIsFormInitialized(true);
         setIsPreFilling(false);
         setPendingData(null);
         setInitStep(0);
       }, 150);
+
 
       return () => clearTimeout(timer);
     }
