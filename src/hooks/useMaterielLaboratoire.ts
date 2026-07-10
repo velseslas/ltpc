@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRepositoryForTable } from "@/lib/repositories";
 
 // ---- Matériel ----
-const materielRepo = getRepositoryForTable("materiel_laboratoire", {
+const materielRepo = getRepositoryForTable<any>("materiel_laboratoire", {
   defaultSelect: "*",
   defaultOrder: { column: "nom", ascending: true },
 });
@@ -64,7 +64,7 @@ export function useDeleteMateriel() {
 }
 
 // ---- Affectation ----
-const affectationRepo = getRepositoryForTable("affectation_materiel", {
+const affectationRepo = getRepositoryForTable<any>("affectation_materiel", {
   defaultSelect: "*, materiel_laboratoire(id, nom, reference), chantiers(id, nom, client_id, clients(id, nom)), intervenants(id, nom, prenom)",
   defaultOrder: { column: "date_debut", ascending: false },
 });
@@ -121,7 +121,7 @@ export function useDeleteAffectationMateriel() {
 }
 
 // ---- Étalonnage ----
-const etalonnageRepo = getRepositoryForTable("etalonnage_materiel", {
+const etalonnageRepo = getRepositoryForTable<any>("etalonnage_materiel", {
   defaultSelect: "*, materiel_laboratoire(id, nom, reference)",
   defaultOrder: { column: "date_etalonnage", ascending: false },
 });
@@ -178,7 +178,7 @@ export function useDeleteEtalonnageMateriel() {
 }
 
 // ---- Maintenance ----
-const maintenanceRepo = getRepositoryForTable("maintenance_materiel", {
+const maintenanceRepo = getRepositoryForTable<any>("maintenance_materiel", {
   defaultSelect: "*, materiel_laboratoire(id, nom, reference)",
   defaultOrder: { column: "date_maintenance", ascending: false },
 });
