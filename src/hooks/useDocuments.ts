@@ -48,7 +48,7 @@ function useDocumentsCRUD<T extends DocumentBase>(tableName: TableName) {
 
   const create = useMutation({
     mutationFn: async (doc: Omit<T, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await repo.insert(doc as Partial<T & { clients: null; chantiers: null }>);
+      const { data, error } = await repo.insert(doc as Partial<Row>);
       if (error) throw new Error(error);
       return data[0];
     },
@@ -57,7 +57,7 @@ function useDocumentsCRUD<T extends DocumentBase>(tableName: TableName) {
 
   const update = useMutation({
     mutationFn: async ({ id, ...rest }: { id: string } & Partial<T>) => {
-      const { data, error } = await repo.update(rest as Partial<T & { clients: null; chantiers: null }>, { id });
+      const { data, error } = await repo.update(rest as Partial<Row>, { id });
       if (error) throw new Error(error);
       return data[0];
     },
