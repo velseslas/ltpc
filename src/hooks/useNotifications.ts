@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInDays, parseISO, isAfter, isBefore, addDays } from "date-fns";
+import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
+import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 
 export interface Notification {
   id: string;
@@ -13,11 +15,19 @@ export interface Notification {
 }
 
 export function useNotifications() {
+  const { data: role } = useCurrentUserRole();
+  const { data: userChantiers } = useCurrentUserChantiers();
+  const isTechnicien = role === "technicien" || role === "operateur";
+  const allowedChantierIds = userChantiers?.chantierIds ?? [];
+
   return useQuery({
-    queryKey: ["notifications"],
+    queryKey: ["notifications", role, allowedChantierIds.join(",")],
+    enabled: !isTechnicien || !!userChantiers,
     queryFn: async (): Promise<Notification[]> => {
       const notifications: Notification[] = [];
       const today = new Date();
+      const allowedSet = new Set(allowedChantierIds);
+
 
       // 1. Check for overdue essais (pending or in-progress for more than 7 days)
       const { data: essais, error: essaisError } = await supabase
