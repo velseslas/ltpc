@@ -845,8 +845,8 @@ const CompressionReport = () => {
           #root [data-ref="report"] .formulation-table td {
             font-size: 8pt !important;
             padding: 3px 4px !important;
-            height: 22px !important;
-            min-height: 22px !important;
+            height: 26px !important;
+            min-height: 26px !important;
             line-height: 1.2 !important;
           }
 
