@@ -30,10 +30,14 @@ export function useNotifications() {
 
 
       // 1. Check for overdue essais (pending or in-progress for more than 7 days)
-      const { data: essais, error: essaisError } = await supabase
-        .from("essais")
-        .select("id, nom, reference, statut, date_reception")
-        .in("statut", ["pending", "in-progress"]);
+      // Techniciens: skip generic essais (no chantier scoping available here)
+      const { data: essais, error: essaisError } = isTechnicien
+        ? { data: [], error: null }
+        : await supabase
+            .from("essais")
+            .select("id, nom, reference, statut, date_reception")
+            .in("statut", ["pending", "in-progress"]);
+
 
       if (!essaisError && essais) {
         essais.forEach((essai) => {
