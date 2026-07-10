@@ -493,6 +493,23 @@ export default function FormulationReport() {
     );
   });
 
+  // ----- Courbe de référence Dreux-Gorisse (OAB) -----
+  const dMaxRef = Number(formulation.dmax_utilisateur) || 0;
+  const coeffGranRef = Number(formulation.coefficient_granulaire) || 0;
+  const mfMelangeRef = computeWeightedSandModuleFinesse(
+    sablesList.map((s) => ({
+      active: true,
+      moduleFinesse: Number(s.g?.granulometrie?.module_finesse) || 0,
+      proportion: getQty(s.key),
+    }))
+  );
+  const pointARef = dMaxRef > 0 ? calculatePointA(dMaxRef, coeffGranRef, mfMelangeRef) : null;
+  const referenceCurve = dMaxRef > 0 && pointARef
+    ? generateReferenceCurve(dMaxRef, mfMelangeRef ?? 2.5, pointARef)
+    : [];
+  const refByOuv: Record<number, number> = {};
+  referenceCurve.forEach((p) => { refByOuv[p.ouverture] = Number(p.pourcentage.toFixed(1)); });
+
   const courbeData = TAMIS_STD.slice().sort((a, b) => a - b).map((ouv) => {
     const row: any = { ouverture: ouv, label: String(ouv) };
     let melange = 0;
@@ -512,6 +529,7 @@ export default function FormulationReport() {
       melange += (passant * pct) / 100;
     });
     row.melange = totalGranulats > 0 ? Number(melange.toFixed(1)) : null;
+    row.reference = refByOuv[ouv] ?? null;
     return row;
   });
 
