@@ -865,7 +865,7 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                     >
                       <span className="text-xs font-semibold uppercase tracking-wider">Total granulats</span>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold">{totalGranulats.toFixed(1)} kg</span>
+                        <span className="text-sm font-bold">{totalGranulats} kg</span>
                         <Badge
                           className={cn(
                             "text-xs font-bold border-0",
