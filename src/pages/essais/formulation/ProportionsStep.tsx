@@ -351,11 +351,15 @@ export default function ProportionsStep({
 
     try {
       const inputs = buildInputs();
+      calcCallCountRef.current += 1;
       const result = calculateMixDesign(inputs);
       applyResult(result, result.masses);
       onQuantityChange?.("eau", inputs.eau.toString());
       onQuantityChange?.("ciment", inputs.ciment.toString());
       setCalcMode("calculate");
+      // PHASE FINALE — Audit unicité de calcResult
+      // eslint-disable-next-line no-console
+      console.info(`[Dreux-Gorisse][AUDIT] calculateMixDesign() total calls = ${calcCallCountRef.current} (source: handleCalculate)`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setCalculationErrors([msg]);
