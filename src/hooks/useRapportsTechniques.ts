@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 
 export type RapportStatut =
   | "brouillon"
@@ -305,19 +306,14 @@ export function useUploadPieceJointe() {
       const type = detectType(file);
       const ext = file.name.split(".").pop() ?? "bin";
       const path = `${rapportId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("rapports-techniques")
-        .upload(path, file, { upsert: false, contentType: file.type || undefined });
-      if (upErr) throw upErr;
-      const { data: signed } = await supabase.storage
-        .from("rapports-techniques")
-        .createSignedUrl(path, 60 * 60 * 24 * 7);
+      await DocumentRepository.uploadRapportPiece(path, file, { upsert: false, contentType: file.type || undefined });
+      const signedUrl = await DocumentRepository.signedRapportUrl(path, 60 * 60 * 24 * 7);
       const payload = {
         rapport_id: rapportId,
         type,
         nom: file.name,
         storage_path: path,
-        url: signed?.signedUrl ?? null,
+        url: signedUrl,
         uploaded_by: uid,
         meta: { size: file.size, mime: file.type },
       } as never;
@@ -340,7 +336,7 @@ export function useDeletePieceJointe() {
   return useMutation({
     mutationFn: async (piece: PieceJointe) => {
       if (piece.storage_path) {
-        await supabase.storage.from("rapports-techniques").remove([piece.storage_path]);
+        await DocumentRepository.deleteRapportPiece(piece.storage_path);
       }
       const { error } = await supabase
         .from("rapport_pieces_jointes")
