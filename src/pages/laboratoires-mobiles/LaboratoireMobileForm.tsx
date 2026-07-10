@@ -21,6 +21,8 @@ import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export default function LaboratoireMobileForm() {
@@ -37,13 +39,14 @@ export default function LaboratoireMobileForm() {
   const { data: allLabosMobiles } = useLaboratoiresMobiles();
   const createMutation = useCreateLaboratoireMobile();
   const updateMutation = useUpdateLaboratoireMobile();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
     client_id: "",
     chantier_id: "",
     date_debut: null as Date | null,
     date_fin: null as Date | null,
-    statut: "disponible",
+    statut: "en_cours",
     responsable_id: "",
     date_affectation: null as Date | null,
     date_fin_affectation: null as Date | null,
@@ -86,19 +89,25 @@ export default function LaboratoireMobileForm() {
 
   useEffect(() => {
     if (labo) {
+      const chantier = allChantiers?.find(c => c.id === labo.chantier_id);
+      // Prefer chantier status when it's already normalized to en_cours/termine
+      const chantierStatut = chantier?.statut;
+      const rawStatut = (chantierStatut === "en_cours" || chantierStatut === "termine")
+        ? chantierStatut
+        : (labo.statut === "termine" ? "termine" : "en_cours");
       setFormData({
         client_id: labo.client_id || "",
         chantier_id: labo.chantier_id || "",
-        date_debut: labo.date_debut ? new Date(labo.date_debut) : null,
-        date_fin: labo.date_fin ? new Date(labo.date_fin) : null,
-        statut: labo.statut || "disponible",
+        date_debut: labo.date_debut ? new Date(labo.date_debut) : (chantier?.date_debut ? new Date(chantier.date_debut) : null),
+        date_fin: labo.date_fin ? new Date(labo.date_fin) : (chantier?.date_fin ? new Date(chantier.date_fin) : null),
+        statut: rawStatut,
         responsable_id: labo.responsable_id || "",
         date_affectation: (labo as any).date_affectation ? new Date((labo as any).date_affectation) : null,
         date_fin_affectation: (labo as any).date_fin_affectation ? new Date((labo as any).date_fin_affectation) : null,
         notes_affectation: (labo as any).notes_affectation || "",
       });
     }
-  }, [labo]);
+  }, [labo, allChantiers]);
 
   // Reset chantier when client changes
   useEffect(() => {
@@ -163,6 +172,20 @@ export default function LaboratoireMobileForm() {
         await createMutation.mutateAsync(dataToSubmit);
         toast({ title: "Succès", description: "Laboratoire mobile créé" });
       }
+
+      // Sync statut + dates on the chantier so the widget reflects the choice
+      if (formData.chantier_id) {
+        await supabase
+          .from("chantiers")
+          .update({
+            statut: formData.statut,
+            date_debut: dataToSubmit.date_debut,
+            date_fin: dataToSubmit.date_fin,
+          })
+          .eq("id", formData.chantier_id);
+        queryClient.invalidateQueries({ queryKey: ["chantiers"] });
+      }
+
       navigate("/laboratoires-mobiles");
     } catch (error) {
       toast({ 
@@ -335,9 +358,8 @@ export default function LaboratoireMobileForm() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="disponible">Disponible</SelectItem>
-                    <SelectItem value="deploye">Déployé</SelectItem>
-                    <SelectItem value="maintenance">En maintenance</SelectItem>
+                    <SelectItem value="en_cours">En cours</SelectItem>
+                    <SelectItem value="termine">Terminé</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

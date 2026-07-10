@@ -36,10 +36,12 @@ const colorVariants = [
 const getStatusBadge = (statut: string) => {
   switch (statut) {
     case "en_cours":
+    case "actif":
       return <Badge className="bg-emerald-500/20 text-emerald-500 border-emerald-500/30">En cours</Badge>;
     case "termine":
       return <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">Terminé</Badge>;
     case "suspendu":
+    case "en_pause":
       return <Badge className="bg-amber-500/20 text-amber-500 border-amber-500/30">Suspendu</Badge>;
     default:
       return <Badge variant="outline">{statut}</Badge>;
