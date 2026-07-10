@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Download, Link2, Send, X } from "lucide-react";
+import { Loader2, Download, Link2, Send, X, FileText, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { DocumentShareService, type ShareDocumentMeta } from "@/lib/documents/DocumentShareService";
+
+const LOG = "[ShareDialog]";
 
 interface ShareDialogProps {
   open: boolean;
@@ -35,26 +37,75 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [pdfSize, setPdfSize] = useState<number | null>(null);
   const [cachedBlob, setCachedBlob] = useState<Blob | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const finalFileName = useMemo(
     () => fileName || `${(meta.documentNumber || meta.documentName).replace(/\s+/g, "-")}.pdf`,
     [fileName, meta],
   );
 
+  // Prépare / génère automatiquement le PDF officiel à l'ouverture
   useEffect(() => {
-    if (open) {
-      setSubject(DocumentShareService.defaultSubject(meta));
-      setMessage(DocumentShareService.defaultMessage(meta));
-      setPdfSize(null);
-      setCachedBlob(null);
-    }
-  }, [open, meta]);
+    if (!open) return;
+    setSubject(DocumentShareService.defaultSubject(meta));
+    setMessage(DocumentShareService.defaultMessage(meta));
+    setNotice(null);
 
-  const ensurePdf = async (): Promise<Blob | null> => {
-    if (!onGeneratePdf) return null;
+    if (!onGeneratePdf) return;
+    let cancelled = false;
+    (async () => {
+      setPreparing(true);
+      try {
+        console.log(`${LOG} vérification / génération du PDF officiel...`);
+        const blob = await onGeneratePdf();
+        if (cancelled) return;
+        if (blob) {
+          console.log(`${LOG} PDF prêt (${blob.size} octets)`);
+          setCachedBlob(blob);
+          setPdfSize(blob.size);
+          const url = URL.createObjectURL(blob);
+          setPreviewUrl(url);
+        } else {
+          console.warn(`${LOG} PDF non disponible`);
+        }
+      } catch (err) {
+        console.error(`${LOG} erreur préparation PDF`, err);
+      } finally {
+        if (!cancelled) setPreparing(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, meta, onGeneratePdf]);
+
+  // Cleanup blob URL
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  useEffect(() => {
+    if (!open) {
+      setCachedBlob(null);
+      setPdfSize(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      setNotice(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const getPdfForShare = async (): Promise<Blob | null> => {
     if (cachedBlob) return cachedBlob;
+    if (!onGeneratePdf) return null;
     const blob = await onGeneratePdf();
     if (blob) {
       setCachedBlob(blob);
@@ -65,38 +116,65 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
 
   const runShare = async (channel: "auto" | "download" | "copy-link") => {
     setLoading(true);
+    setNotice(null);
     try {
+      console.log(`${LOG} action utilisateur = ${channel}`);
       const result = await DocumentShareService.share(
         {
           meta,
           subject,
           message,
           fileName: finalFileName,
-          getPdf: onGeneratePdf ? ensurePdf : undefined,
+          getPdf: onGeneratePdf ? getPdfForShare : undefined,
         },
         channel,
       );
+
+      console.log(`${LOG} résultat`, result);
+
       if (result.action === "cancelled") return;
+
       if (!result.ok) {
         toast.error(result.message || "Erreur lors du partage");
+        setNotice(result.message || "Erreur lors du partage.");
         return;
       }
-      if (result.action === "downloaded") toast.success("PDF téléchargé");
-      else if (result.action === "copied") toast.success("Lien copié");
-      else toast.success("Document partagé");
-      if (result.action !== "downloaded") onOpenChange(false);
+
+      if (result.action === "shared") {
+        toast.success("Document partagé");
+        onOpenChange(false); // fermeture uniquement après partage confirmé
+        return;
+      }
+
+      if (result.action === "copied") {
+        toast.success("Lien copié");
+        setNotice("Le lien sécurisé a été copié dans le presse-papiers.");
+        return; // pas de fermeture
+      }
+
+      if (result.action === "downloaded") {
+        toast.success("PDF téléchargé");
+        setNotice("Le PDF a été téléchargé.");
+        return; // pas de fermeture
+      }
+
+      if (result.action === "unsupported") {
+        toast.info("Partage direct indisponible — PDF téléchargé");
+        setNotice(result.message ?? null);
+        return; // pas de fermeture
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const canShareFiles = DocumentShareService.canShareFiles();
-  const canShare = DocumentShareService.canShare();
   const hasSecureLink = !!meta.secureUrl;
+  const busy = loading || preparing;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Partager le rapport officiel</DialogTitle>
           <DialogDescription>
@@ -104,17 +182,50 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm space-y-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-medium text-foreground">{meta.documentName}</span>
-            {meta.documentNumber && (
-              <Badge variant="secondary" className="font-mono">{meta.documentNumber}</Badge>
-            )}
+        {/* Bloc métadonnées + aperçu */}
+        <div className="grid gap-3 md:grid-cols-[1fr,180px]">
+          <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm space-y-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium text-foreground">{meta.documentName}</span>
+              {meta.documentNumber && (
+                <Badge variant="secondary" className="font-mono">{meta.documentNumber}</Badge>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              {meta.documentDate && <span>Date : {meta.documentDate}</span>}
+              <span>Fichier : {finalFileName}</span>
+              <span>Taille : {pdfSize !== null ? formatBytes(pdfSize) : preparing ? "…" : "-"}</span>
+            </div>
+            <div className="pt-1 text-xs">
+              {preparing ? (
+                <span className="inline-flex items-center gap-1 text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Préparation du PDF officiel…
+                </span>
+              ) : cachedBlob ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600">
+                  <FileText className="h-3 w-3" /> PDF prêt
+                </span>
+              ) : onGeneratePdf ? (
+                <span className="inline-flex items-center gap-1 text-amber-600">
+                  <AlertCircle className="h-3 w-3" /> PDF non généré
+                </span>
+              ) : null}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            {meta.documentDate && <span>Date : {meta.documentDate}</span>}
-            <span>Fichier : {finalFileName}</span>
-            {pdfSize !== null && <span>Taille : {formatBytes(pdfSize)}</span>}
+
+          <div className="hidden md:flex items-center justify-center rounded-lg border border-border bg-background overflow-hidden h-[180px]">
+            {previewUrl ? (
+              <object data={`${previewUrl}#toolbar=0&navpanes=0&view=Fit`} type="application/pdf" className="w-full h-full">
+                <div className="flex flex-col items-center justify-center text-xs text-muted-foreground p-2 text-center">
+                  <FileText className="h-8 w-8 mb-1" />
+                  Aperçu indisponible
+                </div>
+              </object>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-xs text-muted-foreground">
+                {preparing ? <Loader2 className="h-6 w-6 animate-spin" /> : <FileText className="h-8 w-8 opacity-40" />}
+              </div>
+            )}
           </div>
         </div>
 
@@ -139,25 +250,32 @@ const ShareDialog = ({ open, onOpenChange, meta, fileName, onGeneratePdf }: Shar
           </div>
         </div>
 
+        {notice && (
+          <div className="rounded-md border border-border bg-muted/50 p-3 text-sm text-foreground flex gap-2">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+            <span>{notice}</span>
+          </div>
+        )}
+
         <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
-            <X className="h-4 w-4 mr-2" />Annuler
+            <X className="h-4 w-4 mr-2" />Fermer
           </Button>
           <div className="flex flex-wrap gap-2 sm:justify-end">
             {hasSecureLink && (
-              <Button variant="outline" onClick={() => runShare("copy-link")} disabled={loading}>
+              <Button variant="outline" onClick={() => runShare("copy-link")} disabled={busy}>
                 <Link2 className="h-4 w-4 mr-2" />Copier le lien
               </Button>
             )}
             {onGeneratePdf && (
-              <Button variant="outline" onClick={() => runShare("download")} disabled={loading}>
+              <Button variant="outline" onClick={() => runShare("download")} disabled={busy}>
                 {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
                 Télécharger
               </Button>
             )}
             <Button
               onClick={() => runShare("auto")}
-              disabled={loading}
+              disabled={busy}
               className="gradient-primary text-primary-foreground"
             >
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
