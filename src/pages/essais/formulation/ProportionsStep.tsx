@@ -134,6 +134,14 @@ export default function ProportionsStep({
   const [calcResult, setCalcResult] = useState<CalculationResult | null>(null);
   const [calcMode, setCalcMode] = useState<CalcMode>("none");
 
+  // PHASE FINALE — Drapeau explicite pour distinguer :
+  //  - une modification RÉELLE d'un slider par l'utilisateur (déclenche le recalcul)
+  //  - une mise à jour des sliders provenant de applyResult() (aucun recalcul)
+  // useRef pour éviter tout re-render et casser toute boucle de synchronisation.
+  const manualUserEditRef = useRef(false);
+  // Compteur d'audit : nombre d'appels réels à calculateMixDesign().
+  const calcCallCountRef = useRef(0);
+
   const mfMelangeEffectif = useMemo(
     () => mfMelangeStocke ?? calcResult?.moduleFinesse?.melange ?? null,
     [mfMelangeStocke, calcResult]
@@ -145,11 +153,13 @@ export default function ProportionsStep({
 
   const handleSliderChange = (key: string, val: number) => {
     const strVal = val.toString();
+    manualUserEditRef.current = true;
     setLocalOverrides(prev => ({ ...prev, [key]: strVal }));
     onQuantityChange?.(key, strVal);
   };
 
   const handleInputChange = (key: string, val: string) => {
+    manualUserEditRef.current = true;
     setLocalOverrides(prev => ({ ...prev, [key]: val }));
     onQuantityChange?.(key, val);
   };
