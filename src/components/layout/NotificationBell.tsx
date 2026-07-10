@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Bell, AlertTriangle, AlertCircle, Info, X, ExternalLink } from "lucide-react";
+import { Bell, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCheck, Archive, Sparkles } from "lucide-react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
+import { usePersistedNotifications, useUnreadNotificationCount, useNotificationActions } from "@/hooks/useNotificationCenter";
+import { CATEGORY_META, PRIORITY_META } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,6 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface NotificationBellProps {
   collapsed?: boolean;
@@ -17,12 +20,17 @@ interface NotificationBellProps {
 
 export function NotificationBell({ collapsed }: NotificationBellProps) {
   const { data: notifications = [], isLoading } = useNotifications();
+  const { data: persisted = [] } = usePersistedNotifications({ limit: 20 });
+  const { data: persistedUnread = 0 } = useUnreadNotificationCount();
+  const { markRead, markAllRead, archive } = useNotificationActions();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  const errorCount = notifications.filter((n) => n.severity === "error").length;
-  const warningCount = notifications.filter((n) => n.severity === "warning").length;
-  const totalCount = notifications.length;
+  const errorCount = notifications.filter((n) => n.severity === "error").length
+    + persisted.filter((p) => !p.is_read && (p.priority === "urgent" || p.priority === "critical")).length;
+  const warningCount = notifications.filter((n) => n.severity === "warning").length
+    + persisted.filter((p) => !p.is_read && p.priority === "warning").length;
+  const totalCount = notifications.length + persistedUnread;
 
   const handleNotificationClick = (notification: Notification) => {
     if (notification.link) {
