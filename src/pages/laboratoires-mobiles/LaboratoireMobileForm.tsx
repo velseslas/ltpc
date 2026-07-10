@@ -176,7 +176,7 @@ export default function LaboratoireMobileForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.client_id || !formData.chantier_id) {
+    if (!effectiveClientId || !effectiveChantierId) {
       toast({ 
         title: "Erreur", 
         description: "Veuillez sélectionner un client et un chantier", 
