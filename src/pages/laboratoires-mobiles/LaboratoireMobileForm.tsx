@@ -172,6 +172,20 @@ export default function LaboratoireMobileForm() {
         await createMutation.mutateAsync(dataToSubmit);
         toast({ title: "Succès", description: "Laboratoire mobile créé" });
       }
+
+      // Sync statut + dates on the chantier so the widget reflects the choice
+      if (formData.chantier_id) {
+        await supabase
+          .from("chantiers")
+          .update({
+            statut: formData.statut,
+            date_debut: dataToSubmit.date_debut,
+            date_fin: dataToSubmit.date_fin,
+          })
+          .eq("id", formData.chantier_id);
+        queryClient.invalidateQueries({ queryKey: ["chantiers"] });
+      }
+
       navigate("/laboratoires-mobiles");
     } catch (error) {
       toast({ 
