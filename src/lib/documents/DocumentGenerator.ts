@@ -5,6 +5,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { renderTemplate } from "@/lib/rapports/templateEngine";
 import type {
   DocumentGenerationInput,
@@ -259,13 +260,12 @@ export async function generateOfficialDocument(input: DocumentGenerationInput): 
   const nextVersion = (last?.version ?? 0) + 1;
 
   const path = `${input.document_type}/${input.document_id}/v${nextVersion}-${qrToken}.pdf`;
-  const up = await supabase.storage.from(BUCKET).upload(path, blob, {
+  await DocumentRepository.uploadOfficiel(path, blob, {
     contentType: "application/pdf",
     upsert: false,
   });
-  if (up.error) throw up.error;
 
-  const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60 * 60 * 24 * 7);
+  const signedUrl = await DocumentRepository.signedArchiveUrl(path, 60 * 60 * 24 * 7);
 
   const { data: userRow } = await supabase.from("utilisateurs").select("nom").eq("user_id", user.id).maybeSingle();
 
@@ -295,7 +295,7 @@ export async function generateOfficialDocument(input: DocumentGenerationInput): 
     archive_id: archive.id,
     version: nextVersion,
     pdf_url: path,
-    public_url: signed?.signedUrl ?? "",
+    public_url: signedUrl ?? "",
     qr_token: qrToken,
     sha256,
     pdf_size: blob.size,
