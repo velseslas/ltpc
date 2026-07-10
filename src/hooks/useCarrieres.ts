@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface Carriere {
   id: string;
@@ -14,93 +14,56 @@ export interface Carriere {
   updated_at: string;
 }
 
+const repo = getRepositoryForTable<Carriere>("carrieres", {
+  defaultOrder: { column: "nom", ascending: true },
+});
+
 export function useCarrieres() {
   return useQuery({
     queryKey: ["carrieres"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("carrieres")
-        .select("*")
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
-      return data as Carriere[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useCarriere(id: string) {
   return useQuery({
     queryKey: ["carrieres", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("carrieres")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data as Carriere | null;
-    },
+    queryFn: async () => (await repo.getById(id)).data,
     enabled: !!id,
   });
 }
 
 export function useCreateCarriere() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (carriere: Omit<Carriere, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
-        .from("carrieres")
-        .insert(carriere)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(carriere as Partial<Carriere>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carrieres"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["carrieres"] }),
   });
 }
 
 export function useUpdateCarriere() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Carriere> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("carrieres")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(updates, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carrieres"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["carrieres"] }),
   });
 }
 
 export function useDeleteCarriere() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("carrieres")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carrieres"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["carrieres"] }),
   });
 }

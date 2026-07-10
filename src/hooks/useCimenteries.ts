@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface Cimenterie {
   id: string;
@@ -14,93 +14,56 @@ export interface Cimenterie {
   updated_at: string;
 }
 
+const repo = getRepositoryForTable<Cimenterie>("cimenteries", {
+  defaultOrder: { column: "nom", ascending: true },
+});
+
 export function useCimenteries() {
   return useQuery({
     queryKey: ["cimenteries"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cimenteries")
-        .select("*")
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
-      return data as Cimenterie[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useCimenterie(id: string) {
   return useQuery({
     queryKey: ["cimenteries", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cimenteries")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data as Cimenterie | null;
-    },
+    queryFn: async () => (await repo.getById(id)).data,
     enabled: !!id,
   });
 }
 
 export function useCreateCimenterie() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (cimenterie: Omit<Cimenterie, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
-        .from("cimenteries")
-        .insert(cimenterie)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(cimenterie as Partial<Cimenterie>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cimenteries"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cimenteries"] }),
   });
 }
 
 export function useUpdateCimenterie() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Cimenterie> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("cimenteries")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(updates, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cimenteries"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cimenteries"] }),
   });
 }
 
 export function useDeleteCimenterie() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("cimenteries")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cimenteries"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["cimenteries"] }),
   });
 }
