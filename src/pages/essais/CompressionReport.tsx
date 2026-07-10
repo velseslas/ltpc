@@ -700,8 +700,15 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles d'impression — A4 strict, pagination auto, source de vérité PDF */}
+      {/* Styles rapport/PDF — A4 strict, pagination auto, source de vérité PDF */}
       <style>{`
+        #root [data-ref="report"] table,
+        #root [data-ref="report"] td,
+        #root [data-ref="report"] th {
+          height: 18px !important;
+          min-height: 18px !important;
+        }
+
         ${isPrintRoute ? `
           html, body, #root {
             margin: 0 !important;
@@ -830,14 +837,16 @@ const CompressionReport = () => {
           #root [data-ref="report"] th {
             font-size: 8.5pt !important;
             padding: 3px 5px !important;
-            height: 20px !important;
+            height: 18px !important;
+            min-height: 18px !important;
             line-height: 1.2 !important;
           }
           #root [data-ref="report"] .formulation-table th,
           #root [data-ref="report"] .formulation-table td {
             font-size: 8pt !important;
             padding: 3px 4px !important;
-            height: 20px !important;
+            height: 18px !important;
+            min-height: 18px !important;
             line-height: 1.2 !important;
           }
 
