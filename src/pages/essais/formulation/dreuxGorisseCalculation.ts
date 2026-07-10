@@ -744,61 +744,11 @@ function distributeSand(
   );
 }
 
-/**
- * Enforce the "correction sand ≤ 30% of total sand volume" rule.
- * Excess is redistributed proportionally over the remaining sands.
- * Operates on absolute masses (kg/m³).
- */
-function enforceCorrectionSandCap(
-  sableMasses: Record<string, number>,
-  sables: GranulatInput[],
-  totalSableVolume: number
-): Record<string, number> {
-  if (sables.length < 2 || totalSableVolume <= 0) return sableMasses;
-
-  // Compute volumes
-  const volumes: Record<string, number> = {};
-  let totalVol = 0;
-  for (const s of sables) {
-    const m = sableMasses[s.key] ?? 0;
-    const v = s.densite > 0 ? m / s.densite : 0;
-    volumes[s.key] = v;
-    totalVol += v;
-  }
-  if (totalVol <= 0) return sableMasses;
-
-  let changed = false;
-  for (const s of sables) {
-    const isCorrection = s.isSableCorrecteur || (s.dMax !== undefined && s.dMax <= 2);
-    if (!isCorrection) continue;
-    const fraction = volumes[s.key] / totalVol;
-    if (fraction <= MAX_CORRECTION_SAND_FRACTION) continue;
-
-    const cappedVol = totalVol * MAX_CORRECTION_SAND_FRACTION;
-    const excess = volumes[s.key] - cappedVol;
-    volumes[s.key] = cappedVol;
-
-    const others = sables.filter(o => o.key !== s.key);
-    const othersVol = others.reduce((sum, o) => sum + volumes[o.key], 0);
-    if (othersVol > 0) {
-      for (const o of others) {
-        volumes[o.key] += (volumes[o.key] / othersVol) * excess;
-      }
-    } else {
-      const share = excess / others.length;
-      for (const o of others) volumes[o.key] += share;
-    }
-    changed = true;
-  }
-
-  if (!changed) return sableMasses;
-
-  const out: Record<string, number> = { ...sableMasses };
-  for (const s of sables) {
-    out[s.key] = s.densite > 0 ? volumes[s.key] * s.densite : 0;
-  }
-  return out;
-}
+// Phase finale : enforceCorrectionSandCap() SUPPRIMÉ.
+// Le plafond 70/30 (MAX_CORRECTION_SAND_FRACTION = 0.30) et la redistribution
+// automatique du sable correcteur ne font pas partie de la méthode Dreux-Gorisse
+// pure — la formule MF (s1 = (MFc − MF2)/(MF1 − MF2)) et la méthode graphique
+// 95/5 sont désormais les seules autorités.
 
 // Phase 6 : projectOntoSimplex, enforceMinimumProportions, solveSimplexLeastSquares
 // définitivement supprimés (code mort — solveur numérique retiré en Phase 4).
