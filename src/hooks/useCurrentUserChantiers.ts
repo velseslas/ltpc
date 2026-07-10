@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 import { useAuth } from "@/hooks/useAuth";
+
+const utilisateursRepo = getRepositoryForTable<{ intervenant_id: string | null }>("utilisateurs", { defaultSelect: "intervenant_id" });
+const labosRepo = getRepositoryForTable<{ chantier_id: string | null }>("laboratoires_mobiles", { defaultSelect: "chantier_id" });
 
 /**
  * Returns the chantier IDs assigned to the current logged-in technician.
- * Links: auth.user → utilisateurs.user_id → intervenant_id → affectations / laboratoires_mobiles
+ * Links: auth.user → utilisateurs.user_id → intervenant_id → laboratoires_mobiles.responsable_id
  */
 export function useCurrentUserChantiers() {
   const { user } = useAuth();
@@ -14,13 +17,8 @@ export function useCurrentUserChantiers() {
     queryFn: async () => {
       if (!user?.id) return { intervenantId: null, chantierIds: [] as string[] };
 
-      // 1. Get intervenant_id from utilisateurs
-      const { data: utilisateur } = await supabase
-        .from("utilisateurs")
-        .select("intervenant_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
+      const { data: users } = await utilisateursRepo.list({ filters: { user_id: user.id }, limit: 1 });
+      const utilisateur = users[0];
       if (!utilisateur?.intervenant_id) {
         return { intervenantId: null, chantierIds: [] as string[] };
       }
@@ -28,20 +26,17 @@ export function useCurrentUserChantiers() {
       const intervenantId = utilisateur.intervenant_id;
 
       // Source of truth: laboratoires_mobiles.responsable_id ("Technicien affecté").
-      // We intentionally ignore the RH `affectations` table here — that one tracks
-      // generic project assignments which are not the same as being the technician
-      // in charge of a mobile lab on a chantier.
-      const { data: labos } = await supabase
-        .from("laboratoires_mobiles")
-        .select("chantier_id")
-        .eq("responsable_id", intervenantId)
-        .not("chantier_id", "is", null);
-
+      // We ignore the RH `affectations` table (generic project assignments).
+      const { data: labos } = await labosRepo.list({
+        select: "chantier_id",
+        filters: { responsable_id: intervenantId },
+      });
       const chantierIdSet = new Set<string>();
-      labos?.forEach(l => { if (l.chantier_id) chantierIdSet.add(l.chantier_id as string); });
+      (labos as Array<{ chantier_id: string | null }>).forEach((l) => {
+        if (l.chantier_id) chantierIdSet.add(l.chantier_id);
+      });
 
       return { intervenantId, chantierIds: Array.from(chantierIdSet) };
-
     },
     enabled: !!user?.id,
   });

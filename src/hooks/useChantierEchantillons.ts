@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -10,24 +10,30 @@ export type EchantillonChantier = Tables<"echantillons_compression"> & {
   formulations: { id: string; nom: string } | null;
 };
 
+const listSelect = `
+  *,
+  clients:client_id(id, nom),
+  chantiers:chantier_id(id, nom),
+  centrales_beton:centrale_id(id, nom),
+  formulations:formulation_id(id, nom)
+`;
+const insertSelect = `
+  *,
+  clients:client_id(id, nom),
+  chantiers:chantier_id(id, nom)
+`;
+
+const echantillonsRepo = getRepositoryForTable<EchantillonChantier>("echantillons_compression", {
+  defaultSelect: listSelect,
+  defaultOrder: { column: "numero_chantier", ascending: true },
+});
+
 export function useChantierEchantillons(chantierId: string) {
   return useQuery({
     queryKey: ["echantillons-chantier", chantierId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("echantillons_compression")
-        .select(`
-          *,
-          clients:client_id(id, nom),
-          chantiers:chantier_id(id, nom),
-          centrales_beton:centrale_id(id, nom),
-          formulations:formulation_id(id, nom)
-        `)
-        .eq("chantier_id", chantierId)
-        .order("numero_chantier", { ascending: true });
-
-      if (error) throw error;
-      return data as EchantillonChantier[];
+      const { data } = await echantillonsRepo.list({ filters: { chantier_id: chantierId } });
+      return data;
     },
     enabled: !!chantierId,
   });
@@ -62,18 +68,12 @@ export function useCreateChantierEchantillon() {
       date_essai?: string | null;
       etuvage?: string | null;
     }) => {
-      const { data, error } = await supabase
-        .from("echantillons_compression")
-        .insert({ ...echantillon, is_laboratoire_chantier: true })
-        .select(`
-          *,
-          clients:client_id(id, nom),
-          chantiers:chantier_id(id, nom)
-        `)
-        .single();
-
-      if (error) throw error;
-      return data;
+      const res = await echantillonsRepo.insert(
+        { ...echantillon, is_laboratoire_chantier: true } as any,
+        { select: insertSelect },
+      );
+      if (res.error) throw new Error(res.error);
+      return res.data[0];
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", variables.chantier_id] });
@@ -88,12 +88,8 @@ export function useDeleteChantierEchantillon() {
 
   return useMutation({
     mutationFn: async ({ id, chantierId }: { id: string; chantierId: string }) => {
-      const { error } = await supabase
-        .from("echantillons_compression")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      const res = await echantillonsRepo.delete({ id });
+      if (res.error) throw new Error(res.error);
       return chantierId;
     },
     onSuccess: (chantierId) => {

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { callRpc, DocumentRepository, getRepositoryForTable } from "@/lib/repositories";
 
 export interface Entreprise {
   id: string;
@@ -27,14 +27,19 @@ export interface Entreprise {
 
 export type EntrepriseUpdate = Partial<Omit<Entreprise, 'id' | 'created_at' | 'updated_at'>>;
 
+const entrepriseRepo = getRepositoryForTable<Entreprise>("entreprise", {
+  defaultSelect: "*",
+  defaultOrder: { column: "created_at", ascending: true },
+});
+
 export const useEntreprise = () => {
   return useQuery({
     queryKey: ["entreprise"],
     queryFn: async () => {
       // Public-safe fields only (no banking / tax IDs). RLS restricts the
       // underlying table to admins; everyone else reads via this RPC.
-      const { data, error } = await (supabase as any).rpc("get_entreprise_public");
-      if (error) throw error;
+      const { data, error } = await callRpc<Entreprise[]>("get_entreprise_public");
+      if (error) throw new Error(error);
       const row = Array.isArray(data) && data.length > 0 ? data[0] : null;
       return row as Entreprise | null;
     },
@@ -53,13 +58,8 @@ export const useEntrepriseFull = () => {
   return useQuery({
     queryKey: ["entreprise", "full"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("entreprise")
-        .select("*")
-        .order("created_at", { ascending: true })
-        .limit(1);
-      if (error) throw error;
-      return (data && data.length > 0 ? data[0] : null) as Entreprise | null;
+      const { data } = await entrepriseRepo.list({ limit: 1 });
+      return (data[0] ?? null) as Entreprise | null;
     },
   });
 };
@@ -70,26 +70,13 @@ export const useUpdateEntreprise = () => {
   return useMutation({
     mutationFn: async ({ id, updates }: { id?: string; updates: EntrepriseUpdate }) => {
       if (id) {
-        // Update existing entreprise
-        const { data, error } = await supabase
-          .from("entreprise")
-          .update(updates)
-          .eq("id", id)
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
+        const res = await entrepriseRepo.update(updates as any, { id });
+        if (res.error) throw new Error(res.error);
+        return res.data[0];
       } else {
-        // Insert new entreprise
-        const { data, error } = await supabase
-          .from("entreprise")
-          .insert(updates)
-          .select()
-          .single();
-
-        if (error) throw error;
-        return data;
+        const res = await entrepriseRepo.insert(updates as any);
+        if (res.error) throw new Error(res.error);
+        return res.data[0];
       }
     },
     onSuccess: () => {
@@ -98,36 +85,6 @@ export const useUpdateEntreprise = () => {
   });
 };
 
-export const uploadLogo = async (file: File): Promise<string> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `logo-${Date.now()}.${fileExt}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from('logos')
-    .upload(fileName, file, { upsert: true });
-
-  if (uploadError) throw uploadError;
-
-  const { data } = supabase.storage
-    .from('logos')
-    .getPublicUrl(fileName);
-
-  return data.publicUrl;
-};
-
-export const uploadCachet = async (file: File): Promise<string> => {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `cachet-${Date.now()}.${fileExt}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from('logos')
-    .upload(fileName, file, { upsert: true });
-
-  if (uploadError) throw uploadError;
-
-  const { data } = supabase.storage
-    .from('logos')
-    .getPublicUrl(fileName);
-
-  return data.publicUrl;
-};
+// Upload helpers — délégués à DocumentRepository (bucket `logos`).
+export const uploadLogo = (file: File): Promise<string> => DocumentRepository.uploadLogo(file, "logo");
+export const uploadCachet = (file: File): Promise<string> => DocumentRepository.uploadLogo(file, "cachet");

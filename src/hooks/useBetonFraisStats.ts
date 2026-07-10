@@ -1,12 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
-interface EssaiStats {
-  total: number;
-  aFaire: number;
-  enCours: number;
-  termine: number;
-}
+interface EssaiStats { total: number; aFaire: number; enCours: number; termine: number }
 
 interface BetonFraisStats {
   affaissement: EssaiStats;
@@ -17,36 +12,17 @@ interface BetonFraisStats {
 }
 
 async function fetchTableStats(tableName: string): Promise<EssaiStats> {
-  const { data, error } = await supabase
-    .from(tableName as any)
-    .select("statut");
-  
-  if (error) throw error;
-  
-  const stats: EssaiStats = {
-    total: 0,
-    aFaire: 0,
-    enCours: 0,
-    termine: 0,
-  };
-  
-  if (data && Array.isArray(data)) {
-    stats.total = data.length;
-    data.forEach((item: any) => {
-      switch (item.statut) {
-        case "a-faire":
-          stats.aFaire++;
-          break;
-        case "en-cours":
-          stats.enCours++;
-          break;
-        case "termine":
-          stats.termine++;
-          break;
-      }
-    });
-  }
-  
+  const repo = getRepositoryForTable<{ statut: string }>(tableName, { defaultSelect: "statut" });
+  const { data } = await repo.list();
+  const stats: EssaiStats = { total: 0, aFaire: 0, enCours: 0, termine: 0 };
+  stats.total = data.length;
+  data.forEach((item) => {
+    switch (item.statut) {
+      case "a-faire": stats.aFaire++; break;
+      case "en-cours": stats.enCours++; break;
+      case "termine": stats.termine++; break;
+    }
+  });
   return stats;
 }
 
@@ -60,21 +36,15 @@ export function useBetonFraisStats() {
         fetchTableStats("echantillons_temps_prise"),
         fetchTableStats("echantillons_teneur_air"),
       ]);
-      
+
       const global: EssaiStats = {
         total: affaissement.total + temperature.total + tempsPrise.total + teneurAir.total,
         aFaire: affaissement.aFaire + temperature.aFaire + tempsPrise.aFaire + teneurAir.aFaire,
         enCours: affaissement.enCours + temperature.enCours + tempsPrise.enCours + teneurAir.enCours,
         termine: affaissement.termine + temperature.termine + tempsPrise.termine + teneurAir.termine,
       };
-      
-      return {
-        affaissement,
-        temperature,
-        tempsPrise,
-        teneurAir,
-        global,
-      };
+
+      return { affaissement, temperature, tempsPrise, teneurAir, global };
     },
   });
 }
