@@ -95,9 +95,10 @@ export function useDossierAdministratif() {
     queryKey: ["documents_administratifs_list"],
     queryFn: async () => {
       const { data } = await repo.list();
-      return data.map((item) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data as any[]).map((item: any) => ({
         ...item,
-        date_document: (item as { created_at?: string }).created_at,
+        date_document: item.created_at,
         numero: null,
         observations: null,
         statut: "brouillon",
@@ -151,17 +152,15 @@ export function useContratsDocuments() {
     queryKey: ["contrats_documents"],
     queryFn: async () => {
       const { data } = await repo.list();
-      return data.map((item) => {
-        const it = item as { date_signature?: string; date_expiration?: string };
-        return {
-          ...item,
-          date_document: it.date_signature,
-          numero: null,
-          observations: null,
-          date_debut: it.date_signature,
-          date_fin: it.date_expiration,
-        };
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data as any[]).map((item: any) => ({
+        ...item,
+        date_document: item.date_signature,
+        numero: null,
+        observations: null,
+        date_debut: item.date_signature,
+        date_fin: item.date_expiration,
+      }));
     },
   });
 
