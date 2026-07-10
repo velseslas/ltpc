@@ -1,129 +1,77 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export type Affectation = Tables<"affectations">;
 export type AffectationInsert = TablesInsert<"affectations">;
 export type AffectationUpdate = TablesUpdate<"affectations">;
 
+const FULL_SELECT = `*, intervenant:intervenants(*), client:clients(*), chantier:chantiers(*)`;
+const BY_INT_SELECT = `*, client:clients(*), chantier:chantiers(*)`;
+
+const repo = getRepositoryForTable<Affectation>("affectations", {
+  defaultSelect: FULL_SELECT,
+  defaultOrder: { column: "created_at", ascending: false },
+});
+const byIntRepo = getRepositoryForTable<Affectation>("affectations", {
+  defaultSelect: BY_INT_SELECT,
+  defaultOrder: { column: "date_debut", ascending: false },
+});
+
 export function useAffectations() {
   return useQuery({
     queryKey: ["affectations"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("affectations")
-        .select(`
-          *,
-          intervenant:intervenants(*),
-          client:clients(*),
-          chantier:chantiers(*)
-        `)
-        .order("created_at", { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useAffectation(id: string) {
   return useQuery({
     queryKey: ["affectations", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("affectations")
-        .select(`
-          *,
-          intervenant:intervenants(*),
-          client:clients(*),
-          chantier:chantiers(*)
-        `)
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.getById(id, FULL_SELECT)).data,
     enabled: !!id,
   });
 }
 
 export function useCreateAffectation() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (affectation: AffectationInsert) => {
-      const { data, error } = await supabase
-        .from("affectations")
-        .insert(affectation)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(affectation as Partial<Affectation>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["affectations"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["affectations"] }),
   });
 }
 
 export function useUpdateAffectation() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: AffectationUpdate & { id: string }) => {
-      const { data, error } = await supabase
-        .from("affectations")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(updates as Partial<Affectation>, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["affectations"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["affectations"] }),
   });
 }
 
 export function useDeleteAffectation() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("affectations")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["affectations"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["affectations"] }),
   });
 }
 
 export function useAffectationsByIntervenant(intervenantId: string) {
   return useQuery({
     queryKey: ["affectations", "intervenant", intervenantId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("affectations")
-        .select(`
-          *,
-          client:clients(*),
-          chantier:chantiers(*)
-        `)
-        .eq("intervenant_id", intervenantId)
-        .order("date_debut", { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await byIntRepo.list({ filters: { intervenant_id: intervenantId } })).data,
     enabled: !!intervenantId,
   });
 }

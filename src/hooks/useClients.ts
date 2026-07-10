@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
-import { getRepository } from "@/lib/repositories";
+import { getRepository, getRepositoryForTable } from "@/lib/repositories";
 
 export type Client = Tables<"clients">;
 export type ClientInsert = TablesInsert<"clients">;
@@ -9,6 +8,10 @@ export type ClientUpdate = TablesUpdate<"clients">;
 
 // Utilise la couche Repository partagée avec LTPC AI — garantit que l'écran
 // « Clients » et une question « Combien de clients ? » lisent la même requête.
+const clientsRepo = getRepositoryForTable<Client>("clients", {
+  defaultOrder: { column: "nom", ascending: true },
+});
+
 export function useClients() {
   return useQuery({
     queryKey: ["clients"],
@@ -22,75 +25,42 @@ export function useClients() {
 export function useClient(id: string) {
   return useQuery({
     queryKey: ["clients", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await clientsRepo.getById(id)).data,
     enabled: !!id,
   });
 }
 
 export function useCreateClient() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (client: ClientInsert) => {
-      const { data, error } = await supabase
-        .from("clients")
-        .insert(client)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await clientsRepo.insert(client as Partial<Client>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clients"] }),
   });
 }
 
 export function useUpdateClient() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async ({ id, ...updates }: ClientUpdate & { id: string }) => {
-      const { data, error } = await supabase
-        .from("clients")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await clientsRepo.update(updates as Partial<Client>, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clients"] }),
   });
 }
 
 export function useDeleteClient() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("clients")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await clientsRepo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clients"] }),
   });
 }

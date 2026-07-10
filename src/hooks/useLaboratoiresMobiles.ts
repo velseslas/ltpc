@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
+import { getRepository, getRepositoryForTable } from "@/lib/repositories";
 
 export type LaboratoireMobile = Tables<"laboratoires_mobiles">;
 export type LaboratoireMobileInsert = TablesInsert<"laboratoires_mobiles">;
@@ -12,7 +12,13 @@ export type LaboratoireMobileWithRelations = LaboratoireMobile & {
   chantiers: { id: string; nom: string; ville: string | null } | null;
 };
 
-import { getRepository } from "@/lib/repositories";
+const DETAIL_SELECT = `*, intervenants(*), clients(id, nom), chantiers(id, nom, ville)`;
+const detailRepo = getRepositoryForTable<LaboratoireMobileWithRelations>("laboratoires_mobiles", {
+  defaultSelect: DETAIL_SELECT,
+});
+const crudRepo = getRepositoryForTable<LaboratoireMobile>("laboratoires_mobiles");
+const statsRepo = getRepositoryForTable<{ statut: string }>("laboratoires_mobiles", { defaultSelect: "statut" });
+const chantiersRepo = getRepositoryForTable<{ chantier_id: string | null }>("laboratoires_mobiles", { defaultSelect: "chantier_id" });
 
 // Utilise la couche Repository partagée avec LTPC AI.
 export function useLaboratoiresMobiles() {
@@ -28,81 +34,43 @@ export function useLaboratoiresMobiles() {
 export function useLaboratoireMobile(id: string) {
   return useQuery({
     queryKey: ["laboratoires-mobiles", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("laboratoires_mobiles")
-        .select(`
-          *,
-          intervenants(*),
-          clients(id, nom),
-          chantiers(id, nom, ville)
-        `)
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data as LaboratoireMobileWithRelations | null;
-    },
+    queryFn: async () => (await detailRepo.getById(id, DETAIL_SELECT)).data,
     enabled: !!id,
   });
 }
 
 export function useCreateLaboratoireMobile() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (labo: LaboratoireMobileInsert) => {
-      const { data, error } = await supabase
-        .from("laboratoires_mobiles")
-        .insert(labo)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await crudRepo.insert(labo as Partial<LaboratoireMobile>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["laboratoires-mobiles"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["laboratoires-mobiles"] }),
   });
 }
 
 export function useUpdateLaboratoireMobile() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: LaboratoireMobileUpdate & { id: string }) => {
-      const { data, error } = await supabase
-        .from("laboratoires_mobiles")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await crudRepo.update(updates as Partial<LaboratoireMobile>, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["laboratoires-mobiles"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["laboratoires-mobiles"] }),
   });
 }
 
 export function useDeleteLaboratoireMobile() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("laboratoires_mobiles")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await crudRepo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["laboratoires-mobiles"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["laboratoires-mobiles"] }),
   });
 }
 
@@ -110,12 +78,7 @@ export function useLaboratoiresMobilesStats() {
   return useQuery({
     queryKey: ["laboratoires-mobiles-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("laboratoires_mobiles")
-        .select("statut");
-      
-      if (error) throw error;
-      
+      const { data } = await statsRepo.list();
       return {
         total: data.length,
         disponible: data.filter(l => l.statut === "disponible").length,
@@ -131,13 +94,9 @@ export function useLaboMobileChantiers() {
   return useQuery({
     queryKey: ["laboratoires-mobiles-chantiers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("laboratoires_mobiles")
-        .select("chantier_id")
-        .not("chantier_id", "is", null);
-      
-      if (error) throw error;
-      return new Set(data.map(l => l.chantier_id as string));
+      const { data } = await chantiersRepo.list();
+      return new Set(data.filter(r => r.chantier_id).map(r => r.chantier_id as string));
     },
   });
 }
+

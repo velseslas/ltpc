@@ -1,32 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const repo = getRepositoryForTable<any>("prestataires", {
+  defaultOrder: { column: "nom", ascending: true },
+});
+const bcpRepo = getRepositoryForTable<Record<string, unknown>>("bons_commande_prestataire", {
+  defaultSelect: "*, prestataires(*)",
+  defaultOrder: { column: "created_at", ascending: false },
+});
 
 export function usePrestataires() {
   return useQuery({
     queryKey: ["prestataires"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("prestataires")
-        .select("*")
-        .order("nom", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function usePrestataire(id?: string) {
   return useQuery({
     queryKey: ["prestataires", id],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("prestataires")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.getById(id!)).data,
     enabled: !!id,
   });
 }
@@ -34,10 +28,11 @@ export function usePrestataire(id?: string) {
 export function useCreatePrestataire() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (item: any) => {
-      const { data, error } = await (supabase as any).from("prestataires").insert(item).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(item);
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["prestataires"] }),
   });
@@ -46,10 +41,11 @@ export function useCreatePrestataire() {
 export function useUpdatePrestataire() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async ({ id, ...item }: any) => {
-      const { data, error } = await (supabase as any).from("prestataires").update(item).eq("id", id).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(item, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["prestataires"] }),
   });
@@ -59,8 +55,8 @@ export function useDeletePrestataire() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("prestataires").delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["prestataires"] }),
   });
@@ -70,24 +66,18 @@ export function useDeletePrestataire() {
 export function useBonsCommandePrestataire() {
   return useQuery({
     queryKey: ["bons-commande-prestataire"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("bons_commande_prestataire")
-        .select("*, prestataires(*)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await bcpRepo.list()).data,
   });
 }
 
 export function useCreateBonCommandePrestataire() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (item: any) => {
-      const { data, error } = await (supabase as any).from("bons_commande_prestataire").insert(item).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await bcpRepo.insert(item);
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["bons-commande-prestataire"] }),
   });
@@ -97,8 +87,8 @@ export function useDeleteBonCommandePrestataire() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("bons_commande_prestataire").delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await bcpRepo.delete({ id });
+      if (error) throw new Error(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["bons-commande-prestataire"] }),
   });

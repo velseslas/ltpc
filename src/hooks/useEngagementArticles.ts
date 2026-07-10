@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface EngagementArticle {
   id: string;
@@ -10,6 +10,11 @@ export interface EngagementArticle {
   created_at: string;
   updated_at: string;
 }
+
+const repo = getRepositoryForTable<EngagementArticle>("engagement_articles", {
+  defaultOrder: { column: "article_number", ascending: true },
+});
+
 
 export const DEFAULT_ENGAGEMENT_ARTICLES: { number: number; titre: string; contenu: string }[] = [
   {
@@ -117,16 +122,7 @@ Nota : L'énumération des documents de référence (D.T.U. - Normes Algérienne
 export function useEngagementArticles(engagementId: string) {
   return useQuery({
     queryKey: ["engagement_articles", engagementId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("engagement_articles")
-        .select("*")
-        .eq("engagement_id", engagementId)
-        .order("article_number", { ascending: true });
-
-      if (error) throw error;
-      return data as EngagementArticle[];
-    },
+    queryFn: async () => (await repo.list({ filters: { engagement_id: engagementId } })).data,
     enabled: !!engagementId,
   });
 }
@@ -136,12 +132,8 @@ export function useUpsertEngagementArticles() {
 
   return useMutation({
     mutationFn: async (articles: { engagement_id: string; article_number: number; titre: string; contenu: string }[]) => {
-      const { data, error } = await supabase
-        .from("engagement_articles")
-        .upsert(articles, { onConflict: "engagement_id,article_number" })
-        .select();
-
-      if (error) throw error;
+      const { data, error } = await repo.upsert(articles as Partial<EngagementArticle>[], { onConflict: "engagement_id,article_number" });
+      if (error) throw new Error(error);
       return data;
     },
     onSuccess: (_, variables) => {
@@ -151,3 +143,4 @@ export function useUpsertEngagementArticles() {
     },
   });
 }
+

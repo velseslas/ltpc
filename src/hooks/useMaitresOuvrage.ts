@@ -1,32 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const repo = getRepositoryForTable<any>("maitres_ouvrage", {
+  defaultOrder: { column: "nom", ascending: true },
+});
 
 export function useMaitresOuvrage() {
   return useQuery({
     queryKey: ["maitres-ouvrage"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("maitres_ouvrage")
-        .select("*")
-        .order("nom", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useMaitreOuvrage(id?: string) {
   return useQuery({
     queryKey: ["maitres-ouvrage", id],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("maitres_ouvrage")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => (await repo.getById(id!)).data,
     enabled: !!id,
   });
 }
@@ -34,10 +24,11 @@ export function useMaitreOuvrage(id?: string) {
 export function useCreateMaitreOuvrage() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (item: any) => {
-      const { data, error } = await (supabase as any).from("maitres_ouvrage").insert(item).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(item);
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["maitres-ouvrage"] }),
   });
@@ -46,10 +37,11 @@ export function useCreateMaitreOuvrage() {
 export function useUpdateMaitreOuvrage() {
   const qc = useQueryClient();
   return useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async ({ id, ...item }: any) => {
-      const { data, error } = await (supabase as any).from("maitres_ouvrage").update(item).eq("id", id).select().single();
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(item, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["maitres-ouvrage"] }),
   });
@@ -59,8 +51,8 @@ export function useDeleteMaitreOuvrage() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("maitres_ouvrage").delete().eq("id", id);
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["maitres-ouvrage"] }),
   });

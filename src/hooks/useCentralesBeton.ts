@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface CentraleBeton {
   id: string;
@@ -14,93 +14,56 @@ export interface CentraleBeton {
   updated_at: string;
 }
 
+const repo = getRepositoryForTable<CentraleBeton>("centrales_beton", {
+  defaultOrder: { column: "nom", ascending: true },
+});
+
 export function useCentralesBeton() {
   return useQuery({
     queryKey: ["centrales_beton"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("centrales_beton")
-        .select("*")
-        .order("nom", { ascending: true });
-      
-      if (error) throw error;
-      return data as CentraleBeton[];
-    },
+    queryFn: async () => (await repo.list()).data,
   });
 }
 
 export function useCentraleBeton(id: string) {
   return useQuery({
     queryKey: ["centrales_beton", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("centrales_beton")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data as CentraleBeton | null;
-    },
+    queryFn: async () => (await repo.getById(id)).data,
     enabled: !!id,
   });
 }
 
 export function useCreateCentraleBeton() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (centrale: Omit<CentraleBeton, "id" | "created_at" | "updated_at">) => {
-      const { data, error } = await supabase
-        .from("centrales_beton")
-        .insert(centrale)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.insert(centrale as Partial<CentraleBeton>);
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["centrales_beton"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["centrales_beton"] }),
   });
 }
 
 export function useUpdateCentraleBeton() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<CentraleBeton> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("centrales_beton")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      const { data, error } = await repo.update(updates, { id });
+      if (error) throw new Error(error);
+      return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["centrales_beton"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["centrales_beton"] }),
   });
 }
 
 export function useDeleteCentraleBeton() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("centrales_beton")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["centrales_beton"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["centrales_beton"] }),
   });
 }

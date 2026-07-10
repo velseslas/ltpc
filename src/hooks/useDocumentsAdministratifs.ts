@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 export interface DocumentAdministratif {
   id: string;
@@ -11,78 +11,53 @@ export interface DocumentAdministratif {
   updated_at: string;
 }
 
+const repo = getRepositoryForTable<DocumentAdministratif>("documents_administratifs", {
+  defaultOrder: { column: "created_at", ascending: false },
+});
+
 export function useDocumentsAdministratifsByClient(clientId: string) {
   return useQuery({
     queryKey: ["documents_administratifs", "client", clientId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("documents_administratifs")
-        .select("*")
-        .eq("client_id", clientId)
-        .order("created_at", { ascending: false });
-      
-      if (error) throw error;
-      return data as DocumentAdministratif[];
-    },
+    queryFn: async () => (await repo.list({ filters: { client_id: clientId } })).data,
     enabled: !!clientId,
   });
 }
 
 export function useCreateDocumentAdministratif() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (doc: { client_id: string; titre: string; document_url: string | null; document_nom: string | null }) => {
-      const { data, error } = await supabase
-        .from("documents_administratifs")
-        .insert(doc)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as DocumentAdministratif;
+      const { data, error } = await repo.insert(doc as Partial<DocumentAdministratif>);
+      if (error) throw new Error(error);
+      return data[0];
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["documents_administratifs", "client", data.client_id] });
+      if (data?.client_id) qc.invalidateQueries({ queryKey: ["documents_administratifs", "client", data.client_id] });
     },
   });
 }
 
 export function useUpdateDocumentAdministratif() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; titre?: string; document_url?: string | null; document_nom?: string | null }) => {
-      const { data: result, error } = await supabase
-        .from("documents_administratifs")
-        .update(data)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return result as DocumentAdministratif;
+      const { data: result, error } = await repo.update(data as Partial<DocumentAdministratif>, { id });
+      if (error) throw new Error(error);
+      return result[0];
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["documents_administratifs", "client", data.client_id] });
+      if (data?.client_id) qc.invalidateQueries({ queryKey: ["documents_administratifs", "client", data.client_id] });
     },
   });
 }
 
 export function useDeleteDocumentAdministratif() {
-  const queryClient = useQueryClient();
-  
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("documents_administratifs")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
+      const { error } = await repo.delete({ id });
+      if (error) throw new Error(error);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documents_administratifs"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["documents_administratifs"] }),
   });
 }
