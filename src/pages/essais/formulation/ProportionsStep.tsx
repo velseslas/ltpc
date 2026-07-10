@@ -424,8 +424,8 @@ export default function ProportionsStep({
     const eauVal = parseFloat(calcEau) || 0;
     const cimentVal = parseFloat(calcCiment) || 0;
     const gsVal = parseFloat(calcRatioGS) || 0;
-    const airVal = (typeof airOcclus === "number" ? airOcclus : 25) / 1000;
-    const dCim = (typeof densiteCiment === "number" && densiteCiment > 0 ? densiteCiment : 3110);
+    const airVal = 25 / 1000;
+    const dCim = 3110;
     const Ve = eauVal / 1000;
     const Vc = cimentVal / dCim;
     const Vg = Math.max(0, 1 - (Ve + Vc + airVal));
@@ -433,7 +433,7 @@ export default function ProportionsStep({
     const Vgravier = gsVal > 0 ? Vg - Vsable : 0;
     const volumeCheck = Ve + Vc + airVal + Vg;
     return { Ve, Vc, Vair: airVal, Vg, Vsable, Vgravier, volumeCheck };
-  }, [calcResult, calcEau, calcCiment, calcRatioGS, airOcclus, densiteCiment]);
+  }, [calcResult, calcEau, calcCiment, calcRatioGS]);
 
   // Phase 6 : materials pour le chart = courbes réelles uniquement (aucun démo).
   // Phase 10 : on sépare sables / graviers pour le StabilityAnalysisPanel
