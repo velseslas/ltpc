@@ -16,7 +16,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   if (embed) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-dvh bg-background">
         <main className="p-4">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
@@ -25,7 +25,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <Navbar />
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       <main

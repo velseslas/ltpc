@@ -41,7 +41,7 @@ export default function VerificationPage() {
   } | null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
+    <div className="min-h-dvh flex items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

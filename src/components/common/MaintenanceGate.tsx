@@ -73,7 +73,7 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
   if (!active || isAdmin) return <>{children}</>;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="min-h-dvh bg-background flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-6 rounded-2xl border border-border/50 bg-card/50 p-8 backdrop-blur-sm">
         <div className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
           <AlertTriangle className="w-8 h-8 text-destructive" />
