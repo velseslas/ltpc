@@ -6222,6 +6222,114 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          disabled_categories: Database["public"]["Enums"]["notification_category"][]
+          email_enabled: boolean
+          frequency: Database["public"]["Enums"]["notification_frequency"]
+          id: string
+          inapp_enabled: boolean
+          push_enabled: boolean
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          sms_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          disabled_categories?: Database["public"]["Enums"]["notification_category"][]
+          email_enabled?: boolean
+          frequency?: Database["public"]["Enums"]["notification_frequency"]
+          id?: string
+          inapp_enabled?: boolean
+          push_enabled?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          sms_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          disabled_categories?: Database["public"]["Enums"]["notification_category"][]
+          email_enabled?: boolean
+          frequency?: Database["public"]["Enums"]["notification_frequency"]
+          id?: string
+          inapp_enabled?: boolean
+          push_enabled?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          sms_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          category: Database["public"]["Enums"]["notification_category"]
+          color: string | null
+          created_at: string
+          data: Json
+          icon: string | null
+          id: string
+          is_archived: boolean
+          is_read: boolean
+          link: string | null
+          message: string | null
+          priority: Database["public"]["Enums"]["notification_priority"]
+          read_at: string | null
+          role: string | null
+          source: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["notification_category"]
+          color?: string | null
+          created_at?: string
+          data?: Json
+          icon?: string | null
+          id?: string
+          is_archived?: boolean
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          priority?: Database["public"]["Enums"]["notification_priority"]
+          read_at?: string | null
+          role?: string | null
+          source?: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["notification_category"]
+          color?: string | null
+          created_at?: string
+          data?: Json
+          icon?: string | null
+          id?: string
+          is_archived?: boolean
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          priority?: Database["public"]["Enums"]["notification_priority"]
+          read_at?: string | null
+          role?: string | null
+          source?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       offre_service_articles: {
         Row: {
           article_number: number
@@ -7004,6 +7112,48 @@ export type Database = {
           producteur_id?: string
           producteur_type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          is_active: boolean
+          last_used_at: string | null
+          p256dh: string
+          platform: string | null
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          p256dh: string
+          platform?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          p256dh?: string
+          platform?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -7959,6 +8109,37 @@ export type Database = {
         | "reforme"
       mouvement_statut: "brouillon" | "valide" | "signe" | "annule"
       mouvement_type: "affectation" | "decharge" | "passation" | "restitution"
+      notification_category:
+        | "laboratoire"
+        | "essais"
+        | "compression"
+        | "formulation"
+        | "granulats"
+        | "geotechnique"
+        | "rapports"
+        | "documents"
+        | "facturation"
+        | "materiel"
+        | "etalonnage"
+        | "intervenants"
+        | "rh"
+        | "ltpc_ai"
+        | "pwa"
+        | "administration"
+        | "systeme"
+      notification_frequency:
+        | "immediat"
+        | "5min"
+        | "15min"
+        | "30min"
+        | "quotidien"
+        | "hebdomadaire"
+      notification_priority:
+        | "info"
+        | "success"
+        | "warning"
+        | "urgent"
+        | "critical"
       rapport_gravite: "faible" | "moderee" | "elevee" | "critique"
       rapport_statut:
         | "brouillon"
@@ -8120,6 +8301,40 @@ export const Constants = {
       ],
       mouvement_statut: ["brouillon", "valide", "signe", "annule"],
       mouvement_type: ["affectation", "decharge", "passation", "restitution"],
+      notification_category: [
+        "laboratoire",
+        "essais",
+        "compression",
+        "formulation",
+        "granulats",
+        "geotechnique",
+        "rapports",
+        "documents",
+        "facturation",
+        "materiel",
+        "etalonnage",
+        "intervenants",
+        "rh",
+        "ltpc_ai",
+        "pwa",
+        "administration",
+        "systeme",
+      ],
+      notification_frequency: [
+        "immediat",
+        "5min",
+        "15min",
+        "30min",
+        "quotidien",
+        "hebdomadaire",
+      ],
+      notification_priority: [
+        "info",
+        "success",
+        "warning",
+        "urgent",
+        "critical",
+      ],
       rapport_gravite: ["faible", "moderee", "elevee", "critique"],
       rapport_statut: [
         "brouillon",
