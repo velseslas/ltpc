@@ -21,6 +21,8 @@ import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
 import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export default function LaboratoireMobileForm() {
