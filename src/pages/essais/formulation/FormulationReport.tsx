@@ -1369,12 +1369,22 @@ export default function FormulationReport() {
                     />
                   ))}
                   <Line
+                    type="linear"
+                    dataKey="reference"
+                    name="Courbe de référence (OAB)"
+                    stroke="#dc2626"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                    connectNulls
+                  />
+                  <Line
                     type="monotone"
                     dataKey="melange"
                     name="Mélange (résultante)"
-                    stroke="#000"
+                    stroke="#0891b2"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "#000" }}
+                    dot={{ r: 3, fill: "#0891b2" }}
                     connectNulls
                   />
                 </LineChart>
