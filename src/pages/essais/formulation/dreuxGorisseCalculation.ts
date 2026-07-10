@@ -689,8 +689,7 @@ function buildGravelSplitReport(
  * - 2 sands + MF cible: closed-form S1 = (MFcible − MF2) / (MF1 − MF2)
  * - otherwise: least-squares optimization against reference curve
  * - fallback: equal distribution
- *
- * Correction-sand 30% cap is applied AFTER this function (see enforceCorrectionSandCap).
+ * Phase finale : plus aucun post-traitement (plafond 30% supprimé).
  */
 function distributeSand(
   totalVolume: number,
