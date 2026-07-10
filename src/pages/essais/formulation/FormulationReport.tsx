@@ -1382,9 +1382,9 @@ export default function FormulationReport() {
                     type="monotone"
                     dataKey="melange"
                     name="Mélange (résultante)"
-                    stroke="#0891b2"
+                    stroke="#000000"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "#0891b2" }}
+                    dot={{ r: 3, fill: "#000000" }}
                     connectNulls
                   />
                 </LineChart>
