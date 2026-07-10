@@ -25,10 +25,10 @@ export function useDashboardAIStats() {
 
       const [aiCallsToday, rapportsToValidate, alerts, anomalies, formulations, docsArchives] = await Promise.all([
         supabase.from("rapport_ai_calls").select("id", { count: "exact", head: true }).gte("created_at", startToday).lte("created_at", endToday),
-        supabase.from("rapports_techniques").select("id", { count: "exact", head: true }).eq("statut", "en_revue"),
+        supabase.from("rapports_techniques").select("id", { count: "exact", head: true }).eq("statut", "en_attente_validation"),
         supabase.from("ai_alerts").select("id", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("ai_alerts").select("id", { count: "exact", head: true }).eq("status", "open").in("severity", ["high", "critical"]),
-        supabase.from("formulations").select("id", { count: "exact", head: true }).eq("statut", "brouillon"),
+        (supabase.from("formulations") as any).select("id", { count: "exact", head: true }).eq("statut", "brouillon"),
         supabase.from("document_archives").select("id", { count: "exact", head: true }).gte("created_at", startToday).lte("created_at", endToday),
       ]);
 
@@ -202,7 +202,7 @@ export function useDashboardSummary() {
 
       const [essaisTodayRes, rapportsRes, etalRes, alertsRes, nonConfRes] = await Promise.all([
         supabase.from("essais").select("id", { count: "exact", head: true }).gte("created_at", startToday),
-        supabase.from("rapports_techniques").select("id", { count: "exact", head: true }).eq("statut", "en_revue"),
+        supabase.from("rapports_techniques").select("id", { count: "exact", head: true }).eq("statut", "en_attente_validation"),
         supabase.from("etalonnage_materiel").select("id", { count: "exact", head: true })
           .gte("date_prochain_etalonnage", todayDate).lte("date_prochain_etalonnage", in30),
         supabase.from("ai_alerts").select("id", { count: "exact", head: true }).eq("status", "open"),
