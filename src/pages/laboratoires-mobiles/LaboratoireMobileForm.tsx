@@ -341,9 +341,8 @@ export default function LaboratoireMobileForm() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="disponible">Disponible</SelectItem>
-                    <SelectItem value="deploye">Déployé</SelectItem>
-                    <SelectItem value="maintenance">En maintenance</SelectItem>
+                    <SelectItem value="en_cours">En cours</SelectItem>
+                    <SelectItem value="termine">Terminé</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
