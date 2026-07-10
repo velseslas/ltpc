@@ -87,11 +87,11 @@ const Parametres = () => {
     {
       id: "notifications",
       title: "Notifications",
-      description: "Configurer les alertes et les notifications",
+      description: "Canaux, fréquences, catégories et Push (Web / PWA)",
       icon: Bell,
       gradient: "from-indigo-500/20 to-violet-500/10",
       iconColor: "text-indigo-500",
-      path: "/parametres/notifications"
+      path: "/parametres/notifications-preferences"
     },
     {
       id: "database",

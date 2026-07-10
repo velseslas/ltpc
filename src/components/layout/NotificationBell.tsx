@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Bell, AlertTriangle, AlertCircle, Info, X, ExternalLink } from "lucide-react";
+import { Bell, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCheck, Archive, Sparkles } from "lucide-react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
+import { usePersistedNotifications, useUnreadNotificationCount, useNotificationActions } from "@/hooks/useNotificationCenter";
+import { CATEGORY_META, PRIORITY_META } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,6 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface NotificationBellProps {
   collapsed?: boolean;
@@ -17,12 +20,17 @@ interface NotificationBellProps {
 
 export function NotificationBell({ collapsed }: NotificationBellProps) {
   const { data: notifications = [], isLoading } = useNotifications();
+  const { data: persisted = [] } = usePersistedNotifications({ limit: 20 });
+  const { data: persistedUnread = 0 } = useUnreadNotificationCount();
+  const { markRead, markAllRead, archive } = useNotificationActions();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
-  const errorCount = notifications.filter((n) => n.severity === "error").length;
-  const warningCount = notifications.filter((n) => n.severity === "warning").length;
-  const totalCount = notifications.length;
+  const errorCount = notifications.filter((n) => n.severity === "error").length
+    + persisted.filter((p) => !p.is_read && (p.priority === "urgent" || p.priority === "critical")).length;
+  const warningCount = notifications.filter((n) => n.severity === "warning").length
+    + persisted.filter((p) => !p.is_read && p.priority === "warning").length;
+  const totalCount = notifications.length + persistedUnread;
 
   const handleNotificationClick = (notification: Notification) => {
     if (notification.link) {
@@ -105,18 +113,51 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
           )}
         </div>
 
-        <ScrollArea className="max-h-[400px]">
-          {isLoading ? (
+        <ScrollArea className="max-h-[420px]">
+          {isLoading && notifications.length === 0 && persisted.length === 0 ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
             </div>
-          ) : notifications.length === 0 ? (
+          ) : notifications.length === 0 && persisted.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
               <Bell className="w-10 h-10 mb-2 opacity-50" />
               <p className="text-sm">Aucune notification</p>
             </div>
           ) : (
             <div className="divide-y divide-border">
+              {persisted.map((p) => (
+                <div
+                  key={`p-${p.id}`}
+                  className={cn(
+                    "w-full p-3 text-left transition-colors border-l-2",
+                    p.is_read ? "border-l-border bg-transparent" : "border-l-primary bg-primary/5",
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {p.source === "ai"
+                        ? <Sparkles className="w-4 h-4 text-violet-400" />
+                        : <Bell className={cn("w-4 h-4", PRIORITY_META[p.priority].color)} />}
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (!p.is_read) markRead.mutate(p.id);
+                        if (p.link) { navigate(p.link); setOpen(false); }
+                      }}
+                      className="flex-1 min-w-0 text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
+                        <Badge variant="outline" className="text-[10px] px-1 py-0">{CATEGORY_META[p.category].label}</Badge>
+                      </div>
+                      {p.message && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{p.message}</p>}
+                    </button>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 flex-shrink-0" onClick={() => archive.mutate(p.id)} aria-label="Archiver">
+                      <Archive className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
               {notifications.map((notification) => (
                 <button
                   key={notification.id}
@@ -149,9 +190,10 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
           )}
         </ScrollArea>
 
-        {notifications.length > 0 && (
+
+        {(notifications.length > 0 || persisted.length > 0) && (
           <div className="p-3 border-t border-border bg-secondary/30">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 {errorCount > 0 && (
                   <span className="flex items-center gap-1">
@@ -166,18 +208,23 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
                   </span>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  navigate("/notifications");
-                  setOpen(false);
-                }}
-                className="text-xs text-primary hover:underline"
-              >
-                Voir tout
-              </button>
+              <div className="flex items-center gap-2">
+                {persistedUnread > 0 && (
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => markAllRead.mutate()}>
+                    <CheckCheck className="w-3 h-3 mr-1" /> Tout lu
+                  </Button>
+                )}
+                <button
+                  onClick={() => { navigate("/notifications"); setOpen(false); }}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Voir tout
+                </button>
+              </div>
             </div>
           </div>
         )}
+
       </PopoverContent>
     </Popover>
   );
