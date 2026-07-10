@@ -36,11 +36,21 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const VerificationPage = lazy(() => import("./pages/verification/VerificationPage"));
 const CompressionReport = lazy(() => import("./pages/essais/CompressionReport"));
 
+// Phase 5 — Performance : defaults React Query optimisés pour réduire les
+// requêtes réseau redondantes (focus/reconnect) tout en gardant les données
+// fraîches sur navigation. Aucune modification métier.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60 * 5,        // 5 min : évite les refetch trop fréquents
+      gcTime: 1000 * 60 * 30,          // 30 min : garde le cache pour navigations arrière rapides
       retry: 1,
+      refetchOnWindowFocus: false,     // évite les rafales au retour d'onglet
+      refetchOnReconnect: "always",    // resynchronise après perte réseau (utile PWA)
+      refetchOnMount: true,
+    },
+    mutations: {
+      retry: 0,
     },
   },
 });
