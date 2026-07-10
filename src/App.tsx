@@ -15,6 +15,7 @@ import { NetworkStatusToaster } from "@/components/pwa/NetworkStatusToaster";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 
 const DebugPWA = lazy(() => import("@/pages/pwa/DebugPWA"));
+const DebugNotifications = lazy(() => import("@/pages/pwa/DebugNotifications"));
 
 // Route modules — un fichier par domaine (voir src/routes/).
 import { intervenantRoutes } from "@/routes/intervenantRoutes";
@@ -105,6 +106,7 @@ const AppRoutes = () => (
       <Route path="/ltpc-ai/audit" element={<CentrePilotage />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/debug/pwa" element={<DebugPWA />} />
+      <Route path="/debug/notifications" element={<DebugNotifications />} />
       {intervenantRoutes}
       {rhRoutes}
       {essaisCoreRoutes}
