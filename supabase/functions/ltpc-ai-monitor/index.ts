@@ -3,6 +3,7 @@
 // Déclenchable via pg_cron ou manuellement depuis le client.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -132,6 +133,8 @@ async function narrate(apiKey: string, alerts: Alert[], counts: Record<string, n
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const _rl = await enforceRateLimit(req, { scope: "ltpc-ai-monitor", userLimit: 10, ipLimit: 20, windowSec: 60 });
+  if (_rl) return _rl;
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     const supaUrl = Deno.env.get("SUPABASE_URL");

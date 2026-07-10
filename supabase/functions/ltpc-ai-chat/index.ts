@@ -3,6 +3,7 @@
 // jamais il ne recalcule. Rétro-compatible : accepte encore search_hits/search_debug.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { callAIFeature } from "../_shared/ai-provider.ts";
+import { enforceRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -93,6 +94,8 @@ function buildAgentBlock(dbg?: AgentDebugIn, conf?: number): string {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const _rl = await enforceRateLimit(req, { scope: "ltpc-ai-chat", userLimit: 20, ipLimit: 40, windowSec: 60 });
+  if (_rl) return _rl;
   try {
     // Les clés fournisseurs sont lues par AIProviderFactory. Aucune ne
     // conditionne l'entrée : si toutes sont absentes, callAIFeature lèvera.
