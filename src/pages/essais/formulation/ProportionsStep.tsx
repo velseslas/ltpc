@@ -456,6 +456,29 @@ export default function ProportionsStep({
     onMfCorrectionNeeded?.(needsSable2Correction);
   }, [needsSable2Correction, onMfCorrectionNeeded]);
 
+  // Manual mode : recompute engine result (mixCurve, pointA, MF, référence) live
+  // from current slider masses so the chart reflects manual adjustments.
+  useEffect(() => {
+    if (calcMode !== "manual" || !hasCalculated) return;
+    try {
+      const inputs = buildInputs();
+      const presetMasses: Record<string, number> = {
+        sableConcasse: sc,
+        sableFin: sf,
+        gravillons1: g1,
+        gravier2: g2,
+        gravier3: g3,
+      };
+      const result = calculateMixDesign(inputs, presetMasses);
+      setCalcResult(result);
+      setCalculationErrors(result.volumeErrors);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setCalculationErrors([msg]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calcMode, hasCalculated, sc, sf, g1, g2, g3, calcEau, calcCiment, calcRatioGS, coefficientGranulaire, coefficientCompacite, dMaxUser]);
+
   return (
     <div className="space-y-6">
       {/* Calculation Parameters Card */}
@@ -735,23 +758,14 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                         return (
                           <div key={s.key} className="space-y-1.5">
                             <div className="flex items-center justify-between gap-2">
-                              <Label className="text-xs font-medium flex items-center gap-1.5 min-w-0">
+                              <Label className="text-xs font-medium flex items-center gap-1.5 min-w-0 flex-1">
                                 <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
-                                <span className="truncate">{s.label}</span>
+                                <span className="flex-1 break-words">{s.label}</span>
                                 <Badge variant="outline" className="text-[10px] px-1 py-0 shrink-0">
                                   {s.isSable ? "S" : "G"}
                                 </Badge>
                               </Label>
                               <div className="flex items-center gap-1 shrink-0">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={() => handleInputChange(s.key, Math.max(0, v - step).toString())}
-                                >
-                                  <Minus className="w-3.5 h-3.5" />
-                                </Button>
                                 <Input
                                   type="number"
                                   value={s.value}
@@ -760,28 +774,39 @@ Recommandation : Ajouter un sable de correction plus fin (ex : sable 0/1) afin d
                                   min={0}
                                   max={s.max}
                                 />
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={() => handleInputChange(s.key, Math.min(s.max, v + step).toString())}
-                                >
-                                  <Plus className="w-3.5 h-3.5" />
-                                </Button>
-                                <span className="text-xs text-muted-foreground w-6">kg</span>
+                                <span className="text-xs text-muted-foreground">kg</span>
                                 <Badge variant="secondary" className="text-[10px] tabular-nums w-14 justify-center">
                                   {pct.toFixed(1)}%
                                 </Badge>
                               </div>
                             </div>
-                            <Slider
-                              value={[v]}
-                              onValueChange={([val]) => handleSliderChange(s.key, val)}
-                              max={s.max}
-                              step={5}
-                              className="w-full"
-                            />
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => handleInputChange(s.key, Math.max(0, v - step).toString())}
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </Button>
+                              <Slider
+                                value={[v]}
+                                onValueChange={([val]) => handleSliderChange(s.key, val)}
+                                max={s.max}
+                                step={5}
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => handleInputChange(s.key, Math.min(s.max, v + step).toString())}
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
                           </div>
                         );
                       })}
