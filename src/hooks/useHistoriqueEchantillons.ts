@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 import type { Json } from "@/integrations/supabase/types";
 
 export type HistoriqueEchantillon = {
@@ -18,19 +18,18 @@ export type HistoriqueEchantillonInsert = {
   details?: Json | null;
 };
 
+const historiqueRepo = getRepositoryForTable<HistoriqueEchantillon>("historique_echantillons_compression", {
+  defaultSelect: "*",
+  defaultOrder: { column: "created_at", ascending: false },
+});
+
 export function useHistoriqueEchantillons(echantillonId: string | undefined) {
   return useQuery({
     queryKey: ["historique-echantillons", echantillonId],
     queryFn: async () => {
       if (!echantillonId) return [];
-      const { data, error } = await (supabase as any)
-        .from("historique_echantillons_compression")
-        .select("*")
-        .eq("echantillon_id", echantillonId)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return (data || []) as unknown as HistoriqueEchantillon[];
+      const { data } = await historiqueRepo.list({ filters: { echantillon_id: echantillonId } });
+      return data;
     },
     enabled: !!echantillonId,
   });
@@ -41,68 +40,45 @@ export function useCreateHistoriqueEchantillon() {
 
   return useMutation({
     mutationFn: async (historique: HistoriqueEchantillonInsert) => {
-      const { data, error } = await (supabase as any)
-        .from("historique_echantillons_compression")
-        .insert(historique)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      const res = await historiqueRepo.insert(historique as any);
+      if (res.error) throw new Error(res.error);
+      return res.data[0];
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: ["historique-echantillons", variables.echantillon_id] 
+      queryClient.invalidateQueries({
+        queryKey: ["historique-echantillons", variables.echantillon_id],
       });
     },
   });
 }
 
-// Helper function to create a history entry
 export async function logEchantillonHistory(
   echantillonId: string,
   action: "creation" | "modification" | "suppression",
   utilisateur: string,
   details?: Record<string, unknown>
 ) {
-  const { error } = await (supabase as any)
-    .from("historique_echantillons_compression")
-    .insert({
-      echantillon_id: echantillonId,
-      action,
-      utilisateur,
-      details: details || null,
-    });
-
-  if (error) {
-    console.error("Error logging history:", error);
-  }
+  const res = await historiqueRepo.insert({
+    echantillon_id: echantillonId,
+    action,
+    utilisateur,
+    details: (details || null) as Json | null,
+  } as any);
+  if (res.error) console.error("Error logging history:", res.error);
 }
 
-// Helper to get changes between old and new values
 export function getChangedFields(
   oldValues: Record<string, unknown>,
   newValues: Record<string, unknown>
 ): Record<string, { ancien: unknown; nouveau: unknown }> {
   const changes: Record<string, { ancien: unknown; nouveau: unknown }> = {};
-
   const allKeys = new Set([...Object.keys(oldValues), ...Object.keys(newValues)]);
-
   allKeys.forEach((key) => {
     const oldVal = oldValues[key];
     const newVal = newValues[key];
-
-    // Compare stringified values for complex types
-    const oldStr = JSON.stringify(oldVal);
-    const newStr = JSON.stringify(newVal);
-
-    if (oldStr !== newStr) {
-      changes[key] = {
-        ancien: oldVal,
-        nouveau: newVal,
-      };
+    if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+      changes[key] = { ancien: oldVal, nouveau: newVal };
     }
   });
-
   return changes;
 }

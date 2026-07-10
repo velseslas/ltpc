@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 /**
  * Fetches a single record by ID and returns it merged into a base list,
@@ -17,15 +17,16 @@ export function useMergedById<T = any>(
     queryKey: [`${table}-by-id`, id],
     queryFn: async () => {
       if (!id) return null;
-      const { data } = await supabase.from(table as any).select(selectColumns).eq("id", id).maybeSingle();
-      return data as any;
+      const repo = getRepositoryForTable<any>(table, { defaultSelect: selectColumns });
+      const { data } = await repo.getById(id, selectColumns);
+      return data;
     },
     enabled: !!id,
   });
 
   return useMemo(() => {
     const list = [...((baseList as any[]) || [])];
-    if (existing && !list.some((x: any) => x.id === existing.id)) list.push(existing);
+    if (existing && !list.some((x: any) => x.id === (existing as any).id)) list.push(existing);
     return list as T[];
   }, [baseList, existing]);
 }

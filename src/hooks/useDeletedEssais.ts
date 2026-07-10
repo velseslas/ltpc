@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { callRpc, getRepositoryForTable } from "@/lib/repositories";
 import { toast } from "sonner";
 
 export interface DeletedEssaiEntry {
@@ -17,16 +17,17 @@ export interface DeletedEssaiEntry {
   restored_by_name: string | null;
 }
 
+const deletedRepo = getRepositoryForTable<DeletedEssaiEntry>("essais_deleted", {
+  defaultSelect: "*",
+  defaultOrder: { column: "deleted_at", ascending: false },
+});
+
 export function useDeletedEssais() {
   return useQuery({
     queryKey: ["essais_deleted"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("essais_deleted")
-        .select("*")
-        .order("deleted_at", { ascending: false });
-      if (error) throw error;
-      return data as DeletedEssaiEntry[];
+      const { data } = await deletedRepo.list();
+      return data;
     },
   });
 }
@@ -35,10 +36,8 @@ export function useRestoreDeletedEssai() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (entryId: string) => {
-      const { error } = await (supabase as any).rpc("restore_deleted_essai", {
-        _deleted_id: entryId,
-      });
-      if (error) throw error;
+      const { error } = await callRpc("restore_deleted_essai", { _deleted_id: entryId });
+      if (error) throw new Error(error);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["essais_deleted"] });

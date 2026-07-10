@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 
 /**
  * Lit `?duplicateFrom={id}` dans l'URL et charge la ligne source depuis
  * `tableName`. Utilisé par les formulaires d'échantillon pour pré-remplir
  * les champs d'identification quand l'utilisateur clique "Dupliquer" dans
- * la liste. Aucune insertion automatique : le formulaire reste en mode
- * création et l'utilisateur clique "Enregistrer" pour persister.
+ * la liste. Aucune insertion automatique.
  */
 export function useDuplicateSource<T = Record<string, any>>(tableName: string) {
   const [searchParams] = useSearchParams();
@@ -23,23 +22,13 @@ export function useDuplicateSource<T = Record<string, any>>(tableName: string) {
     }
     setIsLoading(true);
     (async () => {
-      const { data: row, error } = await (supabase as any)
-        .from(tableName)
-        .select("*")
-        .eq("id", duplicateFromId)
-        .single();
+      const repo = getRepositoryForTable<T>(tableName, { defaultSelect: "*" });
+      const { data: row } = await repo.getById(duplicateFromId);
       if (cancelled) return;
-      if (error) {
-        console.error("[useDuplicateSource]", error);
-        setData(null);
-      } else {
-        setData(row as T);
-      }
+      setData((row as T) ?? null);
       setIsLoading(false);
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [duplicateFromId, tableName]);
 
   return { duplicateFromId, duplicateSource: data, isDuplicateLoading: isLoading };

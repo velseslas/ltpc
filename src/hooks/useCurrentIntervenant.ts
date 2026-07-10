@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getRepositoryForTable } from "@/lib/repositories";
 import { useAuth } from "@/hooks/useAuth";
+
+const utilisateursRepo = getRepositoryForTable<{ intervenant_id: string | null }>("utilisateurs", { defaultSelect: "intervenant_id" });
+const intervenantsRepo = getRepositoryForTable<{ id: string; nom: string; prenom: string }>("intervenants", { defaultSelect: "id, nom, prenom" });
 
 /**
  * Returns the intervenant linked to the current logged-in user.
@@ -13,22 +16,11 @@ export function useCurrentIntervenant() {
     queryKey: ["current-intervenant", user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-
-      const { data: utilisateur } = await supabase
-        .from("utilisateurs")
-        .select("intervenant_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
+      const { data: users } = await utilisateursRepo.list({ filters: { user_id: user.id }, limit: 1 });
+      const utilisateur = users[0];
       if (!utilisateur?.intervenant_id) return null;
-
-      const { data: intervenant } = await supabase
-        .from("intervenants")
-        .select("id, nom, prenom")
-        .eq("id", utilisateur.intervenant_id)
-        .maybeSingle();
-
-      return intervenant;
+      const { data } = await intervenantsRepo.getById(utilisateur.intervenant_id, "id, nom, prenom");
+      return data;
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000,

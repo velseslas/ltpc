@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { DocumentRepository } from "@/lib/repositories";
 import { generateOfficialDocument } from "@/lib/documents/DocumentGenerator";
 import type { DocumentGenerationInput, DocumentGenerationResult, DocumentType } from "@/lib/documents/types";
 
@@ -25,14 +25,8 @@ export function useDocumentArchives(documentType: DocumentType, documentId?: str
     queryKey: ["document_archives", documentType, documentId],
     enabled: !!documentId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("document_archives")
-        .select("*")
-        .eq("document_type", documentType)
-        .eq("document_id", documentId!)
-        .order("version", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as DocumentArchive[];
+      const data = await DocumentRepository.listArchives(documentType, documentId!);
+      return data as DocumentArchive[];
     },
   });
 }
@@ -49,7 +43,5 @@ export function useGenerateOfficialDocument() {
 
 /** URL signée à la demande pour un PDF archivé. */
 export async function getSignedArchiveUrl(pdfPath: string, ttlSec = 3600): Promise<string> {
-  const { data, error } = await supabase.storage.from("documents-officiels").createSignedUrl(pdfPath, ttlSec);
-  if (error) throw error;
-  return data.signedUrl;
+  return DocumentRepository.signedArchiveUrl(pdfPath, ttlSec);
 }
