@@ -43,7 +43,7 @@ export default function LaboratoireMobileForm() {
     chantier_id: "",
     date_debut: null as Date | null,
     date_fin: null as Date | null,
-    statut: "disponible",
+    statut: "en_cours",
     responsable_id: "",
     date_affectation: null as Date | null,
     date_fin_affectation: null as Date | null,
