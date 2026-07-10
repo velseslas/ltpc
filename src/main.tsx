@@ -254,9 +254,14 @@ async function bootstrap() {
     const { applyPrefs } = await import("./lib/uiPreferences");
     applyPrefs();
   } catch { /* noop */ }
+  // Phase 8 — Branche les adapters PWA (IndexedDB / OfflineCache / SyncQueue).
+  try {
+    const { initPWAAdapters } = await import("./lib/pwa/registry");
+    initPWAAdapters();
+  } catch { /* noop */ }
   const { default: App } = await import("./App.tsx");
   createRoot(document.getElementById("root")!).render(<App />);
-  // Phase 7.5 — C3 : enregistrement du futur Service Worker (silencieux en preview/dev).
+  // Phase 7.5 (C3) + Phase 8 — enregistrement Service Worker (silencieux en preview/dev).
   try {
     const { registerServiceWorker } = await import("./lib/pwa/serviceWorkerRegistration");
     void registerServiceWorker();

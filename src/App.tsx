@@ -11,6 +11,10 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import LtpcAI from "@/pages/ltpc-ai/LtpcAI";
 import LtpcAIFab from "@/components/ltpc-ai/LtpcAIFab";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { NetworkStatusToaster } from "@/components/pwa/NetworkStatusToaster";
+import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
+
+const DebugPWA = lazy(() => import("@/pages/pwa/DebugPWA"));
 
 // Route modules — un fichier par domaine (voir src/routes/).
 import { intervenantRoutes } from "@/routes/intervenantRoutes";
@@ -100,6 +104,7 @@ const AppRoutes = () => (
       <Route path="/ltpc-ai/monitoring" element={<Monitoring />} />
       <Route path="/ltpc-ai/audit" element={<CentrePilotage />} />
       <Route path="/notifications" element={<Notifications />} />
+      <Route path="/debug/pwa" element={<DebugPWA />} />
       {intervenantRoutes}
       {rhRoutes}
       {essaisCoreRoutes}
@@ -122,6 +127,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <NetworkStatusToaster />
+      <PWAUpdatePrompt />
       <BrowserRouter
         future={{
           v7_startTransition: true,
