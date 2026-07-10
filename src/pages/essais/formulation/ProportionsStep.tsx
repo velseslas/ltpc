@@ -473,10 +473,15 @@ export default function ProportionsStep({
     onMfCorrectionNeeded?.(needsSable2Correction);
   }, [needsSable2Correction, onMfCorrectionNeeded]);
 
-  // Manual mode : recompute engine result (mixCurve, pointA, MF, référence) live
-  // from current slider masses so the chart reflects manual adjustments.
+  // PHASE FINALE — Mode manuel : le moteur n'est relancé que si l'utilisateur
+  // a EXPLICITEMENT bougé un slider/input (manualUserEditRef === true).
+  // Les mises à jour de localOverrides provenant de applyResult() sont
+  // ignorées ici (le drapeau est remis à false dans applyResult).
   useEffect(() => {
     if (calcMode !== "manual" || !hasCalculated) return;
+    if (!manualUserEditRef.current) return;
+    // Consommer le drapeau avant le calcul : un seul recalcul par édition.
+    manualUserEditRef.current = false;
     try {
       const inputs = buildInputs();
       const presetMasses: Record<string, number> = {
@@ -486,9 +491,12 @@ export default function ProportionsStep({
         gravier2: g2,
         gravier3: g3,
       };
+      calcCallCountRef.current += 1;
       const result = calculateMixDesign(inputs, presetMasses);
       setCalcResult(result);
       setCalculationErrors(result.volumeErrors);
+      // eslint-disable-next-line no-console
+      console.info(`[Dreux-Gorisse][AUDIT] calculateMixDesign() total calls = ${calcCallCountRef.current} (source: manual slider edit)`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setCalculationErrors([msg]);
