@@ -526,10 +526,45 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
 
         <style>{`
           @media print {
-            body * { visibility: hidden; }
-            #secu-form, #secu-form * { visibility: visible; }
-            #secu-form { position: absolute; left: 0; top: 0; width: 100%; }
-            .secu-page { page-break-inside: avoid; }
+            body * { visibility: hidden !important; }
+            #secu-form, #secu-form * { visibility: visible !important; }
+
+            /* Neutralize Radix Dialog positioning so #secu-form can flow on the page */
+            [data-radix-dialog-overlay] { display: none !important; }
+            [data-radix-dialog-content] {
+              position: static !important;
+              transform: none !important;
+              overflow: visible !important;
+              max-height: none !important;
+              height: auto !important;
+              width: auto !important;
+              max-width: none !important;
+              box-shadow: none !important;
+              border: none !important;
+              padding: 0 !important;
+              background: white !important;
+              inset: auto !important;
+            }
+
+            #secu-form {
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
+              width: 210mm !important;
+              margin: 0 !important;
+              background: white !important;
+            }
+            .secu-page {
+              page-break-after: always;
+              page-break-inside: avoid;
+              break-after: page;
+              break-inside: avoid;
+              min-height: auto !important;
+            }
+            .secu-page:last-child {
+              page-break-after: auto;
+              break-after: auto;
+            }
           }
           @page { size: A4 portrait; margin: 8mm; }
         `}</style>
