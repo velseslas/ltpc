@@ -48,6 +48,38 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+/** Bandeau officiel CNAS : logo + texte arabe + "– Immatriculation –" */
+const CnasHeader = () => (
+  <div className="mb-2">
+    <div className="bg-black text-white flex items-stretch" style={{ minHeight: "54px" }}>
+      {/* Logo rond CNAS */}
+      <div className="flex items-center justify-center px-3">
+        <div
+          className="rounded-full bg-white text-black flex items-center justify-center border-2 border-white"
+          style={{ width: "46px", height: "46px" }}
+        >
+          <div className="text-center leading-none">
+            <div className="text-[6px] font-bold" dir="rtl">الصندوق</div>
+            <div className="text-[10px] font-black tracking-tight">CNAS</div>
+          </div>
+        </div>
+      </div>
+      {/* Textes arabes */}
+      <div className="flex-1 flex flex-col justify-center pr-3 text-right" dir="rtl">
+        <div className="text-[11px] font-semibold" style={{ letterSpacing: "1px" }}>
+          وزارة العمل و التشغيل و الضمان الإجتماعي
+        </div>
+        <div className="text-[14px] font-bold mt-[2px]">
+          الصندوق الوطني للتأمينات الإجتماعية للعمال الأجراء
+        </div>
+      </div>
+    </div>
+    <div className="text-center italic text-[10px] font-semibold py-[2px]">
+      – Immatriculation –
+    </div>
+  </div>
+);
+
 /** Formulaire CNAS SECU-01 — Déclaration et demande d'affiliation d'un assuré social. */
 export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogProps) => {
   const { data: entreprise } = useEntreprise();
