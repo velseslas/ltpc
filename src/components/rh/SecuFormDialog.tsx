@@ -48,6 +48,38 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+/** Bandeau officiel CNAS : logo + texte arabe + "– Immatriculation –" */
+const CnasHeader = () => (
+  <div className="mb-2">
+    <div className="bg-black text-white flex items-stretch" style={{ minHeight: "54px" }}>
+      {/* Logo rond CNAS */}
+      <div className="flex items-center justify-center px-3">
+        <div
+          className="rounded-full bg-white text-black flex items-center justify-center border-2 border-white"
+          style={{ width: "46px", height: "46px" }}
+        >
+          <div className="text-center leading-none">
+            <div className="text-[6px] font-bold" dir="rtl">الصندوق</div>
+            <div className="text-[10px] font-black tracking-tight">CNAS</div>
+          </div>
+        </div>
+      </div>
+      {/* Textes arabes */}
+      <div className="flex-1 flex flex-col justify-center pr-3 text-right" dir="rtl">
+        <div className="text-[11px] font-semibold" style={{ letterSpacing: "1px" }}>
+          وزارة العمل و التشغيل و الضمان الإجتماعي
+        </div>
+        <div className="text-[14px] font-bold mt-[2px]">
+          الصندوق الوطني للتأمينات الإجتماعية للعمال الأجراء
+        </div>
+      </div>
+    </div>
+    <div className="text-center italic text-[10px] font-semibold py-[2px]">
+      – Immatriculation –
+    </div>
+  </div>
+);
+
 /** Formulaire CNAS SECU-01 — Déclaration et demande d'affiliation d'un assuré social. */
 export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogProps) => {
   const { data: entreprise } = useEntreprise();
@@ -125,10 +157,9 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
             {/* ============ PAGE 1 ============ */}
             <div className="secu-page grid grid-cols-2 gap-3 p-4" style={{ pageBreakAfter: "always" }}>
               {/* ---------- COLONNE GAUCHE : CADRE RESERVE A LA CAISSE ---------- */}
-              <div className="border border-black">
-                <div className="bg-black text-white text-[11px] font-bold px-2 py-[3px] flex items-center">
-                  <span className="mr-2">◼</span> CNAS &nbsp;— Immatriculation
-                </div>
+              <div>
+                <CnasHeader />
+                <div className="border border-black">
                 <div className="text-center bg-black text-white text-[10px] font-bold py-[3px]">
                   CADRE RESERVE A LA CAISSE
                 </div>
@@ -250,14 +281,13 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
 
               {/* ---------- COLONNE DROITE ---------- */}
               <div>
+                <CnasHeader />
                 <div className="border border-black mb-2">
-                  <div className="bg-black text-white text-[11px] font-bold px-2 py-[3px] flex items-center">
-                    <span className="mr-2">◼</span> CNAS &nbsp;— Immatriculation
-                  </div>
                   <div className="text-center font-bold text-[13px] py-1 border-b border-black">
                     DECLARATION ET DEMANDE D'AFFILIATION D'UN ASSURE SOCIAL
                   </div>
@@ -387,12 +417,14 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
             <div className="secu-page grid grid-cols-2 gap-3 p-4">
               {/* Enfants */}
               <div>
+                <CnasHeader />
                 <BeneficiaireTable
                   title="RENSEIGNEMENTS CONCERNANT LES ENFANTS AYANTS DROIT"
                   columnA="NOM"
                   columnB="PRENOM"
                   ranks={Array.from({ length: 15 }, (_, i) => String(i + 1).padStart(2, "0"))}
                 />
+
                 <div className="border border-black p-2 mt-3 text-[8.5px] leading-tight">
                   <div className="inline-block bg-black text-white font-bold px-2 py-[2px] text-[9px] mb-1">
                     REMARQUE
@@ -411,6 +443,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
 
               {/* Conjoints + Ascendants + Déclaration */}
               <div className="space-y-3">
+                <CnasHeader />
                 <BeneficiaireTable
                   title="RENSEIGNEMENTS CONCERNANT LE(S) CONJOINT(S) AYANTS DROIT"
                   columnA="NOM DE JEUNE FILLE"
