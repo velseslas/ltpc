@@ -127,7 +127,45 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
     }));
   }, [employe, entreprise]);
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => {
+    const node = document.getElementById("secu-form");
+    if (!node) return;
+    const win = window.open("", "_blank", "width=900,height=1000");
+    if (!win) return;
+    // Collect current page styles (Tailwind classes need the compiled stylesheet)
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map((el) => el.outerHTML)
+      .join("\n");
+    win.document.open();
+    win.document.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>CNAS SECU.01</title>
+${styles}
+<style>
+  @page { size: A4 portrait; margin: 8mm; }
+  html, body { margin: 0; padding: 0; background: white; }
+  #secu-form { width: 210mm; margin: 0 auto; background: white; color: black; font-family: Arial, Helvetica, sans-serif; }
+  .secu-page { page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; min-height: auto !important; }
+  .secu-page:last-child { page-break-after: auto; break-after: auto; }
+</style>
+</head>
+<body>${node.outerHTML}</body>
+</html>`);
+    win.document.close();
+    // Wait for stylesheets to load, then print
+    const doPrint = () => {
+      win.focus();
+      win.print();
+      setTimeout(() => win.close(), 300);
+    };
+    if (win.document.readyState === "complete") {
+      setTimeout(doPrint, 400);
+    } else {
+      win.addEventListener("load", () => setTimeout(doPrint, 200));
+    }
+  };
 
   const dob = form.date_naissance ? new Date(form.date_naissance) : null;
   const dobJ = dob ? String(dob.getDate()).padStart(2, "0") : "";
