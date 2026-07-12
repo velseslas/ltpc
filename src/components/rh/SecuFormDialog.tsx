@@ -22,11 +22,11 @@ interface SecuFormDialogProps {
 const Boxes = ({ value = "", count = 12 }: { value?: string; count?: number }) => {
   const chars = value.padEnd(count, " ").slice(0, count).split("");
   return (
-    <div className="inline-flex gap-[1px]">
+    <div className="inline-flex flex-wrap gap-[1px] align-middle">
       {chars.map((c, i) => (
         <span
           key={i}
-          className="inline-block w-[14px] h-[16px] border border-black text-center text-[10px] leading-[16px]"
+          className="inline-block w-[12px] h-[15px] border border-black text-center text-[9px] leading-[15px]"
         >
           {c.trim() || "\u00A0"}
         </span>
@@ -36,9 +36,9 @@ const Boxes = ({ value = "", count = 12 }: { value?: string; count?: number }) =
 };
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div className="flex items-center gap-2 mb-[3px]">
-    <span className="text-[9px] w-[130px] shrink-0">{label} ..............</span>
-    <div className="flex-1">{children}</div>
+  <div className="flex items-start gap-2 mb-[3px]">
+    <span className="text-[9px] w-[120px] shrink-0 pt-[1px]">{label} ......</span>
+    <div className="flex-1 min-w-0">{children}</div>
   </div>
 );
 
