@@ -164,7 +164,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                   CADRE RESERVE A LA CAISSE
                 </div>
 
-                <div className="grid grid-cols-[1.5fr_0.75fr] gap-2 p-2">
+                <div className="grid grid-cols-[1.5fr_1fr] gap-2 p-2">
                   {/* Colonne interne gauche */}
                   <div className="text-[9px]">
                     <Row label="Numéro acte de naissance"><Boxes count={10} /></Row>
