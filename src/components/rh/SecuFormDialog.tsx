@@ -22,11 +22,11 @@ interface SecuFormDialogProps {
 const Boxes = ({ value = "", count = 12 }: { value?: string; count?: number }) => {
   const chars = value.padEnd(count, " ").slice(0, count).split("");
   return (
-    <div className="inline-flex gap-[1px]">
+    <div className="inline-flex flex-wrap gap-[1px] align-middle">
       {chars.map((c, i) => (
         <span
           key={i}
-          className="inline-block w-[14px] h-[16px] border border-black text-center text-[10px] leading-[16px]"
+          className="inline-block w-[12px] h-[15px] border border-black text-center text-[9px] leading-[15px]"
         >
           {c.trim() || "\u00A0"}
         </span>
@@ -36,9 +36,9 @@ const Boxes = ({ value = "", count = 12 }: { value?: string; count?: number }) =
 };
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div className="flex items-center gap-2 mb-[3px]">
-    <span className="text-[9px] w-[130px] shrink-0">{label} ..............</span>
-    <div className="flex-1">{children}</div>
+  <div className="flex items-start gap-2 mb-[3px]">
+    <span className="text-[9px] w-[120px] shrink-0 pt-[1px]">{label} ......</span>
+    <div className="flex-1 min-w-0">{children}</div>
   </div>
 );
 
@@ -328,18 +328,18 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                         {form.profession}
                       </span>
                     </div>
-                    <div className="flex justify-between items-end mt-4">
-                      <div>
+                    <div className="flex justify-between items-end mt-4 gap-4 flex-wrap">
+                      <div className="min-w-0">
                         Fait à{" "}
-                        <span className="border-b border-dotted border-black inline-block min-w-[100px] px-1">
+                        <span className="border-b border-dotted border-black inline-block min-w-[90px] px-1">
                           {form.fait_a}
                         </span>{" "}
                         le{" "}
-                        <span className="border-b border-dotted border-black inline-block min-w-[100px] px-1">
+                        <span className="border-b border-dotted border-black inline-block min-w-[90px] px-1">
                           {form.fait_le}
                         </span>
                       </div>
-                      <div className="italic text-[9px] underline">
+                      <div className="italic text-[9px] underline shrink-0">
                         Signature (avec identification du signataire) et Cachet
                       </div>
                     </div>
@@ -354,9 +354,9 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     <Row label="Nom"><Boxes value={form.nom.toUpperCase()} count={22} /> <span className="ml-1">(1)</span></Row>
                     <Row label="Prénom"><Boxes value={form.prenom} count={22} /></Row>
                     <Row label="Nom de l'époux"><Boxes value={form.nom_epoux} count={22} /></Row>
-                    <div className="flex items-center gap-2 mb-[3px]">
-                      <span className="text-[9px] w-[130px] shrink-0">Date de naissance ......</span>
-                      <div className="flex gap-2 items-end">
+                    <div className="flex items-start gap-2 mb-[3px]">
+                      <span className="text-[9px] w-[120px] shrink-0 pt-[1px]">Date de naissance ......</span>
+                      <div className="flex-1 min-w-0 flex flex-wrap gap-2 items-end">
                         <div className="flex flex-col items-center">
                           <Boxes value={dobJ} count={2} />
                           <span className="text-[8px]">Jour</span>
@@ -377,17 +377,17 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     <Row label="Prénom du père"><Boxes value={form.prenom_pere} count={22} /></Row>
                     <Row label="Nom de la Mère"><Boxes value={form.nom_mere} count={22} /></Row>
                     <Row label="Prénom de la Mère"><Boxes value={form.prenom_mere} count={22} /></Row>
-                    <div className="text-[9px] flex items-center gap-2 mb-[3px]">
-                      <span className="w-[130px] shrink-0">Sexe ..............</span>
-                      <span>
+                    <div className="text-[9px] flex items-start gap-2 mb-[3px]">
+                      <span className="w-[120px] shrink-0">Sexe ......</span>
+                      <span className="flex-1 min-w-0">
                         <span className={form.sexe === "M" ? "font-bold underline" : ""}>Masculin</span>
                         {" - "}
                         <span className={form.sexe === "F" ? "font-bold underline" : ""}>Féminin</span> (3)
                       </span>
                     </div>
-                    <div className="text-[9px] flex items-center gap-2 mb-[3px]">
-                      <span className="w-[130px] shrink-0">Situation de famille ...</span>
-                      <span>
+                    <div className="text-[9px] flex items-start gap-2 mb-[3px]">
+                      <span className="w-[120px] shrink-0">Situation famille ......</span>
+                      <span className="flex-1 min-w-0">
                         {["Célibataire", "Marié(e)", "Veuf(ve)", "Divorcé(e)"].map((s, i) => (
                           <span key={s}>
                             <span className={form.situation_famille === s ? "font-bold underline" : ""}>{s}</span>
