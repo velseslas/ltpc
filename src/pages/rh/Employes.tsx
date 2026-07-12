@@ -312,9 +312,9 @@ const Employes = () => {
                               <Pencil className="h-4 w-4 mr-2" />
                               Modifier
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/parametres/securite?employe=${employe.id}`)}>
+                            <DropdownMenuItem onClick={() => setSecuEmploye(employe)}>
                               <ShieldCheck className="h-4 w-4 mr-2" />
-                              Sécurité
+                              Sécu
                             </DropdownMenuItem>
                             <AdminOnly>
                               <DropdownMenuSeparator />
