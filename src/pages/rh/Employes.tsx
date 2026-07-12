@@ -37,7 +37,16 @@ import {
   Download,
   Send,
   UserPlus,
+  MoreVertical,
+  ShieldCheck,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIntervenants, useDeleteIntervenant } from "@/hooks/useIntervenants";
 import { useAffectations } from "@/hooks/useAffectations";
 import { useToast } from "@/hooks/use-toast";
@@ -278,47 +287,66 @@ const Employes = () => {
                     <h3 className="text-lg font-semibold text-foreground">
                       {employe.prenom} <span className="uppercase">{employe.nom}</span>
                     </h3>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       {getStatusBadge(getEffectiveStatus(employe))}
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={() => navigate(`/rh/employes/${employe.id}/modifier`)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <AdminOnly><AlertDialog>
-                          <AlertDialogTrigger asChild>
+                      <AlertDialog>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              className="h-7 w-7"
+                              aria-label="Actions"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <MoreVertical className="h-4 w-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Êtes-vous sûr de vouloir supprimer {employe.prenom} {employe.nom} ?
-                                Cette action est irréversible.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Annuler</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(employe.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Supprimer
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog></AdminOnly>
-                      </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => navigate(`/rh/employes/${employe.id}`)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Voir les détails
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/rh/employes/${employe.id}/modifier`)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/parametres/securite?employe=${employe.id}`)}>
+                              <ShieldCheck className="h-4 w-4 mr-2" />
+                              Sécurité
+                            </DropdownMenuItem>
+                            <AdminOnly>
+                              <DropdownMenuSeparator />
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Supprimer
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                            </AdminOnly>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Êtes-vous sûr de vouloir supprimer {employe.prenom} {employe.nom} ?
+                              Cette action est irréversible.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(employe.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Supprimer
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                   <div className="mb-3">
