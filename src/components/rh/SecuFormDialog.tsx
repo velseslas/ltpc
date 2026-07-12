@@ -417,12 +417,14 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
             <div className="secu-page grid grid-cols-2 gap-3 p-4">
               {/* Enfants */}
               <div>
+                <CnasHeader />
                 <BeneficiaireTable
                   title="RENSEIGNEMENTS CONCERNANT LES ENFANTS AYANTS DROIT"
                   columnA="NOM"
                   columnB="PRENOM"
                   ranks={Array.from({ length: 15 }, (_, i) => String(i + 1).padStart(2, "0"))}
                 />
+
                 <div className="border border-black p-2 mt-3 text-[8.5px] leading-tight">
                   <div className="inline-block bg-black text-white font-bold px-2 py-[2px] text-[9px] mb-1">
                     REMARQUE
