@@ -414,9 +414,8 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
               </div>
             </div>
 
-            {/* ============ PAGE 2 ============ */}
-            <div className="secu-page grid grid-cols-2 gap-3 p-4">
-              {/* Enfants */}
+            {/* ============ PAGE 3 — ENFANTS AYANTS DROIT ============ */}
+            <div className="secu-page p-4" style={{ pageBreakAfter: "always", minHeight: "297mm" }}>
               <div>
                 <CnasHeader />
                 <BeneficiaireTable
@@ -441,8 +440,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                   </ul>
                 </div>
               </div>
+            </div>
 
-              {/* Conjoints + Ascendants + Déclaration */}
+            {/* ============ PAGE 4 — CONJOINTS, ASCENDANTS & DECLARATION ============ */}
+            <div className="secu-page p-4" style={{ minHeight: "297mm" }}>
               <div className="space-y-3">
                 <CnasHeader />
                 <BeneficiaireTable
