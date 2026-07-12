@@ -152,11 +152,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
           <div
             id="secu-form"
             className="bg-white text-black mx-auto"
-            style={{ fontFamily: "Arial, Helvetica, sans-serif", width: "297mm" }}
+            style={{ fontFamily: "Arial, Helvetica, sans-serif", width: "210mm" }}
           >
-            {/* ============ PAGE 1 ============ */}
-            <div className="secu-page grid grid-cols-2 gap-3 p-4" style={{ pageBreakAfter: "always" }}>
-              {/* ---------- COLONNE GAUCHE : CADRE RESERVE A LA CAISSE ---------- */}
+            {/* ============ PAGE 1 — CADRE RESERVE A LA CAISSE ============ */}
+            <div className="secu-page p-4" style={{ pageBreakAfter: "always", minHeight: "297mm" }}>
               <div>
                 <CnasHeader />
                 <div className="border border-black">
