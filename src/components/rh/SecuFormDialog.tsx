@@ -328,18 +328,18 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                         {form.profession}
                       </span>
                     </div>
-                    <div className="flex justify-between items-end mt-4">
-                      <div>
+                    <div className="flex justify-between items-end mt-4 gap-4 flex-wrap">
+                      <div className="min-w-0">
                         Fait à{" "}
-                        <span className="border-b border-dotted border-black inline-block min-w-[100px] px-1">
+                        <span className="border-b border-dotted border-black inline-block min-w-[90px] px-1">
                           {form.fait_a}
                         </span>{" "}
                         le{" "}
-                        <span className="border-b border-dotted border-black inline-block min-w-[100px] px-1">
+                        <span className="border-b border-dotted border-black inline-block min-w-[90px] px-1">
                           {form.fait_le}
                         </span>
                       </div>
-                      <div className="italic text-[9px] underline">
+                      <div className="italic text-[9px] underline shrink-0">
                         Signature (avec identification du signataire) et Cachet
                       </div>
                     </div>
