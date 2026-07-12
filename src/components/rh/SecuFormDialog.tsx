@@ -354,9 +354,9 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     <Row label="Nom"><Boxes value={form.nom.toUpperCase()} count={22} /> <span className="ml-1">(1)</span></Row>
                     <Row label="Prénom"><Boxes value={form.prenom} count={22} /></Row>
                     <Row label="Nom de l'époux"><Boxes value={form.nom_epoux} count={22} /></Row>
-                    <div className="flex items-center gap-2 mb-[3px]">
-                      <span className="text-[9px] w-[130px] shrink-0">Date de naissance ......</span>
-                      <div className="flex gap-2 items-end">
+                    <div className="flex items-start gap-2 mb-[3px]">
+                      <span className="text-[9px] w-[120px] shrink-0 pt-[1px]">Date de naissance ......</span>
+                      <div className="flex-1 min-w-0 flex flex-wrap gap-2 items-end">
                         <div className="flex flex-col items-center">
                           <Boxes value={dobJ} count={2} />
                           <span className="text-[8px]">Jour</span>
