@@ -144,10 +144,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
 <title>CNAS SECU.01</title>
 ${styles}
 <style>
-  @page { size: A4 portrait; margin: 8mm; }
+  @page { size: A4 portrait; margin: 0; }
   html, body { margin: 0; padding: 0; background: white; }
   #secu-form { width: 210mm; margin: 0 auto; background: white; color: black; font-family: Arial, Helvetica, sans-serif; }
-  .secu-page { page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; min-height: auto !important; }
+  .secu-page { padding: 2mm !important; page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; min-height: auto !important; }
   .secu-page:last-child { page-break-after: auto; break-after: auto; }
 </style>
 </head>
