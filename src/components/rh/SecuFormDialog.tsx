@@ -531,7 +531,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
             #secu-form { position: absolute; left: 0; top: 0; width: 100%; }
             .secu-page { page-break-inside: avoid; }
           }
-          @page { size: A4 landscape; margin: 6mm; }
+          @page { size: A4 portrait; margin: 8mm; }
         `}</style>
       </DialogContent>
     </Dialog>
