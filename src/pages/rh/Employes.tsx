@@ -407,6 +407,12 @@ const Employes = () => {
             ))}
           </div>
         )}
+
+        <SecuFormDialog
+          open={!!secuEmploye}
+          onOpenChange={(o) => !o && setSecuEmploye(null)}
+          employe={secuEmploye}
+        />
     </div>
   );
 };
