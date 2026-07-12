@@ -377,17 +377,17 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     <Row label="Prénom du père"><Boxes value={form.prenom_pere} count={22} /></Row>
                     <Row label="Nom de la Mère"><Boxes value={form.nom_mere} count={22} /></Row>
                     <Row label="Prénom de la Mère"><Boxes value={form.prenom_mere} count={22} /></Row>
-                    <div className="text-[9px] flex items-center gap-2 mb-[3px]">
-                      <span className="w-[130px] shrink-0">Sexe ..............</span>
-                      <span>
+                    <div className="text-[9px] flex items-start gap-2 mb-[3px]">
+                      <span className="w-[120px] shrink-0">Sexe ......</span>
+                      <span className="flex-1 min-w-0">
                         <span className={form.sexe === "M" ? "font-bold underline" : ""}>Masculin</span>
                         {" - "}
                         <span className={form.sexe === "F" ? "font-bold underline" : ""}>Féminin</span> (3)
                       </span>
                     </div>
-                    <div className="text-[9px] flex items-center gap-2 mb-[3px]">
-                      <span className="w-[130px] shrink-0">Situation de famille ...</span>
-                      <span>
+                    <div className="text-[9px] flex items-start gap-2 mb-[3px]">
+                      <span className="w-[120px] shrink-0">Situation famille ......</span>
+                      <span className="flex-1 min-w-0">
                         {["Célibataire", "Marié(e)", "Veuf(ve)", "Divorcé(e)"].map((s, i) => (
                           <span key={s}>
                             <span className={form.situation_famille === s ? "font-bold underline" : ""}>{s}</span>
