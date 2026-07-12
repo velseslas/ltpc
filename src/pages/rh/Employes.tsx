@@ -37,7 +37,16 @@ import {
   Download,
   Send,
   UserPlus,
+  MoreVertical,
+  ShieldCheck,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIntervenants, useDeleteIntervenant } from "@/hooks/useIntervenants";
 import { useAffectations } from "@/hooks/useAffectations";
 import { useToast } from "@/hooks/use-toast";
