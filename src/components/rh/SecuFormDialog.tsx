@@ -281,14 +281,13 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
 
               {/* ---------- COLONNE DROITE ---------- */}
               <div>
+                <CnasHeader />
                 <div className="border border-black mb-2">
-                  <div className="bg-black text-white text-[11px] font-bold px-2 py-[3px] flex items-center">
-                    <span className="mr-2">◼</span> CNAS &nbsp;— Immatriculation
-                  </div>
                   <div className="text-center font-bold text-[13px] py-1 border-b border-black">
                     DECLARATION ET DEMANDE D'AFFILIATION D'UN ASSURE SOCIAL
                   </div>
