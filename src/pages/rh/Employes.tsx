@@ -64,6 +64,7 @@ const Employes = () => {
   const { data: employes, isLoading } = useIntervenants();
   const { data: affectations } = useAffectations();
   const deleteEmploye = useDeleteIntervenant();
+  const [secuEmploye, setSecuEmploye] = useState<any | null>(null);
 
   // Determine which employees have active assignments
   const employesWithActiveAffectations = useMemo(() => {
