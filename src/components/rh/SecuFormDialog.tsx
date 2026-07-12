@@ -136,7 +136,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-[860px] w-[92vw] max-h-[95vh] overflow-y-auto p-0">
         <DialogHeader className="px-6 pt-6 print:hidden">
           <DialogTitle>
             CNAS — SECU.01
