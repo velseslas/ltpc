@@ -157,10 +157,9 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
             {/* ============ PAGE 1 ============ */}
             <div className="secu-page grid grid-cols-2 gap-3 p-4" style={{ pageBreakAfter: "always" }}>
               {/* ---------- COLONNE GAUCHE : CADRE RESERVE A LA CAISSE ---------- */}
-              <div className="border border-black">
-                <div className="bg-black text-white text-[11px] font-bold px-2 py-[3px] flex items-center">
-                  <span className="mr-2">◼</span> CNAS &nbsp;— Immatriculation
-                </div>
+              <div>
+                <CnasHeader />
+                <div className="border border-black">
                 <div className="text-center bg-black text-white text-[10px] font-bold py-[3px]">
                   CADRE RESERVE A LA CAISSE
                 </div>
