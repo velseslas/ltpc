@@ -47,6 +47,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SecuFormDialog } from "@/components/rh/SecuFormDialog";
 import { useIntervenants, useDeleteIntervenant } from "@/hooks/useIntervenants";
 import { useAffectations } from "@/hooks/useAffectations";
 import { useToast } from "@/hooks/use-toast";
@@ -64,6 +65,7 @@ const Employes = () => {
   const { data: employes, isLoading } = useIntervenants();
   const { data: affectations } = useAffectations();
   const deleteEmploye = useDeleteIntervenant();
+  const [secuEmploye, setSecuEmploye] = useState<any | null>(null);
 
   // Determine which employees have active assignments
   const employesWithActiveAffectations = useMemo(() => {
@@ -310,9 +312,9 @@ const Employes = () => {
                               <Pencil className="h-4 w-4 mr-2" />
                               Modifier
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/parametres/securite?employe=${employe.id}`)}>
+                            <DropdownMenuItem onClick={() => setSecuEmploye(employe)}>
                               <ShieldCheck className="h-4 w-4 mr-2" />
-                              Sécurité
+                              Sécu
                             </DropdownMenuItem>
                             <AdminOnly>
                               <DropdownMenuSeparator />
@@ -405,6 +407,12 @@ const Employes = () => {
             ))}
           </div>
         )}
+
+        <SecuFormDialog
+          open={!!secuEmploye}
+          onOpenChange={(o) => !o && setSecuEmploye(null)}
+          employe={secuEmploye}
+        />
     </div>
   );
 };
