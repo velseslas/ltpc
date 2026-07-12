@@ -282,8 +282,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                 </div>
                 </div>
               </div>
+            </div>
 
-              {/* ---------- COLONNE DROITE ---------- */}
+            {/* ============ PAGE 2 — DECLARATION & RENSEIGNEMENTS ASSURE ============ */}
+            <div className="secu-page p-4" style={{ pageBreakAfter: "always", minHeight: "297mm" }}>
               <div>
                 <CnasHeader />
                 <div className="border border-black mb-2">
