@@ -136,7 +136,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-[860px] w-[92vw] max-h-[95vh] overflow-y-auto p-0">
         <DialogHeader className="px-6 pt-6 print:hidden">
           <DialogTitle>
             CNAS — SECU.01
@@ -152,11 +152,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
           <div
             id="secu-form"
             className="bg-white text-black mx-auto"
-            style={{ fontFamily: "Arial, Helvetica, sans-serif", width: "297mm" }}
+            style={{ fontFamily: "Arial, Helvetica, sans-serif", width: "210mm" }}
           >
-            {/* ============ PAGE 1 ============ */}
-            <div className="secu-page grid grid-cols-2 gap-3 p-4" style={{ pageBreakAfter: "always" }}>
-              {/* ---------- COLONNE GAUCHE : CADRE RESERVE A LA CAISSE ---------- */}
+            {/* ============ PAGE 1 — CADRE RESERVE A LA CAISSE ============ */}
+            <div className="secu-page p-4" style={{ pageBreakAfter: "always", minHeight: "297mm" }}>
               <div>
                 <CnasHeader />
                 <div className="border border-black">
@@ -283,8 +282,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                 </div>
                 </div>
               </div>
+            </div>
 
-              {/* ---------- COLONNE DROITE ---------- */}
+            {/* ============ PAGE 2 — DECLARATION & RENSEIGNEMENTS ASSURE ============ */}
+            <div className="secu-page p-4" style={{ pageBreakAfter: "always", minHeight: "297mm" }}>
               <div>
                 <CnasHeader />
                 <div className="border border-black mb-2">
@@ -413,9 +414,8 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
               </div>
             </div>
 
-            {/* ============ PAGE 2 ============ */}
-            <div className="secu-page grid grid-cols-2 gap-3 p-4">
-              {/* Enfants */}
+            {/* ============ PAGE 3 — ENFANTS AYANTS DROIT ============ */}
+            <div className="secu-page p-4" style={{ pageBreakAfter: "always", minHeight: "297mm" }}>
               <div>
                 <CnasHeader />
                 <BeneficiaireTable
@@ -440,8 +440,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                   </ul>
                 </div>
               </div>
+            </div>
 
-              {/* Conjoints + Ascendants + Déclaration */}
+            {/* ============ PAGE 4 — CONJOINTS, ASCENDANTS & DECLARATION ============ */}
+            <div className="secu-page p-4" style={{ minHeight: "297mm" }}>
               <div className="space-y-3">
                 <CnasHeader />
                 <BeneficiaireTable
@@ -529,7 +531,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
             #secu-form { position: absolute; left: 0; top: 0; width: 100%; }
             .secu-page { page-break-inside: avoid; }
           }
-          @page { size: A4 landscape; margin: 6mm; }
+          @page { size: A4 portrait; margin: 8mm; }
         `}</style>
       </DialogContent>
     </Dialog>
