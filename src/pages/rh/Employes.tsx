@@ -47,6 +47,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SecuFormDialog } from "@/components/rh/SecuFormDialog";
 import { useIntervenants, useDeleteIntervenant } from "@/hooks/useIntervenants";
 import { useAffectations } from "@/hooks/useAffectations";
 import { useToast } from "@/hooks/use-toast";
