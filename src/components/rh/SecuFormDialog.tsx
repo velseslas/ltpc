@@ -185,10 +185,10 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
                     <Row label="Numéro subsistant"><Boxes count={10} /></Row>
                     <Row label="Caisse étrangère"><Boxes count={5} /></Row>
                     <Row label="Mode de paiement"><Boxes count={1} /></Row>
-                    <Row label="Code banque ou C.C.P."><Boxes count={7} /></Row>
-                    <Row label="Numéro de compte"><Boxes count={14} /></Row>
-                    <Row label="Code mutuelle"><Boxes count={4} /></Row>
-                    <Row label="Numéro mutuelle"><Boxes count={8} /></Row>
+                    <Row label="Code banque ou C.C.P."><Boxes count={12} /></Row>
+                    <Row label="Numéro de compte"><Boxes count={12} /></Row>
+                    <Row label="Code mutuelle"><Boxes count={12} /></Row>
+                    <Row label="Numéro mutuelle"><Boxes count={12} /></Row>
                   </div>
 
                   {/* Colonne interne droite : visas */}
