@@ -443,6 +443,7 @@ export const SecuFormDialog = ({ open, onOpenChange, employe }: SecuFormDialogPr
 
               {/* Conjoints + Ascendants + Déclaration */}
               <div className="space-y-3">
+                <CnasHeader />
                 <BeneficiaireTable
                   title="RENSEIGNEMENTS CONCERNANT LE(S) CONJOINT(S) AYANTS DROIT"
                   columnA="NOM DE JEUNE FILLE"
