@@ -300,7 +300,13 @@ export default function EchantillonBetonFraisForm({
   }, [initStep, pendingData, chantiersLoading, formulationsLoading, form]);
 
   const onSubmit = async (values: FormValues) => {
+    if (showClasseConsistance && (!values.classe_consistance || values.classe_consistance.trim() === "")) {
+      form.setError("classe_consistance", { type: "manual", message: "Classe de consistance requise" });
+      toast.error("Classe de consistance requise");
+      return;
+    }
     try {
+
       const data: Record<string, any> = {
         client_id: values.client_id,
         chantier_id: values.chantier_id,
@@ -730,7 +736,7 @@ export default function EchantillonBetonFraisForm({
                   name="classe_consistance"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Classe de consistance</FormLabel>
+                      <FormLabel>Classe de consistance *</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
