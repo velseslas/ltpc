@@ -736,7 +736,7 @@ export default function EchantillonBetonFraisForm({
                   name="classe_consistance"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Classe de consistance</FormLabel>
+                      <FormLabel>Classe de consistance *</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
