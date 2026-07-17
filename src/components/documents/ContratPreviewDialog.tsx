@@ -43,11 +43,10 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
   const labName = entreprise?.nom || "LTPC BENMALEK";
   const labSiege = entreprise?.siege_social || "Ain Ebey Constantine";
 
-  const handlePrint = () => window.print();
-
-  const handleDownload = () => {
-    downloadReportAsPDF(contrat.titre || "contrat");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: contrat.titre || "Contrat", orientation: "portrait" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleShare = async () => {
     if (navigator.share) {
