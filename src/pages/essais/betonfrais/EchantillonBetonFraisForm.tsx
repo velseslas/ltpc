@@ -60,7 +60,7 @@ const CLASSES_RESISTANCE = [
   "C80/95", "C90/105", "C100/115",
 ];
 
-const formSchema = z.object({
+const createFormSchema = (showClasseConsistance: boolean) => z.object({
   client_id: z.string().min(1, "Client requis"),
   chantier_id: z.string().min(1, "Chantier requis"),
   centrale_id: z.string().min(1, "Centrale requis"),
@@ -72,7 +72,9 @@ const formSchema = z.object({
   temperature_beton: z.string().optional(),
   temperature_air: z.string().optional(),
   temperature_ambiante: z.string().optional(),
-  classe_consistance: z.string().optional(),
+  classe_consistance: showClasseConsistance
+    ? z.string().min(1, "Classe de consistance requise")
+    : z.string().optional(),
   observations: z.string().optional(),
   essai_convenance: z.boolean().optional(),
   essai_convenance_details: z.string().optional(),
@@ -89,7 +91,7 @@ const formSchema = z.object({
   }
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 const CLASSES_CONSISTANCE_LIST = ["S1", "S2", "S3", "S4", "S5"];
 
