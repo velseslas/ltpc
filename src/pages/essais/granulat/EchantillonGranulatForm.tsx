@@ -260,12 +260,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="client_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Entreprise</FormLabel>
+                      <FormLabel>Entreprise <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez une entreprise" />
                           </SelectTrigger>
                         </FormControl>
@@ -277,7 +277,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -286,19 +286,19 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="chantier_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Chantier</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <FormLabel>Chantier <span className="text-red-700">*</span></FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
                         value={field.value}
                         disabled={!selectedClientId}
                       >
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder={
-                              !selectedClientId 
-                                ? "Sélectionnez d'abord une entreprise" 
+                              !selectedClientId
+                                ? "Sélectionnez d'abord une entreprise"
                                 : "Sélectionnez un chantier"
                             } />
                           </SelectTrigger>
@@ -317,7 +317,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           )}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -325,12 +325,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="carriere_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Carrière <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez une carrière" />
                           </SelectTrigger>
                         </FormControl>
@@ -342,7 +342,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -350,21 +350,21 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="produit"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Produit <span className="text-red-700">*</span></FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         value={field.value}
                         disabled={!selectedCarriereId}
                       >
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder={
-                              !selectedCarriereId 
-                                ? "Sélectionnez d'abord une carrière" 
-                                : produitsLoading 
-                                  ? "Chargement..." 
+                              !selectedCarriereId
+                                ? "Sélectionnez d'abord une carrière"
+                                : produitsLoading
+                                  ? "Chargement..."
                                   : "Sélectionnez un produit"
                             } />
                           </SelectTrigger>
@@ -383,7 +383,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           )}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -391,12 +391,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="operateur_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Technicien</FormLabel>
+                      <FormLabel>Technicien <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez un technicien" />
                           </SelectTrigger>
                         </FormControl>
@@ -408,7 +408,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -416,17 +416,17 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="date_reception"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Date de réception <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="date"
-                          className="bg-background border-border"
+                          className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -449,6 +449,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                   )}
                 />
               </div>
+
 
               <FormField
                 control={form.control}
