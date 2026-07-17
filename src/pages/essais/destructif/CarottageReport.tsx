@@ -112,6 +112,8 @@ const CarottageReport = () => {
       <div
         ref={reportRef}
         data-ref="report"
+        data-print-root
+        data-print-template="carottage-report"
         className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4"
         style={{ fontFamily: "Arial, sans-serif", WebkitPrintColorAdjust: "exact" } as React.CSSProperties}
       >
