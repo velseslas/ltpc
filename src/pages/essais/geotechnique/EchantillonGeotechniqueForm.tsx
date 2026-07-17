@@ -220,12 +220,12 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                 <FormField
                   control={form.control}
                   name="client_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Client *</FormLabel>
+                      <FormLabel>Client <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez un client" />
                           </SelectTrigger>
                         </FormControl>
@@ -235,7 +235,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -243,12 +243,12 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                 <FormField
                   control={form.control}
                   name="chantier_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Chantier *</FormLabel>
+                      <FormLabel>Chantier <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClientId}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder={!selectedClientId ? "Sélectionnez d'abord un client" : "Sélectionnez un chantier"} />
                           </SelectTrigger>
                         </FormControl>
@@ -262,7 +262,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                           )}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -296,13 +296,13 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                 <FormField
                   control={form.control}
                   name="type_sol"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Type de sol *</FormLabel>
+                      <FormLabel>Type de sol <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ex: Argile, Sable, Limon, Grave..." className="bg-background border-border" />
+                        <Input {...field} placeholder="Ex: Argile, Sable, Limon, Grave..." className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
                       </FormControl>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -310,13 +310,13 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                 <FormField
                   control={form.control}
                   name="date_prelevement"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Date de prélèvement *</FormLabel>
+                      <FormLabel>Date de prélèvement <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
-                        <Input {...field} type="date" className="bg-background border-border" />
+                        <Input {...field} type="date" className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
                       </FormControl>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
