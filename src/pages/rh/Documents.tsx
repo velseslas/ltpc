@@ -1,5 +1,8 @@
 import { useState, useRef } from "react";
 import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Documents RH (portrait).
+PrintService.registerTemplate({ id: "document-rh", title: "Document RH", orientation: "portrait" });
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
