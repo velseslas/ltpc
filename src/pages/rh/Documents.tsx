@@ -141,13 +141,13 @@ export default function Documents() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownload = async () => {
-    downloadReportAsPDF(`${selectedDocument?.type_document || "document"}_${selectedIntervenant?.nom || "employe"}`);
-  };
+  const doPrint = () =>
+    PrintService.print({
+      title: `${selectedDocument?.type_document || "Document"} - ${selectedIntervenant?.nom || ""}`,
+      orientation: "portrait",
+    });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleOpenEmailDialog = () => {
     setEmailAddress(selectedIntervenant?.email || "");
