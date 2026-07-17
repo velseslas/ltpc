@@ -185,11 +185,11 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const onSubmit = async (values: FormValues) => {
     try {
       const data = {
-        client_id: values.client_id || null,
-        chantier_id: values.chantier_id || null,
+        client_id: values.client_id,
+        chantier_id: values.chantier_id,
         carriere_id: values.carriere_id,
         produit: values.produit,
-        operateur_id: values.operateur_id || null,
+        operateur_id: values.operateur_id,
         date_reception: values.date_reception,
         date_essai: values.date_essai || null,
         observations: values.observations || null,
