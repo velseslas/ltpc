@@ -103,11 +103,10 @@ const OffreServicePreviewPage = () => {
       );
     });
   };
-  const handlePrint = () => window.print();
-
-  const handleDownload = () => {
-    downloadReportAsPDF(offre.titre || "offre-de-service");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: offre.titre || "Offre de service", orientation: "portrait" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleShare = async () => {
     if (navigator.share) {
