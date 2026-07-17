@@ -438,7 +438,7 @@ export default function PointAEStep({
             {/* Kp */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Label className="text-sm font-semibold">Kp — Correction pompabilité</Label>
+                <Label className="text-sm font-semibold">Kp — Correction pompabilité <span className="text-destructive">*</span></Label>
                 <Badge variant="secondary" className="text-xs">Ajustable</Badge>
               </div>
               <p className="text-xs text-muted-foreground">
