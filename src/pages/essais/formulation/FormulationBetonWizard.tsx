@@ -1592,7 +1592,7 @@ export default function FormulationBetonWizard() {
                   value={calcRatioGS}
                   onChange={(e) => setCalcRatioGS(e.target.value)}
                   placeholder="ex: 1.8"
-                  className={cn("bg-secondary border-border", !calcRatioGS.trim() && "animate-border-blink")}
+                  className={cn("bg-secondary border-border", wasAttempted(2) && !calcRatioGS.trim() && "animate-border-blink")}
                 />
               </div>
               <div className="space-y-1.5">
