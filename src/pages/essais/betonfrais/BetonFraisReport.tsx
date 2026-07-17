@@ -102,6 +102,8 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
   const ReportContent = reportContentComponents[essaiType];
   const resultats = echantillon.resultats as Record<string, unknown> | null;
   const verificationUrl = `${window.location.origin}/verify/${essaiType}/${id}`;
+  const reportTitle = essaiType === "temperature" ? "Essai de Température de béton" : essaiTitle;
+  const hasCaracteristiquesColumns = fieldConfig.showClasseConsistance || fieldConfig.showTemperatureBeton || fieldConfig.showTemperatureAir || fieldConfig.showTemperatureAmbiante;
 
   return (
     <div className="space-y-6">
