@@ -484,8 +484,10 @@ const CompressionReport = () => {
                   <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
                 <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Type d'éprouvette</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.type_eprouvette || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle w-1/4">Type d'éprouvette</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle w-1/4">{echantillon.type_eprouvette || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle w-1/4">Dimension</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle w-1/4">{echantillon.dimension_eprouvette || "—"}</td>
                 </tr>
               </tbody>
             </table>
@@ -531,6 +533,16 @@ const CompressionReport = () => {
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
+                </tr>
+                <tr>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(L/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
                 </tr>
               </thead>
               <tbody>
