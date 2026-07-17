@@ -568,7 +568,7 @@ const CompressionReport = () => {
           </div>
 
           {/* Résultats des essais */}
-          <div className="mb-6">
+          <div className="mb-6" data-report-fill>
             <table data-results-table data-rows={totalRows} className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
