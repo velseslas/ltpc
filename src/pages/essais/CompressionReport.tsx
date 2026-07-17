@@ -482,12 +482,10 @@ const CompressionReport = () => {
                   </>
                 )}
                 <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Mode de conservation</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.condition_cure}</td>
-                </tr>
-                <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Mode de conservation</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.condition_cure}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Type d'éprouvette</td>
