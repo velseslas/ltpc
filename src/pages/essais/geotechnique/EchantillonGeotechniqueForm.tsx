@@ -32,17 +32,22 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ValidationMessage } from "@/components/ui/validation-message";
 import { cn } from "@/lib/utils";
 
+const TYPES_WITH_CARRIERE_LIST = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "proctor-normal", "proctor-modifie", "cbr"];
+const TYPES_WITH_DATE_ESSAI_LIST = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre", "proctor-normal", "proctor-modifie", "cbr"];
+
 const getFormSchema = (essaiType: string) => {
   const isGranulometrie = essaiType === "granulometrie-sol";
+  const needCarriere = TYPES_WITH_CARRIERE_LIST.includes(essaiType);
+  const needDateEssai = TYPES_WITH_DATE_ESSAI_LIST.includes(essaiType);
   return z.object({
     client_id: z.string().min(1, "Ce champ est obligatoire"),
     chantier_id: z.string().min(1, "Ce champ est obligatoire"),
-    carriere_id: isGranulometrie
+    carriere_id: needCarriere
       ? z.string().min(1, "Ce champ est obligatoire")
       : z.string().optional(),
     type_sol: z.string().min(1, "Ce champ est obligatoire").max(200),
     date_prelevement: z.string().min(1, "Ce champ est obligatoire"),
-    date_essai: isGranulometrie
+    date_essai: needDateEssai
       ? z.string().min(1, "Ce champ est obligatoire")
       : z.string().optional(),
     type_materiau: isGranulometrie
@@ -285,16 +290,15 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>
-                          Carrière {essaiType === "granulometrie-sol" && <span className="text-red-700">*</span>}
+                          Carrière <span className="text-red-700">*</span>
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
                             <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
-                              <SelectValue placeholder={essaiType === "granulometrie-sol" ? "Sélectionnez une carrière" : "Sélectionnez une carrière (optionnel)"} />
+                              <SelectValue placeholder="Sélectionnez une carrière" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-popover border-border">
-                            {essaiType !== "granulometrie-sol" && <SelectItem value="none">Aucune</SelectItem>}
                             {carrieres?.map((carriere) => (
                               <SelectItem key={carriere.id} value={carriere.id}>{carriere.nom}</SelectItem>
                             ))}
@@ -341,7 +345,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>
-                          Date d'essai {essaiType === "granulometrie-sol" && <span className="text-red-700">*</span>}
+                          Date d'essai <span className="text-red-700">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input {...field} type="date" className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
