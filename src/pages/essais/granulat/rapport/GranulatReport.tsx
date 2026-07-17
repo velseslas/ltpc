@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { useEchantillonGranulatById, getPrefix, getTableName, EchantillonGranulatBase } from "@/hooks/useEchantillonsGranulatFactory";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "granulat-report", title: "Rapport Granulat", orientation: "portrait" });
 
 const TYPE_ESSAI_SUFFIX: Record<string, string> = {
   beton: "B",
