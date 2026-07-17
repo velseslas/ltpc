@@ -276,7 +276,7 @@ export default function PointAEStep({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm">Vibration</Label>
+              <Label className="text-sm">Vibration <span className="text-destructive">*</span></Label>
               <Select value={vibration} onValueChange={(v) => setVibration(v as VibrationK)}>
                 <SelectTrigger className={cn("bg-secondary border-border", showError && !vibration && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez la vibration" />
@@ -289,7 +289,7 @@ export default function PointAEStep({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm">Forme des granulats</Label>
+              <Label className="text-sm">Forme des granulats <span className="text-destructive">*</span></Label>
               <Select value={forme} onValueChange={(v) => setForme(v as FormeK)}>
                 <SelectTrigger className={cn("bg-secondary border-border", showError && !forme && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez la forme" />
