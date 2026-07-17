@@ -35,11 +35,13 @@ const CarottageReport = () => {
   const { data: entreprise } = useEntreprise();
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => window.print();
-
-  const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`);
-  };
+  const triggerPrint = () =>
+    PrintService.print({
+      title: `Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`,
+      orientation: "portrait",
+    });
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
