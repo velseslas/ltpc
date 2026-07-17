@@ -569,7 +569,7 @@ const CompressionReport = () => {
 
           {/* Résultats des essais */}
           <div className="mb-6">
-            <table className="w-full border-collapse" style={{ borderSpacing: 0 }}>
+            <table data-results-table data-rows={totalRows} className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
                   <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
