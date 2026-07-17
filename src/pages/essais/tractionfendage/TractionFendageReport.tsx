@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
