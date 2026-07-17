@@ -217,13 +217,6 @@ const SclerometreReport = () => {
         </div>
       </div>
 
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #root { visibility: visible; }
-          .print\\:hidden { display: none !important; }
-        }
-      `}</style>
     </div>
   );
 };
