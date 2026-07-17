@@ -92,7 +92,7 @@ export default function MaterielMaintenance() {
   };
 
   const handlePrintReport = () => {
-    window.print();
+    PrintService.print({ title: "Maintenances matériel", orientation: "landscape" });
   };
 
   const handleDownloadReport = async () => {

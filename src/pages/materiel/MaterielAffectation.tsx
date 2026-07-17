@@ -123,7 +123,7 @@ export default function MaterielAffectation() {
   };
 
   const handlePrintReport = () => {
-    window.print();
+    PrintService.print({ title: "Affectations matériel", orientation: "landscape" });
   };
 
   const handleDownloadReport = async () => {

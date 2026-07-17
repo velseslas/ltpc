@@ -89,7 +89,7 @@ export default function MaterielEtalonnage() {
   };
 
   const handlePrintReport = () => {
-    window.print();
+    PrintService.print({ title: "Étalonnages matériel", orientation: "landscape" });
   };
 
   const handleDownloadReport = async () => {
