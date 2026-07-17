@@ -1405,7 +1405,9 @@ export default function FormulationBetonWizard() {
   };
 
   const handleSubmit = async () => {
-    if (!centraleId || !nom.trim()) {
+    if (!centraleId || !nom.trim() || !clientId || !chantierId) {
+      setAttemptedSteps(prev => new Set(prev).add(1));
+      setCurrentStep(1);
       toast.error("Veuillez remplir les informations requises");
       return;
     }
