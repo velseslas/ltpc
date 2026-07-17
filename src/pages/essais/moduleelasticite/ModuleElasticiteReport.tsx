@@ -32,7 +32,6 @@ const ModuleElasticiteReport = () => {
   const { data: entreprise } = useEntreprise();
   const { data: formulation } = useFormulationDetails(echantillon?.formulation_id);
 
-  const handlePrint = () => window.print();
 
   const triggerPrint = () =>
     PrintService.print({
