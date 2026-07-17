@@ -148,7 +148,7 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
         <ReportHeader
           entreprise={entreprise}
           verificationUrl={verificationUrl}
-          title={essaiTitle}
+          title={reportTitle}
           subtitle={normRef}
         />
 
