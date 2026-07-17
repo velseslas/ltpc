@@ -131,7 +131,7 @@ export default function EchantillonBetonFraisForm({
   const isEditing = !!id;
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
-  const requireTemperatureBeton = essaiType === "temperature";
+  const requireTemperatureBeton = false;
   const formSchema = useMemo(() => createFormSchema(showClasseConsistance, requireTemperatureBeton), [showClasseConsistance, requireTemperatureBeton]);
 
   const { data: echantillonEdit, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
