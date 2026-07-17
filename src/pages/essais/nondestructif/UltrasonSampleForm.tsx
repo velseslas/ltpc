@@ -150,37 +150,41 @@ const UltrasonSampleForm = () => {
         <h2 className="text-lg font-semibold text-foreground">Informations générales</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label>Client</Label>
+            <Label>Client <span className="text-red-700">*</span></Label>
             <Select value={clientId} onValueChange={(v) => { setClientId(v); setChantierId(""); }}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner un client" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !clientId && "border-red-700")}><SelectValue placeholder="Sélectionner un client" /></SelectTrigger>
               <SelectContent>{clients?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !clientId} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Chantier</Label>
+            <Label>Chantier <span className="text-red-700">*</span></Label>
             <Select value={chantierId} onValueChange={setChantierId} disabled={!clientId}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner un chantier" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}><SelectValue placeholder="Sélectionner un chantier" /></SelectTrigger>
               <SelectContent>{chantiers?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !chantierId} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Opérateur</Label>
+            <Label>Opérateur <span className="text-red-700">*</span></Label>
             <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner un opérateur" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}><SelectValue placeholder="Sélectionner un opérateur" /></SelectTrigger>
               <SelectContent>{intervenants?.map((i) => <SelectItem key={i.id} value={i.id}>{i.nom} {i.prenom}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Date de l'essai</Label>
+            <Label>Date de l'essai <span className="text-red-700">*</span></Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateEssai && "text-muted-foreground")}>
+                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateEssai && "text-muted-foreground", submitted && !dateEssai && "border-red-700")}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(dateEssai, "PPP", { locale: fr })}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={dateEssai} onSelect={(d) => d && setDateEssai(d)} locale={fr} /></PopoverContent>
             </Popover>
+            <ValidationMessage show={submitted && !dateEssai} message="Ce champ est obligatoire" />
           </div>
         </div>
 

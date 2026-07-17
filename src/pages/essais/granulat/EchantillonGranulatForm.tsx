@@ -325,7 +325,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                   name="carriere_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Carrière *</FormLabel>
+                      <FormLabel>Carrière <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-background border-border">
@@ -350,7 +350,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                   name="produit"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Produit *</FormLabel>
+                      <FormLabel>Produit <span className="text-red-700">*</span></FormLabel>
                       <Select 
                         onValueChange={field.onChange} 
                         value={field.value}
@@ -416,7 +416,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                   name="date_reception"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date de réception *</FormLabel>
+                      <FormLabel>Date de réception <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
                         <Input
                           {...field}
