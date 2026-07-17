@@ -121,6 +121,8 @@ const TractionFendageReport = () => {
       <div
         ref={reportRef}
         data-ref="report"
+        data-print-root
+        data-print-template="traction-fendage-report"
         className="report-table bg-white p-6 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-0"
       >
         <div data-pdf-section>
