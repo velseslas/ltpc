@@ -60,7 +60,7 @@ const CLASSES_RESISTANCE = [
   "C80/95", "C90/105", "C100/115",
 ];
 
-const createFormSchema = (showClasseConsistance: boolean) => z.object({
+const createFormSchema = (showClasseConsistance: boolean, requireTemperatureBeton: boolean) => z.object({
   client_id: z.string().min(1, "Client requis"),
   chantier_id: z.string().min(1, "Chantier requis"),
   centrale_id: z.string().min(1, "Centrale requis"),
@@ -69,7 +69,9 @@ const createFormSchema = (showClasseConsistance: boolean) => z.object({
   classe_resistance: z.string().min(1, "Classe de résistance requise"),
   date_prelevement: z.string().min(1, "Date requise"),
   heure_prelevement: z.string().optional(),
-  temperature_beton: z.string().optional(),
+  temperature_beton: requireTemperatureBeton
+    ? z.string().min(1, "Température béton requise")
+    : z.string().optional(),
   temperature_air: z.string().optional(),
   temperature_ambiante: z.string().optional(),
   classe_consistance: showClasseConsistance
