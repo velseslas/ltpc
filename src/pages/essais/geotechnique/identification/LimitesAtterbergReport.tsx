@@ -8,11 +8,13 @@ import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchanti
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Line, ComposedChart } from "recharts";
 import { classifySoil } from "@/components/essais/geotechnique/SoilClassification";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "limites-atterberg-report", title: "Rapport Limites d'Atterberg", orientation: "portrait" });
 
 const basePath = "/essais/geotechnique/identification/limites-atterberg";
 const essaiType = "limites-atterberg";
@@ -85,13 +87,8 @@ export default function LimitesAtterbergReport() {
   const moyPlast = pf(calculs.moyenne_plasticite);
   const classificationResult = classifySoil(Wl, Ip);
 
-  const handlePrint = () => window.print();
-
-
-  const handleDownloadPDF = async () => {
-    if (!echantillon) return;
-    downloadReportAsPDF(`rapport-limites-atterberg-${prefix}-${String(echantillon.numero).padStart(3, "0")}`);
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport Limites d'Atterberg ${prefix}-${String(echantillon?.numero ?? "").padStart(3, "0")}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!echantillon) return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;
@@ -128,7 +125,7 @@ export default function LimitesAtterbergReport() {
       </div>
 
       {/* Rapport */}
-      <div ref={reportRef} data-ref="report" className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={reportRef} data-ref="report" data-print-root data-print-template="limites-atterberg-report" className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI - LIMITES D'ATTERBERG" subtitle="Norme NF P 94-051" />
 
         {/* Infos échantillon */}

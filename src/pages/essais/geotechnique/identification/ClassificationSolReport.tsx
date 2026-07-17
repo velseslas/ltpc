@@ -8,10 +8,12 @@ import { useEchantillonGeotechniqueById, getGeoPrefix } from "@/hooks/useEchanti
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { SOIL_SIEVES } from "@/components/essais/geotechnique/SoilClassificationGTR";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "classification-sol-report", title: "Rapport Classification des Sols", orientation: "portrait" });
 
 const basePath = "/essais/geotechnique/identification/classification-sol";
 const essaiType = "classification-sol";
@@ -31,14 +33,8 @@ export default function ClassificationSolReport() {
 
   const filledSieves = SOIL_SIEVES.filter(s => granulometrie[String(s.value)]);
 
-  const handlePrint = () => window.print();
-
-
-
-  const handleDownloadPDF = async () => {
-    if (!echantillon) return;
-    downloadReportAsPDF(`rapport-classification-sol-${prefix}-${String(echantillon.numero).padStart(3, "0")}`);
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport Classification Sol ${prefix}-${String(echantillon?.numero ?? "").padStart(3, "0")}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!echantillon) return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;
@@ -75,7 +71,7 @@ export default function ClassificationSolReport() {
       </div>
 
       {/* Rapport */}
-      <div ref={reportRef} data-ref="report" className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={reportRef} data-ref="report" data-print-root data-print-template="classification-sol-report" className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI - CLASSIFICATION DES SOLS" subtitle="NF P 11-300 (GTR) / ASTM D2487 (USCS)" />
 
         {/* Infos échantillon */}
