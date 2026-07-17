@@ -99,13 +99,11 @@ export default function FacturePreview() {
   const montantTTCEntier = Math.floor(Number(facture.montant_ttc));
   const montantEnLettres = numberToFrenchWords(montantTTCEntier);
 
-  const handlePrint = () => {
-    window.print();
+  const doPrint = () => {
+    PrintService.print({ title: `Facture ${facture.numero}`, orientation: "portrait" });
   };
-
-  const handleDownload = async () => {
-    downloadReportAsPDF(`Facture_${facture.numero}`);
-  };
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const cellStyle: React.CSSProperties = {
     border: "1px solid #000",
