@@ -504,14 +504,14 @@ const CompressionReport = () => {
             </div>
             <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
               <colgroup>
+                <col style={{ width: "9%" }} />
                 <col style={{ width: "10%" }} />
-                <col style={{ width: "11%" }} />
-                <col style={{ width: "11%" }} />
+                <col style={{ width: "12%" }} />
                 <col style={{ width: "13%" }} />
                 <col style={{ width: "13%" }} />
                 <col style={{ width: "14%" }} />
                 <col style={{ width: "14%" }} />
-                <col style={{ width: "14%" }} />
+                <col style={{ width: "15%" }} />
               </colgroup>
               <thead>
                 <tr>
