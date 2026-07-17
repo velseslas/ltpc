@@ -7,7 +7,9 @@ import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "carottage-report", title: "Rapport carottage", orientation: "portrait" });
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 
