@@ -12,6 +12,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { PrintService } from "@/lib/print/PrintService";
 
+// LOT 9 — Template Contrat (portrait).
+PrintService.registerTemplate({ id: "contrat-document", title: "Contrat", orientation: "portrait" });
+
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
   padding: "40px 50px",
