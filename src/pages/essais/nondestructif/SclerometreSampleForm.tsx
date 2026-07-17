@@ -98,7 +98,7 @@ const SclerometreSampleForm = () => {
 
   const handleSubmit = async () => {
     setSubmitted(true);
-    if (!clientId || !chantierId || !operateurId || !dateEssai) {
+    if (!clientId || !chantierId || !operateurId || !dateEssai || !ouvrage || !partieOuvrage || !orientation || !ageBetonJours || !classeResistance) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -190,30 +190,35 @@ const SclerometreSampleForm = () => {
         <h2 className="text-lg font-semibold text-foreground pt-4">Caractéristiques de l'essai</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label>Ouvrage</Label>
-            <Input placeholder="Ex: Pont, Bâtiment A, Viaduc..." value={ouvrage} onChange={(e) => setOuvrage(e.target.value)} />
+            <Label>Ouvrage <span className="text-red-700">*</span></Label>
+            <Input placeholder="Ex: Pont, Bâtiment A, Viaduc..." value={ouvrage} onChange={(e) => setOuvrage(e.target.value)} className={cn(submitted && !ouvrage && "border-red-700")} />
+            <ValidationMessage show={submitted && !ouvrage} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Partie de l'ouvrage</Label>
-            <Input placeholder="Ex: Poteau P1, Dalle D2, Poutre B3..." value={partieOuvrage} onChange={(e) => setPartieOuvrage(e.target.value)} />
+            <Label>Partie de l'ouvrage <span className="text-red-700">*</span></Label>
+            <Input placeholder="Ex: Poteau P1, Dalle D2, Poutre B3..." value={partieOuvrage} onChange={(e) => setPartieOuvrage(e.target.value)} className={cn(submitted && !partieOuvrage && "border-red-700")} />
+            <ValidationMessage show={submitted && !partieOuvrage} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Orientation du scléromètre</Label>
+            <Label>Orientation du scléromètre <span className="text-red-700">*</span></Label>
             <Select value={orientation} onValueChange={setOrientation}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !orientation && "border-red-700")}><SelectValue /></SelectTrigger>
               <SelectContent>{ORIENTATIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !orientation} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Âge du béton (jours)</Label>
-            <Input type="number" placeholder="Ex: 28" value={ageBetonJours} onChange={(e) => setAgeBetonJours(e.target.value)} />
+            <Label>Âge du béton (jours) <span className="text-red-700">*</span></Label>
+            <Input type="number" placeholder="Ex: 28" value={ageBetonJours} onChange={(e) => setAgeBetonJours(e.target.value)} className={cn(submitted && !ageBetonJours && "border-red-700")} />
+            <ValidationMessage show={submitted && !ageBetonJours} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Classe de résistance</Label>
+            <Label>Classe de résistance <span className="text-red-700">*</span></Label>
             <Select value={classeResistance} onValueChange={setClasseResistance}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !classeResistance && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
               <SelectContent>{CLASSES_RESISTANCE.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !classeResistance} message="Ce champ est obligatoire" />
           </div>
         </div>
 
