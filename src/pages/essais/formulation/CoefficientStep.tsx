@@ -290,7 +290,7 @@ export default function CoefficientStep({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm">Mode de serrage</Label>
+              <Label className="text-sm">Mode de serrage <span className="text-destructive">*</span></Label>
               <Select value={serrage} onValueChange={(v) => setSerrage(v as SerrageType)}>
                 <SelectTrigger className={cn("bg-secondary border-border", showError && !serrage && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez un mode" />
@@ -304,7 +304,7 @@ export default function CoefficientStep({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm">Diamètre maximal (Dmax)</Label>
+              <Label className="text-sm">Diamètre maximal (Dmax) <span className="text-destructive">*</span></Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -325,7 +325,7 @@ export default function CoefficientStep({
 
           <div className="flex items-end gap-4">
             <div className="flex-1 space-y-1.5">
-              <Label className="text-sm">Coefficient de compacité γ calculé</Label>
+              <Label className="text-sm">Coefficient de compacité γ calculé <span className="text-destructive">*</span></Label>
               <Input
                 value={coefficientCompacite || (computedC !== null ? computedC.toFixed(3) : "")}
                 readOnly
