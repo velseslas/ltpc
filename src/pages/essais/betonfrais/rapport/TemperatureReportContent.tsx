@@ -10,7 +10,7 @@ export default function TemperatureReportContent({ resultats, echantillon }: Tem
   return (
     <div className="mt-6 border border-black">
       <div className="bg-gray-100 px-3 py-2 border-b border-black">
-        <h3 className="font-bold text-sm text-black">RÉSULTATS DE L'ESSAI DE TEMPÉRATURE</h3>
+        <h3 className="font-bold text-sm text-black">RÉSULTATS DE L'ESSAI DE TEMPÉRATURE DE BETON</h3>
       </div>
       <table className="w-full text-sm text-black">
         <tbody>
