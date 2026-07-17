@@ -167,7 +167,7 @@ const UltrasonSampleForm = () => {
           </div>
         </div>
 
-        <h2 className="text-lg font-semibold text-foreground pt-4">Détails de l'essai</h2>
+        <h2 className="text-lg font-semibold text-foreground pt-4">Caractéristiques de l'essai</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label>Ouvrage</Label>
