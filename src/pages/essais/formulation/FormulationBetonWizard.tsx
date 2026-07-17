@@ -870,6 +870,8 @@ export default function FormulationBetonWizard() {
   }, [isEdit, formulationError, refetchFormulation]);
   const [currentStep, setCurrentStep] = useState(1);
   const [errorSteps, setErrorSteps] = useState<number[]>([]);
+  const [attemptedSteps, setAttemptedSteps] = useState<Set<number>>(new Set());
+  const wasAttempted = (n: number) => attemptedSteps.has(n);
   // Step 1
   const [nom, setNom] = useState("");
   const [clientId, setClientId] = useState("");
@@ -1353,15 +1355,15 @@ export default function FormulationBetonWizard() {
 
 
 
-  // Compute which steps have incomplete mandatory fields (for blinking step indicators)
+  // Compute which steps have incomplete mandatory fields (only after user attempted to advance)
   const stepIncomplete = useMemo(() => {
     const incomplete: number[] = [];
-    if (!(nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0 && maitreOuvrageId.length > 0)) incomplete.push(1);
-    if (!(calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0)) incomplete.push(2);
-    if (!(coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0)) incomplete.push(5);
-    if (!(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfIdeal.trim().length > 0)) incomplete.push(6);
+    if (wasAttempted(1) && !(nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0)) incomplete.push(1);
+    if (wasAttempted(2) && !(calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0)) incomplete.push(2);
+    if (wasAttempted(5) && !(coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0)) incomplete.push(5);
+    if (wasAttempted(6) && !(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfIdeal.trim().length > 0)) incomplete.push(6);
     return incomplete;
-  }, [nom, centraleId, clientId, chantierId, maitreOuvrageId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6, mfIdeal]);
+  }, [attemptedSteps, nom, centraleId, clientId, chantierId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6, mfIdeal]);
 
   // Merge dynamic incomplete steps with errorSteps from ProportionsStep
   const allErrorSteps = useMemo(() => {
@@ -1371,7 +1373,7 @@ export default function FormulationBetonWizard() {
 
   const canGoNext = () => {
     switch (currentStep) {
-      case 1: return nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0 && maitreOuvrageId.length > 0;
+      case 1: return nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0;
       case 2: return calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0;
       case 3: return true;
       case 4: return true;
@@ -1384,6 +1386,11 @@ export default function FormulationBetonWizard() {
   };
 
   const handleNext = () => {
+    if (!canGoNext()) {
+      setAttemptedSteps(prev => new Set(prev).add(currentStep));
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
     if (currentStep < 8) {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1398,7 +1405,9 @@ export default function FormulationBetonWizard() {
   };
 
   const handleSubmit = async () => {
-    if (!centraleId || !nom.trim()) {
+    if (!centraleId || !nom.trim() || !clientId || !chantierId) {
+      setAttemptedSteps(prev => new Set(prev).add(1));
+      setCurrentStep(1);
       toast.error("Veuillez remplir les informations requises");
       return;
     }
@@ -1504,26 +1513,26 @@ export default function FormulationBetonWizard() {
             <p className="text-xs text-muted-foreground">Les champs marqués d'un astérisque sont obligatoires <span className="text-destructive">*</span></p>
             <div className="space-y-2">
               <Label>Nom de la formulation <span className="text-destructive">*</span></Label>
-              <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Béton C25/30 pour fondations" className={cn("bg-secondary border-border", nom.trim().length === 0 && "animate-border-blink")} />
+              <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Béton C25/30 pour fondations" className={cn("bg-secondary border-border", wasAttempted(1) && nom.trim().length === 0 && "animate-border-blink")} />
             </div>
             <div className="space-y-2">
               <Label>Nom de l'entreprise <span className="text-destructive">*</span></Label>
               <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger className={cn("bg-secondary border-border", clientId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez une entreprise" /></SelectTrigger>
+                <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && clientId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez une entreprise" /></SelectTrigger>
                 <SelectContent>{clients.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Chantier <span className="text-destructive">*</span></Label>
               <Select value={chantierId} onValueChange={(v) => { setChantierId(v); setCentraleId(""); }}>
-                <SelectTrigger className={cn("bg-secondary border-border", chantierId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez un chantier" /></SelectTrigger>
+                <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && chantierId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez un chantier" /></SelectTrigger>
                 <SelectContent>{clientChantiers.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label>Centrale à béton <span className="text-destructive">*</span></Label>
               <Select value={centraleId} onValueChange={setCentraleId} disabled={!chantierId}>
-                <SelectTrigger className={cn("bg-secondary border-border", centraleId.length === 0 && "animate-border-blink")}><SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} /></SelectTrigger>
+                <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && centraleId.length === 0 && "animate-border-blink")}><SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} /></SelectTrigger>
                 <SelectContent>
                   {mergedCentrales.length === 0 ? (
                     <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale liée à ce chantier</div>
@@ -1532,9 +1541,9 @@ export default function FormulationBetonWizard() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Maître d'ouvrage <span className="text-destructive">*</span></Label>
+              <Label>Maître d'ouvrage</Label>
               <Select value={maitreOuvrageId} onValueChange={setMaitreOuvrageId}>
-                <SelectTrigger className={cn("bg-secondary border-border", maitreOuvrageId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez un maître d'ouvrage" /></SelectTrigger>
+                <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Sélectionnez un maître d'ouvrage" /></SelectTrigger>
                 <SelectContent>{maitresOuvrage.map((m: any) => (<SelectItem key={m.id} value={m.id}>{m.nom}</SelectItem>))}</SelectContent>
               </Select>
             </div>
@@ -1565,7 +1574,7 @@ export default function FormulationBetonWizard() {
                   value={calcEau}
                   onChange={(e) => setCalcEau(e.target.value)}
                   placeholder="ex: 185"
-                  className={cn("bg-secondary border-border", !calcEau.trim() && "animate-border-blink")}
+                  className={cn("bg-secondary border-border", wasAttempted(2) && !calcEau.trim() && "animate-border-blink")}
                 />
               </div>
               <div className="space-y-1.5">
@@ -1575,7 +1584,7 @@ export default function FormulationBetonWizard() {
                   value={calcCiment}
                   onChange={(e) => setCalcCiment(e.target.value)}
                   placeholder="ex: 350"
-                  className={cn("bg-secondary border-border", !calcCiment.trim() && "animate-border-blink")}
+                  className={cn("bg-secondary border-border", wasAttempted(2) && !calcCiment.trim() && "animate-border-blink")}
                 />
               </div>
               <div className="space-y-1.5">
@@ -1585,7 +1594,7 @@ export default function FormulationBetonWizard() {
                   value={calcRatioGS}
                   onChange={(e) => setCalcRatioGS(e.target.value)}
                   placeholder="ex: 1.8"
-                  className={cn("bg-secondary border-border", !calcRatioGS.trim() && "animate-border-blink")}
+                  className={cn("bg-secondary border-border", wasAttempted(2) && !calcRatioGS.trim() && "animate-border-blink")}
                 />
               </div>
               <div className="space-y-1.5">
@@ -1612,7 +1621,7 @@ export default function FormulationBetonWizard() {
               <div className="space-y-1.5">
                 <Label className="text-sm">Résistance souhaitée à 28 j <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", !resistance28j.trim() && "animate-border-blink")} />
+                  <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", wasAttempted(2) && !resistance28j.trim() && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
                 </div>
               </div>
@@ -1625,7 +1634,7 @@ export default function FormulationBetonWizard() {
               <div className="space-y-1.5">
                 <Label className="text-sm">Slump souhaité <span className="text-destructive">*</span></Label>
                 <div className="relative">
-                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", !slumpSouhaite.trim() && "animate-border-blink")} />
+                  <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", wasAttempted(2) && !slumpSouhaite.trim() && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
                 </div>
               </div>
@@ -1637,7 +1646,7 @@ export default function FormulationBetonWizard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <div className="space-y-1.5">
                 <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
-                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", !classeExposition.trim() && "animate-border-blink")} />
+                <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", wasAttempted(2) && !classeExposition.trim() && "animate-border-blink")} />
               </div>
               <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                 <BarChart3 className="w-4 h-4" />
@@ -1892,7 +1901,6 @@ export default function FormulationBetonWizard() {
         {currentStep < 7 ? (
           <Button
             onClick={handleNext}
-            disabled={!canGoNext()}
             className="gap-2 gradient-primary text-primary-foreground"
           >
             Suivant
