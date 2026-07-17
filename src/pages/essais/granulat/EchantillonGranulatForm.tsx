@@ -41,6 +41,8 @@ import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+import { ValidationMessage } from "@/components/ui/validation-message";
+import { cn } from "@/lib/utils";
 
 const breadcrumbCategoryConfig: Record<string, { categoryPath: string; categoryLabel: string }> = {
   "equivalent-sable": { categoryPath: "/essais/granulat/proprete", categoryLabel: "Propreté" },
@@ -57,12 +59,12 @@ const breadcrumbCategoryConfig: Record<string, { categoryPath: string; categoryL
 };
 
 const formSchema = z.object({
-  client_id: z.string().optional(),
-  chantier_id: z.string().optional(),
-  carriere_id: z.string().min(1, "Sélectionnez une carrière"),
-  produit: z.string().min(1, "Sélectionnez un produit"),
-  operateur_id: z.string().optional(),
-  date_reception: z.string().min(1, "La date de réception est requise"),
+  client_id: z.string().min(1, "Ce champ est obligatoire"),
+  chantier_id: z.string().min(1, "Ce champ est obligatoire"),
+  carriere_id: z.string().min(1, "Ce champ est obligatoire"),
+  produit: z.string().min(1, "Ce champ est obligatoire"),
+  operateur_id: z.string().min(1, "Ce champ est obligatoire"),
+  date_reception: z.string().min(1, "Ce champ est obligatoire"),
   date_essai: z.string().optional(),
   observations: z.string().max(500, "Maximum 500 caractères").optional(),
 });
