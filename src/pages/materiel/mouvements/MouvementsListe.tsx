@@ -49,6 +49,8 @@ export default function MouvementsListe() {
         </div>
       </div>
 
+      <div data-print-root data-print-template="materiel-mouvements-liste" data-ref="report">
+
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center gap-3">
