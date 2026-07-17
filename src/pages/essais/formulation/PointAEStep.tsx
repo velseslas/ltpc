@@ -257,6 +257,7 @@ export default function PointAEStep({
                   mfIdeal.trim() && (parseFloat(mfIdeal) < 2.2 || parseFloat(mfIdeal) > 2.8) && "animate-border-blink"
                 )}
               />
+              <ValidationMessage show={showError && !mfIdeal.trim()} />
               {mfIdeal.trim() && (parseFloat(mfIdeal) < 2.2 || parseFloat(mfIdeal) > 2.8) && (
                 <p className="text-xs text-destructive font-medium">
                   ⚠️ Le MF idéal doit être compris entre 2.2 et 2.8
