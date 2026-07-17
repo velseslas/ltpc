@@ -302,6 +302,7 @@ export default function PointAEStep({
                   <SelectItem value="concasse">Concassé</SelectItem>
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !forme} />
             </div>
           </div>
 
