@@ -424,6 +424,8 @@ export default function Documents() {
             <Card>
               <CardContent className="p-6 overflow-auto bg-muted/30 rounded-lg flex justify-center">
                 <div
+                  data-print-root
+                  data-print-template="document-rh"
                   data-ref="report"
                   style={{
                     width: "210mm",
