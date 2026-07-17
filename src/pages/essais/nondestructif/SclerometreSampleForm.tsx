@@ -98,7 +98,7 @@ const SclerometreSampleForm = () => {
 
   const handleSubmit = async () => {
     setSubmitted(true);
-    if (!clientId || !chantierId || !operateurId || !dateEssai) {
+    if (!clientId || !chantierId || !operateurId || !dateEssai || !ouvrage || !partieOuvrage || !orientation || !ageBetonJours || !classeResistance) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
