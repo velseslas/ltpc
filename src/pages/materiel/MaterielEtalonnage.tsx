@@ -93,7 +93,7 @@ export default function MaterielEtalonnage() {
   };
 
   const handleDownloadReport = async () => {
-    downloadReportAsPDF(`liste-etalonnages-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Étalonnages matériel", orientation: "landscape" });
   };
 
   const handleDelete = async () => {

@@ -40,7 +40,7 @@ export default function MaterielEtalonnageHistorique() {
   const handlePrint = () => PrintService.print({ title: "Historique des étalonnages", orientation: "landscape" });
 
   const handleDownload = async () => {
-    downloadReportAsPDF(`historique-etalonnages-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Historique des étalonnages", orientation: "landscape" });
   };
 
   const totalConformes = data?.filter((e: any) => e.resultat === "conforme").length || 0;

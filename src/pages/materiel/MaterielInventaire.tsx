@@ -61,7 +61,7 @@ export default function MaterielInventaire() {
   const handlePrint = () => PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
 
   const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`inventaire-materiel-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
   };
 
   return (

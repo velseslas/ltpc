@@ -42,7 +42,7 @@ export default function MaterielMaintenanceHistorique() {
   const handlePrint = () => PrintService.print({ title: "Historique des maintenances", orientation: "landscape" });
 
   const handleDownload = async () => {
-    downloadReportAsPDF(`historique-maintenances-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Historique des maintenances", orientation: "landscape" });
   };
 
   const coutTotal = data?.reduce((sum: number, m: any) => sum + (m.cout || 0), 0) || 0;

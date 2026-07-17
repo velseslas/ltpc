@@ -96,7 +96,7 @@ export default function MaterielMaintenance() {
   };
 
   const handleDownloadReport = async () => {
-    downloadReportAsPDF(`liste-maintenances-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Maintenances matériel", orientation: "landscape" });
   };
 
   const handleDelete = async () => {

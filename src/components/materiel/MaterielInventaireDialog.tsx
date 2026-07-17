@@ -71,7 +71,7 @@ export default function MaterielInventaireDialog({ open, onOpenChange, data }: M
   const handlePrint = () => PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
 
   const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`inventaire-materiel-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
   };
 
   const stats = {

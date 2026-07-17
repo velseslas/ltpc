@@ -127,7 +127,7 @@ export default function MaterielAffectation() {
   };
 
   const handleDownloadReport = async () => {
-    downloadReportAsPDF(`liste-affectations-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Affectations matériel", orientation: "landscape" });
   };
 
   const handleDelete = async () => {

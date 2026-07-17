@@ -32,7 +32,7 @@ export default function MaterielAffectationHistorique() {
   const handlePrint = () => PrintService.print({ title: "Historique des affectations", orientation: "landscape" });
 
   const handleDownload = async () => {
-    downloadReportAsPDF(`historique-affectations-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Historique des affectations", orientation: "landscape" });
   };
 
   const totalEnCours = data?.filter((a: any) => a.statut === "en_cours").length || 0;
