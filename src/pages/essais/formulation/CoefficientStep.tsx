@@ -176,9 +176,11 @@ export default function CoefficientStep({
             <Badge variant="outline" className="text-xs">Dreux-Gorisse</Badge>
           </div>
 
+          <p className="text-xs text-muted-foreground">Les champs marqués d'un astérisque sont obligatoires <span className="text-destructive">*</span></p>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm">Qualité des granulats</Label>
+              <Label className="text-sm">Qualité des granulats <span className="text-destructive">*</span></Label>
               <Select value={qualiteG} onValueChange={(v) => setQualiteG(v as QualiteType)}>
                 <SelectTrigger className={cn("bg-secondary border-border", showError && !qualiteG && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une qualité" />
@@ -191,7 +193,7 @@ export default function CoefficientStep({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm">Diamètre maximal (Dmax)</Label>
+              <Label className="text-sm">Diamètre maximal (Dmax) <span className="text-destructive">*</span></Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -212,7 +214,7 @@ export default function CoefficientStep({
 
           <div className="flex items-end gap-4">
             <div className="flex-1 space-y-1.5">
-              <Label className="text-sm">Coefficient G' calculé</Label>
+              <Label className="text-sm">Coefficient G' calculé <span className="text-destructive">*</span></Label>
               <Input
                 value={coefficientGranulaire || (computedG !== null ? computedG.toFixed(2) : "")}
                 readOnly
