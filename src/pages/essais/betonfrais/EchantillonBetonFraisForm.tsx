@@ -103,7 +103,7 @@ const getFieldsForType = (essaiType: string) => {
     case "affaissement":
       return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: true };
     case "temperature":
-      return { showTemperatureBeton: false, showTemperatureAir: false, showTemperatureAmbiante: true };
+      return { showTemperatureBeton: true, showTemperatureAir: false, showTemperatureAmbiante: true };
     case "temps-prise":
       return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: false };
     case "teneur-air":
@@ -131,7 +131,8 @@ export default function EchantillonBetonFraisForm({
   const isEditing = !!id;
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
-  const formSchema = useMemo(() => createFormSchema(showClasseConsistance), [showClasseConsistance]);
+  const requireTemperatureBeton = essaiType === "temperature";
+  const formSchema = useMemo(() => createFormSchema(showClasseConsistance, requireTemperatureBeton), [showClasseConsistance, requireTemperatureBeton]);
 
   const { data: echantillonEdit, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
   const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>(getTableName(essaiType));
@@ -688,7 +689,7 @@ export default function EchantillonBetonFraisForm({
                   name="temperature_beton"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Température béton (°C)</FormLabel>
+                      <FormLabel>Température béton (°C) {requireTemperatureBeton && <span className="text-red-700">*</span>}</FormLabel>
                       <FormControl>
                         <Input type="number" step="0.1" placeholder="Ex: 22.5" {...field} />
                       </FormControl>
