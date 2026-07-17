@@ -537,14 +537,14 @@ const CompressionReport = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.ciment.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.eau.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.adjuvant.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.sable_fin.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravillons1.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravier2.quantite ?? 0}</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravier3.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.eau.quantite ?? 0} L</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
                 </tr>
               </tbody>
             </table>
