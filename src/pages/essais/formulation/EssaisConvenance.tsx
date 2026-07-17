@@ -121,7 +121,7 @@ const EssaisConvenance = () => {
           </Button>
           <Button className="flex items-center gap-2" onClick={handleCreate}>
             <Plus className="h-4 w-4" />
-            Nouveau essai de convenance
+            Nouveau échantillon
           </Button>
         </div>
       </div>
