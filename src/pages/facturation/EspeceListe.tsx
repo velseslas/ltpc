@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
+import { PrintService } from "@/lib/print/PrintService";
 import { Plus, Trash2, Banknote, Eye, Search, FileBarChart, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
