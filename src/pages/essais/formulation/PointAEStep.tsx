@@ -289,6 +289,7 @@ export default function PointAEStep({
                   <SelectItem value="puissante">Puissante</SelectItem>
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !vibration} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Forme des granulats <span className="text-destructive">*</span></Label>
