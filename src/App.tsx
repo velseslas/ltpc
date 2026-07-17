@@ -40,6 +40,7 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const VerificationPage = lazy(() => import("./pages/verification/VerificationPage"));
 const CompressionReport = lazy(() => import("./pages/essais/CompressionReport"));
+const RapportTechniquePrintView = lazy(() => import("./pages/essais/rapports-techniques/RapportTechniquePrintView"));
 
 // Phase 5 — Performance : defaults React Query optimisés pour réduire les
 // requêtes réseau redondantes (focus/reconnect) tout en gardant les données
