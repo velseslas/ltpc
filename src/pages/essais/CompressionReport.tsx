@@ -667,7 +667,7 @@ const CompressionReport = () => {
           )}
 
           {/* Pied de page */}
-          <div data-report-footer className="mt-8 pt-4 border-t border-gray-300">
+          <div data-report-footer className="mt-8 pt-4">
             <div className="flex justify-between items-end">
               <div className="text-sm text-black">
                 <p>Le Technicien: {echantillon.operateur_nom}</p>
@@ -761,7 +761,6 @@ const CompressionReport = () => {
         [data-ref="report"] [data-report-footer] {
           margin-top: auto !important;
           padding-top: 3mm !important;
-          border-top: 1px solid #333;
         }
 
         /* -----------------------------------------------------------------
