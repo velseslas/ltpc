@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
@@ -9,8 +9,9 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
-import { downloadReportAsPDF } from "@/lib/pdf";
-import { toast } from "sonner";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "sclerometre-report", title: "Rapport Scléromètre", orientation: "portrait" });
 
 const SclerometreReport = () => {
   const navigate = useNavigate();
