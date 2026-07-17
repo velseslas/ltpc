@@ -10,6 +10,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "teneur-eau-sol-report", title: "Rapport Teneur en Eau des Sols", orientation: "portrait" });
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 2): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
@@ -62,11 +65,8 @@ export default function TeneurEauSolReport() {
     { label: "Teneur en eau  W = (mw / md) × 100", unit: "(%)", vals: [prises[0].W > 0 ? fmt(prises[0].W) + "%" : "-", prises[1].W > 0 ? fmt(prises[1].W) + " %" : "-"] },
   ];
 
-  const handlePrint = () => window.print();
-  const handleDownloadPDF = async () => {
-    const { downloadReportAsPDF } = await import("@/lib/pdf");
-    downloadReportAsPDF(`rapport-teneur-eau-${numero}`);
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport Teneur en Eau ${numero}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -97,7 +97,7 @@ export default function TeneurEauSolReport() {
         </div>
       </div>
 
-      <div ref={printRef} data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
+      <div ref={printRef} data-ref="report" data-print-root data-print-template="teneur-eau-sol-report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
         <ReportHeader
           entreprise={entreprise}
           verificationUrl={verificationUrl}

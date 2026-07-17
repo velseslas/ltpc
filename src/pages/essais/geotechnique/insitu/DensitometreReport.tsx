@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer, Loader2 } from "lucide-react";
@@ -9,6 +8,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "densitometre-report", title: "Rapport Densitomètre à Membrane", orientation: "portrait" });
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 2): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
@@ -66,7 +68,7 @@ export default function DensitometreReport() {
     { sym: "Pd", label: "Densité sèche", formula: "(P×100 / (100+W))", unit: "g/cm³", val: fmt(Pd, 3) },
   ];
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => PrintService.print({ title: `Rapport Densitomètre ${numero}`, orientation: "portrait" });
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -93,7 +95,7 @@ export default function DensitometreReport() {
         </div>
       </div>
 
-      <div ref={printRef} data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
+      <div ref={printRef} data-ref="report" data-print-root data-print-template="densitometre-report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
         <ReportHeader
           entreprise={entreprise}
           verificationUrl={verificationUrl}

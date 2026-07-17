@@ -10,9 +10,13 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { PrintService } from "@/lib/print/PrintService";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine
 } from "recharts";
+
+PrintService.registerTemplate({ id: "proctor-normal-report", title: "Rapport Proctor Normal", orientation: "portrait" });
+PrintService.registerTemplate({ id: "proctor-modifie-report", title: "Rapport Proctor Modifié", orientation: "portrait" });
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 2): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
@@ -69,11 +73,8 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
   const w_opt = pf(r.w_opt);
   const rho_max = pf(r.rho_max);
 
-  const handlePrint = () => window.print();
-  const handleDownloadPDF = async () => {
-    const { downloadReportAsPDF } = await import("@/lib/pdf");
-    downloadReportAsPDF(`rapport-${essaiType}-${numero}`);
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport ${essaiTitle} ${numero}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -104,7 +105,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
         </div>
       </div>
 
-      <div ref={printRef} data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
+      <div ref={printRef} data-ref="report" data-print-root data-print-template={isModifie ? "proctor-modifie-report" : "proctor-normal-report"} className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
         <ReportHeader
           entreprise={entreprise}
           verificationUrl={verificationUrl}

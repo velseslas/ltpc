@@ -9,7 +9,10 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
+import { PrintService } from "@/lib/print/PrintService";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+
+PrintService.registerTemplate({ id: "granulometrie-sol-report", title: "Rapport Granulométrie Sol", orientation: "portrait" });
 
 const FUSEAU_GNT_0_315 = {
   min: [
@@ -86,22 +89,18 @@ export default function GranulometrieSolReport() {
           <Button
             variant="outline"
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-            onClick={async () => {
-              const el = document.querySelector<HTMLElement>('[data-ref="report"]');
-              const { downloadReportAsPDF } = await import("@/lib/pdf");
-              downloadReportAsPDF(`rapport-granulometrie-sol-${numero}`);
-            }}
+            onClick={() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" })}
           >
             <Download className="h-4 w-4 mr-2" />Télécharger PDF
           </Button>
-          <Button onClick={() => window.print()} className="gradient-primary text-primary-foreground">
+          <Button onClick={() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" })} className="gradient-primary text-primary-foreground">
             <Printer className="h-4 w-4 mr-2" />Imprimer
           </Button>
         </div>
       </div>
 
       {/* Printable report */}
-      <div data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 max-w-4xl mx-auto" id="report-content">
+      <div data-ref="report" data-print-root data-print-template="granulometrie-sol-report" className="bg-white text-black p-8 rounded-lg shadow-lg print:shadow-none print:p-4 max-w-4xl mx-auto" id="report-content">
         <ReportHeader
           title="ANALYSE GRANULOMÉTRIQUE DES SOLS"
           subtitle="NF P 94-056"
