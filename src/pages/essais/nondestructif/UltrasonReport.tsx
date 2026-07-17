@@ -29,16 +29,8 @@ const UltrasonReport = () => {
   const { data: echantillon, isLoading } = useEchantillonUltrason(id ?? "");
   const { data: entreprise } = useEntreprise();
 
-  const handlePrint = () => window.print();
-
-  const handleDownloadPDF = async () => {
-    try {
-      downloadReportAsPDF(`rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors de la génération du PDF");
-    }
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport Ultrason US-${String(echantillon?.numero ?? "").padStart(3, "0")}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!echantillon) return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;
