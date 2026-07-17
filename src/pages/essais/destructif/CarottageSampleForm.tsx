@@ -111,6 +111,11 @@ const CarottageSampleForm = () => {
   const handleSubmit = async () => {
     setSubmitted(true);
 
+    if (!clientId || !chantierId || !operateurId || !datePrelevement || !ouvrage || !partieOuvrage || !localisation || !diametreCarotte || !longueurCarotte || !directionCarottage || !etatSurface || !classeResistance) {
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
     const payload = {
       client_id: clientId || null,
       chantier_id: chantierId || null,
