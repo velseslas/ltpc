@@ -161,7 +161,7 @@ export function EchantillonBetonFraisList({
             className="gradient-primary text-primary-foreground"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Nouveau
+            Nouveau échantillon
           </Button>
         </div>
       </div>
