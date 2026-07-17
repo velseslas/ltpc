@@ -6,12 +6,14 @@ import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
 import { useEchantillonModuleElasticiteById } from "@/hooks/useEchantillonsModuleElasticite";
+
+PrintService.registerTemplate({ id: "module-elasticite-report", title: "Rapport module d'élasticité", orientation: "portrait" });
 
 interface EprouvetteData {
   id: number;
@@ -30,16 +32,14 @@ const ModuleElasticiteReport = () => {
   const { data: entreprise } = useEntreprise();
   const { data: formulation } = useFormulationDetails(echantillon?.formulation_id);
 
-  const handlePrint = () => window.print();
 
-  const handleDownloadPDF = async () => {
-    try {
-      downloadReportAsPDF(`rapport-ME-${echantillon?.numero}`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors de la génération du PDF");
-    }
-  };
+  const triggerPrint = () =>
+    PrintService.print({
+      title: `rapport-ME-${echantillon?.numero}`,
+      orientation: "portrait",
+    });
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -87,7 +87,7 @@ const ModuleElasticiteReport = () => {
         </div>
       </div>
 
-      <div ref={reportRef} data-ref="report" className="report-table bg-white p-8 rounded-lg border max-w-4xl mx-auto print:border-0 print:shadow-none print:p-0">
+      <div ref={reportRef} data-ref="report" data-print-root data-print-template="module-elasticite-report" className="report-table bg-white p-8 rounded-lg border max-w-4xl mx-auto print:border-0 print:shadow-none print:p-0">
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI DE MODULE D'ÉLASTICITÉ" subtitle="Détermination du module d'élasticité en compression - Norme NF EN 12390-13" />
 
         <div className="mb-6 mt-6">

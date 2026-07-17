@@ -7,7 +7,9 @@ import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "carottage-report", title: "Rapport carottage", orientation: "portrait" });
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 
@@ -33,11 +35,13 @@ const CarottageReport = () => {
   const { data: entreprise } = useEntreprise();
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = () => window.print();
-
-  const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`);
-  };
+  const triggerPrint = () =>
+    PrintService.print({
+      title: `Rapport_Carottage_CR-${String(echantillon?.numero).padStart(3, "0")}`,
+      orientation: "portrait",
+    });
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -108,6 +112,8 @@ const CarottageReport = () => {
       <div
         ref={reportRef}
         data-ref="report"
+        data-print-root
+        data-print-template="carottage-report"
         className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4"
         style={{ fontFamily: "Arial, sans-serif", WebkitPrintColorAdjust: "exact" } as React.CSSProperties}
       >

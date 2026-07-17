@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -12,6 +12,8 @@ import { ReportHeader } from "@/components/reports/ReportHeader";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
 import { useEchantillonTractionFendageById } from "@/hooks/useEchantillonsTractionFendage";
+
+PrintService.registerTemplate({ id: "traction-fendage-report", title: "Rapport traction par fendage", orientation: "portrait" });
 
 interface EprouvetteData {
   id: number;
@@ -31,13 +33,13 @@ const TractionFendageReport = () => {
   const { data: entreprise } = useEntreprise();
   const { data: formulation } = useFormulationDetails(echantillon?.formulation_id);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`rapport-TF-${echantillon?.numero}`);
-  };
+  const triggerPrint = () =>
+    PrintService.print({
+      title: `rapport-TF-${echantillon?.numero}`,
+      orientation: "portrait",
+    });
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   if (isLoading) {
     return (
@@ -119,6 +121,8 @@ const TractionFendageReport = () => {
       <div
         ref={reportRef}
         data-ref="report"
+        data-print-root
+        data-print-template="traction-fendage-report"
         className="report-table bg-white p-6 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-0"
       >
         <div data-pdf-section>
