@@ -1692,6 +1692,44 @@ export default function FormulationReport() {
           [data-ref="report"] { position: absolute; left: 0; top: 0; }
           .print\\:hidden { display: none !important; }
           .report-page { box-shadow: none !important; border: none !important; }
+
+          /* ===== Optimisation du remplissage des pages (CSS Print only) =====
+             Les <ReportPage> imposent height:297mm + page-break-after:always,
+             ce qui force chaque section sur une page complète et laisse de
+             grands blancs (pages 6-7 notamment). En impression, on libère la
+             hauteur et on laisse le flux paginer naturellement, tout en
+             gardant chaque section (titre + tableau + graphique) solidaire. */
+          .report-page {
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            margin: 0 auto !important;
+            padding: 8mm 10mm !important;
+            page-break-after: auto !important;
+            break-after: auto !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .report-page > div {
+            height: auto !important;
+            overflow: visible !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .page-break {
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
+          /* Footer décoratif (vide) : le neutraliser pour ne pas casser le flux */
+          .report-page-footer { display: none !important; }
+
+          /* Garder titre + tableau + graphique ensemble quand possible */
+          .report-page table { break-inside: avoid; page-break-inside: avoid; }
+          .report-page h1, .report-page h2, .report-page h3, .report-page h4 {
+            break-after: avoid; page-break-after: avoid;
+          }
+          @page { margin: 8mm; }
         }
       `}</style>
     </div>
