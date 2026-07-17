@@ -1693,32 +1693,29 @@ export default function FormulationReport() {
           .print\\:hidden { display: none !important; }
           .report-page { box-shadow: none !important; border: none !important; }
 
-          /* ===== Pagination intelligente (CSS Print only) =====
-             Objectif : remplir chaque page au maximum. Les <ReportPage>
-             ne forcent plus de saut ni de hauteur fixe ; le flux navigateur
-             pagine naturellement. On ne protège que les blocs indivisibles
-             (tableaux, graphiques, figures) et on garde les titres avec
-             le contenu qui suit. Les sous-sections peuvent donc partager
-             une même page si l'espace le permet. */
+          /* ===== Optimisation du remplissage des pages (CSS Print only) =====
+             Les <ReportPage> imposent height:297mm + page-break-after:always,
+             ce qui force chaque section sur une page complète et laisse de
+             grands blancs (pages 6-7 notamment). En impression, on libère la
+             hauteur et on laisse le flux paginer naturellement, tout en
+             gardant chaque section (titre + tableau + graphique) solidaire. */
           .report-page {
             height: auto !important;
             min-height: 0 !important;
             max-height: none !important;
             overflow: visible !important;
             margin: 0 auto !important;
-            padding: 6mm 10mm !important;
+            padding: 8mm 10mm !important;
             page-break-after: auto !important;
             break-after: auto !important;
-            page-break-before: auto !important;
-            break-before: auto !important;
-            page-break-inside: auto !important;
-            break-inside: auto !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
           .report-page > div {
             height: auto !important;
             overflow: visible !important;
-            page-break-inside: auto !important;
-            break-inside: auto !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
           .page-break {
             page-break-after: auto !important;
@@ -1727,30 +1724,10 @@ export default function FormulationReport() {
           /* Footer décoratif (vide) : le neutraliser pour ne pas casser le flux */
           .report-page-footer { display: none !important; }
 
-          /* Blocs indivisibles : tableaux, graphiques, figures, canvas, svg */
-          .report-page table,
-          .report-page figure,
-          .report-page svg,
-          .report-page canvas,
-          .report-page .recharts-wrapper,
-          .report-page .recharts-responsive-container {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
-          /* Titres solidaires du contenu qui suit */
-          .report-page h1, .report-page h2, .report-page h3,
-          .report-page h4, .report-page h5, .report-page h6 {
-            break-after: avoid !important;
-            page-break-after: avoid !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
-          /* Un tableau reste avec son titre précédent */
-          .report-page h1 + table, .report-page h2 + table,
-          .report-page h3 + table, .report-page h4 + table,
-          .report-page h5 + table, .report-page h6 + table {
-            break-before: avoid !important;
-            page-break-before: avoid !important;
+          /* Garder titre + tableau + graphique ensemble quand possible */
+          .report-page table { break-inside: avoid; page-break-inside: avoid; }
+          .report-page h1, .report-page h2, .report-page h3, .report-page h4 {
+            break-after: avoid; page-break-after: avoid;
           }
           @page { margin: 8mm; }
         }
