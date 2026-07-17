@@ -13,6 +13,8 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
 import { useEchantillonTractionFendageById } from "@/hooks/useEchantillonsTractionFendage";
 
+PrintService.registerTemplate({ id: "traction-fendage-report", title: "Rapport traction par fendage", orientation: "portrait" });
+
 interface EprouvetteData {
   id: number;
   jour: number;
