@@ -1581,6 +1581,7 @@ export default function FormulationBetonWizard() {
                   placeholder="ex: 185"
                   className={cn("bg-secondary border-border", wasAttempted(2) && !calcEau.trim() && "animate-border-blink")}
                 />
+                <ValidationMessage show={wasAttempted(2) && !calcEau.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Ciment (kg/m³) <span className="text-destructive">*</span></Label>
@@ -1591,6 +1592,7 @@ export default function FormulationBetonWizard() {
                   placeholder="ex: 350"
                   className={cn("bg-secondary border-border", wasAttempted(2) && !calcCiment.trim() && "animate-border-blink")}
                 />
+                <ValidationMessage show={wasAttempted(2) && !calcCiment.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Rapport G/S <span className="text-destructive">*</span></Label>
@@ -1601,6 +1603,7 @@ export default function FormulationBetonWizard() {
                   placeholder="ex: 1.8"
                   className={cn("bg-secondary border-border", wasAttempted(2) && !calcRatioGS.trim() && "animate-border-blink")}
                 />
+                <ValidationMessage show={wasAttempted(2) && !calcRatioGS.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Adjuvant (L/m³)</Label>
