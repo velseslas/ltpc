@@ -1,5 +1,4 @@
 import { useState, useRef, useMemo } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +15,14 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { usePaiementsEspece } from "@/hooks/useFacturation";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 8 — Template État des paiements en espèce (paysage).
+PrintService.registerTemplate({
+  id: "etat-paiements-espece",
+  title: "État des paiements en espèce",
+  orientation: "landscape",
+});
 
 export default function EtatPaiementsEspece() {
   const navigate = useNavigate();
