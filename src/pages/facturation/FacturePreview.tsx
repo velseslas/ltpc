@@ -1,16 +1,22 @@
 import { useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useParams, useNavigate } from "react-router-dom";
 import { Printer, Download, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useEntrepriseFull } from "@/hooks/useEntreprise";
 import { useFacture } from "@/hooks/useFacturation";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
+import { PrintService } from "@/lib/print/PrintService";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Loader2 } from "lucide-react";
+
+// LOT 8 — Enregistrement du template Facture auprès du PrintService.
+PrintService.registerTemplate({
+  id: "facture-document",
+  title: "Facture",
+  orientation: "portrait",
+});
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
