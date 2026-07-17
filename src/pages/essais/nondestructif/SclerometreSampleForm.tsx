@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, CalendarIcon, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Save, Loader2, AlertCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,16 @@ const CLASSES_RESISTANCE = [
   "C12/15", "C16/20", "C20/25", "C25/30", "C30/37", "C35/45", "C40/50", "C45/55", "C50/60"
 ];
 
+const ValidationMessage = ({ show, message }: { show: boolean; message: string }) => {
+  if (!show) return null;
+  return (
+    <p className="text-red-700 text-sm flex items-center gap-1 mt-1">
+      <AlertCircle className="w-4 h-4" />
+      {message}
+    </p>
+  );
+};
+
 const SclerometreSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -63,6 +73,7 @@ const SclerometreSampleForm = () => {
   const [ageBetonJours, setAgeBetonJours] = useState<string>("");
   const [classeResistance, setClasseResistance] = useState("");
   const [mentions, setMentions] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
 
   const { data: chantiers } = useChantiersByClient(clientId);
 
@@ -86,6 +97,12 @@ const SclerometreSampleForm = () => {
   }, [existingData, duplicateSource, isEdit]);
 
   const handleSubmit = async () => {
+    setSubmitted(true);
+    if (!clientId || !chantierId || !operateurId || !dateEssai) {
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
     const payload: any = {
       client_id: clientId || null,
       chantier_id: chantierId || null,
@@ -132,37 +149,41 @@ const SclerometreSampleForm = () => {
         <h2 className="text-lg font-semibold text-foreground">Informations générales</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label>Client</Label>
+            <Label>Client <span className="text-red-700">*</span></Label>
             <Select value={clientId} onValueChange={(v) => { setClientId(v); setChantierId(""); }}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner un client" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !clientId && "border-red-700")}><SelectValue placeholder="Sélectionner un client" /></SelectTrigger>
               <SelectContent>{clients?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !clientId} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Chantier</Label>
+            <Label>Chantier <span className="text-red-700">*</span></Label>
             <Select value={chantierId} onValueChange={setChantierId} disabled={!clientId}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner un chantier" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}><SelectValue placeholder="Sélectionner un chantier" /></SelectTrigger>
               <SelectContent>{chantiers?.map((c) => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !chantierId} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Opérateur</Label>
+            <Label>Opérateur <span className="text-red-700">*</span></Label>
             <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner un opérateur" /></SelectTrigger>
+              <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}><SelectValue placeholder="Sélectionner un opérateur" /></SelectTrigger>
               <SelectContent>{intervenants?.map((i) => <SelectItem key={i.id} value={i.id}>{i.nom} {i.prenom}</SelectItem>)}</SelectContent>
             </Select>
+            <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
           </div>
           <div className="space-y-2">
-            <Label>Date de l'essai</Label>
+            <Label>Date de l'essai <span className="text-red-700">*</span></Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateEssai && "text-muted-foreground")}>
+                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateEssai && "text-muted-foreground", submitted && !dateEssai && "border-red-700")}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(dateEssai, "PPP", { locale: fr })}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={dateEssai} onSelect={(d) => d && setDateEssai(d)} locale={fr} /></PopoverContent>
             </Popover>
+            <ValidationMessage show={submitted && !dateEssai} message="Ce champ est obligatoire" />
           </div>
         </div>
 
