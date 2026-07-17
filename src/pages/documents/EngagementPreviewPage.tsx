@@ -164,6 +164,8 @@ const EngagementPreviewPage = () => {
       <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
         <div
           ref={reportRef}
+          data-print-root
+          data-print-template="engagement-document"
           data-ref="report"
           className="mx-auto flex flex-col gap-8"
           style={{ maxWidth: "800px", width: "100%" }}
