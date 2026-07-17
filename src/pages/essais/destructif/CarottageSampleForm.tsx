@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, CalendarIcon, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Save, Loader2, AlertCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -47,6 +47,16 @@ const CLASSES_RESISTANCE = [
   "C12/15", "C16/20", "C20/25", "C25/30", "C30/37", "C35/45", "C40/50", "C45/55", "C50/60",
 ];
 
+const ValidationMessage = ({ show, message }: { show: boolean; message: string }) => {
+  if (!show) return null;
+  return (
+    <p className="text-red-700 text-sm flex items-center gap-1 mt-1">
+      <AlertCircle className="w-4 h-4" />
+      {message}
+    </p>
+  );
+};
+
 const CarottageSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -74,6 +84,7 @@ const CarottageSampleForm = () => {
   const [etatSurface, setEtatSurface] = useState("");
   const [classeResistance, setClasseResistance] = useState("");
   const [observations, setObservations] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const { data: chantiers } = useChantiersByClient(clientId);
 
@@ -98,6 +109,8 @@ const CarottageSampleForm = () => {
   }, [isEditing, existingData, duplicateSource]);
 
   const handleSubmit = async () => {
+    setSubmitted(true);
+
     const payload = {
       client_id: clientId || null,
       chantier_id: chantierId || null,
