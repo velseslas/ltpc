@@ -12,6 +12,10 @@ import { useMouvements, MouvementType, MOUVEMENT_TYPE_LABEL } from "@/hooks/useM
 import { MouvementTypeBadge, MouvementStatutBadge } from "@/components/materiel/MovementBadges";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Liste des mouvements matériel (paysage).
+PrintService.registerTemplate({ id: "materiel-mouvements-liste", title: "Liste des mouvements", orientation: "landscape" });
 
 export default function MouvementsListe() {
   const navigate = useNavigate();
@@ -38,12 +42,14 @@ export default function MouvementsListe() {
           <h1 className="text-2xl font-bold">Liste des Mouvements</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4 mr-2" /> Imprimer</Button>
+          <Button variant="outline" onClick={() => PrintService.print({ title: "Liste des mouvements", orientation: "landscape" })}><Printer className="h-4 w-4 mr-2" /> Imprimer</Button>
           <Button onClick={() => navigate("/materiel/mouvements/nouveau/affectation")}>
             <Plus className="h-4 w-4 mr-2" /> Nouveau
           </Button>
         </div>
       </div>
+
+      <div data-print-root data-print-template="materiel-mouvements-liste" data-ref="report">
 
       <Card>
         <CardHeader>
@@ -90,6 +96,7 @@ export default function MouvementsListe() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

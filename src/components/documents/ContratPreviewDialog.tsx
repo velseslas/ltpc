@@ -6,7 +6,10 @@ import { toast } from "sonner";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Contrat (dialog, portrait). Utilise le même ID que la page complète.
+PrintService.registerTemplate({ id: "contrat-document", title: "Contrat", orientation: "portrait" });
 
 interface ContratPreviewDialogProps {
   open: boolean;
@@ -43,11 +46,10 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
   const labName = entreprise?.nom || "LTPC BENMALEK";
   const labSiege = entreprise?.siege_social || "Ain Ebey Constantine";
 
-  const handlePrint = () => window.print();
-
-  const handleDownload = () => {
-    downloadReportAsPDF(contrat.titre || "contrat");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: contrat.titre || "Contrat", orientation: "portrait" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -96,6 +98,8 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
         <div className="flex-1 overflow-auto bg-secondary/30 p-4 sm:p-6">
           <div
             ref={reportRef}
+            data-print-root
+            data-print-template="contrat-document"
             data-ref="report"
             className="bg-white text-black shadow-xl mx-auto"
             style={{

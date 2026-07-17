@@ -10,7 +10,10 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Contrat (portrait).
+PrintService.registerTemplate({ id: "contrat-document", title: "Contrat", orientation: "portrait" });
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
@@ -92,11 +95,10 @@ const ContratPreviewPage = () => {
     });
   };
 
-  const handlePrint = () => window.print();
-
-  const handleDownload = () => {
-    downloadReportAsPDF(contrat.titre || "contrat");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: contrat.titre || "Contrat", orientation: "portrait" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -163,6 +165,8 @@ const ContratPreviewPage = () => {
       <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
         <div
           ref={reportRef}
+          data-print-root
+          data-print-template="contrat-document"
           data-ref="report"
           className="mx-auto flex flex-col gap-8"
           style={{ maxWidth: "800px", width: "100%" }}

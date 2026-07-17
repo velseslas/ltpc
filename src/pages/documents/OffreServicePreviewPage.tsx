@@ -13,7 +13,10 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Offre de service (portrait).
+PrintService.registerTemplate({ id: "offre-service-document", title: "Offre de service", orientation: "portrait" });
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
@@ -103,11 +106,10 @@ const OffreServicePreviewPage = () => {
       );
     });
   };
-  const handlePrint = () => window.print();
-
-  const handleDownload = () => {
-    downloadReportAsPDF(offre.titre || "offre-de-service");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: offre.titre || "Offre de service", orientation: "portrait" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -202,7 +204,7 @@ const OffreServicePreviewPage = () => {
       </div>
 
       <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
-        <div ref={reportRef} data-ref="report" className="mx-auto flex flex-col gap-8" style={{ maxWidth: "800px", width: "100%" }}>
+        <div ref={reportRef} data-print-root data-print-template="offre-service-document" data-ref="report" className="mx-auto flex flex-col gap-8" style={{ maxWidth: "800px", width: "100%" }}>
           {/* ============ PAGE 1 : PAGE DE GARDE ============ */}
           <div
             data-pdf-page

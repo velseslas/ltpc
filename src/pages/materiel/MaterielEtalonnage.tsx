@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Étalonnages matériel (paysage).
+PrintService.registerTemplate({ id: "materiel-etalonnage", title: "Étalonnages matériel", orientation: "landscape" });
 import { Plus, Trash2, Gauge, Pencil, MoreHorizontal, Eye, History, Search, ClipboardList, Printer, Download, X, Filter, FileText } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -86,11 +89,11 @@ export default function MaterielEtalonnage() {
   };
 
   const handlePrintReport = () => {
-    window.print();
+    PrintService.print({ title: "Étalonnages matériel", orientation: "landscape" });
   };
 
   const handleDownloadReport = async () => {
-    downloadReportAsPDF(`liste-etalonnages-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Étalonnages matériel", orientation: "landscape" });
   };
 
   const handleDelete = async () => {
@@ -203,7 +206,7 @@ export default function MaterielEtalonnage() {
         </div>
 
         {/* Rapport (sans wrapper Card) */}
-        <div data-ref="report" ref={reportRef} style={{ padding: "24px", background: "#fff", color: "#111", borderRadius: "4px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+        <div data-print-root data-print-template="materiel-etalonnage" data-ref="report" ref={reportRef} style={{ padding: "24px", background: "#fff", color: "#111", borderRadius: "4px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
           <EntrepriseHeader title="LISTE DES ÉTALONNAGES DE MATÉRIEL" subtitle={`Date d'édition : ${format(new Date(), "dd MMMM yyyy", { locale: fr })}`} />
 
           <div style={{ marginBottom: "12px", fontSize: "11px", color: "#444" }}>

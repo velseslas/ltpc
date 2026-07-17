@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Historique des affectations (paysage).
+PrintService.registerTemplate({ id: "materiel-affectation-historique", title: "Historique des affectations", orientation: "landscape" });
 import { ArrowLeftRight, Printer, Download } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -26,10 +29,10 @@ export default function MaterielAffectationHistorique() {
     }
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => PrintService.print({ title: "Historique des affectations", orientation: "landscape" });
 
   const handleDownload = async () => {
-    downloadReportAsPDF(`historique-affectations-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Historique des affectations", orientation: "landscape" });
   };
 
   const totalEnCours = data?.filter((a: any) => a.statut === "en_cours").length || 0;
@@ -105,7 +108,7 @@ export default function MaterielAffectationHistorique() {
         </Card>
       </div>
 
-      <div ref={printRef} data-ref="report">
+      <div ref={printRef} data-print-root data-print-template="materiel-affectation-historique" data-ref="report">
         <EntrepriseHeader title="Historique des Affectations Matériel" subtitle={`Édité le ${format(new Date(), "dd/MM/yyyy", { locale: fr })}`} />
         <Card>
           <CardHeader>

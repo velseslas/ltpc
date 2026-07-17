@@ -1,5 +1,8 @@
 import { useState, useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Documents RH (portrait).
+PrintService.registerTemplate({ id: "document-rh", title: "Document RH", orientation: "portrait" });
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -141,13 +144,13 @@ export default function Documents() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownload = async () => {
-    downloadReportAsPDF(`${selectedDocument?.type_document || "document"}_${selectedIntervenant?.nom || "employe"}`);
-  };
+  const doPrint = () =>
+    PrintService.print({
+      title: `${selectedDocument?.type_document || "Document"} - ${selectedIntervenant?.nom || ""}`,
+      orientation: "portrait",
+    });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleOpenEmailDialog = () => {
     setEmailAddress(selectedIntervenant?.email || "");
@@ -424,6 +427,8 @@ export default function Documents() {
             <Card>
               <CardContent className="p-6 overflow-auto bg-muted/30 rounded-lg flex justify-center">
                 <div
+                  data-print-root
+                  data-print-template="document-rh"
                   data-ref="report"
                   style={{
                     width: "210mm",

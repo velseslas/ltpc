@@ -1,5 +1,8 @@
 import { useRef, useEffect, useState } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Inventaire matériel (paysage).
+PrintService.registerTemplate({ id: "materiel-inventaire", title: "Inventaire matériel", orientation: "landscape" });
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Printer, Download, ClipboardList } from "lucide-react";
@@ -65,12 +68,10 @@ export default function MaterielInventaireDialog({ open, onOpenChange, data }: M
 
   const logoSrc = logoDataUrl || entreprise?.logo_url;
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
 
   const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`inventaire-materiel-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
   };
 
   const stats = {
@@ -101,7 +102,7 @@ export default function MaterielInventaireDialog({ open, onOpenChange, data }: M
           </Button>
         </div>
 
-        <div ref={printRef} data-ref="report" style={{ padding: "16px", background: "#fff", color: "#111" }}>
+        <div ref={printRef} data-print-root data-print-template="materiel-inventaire" data-ref="report" style={{ padding: "16px", background: "#fff", color: "#111" }}>
           <div style={{ textAlign: "center", marginBottom: "16px" }}>
             {entreprise?.nom && (
               <h2 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 4px" }}>{entreprise.nom}</h2>

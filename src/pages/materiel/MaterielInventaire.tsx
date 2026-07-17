@@ -1,5 +1,8 @@
 import { useRef, useEffect, useState } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Inventaire matériel (paysage).
+PrintService.registerTemplate({ id: "materiel-inventaire", title: "Inventaire matériel", orientation: "landscape" });
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Printer, Download, ClipboardList } from "lucide-react";
@@ -55,12 +58,10 @@ export default function MaterielInventaire() {
     en_reparation: data.filter(m => m.etat === "en_reparation").length,
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
 
   const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`inventaire-materiel-${format(new Date(), "yyyy-MM-dd")}`);
+    PrintService.print({ title: "Inventaire matériel", orientation: "landscape" });
   };
 
   return (
@@ -98,7 +99,7 @@ export default function MaterielInventaire() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
-        <div data-ref="report" ref={printRef} style={{ padding: "24px", background: "#fff", color: "#111", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", borderRadius: "4px" }}>
+        <div data-print-root data-print-template="materiel-inventaire" data-ref="report" ref={printRef} style={{ padding: "24px", background: "#fff", color: "#111", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", borderRadius: "4px" }}>
           <EntrepriseHeader title="INVENTAIRE DU MATÉRIEL DE LABORATOIRE" subtitle={`Date : ${today}`} />
 
           <div style={{ display: "flex", gap: "16px", marginBottom: "12px", fontSize: "12px", flexWrap: "wrap" }}>
