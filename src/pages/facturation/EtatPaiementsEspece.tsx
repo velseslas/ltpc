@@ -60,11 +60,10 @@ export default function EtatPaiementsEspece() {
 
   const totalMontant = filtered.reduce((sum: number, e: any) => sum + (Number(e.montant) || 0), 0);
 
-  const handlePrint = () => window.print();
-
-  const handleDownload = async () => {
-    downloadReportAsPDF("etat-paiements-espece");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: "État des paiements en espèce", orientation: "landscape" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const selectedClient = clients?.find(c => c.id === clientFilter);
   const selectedChantier = chantiers?.find(c => c.id === chantierFilter);
