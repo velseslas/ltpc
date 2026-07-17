@@ -1899,7 +1899,6 @@ export default function FormulationBetonWizard() {
         {currentStep < 7 ? (
           <Button
             onClick={handleNext}
-            disabled={!canGoNext()}
             className="gap-2 gradient-primary text-primary-foreground"
           >
             Suivant
