@@ -10,9 +10,12 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { PrintService } from "@/lib/print/PrintService";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend
 } from "recharts";
+
+PrintService.registerTemplate({ id: "plaque-report", title: "Rapport Essai à la Plaque", orientation: "portrait" });
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 2): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
@@ -56,11 +59,8 @@ export default function PlaqueReport() {
   const numero = `${prefix}-${String(echantillon.numero).padStart(3, "0")}`;
   const verificationUrl = `${window.location.origin}${basePath}/${id}`;
 
-  const handlePrint = () => window.print();
-  const handleDownloadPDF = async () => {
-    const { downloadReportAsPDF } = await import("@/lib/pdf");
-    downloadReportAsPDF(`rapport-plaque-${numero}`);
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport Plaque ${numero}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -91,7 +91,7 @@ export default function PlaqueReport() {
         </div>
       </div>
 
-      <div ref={printRef} data-ref="report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
+      <div ref={printRef} data-ref="report" data-print-root data-print-template="plaque-report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
         <ReportHeader
           entreprise={entreprise}
           verificationUrl={verificationUrl}

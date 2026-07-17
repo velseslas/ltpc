@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Printer, Loader2 } from "lucide-react";
@@ -9,6 +8,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "densitometre-report", title: "Rapport Densitomètre à Membrane", orientation: "portrait" });
 
 function pf(v: unknown): number { return parseFloat(String(v ?? "")) || 0; }
 function fmt(v: number, dec = 2): string { return isNaN(v) || !isFinite(v) ? "-" : v.toFixed(dec); }
