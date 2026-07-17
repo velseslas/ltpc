@@ -94,7 +94,8 @@ export function EchantillonBetonFraisList({
     searchFields: [
       (e) => e.clients?.nom,
       (e) => e.chantiers?.nom,
-      (e) => e.centrales_beton?.nom,
+      (e) => (e as any).ouvrage,
+      (e) => (e as any).destination_beton,
     ],
     itemsPerPage: 10,
   });
