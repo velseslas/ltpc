@@ -13,6 +13,10 @@ import { MouvementTypeBadge, MouvementStatutBadge, ItemEtatBadge } from "@/compo
 import { SignaturePad } from "@/components/materiel/SignaturePad";
 import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
 import { format } from "date-fns";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Détail mouvement matériel (portrait).
+PrintService.registerTemplate({ id: "materiel-mouvement-detail", title: "Mouvement matériel", orientation: "portrait" });
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 
