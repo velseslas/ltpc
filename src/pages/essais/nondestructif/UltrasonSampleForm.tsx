@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, CalendarIcon, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Save, Loader2, AlertCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,16 @@ const CLASSES_RESISTANCE = [
   "C12/15", "C16/20", "C20/25", "C25/30", "C30/37", "C35/45", "C40/50", "C45/55", "C50/60"
 ];
 
+const ValidationMessage = ({ show, message }: { show: boolean; message: string }) => {
+  if (!show) return null;
+  return (
+    <p className="text-red-700 text-sm flex items-center gap-1 mt-1">
+      <AlertCircle className="w-4 h-4" />
+      {message}
+    </p>
+  );
+};
+
 const UltrasonSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -62,6 +72,7 @@ const UltrasonSampleForm = () => {
   const [ageBetonJours, setAgeBetonJours] = useState<string>("");
   const [classeResistance, setClasseResistance] = useState("");
   const [mentions, setMentions] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
 
   const { data: chantiers } = useChantiersByClient(clientId);
 
@@ -86,6 +97,12 @@ const UltrasonSampleForm = () => {
   }, [existingData, duplicateSource, isEdit]);
 
   const handleSubmit = async () => {
+    setSubmitted(true);
+    if (!clientId || !chantierId || !operateurId || !dateEssai) {
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
     const payload: any = {
       client_id: clientId || null,
       chantier_id: chantierId || null,
