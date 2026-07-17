@@ -31,13 +31,13 @@ const TractionFendageReport = () => {
   const { data: entreprise } = useEntreprise();
   const { data: formulation } = useFormulationDetails(echantillon?.formulation_id);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownloadPDF = async () => {
-    downloadReportAsPDF(`rapport-TF-${echantillon?.numero}`);
-  };
+  const triggerPrint = () =>
+    PrintService.print({
+      title: `rapport-TF-${echantillon?.numero}`,
+      orientation: "portrait",
+    });
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   if (isLoading) {
     return (
