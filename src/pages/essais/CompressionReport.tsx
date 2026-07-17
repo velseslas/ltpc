@@ -493,6 +493,12 @@ const CompressionReport = () => {
                   <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Dimension</td>
                   <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.dimension_eprouvette || "—"}</td>
                 </tr>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Température béton</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.temperature_beton != null ? `${echantillon.temperature_beton} °C` : "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Température air</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.temperature_air != null ? `${echantillon.temperature_air} °C` : "—"}</td>
+                </tr>
               </tbody>
             </table>
           </div>
