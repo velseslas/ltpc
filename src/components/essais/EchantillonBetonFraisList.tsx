@@ -173,7 +173,8 @@ export function EchantillonBetonFraisList({
               <TableHead className="w-[100px]">N°</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Chantier</TableHead>
-              <TableHead>Centrale</TableHead>
+              <TableHead>Ouvrage</TableHead>
+              <TableHead>Partie de l'ouvrage</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="w-[70px]"></TableHead>
