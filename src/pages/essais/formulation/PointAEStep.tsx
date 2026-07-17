@@ -460,6 +460,7 @@ export default function PointAEStep({
                   ))}
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !kp.trim()} />
             </div>
           </div>
         </CardContent>
