@@ -441,7 +441,13 @@ const CompressionReport = () => {
 
           {/* Identification de l'échantillon */}
           <div className="mb-6">
-            <table className="identification-table w-full border-collapse text-sm" style={{ borderSpacing: 0 }}>
+            <table className="identification-table w-full border-collapse text-sm" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "17.5%" }} />
+                <col style={{ width: "17.5%" }} />
+                <col style={{ width: "32.5%" }} />
+                <col style={{ width: "32.5%" }} />
+              </colgroup>
               <tbody>
                 <tr>
                   <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">N° Échantillon</td>
@@ -484,10 +490,10 @@ const CompressionReport = () => {
                   <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle w-1/4">Type d'éprouvette</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle w-1/4">{echantillon.type_eprouvette || "—"}</td>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle w-1/4">Dimension</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle w-1/4">{echantillon.dimension_eprouvette || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Type d'éprouvette</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.type_eprouvette || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Dimension</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.dimension_eprouvette || "—"}</td>
                 </tr>
               </tbody>
             </table>

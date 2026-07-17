@@ -381,9 +381,17 @@
     line-height: 1.3 !important;
     height: auto !important;
     white-space: normal !important;
-    table-layout: auto !important;
     border: 1px solid #000 !important;
     border-collapse: collapse !important;
+  }
+
+  #root [data-ref="report"] table {
+    table-layout: auto !important;
+  }
+
+  #root [data-ref="report"] table.identification-table,
+  #root [data-ref="report"] table.formulation-table {
+    table-layout: fixed !important;
   }
 
   [data-ref="report"] tr {
