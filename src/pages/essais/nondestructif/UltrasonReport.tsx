@@ -9,8 +9,9 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
-import { downloadReportAsPDF } from "@/lib/pdf";
-import { toast } from "sonner";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "ultrason-report", title: "Rapport Ultrason", orientation: "portrait" });
 
 const getQualite = (v: number) => {
   if (v > 4500) return "Excellent";
