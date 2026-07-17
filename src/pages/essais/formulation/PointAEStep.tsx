@@ -190,6 +190,8 @@ export default function PointAEStep({
             <Badge variant="outline" className="text-xs">Dreux-Gorisse</Badge>
           </div>
 
+          <p className="text-xs text-muted-foreground">Les champs marqués d'un astérisque sont obligatoires <span className="text-destructive">*</span></p>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-sm text-muted-foreground">Dmax (depuis étape 5)</Label>
@@ -274,7 +276,7 @@ export default function PointAEStep({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-sm">Vibration</Label>
+              <Label className="text-sm">Vibration <span className="text-destructive">*</span></Label>
               <Select value={vibration} onValueChange={(v) => setVibration(v as VibrationK)}>
                 <SelectTrigger className={cn("bg-secondary border-border", showError && !vibration && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez la vibration" />
@@ -287,7 +289,7 @@ export default function PointAEStep({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm">Forme des granulats</Label>
+              <Label className="text-sm">Forme des granulats <span className="text-destructive">*</span></Label>
               <Select value={forme} onValueChange={(v) => setForme(v as FormeK)}>
                 <SelectTrigger className={cn("bg-secondary border-border", showError && !forme && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez la forme" />
@@ -436,7 +438,7 @@ export default function PointAEStep({
             {/* Kp */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Label className="text-sm font-semibold">Kp — Correction pompabilité</Label>
+                <Label className="text-sm font-semibold">Kp — Correction pompabilité <span className="text-destructive">*</span></Label>
                 <Badge variant="secondary" className="text-xs">Ajustable</Badge>
               </div>
               <p className="text-xs text-muted-foreground">
