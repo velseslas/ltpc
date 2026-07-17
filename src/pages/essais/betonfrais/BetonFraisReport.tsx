@@ -22,7 +22,7 @@ import TemperatureReportContent from "./rapport/TemperatureReportContent";
 import TempsPriseReportContent from "./rapport/TempsPriseReportContent";
 import TeneurAirReportContent from "./rapport/TeneurAirReportContent";
 
-const reportContentComponents: Record<string, React.ComponentType<{ resultats: Record<string, unknown> }>> = {
+const reportContentComponents: Record<string, React.ComponentType<{ resultats: Record<string, unknown>; echantillon?: any }>> = {
   "affaissement": AffaissementReportContent,
   "temperature": TemperatureReportContent,
   "temps-prise": TempsPriseReportContent,
