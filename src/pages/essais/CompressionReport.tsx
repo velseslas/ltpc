@@ -476,10 +476,16 @@ const CompressionReport = () => {
                   </>
                 )}
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle w-1/6">Mode de conservation</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle w-1/3">{echantillon.condition_cure}</td>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle w-1/6">Étuvage</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle w-1/3">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Mode de conservation</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.condition_cure}</td>
+                </tr>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                </tr>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Type d'éprouvette</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.type_eprouvette || "—"}</td>
                 </tr>
               </tbody>
             </table>
