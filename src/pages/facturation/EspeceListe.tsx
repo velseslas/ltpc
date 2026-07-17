@@ -47,7 +47,7 @@ export default function EspeceListe() {
   };
 
   const handlePrintPreview = () => {
-    window.print();
+    PrintService.print({ title: "Reçu de paiement", orientation: "portrait" });
   };
 
   const handleDownloadPreview = () => {
