@@ -103,7 +103,7 @@ const getFieldsForType = (essaiType: string) => {
     case "affaissement":
       return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: true };
     case "temperature":
-      return { showTemperatureBeton: true, showTemperatureAir: false, showTemperatureAmbiante: true };
+      return { showTemperatureBeton: false, showTemperatureAir: false, showTemperatureAmbiante: false };
     case "temps-prise":
       return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: false };
     case "teneur-air":
@@ -131,7 +131,7 @@ export default function EchantillonBetonFraisForm({
   const isEditing = !!id;
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
-  const requireTemperatureBeton = essaiType === "temperature";
+  const requireTemperatureBeton = false;
   const formSchema = useMemo(() => createFormSchema(showClasseConsistance, requireTemperatureBeton), [showClasseConsistance, requireTemperatureBeton]);
 
   const { data: echantillonEdit, isLoading: loadingEchantillon } = useEchantillonBetonFraisById(essaiType, id);
