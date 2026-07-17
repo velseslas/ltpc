@@ -1355,15 +1355,15 @@ export default function FormulationBetonWizard() {
 
 
 
-  // Compute which steps have incomplete mandatory fields (for blinking step indicators)
+  // Compute which steps have incomplete mandatory fields (only after user attempted to advance)
   const stepIncomplete = useMemo(() => {
     const incomplete: number[] = [];
-    if (!(nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0 && maitreOuvrageId.length > 0)) incomplete.push(1);
-    if (!(calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0)) incomplete.push(2);
-    if (!(coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0)) incomplete.push(5);
-    if (!(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfIdeal.trim().length > 0)) incomplete.push(6);
+    if (wasAttempted(1) && !(nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0)) incomplete.push(1);
+    if (wasAttempted(2) && !(calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0)) incomplete.push(2);
+    if (wasAttempted(5) && !(coefficientGranulaire.trim().length > 0 && coefficientCompacite.trim().length > 0 && dmaxUtilisateur.trim().length > 0)) incomplete.push(5);
+    if (wasAttempted(6) && !(vibrationAE.trim().length > 0 && formeAE.trim().length > 0 && kpAE.trim().length > 0 && mfIdeal.trim().length > 0)) incomplete.push(6);
     return incomplete;
-  }, [nom, centraleId, clientId, chantierId, maitreOuvrageId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6, mfIdeal]);
+  }, [attemptedSteps, nom, centraleId, clientId, chantierId, calcEau, calcCiment, calcRatioGS, resistance28j, slumpSouhaite, classeExposition, coefficientGranulaire, coefficientCompacite, dmaxUtilisateur, vibrationAE, formeAE, kpAE, mfImporteEtape6, mfIdeal]);
 
   // Merge dynamic incomplete steps with errorSteps from ProportionsStep
   const allErrorSteps = useMemo(() => {
@@ -1373,7 +1373,7 @@ export default function FormulationBetonWizard() {
 
   const canGoNext = () => {
     switch (currentStep) {
-      case 1: return nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0 && maitreOuvrageId.length > 0;
+      case 1: return nom.trim().length > 0 && centraleId.length > 0 && clientId.length > 0 && chantierId.length > 0;
       case 2: return calcEau.trim().length > 0 && calcCiment.trim().length > 0 && calcRatioGS.trim().length > 0 && resistance28j.trim().length > 0 && slumpSouhaite.trim().length > 0 && classeExposition.trim().length > 0;
       case 3: return true;
       case 4: return true;
@@ -1386,6 +1386,11 @@ export default function FormulationBetonWizard() {
   };
 
   const handleNext = () => {
+    if (!canGoNext()) {
+      setAttemptedSteps(prev => new Set(prev).add(currentStep));
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
     if (currentStep < 8) {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
