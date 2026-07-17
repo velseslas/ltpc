@@ -6,12 +6,14 @@ import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
 import { useEchantillonModuleElasticiteById } from "@/hooks/useEchantillonsModuleElasticite";
+
+PrintService.registerTemplate({ id: "module-elasticite-report", title: "Rapport module d'élasticité", orientation: "portrait" });
 
 interface EprouvetteData {
   id: number;
