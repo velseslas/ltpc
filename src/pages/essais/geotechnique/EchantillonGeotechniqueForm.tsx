@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
@@ -32,17 +32,27 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ValidationMessage } from "@/components/ui/validation-message";
 import { cn } from "@/lib/utils";
 
-const formSchema = z.object({
-  client_id: z.string().min(1, "Ce champ est obligatoire"),
-  chantier_id: z.string().min(1, "Ce champ est obligatoire"),
-  carriere_id: z.string().optional(),
-  type_sol: z.string().min(1, "Ce champ est obligatoire").max(200),
-  date_prelevement: z.string().min(1, "Ce champ est obligatoire"),
-  date_essai: z.string().optional(),
-  observations: z.string().max(500).optional(),
-});
+const getFormSchema = (essaiType: string) => {
+  const isGranulometrie = essaiType === "granulometrie-sol";
+  return z.object({
+    client_id: z.string().min(1, "Ce champ est obligatoire"),
+    chantier_id: z.string().min(1, "Ce champ est obligatoire"),
+    carriere_id: isGranulometrie
+      ? z.string().min(1, "Ce champ est obligatoire")
+      : z.string().optional(),
+    type_sol: z.string().min(1, "Ce champ est obligatoire").max(200),
+    date_prelevement: z.string().min(1, "Ce champ est obligatoire"),
+    date_essai: isGranulometrie
+      ? z.string().min(1, "Ce champ est obligatoire")
+      : z.string().optional(),
+    type_materiau: isGranulometrie
+      ? z.string().min(1, "Ce champ est obligatoire")
+      : z.string().optional(),
+    observations: z.string().max(500).optional(),
+  });
+};
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof getFormSchema>>;
 
 interface EchantillonGeotechniqueFormProps {
   essaiType: string;
@@ -75,6 +85,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const showCarriere = TYPES_WITH_CARRIERE.includes(essaiType);
   const showDateEssai = TYPES_WITH_DATE_ESSAI.includes(essaiType);
 
+  const formSchema = useMemo(() => getFormSchema(essaiType), [essaiType]);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -84,6 +95,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       type_sol: "",
       date_prelevement: new Date().toISOString().split("T")[0],
       date_essai: "",
+      type_materiau: "GNT",
       observations: "",
     },
   });
@@ -91,7 +103,6 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const selectedClientId = form.watch("client_id");
   const chantiers = allChantiers?.filter(c => !selectedClientId || c.client_id === selectedClientId);
 
-  const [typeMateriau, setTypeMateriau] = useState("GNT");
   const [isFormInitialized, setIsFormInitialized] = useState(false);
 
   useEffect(() => {
@@ -106,7 +117,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       form.setValue("date_essai", echantillon.date_essai || "");
       form.setValue("observations", echantillon.observations || "");
       const res = echantillon.resultats as Record<string, unknown> | null;
-      if (res?.type_materiau) setTypeMateriau(String(res.type_materiau));
+      if (res?.type_materiau) form.setValue("type_materiau", String(res.type_materiau));
       setIsFormInitialized(true);
     }
   }, [echantillon, isEditing, form, isFormInitialized]);
@@ -140,7 +151,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       }
 
       if (essaiType === "granulometrie-sol") {
-        data.resultats = { ...existingResultats, type_materiau: typeMateriau };
+        data.resultats = { ...existingResultats, type_materiau: values.type_materiau };
       }
 
       if (isEditing && id) {
@@ -271,23 +282,25 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                   <FormField
                     control={form.control}
                     name="carriere_id"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel>Carrière</FormLabel>
+                        <FormLabel>
+                          Carrière {essaiType === "granulometrie-sol" && <span className="text-red-700">*</span>}
+                        </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
-                            <SelectTrigger className="bg-background border-border">
-                              <SelectValue placeholder="Sélectionnez une carrière (optionnel)" />
+                            <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
+                              <SelectValue placeholder={essaiType === "granulometrie-sol" ? "Sélectionnez une carrière" : "Sélectionnez une carrière (optionnel)"} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-popover border-border">
-                            <SelectItem value="none">Aucune</SelectItem>
+                            {essaiType !== "granulometrie-sol" && <SelectItem value="none">Aucune</SelectItem>}
                             {carrieres?.map((carriere) => (
                               <SelectItem key={carriere.id} value={carriere.id}>{carriere.nom}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <ValidationMessage show={!!fieldState.error} />
                       </FormItem>
                     )}
                   />
@@ -325,31 +338,44 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                   <FormField
                     control={form.control}
                     name="date_essai"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel>Date d'essai</FormLabel>
+                        <FormLabel>
+                          Date d'essai {essaiType === "granulometrie-sol" && <span className="text-red-700">*</span>}
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} type="date" className="bg-background border-border" />
+                          <Input {...field} type="date" className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
                         </FormControl>
-                        <FormMessage />
+                        <ValidationMessage show={!!fieldState.error} />
                       </FormItem>
                     )}
                   />
                 )}
 
                 {essaiType === "granulometrie-sol" && (
-                  <div>
-                    <Label className="text-sm font-medium">Type de matériau *</Label>
-                    <Select value={typeMateriau} onValueChange={setTypeMateriau}>
-                      <SelectTrigger className="bg-background border-border mt-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-border">
-                        <SelectItem value="GNT">GNT (Grave Non Traitée)</SelectItem>
-                        <SelectItem value="Autre">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="type_materiau"
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Type de matériau <span className="text-red-700">*</span>
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || "GNT"}>
+                          <FormControl>
+                            <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
+                              <SelectValue placeholder="Sélectionnez un type de matériau" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-popover border-border">
+                            <SelectItem value="GNT">GNT (Grave Non Traitée)</SelectItem>
+                            <SelectItem value="Autre">Autre</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <ValidationMessage show={!!fieldState.error} />
+                      </FormItem>
+                    )}
+                  />
                 )}
               </div>
 
