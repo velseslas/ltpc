@@ -314,32 +314,34 @@ const CompressionReport = () => {
     );
   };
 
-  const handlePrint = async () => {
+  // LOT 2 — Aperçu, Impression et Enregistrer/Print-to-PDF passent tous
+  // par PrintService.print(), qui appelle window.print() natif. Il n'y a
+  // donc plus qu'un seul rendu vectoriel, strictement identique sur les
+  // trois sorties (aucune rasterisation, aucun html2canvas).
+  const triggerPrint = async () => {
     if (reportRef.current) {
       await waitForReportAssets(reportRef.current);
     }
-    requestAnimationFrame(() => window.print());
+    const numero = String(echantillon?.numero ?? "").padStart(3, "0");
+    PrintService.print({
+      title: `rapport-compression-${numero}`,
+      orientation: "portrait",
+    });
   };
 
-  const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-    await waitForReportAssets(reportRef.current);
-    const { downloadReportAsPDF } = await import("@/lib/pdf");
-    downloadReportAsPDF(`rapport-compression-${String(echantillon?.numero ?? "").padStart(3, "0")}`);
-  };
+  const handlePrint = () => { void triggerPrint(); };
+  const handleDownloadPDF = () => { void triggerPrint(); };
 
   // Auto-print lorsqu'on est sur la route /print
   useEffect(() => {
     if (!autoPrint || isLoading || !echantillon) return;
     const t = setTimeout(() => {
-      if (reportRef.current) {
-        waitForReportAssets(reportRef.current).then(() => window.print());
-      } else {
-        window.print();
-      }
+      void triggerPrint();
     }, 400);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoPrint, isLoading, echantillon]);
+
 
 
   const results = calculateResults();
