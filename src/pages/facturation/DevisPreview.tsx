@@ -92,13 +92,11 @@ export default function DevisPreview() {
   const montantTTCEntier = Math.floor(Number(devis.montant_ttc));
   const montantEnLettres = numberToFrenchWords(montantTTCEntier);
 
-  const handlePrint = () => {
-    window.print();
+  const doPrint = () => {
+    PrintService.print({ title: `Devis ${devis.numero}`, orientation: "portrait" });
   };
-
-  const handleDownload = async () => {
-    downloadReportAsPDF(`Devis_${devis.numero}`);
-  };
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const cellStyle: React.CSSProperties = {
     border: "1px solid #000",
