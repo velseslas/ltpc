@@ -92,7 +92,7 @@ export const betonRoutes = (
     <Route path="/essais/beton/beton-frais/affaissement" element={<Affaissement />} />
     {betonFraisRoutes({ type: "affaissement", title: "Essai d'Affaissement", base: "/essais/beton/beton-frais/affaissement", norm: "Norme NF EN 12350-2", showClasseConsistance: true })}
     <Route path="/essais/beton/beton-frais/temperature" element={<Temperature />} />
-    {betonFraisRoutes({ type: "temperature", title: "Essai de Température", base: "/essais/beton/beton-frais/temperature", norm: "Norme NF EN 12350-1" })}
+    {betonFraisRoutes({ type: "temperature", title: "Essai de Température De Béton", base: "/essais/beton/beton-frais/temperature", norm: "Norme NF EN 12350-1" })}
     <Route path="/essais/beton/beton-frais/temps-prise" element={<TempsPrise />} />
     {betonFraisRoutes({ type: "temps-prise", title: "Temps de Prise sur Site", base: "/essais/beton/beton-frais/temps-prise", norm: "Norme NF EN 480-2" })}
     <Route path="/essais/beton/beton-frais/teneur-air" element={<TeneurAir />} />
