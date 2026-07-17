@@ -502,17 +502,27 @@ const CompressionReport = () => {
               <span className="mx-2">-</span>
               {echantillon.classe_consistance || "-"}
             </div>
-            <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0 }}>
+            <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "9%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "15%" }} />
+                <col style={{ width: "15%" }} />
+                <col style={{ width: "13%" }} />
+                <col style={{ width: "13%" }} />
+                <col style={{ width: "13%" }} />
+              </colgroup>
               <thead>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Ciment</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Eau</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Adjuvant</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Sable 1</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Sable 2</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Gravier 1</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Gravier 2</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black">Gravier 3</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Ciment</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Eau</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Adjuvant</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Sable 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Sable 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Gravier 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Gravier 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Gravier 3</th>
                 </tr>
                 <tr>
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
