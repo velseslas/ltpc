@@ -96,6 +96,7 @@ export default function MouvementsListe() {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
