@@ -1515,6 +1515,7 @@ export default function FormulationBetonWizard() {
             <div className="space-y-2">
               <Label>Nom de la formulation <span className="text-destructive">*</span></Label>
               <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Béton C25/30 pour fondations" className={cn("bg-secondary border-border", wasAttempted(1) && nom.trim().length === 0 && "animate-border-blink")} />
+              <ValidationMessage show={wasAttempted(1) && nom.trim().length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Nom de l'entreprise <span className="text-destructive">*</span></Label>
@@ -1522,6 +1523,7 @@ export default function FormulationBetonWizard() {
                 <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && clientId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez une entreprise" /></SelectTrigger>
                 <SelectContent>{clients.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
+              <ValidationMessage show={wasAttempted(1) && clientId.length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Chantier <span className="text-destructive">*</span></Label>
@@ -1529,6 +1531,7 @@ export default function FormulationBetonWizard() {
                 <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && chantierId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez un chantier" /></SelectTrigger>
                 <SelectContent>{clientChantiers.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
+              <ValidationMessage show={wasAttempted(1) && chantierId.length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Centrale à béton <span className="text-destructive">*</span></Label>
@@ -1540,6 +1543,7 @@ export default function FormulationBetonWizard() {
                   ) : mergedCentrales.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}
                 </SelectContent>
               </Select>
+              <ValidationMessage show={wasAttempted(1) && centraleId.length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Maître d'ouvrage</Label>
