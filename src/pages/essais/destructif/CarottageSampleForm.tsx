@@ -175,89 +175,100 @@ const CarottageSampleForm = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6 space-y-6">
-        {/* Identification */}
+        {/* Informations générales */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Identification</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Informations générales</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Client</Label>
+              <Label>Client <span className="text-red-700">*</span></Label>
               <Select value={clientId} onValueChange={(v) => { setClientId(v); setChantierId(""); }}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !clientId && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{clients?.map(c => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !clientId} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Chantier</Label>
+              <Label>Chantier <span className="text-red-700">*</span></Label>
               <Select value={chantierId} onValueChange={setChantierId} disabled={!clientId}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{chantiers?.map(c => <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !chantierId} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Opérateur</Label>
+              <Label>Opérateur <span className="text-red-700">*</span></Label>
               <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{intervenants?.map(i => <SelectItem key={i.id} value={i.id}>{i.nom} {i.prenom || ""}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Date de prélèvement</Label>
+              <Label>Date de prélèvement <span className="text-red-700">*</span></Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !datePrelevement && "text-muted-foreground")}>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !datePrelevement && "text-muted-foreground", submitted && !datePrelevement && "border-red-700")}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {datePrelevement ? format(datePrelevement, "dd/MM/yyyy", { locale: fr }) : "Choisir une date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={datePrelevement} onSelect={(d) => d && setDatePrelevement(d)} locale={fr} /></PopoverContent>
               </Popover>
+              <ValidationMessage show={submitted && !datePrelevement} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Ouvrage</Label>
-              <Input value={ouvrage} onChange={(e) => setOuvrage(e.target.value)} placeholder="Ex: Pile P3" />
+              <Label>Ouvrage <span className="text-red-700">*</span></Label>
+              <Input value={ouvrage} onChange={(e) => setOuvrage(e.target.value)} placeholder="Ex: Pile P3" className={cn(submitted && !ouvrage && "border-red-700")} />
+              <ValidationMessage show={submitted && !ouvrage} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Partie d'ouvrage</Label>
-              <Input value={partieOuvrage} onChange={(e) => setPartieOuvrage(e.target.value)} placeholder="Ex: Fût" />
+              <Label>Partie d'ouvrage <span className="text-red-700">*</span></Label>
+              <Input value={partieOuvrage} onChange={(e) => setPartieOuvrage(e.target.value)} placeholder="Ex: Fût" className={cn(submitted && !partieOuvrage && "border-red-700")} />
+              <ValidationMessage show={submitted && !partieOuvrage} message="Ce champ est obligatoire" />
             </div>
           </div>
         </div>
 
-        {/* Caractéristiques du carottage */}
+        {/* Caractéristiques de l'essai */}
         <div>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Caractéristiques du carottage</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Caractéristiques de l'essai</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Localisation</Label>
-              <Input value={localisation} onChange={(e) => setLocalisation(e.target.value)} placeholder="Ex: Face Nord, 1.5m du sol" />
+              <Label>Localisation <span className="text-red-700">*</span></Label>
+              <Input value={localisation} onChange={(e) => setLocalisation(e.target.value)} placeholder="Ex: Face Nord, 1.5m du sol" className={cn(submitted && !localisation && "border-red-700")} />
+              <ValidationMessage show={submitted && !localisation} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Diamètre de la carotte</Label>
+              <Label>Diamètre de la carotte <span className="text-red-700">*</span></Label>
               <Select value={diametreCarotte} onValueChange={setDiametreCarotte}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !diametreCarotte && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{DIAMETRES.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !diametreCarotte} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Longueur de la carotte (mm)</Label>
-              <Input type="number" value={longueurCarotte} onChange={(e) => setLongueurCarotte(e.target.value)} placeholder="Ex: 200" />
+              <Label>Longueur de la carotte (mm) <span className="text-red-700">*</span></Label>
+              <Input type="number" value={longueurCarotte} onChange={(e) => setLongueurCarotte(e.target.value)} placeholder="Ex: 200" className={cn(submitted && !longueurCarotte && "border-red-700")} />
+              <ValidationMessage show={submitted && !longueurCarotte} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Direction de carottage</Label>
+              <Label>Direction de carottage <span className="text-red-700">*</span></Label>
               <Select value={directionCarottage} onValueChange={setDirectionCarottage}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !directionCarottage && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{DIRECTIONS.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !directionCarottage} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>État de surface</Label>
+              <Label>État de surface <span className="text-red-700">*</span></Label>
               <Select value={etatSurface} onValueChange={setEtatSurface}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !etatSurface && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{ETATS_SURFACE.map(e => <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !etatSurface} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
-              <Label>Classe de résistance visée</Label>
+              <Label>Classe de résistance visée <span className="text-red-700">*</span></Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
                 <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{CLASSES_RESISTANCE.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
