@@ -136,6 +136,16 @@ export default function RapportTechniqueDetail() {
         <h1 className="text-2xl font-bold">{r?.numero || r?.titre || "Rapport technique"}</h1>
         {r && <Badge className={STATUT_COLORS[r.statut]} variant="outline">{STATUT_LABELS[r.statut]}</Badge>}
         {r && <Badge variant="outline">v{r.version_courante ?? 1}</Badge>}
+        {r && (
+          <div className="ml-auto flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => window.open(`/reports/rapport-technique/${r.id}/print`, "_blank")}>
+              <Eye className="h-4 w-4 mr-1" /> Aperçu impression
+            </Button>
+            <Button size="sm" onClick={() => window.open(`/reports/rapport-technique/${r.id}/print?auto=1`, "_blank")}>
+              <Printer className="h-4 w-4 mr-1" /> Imprimer / PDF
+            </Button>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
