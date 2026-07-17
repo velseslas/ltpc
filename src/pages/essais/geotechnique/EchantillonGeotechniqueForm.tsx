@@ -29,13 +29,15 @@ import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { ValidationMessage } from "@/components/ui/validation-message";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  client_id: z.string().min(1, "Sélectionnez un client"),
-  chantier_id: z.string().min(1, "Sélectionnez un chantier"),
+  client_id: z.string().min(1, "Ce champ est obligatoire"),
+  chantier_id: z.string().min(1, "Ce champ est obligatoire"),
   carriere_id: z.string().optional(),
-  type_sol: z.string().min(1, "Le type de sol est requis").max(200),
-  date_prelevement: z.string().min(1, "La date est requise"),
+  type_sol: z.string().min(1, "Ce champ est obligatoire").max(200),
+  date_prelevement: z.string().min(1, "Ce champ est obligatoire"),
   date_essai: z.string().optional(),
   observations: z.string().max(500).optional(),
 });
