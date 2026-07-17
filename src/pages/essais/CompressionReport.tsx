@@ -702,11 +702,28 @@ const CompressionReport = () => {
       </div>
       {/* Styles rapport/PDF — A4 strict, pagination auto, source de vérité PDF */}
       <style>{`
-        #root [data-ref="report"] table,
-        #root [data-ref="report"] td,
-        #root [data-ref="report"] th {
-          height: 22px !important;
-          min-height: 22px !important;
+        /* Variables globales — pilotent toute la mise en page d'impression.
+           Elles sont surchargées en @media print ci-dessous en fonction du
+           nombre d'éprouvettes pour garantir un rendu sur une seule page A4. */
+        [data-ref="report"] {
+          --print-row-h: 22px;
+          --print-row-py: 4px;
+          --print-row-px: 6px;
+          --print-row-fs: 9pt;
+          --print-formul-h: 24px;
+          --print-formul-fs: 8pt;
+          --print-section-gap: 6px;
+          --print-header-py: 6px;
+          --print-header-title: 13pt;
+          --print-header-meta: 9pt;
+        }
+
+        /* Écran — uniformité des cellules d'identification & caractéristiques */
+        #root [data-ref="report"] .identification-table td,
+        #root [data-ref="report"] .identification-table th {
+          height: 26px !important;
+          min-height: 26px !important;
+          vertical-align: middle !important;
         }
 
         ${isPrintRoute ? `
@@ -728,13 +745,15 @@ const CompressionReport = () => {
             max-width: 210mm !important;
             min-height: 297mm;
             box-sizing: border-box;
-            padding: 10mm !important;
+            padding: 8mm !important;
             background: #ffffff;
           }
         ` : ""}
 
         @media print {
-          @page { size: A4 portrait; margin: 10mm; }
+          /* Marges minimales compatibles imprimantes grand public (Windows). */
+          @page { size: A4 portrait; margin: 8mm 8mm 8mm 8mm; }
+
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -765,6 +784,8 @@ const CompressionReport = () => {
             box-shadow: none !important;
             background: #ffffff !important;
           }
+
+          /* Page A4 = flex column, le pied colle en bas de page */
           [data-ref="report"] [data-pdf-page] {
             box-shadow: none !important;
             border-radius: 0 !important;
@@ -776,12 +797,49 @@ const CompressionReport = () => {
             overflow: visible !important;
             box-sizing: border-box !important;
             background: #ffffff !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
           }
           [data-ref="report"] [data-pdf-content] {
             width: 100% !important;
             transform: none !important;
             zoom: 1 !important;
+            min-height: 281mm; /* A4 - marges 8mm */
+            display: flex !important;
+            flex-direction: column !important;
           }
+
+          /* En-tête — plus compact, centrage vertical harmonisé */
+          [data-ref="report"] [data-report-header] {
+            padding: var(--print-header-py) 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+          }
+          [data-ref="report"] [data-report-header] h1 {
+            font-size: var(--print-header-title) !important;
+            margin: 0 0 2px 0 !important;
+            line-height: 1.15 !important;
+          }
+          [data-ref="report"] [data-report-header] p,
+          [data-ref="report"] [data-report-header] span {
+            font-size: var(--print-header-meta) !important;
+            line-height: 1.25 !important;
+            margin: 0 !important;
+          }
+          [data-ref="report"] [data-report-header] img { max-height: 22mm !important; width: auto !important; }
+
+          /* Espacements verticaux — homogènes et resserrés */
+          [data-ref="report"] .mb-6 { margin-bottom: var(--print-section-gap) !important; }
+          [data-ref="report"] .mb-4 { margin-bottom: var(--print-section-gap) !important; }
+          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
+          [data-ref="report"] .mt-8 { margin-top: auto !important; }
+          [data-ref="report"] .mt-4 { margin-top: 5px !important; }
+          [data-ref="report"] .mt-2 { margin-top: 3px !important; }
+          [data-ref="report"] .pt-4 { padding-top: 4px !important; }
+          [data-ref="report"] .pt-3 { padding-top: 3px !important; }
+
+          /* Tableaux — grille rigoureusement uniforme */
           [data-ref="report"] table {
             width: 100% !important;
             table-layout: fixed !important;
@@ -791,10 +849,19 @@ const CompressionReport = () => {
           }
           [data-ref="report"] th,
           [data-ref="report"] td {
-            border: 1px solid #444 !important;
+            border: 1px solid #333 !important;
             box-shadow: none !important;
             word-wrap: break-word;
             overflow-wrap: anywhere;
+            vertical-align: middle !important;
+          }
+          #root [data-ref="report"] table,
+          #root [data-ref="report"] th,
+          #root [data-ref="report"] td {
+            font-size: var(--print-row-fs) !important;
+            padding: var(--print-row-py) var(--print-row-px) !important;
+            height: var(--print-row-h) !important;
+            line-height: 1.2 !important;
           }
           [data-ref="report"] tr,
           [data-ref="report"] tbody tr,
@@ -810,54 +877,61 @@ const CompressionReport = () => {
             page-break-after: avoid;
             break-after: avoid;
           }
+          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 3px !important; }
+
           [data-ref="report"] [data-report-header],
           [data-ref="report"] .identification-table,
-          [data-ref="report"] .formulation-table {
+          [data-ref="report"] .formulation-table,
+          [data-ref="report"] .results-table {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          .page-break-before { page-break-before: always; break-before: page; }
-          .page-break-after { page-break-after: always; break-after: page; }
 
-          /* Compact compression report so 12 specimens fit on a single A4 page */
-          [data-ref="report"] [data-pdf-page] { page-break-after: avoid !important; break-after: avoid !important; }
-          [data-ref="report"] .mb-6 { margin-bottom: 5px !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: 5px !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
-          [data-ref="report"] .mt-8 { margin-top: 6px !important; }
-          [data-ref="report"] .mt-4 { margin-top: 5px !important; }
-          [data-ref="report"] .mt-2 { margin-top: 3px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 5px !important; }
-          [data-ref="report"] .pt-3 { padding-top: 4px !important; }
-          [data-ref="report"] [data-report-header] { padding: 8px !important; }
-          [data-ref="report"] [data-report-header] h1 { font-size: 13px !important; margin-bottom: 2px !important; }
-          [data-ref="report"] [data-report-header] p { font-size: 9px !important; line-height: 1.2 !important; margin-bottom: 1px !important; }
-          #root [data-ref="report"] table,
-          #root [data-ref="report"] td,
-          #root [data-ref="report"] th {
-            font-size: 8.5pt !important;
-            padding: 3px 5px !important;
-            height: 22px !important;
-            min-height: 22px !important;
-            line-height: 1.2 !important;
-          }
+          /* Table formulation — 3 lignes d'entête compactes */
           #root [data-ref="report"] .formulation-table th,
           #root [data-ref="report"] .formulation-table td {
-            font-size: 8pt !important;
-            padding: 3px 4px !important;
-            height: 26px !important;
-            min-height: 26px !important;
-            line-height: 1.2 !important;
+            font-size: var(--print-formul-fs) !important;
+            padding: 2px 3px !important;
+            height: var(--print-formul-h) !important;
+            line-height: 1.15 !important;
           }
 
-          [data-ref="report"] [data-report-footer] { margin-top: 4px !important; padding-top: 4px !important; }
-          [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
-          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
-          /* Keep footer with the results table to avoid overflow to page 2 */
-          [data-ref="report"] [data-report-footer] { page-break-inside: avoid !important; break-inside: avoid !important; }
+          /* Adaptation automatique de la table des résultats en fonction du
+             nombre d'éprouvettes — objectif : tenir sur 1 page A4. */
+          [data-ref="report"] .results-table[data-rows="7"],
+          [data-ref="report"] .results-table[data-rows="8"],
+          [data-ref="report"] .results-table[data-rows="9"] {
+            --print-row-h: 20px;
+            --print-row-py: 3px;
+          }
+          [data-ref="report"] .results-table[data-rows="10"],
+          [data-ref="report"] .results-table[data-rows="11"],
+          [data-ref="report"] .results-table[data-rows="12"] {
+            --print-row-h: 17px;
+            --print-row-py: 2px;
+            --print-row-fs: 8.5pt;
+          }
+          #root [data-ref="report"] .results-table th,
+          #root [data-ref="report"] .results-table td {
+            font-size: var(--print-row-fs) !important;
+            padding: var(--print-row-py) var(--print-row-px) !important;
+            height: var(--print-row-h) !important;
+          }
 
+          /* Pied de page — collé bas via margin-top:auto sur .mt-8 */
+          [data-ref="report"] [data-report-footer] {
+            margin-top: auto !important;
+            padding-top: 6px !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
+
+          .page-break-before { page-break-before: always; break-before: page; }
+          .page-break-after { page-break-after: always; break-after: page; }
         }
       `}</style>
+
     </div>
   );
 };
