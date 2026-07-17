@@ -94,7 +94,8 @@ export function EchantillonBetonFraisList({
     searchFields: [
       (e) => e.clients?.nom,
       (e) => e.chantiers?.nom,
-      (e) => e.centrales_beton?.nom,
+      (e) => (e as any).ouvrage,
+      (e) => (e as any).destination_beton,
     ],
     itemsPerPage: 10,
   });
@@ -143,7 +144,7 @@ export function EchantillonBetonFraisList({
             onSearchChange={setSearchTerm}
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
-            searchPlaceholder="Rechercher par client, chantier, centrale..."
+            searchPlaceholder="Rechercher par client, chantier, ouvrage..."
           />
         </div>
         <div className="flex gap-2 shrink-0">
@@ -172,7 +173,8 @@ export function EchantillonBetonFraisList({
               <TableHead className="w-[100px]">N°</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Chantier</TableHead>
-              <TableHead>Centrale</TableHead>
+              <TableHead>Ouvrage</TableHead>
+              <TableHead>Partie de l'ouvrage</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="w-[70px]"></TableHead>
@@ -181,13 +183,13 @@ export function EchantillonBetonFraisList({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
                 </TableCell>
               </TableRow>
             ) : paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   Aucun échantillon trouvé
                 </TableCell>
               </TableRow>
@@ -203,7 +205,8 @@ export function EchantillonBetonFraisList({
                   </TableCell>
                   <TableCell>{echantillon.clients?.nom || "-"}</TableCell>
                   <TableCell>{echantillon.chantiers?.nom || "-"}</TableCell>
-                  <TableCell>{echantillon.centrales_beton?.nom || "-"}</TableCell>
+                  <TableCell>{(echantillon as any).ouvrage || "-"}</TableCell>
+                  <TableCell>{(echantillon as any).destination_beton || "-"}</TableCell>
                   <TableCell>
                     {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
                   </TableCell>
