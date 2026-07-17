@@ -489,10 +489,11 @@ const CompressionReport = () => {
 
           {/* Formulation de béton */}
           <div className="mb-6">
-            <div className="mb-2 text-black formulation-meta">
+            <h3 className="font-bold text-sm mb-2 underline text-black">Formulation de béton</h3>
+            <div className="mb-2 text-sm text-black">
               <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
-              <span className="mx-3">|</span>
-              <span className="font-medium">Formulation béton : </span>{echantillon.formulation?.nom || "-"}
+              <span className="mx-4">|</span>
+              <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
             </div>
             <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0 }}>
               <thead>
@@ -529,14 +530,14 @@ const CompressionReport = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.ciment.quantite ?? 0}<span className="value-unit">kg</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.eau.quantite ?? 0}<span className="value-unit">L</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.adjuvant.quantite ?? 0}<span className="value-unit">%</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.sable_concasse.quantite ?? 0}<span className="value-unit">kg</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.sable_fin.quantite ?? 0}<span className="value-unit">kg</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.gravillons1.quantite ?? 0}<span className="value-unit">kg</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.gravier2.quantite ?? 0}<span className="value-unit">kg</span></td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.gravier3.quantite ?? 0}<span className="value-unit">kg</span></td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.ciment.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.eau.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.adjuvant.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.sable_fin.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravillons1.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravier2.quantite ?? 0}</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black">{echantillon.formulation?.gravier3.quantite ?? 0}</td>
                 </tr>
               </tbody>
             </table>
@@ -585,20 +586,19 @@ const CompressionReport = () => {
                 {echantillon.resultats.length > 0 ? (() => {
                   let globalRowIndex = 0;
 
-                    return groups.map((group, groupIndex) => {
-                      // Calculate average resistance for the group
-                      const resistances = group.items.map(ep => ep.resistance).filter(r => r > 0);
-                      const moyenneRc = resistances.length > 0 
-                        ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
-                        : "—";
-                      const isLastGroup = groupIndex === groups.length - 1;
+                  return groups.map((group) => {
+                    // Calculate average resistance for the group
+                    const resistances = group.items.map(ep => ep.resistance).filter(r => r > 0);
+                    const moyenneRc = resistances.length > 0 
+                      ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+                      : "—";
 
-                      return group.items.map((ep, idx) => {
-                        const isVeryFirstRow = globalRowIndex === 0;
-                        globalRowIndex++;
+                    return group.items.map((ep, idx) => {
+                      const isVeryFirstRow = globalRowIndex === 0;
+                      globalRowIndex++;
 
-                        return (
-                          <tr key={`${group.joursEssai}-${ep.numero}`} className={isLastGroup ? "last-group" : ""}>
+                      return (
+                        <tr key={`${group.joursEssai}-${ep.numero}`}>
                           {isVeryFirstRow && (
                             <td 
                               rowSpan={totalRows} 
@@ -715,13 +715,13 @@ const CompressionReport = () => {
         [data-ref="report"] {
           --a4-w: 210mm;
           --a4-h: 297mm;
-          --a4-pad: 6mm;
+          --a4-pad: 8mm;
           --tbl-fs: 9.5pt;
-          --tbl-py: 2px;
-          --tbl-px: 4px;
+          --tbl-py: 3px;
+          --tbl-px: 6px;
           --tbl-border: #000;
-          --tbl-line: 1.15;
-          --section-gap: 2.5mm;
+          --tbl-line: 1.25;
+          --section-gap: 3.5mm;
           --title-color: #1e5a7a;
           /* densité résultats : ajustée dynamiquement selon data-rows */
           --res-py: 4px;
@@ -760,41 +760,33 @@ const CompressionReport = () => {
         }
         [data-ref="report"] [data-report-footer] {
           margin-top: auto !important;
-          padding-top: 2mm !important;
+          padding-top: 3mm !important;
           border-top: 1px solid #333;
         }
 
         /* -----------------------------------------------------------------
-           EN-TÊTE — dimensions d'origine restaurées
+           EN-TÊTE — compact (hauteur réduite ~3mm)
            ----------------------------------------------------------------- */
         [data-ref="report"] [data-report-header] {
-          padding: 16px !important;
+          padding: 3px 8px !important;
           margin-bottom: 0 !important;
         }
         [data-ref="report"] [data-report-header] > div { align-items: center !important; }
         [data-ref="report"] [data-report-header] .w-24 {
-          width: 25mm !important;
-          height: 25mm !important;
-        }
-        [data-ref="report"] [data-qr-wrapper] {
-          width: 25mm !important;
-          height: 25mm !important;
-        }
-        [data-ref="report"] [data-qr-wrapper] svg {
-          width: 25mm !important;
-          height: 25mm !important;
+          width: 17mm !important;
+          height: 17mm !important;
         }
         [data-ref="report"] [data-report-header] h1 {
-          font-size: 12pt !important;
-          line-height: 1.2 !important;
-          margin: 0 0 2px 0 !important;
-        }
-        [data-ref="report"] [data-report-header] p {
-          font-size: 9pt !important;
-          line-height: 1.3 !important;
+          font-size: 11.5pt !important;
+          line-height: 1.1 !important;
           margin: 0 0 1px 0 !important;
         }
-        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.3mm 0 0.2mm 0 !important; }
+        [data-ref="report"] [data-report-header] p {
+          font-size: 8pt !important;
+          line-height: 1.2 !important;
+          margin: 0 !important;
+        }
+        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.5mm 0 0.2mm 0 !important; }
         [data-ref="report"] [data-report-header] ~ .text-center h2 {
           font-size: 13pt !important;
           margin: 0 0 0.5mm 0 !important;
@@ -833,12 +825,6 @@ const CompressionReport = () => {
           color: var(--title-color) !important;
         }
 
-        /* Ligne de méta Formulation — compacte et hiérarchisée */
-        [data-ref="report"] .formulation-meta {
-          font-size: 8.5pt !important;
-          margin-bottom: 1.5mm !important;
-        }
-
         /* Table formulation — plus compacte, cellules uniformes */
         [data-ref="report"] .formulation-table th,
         [data-ref="report"] .formulation-table td {
@@ -847,14 +833,6 @@ const CompressionReport = () => {
           line-height: 1.15 !important;
         }
         [data-ref="report"] .formulation-table th { text-align: center !important; }
-        [data-ref="report"] .formulation-table tbody tr:last-child td {
-          white-space: nowrap !important;
-        }
-        [data-ref="report"] .formulation-table .value-unit {
-          font-size: 6.5pt !important;
-          color: #444444 !important;
-          margin-left: 2px !important;
-        }
 
         /* Table résultats — densité pilotée par data-rows.
            Seuls le padding vertical et la line-height varient. */
@@ -864,19 +842,18 @@ const CompressionReport = () => {
           padding-bottom: var(--res-py) !important;
           line-height: var(--res-line) !important;
         }
-        [data-ref="report"] .results-table[data-rows="6"],
         [data-ref="report"] .results-table[data-rows="7"],
         [data-ref="report"] .results-table[data-rows="8"],
         [data-ref="report"] .results-table[data-rows="9"] {
-          --res-py: 2px;
-          --res-line: 1.1;
+          --res-py: 3px;
+          --res-line: 1.2;
         }
         [data-ref="report"] .results-table[data-rows="10"],
         [data-ref="report"] .results-table[data-rows="11"],
         [data-ref="report"] .results-table[data-rows="12"],
         [data-ref="report"] .results-table[data-rows="13"] {
-          --res-py: 1px;
-          --res-line: 1.05;
+          --res-py: 2px;
+          --res-line: 1.1;
         }
         [data-ref="report"] .results-table tbody tr { height: auto; }
         /* Supprime le double trait entre les groupes d'âges (7j / 28j) :
@@ -884,11 +861,6 @@ const CompressionReport = () => {
            est retirée ; il reste uniquement la bordure basse du bloc précédent. */
         #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] {
           border-top: 0 !important;
-        }
-        /* Supprime la bordure inférieure du tableau des résultats. */
-        [data-ref="report"] .results-table tbody tr:last-child td,
-        [data-ref="report"] .results-table tbody tr:last-child th {
-          border-bottom: none !important;
         }
 
         /* Pied de page — signatures serrées, cachet contenu */
@@ -966,141 +938,7 @@ const CompressionReport = () => {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          /* Surcharges impression contre index.css @media print */
-          #root [data-ref="report"] [data-report-header] { padding: 16px !important; }
-          #root [data-ref="report"] [data-report-header] .w-24 { width: 25mm !important; height: 25mm !important; }
-          #root [data-ref="report"] [data-qr-wrapper] { width: 25mm !important; height: 25mm !important; }
-          #root [data-ref="report"] [data-qr-wrapper] svg { width: 25mm !important; height: 25mm !important; }
-          #root [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.3mm 0 0.2mm 0 !important; }
-          #root [data-ref="report"] th,
-          #root [data-ref="report"] td {
-            padding: var(--tbl-py) var(--tbl-px) !important;
-            font-size: var(--tbl-fs) !important;
-            line-height: var(--tbl-line) !important;
-          }
-          #root [data-ref="report"] .formulation-meta { font-size: 8.5pt !important; margin-bottom: 1.5mm !important; }
-          #root [data-ref="report"] .formulation-table th,
-          #root [data-ref="report"] .formulation-table td {
-            font-size: 7.5pt !important; padding: 2px 3px !important; line-height: 1.15 !important;
-          }
-          #root [data-ref="report"] .formulation-table .value-unit { font-size: 6.5pt !important; margin-left: 2px !important; }
-          #root [data-ref="report"] .results-table th,
-          #root [data-ref="report"] .results-table td {
-            padding-top: var(--res-py) !important; padding-bottom: var(--res-py) !important; line-height: var(--res-line) !important;
-          }
-          #root [data-ref="report"] .results-table[data-rows="6"],
-          #root [data-ref="report"] .results-table[data-rows="7"],
-          #root [data-ref="report"] .results-table[data-rows="8"],
-          #root [data-ref="report"] .results-table[data-rows="9"] { --res-py: 2px; --res-line: 1.1; }
-          #root [data-ref="report"] .results-table[data-rows="10"],
-          #root [data-ref="report"] .results-table[data-rows="11"],
-          #root [data-ref="report"] .results-table[data-rows="12"],
-          #root [data-ref="report"] .results-table[data-rows="13"] { --res-py: 1px; --res-line: 1.05; }
-          #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] { border-top: 0 !important; }
-          #root [data-ref="report"] .results-table tbody tr.last-group td[rowspan] { border-bottom: none !important; }
-          #root [data-ref="report"] .results-table tbody tr:last-child td,
-          #root [data-ref="report"] .results-table tbody tr:last-child th { border-bottom: none !important; }
-          #root [data-ref="report"] [data-report-footer] { margin-top: auto !important; padding-top: 2mm !important; border-top: 1px solid #333; }
         }
-
-        /* -----------------------------------------------------------------
-           SURCHARGES HAUTE SPÉCIFICITÉ — neutralise les règles globales de index.css
-           ----------------------------------------------------------------- */
-        #root [data-ref="report"] [data-report-header] {
-          padding: 16px !important;
-          margin-bottom: 0 !important;
-        }
-        #root [data-ref="report"] [data-report-header] > div { align-items: center !important; }
-        #root [data-ref="report"] [data-report-header] .w-24 {
-          width: 25mm !important;
-          height: 25mm !important;
-        }
-        #root [data-ref="report"] [data-qr-wrapper] {
-          width: 25mm !important;
-          height: 25mm !important;
-        }
-        #root [data-ref="report"] [data-qr-wrapper] svg {
-          width: 25mm !important;
-          height: 25mm !important;
-        }
-        #root [data-ref="report"] [data-report-header] h1 {
-          font-size: 12pt !important;
-          line-height: 1.2 !important;
-          margin: 0 0 2px 0 !important;
-        }
-        #root [data-ref="report"] [data-report-header] p {
-          font-size: 9pt !important;
-          line-height: 1.3 !important;
-          margin: 0 0 1px 0 !important;
-        }
-        #root [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.3mm 0 0.2mm 0 !important; }
-        #root [data-ref="report"] [data-report-header] ~ .text-center h2 {
-          font-size: 13pt !important;
-          margin: 0 0 0.5mm 0 !important;
-        }
-        #root [data-ref="report"] [data-report-header] ~ .text-center p { font-size: 8.5pt !important; margin: 0 !important; }
-        #root [data-ref="report"] th,
-        #root [data-ref="report"] td {
-          padding: var(--tbl-py) var(--tbl-px) !important;
-          font-size: var(--tbl-fs) !important;
-          line-height: var(--tbl-line) !important;
-          height: auto !important;
-        }
-        #root [data-ref="report"] .formulation-meta {
-          font-size: 8.5pt !important;
-          margin-bottom: 1.5mm !important;
-        }
-        #root [data-ref="report"] .formulation-table th,
-        #root [data-ref="report"] .formulation-table td {
-          font-size: 7.5pt !important;
-          padding: 2px 3px !important;
-          line-height: 1.15 !important;
-        }
-        #root [data-ref="report"] .formulation-table tbody tr:last-child td {
-          white-space: nowrap !important;
-        }
-        #root [data-ref="report"] .formulation-table .value-unit {
-          font-size: 6.5pt !important;
-          color: #444444 !important;
-          margin-left: 2px !important;
-        }
-        #root [data-ref="report"] .results-table th,
-        #root [data-ref="report"] .results-table td {
-          padding-top: var(--res-py) !important;
-          padding-bottom: var(--res-py) !important;
-          line-height: var(--res-line) !important;
-        }
-        #root [data-ref="report"] .results-table[data-rows="6"],
-        #root [data-ref="report"] .results-table[data-rows="7"],
-        #root [data-ref="report"] .results-table[data-rows="8"],
-        #root [data-ref="report"] .results-table[data-rows="9"] {
-          --res-py: 2px;
-          --res-line: 1.1;
-        }
-        #root [data-ref="report"] .results-table[data-rows="10"],
-        #root [data-ref="report"] .results-table[data-rows="11"],
-        #root [data-ref="report"] .results-table[data-rows="12"],
-        #root [data-ref="report"] .results-table[data-rows="13"] {
-          --res-py: 1px;
-          --res-line: 1.05;
-        }
-        #root [data-ref="report"] .results-table tbody tr { height: auto; }
-        #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] {
-          border-top: 0 !important;
-        }
-        #root [data-ref="report"] .results-table tbody tr.last-group td[rowspan] {
-          border-bottom: none !important;
-        }
-        #root [data-ref="report"] .results-table tbody tr:last-child td,
-        #root [data-ref="report"] .results-table tbody tr:last-child th {
-          border-bottom: none !important;
-        }
-        #root [data-ref="report"] [data-report-footer] {
-          margin-top: auto !important;
-          padding-top: 2mm !important;
-          border-top: 1px solid #333;
-        }
-        #root [data-ref="report"] [data-report-footer] img { max-height: 16mm !important; }
       `}</style>
 
     </div>
