@@ -95,11 +95,10 @@ const EngagementPreviewPage = () => {
     });
   };
 
-  const handlePrint = () => window.print();
-
-  const handleDownload = () => {
-    downloadReportAsPDF(engagement.titre || "engagement");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: engagement.titre || "Lettre d'engagement", orientation: "portrait" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const handleShare = async () => {
     if (navigator.share) {
