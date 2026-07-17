@@ -12,6 +12,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { PrintService } from "@/lib/print/PrintService";
 
+// LOT 9 — Template Lettre d'engagement (portrait).
+PrintService.registerTemplate({ id: "engagement-document", title: "Lettre d'engagement", orientation: "portrait" });
+
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
   padding: "40px 50px",
