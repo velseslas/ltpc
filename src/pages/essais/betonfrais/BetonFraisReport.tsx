@@ -292,7 +292,7 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
 
         {/* Résultats */}
         {resultats && ReportContent && (
-          <ReportContent resultats={resultats} />
+          <ReportContent resultats={resultats} echantillon={echantillon} />
         )}
 
         {/* Observations */}
