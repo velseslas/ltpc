@@ -32,17 +32,22 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ValidationMessage } from "@/components/ui/validation-message";
 import { cn } from "@/lib/utils";
 
+const TYPES_WITH_CARRIERE_LIST = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "proctor-normal", "proctor-modifie", "cbr"];
+const TYPES_WITH_DATE_ESSAI_LIST = ["teneur-eau-sol", "granulometrie-sol", "limites-atterberg", "classification-sol", "densitometre", "proctor-normal", "proctor-modifie", "cbr"];
+
 const getFormSchema = (essaiType: string) => {
   const isGranulometrie = essaiType === "granulometrie-sol";
+  const needCarriere = TYPES_WITH_CARRIERE_LIST.includes(essaiType);
+  const needDateEssai = TYPES_WITH_DATE_ESSAI_LIST.includes(essaiType);
   return z.object({
     client_id: z.string().min(1, "Ce champ est obligatoire"),
     chantier_id: z.string().min(1, "Ce champ est obligatoire"),
-    carriere_id: isGranulometrie
+    carriere_id: needCarriere
       ? z.string().min(1, "Ce champ est obligatoire")
       : z.string().optional(),
     type_sol: z.string().min(1, "Ce champ est obligatoire").max(200),
     date_prelevement: z.string().min(1, "Ce champ est obligatoire"),
-    date_essai: isGranulometrie
+    date_essai: needDateEssai
       ? z.string().min(1, "Ce champ est obligatoire")
       : z.string().optional(),
     type_materiau: isGranulometrie
