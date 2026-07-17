@@ -381,7 +381,7 @@ const PermeabiliteSampleForm = () => {
         {/* Section Informations Générales */}
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="text-xl font-semibold text-foreground mb-6">
-            Informations générales de l'échantillon
+            Informations générales
           </h2>
 
           <div className="grid gap-6 md:grid-cols-2">
@@ -570,7 +570,7 @@ const PermeabiliteSampleForm = () => {
         {/* Section Caractéristiques Techniques */}
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="text-xl font-semibold text-foreground mb-6">
-            Caractéristiques techniques
+            Caractéristiques de l'essai
           </h2>
 
           <div className="grid gap-6 md:grid-cols-3">
