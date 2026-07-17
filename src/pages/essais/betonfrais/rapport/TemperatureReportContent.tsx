@@ -1,9 +1,11 @@
 interface TemperatureReportContentProps {
   resultats: Record<string, unknown>;
+  echantillon?: any;
 }
 
-export default function TemperatureReportContent({ resultats }: TemperatureReportContentProps) {
+export default function TemperatureReportContent({ resultats, echantillon }: TemperatureReportContentProps) {
   const isConforme = resultats.conformite === "conforme";
+  const tAmbiante = echantillon?.temperature_ambiante;
 
   return (
     <div className="mt-6 border border-black">
@@ -12,6 +14,14 @@ export default function TemperatureReportContent({ resultats }: TemperatureRepor
       </div>
       <table className="w-full text-sm text-black">
         <tbody>
+          <tr className="border-b border-black">
+            <td className="px-3 py-2 border-r border-black w-1/2 font-medium bg-gray-50">
+              Température ambiante
+            </td>
+            <td className="px-3 py-2 w-1/2 text-center">
+              {tAmbiante != null && tAmbiante !== "" ? `${tAmbiante} °C` : "-"}
+            </td>
+          </tr>
           <tr className="border-b border-black">
             <td className="px-3 py-2 border-r border-black w-1/2 font-medium bg-gray-50">
               Température mesurée
