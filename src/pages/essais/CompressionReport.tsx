@@ -585,19 +585,20 @@ const CompressionReport = () => {
                 {echantillon.resultats.length > 0 ? (() => {
                   let globalRowIndex = 0;
 
-                  return groups.map((group) => {
-                    // Calculate average resistance for the group
-                    const resistances = group.items.map(ep => ep.resistance).filter(r => r > 0);
-                    const moyenneRc = resistances.length > 0 
-                      ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
-                      : "—";
+                    return groups.map((group, groupIndex) => {
+                      // Calculate average resistance for the group
+                      const resistances = group.items.map(ep => ep.resistance).filter(r => r > 0);
+                      const moyenneRc = resistances.length > 0 
+                        ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+                        : "—";
+                      const isLastGroup = groupIndex === groups.length - 1;
 
-                    return group.items.map((ep, idx) => {
-                      const isVeryFirstRow = globalRowIndex === 0;
-                      globalRowIndex++;
+                      return group.items.map((ep, idx) => {
+                        const isVeryFirstRow = globalRowIndex === 0;
+                        globalRowIndex++;
 
-                      return (
-                        <tr key={`${group.joursEssai}-${ep.numero}`}>
+                        return (
+                          <tr key={`${group.joursEssai}-${ep.numero}`} className={isLastGroup ? "last-group" : ""}>
                           {isVeryFirstRow && (
                             <td 
                               rowSpan={totalRows} 
