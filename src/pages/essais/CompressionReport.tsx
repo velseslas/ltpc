@@ -10,8 +10,17 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
+import { PrintService } from "@/lib/print/PrintService";
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
+
+// LOT 2 — Enregistrement du template Compression auprès du PrintService.
+// Sert de catalogue unique pour l'inventaire d'impression LTPC ERP.
+PrintService.registerTemplate({
+  id: "compression-report",
+  title: "Rapport d'essai de compression",
+  orientation: "portrait",
+});
 
 interface EprouvetteData {
   numero: number;
