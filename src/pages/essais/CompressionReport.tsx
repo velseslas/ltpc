@@ -534,16 +534,6 @@ const CompressionReport = () => {
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
                 </tr>
-                <tr>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(L/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[7px] text-black font-normal">(kg/m³)</th>
-                </tr>
               </thead>
               <tbody>
                 <tr>
