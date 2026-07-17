@@ -15,6 +15,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { PrintService } from "@/lib/print/PrintService";
 
+// LOT 9 — Template Offre de service (portrait).
+PrintService.registerTemplate({ id: "offre-service-document", title: "Offre de service", orientation: "portrait" });
+
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
   padding: "40px 50px",
