@@ -73,14 +73,14 @@ export default function MouvementDetail() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4 mr-2" /> Imprimer PDF</Button>
+          <Button variant="outline" onClick={() => PrintService.print({ title: `Mouvement ${m.numero}`, orientation: "portrait" })}><Printer className="h-4 w-4 mr-2" /> Imprimer PDF</Button>
           {m.statut !== "signe" && m.statut !== "annule" && (
             <Button onClick={handleValidate}><CheckCircle2 className="h-4 w-4 mr-2" /> Valider & appliquer</Button>
           )}
         </div>
       </div>
 
-      <div data-ref="report" className="space-y-6">
+      <div data-print-root data-print-template="materiel-mouvement-detail" data-ref="report" className="space-y-6">
         <EntrepriseHeader title={MOUVEMENT_TYPE_LABEL[m.type as keyof typeof MOUVEMENT_TYPE_LABEL]} subtitle={`N° ${m.numero} · ${format(new Date(m.date_mouvement), "dd/MM/yyyy", { locale: fr })}`} />
 
         <Card>
