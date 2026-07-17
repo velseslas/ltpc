@@ -215,7 +215,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit, () => toast.error("Veuillez remplir tous les champs obligatoires"))} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
