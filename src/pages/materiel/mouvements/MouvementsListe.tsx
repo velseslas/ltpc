@@ -12,6 +12,10 @@ import { useMouvements, MouvementType, MOUVEMENT_TYPE_LABEL } from "@/hooks/useM
 import { MouvementTypeBadge, MouvementStatutBadge } from "@/components/materiel/MovementBadges";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Liste des mouvements matériel (paysage).
+PrintService.registerTemplate({ id: "materiel-mouvements-liste", title: "Liste des mouvements", orientation: "landscape" });
 
 export default function MouvementsListe() {
   const navigate = useNavigate();
