@@ -204,7 +204,7 @@ const OffreServicePreviewPage = () => {
       </div>
 
       <div className="bg-secondary/30 rounded-xl p-4 sm:p-6 print:bg-transparent print:p-0">
-        <div ref={reportRef} data-ref="report" className="mx-auto flex flex-col gap-8" style={{ maxWidth: "800px", width: "100%" }}>
+        <div ref={reportRef} data-print-root data-print-template="offre-service-document" data-ref="report" className="mx-auto flex flex-col gap-8" style={{ maxWidth: "800px", width: "100%" }}>
           {/* ============ PAGE 1 : PAGE DE GARDE ============ */}
           <div
             data-pdf-page
