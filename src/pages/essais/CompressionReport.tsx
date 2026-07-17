@@ -761,7 +761,6 @@ const CompressionReport = () => {
         [data-ref="report"] [data-report-footer] {
           margin-top: auto !important;
           padding-top: 3mm !important;
-          border-top: 1px solid #333;
         }
 
         /* -----------------------------------------------------------------
