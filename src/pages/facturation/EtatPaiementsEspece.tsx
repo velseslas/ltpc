@@ -174,7 +174,7 @@ export default function EtatPaiementsEspece() {
             <Button variant="outline" onClick={handleDownload} className="gap-2"><Download className="h-4 w-4" />Télécharger PDF</Button>
           </div>
 
-          <div ref={reportRef} data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+          <div ref={reportRef} data-print-root data-print-template="etat-paiements-espece" data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/facturation/espece/etat`}
