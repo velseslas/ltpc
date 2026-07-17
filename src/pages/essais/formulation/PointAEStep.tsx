@@ -190,6 +190,8 @@ export default function PointAEStep({
             <Badge variant="outline" className="text-xs">Dreux-Gorisse</Badge>
           </div>
 
+          <p className="text-xs text-muted-foreground">Les champs marqués d'un astérisque sont obligatoires <span className="text-destructive">*</span></p>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-sm text-muted-foreground">Dmax (depuis étape 5)</Label>
