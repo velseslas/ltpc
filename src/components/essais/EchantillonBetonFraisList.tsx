@@ -205,7 +205,8 @@ export function EchantillonBetonFraisList({
                   </TableCell>
                   <TableCell>{echantillon.clients?.nom || "-"}</TableCell>
                   <TableCell>{echantillon.chantiers?.nom || "-"}</TableCell>
-                  <TableCell>{echantillon.centrales_beton?.nom || "-"}</TableCell>
+                  <TableCell>{(echantillon as any).ouvrage || "-"}</TableCell>
+                  <TableCell>{(echantillon as any).destination_beton || "-"}</TableCell>
                   <TableCell>
                     {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}
                   </TableCell>
