@@ -41,6 +41,8 @@ import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { mergeDuplicateData } from "@/lib/duplicate-utils";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
+import { ValidationMessage } from "@/components/ui/validation-message";
+import { cn } from "@/lib/utils";
 
 const breadcrumbCategoryConfig: Record<string, { categoryPath: string; categoryLabel: string }> = {
   "equivalent-sable": { categoryPath: "/essais/granulat/proprete", categoryLabel: "Propreté" },
@@ -57,12 +59,12 @@ const breadcrumbCategoryConfig: Record<string, { categoryPath: string; categoryL
 };
 
 const formSchema = z.object({
-  client_id: z.string().optional(),
-  chantier_id: z.string().optional(),
-  carriere_id: z.string().min(1, "Sélectionnez une carrière"),
-  produit: z.string().min(1, "Sélectionnez un produit"),
-  operateur_id: z.string().optional(),
-  date_reception: z.string().min(1, "La date de réception est requise"),
+  client_id: z.string().min(1, "Ce champ est obligatoire"),
+  chantier_id: z.string().min(1, "Ce champ est obligatoire"),
+  carriere_id: z.string().min(1, "Ce champ est obligatoire"),
+  produit: z.string().min(1, "Ce champ est obligatoire"),
+  operateur_id: z.string().min(1, "Ce champ est obligatoire"),
+  date_reception: z.string().min(1, "Ce champ est obligatoire"),
   date_essai: z.string().optional(),
   observations: z.string().max(500, "Maximum 500 caractères").optional(),
 });
@@ -183,11 +185,11 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const onSubmit = async (values: FormValues) => {
     try {
       const data = {
-        client_id: values.client_id || null,
-        chantier_id: values.chantier_id || null,
+        client_id: values.client_id,
+        chantier_id: values.chantier_id,
         carriere_id: values.carriere_id,
         produit: values.produit,
-        operateur_id: values.operateur_id || null,
+        operateur_id: values.operateur_id,
         date_reception: values.date_reception,
         date_essai: values.date_essai || null,
         observations: values.observations || null,
@@ -252,18 +254,18 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit, () => toast.error("Veuillez remplir tous les champs obligatoires"))} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Entreprise (Client) */}
                 <FormField
                   control={form.control}
                   name="client_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Entreprise</FormLabel>
+                      <FormLabel>Entreprise <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez une entreprise" />
                           </SelectTrigger>
                         </FormControl>
@@ -275,7 +277,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -284,19 +286,19 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="chantier_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Chantier</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <FormLabel>Chantier <span className="text-red-700">*</span></FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
                         value={field.value}
                         disabled={!selectedClientId}
                       >
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder={
-                              !selectedClientId 
-                                ? "Sélectionnez d'abord une entreprise" 
+                              !selectedClientId
+                                ? "Sélectionnez d'abord une entreprise"
                                 : "Sélectionnez un chantier"
                             } />
                           </SelectTrigger>
@@ -315,7 +317,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           )}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -323,12 +325,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="carriere_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Carrière <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez une carrière" />
                           </SelectTrigger>
                         </FormControl>
@@ -340,7 +342,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -348,21 +350,21 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="produit"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Produit <span className="text-red-700">*</span></FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         value={field.value}
                         disabled={!selectedCarriereId}
                       >
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder={
-                              !selectedCarriereId 
-                                ? "Sélectionnez d'abord une carrière" 
-                                : produitsLoading 
-                                  ? "Chargement..." 
+                              !selectedCarriereId
+                                ? "Sélectionnez d'abord une carrière"
+                                : produitsLoading
+                                  ? "Chargement..."
                                   : "Sélectionnez un produit"
                             } />
                           </SelectTrigger>
@@ -381,7 +383,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           )}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -389,12 +391,12 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="operateur_id"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel>Technicien</FormLabel>
+                      <FormLabel>Technicien <span className="text-red-700">*</span></FormLabel>
                       <Select onValueChange={field.onChange} value={field.value} disabled={isOperateurLocked}>
                         <FormControl>
-                          <SelectTrigger className="bg-background border-border">
+                          <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
                             <SelectValue placeholder="Sélectionnez un technicien" />
                           </SelectTrigger>
                         </FormControl>
@@ -406,7 +408,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -414,17 +416,17 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <FormField
                   control={form.control}
                   name="date_reception"
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Date de réception <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="date"
-                          className="bg-background border-border"
+                          className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
                   )}
                 />
@@ -447,6 +449,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                   )}
                 />
               </div>
+
 
               <FormField
                 control={form.control}
