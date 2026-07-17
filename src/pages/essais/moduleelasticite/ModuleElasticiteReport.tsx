@@ -34,14 +34,13 @@ const ModuleElasticiteReport = () => {
 
   const handlePrint = () => window.print();
 
-  const handleDownloadPDF = async () => {
-    try {
-      downloadReportAsPDF(`rapport-ME-${echantillon?.numero}`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors de la génération du PDF");
-    }
-  };
+  const triggerPrint = () =>
+    PrintService.print({
+      title: `rapport-ME-${echantillon?.numero}`,
+      orientation: "portrait",
+    });
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
