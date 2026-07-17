@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Historique des étalonnages (paysage).
+PrintService.registerTemplate({ id: "materiel-etalonnage-historique", title: "Historique des étalonnages", orientation: "landscape" });
 import { Gauge, Printer, Download } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -34,7 +37,7 @@ export default function MaterielEtalonnageHistorique() {
     return <span className="text-muted-foreground">{format(new Date(date), "dd/MM/yyyy", { locale: fr })}</span>;
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => PrintService.print({ title: "Historique des étalonnages", orientation: "landscape" });
 
   const handleDownload = async () => {
     downloadReportAsPDF(`historique-etalonnages-${format(new Date(), "yyyy-MM-dd")}`);
@@ -113,7 +116,7 @@ export default function MaterielEtalonnageHistorique() {
         </Card>
       </div>
 
-      <div ref={printRef} data-ref="report">
+      <div ref={printRef} data-print-root data-print-template="materiel-etalonnage-historique" data-ref="report">
         <EntrepriseHeader title="Historique des Étalonnages Matériel" subtitle={`Édité le ${format(new Date(), "dd/MM/yyyy", { locale: fr })}`} />
         <Card>
           <CardHeader>

@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Historique des maintenances (paysage).
+PrintService.registerTemplate({ id: "materiel-maintenance-historique", title: "Historique des maintenances", orientation: "landscape" });
 import { Wrench, Printer, Download } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -36,7 +39,7 @@ export default function MaterielMaintenanceHistorique() {
     }
   };
 
-  const handlePrint = () => window.print();
+  const handlePrint = () => PrintService.print({ title: "Historique des maintenances", orientation: "landscape" });
 
   const handleDownload = async () => {
     downloadReportAsPDF(`historique-maintenances-${format(new Date(), "yyyy-MM-dd")}`);
@@ -115,7 +118,7 @@ export default function MaterielMaintenanceHistorique() {
         </Card>
       </div>
 
-      <div ref={printRef} data-ref="report">
+      <div ref={printRef} data-print-root data-print-template="materiel-maintenance-historique" data-ref="report">
         <EntrepriseHeader title="Historique des Maintenances Matériel" subtitle={`Édité le ${format(new Date(), "dd/MM/yyyy", { locale: fr })}`} />
         <Card>
           <CardHeader>

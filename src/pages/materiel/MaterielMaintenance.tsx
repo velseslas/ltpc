@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 9 — Template Maintenances matériel (paysage).
+PrintService.registerTemplate({ id: "materiel-maintenance", title: "Maintenances matériel", orientation: "landscape" });
 import { Plus, Trash2, Wrench, Pencil, MoreHorizontal, Eye, History, Search, ClipboardList, Printer, Download, X, Filter } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
@@ -222,7 +225,7 @@ export default function MaterielMaintenance() {
         </div>
 
         {/* Rapport (sans wrapper Card) */}
-        <div data-ref="report" ref={reportRef} style={{ padding: "24px", background: "#fff", color: "#111", borderRadius: "4px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+        <div data-print-root data-print-template="materiel-maintenance" data-ref="report" ref={reportRef} style={{ padding: "24px", background: "#fff", color: "#111", borderRadius: "4px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
           <EntrepriseHeader title="LISTE DES MAINTENANCES DE MATÉRIEL" subtitle={`Date d'édition : ${format(new Date(), "dd MMMM yyyy", { locale: fr })}`} />
 
           <div style={{ marginBottom: "12px", fontSize: "11px", color: "#444" }}>
