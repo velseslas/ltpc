@@ -97,6 +97,16 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     />
+    <Route
+      path="/reports/rapport-technique/:id/print"
+      element={
+        <ProtectedRoute>
+          <Suspense fallback={<div className="p-8 text-sm">Chargement…</div>}>
+            <RapportTechniquePrintView />
+          </Suspense>
+        </ProtectedRoute>
+      }
+    />
 
     {/* Routes protégées avec layout persistant */}
     <Route element={<ProtectedLayout />}>
