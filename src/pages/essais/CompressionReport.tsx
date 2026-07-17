@@ -542,29 +542,6 @@ const CompressionReport = () => {
             </table>
           </div>
 
-          {/* Caractéristiques techniques */}
-          <div className="mb-6">
-            <table className="w-full border-collapse text-sm" style={{ borderSpacing: 0 }}>
-              <thead>
-                <tr>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de Résistance</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de consistance</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Type Moule</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C béton</th>
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Air</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_resistance || "—"}</td>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_consistance || "—"}</td>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.type_eprouvette} {echantillon.dimension_eprouvette}</td>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_beton ? `${echantillon.temperature_beton}°C` : "—"}</td>
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_air ? `${echantillon.temperature_air}°C` : "—"}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
 
           {/* Résultats des essais */}
           <div className="mb-6" data-report-fill>
