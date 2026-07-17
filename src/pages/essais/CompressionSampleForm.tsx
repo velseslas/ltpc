@@ -531,7 +531,7 @@ const CompressionSampleForm = () => {
           {/* Section Informations Générales */}
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="text-xl font-semibold text-foreground mb-6">
-              Informations générales de l'échantillon
+              Informations générales
             </h2>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -551,47 +551,6 @@ const CompressionSampleForm = () => {
                   </SelectContent>
                 </Select>
                 <ValidationMessage show={submitted && !clientId} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Technicien */}
-              <div className="space-y-2">
-                <Label htmlFor="operateur">Technicien <span className="text-red-700">*</span></Label>
-                <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
-                  <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}>
-                    <SelectValue placeholder="Sélectionnez un technicien" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {techniciens.map((op) => (
-                      <SelectItem key={op.id} value={op.id}>
-                        {op.prenom} {op.nom}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Essai de convenance */}
-              <div className="space-y-2 md:col-span-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="essai_convenance" 
-                    checked={essaiConvenance}
-                    onCheckedChange={(checked) => setEssaiConvenance(checked === true)}
-                  />
-                  <Label htmlFor="essai_convenance" className="cursor-pointer">
-                    Essai de convenance
-                  </Label>
-                </div>
-                {essaiConvenance && (
-                  <Input
-                    id="essai_convenance_details"
-                    value={essaiConvenanceDetails}
-                    onChange={(e) => setEssaiConvenanceDetails(e.target.value)}
-                    placeholder="Détails de l'essai de convenance..."
-                    className="bg-background mt-2"
-                  />
-                )}
               </div>
 
               {/* Chantier */}
@@ -620,80 +579,6 @@ const CompressionSampleForm = () => {
                   </SelectContent>
                 </Select>
                 <ValidationMessage show={submitted && !chantierId} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Ouvrage */}
-              <div className="space-y-2">
-                <Label htmlFor="ouvrage">Ouvrage <span className="text-red-700">*</span></Label>
-                <Input
-                  id="ouvrage"
-                  value={ouvrage}
-                  onChange={(e) => setOuvrage(e.target.value)}
-                  placeholder="Ex: Bâtiment A, Pont, Tunnel..."
-                  className={cn("bg-background", submitted && !essaiConvenance && !ouvrage && "border-red-700")}
-                  disabled={essaiConvenance}
-                />
-                <ValidationMessage show={submitted && !essaiConvenance && !ouvrage} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Centrale à béton */}
-              <div className="space-y-2">
-                <Label htmlFor="centrale">Centrale à béton <span className="text-red-700">*</span></Label>
-                <Select value={centraleId} onValueChange={handleCentraleChange}>
-                  <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
-                    <SelectValue placeholder="Sélectionnez une centrale" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {centrales.map((centrale) => (
-                      <SelectItem key={centrale.id} value={centrale.id}>
-                        {centrale.nom}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <ValidationMessage show={submitted && !centraleId} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Partie de l'ouvrage */}
-              <div className="space-y-2">
-                <Label htmlFor="destination">Partie de l'ouvrage <span className="text-red-700">*</span></Label>
-                <Input
-                  id="destination"
-                  value={destinationBeton}
-                  onChange={(e) => setDestinationBeton(e.target.value)}
-                  placeholder="Ex: Dalle, Poteau, Fondation..."
-                  className={cn("bg-background", submitted && !essaiConvenance && !destinationBeton && "border-red-700")}
-                  disabled={essaiConvenance}
-                />
-                <ValidationMessage show={submitted && !essaiConvenance && !destinationBeton} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Formulation de béton */}
-              <div className="space-y-2">
-                <Label htmlFor="formulation">Formulation de béton <span className="text-red-700">*</span></Label>
-                <Select
-                  value={formulationId}
-                  onValueChange={setFormulationId}
-                  disabled={!centraleId}
-                >
-                  <SelectTrigger className={cn(submitted && !formulationId && "border-red-700")}>
-                    <SelectValue
-                      placeholder={
-                        centraleId
-                          ? "Sélectionnez une formulation"
-                          : "Sélectionnez d'abord une centrale"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {formulations.map((form) => (
-                      <SelectItem key={form.id} value={form.id}>
-                        {form.nom}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <ValidationMessage show={submitted && !formulationId} message="Ce champ est obligatoire" />
               </div>
 
               {/* Date de coulage */}
@@ -727,49 +612,146 @@ const CompressionSampleForm = () => {
                 <ValidationMessage show={submitted && !dateCoulage} message="Ce champ est obligatoire" />
               </div>
 
-              {/* Condition de cure */}
+              {/* Centrale à béton */}
               <div className="space-y-2">
-                <Label htmlFor="condition">Condition de cure</Label>
-                <Select value={conditionCure} onValueChange={setConditionCure}>
-                  <SelectTrigger>
-                    <SelectValue />
+                <Label htmlFor="centrale">Centrale à béton <span className="text-red-700">*</span></Label>
+                <Select value={centraleId} onValueChange={handleCentraleChange}>
+                  <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
+                    <SelectValue placeholder="Sélectionnez une centrale" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CONDITIONS_CURE.map((cond) => (
-                      <SelectItem key={cond.value} value={cond.value}>
-                        {cond.label}
+                    {centrales.map((centrale) => (
+                      <SelectItem key={centrale.id} value={centrale.id}>
+                        {centrale.nom}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <ValidationMessage show={submitted && !centraleId} message="Ce champ est obligatoire" />
               </div>
 
-              {/* Température béton */}
+              {/* Formulation de béton */}
               <div className="space-y-2">
-                <Label htmlFor="temperatureBeton">Température béton (°C)</Label>
-                <Input
-                  id="temperatureBeton"
-                  type="number"
-                  step="0.1"
-                  value={temperatureBeton}
-                  onChange={(e) => setTemperatureBeton(e.target.value)}
-                  placeholder="Ex: 22.5"
-                  className="bg-background"
-                />
+                <Label htmlFor="formulation">Formulation de béton <span className="text-red-700">*</span></Label>
+                <Select
+                  value={formulationId}
+                  onValueChange={setFormulationId}
+                  disabled={!centraleId}
+                >
+                  <SelectTrigger className={cn(submitted && !formulationId && "border-red-700")}>
+                    <SelectValue
+                      placeholder={
+                        centraleId
+                          ? "Sélectionnez une formulation"
+                          : "Sélectionnez d'abord une centrale"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formulations.map((form) => (
+                      <SelectItem key={form.id} value={form.id}>
+                        {form.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <ValidationMessage show={submitted && !formulationId} message="Ce champ est obligatoire" />
               </div>
 
-              {/* Température air */}
+              {/* Ouvrage */}
               <div className="space-y-2">
-                <Label htmlFor="temperatureAir">Température air (°C)</Label>
+                <Label htmlFor="ouvrage">Ouvrage <span className="text-red-700">*</span></Label>
                 <Input
-                  id="temperatureAir"
-                  type="number"
-                  step="0.1"
-                  value={temperatureAir}
-                  onChange={(e) => setTemperatureAir(e.target.value)}
-                  placeholder="Ex: 25.0"
-                  className="bg-background"
+                  id="ouvrage"
+                  value={ouvrage}
+                  onChange={(e) => setOuvrage(e.target.value)}
+                  placeholder="Ex: Bâtiment A, Pont, Tunnel..."
+                  className={cn("bg-background", submitted && !essaiConvenance && !ouvrage && "border-red-700")}
+                  disabled={essaiConvenance}
                 />
+                <ValidationMessage show={submitted && !essaiConvenance && !ouvrage} message="Ce champ est obligatoire" />
+              </div>
+
+              {/* Partie de l'ouvrage */}
+              <div className="space-y-2">
+                <Label htmlFor="destination">Partie de l'ouvrage <span className="text-red-700">*</span></Label>
+                <Input
+                  id="destination"
+                  value={destinationBeton}
+                  onChange={(e) => setDestinationBeton(e.target.value)}
+                  placeholder="Ex: Dalle, Poteau, Fondation..."
+                  className={cn("bg-background", submitted && !essaiConvenance && !destinationBeton && "border-red-700")}
+                  disabled={essaiConvenance}
+                />
+                <ValidationMessage show={submitted && !essaiConvenance && !destinationBeton} message="Ce champ est obligatoire" />
+              </div>
+
+              {/* Technicien */}
+              <div className="space-y-2">
+                <Label htmlFor="operateur">Technicien <span className="text-red-700">*</span></Label>
+                <Select value={operateurId} onValueChange={setOperateurId} disabled={isOperateurLocked}>
+                  <SelectTrigger className={cn(submitted && !operateurId && "border-red-700")}>
+                    <SelectValue placeholder="Sélectionnez un technicien" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {techniciens.map((op) => (
+                      <SelectItem key={op.id} value={op.id}>
+                        {op.prenom} {op.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <ValidationMessage show={submitted && !operateurId} message="Ce champ est obligatoire" />
+              </div>
+
+              {/* Essai de convenance */}
+              <div className="space-y-2 md:col-span-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="essai_convenance"
+                    checked={essaiConvenance}
+                    onCheckedChange={(checked) => setEssaiConvenance(checked === true)}
+                  />
+                  <Label htmlFor="essai_convenance" className="cursor-pointer">
+                    Essai de convenance
+                  </Label>
+                </div>
+                {essaiConvenance && (
+                  <Input
+                    id="essai_convenance_details"
+                    value={essaiConvenanceDetails}
+                    onChange={(e) => setEssaiConvenanceDetails(e.target.value)}
+                    placeholder="Détails de l'essai de convenance..."
+                    className="bg-background mt-2"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section Caractéristiques de l'essai */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-xl font-semibold text-foreground mb-6">
+              Caractéristiques de l'essai
+            </h2>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Classe de résistance */}
+              <div className="space-y-2">
+                <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-700">*</span></Label>
+                <Select value={classeResistance} onValueChange={setClasseResistance}>
+                  <SelectTrigger className={cn(submitted && !classeResistance && "border-red-700")}>
+                    <SelectValue placeholder="Sélectionnez une classe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CLASSES_RESISTANCE.map((classe) => (
+                      <SelectItem key={classe.value} value={classe.value}>
+                        {classe.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <ValidationMessage show={submitted && !classeResistance} message="Ce champ est obligatoire" />
               </div>
 
               {/* Classe de consistance */}
@@ -788,24 +770,6 @@ const CompressionSampleForm = () => {
                   </SelectContent>
                 </Select>
                 <ValidationMessage show={submitted && !classeConsistance} message="Ce champ est obligatoire" />
-              </div>
-
-              {/* Classe de résistance */}
-              <div className="space-y-2">
-                <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-700">*</span></Label>
-                <Select value={classeResistance} onValueChange={setClasseResistance}>
-                  <SelectTrigger className={cn(submitted && !classeResistance && "border-red-700")}>
-                    <SelectValue placeholder="Sélectionnez une classe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CLASSES_RESISTANCE.map((classe) => (
-                      <SelectItem key={classe.value} value={classe.value}>
-                        {classe.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <ValidationMessage show={submitted && !classeResistance} message="Ce champ est obligatoire" />
               </div>
 
               {/* Type d'éprouvette */}
@@ -867,21 +831,6 @@ const CompressionSampleForm = () => {
                 <ValidationMessage show={submitted && !nombreEprouvettes} message="Ce champ est obligatoire" />
               </div>
 
-
-              {/* Étuvage */}
-              <div className="space-y-2">
-                <Label htmlFor="etuvage">Étuvage</Label>
-                <Select value={etuvage} onValueChange={setEtuvage}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="oui">Oui</SelectItem>
-                    <SelectItem value="non">Non</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Mode de coulage */}
               <div className="space-y-2">
                 <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-700">*</span></Label>
@@ -898,6 +847,65 @@ const CompressionSampleForm = () => {
                   </SelectContent>
                 </Select>
                 <ValidationMessage show={submitted && !modeCoulage} message="Ce champ est obligatoire" />
+              </div>
+
+              {/* Étuvage */}
+              <div className="space-y-2">
+                <Label htmlFor="etuvage">Étuvage</Label>
+                <Select value={etuvage} onValueChange={setEtuvage}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="oui">Oui</SelectItem>
+                    <SelectItem value="non">Non</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Condition de cure */}
+              <div className="space-y-2">
+                <Label htmlFor="condition">Condition de cure</Label>
+                <Select value={conditionCure} onValueChange={setConditionCure}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONDITIONS_CURE.map((cond) => (
+                      <SelectItem key={cond.value} value={cond.value}>
+                        {cond.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Température béton */}
+              <div className="space-y-2">
+                <Label htmlFor="temperatureBeton">Température béton (°C)</Label>
+                <Input
+                  id="temperatureBeton"
+                  type="number"
+                  step="0.1"
+                  value={temperatureBeton}
+                  onChange={(e) => setTemperatureBeton(e.target.value)}
+                  placeholder="Ex: 22.5"
+                  className="bg-background"
+                />
+              </div>
+
+              {/* Température air */}
+              <div className="space-y-2">
+                <Label htmlFor="temperatureAir">Température air (°C)</Label>
+                <Input
+                  id="temperatureAir"
+                  type="number"
+                  step="0.1"
+                  value={temperatureAir}
+                  onChange={(e) => setTemperatureAir(e.target.value)}
+                  placeholder="Ex: 25.0"
+                  className="bg-background"
+                />
               </div>
 
               {/* Mentions rapport */}
@@ -926,6 +934,7 @@ const CompressionSampleForm = () => {
               </div>
             </div>
           </div>
+
 
           {/* Section Informations Techniques */}
           <div className="rounded-xl border border-border bg-card p-6">
