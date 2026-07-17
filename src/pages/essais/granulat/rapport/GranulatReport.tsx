@@ -163,6 +163,8 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
       {/* Rapport */}
       <div 
         data-ref="report"
+        data-print-root
+        data-print-template="granulat-report"
         data-essai-type={essaiType}
         className="report-table bg-white text-black p-8 rounded-lg shadow-lg w-[210mm] max-w-full mx-auto overflow-x-auto print:overflow-visible print:shadow-none print:p-0 print:rounded-none"
         style={{ fontFamily: "Arial, sans-serif" }}
