@@ -700,59 +700,178 @@ const CompressionReport = () => {
         </div>
         {/* Fin page 2+ */}
       </div>
-      {/* Styles rapport/PDF — A4 strict, pagination auto, source de vérité PDF */}
+      {/* ===================================================================
+          MISE EN PAGE A4 — SOURCE DE VÉRITÉ UNIQUE
+          Appliquée à l'écran (aperçu), à window.print() et au PDF téléchargé.
+          Le conteneur [data-pdf-page] est un vrai gabarit 210×297mm en
+          flex-column. Le bloc [data-report-fill] absorbe l'espace vertical
+          restant ; le pied de page reste collé en bas via margin-top:auto.
+          Résultat : rendu strictement identique sur les 3 sorties.
+         =================================================================== */}
       <style>{`
-        /* Variables globales — pilotent toute la mise en page d'impression.
-           Elles sont surchargées en @media print ci-dessous en fonction du
-           nombre d'éprouvettes pour garantir un rendu sur une seule page A4. */
+        /* -----------------------------------------------------------------
+           Variables communes — pilotent toute la typographie et la densité
+           ----------------------------------------------------------------- */
         [data-ref="report"] {
-          --print-row-h: 22px;
-          --print-row-py: 4px;
-          --print-row-px: 6px;
-          --print-row-fs: 9pt;
-          --print-formul-h: 24px;
-          --print-formul-fs: 8pt;
-          --print-section-gap: 6px;
-          --print-header-py: 6px;
-          --print-header-title: 13pt;
-          --print-header-meta: 9pt;
+          --a4-w: 210mm;
+          --a4-h: 297mm;
+          --a4-pad: 10mm;
+          --tbl-fs: 9.5pt;
+          --tbl-py: 3px;
+          --tbl-px: 6px;
+          --tbl-border: #000;
+          --section-gap: 5mm;
+          --title-color: #1e5a7a;
         }
 
-        /* Écran — uniformité des cellules d'identification & caractéristiques */
-        #root [data-ref="report"] .identification-table td,
-        #root [data-ref="report"] .identification-table th {
-          height: 26px !important;
-          min-height: 26px !important;
+        /* -----------------------------------------------------------------
+           GABARIT A4 (aperçu écran ET impression)
+           ----------------------------------------------------------------- */
+        [data-ref="report"] [data-pdf-page] {
+          width: var(--a4-w);
+          height: var(--a4-h);
+          box-sizing: border-box;
+          padding: var(--a4-pad) !important;
+          margin: 0 auto;
+          background: #ffffff;
+          overflow: hidden;
+          display: block;
+        }
+        [data-ref="report"] [data-pdf-content] {
+          height: 100%;
+          display: flex !important;
+          flex-direction: column;
+          gap: var(--section-gap);
+        }
+        /* Purge des marges bootstrap-like sur les enfants directs */
+        [data-ref="report"] [data-pdf-content] > * { margin: 0 !important; }
+        /* Zone qui absorbe l'espace vertical restant */
+        [data-ref="report"] [data-report-fill] {
+          flex: 1 1 auto;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+        }
+        [data-ref="report"] [data-report-fill] > table {
+          flex: 1 1 auto;
+          height: 100%;
+        }
+        /* Le pied reste collé en bas */
+        [data-ref="report"] [data-report-footer] {
+          margin-top: auto !important;
+          padding-top: 4mm !important;
+          border-top: 1px solid #333;
+        }
+
+        /* -----------------------------------------------------------------
+           EN-TÊTE — compact et homogène
+           ----------------------------------------------------------------- */
+        [data-ref="report"] [data-report-header] {
+          padding: 6px 10px !important;
+          margin-bottom: 0 !important;
+        }
+        [data-ref="report"] [data-report-header] > div { align-items: center !important; }
+        [data-ref="report"] [data-report-header] .w-24 {
+          width: 20mm !important;
+          height: 20mm !important;
+        }
+        [data-ref="report"] [data-report-header] h1 {
+          font-size: 12pt !important;
+          line-height: 1.15 !important;
+          margin: 0 0 2px 0 !important;
+        }
+        [data-ref="report"] [data-report-header] p {
+          font-size: 8.5pt !important;
+          line-height: 1.25 !important;
+          margin: 0 !important;
+        }
+        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 3mm 0 2mm 0 !important; }
+        [data-ref="report"] [data-report-header] ~ .text-center h2 {
+          font-size: 14pt !important;
+          margin: 0 0 1mm 0 !important;
+        }
+        [data-ref="report"] [data-report-header] ~ .text-center p { font-size: 9pt !important; margin: 0 !important; }
+
+        /* -----------------------------------------------------------------
+           TABLEAUX — style STRICTEMENT identique partout
+           ----------------------------------------------------------------- */
+        [data-ref="report"] table {
+          width: 100% !important;
+          border-collapse: collapse !important;
+          border-spacing: 0 !important;
+          table-layout: fixed !important;
+        }
+        [data-ref="report"] th,
+        [data-ref="report"] td {
+          border: 1px solid var(--tbl-border) !important;
+          padding: var(--tbl-py) var(--tbl-px) !important;
+          font-size: var(--tbl-fs) !important;
+          line-height: 1.25 !important;
           vertical-align: middle !important;
+          word-wrap: break-word;
+          overflow-wrap: anywhere;
+        }
+        [data-ref="report"] th {
+          background: #f1f5f9 !important;
+          font-weight: 600 !important;
+          text-align: center !important;
+        }
+        [data-ref="report"] h3 {
+          font-size: 10pt !important;
+          font-weight: 700 !important;
+          margin: 0 0 2mm 0 !important;
+          color: var(--title-color) !important;
         }
 
+        /* Table formulation — 3 lignes d'entête, colonnes égales */
+        [data-ref="report"] .formulation-table th,
+        [data-ref="report"] .formulation-table td {
+          font-size: 7.5pt !important;
+          padding: 2px 3px !important;
+          line-height: 1.15 !important;
+        }
+        [data-ref="report"] .formulation-table th { text-align: center !important; }
+
+        /* Table résultats — les lignes se répartissent uniformément dans
+           l'espace disponible grâce à height:100% ; les cellules restent
+           parfaitement alignées. */
+        [data-ref="report"] .results-table {
+          border-collapse: collapse !important;
+        }
+        [data-ref="report"] .results-table tbody tr {
+          height: auto;
+        }
+
+        /* Pied de page — signatures serrées, cachet contenu */
+        [data-ref="report"] [data-report-footer] img { max-height: 18mm !important; }
+
+        /* -----------------------------------------------------------------
+           APERÇU ÉCRAN — affiche la feuille A4 comme le PDF final
+           ----------------------------------------------------------------- */
+        @media screen {
+          [data-ref="report"] {
+            width: var(--a4-w) !important;
+            max-width: 100% !important;
+          }
+          [data-ref="report"] [data-pdf-page] {
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            border-radius: 4px;
+          }
+        }
         ${isPrintRoute ? `
           html, body, #root {
             margin: 0 !important;
             padding: 0 !important;
             background: #e5e7eb;
           }
-          body { display: flex; justify-content: center; }
-          [data-ref="report"] {
-            width: 210mm !important;
-            max-width: 210mm !important;
-            margin: 0 auto !important;
-            background: #ffffff;
-            box-shadow: 0 0 8px rgba(0,0,0,0.15);
-          }
-          [data-ref="report"] [data-pdf-page] {
-            width: 210mm !important;
-            max-width: 210mm !important;
-            min-height: 297mm;
-            box-sizing: border-box;
-            padding: 8mm !important;
-            background: #ffffff;
-          }
+          body { display: flex; justify-content: center; padding: 8mm 0; }
         ` : ""}
 
+        /* -----------------------------------------------------------------
+           IMPRESSION / EXPORT PDF — rendu strictement identique à l'aperçu
+           ----------------------------------------------------------------- */
         @media print {
-          /* Marges minimales compatibles imprimantes grand public (Windows). */
-          @page { size: A4 portrait; margin: 8mm 8mm 8mm 8mm; }
+          @page { size: A4 portrait; margin: 0; }
 
           html, body {
             margin: 0 !important;
@@ -776,159 +895,28 @@ const CompressionReport = () => {
           [data-ref="report"], [data-ref="report"] * { visibility: visible; }
           [data-ref="report"] {
             position: static !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
+            width: var(--a4-w) !important;
+            max-width: var(--a4-w) !important;
+            margin: 0 auto !important;
             padding: 0 !important;
             overflow: visible !important;
-            box-shadow: none !important;
             background: #ffffff !important;
           }
-
-          /* Page A4 = flex column, le pied colle en bas de page */
           [data-ref="report"] [data-pdf-page] {
+            width: var(--a4-w) !important;
+            height: var(--a4-h) !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            min-height: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            overflow: visible !important;
-            box-sizing: border-box !important;
-            background: #ffffff !important;
             page-break-after: avoid !important;
             break-after: avoid !important;
           }
-          [data-ref="report"] [data-pdf-content] {
-            width: 100% !important;
-            transform: none !important;
-            zoom: 1 !important;
-            min-height: 281mm; /* A4 - marges 8mm */
-            display: flex !important;
-            flex-direction: column !important;
-          }
-
-          /* En-tête — plus compact, centrage vertical harmonisé */
-          [data-ref="report"] [data-report-header] {
-            padding: var(--print-header-py) 10px !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 12px !important;
-          }
-          [data-ref="report"] [data-report-header] h1 {
-            font-size: var(--print-header-title) !important;
-            margin: 0 0 2px 0 !important;
-            line-height: 1.15 !important;
-          }
-          [data-ref="report"] [data-report-header] p,
-          [data-ref="report"] [data-report-header] span {
-            font-size: var(--print-header-meta) !important;
-            line-height: 1.25 !important;
-            margin: 0 !important;
-          }
-          [data-ref="report"] [data-report-header] img { max-height: 22mm !important; width: auto !important; }
-
-          /* Espacements verticaux — homogènes et resserrés */
-          [data-ref="report"] .mb-6 { margin-bottom: var(--print-section-gap) !important; }
-          [data-ref="report"] .mb-4 { margin-bottom: var(--print-section-gap) !important; }
-          [data-ref="report"] .mb-2 { margin-bottom: 3px !important; }
-          [data-ref="report"] .mt-8 { margin-top: auto !important; }
-          [data-ref="report"] .mt-4 { margin-top: 5px !important; }
-          [data-ref="report"] .mt-2 { margin-top: 3px !important; }
-          [data-ref="report"] .pt-4 { padding-top: 4px !important; }
-          [data-ref="report"] .pt-3 { padding-top: 3px !important; }
-
-          /* Tableaux — grille rigoureusement uniforme */
-          [data-ref="report"] table {
-            width: 100% !important;
-            table-layout: fixed !important;
-            border-collapse: collapse !important;
-            border-spacing: 0 !important;
-            page-break-inside: auto;
-          }
-          [data-ref="report"] th,
-          [data-ref="report"] td {
-            border: 1px solid #333 !important;
-            box-shadow: none !important;
-            word-wrap: break-word;
-            overflow-wrap: anywhere;
-            vertical-align: middle !important;
-          }
-          #root [data-ref="report"] table,
-          #root [data-ref="report"] th,
-          #root [data-ref="report"] td {
-            font-size: var(--print-row-fs) !important;
-            padding: var(--print-row-py) var(--print-row-px) !important;
-            height: var(--print-row-h) !important;
-            line-height: 1.2 !important;
-          }
+          [data-ref="report"] table,
           [data-ref="report"] tr,
-          [data-ref="report"] tbody tr,
-          [data-ref="report"] thead tr {
+          [data-ref="report"] thead,
+          [data-ref="report"] tbody {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          [data-ref="report"] thead { display: table-header-group; }
-          [data-ref="report"] tfoot { display: table-footer-group; }
-          [data-ref="report"] h1,
-          [data-ref="report"] h2,
-          [data-ref="report"] h3 {
-            page-break-after: avoid;
-            break-after: avoid;
-          }
-          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 3px !important; }
-
-          [data-ref="report"] [data-report-header],
-          [data-ref="report"] .identification-table,
-          [data-ref="report"] .formulation-table,
-          [data-ref="report"] .results-table {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-
-          /* Table formulation — 3 lignes d'entête compactes */
-          #root [data-ref="report"] .formulation-table th,
-          #root [data-ref="report"] .formulation-table td {
-            font-size: var(--print-formul-fs) !important;
-            padding: 2px 3px !important;
-            height: var(--print-formul-h) !important;
-            line-height: 1.15 !important;
-          }
-
-          /* Adaptation automatique de la table des résultats en fonction du
-             nombre d'éprouvettes — objectif : tenir sur 1 page A4. */
-          [data-ref="report"] .results-table[data-rows="7"],
-          [data-ref="report"] .results-table[data-rows="8"],
-          [data-ref="report"] .results-table[data-rows="9"] {
-            --print-row-h: 20px;
-            --print-row-py: 3px;
-          }
-          [data-ref="report"] .results-table[data-rows="10"],
-          [data-ref="report"] .results-table[data-rows="11"],
-          [data-ref="report"] .results-table[data-rows="12"] {
-            --print-row-h: 17px;
-            --print-row-py: 2px;
-            --print-row-fs: 8.5pt;
-          }
-          #root [data-ref="report"] .results-table th,
-          #root [data-ref="report"] .results-table td {
-            font-size: var(--print-row-fs) !important;
-            padding: var(--print-row-py) var(--print-row-px) !important;
-            height: var(--print-row-h) !important;
-          }
-
-          /* Pied de page — collé bas via margin-top:auto sur .mt-8 */
-          [data-ref="report"] [data-report-footer] {
-            margin-top: auto !important;
-            padding-top: 6px !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-          [data-ref="report"] [data-report-footer] img { max-height: 40px !important; }
-
-          .page-break-before { page-break-before: always; break-before: page; }
-          .page-break-after { page-break-after: always; break-after: page; }
         }
       `}</style>
 
