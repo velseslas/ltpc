@@ -290,16 +290,15 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>
-                          Carrière {essaiType === "granulometrie-sol" && <span className="text-red-700">*</span>}
+                          Carrière <span className="text-red-700">*</span>
                         </FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
                             <SelectTrigger className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}>
-                              <SelectValue placeholder={essaiType === "granulometrie-sol" ? "Sélectionnez une carrière" : "Sélectionnez une carrière (optionnel)"} />
+                              <SelectValue placeholder="Sélectionnez une carrière" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-popover border-border">
-                            {essaiType !== "granulometrie-sol" && <SelectItem value="none">Aucune</SelectItem>}
                             {carrieres?.map((carriere) => (
                               <SelectItem key={carriere.id} value={carriere.id}>{carriere.nom}</SelectItem>
                             ))}
