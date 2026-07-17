@@ -8,6 +8,9 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { PrintService } from "@/lib/print/PrintService";
 
+// LOT 9 — Template Contrat (dialog, portrait). Utilise le même ID que la page complète.
+PrintService.registerTemplate({ id: "contrat-document", title: "Contrat", orientation: "portrait" });
+
 interface ContratPreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
