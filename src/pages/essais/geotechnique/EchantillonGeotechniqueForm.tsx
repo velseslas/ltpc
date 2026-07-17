@@ -345,7 +345,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel>
-                          Date d'essai {essaiType === "granulometrie-sol" && <span className="text-red-700">*</span>}
+                          Date d'essai <span className="text-red-700">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input {...field} type="date" className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
