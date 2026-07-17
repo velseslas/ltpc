@@ -306,6 +306,7 @@ export default function CoefficientStep({
                   <SelectItem value="vibrationPuissante">Vibration puissante</SelectItem>
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !serrage} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Diamètre maximal (Dmax) <span className="text-destructive">*</span></Label>
@@ -324,6 +325,7 @@ export default function CoefficientStep({
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
               </div>
+              <ValidationMessage show={showError && !dmaxC} />
             </div>
           </div>
 
@@ -336,6 +338,7 @@ export default function CoefficientStep({
                 placeholder="—"
                 className={cn("bg-muted border-border cursor-default text-lg font-semibold", showError && !coefficientCompacite && "animate-border-blink")}
               />
+              <ValidationMessage show={showError && !coefficientCompacite} />
             </div>
             <Button
               variant="outline"
