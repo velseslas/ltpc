@@ -1,5 +1,4 @@
 import { useState, useRef, useMemo } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +15,14 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { usePaiementsEspece } from "@/hooks/useFacturation";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { PrintService } from "@/lib/print/PrintService";
+
+// LOT 8 — Template État des paiements en espèce (paysage).
+PrintService.registerTemplate({
+  id: "etat-paiements-espece",
+  title: "État des paiements en espèce",
+  orientation: "landscape",
+});
 
 export default function EtatPaiementsEspece() {
   const navigate = useNavigate();
@@ -53,11 +60,10 @@ export default function EtatPaiementsEspece() {
 
   const totalMontant = filtered.reduce((sum: number, e: any) => sum + (Number(e.montant) || 0), 0);
 
-  const handlePrint = () => window.print();
-
-  const handleDownload = async () => {
-    downloadReportAsPDF("etat-paiements-espece");
-  };
+  const doPrint = () =>
+    PrintService.print({ title: "État des paiements en espèce", orientation: "landscape" });
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const selectedClient = clients?.find(c => c.id === clientFilter);
   const selectedChantier = chantiers?.find(c => c.id === chantierFilter);
@@ -168,7 +174,7 @@ export default function EtatPaiementsEspece() {
             <Button variant="outline" onClick={handleDownload} className="gap-2"><Download className="h-4 w-4" />Télécharger PDF</Button>
           </div>
 
-          <div ref={reportRef} data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+          <div ref={reportRef} data-print-root data-print-template="etat-paiements-espece" data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/facturation/espece/etat`}
@@ -247,9 +253,11 @@ export default function EtatPaiementsEspece() {
 
       <style>{`
         @media print {
-          @page { size: landscape; margin: 10mm; }
+          @page { size: A4 landscape; margin: 10mm; }
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           body * { visibility: hidden; }
-          [data-print-area], [data-print-area] * { visibility: visible; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
+          [data-ref="report"] { position: absolute; left: 0; top: 0; width: 100%; min-width: 0 !important; padding: 0 !important; }
           .print\\:hidden { display: none !important; }
         }
       `}</style>

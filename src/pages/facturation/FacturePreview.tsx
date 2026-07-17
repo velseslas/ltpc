@@ -1,16 +1,22 @@
 import { useRef } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { useParams, useNavigate } from "react-router-dom";
 import { Printer, Download, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useEntrepriseFull } from "@/hooks/useEntreprise";
 import { useFacture } from "@/hooks/useFacturation";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
+import { PrintService } from "@/lib/print/PrintService";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Loader2 } from "lucide-react";
+
+// LOT 8 — Enregistrement du template Facture auprès du PrintService.
+PrintService.registerTemplate({
+  id: "facture-document",
+  title: "Facture",
+  orientation: "portrait",
+});
 
 const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as const;
 const pageStyle: React.CSSProperties = {
@@ -93,13 +99,11 @@ export default function FacturePreview() {
   const montantTTCEntier = Math.floor(Number(facture.montant_ttc));
   const montantEnLettres = numberToFrenchWords(montantTTCEntier);
 
-  const handlePrint = () => {
-    window.print();
+  const doPrint = () => {
+    PrintService.print({ title: `Facture ${facture.numero}`, orientation: "portrait" });
   };
-
-  const handleDownload = async () => {
-    downloadReportAsPDF(`Facture_${facture.numero}`);
-  };
+  const handlePrint = doPrint;
+  const handleDownload = doPrint;
 
   const cellStyle: React.CSSProperties = {
     border: "1px solid #000",
@@ -148,7 +152,7 @@ export default function FacturePreview() {
 
       {/* Invoice document */}
       <div className="flex justify-center">
-        <div ref={reportRef} data-ref="report" style={{ width: "210mm" }}>
+        <div ref={reportRef} data-print-root data-print-template="facture-document" data-ref="report" style={{ width: "210mm" }}>
           <div data-pdf-page className="bg-white text-black shadow-xl" style={pageStyle}>
             {/* Header */}
             <DocumentPageHeader
