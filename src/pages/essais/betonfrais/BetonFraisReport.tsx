@@ -5,16 +5,22 @@ import { fr } from "date-fns/locale";
 import { ArrowLeft, Printer, Download, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { downloadReportAsPDF } from "@/lib/pdf";
 import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { useFormulationDetails } from "@/hooks/useFormulationDetails";
+import { PrintService } from "@/lib/print/PrintService";
 import {
   useEchantillonBetonFraisById,
   getPrefix,
 } from "@/hooks/useEchantillonsBetonFraisFactory";
+
+// LOT 3 — Enregistrement des templates Béton Frais auprès du PrintService.
+// Un seul composant sert 4 essais (affaissement, temperature, temps-prise, teneur-air).
+PrintService.registerTemplate({ id: "beton-frais-affaissement", title: "Rapport essai d'affaissement", orientation: "portrait" });
+PrintService.registerTemplate({ id: "beton-frais-temperature", title: "Rapport essai de température de béton", orientation: "portrait" });
+PrintService.registerTemplate({ id: "beton-frais-temps-prise", title: "Rapport essai de temps de prise", orientation: "portrait" });
+PrintService.registerTemplate({ id: "beton-frais-teneur-air", title: "Rapport essai de teneur en air", orientation: "portrait" });
 
 // Import report content components
 import AffaissementReportContent from "./rapport/AffaissementReportContent";
