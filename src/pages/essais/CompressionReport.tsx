@@ -786,7 +786,7 @@ const CompressionReport = () => {
           line-height: 1.2 !important;
           margin: 0 !important;
         }
-        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.5mm 0 0.5mm 0 !important; }
+        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.5mm 0 0.2mm 0 !important; }
         [data-ref="report"] [data-report-header] ~ .text-center h2 {
           font-size: 13pt !important;
           margin: 0 0 0.5mm 0 !important;
@@ -859,8 +859,8 @@ const CompressionReport = () => {
         /* Supprime le double trait entre les groupes d'âges (7j / 28j) :
            la bordure haute des cellules rowSpan qui débutent un nouveau bloc
            est retirée ; il reste uniquement la bordure basse du bloc précédent. */
-        [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] {
-          border-top: none !important;
+        #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] {
+          border-top: 0 !important;
         }
 
         /* Pied de page — signatures serrées, cachet contenu */
