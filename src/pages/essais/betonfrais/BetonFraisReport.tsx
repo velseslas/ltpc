@@ -251,42 +251,44 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
         </div>
 
         {/* Caractéristiques techniques */}
-        <div className="mb-6">
-          <table className="w-full border-collapse border border-black text-sm">
-            <thead>
-              <tr>
-                {fieldConfig.showClasseConsistance && (
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de consistance</th>
-                )}
-                {fieldConfig.showTemperatureBeton && (
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C béton</th>
-                )}
-                {fieldConfig.showTemperatureAir && (
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Air</th>
-                )}
-                {fieldConfig.showTemperatureAmbiante && (
-                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Ambiante</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {fieldConfig.showClasseConsistance && (
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_consistance || "—"}</td>
-                )}
-                {fieldConfig.showTemperatureBeton && (
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_beton ? `${echantillon.temperature_beton}°C` : "—"}</td>
-                )}
-                {fieldConfig.showTemperatureAir && (
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_air ? `${echantillon.temperature_air}°C` : "—"}</td>
-                )}
-                {fieldConfig.showTemperatureAmbiante && (
-                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_ambiante ? `${echantillon.temperature_ambiante}°C` : "—"}</td>
-                )}
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {hasCaracteristiquesColumns && (
+          <div className="mb-6">
+            <table className="w-full border-collapse border border-black text-sm">
+              <thead>
+                <tr>
+                  {fieldConfig.showClasseConsistance && (
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de consistance</th>
+                  )}
+                  {fieldConfig.showTemperatureBeton && (
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C béton</th>
+                  )}
+                  {fieldConfig.showTemperatureAir && (
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Air</th>
+                  )}
+                  {fieldConfig.showTemperatureAmbiante && (
+                    <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Ambiante</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {fieldConfig.showClasseConsistance && (
+                    <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_consistance || "—"}</td>
+                  )}
+                  {fieldConfig.showTemperatureBeton && (
+                    <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_beton ? `${echantillon.temperature_beton}°C` : "—"}</td>
+                  )}
+                  {fieldConfig.showTemperatureAir && (
+                    <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_air ? `${echantillon.temperature_air}°C` : "—"}</td>
+                  )}
+                  {fieldConfig.showTemperatureAmbiante && (
+                    <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_ambiante ? `${echantillon.temperature_ambiante}°C` : "—"}</td>
+                  )}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Résultats */}
         {resultats && ReportContent && (
