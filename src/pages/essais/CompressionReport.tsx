@@ -715,13 +715,17 @@ const CompressionReport = () => {
         [data-ref="report"] {
           --a4-w: 210mm;
           --a4-h: 297mm;
-          --a4-pad: 10mm;
+          --a4-pad: 8mm;
           --tbl-fs: 9.5pt;
           --tbl-py: 3px;
           --tbl-px: 6px;
           --tbl-border: #000;
-          --section-gap: 5mm;
+          --tbl-line: 1.25;
+          --section-gap: 3.5mm;
           --title-color: #1e5a7a;
+          /* densité résultats : ajustée dynamiquement selon data-rows */
+          --res-py: 4px;
+          --res-line: 1.3;
         }
 
         /* -----------------------------------------------------------------
@@ -743,9 +747,7 @@ const CompressionReport = () => {
           flex-direction: column;
           gap: var(--section-gap);
         }
-        /* Purge des marges bootstrap-like sur les enfants directs */
         [data-ref="report"] [data-pdf-content] > * { margin: 0 !important; }
-        /* Zone qui absorbe l'espace vertical restant */
         [data-ref="report"] [data-report-fill] {
           flex: 1 1 auto;
           display: flex;
@@ -756,44 +758,43 @@ const CompressionReport = () => {
           flex: 1 1 auto;
           height: 100%;
         }
-        /* Le pied reste collé en bas */
         [data-ref="report"] [data-report-footer] {
           margin-top: auto !important;
-          padding-top: 4mm !important;
+          padding-top: 3mm !important;
           border-top: 1px solid #333;
         }
 
         /* -----------------------------------------------------------------
-           EN-TÊTE — compact et homogène
+           EN-TÊTE — compact (hauteur réduite ~3mm)
            ----------------------------------------------------------------- */
         [data-ref="report"] [data-report-header] {
-          padding: 6px 10px !important;
+          padding: 3px 8px !important;
           margin-bottom: 0 !important;
         }
         [data-ref="report"] [data-report-header] > div { align-items: center !important; }
         [data-ref="report"] [data-report-header] .w-24 {
-          width: 20mm !important;
-          height: 20mm !important;
+          width: 17mm !important;
+          height: 17mm !important;
         }
         [data-ref="report"] [data-report-header] h1 {
-          font-size: 12pt !important;
-          line-height: 1.15 !important;
-          margin: 0 0 2px 0 !important;
+          font-size: 11.5pt !important;
+          line-height: 1.1 !important;
+          margin: 0 0 1px 0 !important;
         }
         [data-ref="report"] [data-report-header] p {
-          font-size: 8.5pt !important;
-          line-height: 1.25 !important;
+          font-size: 8pt !important;
+          line-height: 1.2 !important;
           margin: 0 !important;
         }
-        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 3mm 0 2mm 0 !important; }
+        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 2mm 0 1.5mm 0 !important; }
         [data-ref="report"] [data-report-header] ~ .text-center h2 {
-          font-size: 14pt !important;
-          margin: 0 0 1mm 0 !important;
+          font-size: 13pt !important;
+          margin: 0 0 0.5mm 0 !important;
         }
-        [data-ref="report"] [data-report-header] ~ .text-center p { font-size: 9pt !important; margin: 0 !important; }
+        [data-ref="report"] [data-report-header] ~ .text-center p { font-size: 8.5pt !important; margin: 0 !important; }
 
         /* -----------------------------------------------------------------
-           TABLEAUX — style STRICTEMENT identique partout
+           TABLEAUX — cellules strictement uniformes
            ----------------------------------------------------------------- */
         [data-ref="report"] table {
           width: 100% !important;
@@ -806,10 +807,11 @@ const CompressionReport = () => {
           border: 1px solid var(--tbl-border) !important;
           padding: var(--tbl-py) var(--tbl-px) !important;
           font-size: var(--tbl-fs) !important;
-          line-height: 1.25 !important;
+          line-height: var(--tbl-line) !important;
           vertical-align: middle !important;
           word-wrap: break-word;
           overflow-wrap: anywhere;
+          box-sizing: border-box;
         }
         [data-ref="report"] th {
           background: #f1f5f9 !important;
@@ -819,11 +821,11 @@ const CompressionReport = () => {
         [data-ref="report"] h3 {
           font-size: 10pt !important;
           font-weight: 700 !important;
-          margin: 0 0 2mm 0 !important;
+          margin: 0 0 1.5mm 0 !important;
           color: var(--title-color) !important;
         }
 
-        /* Table formulation — 3 lignes d'entête, colonnes égales */
+        /* Table formulation — plus compacte, cellules uniformes */
         [data-ref="report"] .formulation-table th,
         [data-ref="report"] .formulation-table td {
           font-size: 7.5pt !important;
@@ -832,18 +834,31 @@ const CompressionReport = () => {
         }
         [data-ref="report"] .formulation-table th { text-align: center !important; }
 
-        /* Table résultats — les lignes se répartissent uniformément dans
-           l'espace disponible grâce à height:100% ; les cellules restent
-           parfaitement alignées. */
-        [data-ref="report"] .results-table {
-          border-collapse: collapse !important;
+        /* Table résultats — densité pilotée par data-rows.
+           Seuls le padding vertical et la line-height varient. */
+        [data-ref="report"] .results-table th,
+        [data-ref="report"] .results-table td {
+          padding-top: var(--res-py) !important;
+          padding-bottom: var(--res-py) !important;
+          line-height: var(--res-line) !important;
         }
-        [data-ref="report"] .results-table tbody tr {
-          height: auto;
+        [data-ref="report"] .results-table[data-rows="7"],
+        [data-ref="report"] .results-table[data-rows="8"],
+        [data-ref="report"] .results-table[data-rows="9"] {
+          --res-py: 3px;
+          --res-line: 1.2;
         }
+        [data-ref="report"] .results-table[data-rows="10"],
+        [data-ref="report"] .results-table[data-rows="11"],
+        [data-ref="report"] .results-table[data-rows="12"],
+        [data-ref="report"] .results-table[data-rows="13"] {
+          --res-py: 2px;
+          --res-line: 1.1;
+        }
+        [data-ref="report"] .results-table tbody tr { height: auto; }
 
         /* Pied de page — signatures serrées, cachet contenu */
-        [data-ref="report"] [data-report-footer] img { max-height: 18mm !important; }
+        [data-ref="report"] [data-report-footer] img { max-height: 16mm !important; }
 
         /* -----------------------------------------------------------------
            APERÇU ÉCRAN — affiche la feuille A4 comme le PDF final
