@@ -270,9 +270,10 @@ const CarottageSampleForm = () => {
             <div className="space-y-2">
               <Label>Classe de résistance visée <span className="text-red-700">*</span></Label>
               <Select value={classeResistance} onValueChange={setClasseResistance}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={cn(submitted && !classeResistance && "border-red-700")}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>{CLASSES_RESISTANCE.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
+              <ValidationMessage show={submitted && !classeResistance} message="Ce champ est obligatoire" />
             </div>
             <div className="flex items-center gap-2 pt-6">
               <Checkbox checked={presenceArmatures} onCheckedChange={(v) => setPresenceArmatures(!!v)} id="armatures" />
