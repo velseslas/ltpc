@@ -9,8 +9,9 @@ import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import ShareButton from "@/components/reports/ShareButton";
-import { downloadReportAsPDF } from "@/lib/pdf";
-import { toast } from "sonner";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "ultrason-report", title: "Rapport Ultrason", orientation: "portrait" });
 
 const getQualite = (v: number) => {
   if (v > 4500) return "Excellent";
@@ -28,16 +29,8 @@ const UltrasonReport = () => {
   const { data: echantillon, isLoading } = useEchantillonUltrason(id ?? "");
   const { data: entreprise } = useEntreprise();
 
-  const handlePrint = () => window.print();
-
-  const handleDownloadPDF = async () => {
-    try {
-      downloadReportAsPDF(`rapport-ultrason-US-${String(echantillon?.numero).padStart(3, "0")}`);
-      toast.success("PDF téléchargé avec succès");
-    } catch {
-      toast.error("Erreur lors de la génération du PDF");
-    }
-  };
+  const handlePrint = () => PrintService.print({ title: `Rapport Ultrason US-${String(echantillon?.numero ?? "").padStart(3, "0")}`, orientation: "portrait" });
+  const handleDownloadPDF = handlePrint;
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!echantillon) return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;
@@ -76,7 +69,7 @@ const UltrasonReport = () => {
         </div>
       </div>
 
-      <div ref={reportRef} data-ref="report" className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+      <div ref={reportRef} data-ref="report" data-print-root data-print-template="ultrason-report" className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
         <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI VITESSE ULTRASON" subtitle="Norme NF EN 12504-4" />
 
         {/* Identification */}
@@ -246,13 +239,6 @@ const UltrasonReport = () => {
         </div>
       </div>
 
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          #root { visibility: visible; }
-          .print\\:hidden { display: none !important; }
-        }
-      `}</style>
     </div>
   );
 };
