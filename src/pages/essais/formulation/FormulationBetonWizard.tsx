@@ -26,6 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertTriangle, Info } from "lucide-react";
+import { ValidationMessage } from "@/components/ui/validation-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -1514,6 +1515,7 @@ export default function FormulationBetonWizard() {
             <div className="space-y-2">
               <Label>Nom de la formulation <span className="text-destructive">*</span></Label>
               <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Béton C25/30 pour fondations" className={cn("bg-secondary border-border", wasAttempted(1) && nom.trim().length === 0 && "animate-border-blink")} />
+              <ValidationMessage show={wasAttempted(1) && nom.trim().length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Nom de l'entreprise <span className="text-destructive">*</span></Label>
@@ -1521,6 +1523,7 @@ export default function FormulationBetonWizard() {
                 <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && clientId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez une entreprise" /></SelectTrigger>
                 <SelectContent>{clients.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
+              <ValidationMessage show={wasAttempted(1) && clientId.length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Chantier <span className="text-destructive">*</span></Label>
@@ -1528,6 +1531,7 @@ export default function FormulationBetonWizard() {
                 <SelectTrigger className={cn("bg-secondary border-border", wasAttempted(1) && chantierId.length === 0 && "animate-border-blink")}><SelectValue placeholder="Sélectionnez un chantier" /></SelectTrigger>
                 <SelectContent>{clientChantiers.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}</SelectContent>
               </Select>
+              <ValidationMessage show={wasAttempted(1) && chantierId.length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Centrale à béton <span className="text-destructive">*</span></Label>
@@ -1539,6 +1543,7 @@ export default function FormulationBetonWizard() {
                   ) : mergedCentrales.map((c: any) => (<SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>))}
                 </SelectContent>
               </Select>
+              <ValidationMessage show={wasAttempted(1) && centraleId.length === 0} />
             </div>
             <div className="space-y-2">
               <Label>Maître d'ouvrage</Label>
@@ -1576,6 +1581,7 @@ export default function FormulationBetonWizard() {
                   placeholder="ex: 185"
                   className={cn("bg-secondary border-border", wasAttempted(2) && !calcEau.trim() && "animate-border-blink")}
                 />
+                <ValidationMessage show={wasAttempted(2) && !calcEau.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Ciment (kg/m³) <span className="text-destructive">*</span></Label>
@@ -1586,6 +1592,7 @@ export default function FormulationBetonWizard() {
                   placeholder="ex: 350"
                   className={cn("bg-secondary border-border", wasAttempted(2) && !calcCiment.trim() && "animate-border-blink")}
                 />
+                <ValidationMessage show={wasAttempted(2) && !calcCiment.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Rapport G/S <span className="text-destructive">*</span></Label>
@@ -1596,6 +1603,7 @@ export default function FormulationBetonWizard() {
                   placeholder="ex: 1.8"
                   className={cn("bg-secondary border-border", wasAttempted(2) && !calcRatioGS.trim() && "animate-border-blink")}
                 />
+                <ValidationMessage show={wasAttempted(2) && !calcRatioGS.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Adjuvant (L/m³)</Label>
@@ -1624,6 +1632,7 @@ export default function FormulationBetonWizard() {
                   <Input type="number" step="0.1" min="0" value={resistance28j} onChange={(e) => setResistance28j(e.target.value)} placeholder="0.0" className={cn("bg-secondary border-border pr-14", wasAttempted(2) && !resistance28j.trim() && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">MPa</span>
                 </div>
+                <ValidationMessage show={wasAttempted(2) && !resistance28j.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Classe de résistance</Label>
@@ -1637,6 +1646,7 @@ export default function FormulationBetonWizard() {
                   <Input type="number" step="1" min="0" value={slumpSouhaite} onChange={(e) => setSlumpSouhaite(e.target.value)} placeholder="0" className={cn("bg-secondary border-border pr-14", wasAttempted(2) && !slumpSouhaite.trim() && "animate-border-blink")} />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">mm</span>
                 </div>
+                <ValidationMessage show={wasAttempted(2) && !slumpSouhaite.trim()} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">Classe rhéologique</Label>
@@ -1647,6 +1657,7 @@ export default function FormulationBetonWizard() {
               <div className="space-y-1.5">
                 <Label className="text-sm">Classe d'exposition <span className="text-destructive">*</span></Label>
                 <Input value={classeExposition} readOnly placeholder="Sélectionnez depuis l'abaque" className={cn("bg-muted border-border cursor-default", wasAttempted(2) && !classeExposition.trim() && "animate-border-blink")} />
+                <ValidationMessage show={wasAttempted(2) && !classeExposition.trim()} />
               </div>
               <Button variant="outline" className="gap-2 w-fit" type="button" onClick={() => setShowAbaque(true)}>
                 <BarChart3 className="w-4 h-4" />

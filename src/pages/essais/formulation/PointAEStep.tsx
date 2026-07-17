@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ValidationMessage } from "@/components/ui/validation-message";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -256,6 +257,7 @@ export default function PointAEStep({
                   mfIdeal.trim() && (parseFloat(mfIdeal) < 2.2 || parseFloat(mfIdeal) > 2.8) && "animate-border-blink"
                 )}
               />
+              <ValidationMessage show={showError && !mfIdeal.trim()} />
               {mfIdeal.trim() && (parseFloat(mfIdeal) < 2.2 || parseFloat(mfIdeal) > 2.8) && (
                 <p className="text-xs text-destructive font-medium">
                   ⚠️ Le MF idéal doit être compris entre 2.2 et 2.8
@@ -287,6 +289,7 @@ export default function PointAEStep({
                   <SelectItem value="puissante">Puissante</SelectItem>
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !vibration} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">Forme des granulats <span className="text-destructive">*</span></Label>
@@ -299,6 +302,7 @@ export default function PointAEStep({
                   <SelectItem value="concasse">Concassé</SelectItem>
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !forme} />
             </div>
           </div>
 
@@ -456,6 +460,7 @@ export default function PointAEStep({
                   ))}
                 </SelectContent>
               </Select>
+              <ValidationMessage show={showError && !kp.trim()} />
             </div>
           </div>
         </CardContent>
