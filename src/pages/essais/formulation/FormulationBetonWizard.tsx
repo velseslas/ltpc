@@ -870,6 +870,8 @@ export default function FormulationBetonWizard() {
   }, [isEdit, formulationError, refetchFormulation]);
   const [currentStep, setCurrentStep] = useState(1);
   const [errorSteps, setErrorSteps] = useState<number[]>([]);
+  const [attemptedSteps, setAttemptedSteps] = useState<Set<number>>(new Set());
+  const wasAttempted = (n: number) => attemptedSteps.has(n);
   // Step 1
   const [nom, setNom] = useState("");
   const [clientId, setClientId] = useState("");
