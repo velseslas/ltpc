@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
 
 interface ContratPreviewDialogProps {
   open: boolean;

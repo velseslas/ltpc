@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import { downloadReportAsPDF } from "@/lib/pdf";
+import { PrintService } from "@/lib/print/PrintService";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Printer, Download, ClipboardList } from "lucide-react";
