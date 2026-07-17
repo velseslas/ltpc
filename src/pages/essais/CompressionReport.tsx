@@ -966,6 +966,41 @@ const CompressionReport = () => {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
+          /* Surcharges impression contre index.css @media print */
+          #root [data-ref="report"] [data-report-header] { padding: 16px !important; }
+          #root [data-ref="report"] [data-report-header] .w-24 { width: 25mm !important; height: 25mm !important; }
+          #root [data-ref="report"] [data-qr-wrapper] { width: 25mm !important; height: 25mm !important; }
+          #root [data-ref="report"] [data-qr-wrapper] svg { width: 25mm !important; height: 25mm !important; }
+          #root [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.3mm 0 0.2mm 0 !important; }
+          #root [data-ref="report"] th,
+          #root [data-ref="report"] td {
+            padding: var(--tbl-py) var(--tbl-px) !important;
+            font-size: var(--tbl-fs) !important;
+            line-height: var(--tbl-line) !important;
+          }
+          #root [data-ref="report"] .formulation-meta { font-size: 8.5pt !important; margin-bottom: 1.5mm !important; }
+          #root [data-ref="report"] .formulation-table th,
+          #root [data-ref="report"] .formulation-table td {
+            font-size: 7.5pt !important; padding: 2px 3px !important; line-height: 1.15 !important;
+          }
+          #root [data-ref="report"] .formulation-table .value-unit { font-size: 6.5pt !important; margin-left: 2px !important; }
+          #root [data-ref="report"] .results-table th,
+          #root [data-ref="report"] .results-table td {
+            padding-top: var(--res-py) !important; padding-bottom: var(--res-py) !important; line-height: var(--res-line) !important;
+          }
+          #root [data-ref="report"] .results-table[data-rows="6"],
+          #root [data-ref="report"] .results-table[data-rows="7"],
+          #root [data-ref="report"] .results-table[data-rows="8"],
+          #root [data-ref="report"] .results-table[data-rows="9"] { --res-py: 2px; --res-line: 1.1; }
+          #root [data-ref="report"] .results-table[data-rows="10"],
+          #root [data-ref="report"] .results-table[data-rows="11"],
+          #root [data-ref="report"] .results-table[data-rows="12"],
+          #root [data-ref="report"] .results-table[data-rows="13"] { --res-py: 1px; --res-line: 1.05; }
+          #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] { border-top: 0 !important; }
+          #root [data-ref="report"] .results-table tbody tr.last-group td[rowspan] { border-bottom: none !important; }
+          #root [data-ref="report"] .results-table tbody tr:last-child td,
+          #root [data-ref="report"] .results-table tbody tr:last-child th { border-bottom: none !important; }
+          #root [data-ref="report"] [data-report-footer] { margin-top: auto !important; padding-top: 2mm !important; border-top: 1px solid #333; }
         }
 
         /* -----------------------------------------------------------------
