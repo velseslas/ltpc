@@ -68,18 +68,18 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
 
-  const handlePrint = () => {
-    window.print();
+  const templateId = `beton-frais-${essaiType}`;
+
+  const triggerPrint = () => {
+    const numero = String(echantillon?.numero ?? "").padStart(3, "0");
+    PrintService.print({
+      title: `rapport-${prefix}-${numero}`,
+      orientation: "portrait",
+    });
   };
 
-  const handleDownloadPDF = async () => {
-    try {
-      downloadReportAsPDF(`rapport-${prefix}-${echantillon?.numero}`);
-      toast.success("PDF téléchargé avec succès");
-    } catch (error) {
-      toast.error("Erreur lors de la génération du PDF");
-    }
-  };
+  const handlePrint = () => triggerPrint();
+  const handleDownloadPDF = () => triggerPrint();
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: "Béton", path: "/essais/beton" },
