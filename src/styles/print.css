@@ -160,3 +160,139 @@ html.print-mode [data-print-hide],
 html.print-mode .print-hide {
   visibility: hidden;
 }
+
+/* =========================================================================
+ * LOT 1 — Rapports techniques
+ * Vue A4 dédiée (route /reports/rapport-technique/:id/print).
+ * Écran ET impression : aperçu identique au PDF final.
+ * ========================================================================= */
+
+.rt-print-root {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 12mm 14mm 16mm 14mm;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+.rt-print-root h1,
+.rt-print-root h2,
+.rt-print-root h3 {
+  color: #1e5a7a;
+  margin: 0;
+}
+
+/* Bloc identification ------------------------------------------------ */
+.rt-identification { margin: 0 0 6mm; }
+.rt-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.rt-info-table th,
+.rt-info-table td {
+  border: 0.4mm solid #1e5a7a;
+  padding: 2mm 3mm;
+  font-size: 10pt;
+  vertical-align: middle;
+  height: 8mm;
+}
+.rt-info-table th {
+  background: #d4e5f7;
+  color: #1e5a7a;
+  font-weight: 600;
+  text-align: left;
+  width: 18%;
+}
+
+/* Titre objet -------------------------------------------------------- */
+.rt-title-block {
+  margin: 0 0 4mm;
+  padding: 3mm 4mm;
+  background: #f4f8fb;
+  border-left: 1.2mm solid #1e5a7a;
+}
+.rt-title-block h2 {
+  font-size: 13pt;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Corps du rapport --------------------------------------------------- */
+.rt-body { margin: 0 0 6mm; text-align: justify; }
+.rt-body h1 { font-size: 14pt; margin: 5mm 0 2mm; }
+.rt-body h2 {
+  font-size: 12pt;
+  margin: 5mm 0 2mm;
+  padding-bottom: 1mm;
+  border-bottom: 0.3mm solid #1e5a7a;
+}
+.rt-body h3 { font-size: 11pt; margin: 4mm 0 1.5mm; color: #2b6a86; }
+.rt-body p { margin: 0 0 2mm; }
+.rt-body ul, .rt-body ol { margin: 0 0 3mm 6mm; padding: 0; }
+.rt-body li { margin: 0 0 1mm; }
+.rt-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2mm 0 3mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.rt-body th,
+.rt-body td {
+  border: 0.3mm solid #1e5a7a;
+  padding: 1.8mm 2.5mm;
+  font-size: 10pt;
+  vertical-align: top;
+}
+.rt-body th { background: #d4e5f7; color: #1e5a7a; text-align: left; }
+.rt-body img { max-width: 100%; height: auto; }
+
+/* Signature ---------------------------------------------------------- */
+.rt-signature {
+  margin-top: 10mm;
+  display: flex;
+  justify-content: flex-end;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.rt-signature-inner {
+  width: 75mm;
+  text-align: center;
+  border: 0.3mm solid #1e5a7a;
+  border-radius: 1.5mm;
+  padding: 3mm 4mm 4mm;
+  background: #fff;
+}
+.rt-signature-date { font-size: 9pt; color: #555; margin-bottom: 2mm; }
+.rt-signature-visuals {
+  height: 22mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rt-cachet { max-height: 22mm; max-width: 55mm; opacity: 0.9; }
+.rt-signature-name {
+  border-top: 0.3mm solid #333;
+  padding-top: 1.5mm;
+  font-weight: 700;
+  font-size: 10.5pt;
+}
+.rt-signature-role { font-size: 9pt; color: #333; }
+
+/* Impression : neutralise le viewport, laisse @page piloter la page */
+@media print {
+  .rt-print-root {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+  @page { size: A4 portrait; margin: 12mm 14mm 14mm 14mm; }
+}
+
