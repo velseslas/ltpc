@@ -143,7 +143,7 @@ export function EchantillonBetonFraisList({
             onSearchChange={setSearchTerm}
             statusFilter={statusFilter}
             onStatusChange={setStatusFilter}
-            searchPlaceholder="Rechercher par client, chantier, centrale..."
+            searchPlaceholder="Rechercher par client, chantier, ouvrage..."
           />
         </div>
         <div className="flex gap-2 shrink-0">
