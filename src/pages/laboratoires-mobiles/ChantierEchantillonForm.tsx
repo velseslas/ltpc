@@ -410,57 +410,60 @@ export default function ChantierEchantillonForm() {
         {/* Section Informations Générales */}
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="text-xl font-semibold text-foreground mb-6">
-            Informations générales de l'échantillon
+            Informations générales
           </h2>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Essai de convenance */}
-            <div className="space-y-2 md:col-span-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="essai_convenance" 
-                  checked={essaiConvenance}
-                  onCheckedChange={(checked) => setEssaiConvenance(checked === true)}
-                />
-                <Label htmlFor="essai_convenance" className="cursor-pointer">
-                  Essai de convenance
-                </Label>
-              </div>
-              {essaiConvenance && (
-                <Input
-                  id="essai_convenance_details"
-                  value={essaiConvenanceDetails}
-                  onChange={(e) => setEssaiConvenanceDetails(e.target.value)}
-                  placeholder="Détails de l'essai de convenance..."
-                  className="bg-background mt-2"
-                />
-              )}
-            </div>
-
-            {/* Ouvrage */}
+            {/* Client */}
             <div className="space-y-2">
-              <Label htmlFor="ouvrage">Ouvrage <span className="text-red-500">*</span></Label>
+              <Label htmlFor="client">Client</Label>
               <Input
-                id="ouvrage"
-                value={ouvrage}
-                onChange={(e) => setOuvrage(e.target.value)}
-                placeholder="Ex: Bâtiment A, Pont, Tunnel..."
-                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !ouvrage && "animate-border-blink")}
-                disabled={essaiConvenance}
+                id="client"
+                value={client?.nom || ""}
+                disabled
+                className="bg-muted/50"
               />
             </div>
 
-            {/* Partie de l'ouvrage */}
+            {/* Chantier */}
             <div className="space-y-2">
-              <Label htmlFor="destination">Partie de l'ouvrage <span className="text-red-500">*</span></Label>
+              <Label htmlFor="chantier">Chantier</Label>
               <Input
-                id="destination"
-                value={destinationBeton}
-                onChange={(e) => setDestinationBeton(e.target.value)}
-                placeholder="Ex: Dalle, Poteau, Fondation..."
-                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !destinationBeton && "animate-border-blink")}
-                disabled={essaiConvenance}
+                id="chantier"
+                value={chantier?.nom || ""}
+                disabled
+                className="bg-muted/50"
               />
+            </div>
+
+            {/* Date de coulage */}
+            <div className="space-y-2">
+              <Label>Date de coulage <span className="text-red-500">*</span></Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal bg-background",
+                      !dateCoulage && "text-muted-foreground",
+                      showError && !dateCoulage && "animate-border-blink"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateCoulage
+                      ? format(dateCoulage, "PPP", { locale: fr })
+                      : "Sélectionner une date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateCoulage}
+                    onSelect={setDateCoulage}
+                    locale={fr}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Centrale à béton */}
@@ -507,80 +510,84 @@ export default function ChantierEchantillonForm() {
               </Select>
             </div>
 
-
-            {/* Date de coulage */}
+            {/* Ouvrage */}
             <div className="space-y-2">
-              <Label>Date de coulage <span className="text-red-500">*</span></Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-background",
-                      !dateCoulage && "text-muted-foreground",
-                      showError && !dateCoulage && "animate-border-blink"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateCoulage
-                      ? format(dateCoulage, "PPP", { locale: fr })
-                      : "Sélectionner une date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateCoulage}
-                    onSelect={setDateCoulage}
-                    locale={fr}
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="ouvrage">Ouvrage <span className="text-red-500">*</span></Label>
+              <Input
+                id="ouvrage"
+                value={ouvrage}
+                onChange={(e) => setOuvrage(e.target.value)}
+                placeholder="Ex: Bâtiment A, Pont, Tunnel..."
+                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !ouvrage && "animate-border-blink")}
+                disabled={essaiConvenance}
+              />
             </div>
 
-            {/* Condition de cure */}
+            {/* Partie de l'ouvrage */}
             <div className="space-y-2">
-              <Label htmlFor="condition">Condition de cure</Label>
-              <Select value={conditionCure} onValueChange={setConditionCure}>
-                <SelectTrigger>
-                  <SelectValue />
+              <Label htmlFor="destination">Partie de l'ouvrage <span className="text-red-500">*</span></Label>
+              <Input
+                id="destination"
+                value={destinationBeton}
+                onChange={(e) => setDestinationBeton(e.target.value)}
+                placeholder="Ex: Dalle, Poteau, Fondation..."
+                className={cn("bg-background", essaiConvenance && "opacity-50", showError && !essaiConvenance && !destinationBeton && "animate-border-blink")}
+                disabled={essaiConvenance}
+              />
+            </div>
+
+            {/* Essai de convenance */}
+            <div className="space-y-2 md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="essai_convenance" 
+                  checked={essaiConvenance}
+                  onCheckedChange={(checked) => setEssaiConvenance(checked === true)}
+                />
+                <Label htmlFor="essai_convenance" className="cursor-pointer">
+                  Essai de convenance
+                </Label>
+              </div>
+              {essaiConvenance && (
+                <Input
+                  id="essai_convenance_details"
+                  value={essaiConvenanceDetails}
+                  onChange={(e) => setEssaiConvenanceDetails(e.target.value)}
+                  placeholder="Détails de l'essai de convenance..."
+                  className="bg-background mt-2"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Section Caractéristiques de l'essai */}
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-foreground">
+              Caractéristiques de l'essai
+            </h2>
+            <div className="text-sm text-muted-foreground">
+              Total distribué: <span className="font-semibold text-foreground">{totalDistribue}</span>
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Classe de résistance */}
+            <div className="space-y-2">
+              <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-500">*</span></Label>
+              <Select value={classeResistance} onValueChange={setClasseResistance}>
+                <SelectTrigger className={cn(showError && !classeResistance && "animate-border-blink")}>
+                  <SelectValue placeholder="Sélectionnez une classe" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CONDITIONS_CURE.map((cond) => (
-                    <SelectItem key={cond.value} value={cond.value}>
-                      {cond.label}
+                  {CLASSES_RESISTANCE.map((classe) => (
+                    <SelectItem key={classe.value} value={classe.value}>
+                      {classe.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* Température béton */}
-            <div className="space-y-2">
-              <Label htmlFor="temperatureBeton">Température béton (°C)</Label>
-              <Input
-                id="temperatureBeton"
-                type="number"
-                step="0.1"
-                value={temperatureBeton}
-                onChange={(e) => setTemperatureBeton(e.target.value)}
-                placeholder="Ex: 22.5"
-                className="bg-background"
-              />
-            </div>
-
-            {/* Température air */}
-            <div className="space-y-2">
-              <Label htmlFor="temperatureAir">Température air (°C)</Label>
-              <Input
-                id="temperatureAir"
-                type="number"
-                step="0.1"
-                value={temperatureAir}
-                onChange={(e) => setTemperatureAir(e.target.value)}
-                placeholder="Ex: 25.0"
-                className="bg-background"
-              />
             </div>
 
             {/* Classe de consistance */}
@@ -592,23 +599,6 @@ export default function ChantierEchantillonForm() {
                 </SelectTrigger>
                 <SelectContent>
                   {CLASSES_CONSISTANCE.map((classe) => (
-                    <SelectItem key={classe.value} value={classe.value}>
-                      {classe.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Classe de résistance */}
-            <div className="space-y-2">
-              <Label htmlFor="classeResistance">Classe de résistance <span className="text-red-500">*</span></Label>
-              <Select value={classeResistance} onValueChange={setClasseResistance}>
-                <SelectTrigger className={cn(showError && !classeResistance && "animate-border-blink")}>
-                  <SelectValue placeholder="Sélectionnez une classe" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CLASSES_RESISTANCE.map((classe) => (
                     <SelectItem key={classe.value} value={classe.value}>
                       {classe.label}
                     </SelectItem>
@@ -674,21 +664,6 @@ export default function ChantierEchantillonForm() {
               />
             </div>
 
-
-            {/* Étuvage */}
-            <div className="space-y-2">
-              <Label htmlFor="etuvage">Étuvage <span className="text-red-500">*</span></Label>
-              <Select value={etuvage} onValueChange={setEtuvage}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="oui">Oui</SelectItem>
-                  <SelectItem value="non">Non</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Mode de coulage */}
             <div className="space-y-2">
               <Label htmlFor="modeCoulage">Mode de coulage <span className="text-red-500">*</span></Label>
@@ -705,18 +680,140 @@ export default function ChantierEchantillonForm() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </div>
 
-        {/* Section Informations Techniques */}
-        <div className="rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-foreground">
-              Informations Techniques
-            </h2>
-            <div className="text-sm text-muted-foreground">
-              Total distribué: <span className="font-semibold text-foreground">{totalDistribue}</span>
+            {/* Étuvage */}
+            <div className="space-y-2">
+              <Label htmlFor="etuvage">Étuvage <span className="text-red-500">*</span></Label>
+              <Select value={etuvage} onValueChange={setEtuvage}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="oui">Oui</SelectItem>
+                  <SelectItem value="non">Non</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Température béton */}
+            <div className="space-y-2">
+              <Label htmlFor="temperatureBeton">Température béton (°C)</Label>
+              <Input
+                id="temperatureBeton"
+                type="number"
+                step="0.1"
+                value={temperatureBeton}
+                onChange={(e) => setTemperatureBeton(e.target.value)}
+                placeholder="Ex: 22.5"
+                className="bg-background"
+              />
+            </div>
+
+            {/* Température air */}
+            <div className="space-y-2">
+              <Label htmlFor="temperatureAir">Température air (°C)</Label>
+              <Input
+                id="temperatureAir"
+                type="number"
+                step="0.1"
+                value={temperatureAir}
+                onChange={(e) => setTemperatureAir(e.target.value)}
+                placeholder="Ex: 25.0"
+                className="bg-background"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <Label className="text-muted-foreground">Jours d'essai</Label>
+
+            <div className="space-y-3">
+              {JOURS_ESSAI.map((jour, index) => (
+                <div
+                  key={jour.value}
+                  className="flex items-center justify-between p-4 rounded-lg border border-border bg-background"
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id={`jour-${jour.value}`}
+                      checked={joursEssai[index].selected}
+                      onCheckedChange={(checked) =>
+                        handleJourToggle(index, checked as boolean)
+                      }
+                      className="border-primary data-[state=checked]:bg-primary"
+                    />
+                    <Label
+                      htmlFor={`jour-${jour.value}`}
+                      className={cn(
+                        "cursor-pointer",
+                        joursEssai[index].selected
+                          ? "text-primary font-medium"
+                          : "text-foreground"
+                      )}
+                    >
+                      {jour.label}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground text-sm">Nombre:</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={joursEssai[index].nombre}
+                      onChange={(e) => handleJourNombreChange(index, e.target.value)}
+                      className="w-20 h-8 bg-muted/50 text-center"
+                      disabled={!joursEssai[index].selected}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {/* Autre jour */}
+              <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-background">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="jour-autre"
+                    checked={autreJourSelected}
+                    onCheckedChange={(checked) => setAutreJourSelected(checked as boolean)}
+                    className="border-primary data-[state=checked]:bg-primary"
+                  />
+                  <Label htmlFor="jour-autre" className="cursor-pointer text-foreground">
+                    Autre:
+                  </Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={autreJour}
+                    onChange={(e) => setAutreJour(e.target.value)}
+                    placeholder="jours"
+                    className="w-20 h-8 bg-muted/50 text-center"
+                    disabled={!autreJourSelected}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground text-sm">Nombre:</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={autreJourNombre}
+                    onChange={(e) => setAutreJourNombre(parseInt(e.target.value) || 0)}
+                    className="w-20 h-8 bg-muted/50 text-center"
+                    disabled={!autreJourSelected}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Validation alert */}
+            {parseInt(nombreEprouvettes) > 0 && totalDistribue !== parseInt(nombreEprouvettes) && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Le nombre d'éprouvettes distribuées ({totalDistribue}) ne correspond pas au nombre total saisi ({nombreEprouvettes}).
+                  Veuillez ajuster la répartition avant d'enregistrer.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <div className="space-y-4">
