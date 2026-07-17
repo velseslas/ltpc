@@ -42,7 +42,7 @@ const getFieldsForType = (essaiType: string) => {
     case "affaissement":
       return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: false, showClasseConsistance: true };
     case "temperature":
-      return { showTemperatureBeton: true, showTemperatureAir: false, showTemperatureAmbiante: true, showClasseConsistance: false };
+      return { showTemperatureBeton: false, showTemperatureAir: false, showTemperatureAmbiante: false, showClasseConsistance: false };
     case "temps-prise":
       return { showTemperatureBeton: true, showTemperatureAir: true, showTemperatureAmbiante: false, showClasseConsistance: false };
     case "teneur-air":
