@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { useEchantillonGranulatById, getPrefix, getTableName, EchantillonGranulatBase } from "@/hooks/useEchantillonsGranulatFactory";
+import { PrintService } from "@/lib/print/PrintService";
+
+PrintService.registerTemplate({ id: "granulat-report", title: "Rapport Granulat", orientation: "portrait" });
 
 const TYPE_ESSAI_SUFFIX: Record<string, string> = {
   beton: "B",
@@ -85,14 +88,11 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
 
   const ReportContent = reportContentComponents[essaiType];
 
-  const handlePrint = () => {
-    requestAnimationFrame(() => window.print());
-  };
-
-  const handleDownloadPDF = async () => {
-    const { downloadReportAsPDF } = await import("@/lib/pdf");
-    downloadReportAsPDF(`Rapport_${fullPrefix}-${String(echantillon?.numero ?? "").padStart(3, "0")}`);
-  };
+  const handlePrint = () => PrintService.print({
+    title: `Rapport ${fullPrefix}-${String(echantillon?.numero ?? "").padStart(3, "0")}`,
+    orientation: "portrait",
+  });
+  const handleDownloadPDF = handlePrint;
 
   if (isLoading) {
     return (
@@ -163,6 +163,8 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
       {/* Rapport */}
       <div 
         data-ref="report"
+        data-print-root
+        data-print-template="granulat-report"
         data-essai-type={essaiType}
         className="report-table bg-white text-black p-8 rounded-lg shadow-lg w-[210mm] max-w-full mx-auto overflow-x-auto print:overflow-visible print:shadow-none print:p-0 print:rounded-none"
         style={{ fontFamily: "Arial, sans-serif" }}
