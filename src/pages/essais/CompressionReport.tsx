@@ -1053,6 +1053,9 @@ const CompressionReport = () => {
         #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] {
           border-top: 0 !important;
         }
+        #root [data-ref="report"] .results-table tbody tr.last-group td[rowspan] {
+          border-bottom: none !important;
+        }
         #root [data-ref="report"] .results-table tbody tr:last-child td,
         #root [data-ref="report"] .results-table tbody tr:last-child th {
           border-bottom: none !important;
