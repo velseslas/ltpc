@@ -429,10 +429,13 @@ const CompressionReport = () => {
         </>
       )}
 
-      {/* Rapport */}
+      {/* Rapport — LOT 2 : conteneur unique conforme à print.css
+          (data-print-root) + conventions internes A4 (data-ref="report"). */}
       <div 
         ref={reportRef}
         data-ref="report"
+        data-print-root
+        data-print-template="compression-report"
         className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible bg-white"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
