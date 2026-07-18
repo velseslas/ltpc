@@ -37,6 +37,37 @@ interface UtilisateurRow {
   intervenant_id: string | null;
 }
 
+const WEAK_PASSWORD_MESSAGE =
+  "Mot de passe refusé : il est trop faible ou présent dans une fuite connue. Choisissez un mot de passe plus long et unique.";
+
+const extractFunctionErrorMessage = async (error: any, fallback: string) => {
+  try {
+    const response = error?.context;
+    if (response && typeof response.clone === "function") {
+      const body = await response.clone().json();
+      if (body?.error) return String(body.error);
+      if (body?.message) return String(body.message);
+    }
+  } catch {
+    // Keep fallback below when the edge response body cannot be parsed.
+  }
+
+  const rawMessage = String(error?.message || "");
+  if (
+    rawMessage.includes("weak_password") ||
+    rawMessage.includes("Password is known") ||
+    rawMessage.includes("pwned")
+  ) {
+    return WEAK_PASSWORD_MESSAGE;
+  }
+
+  if (rawMessage === "Edge Function returned a non-2xx status code") {
+    return fallback;
+  }
+
+  return rawMessage || fallback;
+};
+
 const Authentification = () => {
   const navigate = useNavigate();
   const { data: postes = [] } = usePostes();
@@ -109,7 +140,9 @@ const Authentification = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(await extractFunctionErrorMessage(error, WEAK_PASSWORD_MESSAGE));
+      }
       if (data?.error) throw new Error(data.error);
 
       toast.success("Utilisateur créé avec succès");
@@ -154,17 +187,10 @@ const Authentification = () => {
         },
       });
       if (error) {
-        // supabase.functions.invoke swallows the JSON body on non-2xx.
-        // Read the actual error message from the Response attached to the error.
-        let serverMsg: string | undefined;
-        try {
-          const resp = (error as any)?.context;
-          if (resp && typeof resp.json === "function") {
-            const body = await resp.clone().json();
-            serverMsg = body?.error;
-          }
-        } catch { /* ignore */ }
-        throw new Error(serverMsg || error.message || "Erreur lors de la modification");
+        throw new Error(await extractFunctionErrorMessage(
+          error,
+          passwordChanged ? WEAK_PASSWORD_MESSAGE : "Erreur lors de la modification"
+        ));
       }
       if (data?.error) throw new Error(data.error);
       toast.success("Utilisateur modifié avec succès");

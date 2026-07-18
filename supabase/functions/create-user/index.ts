@@ -35,6 +35,23 @@ async function requireAdmin(req: Request): Promise<{ error: Response } | { supab
   return { supabaseAdmin };
 }
 
+function authPasswordErrorResponse(error: any) {
+  const code = error?.code;
+  const message = String(error?.message || "");
+  let msg = "Impossible de créer le mot de passe";
+
+  if (code === "weak_password" || message.includes("Password is known") || message.includes("pwned")) {
+    msg = "Mot de passe refusé : il est trop faible ou présent dans une fuite connue. Choisissez un mot de passe plus long et unique.";
+  } else if (message) {
+    msg = message;
+  }
+
+  return new Response(
+    JSON.stringify({ error: msg, code }),
+    { status: code === "weak_password" ? 422 : 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -80,13 +97,14 @@ Deno.serve(async (req) => {
           );
         }
         authUserId = existingUser.id;
-        await supabaseAdmin.auth.admin.updateUserById(authUserId, { password });
+        const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, { password });
+        if (pwdErr) {
+          console.error("create-user password update error:", pwdErr);
+          return authPasswordErrorResponse(pwdErr);
+        }
       } else {
         console.error("create-user auth error:", authError);
-        return new Response(
-          JSON.stringify({ error: "Impossible de créer l'utilisateur" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return authPasswordErrorResponse(authError);
       }
     } else {
       authUserId = authData.user.id;
