@@ -555,5 +555,12 @@ html[data-animations="off"] *::after {
   [role="button"]:has(svg.lucide-arrow-left) {
     display: none !important;
   }
+
+  /* Fallback for mobile browsers/webviews where :has() is unreliable */
+  button.h-10.w-10.border-border.hover\:bg-primary\/10.hover\:text-primary.hover\:border-primary\/50,
+  a.h-10.w-10.border-border.hover\:bg-primary\/10.hover\:text-primary.hover\:border-primary\/50,
+  [role="button"].h-10.w-10.border-border.hover\:bg-primary\/10.hover\:text-primary.hover\:border-primary\/50 {
+    display: none !important;
+  }
 }
 
