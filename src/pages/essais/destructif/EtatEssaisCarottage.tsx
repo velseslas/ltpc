@@ -66,7 +66,7 @@ export default function EtatEssaisCarottage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <div className="print:hidden">
         <EssaiBreadcrumb items={[
           { label: "Béton", path: "/essais/beton" },
