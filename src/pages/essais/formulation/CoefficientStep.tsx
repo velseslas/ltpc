@@ -168,7 +168,7 @@ export default function CoefficientStep({
   }, [computedC]);
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       {/* ═══ Coefficient Granulaire G' ═══ */}
       <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 space-y-5">

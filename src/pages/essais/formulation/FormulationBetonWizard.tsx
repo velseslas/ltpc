@@ -94,7 +94,7 @@ const STEPS = [
 // Stepper component
 function Stepper({ currentStep, onStepClick, errorSteps = [] }: { currentStep: number; onStepClick: (step: number) => void; errorSteps?: number[] }) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-8">
+    <div data-essai-mobile className="flex items-center justify-center gap-0 mb-8">
       {STEPS.map((step, index) => {
         const hasError = errorSteps.includes(step.number);
         return (
