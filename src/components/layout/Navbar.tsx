@@ -18,6 +18,7 @@ export function Navbar({ onMenuClick }: NavbarProps = {}) {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const { data: entreprise } = useEntreprise();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
