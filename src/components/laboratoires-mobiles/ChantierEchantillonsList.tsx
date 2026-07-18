@@ -138,7 +138,7 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
             className="flex items-center gap-2"
             onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}/echantillon/nouveau`)}
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="hidden md:inline-block h-4 w-4" />
             Nouveau échantillon
           </Button>
         </div>

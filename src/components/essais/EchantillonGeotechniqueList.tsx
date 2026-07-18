@@ -115,7 +115,7 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
             Générer état
           </Button>
           <Button className="gradient-primary text-primary-foreground" onClick={() => navigate(`${basePath}/nouveau`)}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="hidden md:inline-block md:mr-2 w-4 h-4" />
             Nouveau échantillon
           </Button>
         </div>

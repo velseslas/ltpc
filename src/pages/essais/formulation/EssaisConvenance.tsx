@@ -120,7 +120,7 @@ const EssaisConvenance = () => {
             Étude de formulation
           </Button>
           <Button className="flex items-center gap-2" onClick={handleCreate}>
-            <Plus className="h-4 w-4" />
+            <Plus className="hidden md:inline-block h-4 w-4" />
             Nouveau échantillon
           </Button>
         </div>
