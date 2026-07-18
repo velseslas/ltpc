@@ -153,7 +153,19 @@ const Authentification = () => {
           poste_id: editFormData.poste_id || null,
         },
       });
-      if (error) throw error;
+      if (error) {
+        // supabase.functions.invoke swallows the JSON body on non-2xx.
+        // Read the actual error message from the Response attached to the error.
+        let serverMsg: string | undefined;
+        try {
+          const resp = (error as any)?.context;
+          if (resp && typeof resp.json === "function") {
+            const body = await resp.clone().json();
+            serverMsg = body?.error;
+          }
+        } catch { /* ignore */ }
+        throw new Error(serverMsg || error.message || "Erreur lors de la modification");
+      }
       if (data?.error) throw new Error(data.error);
       toast.success("Utilisateur modifié avec succès");
       setIsEditDialogOpen(false);
