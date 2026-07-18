@@ -38,7 +38,7 @@ export default function FormeGranulatsResults({ resultats }: FormeGranulatsResul
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Header info */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div data-essai-mobile className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Masse prise d'essai M₀</p>
             <p className="font-medium text-foreground">{m0 || "—"} g</p>

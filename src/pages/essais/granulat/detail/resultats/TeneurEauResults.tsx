@@ -11,7 +11,7 @@ export default function TeneurEauResults({ resultats }: TeneurEauResultsProps) {
         <CardTitle className="text-lg">Résultats - Teneur en Eau (NF EN 1097-5)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div data-essai-mobile className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-sm text-muted-foreground">Masse de l'échantillon humide M1</p>
             <p className="font-medium text-foreground">{(resultats.masse_humide as number) || "-"} g</p>

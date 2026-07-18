@@ -30,7 +30,7 @@ export default function MatiereOrganiqueForm({ resultats, onChange }: MatiereOrg
         <CardTitle className="text-lg">Résultats - Teneur en Matière Organique (NF EN 1744-1)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div data-essai-mobile className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="masse_echantillon">Masse de l'échantillon (g)</Label>
             <Input

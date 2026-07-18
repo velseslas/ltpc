@@ -53,7 +53,7 @@ export default function MicroDevalResults({ resultats }: MicroDevalResultsProps)
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div data-essai-mobile className="flex items-center justify-between">
           <CardTitle className="text-lg">Résultats - Essai Micro-Deval (NF EN 1097-1)</CardTitle>
           <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
             {typeLabel(typeEssai)}
