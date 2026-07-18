@@ -1,10 +1,20 @@
-import { Building2, Plus, Search, User, Mail, Phone, MapPin, Loader2, ArrowLeft } from "lucide-react";
+import { Building2, Plus, Search, User, Mail, Phone, MapPin, Loader2, ArrowLeft, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useClients } from "@/hooks/useClients";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDelete } from "@/components/common/ConfirmDelete";
+import { AdminOnly } from "@/components/common/AdminOnly";
+import { useClients, useDeleteClient } from "@/hooks/useClients";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { toast } from "sonner";
+
 
 const Clients = () => {
   const navigate = useNavigate();
