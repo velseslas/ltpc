@@ -35,7 +35,7 @@ export function EchantillonFilters({
         />
       </div>
       <Select value={statusFilter} onValueChange={onStatusChange}>
-        <SelectTrigger className="w-[180px] h-11 bg-card border-border shrink-0">
+        <SelectTrigger className="w-full sm:w-[180px] h-11 bg-card border-border shrink-0">
           <SelectValue placeholder="Filtrer par statut" />
         </SelectTrigger>
         <SelectContent>
