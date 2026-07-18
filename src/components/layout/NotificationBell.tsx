@@ -96,10 +96,11 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-80 p-0 bg-popover border-border"
-        side="right"
-        align="start"
+        className="w-[calc(100vw-2rem)] max-w-sm md:w-80 p-0 bg-popover border-border"
+        side="bottom"
+        align="center"
         sideOffset={8}
+        collisionPadding={16}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
