@@ -110,53 +110,92 @@ const Clients = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredClients?.map((client) => (
-              <div 
-                key={client.id} 
-                className="rounded-xl bg-card border border-border p-6 hover:border-primary/50 transition-all duration-300"
+              <div
+                key={client.id}
+                className="rounded-xl bg-card border border-border p-5 hover:border-primary/50 transition-all duration-300"
               >
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                {/* Header with action menu */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 shrink-0 rounded-lg bg-primary/20 flex items-center justify-center">
                     <Building2 className="w-5 h-5 text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground">{client.nom}</h3>
+                  <h3 className="text-lg font-semibold text-foreground flex-1 min-w-0 break-words">{client.nom}</h3>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" aria-label="Actions">
+                        <MoreHorizontal className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => navigate(`/intervenant/clients/${client.id}`)}>
+                        <Eye className="h-4 w-4 mr-2" /> Consulter
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(`/intervenant/clients/${client.id}/modifier`)}>
+                        <Pencil className="h-4 w-4 mr-2" /> Modifier
+                      </DropdownMenuItem>
+                      <AdminOnly>
+                        <ConfirmDelete
+                          trigger={
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Supprimer
+                            </DropdownMenuItem>
+                          }
+                          onConfirm={() => handleDelete(client.id, client.nom)}
+                          description={`Supprimer le client « ${client.nom} » ? Cette action est irréversible.`}
+                          adminOnly={false}
+                        />
+                      </AdminOnly>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Details */}
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <User className="w-4 h-4" />
-                    <span>{client.ice || "Non renseigné"}</span>
+                <div className="space-y-2.5 text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+                    <User className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{client.ice || "Non renseigné"}</span>
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="w-4 h-4" />
-                    <span className="text-primary hover:underline cursor-pointer">
+
+                  <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+                    <Mail className="w-4 h-4 shrink-0" />
+                    <a
+                      href={client.email ? `mailto:${client.email}` : undefined}
+                      className="text-primary hover:underline truncate"
+                    >
                       {client.email || "Non renseigné"}
-                    </span>
+                    </a>
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="w-4 h-4" />
-                    <span>{client.telephone || "Non renseigné"}</span>
+
+                  <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+                    <Phone className="w-4 h-4 shrink-0" />
+                    <a
+                      href={client.telephone ? `tel:${client.telephone}` : undefined}
+                      className="truncate"
+                    >
+                      {client.telephone || "Non renseigné"}
+                    </a>
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    <span>{client.ville ? `${client.ville}${client.adresse ? `, ${client.adresse}` : ''}` : "Non renseigné"}</span>
+
+                  <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+                    <MapPin className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{client.ville ? `${client.ville}${client.adresse ? `, ${client.adresse}` : ''}` : "Non renseigné"}</span>
                   </div>
                 </div>
 
-                {/* Action Button */}
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-4 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 active:bg-primary/20"
+                {/* Primary action */}
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 h-11 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 active:bg-primary/20"
                   onClick={() => navigate(`/intervenant/clients/${client.id}`)}
                 >
                   Voir les détails
                 </Button>
               </div>
             ))}
+
           </div>
         )}
       </div>
