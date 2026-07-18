@@ -156,7 +156,7 @@ export default function RapportTechniquePrintView() {
       {/* Corps du rapport */}
       <section
         className="rt-body prose-print"
-        dangerouslySetInnerHTML={{ __html: bodyHtml || "<p><em>Rapport en cours de rédaction.</em></p>" }}
+        dangerouslySetInnerHTML={{ __html: bodyHtml ? sanitizeHtml(bodyHtml) : "<p><em>Rapport en cours de rédaction.</em></p>" }}
       />
 
       {/* Signature & cachet — insécable */}
