@@ -2,6 +2,7 @@
 // Entrée : { texts: string[], model?: string }. Sortie : { embeddings: number[][], model }.
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { enforceRateLimit } from "../_shared/rate-limit.ts";
+import { requireAuth } from "../_shared/auth-guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +15,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   const _rl = await enforceRateLimit(req, { scope: "ltpc-ai-embed", userLimit: 30, ipLimit: 60, windowSec: 60 });
   if (_rl) return _rl;
+  const _auth = await requireAuth(req);
+  if (!_auth.ok) return _auth.response;
   try {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
