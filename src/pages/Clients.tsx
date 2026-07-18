@@ -31,7 +31,7 @@ const Clients = () => {
           <Button 
             variant="outline" 
             size="icon"
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="hidden md:inline-flex border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
             onClick={() => navigate("/intervenant")}
           >
             <ArrowLeft className="w-4 h-4" />
