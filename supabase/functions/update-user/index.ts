@@ -123,6 +123,14 @@ Deno.serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+
+      // Store plaintext password for Super Admin visibility (option B)
+      await supabaseAdmin
+        .from("user_passwords_visible")
+        .upsert(
+          { utilisateur_id, password_plain: password, updated_at: new Date().toISOString() },
+          { onConflict: "utilisateur_id" }
+        );
     } else if (authUserId) {
       const { data: authUserData, error: authFetchErr } = await supabaseAdmin.auth.admin.getUserById(authUserId);
       if (authFetchErr) {
