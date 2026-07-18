@@ -125,7 +125,7 @@ export default function RapportTechniqueDetail() {
   const isValide = r?.statut === "valide" || r?.statut === "archive";
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Essais", path: "/essais" },
         { label: "Assistant IA", path: "/essais/redaction-rapport-technique" },
