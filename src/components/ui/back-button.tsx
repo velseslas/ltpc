@@ -16,7 +16,10 @@ export function BackButton({ to, className }: BackButtonProps) {
       size="icon"
       className={cn(
         "shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50",
+        // Mobile : masqué (l'utilisateur revient via le geste système)
+        "hidden md:inline-flex",
         className
+
       )}
       onClick={() => navigate(to)}
     >
