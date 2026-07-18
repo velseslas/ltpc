@@ -55,35 +55,16 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
-  const { hasPermission, role, isTechnicien } = usePermissionContext();
-  const { data: userChantiers } = useCurrentUserChantiers();
-
-  const visibleItems = menuItems.filter((item) => {
-    // Items sans permission (ex. LTPC AI) toujours visibles
-    if (!item.permission) return true;
-    // Dashboard always visible
-    if (item.permission === "dashboard.voir") return true;
-    
-    // Techniciens: only show Essais + Laboratoires Chantier (if assigned)
-    if (isTechnicien) {
-      if (item.permission === "essais.voir") return hasPermission(item.permission);
-      if (item.permission === "laboratoires_mobiles.voir") {
-        return hasPermission(item.permission) && (userChantiers?.chantierIds?.length ?? 0) > 0;
-      }
-      return false;
-    }
-    
-    // Check permission
-    return hasPermission(item.permission);
-  });
+  const visibleItems = useVisibleMenuItems();
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-14 z-30 h-[calc(100vh-3.5rem)] bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
+        "fixed left-0 top-14 z-30 h-[calc(100vh-3.5rem)] bg-sidebar border-r border-sidebar-border transition-all duration-300 flex-col hidden md:flex",
         collapsed ? "w-16" : "w-56"
       )}
     >
+
 
       {/* Navigation */}
       <nav className="flex-1 mt-10 px-2 overflow-y-auto">
