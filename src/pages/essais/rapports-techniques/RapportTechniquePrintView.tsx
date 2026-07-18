@@ -21,6 +21,7 @@ import { renderTemplate } from "@/lib/rapports/templateEngine";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { PrintService } from "@/lib/print/PrintService";
 import type { AIRapportContenu } from "@/lib/ai/aiProvider";
+import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
@@ -32,10 +33,10 @@ function contenuToHtml(c: AIRapportContenu | null): string {
   ];
   const body = sections
     .filter(([, b]) => b && b.trim().length > 0)
-    .map(([t, b]) => `<h2>${t}</h2><p>${(b || "").replace(/\n/g, "<br/>")}</p>`)
+    .map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "").replace(/\n/g, "<br/>")}</p>`)
     .join("");
   const list = (title: string, items?: string[]) =>
-    items?.length ? `<h3>${title}</h3><ul>${items.map(f => `<li>${f}</li>`).join("")}</ul>` : "";
+    items?.length ? `<h3>${escapeHtml(title)}</h3><ul>${items.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
   return `${body}${list("Faits", c.faits)}${list("Hypothèses", c.hypotheses)}${list("Recommandations (synthèse)", c.recommandations_synthese)}`;
 }
 
