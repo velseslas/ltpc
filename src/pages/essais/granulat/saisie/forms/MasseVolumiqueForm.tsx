@@ -148,7 +148,7 @@ function getGravelStorageKey(produit?: string): string {
 
 function SandInputFields({ data, onFieldChange }: { data: Record<string, unknown>; onFieldChange: (field: string, value: string) => void }) {
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       {/* Pesées */}
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-3">Pesées</h4>

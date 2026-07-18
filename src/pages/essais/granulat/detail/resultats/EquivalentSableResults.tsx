@@ -67,7 +67,7 @@ export default function EquivalentSableResults({ resultats }: EquivalentSableRes
   ];
 
   return (
-    <div className="space-y-4">
+    <div data-essai-mobile className="space-y-4">
       <Card className="border-border bg-card">
         <CardHeader>
           <div className="flex items-center justify-between">
