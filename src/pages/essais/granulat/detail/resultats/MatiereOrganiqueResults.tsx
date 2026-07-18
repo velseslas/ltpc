@@ -24,7 +24,7 @@ export default function MatiereOrganiqueResults({ resultats }: MatiereOrganiqueR
         <CardTitle className="text-lg">Résultats - Teneur en Matière Organique (NF EN 1744-1)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div data-essai-mobile className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-sm text-muted-foreground">Masse de l'échantillon</p>
             <p className="font-medium text-foreground">{(resultats.masse_echantillon as number) || "-"} g</p>

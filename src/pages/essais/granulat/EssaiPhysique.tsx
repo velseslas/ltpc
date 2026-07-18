@@ -24,7 +24,7 @@ const EssaiPhysique = () => {
         ]} 
       />
       
-      <div className="mb-8">
+      <div data-essai-mobile className="mb-8">
         <div className="flex items-center gap-4 mb-2">
           <Button
             variant="outline"

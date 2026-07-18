@@ -81,7 +81,7 @@ export default function LosAngelesForm({ resultats, onChange }: LosAngelesFormPr
   const specs = getSpecs(typeEssai);
 
   return (
-    <div className="space-y-4">
+    <div data-essai-mobile className="space-y-4">
       {/* Type d'essai */}
       <Card className="border-border bg-card">
         <CardContent className="pt-4">

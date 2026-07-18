@@ -40,7 +40,7 @@ export default function EcrasementForm({ resultats, onChange }: EcrasementFormPr
         <CardTitle className="text-lg">Résultats - Résistance à l'Écrasement (NF P 18-576)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div data-essai-mobile className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <Label htmlFor="masse_initiale">Masse initiale M (g)</Label>
             <Input

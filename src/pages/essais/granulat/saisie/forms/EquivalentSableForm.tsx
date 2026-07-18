@@ -132,7 +132,7 @@ export default function EquivalentSableForm({ resultats, onChange }: EquivalentS
   ];
 
   return (
-    <div className="space-y-4">
+    <div data-essai-mobile className="space-y-4">
       {/* Type d'essai selector */}
       <Card className="border-border bg-card">
         <CardContent className="pt-4">

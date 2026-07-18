@@ -111,7 +111,7 @@ export default function FormeGranulatsForm({ resultats, onChange }: FormeGranula
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Header fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div data-essai-mobile className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <Label>Masse prise d'essai M₀ (g)</Label>
             <Input type="number" step="0.1" value={m0 || ""} onChange={(e) => handleHeaderChange("masse_prise_essai", e.target.value)} className="bg-background border-border" placeholder="0.0" />

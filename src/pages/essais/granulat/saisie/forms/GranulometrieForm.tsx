@@ -154,7 +154,7 @@ export default function GranulometrieForm({ resultats, onChange, produit }: Gran
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Procédé et masses */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div data-essai-mobile className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <Label>Procédé utilisé</Label>
             <Select value={procede} onValueChange={handleProcedeChange}>

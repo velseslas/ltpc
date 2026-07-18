@@ -37,7 +37,7 @@ function ModuleResults({ data, label, method }: { data: Record<string, unknown>;
   const hasData = ds !== undefined;
 
   return (
-    <div className="space-y-4">
+    <div data-essai-mobile className="space-y-4">
       <div className="flex items-center gap-2">
         <h3 className="font-semibold text-foreground">{label}</h3>
         <Badge variant="outline" className="text-xs">{method}</Badge>
