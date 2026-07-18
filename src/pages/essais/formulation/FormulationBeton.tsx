@@ -142,7 +142,7 @@ const FormulationBeton = () => {
     <>
       <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Formulation" }]} />
 
-      <div className="mb-8">
+      <div data-essai-mobile className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton to="/essais/beton" />

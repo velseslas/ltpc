@@ -116,7 +116,7 @@ export function ConvenanceStep({ formulationId }: ConvenanceStepProps) {
   return (
     <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
       <CardContent className="p-6 space-y-5">
-        <div>
+        <div data-essai-mobile>
           <h2 className="text-lg font-semibold text-foreground">Essai de convenance</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Sélectionnez un rapport d'essai de compression marqué comme convenance pour cette formulation.

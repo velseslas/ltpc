@@ -169,7 +169,7 @@ export default function PointAEStep({
   const kpNum = parseFloat(kp) || 0;
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       {/* Warnings - displayed at top */}
       {(!dmax || !vibration || !forme || mfForCalc === null) && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex items-start gap-2">

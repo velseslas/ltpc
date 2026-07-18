@@ -523,7 +523,7 @@ export default function ProportionsStep({
   }, [calcMode, hasCalculated, sc, sf, g1, g2, g3, calcEau, calcCiment, calcRatioGS, coefficientGranulaire, coefficientCompacite, dMaxUser]);
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       {/* Calculation Parameters Card */}
       <Card className="border-primary/30 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 space-y-5">
