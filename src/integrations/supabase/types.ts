@@ -7934,32 +7934,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_passwords_visible: {
-        Row: {
-          password_plain: string
-          updated_at: string
-          utilisateur_id: string
-        }
-        Insert: {
-          password_plain: string
-          updated_at?: string
-          utilisateur_id: string
-        }
-        Update: {
-          password_plain?: string
-          updated_at?: string
-          utilisateur_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_passwords_visible_utilisateur_id_fkey"
-            columns: ["utilisateur_id"]
-            isOneToOne: true
-            referencedRelation: "utilisateurs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_roles: {
         Row: {
           created_at: string

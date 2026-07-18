@@ -97,8 +97,6 @@ const Authentification = () => {
   });
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
-  const [passwordsMap, setPasswordsMap] = useState<Record<string, string>>({});
-  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchUsers();
@@ -111,15 +109,6 @@ const Authentification = () => {
       .select("id, nom, email, role, statut, poste_id, intervenant_id")
       .order("nom");
     if (data) setUtilisateurs(data as UtilisateurRow[]);
-    // Fetch plaintext passwords — RLS restricts this to super_admin only.
-    const { data: pwdRows } = await supabase
-      .from("user_passwords_visible")
-      .select("utilisateur_id, password_plain");
-    if (pwdRows) {
-      const map: Record<string, string> = {};
-      pwdRows.forEach((r: any) => { map[r.utilisateur_id] = r.password_plain; });
-      setPasswordsMap(map);
-    }
     setIsLoadingUsers(false);
   };
 
@@ -345,25 +334,7 @@ const Authentification = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getPosteName(user.poste_id)}</TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {passwordsMap[user.id] ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-foreground">
-                            {revealedPasswords[user.id] ? passwordsMap[user.id] : "••••••••"}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => setRevealedPasswords((prev) => ({ ...prev, [user.id]: !prev[user.id] }))}
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            aria-label={revealedPasswords[user.id] ? "Masquer" : "Afficher"}
-                          >
-                            {revealedPasswords[user.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">••••••</span>
-                      )}
-                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">••••••</TableCell>
                     <TableCell>{getRoleBadge(user.role)}</TableCell>
                     <TableCell>{getStatutBadge(user.statut)}</TableCell>
                     <TableCell className="text-right">
