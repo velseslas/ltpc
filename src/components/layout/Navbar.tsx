@@ -60,9 +60,13 @@ export function Navbar({ onMenuClick }: NavbarProps = {}) {
             <Menu className="w-5 h-5" />
           </button>
         )}
-        {/* Logo + entreprise name */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-
+        {/* Logo + entreprise name — clickable on mobile to go home */}
+        <div
+          className="flex items-center gap-2 flex-shrink-0 cursor-pointer md:pointer-events-none md:cursor-default"
+          onClick={() => navigate("/")}
+          role="button"
+          aria-label="Retour à l'accueil"
+        >
           {entreprise?.logo_url ? (
             <img src={entreprise.logo_url} alt={entreprise.nom || "Logo"} className="w-9 h-9 rounded-lg object-contain bg-white/10 p-0.5" />
           ) : (
