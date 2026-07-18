@@ -4,6 +4,7 @@ import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 import { enforceRateLimit } from "../_shared/rate-limit.ts";
+import { requireAuth, canAccessRapport, unauthorized } from "../_shared/auth-guard.ts";
 
 // AI Review — jamais destructive. Retourne des observations que l'ingénieur décide d'appliquer.
 Deno.serve(async (req) => {
