@@ -73,7 +73,7 @@ export default function EtatPaiementsEspece() {
   }
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <div className="print:hidden">
         <AppBreadcrumb items={[
           { label: "Facturation", path: "/facturation" },

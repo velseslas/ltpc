@@ -55,7 +55,7 @@ export default function MouvementDetail() {
   };
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Matériel Laboratoire", path: "/materiel" },
         { label: "Mouvements", path: "/materiel/mouvements" },

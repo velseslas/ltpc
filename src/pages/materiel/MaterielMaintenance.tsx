@@ -129,7 +129,7 @@ export default function MaterielMaintenance() {
   // ---- Report (inline) view ----
   if (reportMode) {
     return (
-      <div className="space-y-6">
+      <div data-essai-mobile className="space-y-6">
         <AppBreadcrumb items={[
           { label: "Matériel Laboratoire", path: "/materiel" },
           { label: "Maintenance Matériel", path: "/materiel/maintenance" },

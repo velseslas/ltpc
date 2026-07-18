@@ -186,7 +186,7 @@ export default function Documents() {
 
   return (
     <>
-      {!isViewDialogOpen && <div className="space-y-6">
+      {!isViewDialogOpen && <div data-essai-mobile className="space-y-6">
         <AppBreadcrumb 
           items={[
             { label: "Ressources Humaines", path: "/rh" },
