@@ -177,7 +177,39 @@
     a:has(svg.lucide-arrow-left) {
       display: none !important;
     }
+
+    /* LOT 5 — Essais mobile ergonomics
+       Applied only under [data-essai-mobile]; every "Test" page & sample form
+       opts in via this attribute on its outer container. */
+    [data-essai-mobile] input:not([type="checkbox"]):not([type="radio"]),
+    [data-essai-mobile] select,
+    [data-essai-mobile] textarea,
+    [data-essai-mobile] [role="combobox"] {
+      font-size: 16px !important; /* prevent iOS auto-zoom on focus */
+      min-height: 44px;            /* touch target — Apple HIG / gloves-friendly */
+    }
+    [data-essai-mobile] button:not(.h-8):not(.h-9):not([data-size="icon"]) {
+      min-height: 44px;
+    }
+    /* Tables inside essais → allow internal horizontal scroll only, never leak */
+    [data-essai-mobile] .overflow-x-auto,
+    [data-essai-mobile] table {
+      max-width: 100%;
+    }
+    /* Sticky action bar for essai forms (opt-in via .essai-sticky-actions) */
+    .essai-sticky-actions {
+      position: sticky;
+      bottom: env(safe-area-inset-bottom, 0px);
+      background: hsl(var(--background) / 0.95);
+      backdrop-filter: blur(8px);
+      padding: 0.75rem 0;
+      z-index: 20;
+      margin-inline: -1rem;
+      padding-inline: 1rem;
+      border-top: 1px solid hsl(var(--border));
+    }
   }
+
 
 }
 
