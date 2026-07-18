@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 
-const menuItems = [
+export const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
   { title: "LTPC AI", path: "/ltpc-ai", icon: Sparkles },
   { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
@@ -29,6 +29,24 @@ const menuItems = [
   { title: "Documents", path: "/documents", icon: FileText, permission: "documents.voir" },
   { title: "Paramètres", path: "/parametres", icon: Settings, permission: "parametres.voir" },
 ];
+
+export function useVisibleMenuItems() {
+  const { hasPermission, isTechnicien } = usePermissionContext();
+  const { data: userChantiers } = useCurrentUserChantiers();
+  return menuItems.filter((item) => {
+    if (!item.permission) return true;
+    if (item.permission === "dashboard.voir") return true;
+    if (isTechnicien) {
+      if (item.permission === "essais.voir") return hasPermission(item.permission);
+      if (item.permission === "laboratoires_mobiles.voir") {
+        return hasPermission(item.permission) && (userChantiers?.chantierIds?.length ?? 0) > 0;
+      }
+      return false;
+    }
+    return hasPermission(item.permission);
+  });
+}
+
 
 interface SidebarProps {
   collapsed: boolean;
