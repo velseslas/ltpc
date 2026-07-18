@@ -189,7 +189,7 @@ export default function LimitesAtterbergDataEntry() {
   const readonlyClass = "bg-muted/50 border-border h-9 text-center text-sm font-medium";
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div data-essai-mobile className="space-y-6 animate-fade-in">
       <EssaiBreadcrumb items={[
         { label: "Géotechnique", path: "/essais/geotechnique" },
         { label: "Identification", path: "/essais/geotechnique/identification" },

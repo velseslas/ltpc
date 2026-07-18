@@ -176,7 +176,7 @@ export default function CBRDataEntry() {
   const colors = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b"];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div data-essai-mobile className="space-y-6 animate-fade-in">
       <EssaiBreadcrumb items={[
         { label: "Géotechnique", path: "/essais/geotechnique" },
         { label: "Compactage", path: "/essais/geotechnique/compactage" },
