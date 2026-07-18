@@ -195,7 +195,7 @@ export default function RapportTechniqueDetail() {
             <Card>
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><Eye className="h-4 w-4" /> Aperçu variables résolues</CardTitle></CardHeader>
               <CardContent>
-                <div className="border rounded p-4 prose prose-sm max-w-none bg-background" dangerouslySetInnerHTML={{ __html: previewHtml() }} />
+                <div className="border rounded p-4 prose prose-sm max-w-none bg-background" dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml()) }} />
               </CardContent>
             </Card>
           </TabsContent>
