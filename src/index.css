@@ -548,3 +548,12 @@ html[data-animations="off"] *::after {
   }
 }
 
+/* Mobile: hide all remaining legacy back controls after Tailwind utilities */
+@media (max-width: 767px) {
+  button:has(svg.lucide-arrow-left),
+  a:has(svg.lucide-arrow-left),
+  [role="button"]:has(svg.lucide-arrow-left) {
+    display: none !important;
+  }
+}
+
