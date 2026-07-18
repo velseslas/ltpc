@@ -226,8 +226,9 @@ const ClientForm = () => {
 
               <div>
                 <Label htmlFor="telephone">Téléphone</Label>
-                <Input id="telephone" {...form.register("telephone")} className="mt-1.5" placeholder="+213 XX XXX XXXX" />
+                <Input id="telephone" type="tel" inputMode="tel" autoComplete="tel" {...form.register("telephone")} className="mt-1.5" placeholder="+213 XX XXX XXXX" />
               </div>
+
 
               <div className="md:col-span-2">
                 <Label htmlFor="adresse">Adresse <span className="text-destructive">*</span></Label>
