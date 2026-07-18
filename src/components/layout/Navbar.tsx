@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEntreprise } from "@/hooks/useEntreprise";
+import { useNavigate } from "react-router-dom";
 
 interface NavbarProps {
   onMenuClick?: () => void;
