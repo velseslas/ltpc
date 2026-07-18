@@ -1,4 +1,4 @@
-import { LogOut, Building2 } from "lucide-react";
+import { LogOut, Building2, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
 import { useState, useRef, useEffect } from "react";
@@ -6,7 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEntreprise } from "@/hooks/useEntreprise";
 
-export function Navbar() {
+interface NavbarProps {
+  onMenuClick?: () => void;
+}
+
+export function Navbar({ onMenuClick }: NavbarProps = {}) {
+
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
@@ -41,10 +46,21 @@ export function Navbar() {
     : user?.email?.split("@")[0] || "Utilisateur";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-sidebar border-b border-sidebar-border">
-      <div className="flex items-center h-full px-4">
+    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-sidebar border-b border-sidebar-border safe-area-top">
+      <div className="flex items-center h-full px-4 gap-2">
+        {onMenuClick && (
+          <button
+            type="button"
+            aria-label="Ouvrir le menu"
+            onClick={onMenuClick}
+            className="md:hidden touch-target flex items-center justify-center rounded-lg hover:bg-secondary/50 text-foreground"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         {/* Logo + entreprise name */}
         <div className="flex items-center gap-2 flex-shrink-0">
+
           {entreprise?.logo_url ? (
             <img src={entreprise.logo_url} alt={entreprise.nom || "Logo"} className="w-9 h-9 rounded-lg object-contain bg-white/10 p-0.5" />
           ) : (
