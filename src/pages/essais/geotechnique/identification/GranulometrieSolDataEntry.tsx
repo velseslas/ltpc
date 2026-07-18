@@ -160,7 +160,7 @@ export default function GranulometrieSolDataEntry() {
   const numero = `${prefix}-${String(echantillon.numero).padStart(3, "0")}`;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div data-essai-mobile className="space-y-6 animate-fade-in">
       <EssaiBreadcrumb items={[
         { label: "Géotechnique", path: "/essais/geotechnique" },
         { label: "Identification", path: "/essais/geotechnique/identification" },

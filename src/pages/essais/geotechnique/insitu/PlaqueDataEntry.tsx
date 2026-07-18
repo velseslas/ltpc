@@ -162,7 +162,7 @@ export default function PlaqueDataEntry() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return <div data-essai-mobile className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
   if (!echantillon) {
     return <div className="text-center py-8 text-muted-foreground">Échantillon non trouvé</div>;

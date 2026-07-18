@@ -62,7 +62,7 @@ function LimitesAtterbergResultats({ resultats }: { resultats: Record<string, un
   const ic = ip > 0 && w > 0 ? (wl - w) / ip : 0;
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <Card className="border-border bg-card">
         <CardHeader>
           <CardTitle className="text-lg">Résultats — Limite de Liquidité (Wl)</CardTitle>

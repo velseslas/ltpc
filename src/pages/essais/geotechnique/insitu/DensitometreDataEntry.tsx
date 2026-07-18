@@ -119,7 +119,7 @@ export default function DensitometreDataEntry() {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div data-essai-mobile className="space-y-6 animate-fade-in">
       <EssaiBreadcrumb items={[
         { label: "Géotechnique", path: "/essais/geotechnique" },
         { label: "In-Situ", path: "/essais/geotechnique/in-situ" },
