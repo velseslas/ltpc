@@ -232,6 +232,32 @@
   background: hsl(var(--primary) / 0.5);
 }
 
+/* Stable scrollbar gutter to prevent layout jumps */
+.scrollbar-stable {
+  scrollbar-gutter: stable both-edges;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollbar-stable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-stable::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.5);
+  border-radius: 4px;
+  border: 2px solid hsl(var(--popover));
+}
+
+.scrollbar-stable::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+.scrollbar-stable::-webkit-scrollbar-track {
+  background: hsl(var(--popover));
+  border-radius: 4px;
+}
+
 /* ============================================================
    Report tables — single source of truth for screen, print and PDF export
    ============================================================ */
