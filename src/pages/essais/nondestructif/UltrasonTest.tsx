@@ -65,7 +65,7 @@ const UltrasonTest = () => {
         </div>
         <div className="flex gap-3">
           <Button variant="outline" className="flex items-center gap-2"><FileText className="h-4 w-4" />Générer état</Button>
-          <Button className="flex items-center gap-2" onClick={() => navigate(`${basePath}/nouveau`)}><Plus className="h-4 w-4" />Nouveau échantillon</Button>
+          <Button className="flex items-center gap-2" onClick={() => navigate(`${basePath}/nouveau`)}><Plus className="hidden md:inline-block h-4 w-4" />Nouveau échantillon</Button>
         </div>
       </div>
       <div className="rounded-xl border border-border bg-card overflow-hidden">

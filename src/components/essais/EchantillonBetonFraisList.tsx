@@ -160,7 +160,7 @@ export function EchantillonBetonFraisList({
             onClick={() => navigate(`${basePath}/nouveau`)}
             className="gradient-primary text-primary-foreground"
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="hidden md:inline-block md:mr-2 h-4 w-4" />
             Nouveau échantillon
           </Button>
         </div>
