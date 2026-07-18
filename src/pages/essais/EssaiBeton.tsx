@@ -101,7 +101,7 @@ const EssaiBeton = () => {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 };
 
