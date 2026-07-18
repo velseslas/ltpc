@@ -28,7 +28,7 @@ export default function FactureDetail() {
   const sortedLignes = [...lignes].sort((a: any, b: any) => a.ordre - b.ordre);
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Facturation", path: "/facturation" },
         { label: "Factures", path: "/facturation/factures" },

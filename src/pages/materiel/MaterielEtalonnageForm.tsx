@@ -97,7 +97,7 @@ export default function MaterielEtalonnageForm() {
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Matériel Laboratoire", path: "/materiel" },
         { label: "Étalonnage Matériel", path: "/materiel/etalonnage" },

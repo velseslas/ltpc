@@ -46,7 +46,7 @@ export default function VirementListe() {
   });
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Virements" }]} />
       <div className="flex items-center gap-3">
         <BackButton to="/facturation" />

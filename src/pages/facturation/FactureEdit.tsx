@@ -59,7 +59,7 @@ export default function FactureEdit() {
   if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Facturation", path: "/facturation" },
         { label: "Factures", path: "/facturation/factures" },

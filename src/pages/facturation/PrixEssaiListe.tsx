@@ -77,7 +77,7 @@ export default function PrixEssaiListe() {
   });
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Prix essais" }]} />
       <div className="flex items-center gap-3">
         <BackButton to="/facturation" />

@@ -70,7 +70,7 @@ export default function FacturationDashboard() {
   const stats = useFacturationStats();
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation" }]} />
 
       <div>

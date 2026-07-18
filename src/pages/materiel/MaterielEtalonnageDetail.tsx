@@ -33,7 +33,7 @@ const echeanceBadge = (date: string | null) => {
 
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | null | undefined }) {
   return (
-    <div className="flex items-center gap-3">
+    <div data-essai-mobile className="flex items-center gap-3">
       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">{icon}</div>
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>

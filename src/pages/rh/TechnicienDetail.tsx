@@ -25,7 +25,7 @@ export default function TechnicienDetail() {
 
   if (loadingIntervenant || loadingAffectations) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div data-essai-mobile className="flex items-center justify-center h-64">
         <div className="text-muted-foreground">Chargement...</div>
       </div>
     );
