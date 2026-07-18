@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 
-const menuItems = [
+export const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
   { title: "LTPC AI", path: "/ltpc-ai", icon: Sparkles },
   { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
@@ -30,23 +30,12 @@ const menuItems = [
   { title: "Paramètres", path: "/parametres", icon: Settings, permission: "parametres.voir" },
 ];
 
-interface SidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-}
-
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const location = useLocation();
-  const { hasPermission, role, isTechnicien } = usePermissionContext();
+export function useVisibleMenuItems() {
+  const { hasPermission, isTechnicien } = usePermissionContext();
   const { data: userChantiers } = useCurrentUserChantiers();
-
-  const visibleItems = menuItems.filter((item) => {
-    // Items sans permission (ex. LTPC AI) toujours visibles
+  return menuItems.filter((item) => {
     if (!item.permission) return true;
-    // Dashboard always visible
     if (item.permission === "dashboard.voir") return true;
-    
-    // Techniciens: only show Essais + Laboratoires Chantier (if assigned)
     if (isTechnicien) {
       if (item.permission === "essais.voir") return hasPermission(item.permission);
       if (item.permission === "laboratoires_mobiles.voir") {
@@ -54,18 +43,28 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       }
       return false;
     }
-    
-    // Check permission
     return hasPermission(item.permission);
   });
+}
+
+
+interface SidebarProps {
+  collapsed: boolean;
+  onToggle: () => void;
+}
+
+export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const location = useLocation();
+  const visibleItems = useVisibleMenuItems();
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-14 z-30 h-[calc(100vh-3.5rem)] bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
+        "fixed left-0 top-14 z-30 h-[calc(100vh-3.5rem)] bg-sidebar border-r border-sidebar-border transition-all duration-300 flex-col hidden md:flex",
         collapsed ? "w-16" : "w-56"
       )}
     >
+
 
       {/* Navigation */}
       <nav className="flex-1 mt-10 px-2 overflow-y-auto">
