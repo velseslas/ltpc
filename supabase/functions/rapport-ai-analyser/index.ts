@@ -16,6 +16,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { rapport_id } = body;
     if (!rapport_id) return new Response(JSON.stringify({ error: "rapport_id requis" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!(await canAccessRapport(_auth.userId, rapport_id))) return unauthorized();
 
     const url = Deno.env.get("SUPABASE_URL")!;
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
