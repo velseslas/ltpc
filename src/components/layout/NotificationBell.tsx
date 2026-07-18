@@ -114,7 +114,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
           )}
         </div>
 
-        <ScrollArea className="max-h-[420px]">
+        <div className="max-h-[50vh] md:max-h-[420px] overflow-y-auto scrollbar-stable">
           {isLoading && notifications.length === 0 && persisted.length === 0 ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
@@ -189,7 +189,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
               ))}
             </div>
           )}
-        </ScrollArea>
+        </div>
 
 
         {(notifications.length > 0 || persisted.length > 0) && (
