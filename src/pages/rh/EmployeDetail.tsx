@@ -151,7 +151,7 @@ export default function EmployeDetail() {
 
   if (loadingEmploye) {
     return (
-      <div className="space-y-6">
+      <div data-essai-mobile className="space-y-6">
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-10" />
           <div>

@@ -34,7 +34,7 @@ export default function DevisDetail() {
   const lignes = ((devis as any).lignes_devis || []).sort((a: any, b: any) => a.ordre - b.ordre);
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Facturation", path: "/facturation" },
         { label: "Devis", path: "/facturation/devis" },

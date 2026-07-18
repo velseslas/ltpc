@@ -118,7 +118,7 @@ export default function AffectationForm() {
   const isFormLoading = isEditing && (intervenantsLoading || clientsLoading || affectationLoading || isPreFilling);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div data-essai-mobile className="max-w-2xl mx-auto space-y-6">
         <AppBreadcrumb items={[
           { label: "Ressources Humaines", path: "/rh" },
           { label: "Affectations", path: "/rh/affectations" },

@@ -39,7 +39,7 @@ export default function MaterielAffectationHistorique() {
   const totalTerminees = data?.filter((a: any) => a.statut === "terminee").length || 0;
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[
         { label: "Matériel Laboratoire", path: "/materiel" },
         { label: "Affectation Matériel", path: "/materiel/affectation" },

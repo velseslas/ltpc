@@ -38,7 +38,7 @@ export default function VirementForm() {
   };
 
   return (
-    <div className="space-y-6">
+    <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Virements", path: "/facturation/virements" }, { label: "Nouveau" }]} />
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader><CardTitle className="flex items-center gap-3"><BackButton to="/facturation/virements" />Nouveau Virement</CardTitle></CardHeader>
