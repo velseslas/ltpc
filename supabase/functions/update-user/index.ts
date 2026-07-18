@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
 
     const { data: util, error: utilFetchErr } = await supabaseAdmin
       .from("utilisateurs")
-      .select("id, email, user_id")
+      .select("id, email, user_id, nom")
       .eq("id", utilisateur_id)
       .single();
 
@@ -101,7 +101,14 @@ Deno.serve(async (req) => {
         }
       }
 
-      const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId!, { password });
+      const authUpdatePayload: Record<string, unknown> = {
+        password,
+        email: util.email,
+        email_confirm: true,
+        user_metadata: { nom: util.nom || util.email },
+      };
+
+      const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId!, authUpdatePayload);
       if (pwdErr) {
         console.error("update-user password update error:", pwdErr);
         const code = (pwdErr as any)?.code;
@@ -115,6 +122,24 @@ Deno.serve(async (req) => {
           JSON.stringify({ error: msg, code }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+    } else if (authUserId) {
+      const { data: authUserData, error: authFetchErr } = await supabaseAdmin.auth.admin.getUserById(authUserId);
+      if (authFetchErr) {
+        console.error("update-user getUserById error:", authFetchErr);
+      } else if (authUserData?.user?.email !== util.email) {
+        const { error: emailSyncErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+          email: util.email,
+          email_confirm: true,
+          user_metadata: { nom: util.nom || util.email },
+        });
+        if (emailSyncErr) {
+          console.error("update-user email sync error:", emailSyncErr);
+          return new Response(
+            JSON.stringify({ error: "Impossible de synchroniser l'email de connexion" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
       }
     }
 
