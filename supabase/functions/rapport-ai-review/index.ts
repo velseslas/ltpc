@@ -11,6 +11,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const _rl = await enforceRateLimit(req, { scope: "rapport-ai-review", userLimit: 15, ipLimit: 30, windowSec: 60 });
   if (_rl) return _rl;
+  const _auth = await requireAuth(req);
+  if (!_auth.ok) return _auth.response;
   try {
     const { rapport_id } = await req.json();
     if (!rapport_id) return new Response(JSON.stringify({ error: "rapport_id requis" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });

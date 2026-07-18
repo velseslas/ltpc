@@ -10,6 +10,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const _rl = await enforceRateLimit(req, { scope: "rapport-ai-analyser", userLimit: 15, ipLimit: 30, windowSec: 60 });
   if (_rl) return _rl;
+  const _auth = await requireAuth(req);
+  if (!_auth.ok) return _auth.response;
   try {
     const body = await req.json();
     const { rapport_id } = body;
