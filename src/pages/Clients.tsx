@@ -69,24 +69,27 @@ const Clients = () => {
       </div>
 
       {/* Actions Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
+            type="search"
+            inputMode="search"
             placeholder="Rechercher un client..."
-            className="pl-10 bg-card border-border"
+            className="pl-10 h-11 bg-card border-border"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button 
-          className="gap-2 gradient-primary text-primary-foreground"
+        <Button
+          className="gap-2 h-11 w-full sm:w-auto gradient-primary text-primary-foreground"
           onClick={() => navigate("/intervenant/clients/nouveau")}
         >
           <Plus className="w-4 h-4" />
           Nouveau Client
         </Button>
       </div>
+
 
       {/* Cards Grid */}
       <div>
