@@ -97,8 +97,6 @@ const Authentification = () => {
   });
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [showEditPassword, setShowEditPassword] = useState(false);
-  const [passwordsMap, setPasswordsMap] = useState<Record<string, string>>({});
-  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchUsers();
@@ -111,15 +109,6 @@ const Authentification = () => {
       .select("id, nom, email, role, statut, poste_id, intervenant_id")
       .order("nom");
     if (data) setUtilisateurs(data as UtilisateurRow[]);
-    // Fetch plaintext passwords — RLS restricts this to super_admin only.
-    const { data: pwdRows } = await supabase
-      .from("user_passwords_visible")
-      .select("utilisateur_id, password_plain");
-    if (pwdRows) {
-      const map: Record<string, string> = {};
-      pwdRows.forEach((r: any) => { map[r.utilisateur_id] = r.password_plain; });
-      setPasswordsMap(map);
-    }
     setIsLoadingUsers(false);
   };
 
