@@ -19,6 +19,7 @@ import { toast } from "sonner";
 const Clients = () => {
   const navigate = useNavigate();
   const { data: clients, isLoading, error } = useClients();
+  const deleteClient = useDeleteClient();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredClients = clients?.filter(client =>
@@ -26,6 +27,16 @@ const Clients = () => {
     client.ville?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDelete = async (id: string, nom: string) => {
+    try {
+      await deleteClient.mutateAsync(id);
+      toast.success(`Client « ${nom} » supprimé`);
+    } catch {
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
 
   return (
     <>
