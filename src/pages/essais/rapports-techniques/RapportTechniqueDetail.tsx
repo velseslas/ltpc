@@ -181,7 +181,7 @@ export default function RapportTechniqueDetail() {
               </CardHeader>
               <CardContent>
                 {isValide ? (
-                  <div className="border rounded p-4 prose prose-sm max-w-none bg-muted/20" dangerouslySetInnerHTML={{ __html: previewHtml() }} />
+                  <div className="border rounded p-4 prose prose-sm max-w-none bg-muted/20" dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml()) }} />
                 ) : (
                   <RichTextEditor
                     value={html}
