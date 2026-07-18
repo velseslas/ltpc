@@ -153,6 +153,20 @@
     background-size: 200% 100%;
     animation: shimmer 1.5s linear infinite;
   }
+
+  /* Mobile: momentum scrolling on horizontal containers */
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  /* Mobile: prevent horizontal page scroll */
+  @media (max-width: 767px) {
+    .no-mobile-hscroll {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+  }
 }
 
 /* Scrollbar styling */
