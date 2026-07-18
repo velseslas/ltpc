@@ -288,7 +288,7 @@ const ClientForm = () => {
 
               <div>
                 <Label htmlFor="nif">NIF (15 chiffres)</Label>
-                <Input id="nif" {...form.register("nif")} className="mt-1.5" placeholder="000000000000000" maxLength={15} />
+                <Input id="nif" inputMode="numeric" pattern="[0-9]*" {...form.register("nif")} className="mt-1.5" placeholder="000000000000000" maxLength={15} />
                 {form.formState.errors.nif && (
                   <p className="text-destructive text-sm mt-1">{form.formState.errors.nif.message}</p>
                 )}
@@ -296,11 +296,12 @@ const ClientForm = () => {
 
               <div>
                 <Label htmlFor="nis">NIS (11 chiffres)</Label>
-                <Input id="nis" {...form.register("nis")} className="mt-1.5" placeholder="00000000000" maxLength={11} />
+                <Input id="nis" inputMode="numeric" pattern="[0-9]*" {...form.register("nis")} className="mt-1.5" placeholder="00000000000" maxLength={11} />
                 {form.formState.errors.nis && (
                   <p className="text-destructive text-sm mt-1">{form.formState.errors.nis.message}</p>
                 )}
               </div>
+
 
               <div>
                 <Label htmlFor="article_imposition">Article d'imposition</Label>
@@ -322,7 +323,7 @@ const ClientForm = () => {
 
               <div className="md:col-span-2">
                 <Label htmlFor="rib">RIB</Label>
-                <Input id="rib" {...form.register("rib")} className="mt-1.5" placeholder="Numéro RIB" maxLength={30} />
+                <Input id="rib" inputMode="numeric" pattern="[0-9]*" {...form.register("rib")} className="mt-1.5" placeholder="Numéro RIB" maxLength={30} />
                 {form.formState.errors.rib && (
                   <p className="text-destructive text-sm mt-1">{form.formState.errors.rib.message}</p>
                 )}
@@ -330,17 +331,18 @@ const ClientForm = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-4 pt-4 border-t border-border mt-6">
+            <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-end gap-3 pt-4 border-t border-border mt-6">
               <Button
                 type="button"
                 variant="outline"
+                className="h-11 md:h-10 w-full md:w-auto"
                 onClick={() => navigate(isEditMode ? `/intervenant/clients/${id}` : "/intervenant/clients")}
               >
                 Annuler
               </Button>
-              <Button 
-                type="submit" 
-                className="gradient-primary text-primary-foreground"
+              <Button
+                type="submit"
+                className="h-11 md:h-10 w-full md:w-auto gradient-primary text-primary-foreground"
                 disabled={createClient.isPending || updateClient.isPending}
               >
                 {(createClient.isPending || updateClient.isPending) && (
@@ -349,6 +351,7 @@ const ClientForm = () => {
                 {isEditMode ? "Enregistrer les modifications" : "Créer le client"}
               </Button>
             </div>
+
           </div>
         </form>
       </div>

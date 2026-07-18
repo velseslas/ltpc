@@ -220,11 +220,15 @@ const ChantierForm = () => {
                 <Label htmlFor="telephone">Téléphone</Label>
                 <Input
                   id="telephone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   {...form.register("telephone")}
                   className="mt-1.5"
                   placeholder="+213 XX XXX XXXX"
                 />
               </div>
+
 
               <div className="md:col-span-2">
                 <Label htmlFor="statut">Statut <span className="text-red-700">*</span></Label>
@@ -303,17 +307,18 @@ const ChantierForm = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-4 pt-4 border-t border-border mt-6">
+            <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-end gap-3 pt-4 border-t border-border mt-6">
               <Button
                 type="button"
                 variant="outline"
+                className="h-11 md:h-10 w-full md:w-auto"
                 onClick={() => navigate(backUrl)}
               >
                 Annuler
               </Button>
-              <Button 
-                type="submit" 
-                className="gradient-primary text-primary-foreground"
+              <Button
+                type="submit"
+                className="h-11 md:h-10 w-full md:w-auto gradient-primary text-primary-foreground"
                 disabled={isPending}
               >
                 {isPending && (
@@ -322,6 +327,7 @@ const ChantierForm = () => {
                 {isEditing ? "Modifier le chantier" : "Créer le chantier"}
               </Button>
             </div>
+
           </div>
         </form>
       </div>
