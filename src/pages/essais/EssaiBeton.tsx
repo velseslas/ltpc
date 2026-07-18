@@ -55,27 +55,28 @@ const EssaiBeton = () => {
   ];
 
   return (
-    <>
+    <div data-essai-mobile>
       <EssaiBreadcrumb items={[{ label: "Béton" }]} />
       
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <div className="flex items-center gap-4 mb-2">
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate("/essais")}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="hidden md:inline-flex border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-3xl font-display font-bold text-foreground">
+          <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
             Essai sur <span className="text-primary text-glow">Béton</span>
           </h1>
         </div>
-        <p className="text-muted-foreground mt-2 ml-14">
+        <p className="text-muted-foreground mt-2 md:ml-14 text-sm md:text-base">
           Sélectionnez le type d'essai à effectuer
         </p>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {betonTypes.map((type) => (
@@ -100,7 +101,7 @@ const EssaiBeton = () => {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 };
 
