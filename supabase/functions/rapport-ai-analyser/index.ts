@@ -4,15 +4,19 @@ import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptAnalyseProbleme } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 import { enforceRateLimit } from "../_shared/rate-limit.ts";
+import { requireAuth, canAccessRapport, unauthorized } from "../_shared/auth-guard.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const _rl = await enforceRateLimit(req, { scope: "rapport-ai-analyser", userLimit: 15, ipLimit: 30, windowSec: 60 });
   if (_rl) return _rl;
+  const _auth = await requireAuth(req);
+  if (!_auth.ok) return _auth.response;
   try {
     const body = await req.json();
     const { rapport_id } = body;
     if (!rapport_id) return new Response(JSON.stringify({ error: "rapport_id requis" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!(await canAccessRapport(_auth.userId, rapport_id))) return unauthorized();
 
     const url = Deno.env.get("SUPABASE_URL")!;
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

@@ -37,6 +37,7 @@ import { toast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/rapports/RichTextEditor";
 import AISuggestionDialog from "@/components/rapports/AISuggestionDialog";
 import type { Editor } from "@tiptap/react";
+import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
@@ -46,11 +47,11 @@ function contenuToHtml(c: AIRapportContenu | null): string {
     ["Analyse technique", s.analyse_technique], ["Conséquences", s.consequences],
     ["Recommandations", s.recommandations], ["Conclusion", s.conclusion],
   ];
-  const body = sections.map(([t, b]) => `<h2>${t}</h2><p>${(b || "Information non disponible.").replace(/\n/g, "<br/>")}</p>`).join("");
-  const faits = c.faits?.length ? `<h3>Faits</h3><ul>${c.faits.map(f => `<li>${f}</li>`).join("")}</ul>` : "";
-  const hyps = c.hypotheses?.length ? `<h3>Hypothèses</h3><ul>${c.hypotheses.map(f => `<li>${f}</li>`).join("")}</ul>` : "";
-  const reco = c.recommandations_synthese?.length ? `<h3>Recommandations (synthèse)</h3><ul>${c.recommandations_synthese.map(f => `<li>${f}</li>`).join("")}</ul>` : "";
-  return `<h1>${c.titre || "Rapport technique"}</h1>${body}${faits}${hyps}${reco}`;
+  const body = sections.map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "Information non disponible.").replace(/\n/g, "<br/>")}</p>`).join("");
+  const faits = c.faits?.length ? `<h3>Faits</h3><ul>${c.faits.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
+  const hyps = c.hypotheses?.length ? `<h3>Hypothèses</h3><ul>${c.hypotheses.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
+  const reco = c.recommandations_synthese?.length ? `<h3>Recommandations (synthèse)</h3><ul>${c.recommandations_synthese.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
+  return `<h1>${escapeHtml(c.titre || "Rapport technique")}</h1>${body}${faits}${hyps}${reco}`;
 }
 
 export default function RapportTechniqueDetail() {
@@ -180,7 +181,7 @@ export default function RapportTechniqueDetail() {
               </CardHeader>
               <CardContent>
                 {isValide ? (
-                  <div className="border rounded p-4 prose prose-sm max-w-none bg-muted/20" dangerouslySetInnerHTML={{ __html: previewHtml() }} />
+                  <div className="border rounded p-4 prose prose-sm max-w-none bg-muted/20" dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml()) }} />
                 ) : (
                   <RichTextEditor
                     value={html}
@@ -194,7 +195,7 @@ export default function RapportTechniqueDetail() {
             <Card>
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><Eye className="h-4 w-4" /> Aperçu variables résolues</CardTitle></CardHeader>
               <CardContent>
-                <div className="border rounded p-4 prose prose-sm max-w-none bg-background" dangerouslySetInnerHTML={{ __html: previewHtml() }} />
+                <div className="border rounded p-4 prose prose-sm max-w-none bg-background" dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml()) }} />
               </CardContent>
             </Card>
           </TabsContent>

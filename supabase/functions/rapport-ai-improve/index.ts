@@ -3,11 +3,14 @@ import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptImproveText, type ImproveAction } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 import { enforceRateLimit } from "../_shared/rate-limit.ts";
+import { requireAuth } from "../_shared/auth-guard.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const _rl = await enforceRateLimit(req, { scope: "rapport-ai-improve", userLimit: 20, ipLimit: 40, windowSec: 60 });
   if (_rl) return _rl;
+  const _auth = await requireAuth(req);
+  if (!_auth.ok) return _auth.response;
   try {
     const { rapport_id, texte, action, contexte } = await req.json();
     if (!texte || !action) {

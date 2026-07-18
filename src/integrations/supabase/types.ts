@@ -8020,6 +8020,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
       get_entreprise_public: {
         Args: never
