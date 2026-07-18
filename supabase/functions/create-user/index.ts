@@ -183,14 +183,6 @@ Deno.serve(async (req) => {
       console.error("Error inserting user_role:", roleError);
     }
 
-    // Store plaintext password for Super Admin visibility (option B)
-    await supabaseAdmin
-      .from("user_passwords_visible")
-      .upsert(
-        { utilisateur_id: utilisateur.id, password_plain: password, updated_at: new Date().toISOString() },
-        { onConflict: "utilisateur_id" }
-      );
-
     return new Response(
       JSON.stringify({ success: true, utilisateur }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
