@@ -362,6 +362,7 @@ export default function ChantierEchantillonReport() {
       {/* Rapport */}
       <div 
         ref={reportRef}
+        data-ref="report"
         className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-4"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
