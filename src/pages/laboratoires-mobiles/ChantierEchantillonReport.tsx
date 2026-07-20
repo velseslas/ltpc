@@ -616,15 +616,31 @@ export default function ChantierEchantillonReport() {
         </div>
       </div>
 
-      {/* Styles d'impression */}
+      {/* Styles d'impression — isole le rapport via position:fixed pour éviter
+          les conflits avec le layout parent (sidebar, container max-w, transforms). */}
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
-          #root { padding: 0 !important; }
-          [data-ref="report"], [data-ref="report"] * { visibility: visible !important; }
-          [data-ref="report"] { position: static !important; font-size: 9pt !important; }
+          [data-ref="report"] {
+            visibility: visible !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 6mm 8mm !important;
+            background: #fff !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            font-size: 9pt !important;
+            z-index: 2147483647 !important;
+          }
+          [data-ref="report"] * { visibility: visible !important; }
           [data-ref="report"] td, [data-ref="report"] th {
             padding: 2px 4px !important;
             font-size: 9pt !important;
