@@ -9,7 +9,7 @@ import { PermissionProvider } from "@/hooks/usePermissionContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
 import LtpcAI from "@/pages/ltpc-ai/LtpcAI";
-import LtpcAIFab from "@/components/ltpc-ai/LtpcAIFab";
+
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { NetworkStatusToaster } from "@/components/pwa/NetworkStatusToaster";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
@@ -68,14 +68,13 @@ function AuthRedirect() {
   return <Auth />;
 }
 
-/** Layout persistant : sidebar + protection + permissions + FAB IA. */
+/** Layout persistant : sidebar + protection + permissions. */
 function ProtectedLayout() {
   return (
     <ProtectedRoute>
       <PermissionProvider>
         <MainLayout>
           <Outlet />
-          <LtpcAIFab />
         </MainLayout>
       </PermissionProvider>
     </ProtectedRoute>
