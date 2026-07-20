@@ -34,7 +34,7 @@ type TypeFilter = "all" | "overdue_test" | "pending_test" | "calibration_due" | 
 export default function Notifications() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: notifications = [], isLoading, refetch } = useNotifications();
+  const { data: notifications = [], isLoading, isFetching, refetch } = useNotifications();
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
@@ -60,8 +60,12 @@ export default function Notifications() {
   }, [notifications]);
 
   const handleRefresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    refetch();
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+      queryClient.invalidateQueries({ queryKey: ["notif-center"] }),
+      queryClient.invalidateQueries({ queryKey: ["notif-center-unread"] }),
+    ]);
+    await refetch();
   };
 
   const getSeverityIcon = (severity: Notification["severity"]) => {
@@ -139,10 +143,10 @@ export default function Notifications() {
         <Button
           variant="outline"
           onClick={handleRefresh}
-          disabled={isLoading}
+          disabled={isFetching}
           className="gap-2"
         >
-          <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+          <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin")} />
           Actualiser
         </Button>
       </div>
