@@ -301,9 +301,10 @@ export default function EtatCoulages() {
       {/* Print styles */}
       <style>{`
         @media print {
-          @page { size: landscape; margin: 10mm; }
-          body * { visibility: hidden; }
-          [data-print-area], [data-print-area] * { visibility: visible; }
+          @page { size: A4 landscape; margin: 10mm; }
+          body * { visibility: hidden !important; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible !important; }
+          [data-ref="report"] { position: static !important; }
           .print\\:hidden { display: none !important; }
         }
       `}</style>
