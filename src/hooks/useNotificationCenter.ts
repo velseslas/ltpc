@@ -12,6 +12,8 @@ export function usePersistedNotifications(filters: ListFilters = {}) {
     queryKey: ["notif-center", filters],
     queryFn: () => NotificationRepository.list(filters),
     staleTime: 30_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 
   // Realtime : rafraîchit sur INSERT/UPDATE/DELETE pour l'utilisateur courant.
@@ -37,6 +39,8 @@ export function useUnreadNotificationCount() {
     queryKey: ["notif-center-unread"],
     queryFn: () => NotificationRepository.unreadCount(),
     staleTime: 15_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
   });
 }
 
