@@ -620,11 +620,11 @@ export default function ChantierEchantillonReport() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
-          body * { visibility: hidden; }
+          body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
           #root { padding: 0 !important; }
-          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
-          [data-ref="report"] { font-size: 9pt !important; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible !important; }
+          [data-ref="report"] { position: static !important; font-size: 9pt !important; }
           [data-ref="report"] td, [data-ref="report"] th {
             padding: 2px 4px !important;
             font-size: 9pt !important;
