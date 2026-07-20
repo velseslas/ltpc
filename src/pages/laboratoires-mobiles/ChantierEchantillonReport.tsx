@@ -374,7 +374,7 @@ export default function ChantierEchantillonReport() {
         />
 
         {/* Identification de l'échantillon */}
-        <div className="mb-6">
+        <div className="mb-3 print:mb-2">
           <table className="w-full border-collapse border border-black text-sm">
             <tbody>
               <tr>
@@ -422,9 +422,9 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Formulation de béton */}
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Formulation de béton</h3>
-          <div className="mb-2 text-sm text-black">
+        <div className="mb-3 print:mb-2">
+          <h3 className="font-bold text-sm mb-1 underline text-black">Formulation de béton</h3>
+          <div className="mb-1 text-sm text-black">
             <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
             <span className="mx-4">|</span>
             <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
@@ -478,7 +478,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Caractéristiques techniques */}
-        <div className="mb-6">
+        <div className="mb-3 print:mb-2">
           <table className="w-full border-collapse border border-black text-sm">
             <thead>
               <tr>
@@ -502,8 +502,8 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Résultats des essais */}
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des essais</h3>
+        <div className="mb-3 print:mb-2">
+          <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
           <table className="w-full border-collapse border border-black">
             <thead>
               <tr>
@@ -585,7 +585,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Pied de page */}
-        <div className="mt-8 pt-4 border-t border-gray-300">
+        <div className="mt-4 pt-2 border-t border-gray-300 print:mt-3 print:pt-2">
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
@@ -619,18 +619,18 @@ export default function ChantierEchantillonReport() {
       {/* Styles d'impression */}
       <style>{`
         @media print {
-          body * {
-            visibility: hidden;
+          @page { size: A4 portrait; margin: 10mm; }
+          body * { visibility: hidden; }
+          .print\\:hidden { display: none !important; }
+          #root { padding: 0 !important; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
+          [data-ref="report"] { font-size: 9pt !important; }
+          [data-ref="report"] td, [data-ref="report"] th {
+            padding: 2px 4px !important;
+            font-size: 9pt !important;
+            line-height: 1.15 !important;
           }
-          .print\\:hidden {
-            display: none !important;
-          }
-          #root {
-            padding: 0 !important;
-          }
-          [data-ref="report"], [data-ref="report"] * {
-            visibility: visible;
-          }
+          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
         }
       `}</style>
     </div>
