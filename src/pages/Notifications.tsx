@@ -60,12 +60,14 @@ export default function Notifications() {
   }, [notifications]);
 
   const handleRefresh = async () => {
+    // Remove cached data so the UI clears and the query is fully refetched
+    queryClient.removeQueries({ queryKey: ["notifications"] });
     await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["notifications"] }),
-      queryClient.invalidateQueries({ queryKey: ["notif-center"] }),
-      queryClient.invalidateQueries({ queryKey: ["notif-center-unread"] }),
+      queryClient.refetchQueries({ queryKey: ["notifications"], type: "active" }),
+      queryClient.refetchQueries({ queryKey: ["notif-center"], type: "active" }),
+      queryClient.refetchQueries({ queryKey: ["notif-center-unread"], type: "active" }),
+      refetch(),
     ]);
-    await refetch();
   };
 
   const getSeverityIcon = (severity: Notification["severity"]) => {
