@@ -296,3 +296,23 @@ html.print-mode .print-hide {
   @page { size: A4 portrait; margin: 12mm 14mm 14mm 14mm; }
 }
 
+/* ------------------------------------------------------------------------- */
+/* Aperçu écran responsive : les rapports sont dimensionnés en A4 (210mm ≈   */
+/* 794px). Sur mobile/tablette, on réduit visuellement l'aperçu pour qu'il   */
+/* tienne dans le viewport sans être coupé à moitié. `zoom` redimensionne    */
+/* aussi la mise en page, évitant tout débordement horizontal.               */
+/* ------------------------------------------------------------------------- */
+@media screen and (max-width: 420px) {
+  [data-ref="report"] { zoom: 0.46; }
+}
+@media screen and (min-width: 421px) and (max-width: 640px) {
+  [data-ref="report"] { zoom: 0.62; }
+}
+@media screen and (min-width: 641px) and (max-width: 820px) {
+  [data-ref="report"] { zoom: 0.82; }
+}
+@media screen and (min-width: 821px) and (max-width: 900px) {
+  [data-ref="report"] { zoom: 0.92; }
+}
+
+
