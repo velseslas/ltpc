@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { getRepositoryForTable } from "@/lib/repositories";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Intervenant = Tables<"intervenants">;
 export type IntervenantInsert = TablesInsert<"intervenants">;
@@ -14,14 +15,26 @@ const repo = getRepositoryForTable<IntervenantWithPoste>("intervenants", {
   defaultSelect: `*, postes(id, nom)`,
   defaultOrder: { column: "nom", ascending: true },
 });
-const statsRepo = getRepositoryForTable<{ statut: string }>("intervenants", {
-  defaultSelect: "statut",
-});
 
+// Public directory hook — reads from the PII-free view (safe for all authenticated users).
 export function useIntervenants() {
   return useQuery({
     queryKey: ["intervenants"],
-    queryFn: async () => (await repo.list()).data,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("intervenants_directory")
+        .select("*")
+        .order("nom", { ascending: true });
+      if (error) throw new Error(error.message);
+      const rows = (data ?? []) as Array<Record<string, unknown>>;
+      // Re-shape into the historical { ..., postes: { id, nom } } contract.
+      return rows.map((r) => ({
+        ...r,
+        postes: r.poste_id
+          ? { id: String(r.poste_id), nom: (r.poste_nom as string | null) ?? "" }
+          : null,
+      })) as unknown as IntervenantWithPoste[];
+    },
   });
 }
 
@@ -72,12 +85,16 @@ export function useIntervenantsStats() {
   return useQuery({
     queryKey: ["intervenants-stats"],
     queryFn: async () => {
-      const { data } = await statsRepo.list();
+      const { data, error } = await (supabase as any)
+        .from("intervenants_directory")
+        .select("statut");
+      if (error) throw new Error(error.message);
+      const rows = (data ?? []) as Array<{ statut: string }>;
       return {
-        total: data.length,
-        active: data.filter(i => i.statut === "active").length,
-        mission: data.filter(i => i.statut === "mission").length,
-        inactive: data.filter(i => i.statut === "inactive").length,
+        total: rows.length,
+        active: rows.filter((i) => i.statut === "active").length,
+        mission: rows.filter((i) => i.statut === "mission").length,
+        inactive: rows.filter((i) => i.statut === "inactive").length,
       };
     },
   });
