@@ -133,7 +133,7 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto [&>*]:flex-1 sm:[&>*]:flex-none">
           <ShareButton />
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />

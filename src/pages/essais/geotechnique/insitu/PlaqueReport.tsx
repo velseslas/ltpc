@@ -79,7 +79,7 @@ export default function PlaqueReport() {
               Rapport <span className="text-primary">{numero}</span>
             </h1>
           </div>
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto [&>*]:flex-1 sm:[&>*]:flex-none">
             <ShareButton />
             <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={handleDownloadPDF}>
               <Download className="h-4 w-4 mr-2" />Télécharger PDF
