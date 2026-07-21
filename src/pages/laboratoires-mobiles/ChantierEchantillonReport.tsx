@@ -347,7 +347,7 @@ export default function ChantierEchantillonReport() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
-          <ShareButton className="col-span-2 order-last w-full sm:w-auto sm:order-none" />
+          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
           <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2 w-full sm:w-auto">
             <Printer className="h-4 w-4" />
             Imprimer
