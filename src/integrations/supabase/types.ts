@@ -109,6 +109,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "affectation_materiel_intervenant_id_fkey"
+            columns: ["intervenant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "affectation_materiel_materiel_id_fkey"
             columns: ["materiel_id"]
             isOneToOne: false
@@ -174,6 +181,13 @@ export type Database = {
             columns: ["intervenant_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affectations_intervenant_id_fkey"
+            columns: ["intervenant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -1251,6 +1265,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "documents_rh_intervenant_id_fkey"
+            columns: ["intervenant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_affaissement: {
@@ -1365,6 +1386,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_affaissement_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_bleu_methylene: {
@@ -1443,6 +1471,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_bleu_methylene_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -1539,6 +1574,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_carottage_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_cbr: {
@@ -1622,6 +1664,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_cbr_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_cisaillement: {
@@ -1690,6 +1739,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_cisaillement_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -1773,6 +1829,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_classification_sol_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -1922,6 +1985,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_compression_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_compression_simple: {
@@ -1992,6 +2062,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_compression_simple_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_densite_place: {
@@ -2060,6 +2137,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_densite_place_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2133,6 +2217,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_densitometre_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2215,6 +2306,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_ecrasement_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_equivalent_sable: {
@@ -2293,6 +2391,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_equivalent_sable_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2375,6 +2480,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_forme_granulats_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_friabilite: {
@@ -2455,6 +2567,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_friabilite_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_granulometrie: {
@@ -2533,6 +2652,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_granulometrie_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2618,6 +2744,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_granulometrie_sol_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_limites_atterberg: {
@@ -2701,6 +2834,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_limites_atterberg_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_los_angeles: {
@@ -2779,6 +2919,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_los_angeles_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2861,6 +3008,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_masse_volumique_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_matiere_organique: {
@@ -2941,6 +3095,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_matiere_organique_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_micro_deval: {
@@ -3019,6 +3180,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_micro_deval_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3144,6 +3312,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_module_elasticite_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_oedometrique: {
@@ -3214,6 +3389,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_oedometrique_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_penetrometre: {
@@ -3282,6 +3464,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_penetrometre_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3413,6 +3602,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_permeabilite_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_plaque: {
@@ -3483,6 +3679,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_plaque_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_pressiometre: {
@@ -3551,6 +3754,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_pressiometre_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3636,6 +3846,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_proctor_modifie_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_proctor_normal: {
@@ -3719,6 +3936,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_proctor_normal_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_sclerometre: {
@@ -3798,6 +4022,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_sclerometre_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_sondage: {
@@ -3866,6 +4097,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_sondage_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -3971,6 +4209,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_temperature_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -4081,6 +4326,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_temps_prise_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_teneur_air: {
@@ -4189,6 +4441,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_teneur_air_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_teneur_eau: {
@@ -4267,6 +4526,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_teneur_eau_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -4350,6 +4616,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_teneur_eau_sol_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -4475,6 +4748,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "echantillons_traction_fendage_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       echantillons_triaxial: {
@@ -4543,6 +4823,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_triaxial_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -4625,6 +4912,13 @@ export type Database = {
             columns: ["operateur_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "echantillons_ultrason_operateur_id_fkey"
+            columns: ["operateur_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -4807,6 +5101,13 @@ export type Database = {
             columns: ["intervenant_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "essais_intervenant_id_fkey"
+            columns: ["intervenant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
           {
@@ -5454,6 +5755,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "laboratoires_mobiles_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       lettres_engagement: {
@@ -5855,6 +6163,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "material_responsibility_history_technicien_id_fkey"
+            columns: ["technicien_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       material_status_history: {
@@ -6035,6 +6350,13 @@ export type Database = {
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "materiel_laboratoire_responsable_courant_id_fkey"
+            columns: ["responsable_courant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       materiel_movements: {
@@ -6118,8 +6440,29 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "materiel_movements_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "materiel_movements_technicien_entrant_id_fkey"
             columns: ["technicien_entrant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_movements_technicien_entrant_id_fkey"
+            columns: ["technicien_entrant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "materiel_movements_technicien_sortant_id_fkey"
+            columns: ["technicien_sortant_id"]
             isOneToOne: false
             referencedRelation: "intervenants"
             referencedColumns: ["id"]
@@ -6128,7 +6471,7 @@ export type Database = {
             foreignKeyName: "materiel_movements_technicien_sortant_id_fkey"
             columns: ["technicien_sortant_id"]
             isOneToOne: false
-            referencedRelation: "intervenants"
+            referencedRelation: "intervenants_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -8007,6 +8350,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "utilisateurs_intervenant_id_fkey"
+            columns: ["intervenant_id"]
+            isOneToOne: false
+            referencedRelation: "intervenants_directory"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "utilisateurs_poste_id_fkey"
             columns: ["poste_id"]
             isOneToOne: false
@@ -8017,7 +8367,34 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      intervenants_directory: {
+        Row: {
+          created_at: string | null
+          date_embauche: string | null
+          departement: string | null
+          email: string | null
+          id: string | null
+          nom: string | null
+          poste_id: string | null
+          poste_nom: string | null
+          prenom: string | null
+          role: string | null
+          signature_url: string | null
+          specialite: string | null
+          statut: string | null
+          telephone: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervenants_poste_id_fkey"
+            columns: ["poste_id"]
+            isOneToOne: false
+            referencedRelation: "postes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
