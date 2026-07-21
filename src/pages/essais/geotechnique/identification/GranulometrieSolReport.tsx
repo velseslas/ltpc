@@ -84,8 +84,8 @@ export default function GranulometrieSolReport() {
             Rapport <span className="text-primary">{numero}</span>
           </h1>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto [&>*]:flex-1 sm:[&>*]:flex-none">
-          <ShareButton />
+        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
+          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
           <Button
             variant="outline"
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
