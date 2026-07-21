@@ -329,8 +329,8 @@ export default function ChantierEchantillonReport() {
       </div>
 
       {/* Header avec actions - Caché à l'impression */}
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <div className="flex items-start gap-4">
           <Button
             variant="outline"
             size="icon"
@@ -347,7 +347,7 @@ export default function ChantierEchantillonReport() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
-          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+          <ShareButton className="col-span-2 order-last w-full sm:w-auto sm:order-none" />
           <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2 w-full sm:w-auto">
             <Printer className="h-4 w-4" />
             Imprimer
