@@ -52,39 +52,42 @@ const PermeabiliteDetail = () => {
         ]}
       />
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate("/essais/beton/beton-durci/permeabilite")}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">
               <span className="text-primary">PE</span>-{String(echantillon.numero).padStart(3, "0")}
             </h1>
-            <p className="text-muted-foreground">Perméabilité - NF EN 12390-8</p>
+            <p className="text-muted-foreground text-sm sm:text-base truncate">Perméabilité - NF EN 12390-8</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
           <Button
             variant="outline"
+            size="sm"
+            className="w-full sm:w-auto"
             onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${id}/modifier`)}
           >
             <Edit className="h-4 w-4 mr-2" />
             Modifier
           </Button>
-          <Button onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${id}/saisie`)} className="">
+          <Button size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${id}/saisie`)}>
             <Plus className="h-4 w-4 mr-2" />
-            Saisie de données
+            Saisie
           </Button>
           {echantillon.statut === "termine" && (
             <Button
+              size="sm"
               onClick={() => navigate(`/essais/beton/beton-durci/permeabilite/${id}/rapport`)}
-              className="gradient-primary text-primary-foreground"
+              className="gradient-primary text-primary-foreground w-full sm:w-auto col-span-2 sm:col-auto"
             >
               <FileText className="h-4 w-4 mr-2" />
               Rapport
