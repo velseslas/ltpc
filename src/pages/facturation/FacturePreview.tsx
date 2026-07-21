@@ -144,7 +144,7 @@ export default function FacturePreview() {
           <Button variant="outline" onClick={handlePrint} className="gap-2">
             <Printer className="h-4 w-4" /> Imprimer
           </Button>
-          <Button onClick={handleDownload} className="gap-2">
+          <Button variant="outline" onClick={handleDownload} className="gap-2">
             <Download className="h-4 w-4" /> Télécharger PDF
           </Button>
         </div>

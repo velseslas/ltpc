@@ -352,7 +352,7 @@ export default function ChantierEchantillonReport() {
             <Printer className="h-4 w-4" />
             Imprimer
           </Button>
-          <Button onClick={handleDownloadPDF} className="flex items-center gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={handleDownloadPDF} className="flex items-center gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
             Télécharger PDF
           </Button>
