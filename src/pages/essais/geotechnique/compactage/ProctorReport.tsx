@@ -86,7 +86,7 @@ export default function ProctorReport({ essaiType }: ProctorReportProps) {
           { label: <><span className="text-primary">{prefix}</span>-{String(echantillon.numero).padStart(3, "0")}</>, path: `${basePath}/${id}` },
           { label: "Rapport" }
         ]} />
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
           <div className="flex items-center gap-4">
             <BackButton to={`${basePath}/${id}`} />
             <h1 className="text-3xl font-display font-bold text-foreground">

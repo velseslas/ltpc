@@ -72,7 +72,7 @@ const ModuleElasticiteReport = () => {
         { label: "Rapport" }
       ]} />
 
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate(`/essais/beton/beton-durci/module-elasticite/${id}`)}><ArrowLeft className="h-5 w-5" /></Button>
           <div>

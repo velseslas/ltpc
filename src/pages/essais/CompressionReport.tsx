@@ -395,7 +395,7 @@ const CompressionReport = () => {
             />
           </div>
           
-          <div className="flex items-center justify-between print:hidden">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
