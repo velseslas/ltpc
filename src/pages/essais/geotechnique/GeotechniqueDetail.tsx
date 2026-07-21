@@ -567,28 +567,28 @@ export default function GeotechniqueDetail({ essaiType, essaiTitle, basePath, ca
         { label: <><span className="text-primary">{prefix}</span>-{String(echantillon.numero).padStart(3, "0")}</> }
       ]} />
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">
               Échantillon <span className="text-primary">{numero}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base truncate">{essaiTitle}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/saisie`)} className="">
-            <ClipboardEdit className="w-4 h-4 mr-2" />Saisie de données
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/${id}/saisie`)}>
+            <ClipboardEdit className="w-4 h-4 mr-2" />Saisie
           </Button>
           {echantillon.statut === "termine" && (
-            <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/rapport`)}>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/${id}/rapport`)}>
               <FileText className="w-4 h-4 mr-2" />Rapport
             </Button>
           )}
-          <Button variant="outline" onClick={() => navigate(`${basePath}/${id}/modifier`)}>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto col-span-2 sm:col-auto" onClick={() => navigate(`${basePath}/${id}/modifier`)}>
             <Pencil className="w-4 h-4 mr-2" />Modifier
           </Button>
         </div>
