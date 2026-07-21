@@ -130,7 +130,7 @@ export default function FacturePreview() {
         { label: facture.numero },
       ]} />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col items-start gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/facturation/factures")}>
             <ArrowLeft className="w-4 h-4" />
@@ -140,11 +140,11 @@ export default function FacturePreview() {
             <p className="text-muted-foreground text-sm">Aperçu du document</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handlePrint} className="gap-2">
+        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
+          <Button variant="outline" onClick={handlePrint} className="gap-2 w-full sm:w-auto">
             <Printer className="h-4 w-4" /> Imprimer
           </Button>
-          <Button variant="outline" onClick={handleDownload} className="gap-2">
+          <Button variant="outline" onClick={handleDownload} className="gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" /> Télécharger PDF
           </Button>
         </div>
