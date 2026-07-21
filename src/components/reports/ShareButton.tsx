@@ -34,7 +34,11 @@ const ShareButton = ({ onGeneratePdf, fileName, meta, variant = "outline", class
 
   return (
     <>
-      <Button variant={variant} onClick={() => setOpen(true)} className={className}>
+      <Button
+        variant="default"
+        onClick={() => setOpen(true)}
+        className={`bg-blue-600 hover:bg-blue-700 text-white border-transparent ${className ?? ""}`}
+      >
         <Share2 className="h-4 w-4 mr-2" />
         Partager
       </Button>
