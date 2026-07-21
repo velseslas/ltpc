@@ -57,7 +57,7 @@ const SclerometreReport = () => {
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
           <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
           <Button variant="outline" onClick={handlePrint} className="w-full sm:w-auto"><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
-          <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground w-full sm:w-auto"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
+          <Button variant="outline" onClick={handleDownloadPDF} className="w-full sm:w-auto"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>
         </div>
       </div>
 

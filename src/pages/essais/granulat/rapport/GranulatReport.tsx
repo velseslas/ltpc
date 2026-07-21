@@ -150,7 +150,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
                   <Printer className="h-4 w-4" />
                   Imprimer
                 </Button>
-                <Button onClick={handleDownloadPDF} className="flex items-center gap-2 gradient-primary text-primary-foreground">
+                <Button variant="outline" onClick={handleDownloadPDF} className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
                   Télécharger PDF
                 </Button>

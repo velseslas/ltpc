@@ -416,7 +416,7 @@ const CompressionReport = () => {
                   <Printer className="h-4 w-4" />
                   Imprimer
                 </Button>
-                <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
+                <Button variant="outline" onClick={handleDownloadPDF} className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
                   Télécharger PDF
                 </Button>

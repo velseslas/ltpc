@@ -139,7 +139,7 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
           </Button>
-          <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground w-full sm:w-auto">
+          <Button variant="outline" onClick={handleDownloadPDF} className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Télécharger PDF
           </Button>
