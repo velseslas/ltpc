@@ -150,40 +150,40 @@ export default function ChantierEchantillonDetail() {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}`)}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-xl sm:text-2xl font-bold">
                 Échantillon N° <span className="text-primary">EC</span>-{String(echantillon.numero_chantier).padStart(3, "0")}
               </h1>
               {getStatutBadge(echantillon.statut)}
             </div>
-            <p className="text-muted-foreground">{echantillon.chantier_nom}</p>
+            <p className="text-muted-foreground text-sm sm:text-base truncate">{echantillon.chantier_nom}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate(`${basePath}/bulletin`)}>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/bulletin`)}>
             <ClipboardList className="h-4 w-4 mr-2" />
             Bulletin
           </Button>
-          <Button variant="outline" onClick={() => navigate(`${basePath}/saisie`)}>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/saisie`)}>
             <ClipboardEdit className="h-4 w-4 mr-2" />
-            Saisie de données
+            Saisie
           </Button>
-          <Button variant="outline" onClick={() => navigate(`${basePath}/rapport`)}>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/rapport`)}>
             <FileBarChart className="h-4 w-4 mr-2" />
             Rapport
           </Button>
-          <Button onClick={() => navigate(`${basePath}/modifier`)}>
+          <Button size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/modifier`)}>
             <Pencil className="h-4 w-4 mr-2" />
             Modifier
           </Button>
