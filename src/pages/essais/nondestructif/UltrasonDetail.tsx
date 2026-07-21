@@ -30,18 +30,18 @@ const UltrasonDetail = () => {
   return (
     <div className="space-y-6">
       <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Non Destructif", path: "/essais/beton/non-destructif" }, { label: "Ultrason", path: basePath }, { label: `US-${String(echantillon.numero).padStart(3, "0")}` }]} />
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"><ArrowLeft className="h-5 w-5" /></Button>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Essai Ultrason <span className="text-primary">US-{String(echantillon.numero).padStart(3, "0")}</span></h1>
-            <p className="text-muted-foreground mt-1">NF EN 12504-4</p>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"><ArrowLeft className="h-5 w-5" /></Button>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">Essai Ultrason <span className="text-primary">US-{String(echantillon.numero).padStart(3, "0")}</span></h1>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">NF EN 12504-4</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${id}/saisie`)}><ClipboardEdit className="h-4 w-4" />Saisie de données</Button>
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${id}/rapport`)}><FileBarChart className="h-4 w-4" />Rapport</Button>
-          <Button className="flex items-center gap-2" onClick={() => navigate(`${basePath}/${id}/modifier`)}><Pencil className="h-4 w-4" />Modifier</Button>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/${id}/saisie`)}><ClipboardEdit className="h-4 w-4 mr-2" />Saisie</Button>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/${id}/rapport`)}><FileBarChart className="h-4 w-4 mr-2" />Rapport</Button>
+          <Button size="sm" className="w-full sm:w-auto" onClick={() => navigate(`${basePath}/${id}/modifier`)}><Pencil className="h-4 w-4 mr-2" />Modifier</Button>
         </div>
       </div>
 
