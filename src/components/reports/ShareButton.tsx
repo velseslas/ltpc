@@ -13,6 +13,8 @@ interface ShareButtonProps {
   meta?: Partial<ShareDocumentMeta>;
   /** Style du bouton. */
   variant?: "outline" | "default" | "ghost";
+  /** Classes CSS additionnelles appliquées au bouton. */
+  className?: string;
 }
 
 /**
@@ -20,7 +22,7 @@ interface ShareButtonProps {
  * Ouvre ShareDialog qui délègue à DocumentShareService (point d'entrée unique).
  * Compatible Web / PWA / Capacitor (via provider abstrait).
  */
-const ShareButton = ({ onGeneratePdf, fileName, meta, variant = "outline" }: ShareButtonProps) => {
+const ShareButton = ({ onGeneratePdf, fileName, meta, variant = "outline", className }: ShareButtonProps) => {
   const [open, setOpen] = useState(false);
 
   const resolvedMeta: ShareDocumentMeta = {
@@ -32,7 +34,7 @@ const ShareButton = ({ onGeneratePdf, fileName, meta, variant = "outline" }: Sha
 
   return (
     <>
-      <Button variant={variant} onClick={() => setOpen(true)}>
+      <Button variant={variant} onClick={() => setOpen(true)} className={className}>
         <Share2 className="h-4 w-4 mr-2" />
         Partager
       </Button>
