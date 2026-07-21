@@ -97,7 +97,7 @@ const CarottageReport = () => {
           </Button>
           <h1 className="text-xl font-semibold text-foreground">Rapport de carottage</h1>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 w-full sm:w-auto">
           <ShareButton />
           <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
             <Printer className="h-4 w-4" /> Imprimer
