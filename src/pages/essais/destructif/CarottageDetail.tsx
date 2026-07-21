@@ -39,28 +39,28 @@ const CarottageDetail = () => {
         ]}
       />
 
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate("/essais/beton/destructif/carottage")}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-display font-bold text-foreground">
               Carottage <span className="text-primary">CR-{String(echantillon.numero).padStart(3, "0")}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">Détails de l'échantillon</p>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">Détails de l'échantillon</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/saisie`)} className="">
-            <ClipboardEdit className="h-4 w-4 mr-1" /> Saisie de données
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/saisie`)}>
+            <ClipboardEdit className="h-4 w-4 mr-2" /> Saisie
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/rapport`)}>
-            <FileBarChart className="h-4 w-4 mr-1" /> Rapport
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/rapport`)}>
+            <FileBarChart className="h-4 w-4 mr-2" /> Rapport
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/modifier`)}>
-            <Pencil className="h-4 w-4 mr-1" /> Modifier
+          <Button variant="outline" size="sm" className="w-full sm:w-auto col-span-2 sm:col-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/modifier`)}>
+            <Pencil className="h-4 w-4 mr-2" /> Modifier
           </Button>
         </div>
       </div>
