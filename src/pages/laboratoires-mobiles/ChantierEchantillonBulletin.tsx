@@ -297,13 +297,13 @@ export default function ChantierEchantillonBulletin() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <ShareButton />
-          <Button variant="outline" onClick={handlePrint}>
+        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center sm:w-auto">
+          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+          <Button variant="outline" onClick={handlePrint} className="w-full sm:w-auto">
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
           </Button>
-          <Button onClick={handleDownloadPDF}>
+          <Button onClick={handleDownloadPDF} className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Télécharger PDF
           </Button>
