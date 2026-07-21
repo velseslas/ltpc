@@ -346,13 +346,13 @@ export default function ChantierEchantillonReport() {
             <p className="text-muted-foreground">{echantillon.chantier_nom}</p>
           </div>
         </div>
-        <div className="flex gap-3">
-          <ShareButton />
-          <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
+        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
+          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+          <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2 w-full sm:w-auto">
             <Printer className="h-4 w-4" />
             Imprimer
           </Button>
-          <Button onClick={handleDownloadPDF} className="flex items-center gap-2">
+          <Button onClick={handleDownloadPDF} className="flex items-center gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
             Télécharger PDF
           </Button>
