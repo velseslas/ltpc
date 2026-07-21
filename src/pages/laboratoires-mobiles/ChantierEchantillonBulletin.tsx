@@ -278,7 +278,7 @@ export default function ChantierEchantillonBulletin() {
       </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -298,7 +298,6 @@ export default function ChantierEchantillonBulletin() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center sm:w-auto">
-          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
           <Button variant="outline" onClick={handlePrint} className="w-full sm:w-auto">
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
@@ -307,8 +306,10 @@ export default function ChantierEchantillonBulletin() {
             <Download className="h-4 w-4 mr-2" />
             Télécharger PDF
           </Button>
+          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
         </div>
       </div>
+
 
       {/* Bulletin Content */}
       <div className="flex justify-center">
