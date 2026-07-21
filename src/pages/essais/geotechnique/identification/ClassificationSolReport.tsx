@@ -60,7 +60,7 @@ export default function ClassificationSolReport() {
                 <h1 className="text-2xl font-bold text-foreground">Rapport - <span className="text-primary">{numero}</span></h1>
                 <p className="text-muted-foreground text-sm">Classification des Sols</p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3 w-full sm:w-auto">
                 <ShareButton fileName={`rapport-classification-sol-${numero}.pdf`} />
                 <Button variant="outline" onClick={handlePrint}><Printer className="h-4 w-4 mr-2" />Imprimer</Button>
                 <Button onClick={handleDownloadPDF} className="gradient-primary text-primary-foreground"><Download className="h-4 w-4 mr-2" />Télécharger PDF</Button>

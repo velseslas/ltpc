@@ -77,14 +77,14 @@ export default function GranulometrieSolReport() {
         { label: "Rapport" }
       ]} />
 
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
         <div className="flex items-center gap-4">
           <BackButton to={`${basePath}/${id}`} />
           <h1 className="text-3xl font-display font-bold text-foreground">
             Rapport <span className="text-primary">{numero}</span>
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <ShareButton />
           <Button
             variant="outline"
