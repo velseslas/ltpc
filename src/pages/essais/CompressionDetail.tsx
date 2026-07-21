@@ -198,52 +198,57 @@ const CompressionDetail = () => {
       />
       
       {/* Header */}
-      <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3 sm:gap-4">
             <Button
               variant="outline"
               size="icon"
               onClick={() => navigate("/essais/beton/beton-durci/compression")}
-              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-foreground">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   Échantillon N° <span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}
                 </h1>
                 {getStatutBadge(echantillon.statut)}
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm sm:text-base truncate">
                 {echantillon.client_nom} - {echantillon.chantier_nom}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button 
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+            <Button
               variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
               onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}/bulletin`)}
             >
               <ClipboardList className="h-4 w-4 mr-2" />
               Bulletin
             </Button>
-            <Button 
+            <Button
               variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
               onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}/saisie`)}
-              className=""
             >
               <ClipboardEdit className="h-4 w-4 mr-2" />
-              Saisie de données
+              Saisie
             </Button>
-            <Button 
+            <Button
               variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
               onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}/rapport`)}
             >
               <FileBarChart className="h-4 w-4 mr-2" />
               Rapport
             </Button>
-            <Button onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}/modifier`)}>
+            <Button size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}/modifier`)}>
               <Pencil className="h-4 w-4 mr-2" />
               Modifier
             </Button>
