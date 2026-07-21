@@ -151,52 +151,56 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
       
       <div className="space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex items-start gap-3 sm:gap-4">
             <Button
               variant="outline"
               size="icon"
               onClick={() => navigate(basePath)}
-              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+              className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-display font-bold text-foreground">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">
                   <span className="text-primary">{fullPrefix}</span>-{String(echantillon.numero).padStart(3, "0")}
                 </h1>
                 {getStatusBadge(echantillon.statut)}
               </div>
-              <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+              <p className="text-muted-foreground mt-1 text-sm sm:text-base truncate">{essaiTitle}</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => navigate(`${basePath}/${id}/modifier`)}
-              className="border-border"
+              className="border-border w-full sm:w-auto"
             >
               <Edit className="h-4 w-4 mr-2" />
               Modifier
             </Button>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => navigate(`${basePath}/${id}/saisie`)}
-              className="border-border"
+              className="border-border w-full sm:w-auto"
             >
               <ClipboardEdit className="h-4 w-4 mr-2" />
-              Saisie de données
+              Saisie
             </Button>
             <Button
+              size="sm"
               onClick={() => navigate(`${basePath}/${id}/rapport`)}
-              className="gradient-primary text-primary-foreground"
+              className="gradient-primary text-primary-foreground w-full sm:w-auto col-span-2 sm:col-auto"
             >
               <FileText className="h-4 w-4 mr-2" />
               Rapport
             </Button>
           </div>
         </div>
+
 
         {/* Informations générales */}
         <Card className="border-border bg-card">
