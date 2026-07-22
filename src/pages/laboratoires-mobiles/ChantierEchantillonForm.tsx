@@ -147,17 +147,6 @@ export default function ChantierEchantillonForm() {
 
   // Data fetching
   const { data: centralesByClient = [] } = useCentralesByClient(chantier?.client_id || "");
-  const centrales = useMergedById("centrales_beton", centraleId || null, centralesByClient, "id, nom, ville");
-  const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
-  const { data: labos } = useLaboratoiresMobiles();
-
-  // Get the responsable_id (technician) assigned to this chantier's lab
-  const responsableId = useMemo(() => {
-    if (!labos || !chantierId) return null;
-    const labo = labos.find(l => l.chantier_id === chantierId);
-    return labo?.responsable_id || null;
-  }, [labos, chantierId]);
-
   // Fetch existing echantillon for edit mode
   const { data: editEchantillon, isLoading: isLoadingEchantillon } = useQuery({
     queryKey: ["echantillon-chantier", echantillonId],
@@ -175,6 +164,19 @@ export default function ChantierEchantillonForm() {
   });
   const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_compression");
   const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
+  // Pre-warm the centrale/formulation dropdowns using the persisted IDs so the
+  // Select label shows immediately, even before centralesByClient resolves.
+  const effectiveCentraleId = centraleId || existingEchantillon?.centrale_id || null;
+  const centrales = useMergedById("centrales_beton", effectiveCentraleId, centralesByClient, "id, nom, ville");
+  const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId || "");
+  const { data: labos } = useLaboratoiresMobiles();
+
+  // Get the responsable_id (technician) assigned to this chantier's lab
+  const responsableId = useMemo(() => {
+    if (!labos || !chantierId) return null;
+    const labo = labos.find(l => l.chantier_id === chantierId);
+    return labo?.responsable_id || null;
+  }, [labos, chantierId]);
 
   // Initialize form with existing data
   useEffect(() => {
@@ -182,6 +184,11 @@ export default function ChantierEchantillonForm() {
       setCentraleId(existingEchantillon.centrale_id || "");
       setOuvrage(existingEchantillon.ouvrage || "");
       setDestinationBeton(existingEchantillon.destination_beton || "");
+      setConditionCure(existingEchantillon.condition_cure || "standard");
+      setDateCoulage(existingEchantillon.date_coulage ? parseISO(existingEchantillon.date_coulage) : undefined);
+      setTypeEprouvette(existingEchantillon.type_eprouvette || "cube");
+      setDimensionEprouvette(existingEchantillon.dimension_eprouvette || "15x15x15");
+      setNombreEprouvettes(String(existingEchantillon.nombre_eprouvettes || 6));
       setConditionCure(existingEchantillon.condition_cure || "standard");
       setDateCoulage(existingEchantillon.date_coulage ? parseISO(existingEchantillon.date_coulage) : undefined);
       setTypeEprouvette(existingEchantillon.type_eprouvette || "cube");

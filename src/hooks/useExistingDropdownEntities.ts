@@ -22,6 +22,7 @@ export function useMergedById<T = any>(
       return data;
     },
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
   });
 
   return useMemo(() => {
