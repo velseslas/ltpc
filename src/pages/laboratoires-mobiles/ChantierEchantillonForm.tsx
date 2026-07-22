@@ -29,7 +29,7 @@ import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateChantierEchantillon } from "@/hooks/useChantierEchantillons";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
