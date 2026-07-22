@@ -112,6 +112,7 @@ export default function ChantierEchantillonForm() {
   const { data: chantier, isLoading: isLoadingChantier } = useChantier(chantierId || "");
   const { data: client } = useClient(chantier?.client_id || "");
   const createEchantillon = useCreateChantierEchantillon();
+  const queryClient = useQueryClient();
 
   // Form state
   const [centraleId, setCentraleId] = useState("");
@@ -357,6 +358,12 @@ export default function ChantierEchantillonForm() {
           })
           .eq("id", echantillonId);
         if (error) throw error;
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", chantierId] }),
+          queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] }),
+          queryClient.invalidateQueries({ queryKey: ["echantillon-beton-frais"] }),
+          queryClient.invalidateQueries({ queryKey: ["echantillon", echantillonId] }),
+        ]);
         toast.success("Échantillon modifié avec succès");
       } else {
         await createEchantillon.mutateAsync(data);
