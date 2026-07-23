@@ -5,6 +5,9 @@ import type { CentraleBeton } from "./useCentralesBeton";
 
 export type CentraleLite = Pick<CentraleBeton, "id" | "nom" | "ville" | "adresse" | "contact" | "telephone" | "capacite">;
 
+const sortCentrales = <T extends { nom?: string | null }>(list: T[]) =>
+  list.sort((a, b) => (a.nom ?? "").localeCompare(b.nom ?? ""));
+
 /** Retourne les centrales à béton affectées à un chantier donné. */
 export function useChantierCentrales(chantierId: string) {
   return useQuery({
@@ -19,7 +22,7 @@ export function useChantierCentrales(chantierId: string) {
       const centrales = (data ?? [])
         .map((row: any) => row.centrales_beton)
         .filter(Boolean) as CentraleLite[];
-      return centrales.sort((a, b) => (a.nom ?? "").localeCompare(b.nom ?? ""));
+      return sortCentrales(centrales);
     },
   });
 }
@@ -66,7 +69,8 @@ export function useDetachCentraleFromChantier() {
 
 /**
  * Retourne les centrales filtrées par chantier affecté ;
- * si aucun chantier n'est fourni ou aucune affectation, retombe sur les centrales du client.
+ * si un chantier est fourni, la liste reste strictement limitée à ses affectations.
+ * Le fallback aux centrales du client ne s'applique que tant qu'aucun chantier n'est sélectionné.
  * Renvoie directement un tableau pour rester compatible avec l'ancien hook useCentralesByClient.
  */
 export function useCentralesForSample(clientId: string | null | undefined, chantierId: string | null | undefined) {
@@ -75,16 +79,25 @@ export function useCentralesForSample(clientId: string | null | undefined, chant
     enabled: !!clientId || !!chantierId,
     queryFn: async () => {
       if (chantierId) {
-        const { data, error } = await supabase
+        const { data: chantierLinks, error: chantierError } = await supabase
           .from("chantier_centrales")
           .select("centrales_beton:centrale_id(id, nom, ville)")
           .eq("chantier_id", chantierId);
-        if (!error) {
-          const list = (data ?? []).map((r: any) => r.centrales_beton).filter(Boolean);
-          if (list.length > 0) {
-            return list.sort((a: any, b: any) => (a.nom ?? "").localeCompare(b.nom ?? ""));
-          }
+        if (chantierError) throw chantierError;
+
+        const chantierList = (chantierLinks ?? []).map((r: any) => r.centrales_beton).filter(Boolean);
+        if (chantierList.length > 0) {
+          return sortCentrales(chantierList);
         }
+
+        const { data: legacyLinks, error: legacyError } = await supabase
+          .from("client_centrales")
+          .select("centrales_beton:centrale_id(id, nom, ville)")
+          .eq("chantier_id", chantierId);
+        if (legacyError) throw legacyError;
+
+        const legacyList = (legacyLinks ?? []).map((r: any) => r.centrales_beton).filter(Boolean);
+        return sortCentrales(legacyList);
       }
       if (clientId) {
         const { data, error } = await supabase
@@ -93,7 +106,7 @@ export function useCentralesForSample(clientId: string | null | undefined, chant
           .eq("client_id", clientId);
         if (error) throw error;
         const list = (data ?? []).map((r: any) => r.centrales_beton).filter(Boolean);
-        return list.sort((a: any, b: any) => (a.nom ?? "").localeCompare(b.nom ?? ""));
+        return sortCentrales(list);
       }
       return [] as any[];
     },

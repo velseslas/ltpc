@@ -219,13 +219,14 @@ const CompressionSampleForm = () => {
   });
 
   // Merge existing centrale/formulation into select lists if missing
+  const mergeExistingCentrale = !chantierId || chantierId === existingEchantillon?.chantier_id;
   const centrales = useMemo(() => {
     const list = [...centralesFromClient];
-    if (existingCentrale && !list.some((c) => c.id === existingCentrale.id)) {
+    if (mergeExistingCentrale && existingCentrale && !list.some((c) => c.id === existingCentrale.id)) {
       list.push(existingCentrale as any);
     }
     return list;
-  }, [centralesFromClient, existingCentrale]);
+  }, [centralesFromClient, existingCentrale, mergeExistingCentrale]);
 
   const formulations = useMemo(() => {
     const list = [...formulationsFromCentrale];
@@ -331,6 +332,12 @@ const CompressionSampleForm = () => {
   // Handle centrale change - reset formulation
   const handleCentraleChange = (value: string) => {
     setCentraleId(value);
+    setFormulationId("");
+  };
+
+  const handleChantierChange = (value: string) => {
+    setChantierId(value);
+    setCentraleId("");
     setFormulationId("");
   };
 
@@ -559,7 +566,7 @@ const CompressionSampleForm = () => {
                 <Label htmlFor="chantier">Chantier <span className="text-red-700">*</span></Label>
                 <Select
                   value={chantierId}
-                  onValueChange={setChantierId}
+                  onValueChange={handleChantierChange}
                   disabled={!clientId}
                 >
                   <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}>
@@ -616,16 +623,20 @@ const CompressionSampleForm = () => {
               {/* Centrale à béton */}
               <div className="space-y-2">
                 <Label htmlFor="centrale">Centrale à béton <span className="text-red-700">*</span></Label>
-                <Select value={centraleId} onValueChange={handleCentraleChange}>
+                <Select value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
                   <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
-                    <SelectValue placeholder="Sélectionnez une centrale" />
+                    <SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {centrales.map((centrale) => (
-                      <SelectItem key={centrale.id} value={centrale.id}>
-                        {centrale.nom}
-                      </SelectItem>
-                    ))}
+                    {centrales.length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale affectée à ce chantier</div>
+                    ) : (
+                      centrales.map((centrale) => (
+                        <SelectItem key={centrale.id} value={centrale.id}>
+                          {centrale.nom}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 <ValidationMessage show={submitted && !centraleId} message="Ce champ est obligatoire" />

@@ -155,7 +155,8 @@ const ModuleElasticiteSampleForm = () => {
   const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesForSample(clientId, chantierId);
   const { data: formulationsBase = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
 
-  const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);
+  const mergeExistingCentrale = !chantierId || chantierId === existingEchantillon?.chantier_id;
+  const centrales = useMergedById("centrales_beton", mergeExistingCentrale ? existingEchantillon?.centrale_id : null, centralesBase as any);
   const formulations = useMergedById("formulations", existingEchantillon?.formulation_id, formulationsBase as any);
   const chantiers = useMergedById("chantiers", existingEchantillon?.chantier_id, chantiersBase as any);
 
@@ -246,6 +247,12 @@ const ModuleElasticiteSampleForm = () => {
   const handleClientChange = (value: string) => {
     setClientId(value);
     setChantierId("");
+    setCentraleId("");
+    setFormulationId("");
+  };
+
+  const handleChantierChange = (value: string) => {
+    setChantierId(value);
     setCentraleId("");
     setFormulationId("");
   };
@@ -417,7 +424,7 @@ const ModuleElasticiteSampleForm = () => {
               <Label htmlFor="chantier">Chantier <span className="text-red-700">*</span></Label>
               <Select 
                 value={chantierId} 
-                onValueChange={setChantierId}
+                onValueChange={handleChantierChange}
                 disabled={!clientId}
               >
                 <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}>
@@ -436,16 +443,20 @@ const ModuleElasticiteSampleForm = () => {
 
             <div className="space-y-2">
               <Label htmlFor="centrale">Centrale à Béton <span className="text-red-700">*</span></Label>
-              <Select value={centraleId} onValueChange={handleCentraleChange}>
+              <Select value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
                 <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
-                  <SelectValue placeholder="Sélectionnez une centrale" />
+                  <SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {centrales.map((centrale) => (
-                    <SelectItem key={centrale.id} value={centrale.id}>
-                      {centrale.nom}
-                    </SelectItem>
-                  ))}
+                  {centrales.length === 0 ? (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale affectée à ce chantier</div>
+                  ) : (
+                    centrales.map((centrale) => (
+                      <SelectItem key={centrale.id} value={centrale.id}>
+                        {centrale.nom}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
               <ValidationMessage show={submitted && !centraleId} message="Ce champ est obligatoire" />

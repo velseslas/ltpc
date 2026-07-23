@@ -216,9 +216,10 @@ export default function EchantillonBetonFraisForm({
 
   const centrales = useMemo(() => {
     const list = [...(centralesFromClient || [])];
-    if (existingCentrale && !list.some((c: any) => c.id === existingCentrale.id)) list.push(existingCentrale as any);
+    const mergeExistingCentrale = !selectedChantierId || selectedChantierId === existingChantierId;
+    if (mergeExistingCentrale && existingCentrale && !list.some((c: any) => c.id === existingCentrale.id)) list.push(existingCentrale as any);
     return list;
-  }, [centralesFromClient, existingCentrale]);
+  }, [centralesFromClient, existingCentrale, selectedChantierId, existingChantierId]);
 
   const formulations = useMemo(() => {
     const list = [...(formulationsFromCentrale || [])];
@@ -241,11 +242,21 @@ export default function EchantillonBetonFraisForm({
   const [prevClientId, setPrevClientId] = useState(selectedClientId);
   useEffect(() => {
     if (isFormInitialized && selectedClientId !== prevClientId) {
+      form.setValue("chantier_id", "");
       form.setValue("centrale_id", "");
       form.setValue("formulation_id", "");
       setPrevClientId(selectedClientId);
     }
   }, [selectedClientId, prevClientId, isFormInitialized, form]);
+
+  const [prevChantierId, setPrevChantierId] = useState(selectedChantierId);
+  useEffect(() => {
+    if (isFormInitialized && selectedChantierId !== prevChantierId) {
+      form.setValue("centrale_id", "");
+      form.setValue("formulation_id", "");
+      setPrevChantierId(selectedChantierId);
+    }
+  }, [selectedChantierId, prevChantierId, isFormInitialized, form]);
 
   // Multi-step initialization for edit mode
   useEffect(() => {
@@ -295,6 +306,7 @@ export default function EchantillonBetonFraisForm({
         form.setValue("destination_beton", pendingData.destination_beton);
 
         setPrevClientId(pendingData.client_id ?? echantillon?.client_id ?? "");
+        setPrevChantierId(pendingData.chantier_id ?? "");
         setIsFormInitialized(true);
         setIsPreFilling(false);
         setPendingData(null);
@@ -406,7 +418,7 @@ export default function EchantillonBetonFraisForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Client <span className="text-red-700">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedChantierId}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner un client" />
@@ -535,15 +547,19 @@ export default function EchantillonBetonFraisForm({
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner une centrale" />
+                          <SelectValue placeholder={selectedChantierId ? "Sélectionner une centrale" : "Sélectionnez d'abord un chantier"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {centrales?.map((centrale) => (
-                          <SelectItem key={centrale.id} value={centrale.id}>
-                            {centrale.nom}
-                          </SelectItem>
-                        ))}
+                        {centrales?.length === 0 ? (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale affectée à ce chantier</div>
+                        ) : (
+                          centrales?.map((centrale) => (
+                            <SelectItem key={centrale.id} value={centrale.id}>
+                              {centrale.nom}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
