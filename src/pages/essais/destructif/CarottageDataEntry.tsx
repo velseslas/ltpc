@@ -46,26 +46,62 @@ const emptyCarotte = (): CarotteResult => ({
   resistance_corrigee: "",
 });
 
-// Coefficient K(L/D) selon NF P18-418 — interpolation linéaire
-// L/D : 1.00 → 0.90 ; 1.25 → 0.96 ; 1.50 → 1.00 ; 1.75 → 1.02 ; 2.00 → 1.03
-const computeK = (ld: number): number => {
-  const table = [
+// ─────────────────────────────────────────────────────────────
+// Référentiel normatif du coefficient d'élancement K(L/D)
+// Méthode active : NF P18-418 (interpolation linéaire autorisée)
+// Table configurable — architecture permettant de changer la
+// norme sans modifier la logique de calcul principale.
+// ─────────────────────────────────────────────────────────────
+const K_METHOD = {
+  code: "NF P18-418",
+  label: "NF P18-418 — Correction d'élancement L/D vers cylindre 16×32 (L/D=2)",
+  allowInterpolation: true,
+  table: [
     { ld: 1.0, k: 0.90 },
     { ld: 1.25, k: 0.96 },
     { ld: 1.5, k: 1.00 },
     { ld: 1.75, k: 1.02 },
     { ld: 2.0, k: 1.03 },
-  ];
-  if (ld <= 1.0) return 0.90;
-  if (ld >= 2.0) return 1.03;
-  for (let i = 0; i < table.length - 1; i++) {
-    const a = table[i], b = table[i + 1];
+  ],
+};
+
+const computeK = (ld: number): number => {
+  const t = K_METHOD.table;
+  if (ld <= t[0].ld) return t[0].k;
+  if (ld >= t[t.length - 1].ld) return t[t.length - 1].k;
+  for (let i = 0; i < t.length - 1; i++) {
+    const a = t[i], b = t[i + 1];
     if (ld >= a.ld && ld <= b.ld) {
-      const t = (ld - a.ld) / (b.ld - a.ld);
-      return a.k + t * (b.k - a.k);
+      if (!K_METHOD.allowInterpolation) return a.k;
+      const r = (ld - a.ld) / (b.ld - a.ld);
+      return a.k + r * (b.k - a.k);
     }
   }
-  return 1.03;
+  return 1.0;
+};
+
+// Classes béton EN 206 — fck cylindre et fck cube (MPa)
+const CLASSES_BETON: Record<string, { cyl: number; cube: number }> = {
+  "C12/15": { cyl: 12, cube: 15 },
+  "C16/20": { cyl: 16, cube: 20 },
+  "C20/25": { cyl: 20, cube: 25 },
+  "C25/30": { cyl: 25, cube: 30 },
+  "C30/37": { cyl: 30, cube: 37 },
+  "C35/45": { cyl: 35, cube: 45 },
+  "C40/50": { cyl: 40, cube: 50 },
+  "C45/55": { cyl: 45, cube: 55 },
+  "C50/60": { cyl: 50, cube: 60 },
+};
+
+// Seuils de verdict configurables (fraction de fck cyl)
+const VERDICT_THRESHOLDS = { conforme: 1.0, marginal: 0.9 };
+
+const getVerdict = (fcorr: number, fckCyl: number) => {
+  if (!(fcorr > 0) || !(fckCyl > 0)) return null;
+  const ratio = fcorr / fckCyl;
+  if (ratio >= VERDICT_THRESHOLDS.conforme) return { label: "Conforme", tone: "ok" as const };
+  if (ratio >= VERDICT_THRESHOLDS.marginal) return { label: "Limite", tone: "warn" as const };
+  return { label: "Non conforme", tone: "ko" as const };
 };
 
 const computeCarotte = (c: CarotteResult): CarotteResult => {
@@ -75,17 +111,20 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
   const P = parseFloat(u.poids);
   const F = parseFloat(u.charge);
 
-  // L/D
+  // Rapport d'élancement L/D
+  let ld = NaN;
   if (!isNaN(L) && !isNaN(D) && D > 0) {
-    const ld = L / D;
-    u.elancement = ld.toFixed(2);
-    u.k_ld = computeK(ld).toFixed(3);
+    ld = L / D;
+    u.elancement = ld.toFixed(3);
+    // Cas L/D = 2 → k = 1 (référence 16×32, aucune correction)
+    const k = Math.abs(ld - 2) < 1e-6 ? 1 : computeK(ld);
+    u.k_ld = k.toFixed(3);
   } else {
     u.elancement = "";
     u.k_ld = "";
   }
 
-  // Volume m³ et section mm²
+  // Section (mm²) et volume (m³)
   let volume_m3 = NaN;
   let section_mm2 = NaN;
   if (!isNaN(D) && D > 0) {
@@ -97,24 +136,25 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
     }
   }
 
-  // Masse volumique t/m³ = (kg/m³) / 1000
+  // Masse volumique (kg/m³) — indépendante de la résistance
   if (!isNaN(P) && !isNaN(volume_m3) && volume_m3 > 0) {
-    u.masse_volumique = (P / volume_m3 / 1000).toFixed(3);
+    u.masse_volumique = Math.round(P / volume_m3).toString();
   }
 
-  // Résistance MPa = F(kN)*1000 / Section(mm²)
+  // Résistance brute : fcore = F(N) / A(mm²) = F(kN)·1000 / A → MPa
   if (!isNaN(F) && !isNaN(section_mm2) && section_mm2 > 0) {
     const rc = (F * 1000) / section_mm2;
     u.resistance = rc.toFixed(2);
     const k = parseFloat(u.k_ld);
     if (!isNaN(k) && k > 0) {
-      // Correction vers 16×32 : Rc_corr = K(L/D) × Rc
+      // Résistance corrigée (référence 16×32) : fcorr = k(L/D) × fcore
       u.resistance_corrigee = (k * rc).toFixed(2);
     }
   }
 
   return u;
 };
+
 
 const CarottageDataEntry = () => {
   const { id } = useParams();
