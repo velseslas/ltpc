@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useCentralesForSample } from "@/hooks/useChantierCentrales";
 import { useFormulations } from "@/hooks/useFormulations";
 import {
   useEchantillonPermeabiliteById,
@@ -154,7 +154,7 @@ const PermeabiliteSampleForm = () => {
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
   const { data: chantiersBase = [], isLoading: isLoadingChantiers } = useChantiersByClient(clientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesByClient(clientId);
+  const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesForSampleWrapper(clientId, chantierId);
   const { data: formulationsBase = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
 
   const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);

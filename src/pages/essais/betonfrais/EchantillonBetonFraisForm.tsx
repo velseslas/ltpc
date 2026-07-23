@@ -40,7 +40,7 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useCentralesForSample } from "@/hooks/useChantierCentrales";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";

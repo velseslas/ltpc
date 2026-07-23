@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useCentralesForSample } from "@/hooks/useChantierCentrales";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateEchantillonCompression, useUpdateEchantillonCompression } from "@/hooks/useEchantillonsCompression";
 import { supabase } from "@/integrations/supabase/client";
