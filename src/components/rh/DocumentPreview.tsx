@@ -325,7 +325,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       ? new Intl.NumberFormat("fr-FR").format(employe.salaire) + " DA"
       : "_______________";
     return (
-      <div ref={ref} style={containerStyle}>
+      <div ref={ref} style={containerStyle} data-doc-contrat>
         {renderHeader()}
 
         <div style={{ textAlign: "center", marginTop: "-30px", marginBottom: "30px" }}>
@@ -344,7 +344,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
           </span>
         </div>
 
-        <div style={bodyStyle}>
+        <div style={bodyStyle} data-doc-body>
           <p style={{ ...paragraphStyle, textIndent: 0 }}>
             <strong>ENTRE LES SOUSSIGNÉS :</strong>
           </p>
