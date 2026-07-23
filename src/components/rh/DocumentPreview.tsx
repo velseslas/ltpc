@@ -139,7 +139,8 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
         <div style={{ borderTop: "2px solid #1e5a7a", marginBottom: "16px" }} />
 
         {/* Titre du document */}
-        <div style={{ textAlign: "center", margin: "50px 0" }}>
+        <div data-doc-title style={{ textAlign: "center", margin: "50px 0" }}>
+
           <span style={{
             fontSize: "20px",
             fontWeight: "bold",
