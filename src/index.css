@@ -550,13 +550,17 @@
    ===================================================================== */
 @media print {
   [data-ref="report"][data-print-template="document-rh"] {
-    position: static !important;
+    position: fixed !important;
     display: block !important;
     width: 186mm !important;
     max-width: 186mm !important;
     height: auto !important;
     min-height: 0 !important;
-    margin: 0 auto !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 50% !important;
+    margin: 0 0 0 -93mm !important;
     padding: 0 !important;
     overflow: visible !important;
     transform: none !important;
