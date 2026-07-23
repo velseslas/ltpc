@@ -82,6 +82,18 @@ html.print-orientation-landscape body {
     --doc-scale: 1 !important;
   }
 
+  /* Neutralise les largeurs fixes en mm/px héritées de l'aperçu écran        */
+  /* (ex: DocumentPreview RH avec width: 210mm) afin de tenir dans la zone   */
+  /* imprimable définie par @page.                                            */
+  [data-print-root] > *,
+  [data-print-root] [data-pdf-page] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-shadow: none !important;
+  }
+
   /* Typographie d'impression */
   body {
     font-family: Arial, Helvetica, sans-serif;
