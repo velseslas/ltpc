@@ -254,7 +254,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       const niveau = niveauAvertissement || "1er avertissement";
       const niveauColor = niveau === "Dernier avertissement" ? "#b91c1c" : niveau === "2ème avertissement" ? "#c2410c" : "#1e5a7a";
       return (
-        <div ref={ref} style={containerStyle}>
+        <div ref={ref} style={containerStyle} data-doc-avertissement>
           {renderHeader()}
 
           <div style={{ textAlign: "center", marginTop: "-30px", marginBottom: "30px" }}>
