@@ -697,6 +697,42 @@ export type Database = {
         }
         Relationships: []
       }
+      chantier_centrales: {
+        Row: {
+          centrale_id: string
+          chantier_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          centrale_id: string
+          chantier_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          centrale_id?: string
+          chantier_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chantier_centrales_centrale_id_fkey"
+            columns: ["centrale_id"]
+            isOneToOne: false
+            referencedRelation: "centrales_beton"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chantier_centrales_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chantiers: {
         Row: {
           adresse: string | null
