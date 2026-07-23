@@ -182,7 +182,50 @@ html.print-orientation-landscape body {
 
   /* Images : évite de couper au milieu */
   img, svg { break-inside: avoid; page-break-inside: avoid; }
+
+  /* =====================================================================
+   * Documents RH — Attestation / Certificat / Avertissement / Contrat
+   * Objectif : rendu HTML vectoriel réel (window.print), UNE seule page
+   * A4 pour l'attestation. Neutralise minHeight:297mm + padding excessifs
+   * du composant DocumentPreview qui provoquaient une page 2 vide.
+   * ===================================================================== */
+  [data-print-template="document-rh"] > * {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 4mm 8mm !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+  /* Compacter les grands espaces verticaux de l'attestation pour tenir sur 1 page */
+  [data-print-template="document-rh"] [data-doc-title] {
+    margin: 8mm 0 6mm 0 !important;
+  }
+  [data-print-template="document-rh"] [data-doc-title] span {
+    font-size: 16pt !important;
+    letter-spacing: 3px !important;
+  }
+  [data-print-template="document-rh"] [data-doc-body] {
+    line-height: 1.7 !important;
+    font-size: 11.5pt !important;
+  }
+  [data-print-template="document-rh"] [data-doc-body] p {
+    margin-bottom: 5mm !important;
+  }
+  [data-print-template="document-rh"] [data-doc-signature] {
+    margin-top: 14mm !important;
+  }
+  [data-print-template="document-rh"] [data-doc-signature] > div {
+    margin-bottom: 8mm !important;
+  }
+  /* Empêche la coupe entre corps et signature (attestation) */
+  [data-print-template="document-rh"] [data-doc-attestation] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }
+
 
 /* ------------------------------------------------------------------------- */
 /* Aperçu écran (optionnel) — activé quand PrintService applique             */
