@@ -466,24 +466,42 @@ const CarottageDataEntry = () => {
 
         <div className="border-t border-border pt-6">
           <h2 className="text-lg font-semibold mb-4">Résultats calculés</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="rounded-lg border border-border p-4 text-center">
               <span className="text-sm text-muted-foreground">Nb de carottes</span>
               <p className="text-2xl font-bold">{resistances.length}</p>
             </div>
             <div className="rounded-lg bg-primary/10 border border-primary/30 p-4 text-center">
-              <span className="text-sm text-muted-foreground">Rc moyenne</span>
+              <span className="text-sm text-muted-foreground">fcore moyenne</span>
               <p className="text-2xl font-bold text-primary">{rcMoyenne > 0 ? `${rcMoyenne.toFixed(2)} MPa` : "-"}</p>
             </div>
             <div className="rounded-lg bg-primary/15 border border-primary/40 p-4 text-center">
-              <span className="text-sm text-muted-foreground">Rc moyenne corrigée L/D (16×32)</span>
+              <span className="text-sm text-muted-foreground">fcorr moyenne (16×32)</span>
               <p className="text-2xl font-bold text-primary">{rcMoyenneCorr > 0 ? `${rcMoyenneCorr.toFixed(2)} MPa` : "-"}</p>
             </div>
+            <div className={`rounded-lg border p-4 text-center ${
+              verdictGlobal?.tone === "ok" ? "bg-emerald-500/10 border-emerald-500/40"
+              : verdictGlobal?.tone === "warn" ? "bg-amber-500/10 border-amber-500/40"
+              : verdictGlobal?.tone === "ko" ? "bg-destructive/10 border-destructive/40"
+              : "border-border"
+            }`}>
+              <span className="text-sm text-muted-foreground">Verdict {classeBeton ? `(vs fck cyl ${fckCyl} MPa)` : ""}</span>
+              <p className={`text-2xl font-bold ${
+                verdictGlobal?.tone === "ok" ? "text-emerald-500"
+                : verdictGlobal?.tone === "warn" ? "text-amber-500"
+                : verdictGlobal?.tone === "ko" ? "text-destructive"
+                : "text-muted-foreground"
+              }`}>{verdictGlobal?.label ?? "À interpréter"}</p>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = K(L/D) × Rc, K(L/D) interpolé selon NF P18-418 (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).
-          </p>
+          <div className="text-xs text-muted-foreground mt-3 space-y-1">
+            <p>* Section A = π·D²/4 (mm²) · Volume V = π·(D/2)²·L (m³) · Masse volumique ρ = m/V (kg/m³).</p>
+            <p>* fcore = F(kN)·1000 / A(mm²) → MPa · fcorr = K(L/D) × fcore · L/D=2 ⇒ K=1 (aucune correction).</p>
+            <p>* Correction L/D selon <span className="font-semibold text-foreground">{K_METHOD.code}</span> — interpolation linéaire (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).</p>
+            <p>* Verdict indicatif : comparaison de fcorr moyenne à fck cylindre — n'applique pas les règles statistiques d'acceptation de la norme.</p>
+          </div>
         </div>
+
 
         <div className="flex justify-end gap-3 pt-4">
           <Button variant="outline" onClick={() => navigate(`${basePath}/${id}`)}>
