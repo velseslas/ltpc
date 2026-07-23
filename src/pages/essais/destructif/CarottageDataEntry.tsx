@@ -384,10 +384,13 @@ const CarottageDataEntry = () => {
                     <th className="p-2 text-center font-semibold">K(L/D)</th>
                     <th className="p-2 text-left font-semibold">Poids (kg)</th>
                     <th className="p-2 text-center font-semibold">Volume (m³)</th>
-                    <th className="p-2 text-center font-semibold">M. vol. (t/m³)</th>
+                    <th className="p-2 text-center font-semibold">M. vol. (kg/m³)</th>
                     <th className="p-2 text-left font-semibold">Charge (kN)</th>
                     <th className="p-2 text-center font-semibold">Section (mm²)</th>
-                    <th className="p-2 text-center font-semibold">Rc (MPa)</th>
+                    <th className="p-2 text-center font-semibold">fcore Rc (MPa)</th>
+                    <th className="p-2 text-center font-semibold">fcorr 16×32 (MPa)</th>
+                    <th className="p-2 text-center font-semibold">Verdict</th>
+
                     <th className="p-2 text-center font-semibold">Rc corr. 16×32 (MPa)</th>
                     <th className="p-2"></th>
                   </tr>
