@@ -47,17 +47,17 @@ const emptyCarotte = (): CarotteResult => ({
 });
 
 // Coefficient K(L/D) selon NF P18-418 — interpolation linéaire
-// L/D : 1.00 → 0.87 ; 1.25 → 0.94 ; 1.50 → 0.96 ; 1.75 → 0.98 ; 2.00 → 1.00
+// L/D : 1.00 → 0.90 ; 1.25 → 0.96 ; 1.50 → 1.00 ; 1.75 → 1.02 ; 2.00 → 1.03
 const computeK = (ld: number): number => {
   const table = [
-    { ld: 1.0, k: 0.87 },
-    { ld: 1.25, k: 0.94 },
-    { ld: 1.5, k: 0.96 },
-    { ld: 1.75, k: 0.98 },
-    { ld: 2.0, k: 1.0 },
+    { ld: 1.0, k: 0.90 },
+    { ld: 1.25, k: 0.96 },
+    { ld: 1.5, k: 1.00 },
+    { ld: 1.75, k: 1.02 },
+    { ld: 2.0, k: 1.03 },
   ];
-  if (ld <= 1.0) return 0.87;
-  if (ld >= 2.0) return 1.0;
+  if (ld <= 1.0) return 0.90;
+  if (ld >= 2.0) return 1.03;
   for (let i = 0; i < table.length - 1; i++) {
     const a = table[i], b = table[i + 1];
     if (ld >= a.ld && ld <= b.ld) {
@@ -65,7 +65,7 @@ const computeK = (ld: number): number => {
       return a.k + t * (b.k - a.k);
     }
   }
-  return 1.0;
+  return 1.03;
 };
 
 const computeCarotte = (c: CarotteResult): CarotteResult => {
@@ -108,8 +108,8 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
     u.resistance = rc.toFixed(2);
     const k = parseFloat(u.k_ld);
     if (!isNaN(k) && k > 0) {
-      // Correction vers 16×32 : Rc_corr = Rc / K (K ≤ 1 → la résistance augmente)
-      u.resistance_corrigee = (rc / k).toFixed(2);
+      // Correction vers 16×32 : Rc_corr = Rc × K (K ≥ 1 pour L/D ≥ 1.5 selon table NF P18-418)
+      u.resistance_corrigee = (rc * k).toFixed(2);
     }
   }
 
@@ -380,7 +380,7 @@ const CarottageDataEntry = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = Rc / K, K(L/D) interpolé selon NF P18-418 (1.00→0.87 ; 1.25→0.94 ; 1.50→0.96 ; 1.75→0.98 ; 2.00→1.00).
+            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = Rc × K, K(L/D) interpolé selon NF P18-418 (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).
           </p>
         </div>
 
