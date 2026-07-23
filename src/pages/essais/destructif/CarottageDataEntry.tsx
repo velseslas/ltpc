@@ -3,11 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Save, Loader2, Plus, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, Loader2, Plus, Trash2, Info } from "lucide-react";
 import { useEchantillonCarottage, useUpdateEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import type { Json } from "@/integrations/supabase/types";
+
 
 interface CarotteResult {
   id: string;
@@ -46,26 +49,62 @@ const emptyCarotte = (): CarotteResult => ({
   resistance_corrigee: "",
 });
 
-// Coefficient K(L/D) selon NF P18-418 — interpolation linéaire
-// L/D : 1.00 → 0.90 ; 1.25 → 0.96 ; 1.50 → 1.00 ; 1.75 → 1.02 ; 2.00 → 1.03
-const computeK = (ld: number): number => {
-  const table = [
+// ─────────────────────────────────────────────────────────────
+// Référentiel normatif du coefficient d'élancement K(L/D)
+// Méthode active : NF P18-418 (interpolation linéaire autorisée)
+// Table configurable — architecture permettant de changer la
+// norme sans modifier la logique de calcul principale.
+// ─────────────────────────────────────────────────────────────
+const K_METHOD = {
+  code: "NF P18-418",
+  label: "NF P18-418 — Correction d'élancement L/D vers cylindre 16×32 (L/D=2)",
+  allowInterpolation: true,
+  table: [
     { ld: 1.0, k: 0.90 },
     { ld: 1.25, k: 0.96 },
     { ld: 1.5, k: 1.00 },
     { ld: 1.75, k: 1.02 },
     { ld: 2.0, k: 1.03 },
-  ];
-  if (ld <= 1.0) return 0.90;
-  if (ld >= 2.0) return 1.03;
-  for (let i = 0; i < table.length - 1; i++) {
-    const a = table[i], b = table[i + 1];
+  ],
+};
+
+const computeK = (ld: number): number => {
+  const t = K_METHOD.table;
+  if (ld <= t[0].ld) return t[0].k;
+  if (ld >= t[t.length - 1].ld) return t[t.length - 1].k;
+  for (let i = 0; i < t.length - 1; i++) {
+    const a = t[i], b = t[i + 1];
     if (ld >= a.ld && ld <= b.ld) {
-      const t = (ld - a.ld) / (b.ld - a.ld);
-      return a.k + t * (b.k - a.k);
+      if (!K_METHOD.allowInterpolation) return a.k;
+      const r = (ld - a.ld) / (b.ld - a.ld);
+      return a.k + r * (b.k - a.k);
     }
   }
-  return 1.03;
+  return 1.0;
+};
+
+// Classes béton EN 206 — fck cylindre et fck cube (MPa)
+const CLASSES_BETON: Record<string, { cyl: number; cube: number }> = {
+  "C12/15": { cyl: 12, cube: 15 },
+  "C16/20": { cyl: 16, cube: 20 },
+  "C20/25": { cyl: 20, cube: 25 },
+  "C25/30": { cyl: 25, cube: 30 },
+  "C30/37": { cyl: 30, cube: 37 },
+  "C35/45": { cyl: 35, cube: 45 },
+  "C40/50": { cyl: 40, cube: 50 },
+  "C45/55": { cyl: 45, cube: 55 },
+  "C50/60": { cyl: 50, cube: 60 },
+};
+
+// Seuils de verdict configurables (fraction de fck cyl)
+const VERDICT_THRESHOLDS = { conforme: 1.0, marginal: 0.9 };
+
+const getVerdict = (fcorr: number, fckCyl: number) => {
+  if (!(fcorr > 0) || !(fckCyl > 0)) return null;
+  const ratio = fcorr / fckCyl;
+  if (ratio >= VERDICT_THRESHOLDS.conforme) return { label: "Conforme", tone: "ok" as const };
+  if (ratio >= VERDICT_THRESHOLDS.marginal) return { label: "Limite", tone: "warn" as const };
+  return { label: "Non conforme", tone: "ko" as const };
 };
 
 const computeCarotte = (c: CarotteResult): CarotteResult => {
@@ -75,17 +114,20 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
   const P = parseFloat(u.poids);
   const F = parseFloat(u.charge);
 
-  // L/D
+  // Rapport d'élancement L/D
+  let ld = NaN;
   if (!isNaN(L) && !isNaN(D) && D > 0) {
-    const ld = L / D;
-    u.elancement = ld.toFixed(2);
-    u.k_ld = computeK(ld).toFixed(3);
+    ld = L / D;
+    u.elancement = ld.toFixed(3);
+    // Cas L/D = 2 → k = 1 (référence 16×32, aucune correction)
+    const k = Math.abs(ld - 2) < 1e-6 ? 1 : computeK(ld);
+    u.k_ld = k.toFixed(3);
   } else {
     u.elancement = "";
     u.k_ld = "";
   }
 
-  // Volume m³ et section mm²
+  // Section (mm²) et volume (m³)
   let volume_m3 = NaN;
   let section_mm2 = NaN;
   if (!isNaN(D) && D > 0) {
@@ -97,24 +139,25 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
     }
   }
 
-  // Masse volumique t/m³ = (kg/m³) / 1000
+  // Masse volumique (kg/m³) — indépendante de la résistance
   if (!isNaN(P) && !isNaN(volume_m3) && volume_m3 > 0) {
-    u.masse_volumique = (P / volume_m3 / 1000).toFixed(3);
+    u.masse_volumique = Math.round(P / volume_m3).toString();
   }
 
-  // Résistance MPa = F(kN)*1000 / Section(mm²)
+  // Résistance brute : fcore = F(N) / A(mm²) = F(kN)·1000 / A → MPa
   if (!isNaN(F) && !isNaN(section_mm2) && section_mm2 > 0) {
     const rc = (F * 1000) / section_mm2;
     u.resistance = rc.toFixed(2);
     const k = parseFloat(u.k_ld);
     if (!isNaN(k) && k > 0) {
-      // Correction vers 16×32 : Rc_corr = K(L/D) × Rc
+      // Résistance corrigée (référence 16×32) : fcorr = k(L/D) × fcore
       u.resistance_corrigee = (k * rc).toFixed(2);
     }
   }
 
   return u;
 };
+
 
 const CarottageDataEntry = () => {
   const { id } = useParams();
@@ -127,14 +170,17 @@ const CarottageDataEntry = () => {
     { element_coule: "", carottes: [emptyCarotte()] },
   ]);
   const [dateEssai, setDateEssai] = useState("");
+  const [classeBeton, setClasseBeton] = useState<string>("");
+
 
   useEffect(() => {
     if (!echantillon) return;
     if (echantillon.date_essai) setDateEssai(echantillon.date_essai);
+    if (echantillon.classe_resistance) setClasseBeton(echantillon.classe_resistance);
     const r = echantillon.resultats as any;
     if (r) {
+      if (r.classe_beton && typeof r.classe_beton === "string") setClasseBeton(r.classe_beton);
       if (Array.isArray(r?.elements)) {
-        // re-compute to ensure derived fields are up to date
         setElements(
           r.elements.map((e: ElementTest) => ({
             ...e,
@@ -148,6 +194,7 @@ const CarottageDataEntry = () => {
       }
     }
   }, [echantillon]);
+
 
   const updateElement = (eIdx: number, field: keyof ElementTest, value: string) => {
     const updated = [...elements];
@@ -188,6 +235,10 @@ const CarottageDataEntry = () => {
   const rcMoyenne = resistances.length > 0 ? resistances.reduce((a, b) => a + b, 0) / resistances.length : 0;
   const rcMoyenneCorr = resistancesCorr.length > 0 ? resistancesCorr.reduce((a, b) => a + b, 0) / resistancesCorr.length : 0;
 
+  const classInfo = classeBeton ? CLASSES_BETON[classeBeton] : null;
+  const fckCyl = classInfo?.cyl ?? 0;
+  const verdictGlobal = getVerdict(rcMoyenneCorr, fckCyl);
+
   const handleSave = async () => {
     if (!id) return;
     try {
@@ -195,11 +246,17 @@ const CarottageDataEntry = () => {
       await updateMutation.mutateAsync({
         id,
         date_essai: dateEssai || null,
+        classe_resistance: classeBeton || null,
         resultats: {
           elements,
           carottes: flat,
           rc_moyenne: rcMoyenne > 0 ? Number(rcMoyenne.toFixed(2)) : null,
           rc_moyenne_corrigee: rcMoyenneCorr > 0 ? Number(rcMoyenneCorr.toFixed(2)) : null,
+          classe_beton: classeBeton || null,
+          fck_cyl: fckCyl || null,
+          fck_cube: classInfo?.cube ?? null,
+          k_methode: K_METHOD.code,
+          verdict: verdictGlobal?.label ?? null,
         } as unknown as Json,
         statut: "termine",
       });
@@ -209,6 +266,7 @@ const CarottageDataEntry = () => {
       toast.error("Erreur lors de l'enregistrement");
     }
   };
+
 
   if (isLoading) {
     return (
@@ -258,7 +316,32 @@ const CarottageDataEntry = () => {
             <Label>Date de l'essai</Label>
             <Input type="date" value={dateEssai} onChange={(e) => setDateEssai(e.target.value)} />
           </div>
+          <div className="space-y-2">
+            <Label>Classe de béton cible</Label>
+            <Select value={classeBeton} onValueChange={setClasseBeton}>
+              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(CLASSES_BETON).map(([code, v]) => (
+                  <SelectItem key={code} value={code}>{code} — fck cyl {v.cyl} MPa / cube {v.cube} MPa</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {classInfo && (
+            <div className="space-y-2">
+              <Label>Référence</Label>
+              <div className="rounded-md bg-muted/40 border border-border px-3 py-2 text-sm">
+                <span className="font-medium">{classeBeton}</span> — fck cylindre <span className="font-semibold text-primary">{classInfo.cyl} MPa</span> · fck cube {classInfo.cube} MPa
+              </div>
+            </div>
+          )}
         </div>
+
+        <div className="flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+          <Info className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+          <span>Correction L/D selon : <span className="font-semibold text-foreground">{K_METHOD.label}</span>. Le coefficient K(L/D) ramène la résistance vers la référence cylindre 16×32 (L/D=2, K=1).</span>
+        </div>
+
 
         {elements.map((elem, eIdx) => (
           <div key={eIdx} className="space-y-4">
@@ -301,14 +384,16 @@ const CarottageDataEntry = () => {
                     <th className="p-2 text-center font-semibold">K(L/D)</th>
                     <th className="p-2 text-left font-semibold">Poids (kg)</th>
                     <th className="p-2 text-center font-semibold">Volume (m³)</th>
-                    <th className="p-2 text-center font-semibold">M. vol. (t/m³)</th>
+                    <th className="p-2 text-center font-semibold">M. vol. (kg/m³)</th>
                     <th className="p-2 text-left font-semibold">Charge (kN)</th>
                     <th className="p-2 text-center font-semibold">Section (mm²)</th>
-                    <th className="p-2 text-center font-semibold">Rc (MPa)</th>
-                    <th className="p-2 text-center font-semibold">Rc corr. 16×32 (MPa)</th>
+                    <th className="p-2 text-center font-semibold">fcore Rc (MPa)</th>
+                    <th className="p-2 text-center font-semibold">fcorr 16×32 (MPa)</th>
+                    <th className="p-2 text-center font-semibold">Verdict</th>
                     <th className="p-2"></th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {elem.carottes.map((r, cIdx) => (
                     <tr key={r.id} className="border-t border-border">
@@ -333,7 +418,22 @@ const CarottageDataEntry = () => {
                       </td>
                       <td className="p-1 text-center text-muted-foreground">{r.section || "-"}</td>
                       <td className="p-1 text-center font-medium text-primary">{r.resistance || "-"}</td>
-                      <td className="p-1 text-center font-semibold text-primary">{r.resistance_corrigee || "-"}</td>
+                      <td className="p-1 text-center font-semibold text-primary">
+                        {r.resistance_corrigee || "-"}
+                        {parseFloat(r.elancement) === 2 && r.resistance_corrigee && (
+                          <div className="text-[10px] text-muted-foreground font-normal">L/D=2 · K=1 (aucune correction)</div>
+                        )}
+                      </td>
+                      <td className="p-1 text-center">
+                        {(() => {
+                          const v = getVerdict(parseFloat(r.resistance_corrigee), fckCyl);
+                          if (!v) return <span className="text-muted-foreground">-</span>;
+                          const cls = v.tone === "ok" ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                            : v.tone === "warn" ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                            : "bg-destructive/15 text-destructive border-destructive/30";
+                          return <Badge variant="outline" className={cls}>{v.label}</Badge>;
+                        })()}
+                      </td>
                       <td className="p-1">
                         <div className="flex items-center justify-center gap-1">
                           {elem.carottes.length > 1 && (
@@ -346,6 +446,7 @@ const CarottageDataEntry = () => {
                           </Button>
                         </div>
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -365,24 +466,42 @@ const CarottageDataEntry = () => {
 
         <div className="border-t border-border pt-6">
           <h2 className="text-lg font-semibold mb-4">Résultats calculés</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="rounded-lg border border-border p-4 text-center">
               <span className="text-sm text-muted-foreground">Nb de carottes</span>
               <p className="text-2xl font-bold">{resistances.length}</p>
             </div>
             <div className="rounded-lg bg-primary/10 border border-primary/30 p-4 text-center">
-              <span className="text-sm text-muted-foreground">Rc moyenne</span>
+              <span className="text-sm text-muted-foreground">fcore moyenne</span>
               <p className="text-2xl font-bold text-primary">{rcMoyenne > 0 ? `${rcMoyenne.toFixed(2)} MPa` : "-"}</p>
             </div>
             <div className="rounded-lg bg-primary/15 border border-primary/40 p-4 text-center">
-              <span className="text-sm text-muted-foreground">Rc moyenne corrigée L/D (16×32)</span>
+              <span className="text-sm text-muted-foreground">fcorr moyenne (16×32)</span>
               <p className="text-2xl font-bold text-primary">{rcMoyenneCorr > 0 ? `${rcMoyenneCorr.toFixed(2)} MPa` : "-"}</p>
             </div>
+            <div className={`rounded-lg border p-4 text-center ${
+              verdictGlobal?.tone === "ok" ? "bg-emerald-500/10 border-emerald-500/40"
+              : verdictGlobal?.tone === "warn" ? "bg-amber-500/10 border-amber-500/40"
+              : verdictGlobal?.tone === "ko" ? "bg-destructive/10 border-destructive/40"
+              : "border-border"
+            }`}>
+              <span className="text-sm text-muted-foreground">Verdict {classeBeton ? `(vs fck cyl ${fckCyl} MPa)` : ""}</span>
+              <p className={`text-2xl font-bold ${
+                verdictGlobal?.tone === "ok" ? "text-emerald-500"
+                : verdictGlobal?.tone === "warn" ? "text-amber-500"
+                : verdictGlobal?.tone === "ko" ? "text-destructive"
+                : "text-muted-foreground"
+              }`}>{verdictGlobal?.label ?? "À interpréter"}</p>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = K(L/D) × Rc, K(L/D) interpolé selon NF P18-418 (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).
-          </p>
+          <div className="text-xs text-muted-foreground mt-3 space-y-1">
+            <p>* Section A = π·D²/4 (mm²) · Volume V = π·(D/2)²·L (m³) · Masse volumique ρ = m/V (kg/m³).</p>
+            <p>* fcore = F(kN)·1000 / A(mm²) → MPa · fcorr = K(L/D) × fcore · L/D=2 ⇒ K=1 (aucune correction).</p>
+            <p>* Correction L/D selon <span className="font-semibold text-foreground">{K_METHOD.code}</span> — interpolation linéaire (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).</p>
+            <p>* Verdict indicatif : comparaison de fcorr moyenne à fck cylindre — n'applique pas les règles statistiques d'acceptation de la norme.</p>
+          </div>
         </div>
+
 
         <div className="flex justify-end gap-3 pt-4">
           <Button variant="outline" onClick={() => navigate(`${basePath}/${id}`)}>
