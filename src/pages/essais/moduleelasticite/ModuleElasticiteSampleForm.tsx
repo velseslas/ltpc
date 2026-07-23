@@ -152,7 +152,7 @@ const ModuleElasticiteSampleForm = () => {
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
   const { data: chantiersBase = [], isLoading: isLoadingChantiers } = useChantiersByClient(clientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesForSampleWrapper(clientId, chantierId);
+  const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesForSample(clientId, chantierId);
   const { data: formulationsBase = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
 
   const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);

@@ -190,7 +190,7 @@ const CompressionSampleForm = () => {
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
   const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(effectiveClientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centralesFromClient = [], isLoading: isLoadingCentrales } = useCentralesByClient(effectiveClientId);
+  const { data: centralesFromClient = [], isLoading: isLoadingCentrales } = useCentralesForSample(effectiveClientId, effectiveChantierId);
   const { data: formulationsFromCentrale = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId);
 
   // Fallback: load existing centrale/formulation by id (in case they aren't linked to current client/centrale)

@@ -138,7 +138,7 @@ const TractionFendageSampleForm = () => {
   const { data: clients } = useClients();
   const { data: chantiersBase, isLoading: chantiersLoading } = useChantiersByClient(clientId);
   const { data: intervenants } = useIntervenants();
-  const { data: centralesBase } = useCentralesForSampleWrapper(clientId, chantierId);
+  const { data: centralesBase } = useCentralesForSample(clientId, chantierId);
   const { data: formulationsBase, isLoading: formulationsLoading } = useFormulations(centraleId);
 
   const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);

@@ -174,7 +174,7 @@ export default function EchantillonBetonFraisForm({
     operateurValue ?? "",
     (id) => form.setValue("operateur_id", id),
   );
-  const { data: centralesFromClient } = useCentralesByClient(selectedClientId);
+  const { data: centralesFromClient } = useCentralesForSample(selectedClientId, selectedChantierId);
   const { data: chantiersFromClient, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulationsFromCentrale, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
 
