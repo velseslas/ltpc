@@ -219,13 +219,14 @@ const CompressionSampleForm = () => {
   });
 
   // Merge existing centrale/formulation into select lists if missing
+  const mergeExistingCentrale = !chantierId || chantierId === existingEchantillon?.chantier_id;
   const centrales = useMemo(() => {
     const list = [...centralesFromClient];
-    if (existingCentrale && !list.some((c) => c.id === existingCentrale.id)) {
+    if (mergeExistingCentrale && existingCentrale && !list.some((c) => c.id === existingCentrale.id)) {
       list.push(existingCentrale as any);
     }
     return list;
-  }, [centralesFromClient, existingCentrale]);
+  }, [centralesFromClient, existingCentrale, mergeExistingCentrale]);
 
   const formulations = useMemo(() => {
     const list = [...formulationsFromCentrale];

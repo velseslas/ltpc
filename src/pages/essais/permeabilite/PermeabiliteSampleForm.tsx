@@ -157,7 +157,8 @@ const PermeabiliteSampleForm = () => {
   const { data: centralesBase = [], isLoading: isLoadingCentrales } = useCentralesForSample(clientId, chantierId);
   const { data: formulationsBase = [], isLoading: isLoadingFormulations } = useFormulations(centraleId);
 
-  const centrales = useMergedById("centrales_beton", existingEchantillon?.centrale_id, centralesBase as any);
+  const mergeExistingCentrale = !chantierId || chantierId === existingEchantillon?.chantier_id;
+  const centrales = useMergedById("centrales_beton", mergeExistingCentrale ? existingEchantillon?.centrale_id : null, centralesBase as any);
   const formulations = useMergedById("formulations", existingEchantillon?.formulation_id, formulationsBase as any);
   const chantiers = useMergedById("chantiers", existingEchantillon?.chantier_id, chantiersBase as any);
 

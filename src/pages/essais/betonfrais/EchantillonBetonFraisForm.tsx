@@ -216,9 +216,10 @@ export default function EchantillonBetonFraisForm({
 
   const centrales = useMemo(() => {
     const list = [...(centralesFromClient || [])];
-    if (existingCentrale && !list.some((c: any) => c.id === existingCentrale.id)) list.push(existingCentrale as any);
+    const mergeExistingCentrale = !selectedChantierId || selectedChantierId === existingChantierId;
+    if (mergeExistingCentrale && existingCentrale && !list.some((c: any) => c.id === existingCentrale.id)) list.push(existingCentrale as any);
     return list;
-  }, [centralesFromClient, existingCentrale]);
+  }, [centralesFromClient, existingCentrale, selectedChantierId, existingChantierId]);
 
   const formulations = useMemo(() => {
     const list = [...(formulationsFromCentrale || [])];
@@ -417,7 +418,7 @@ export default function EchantillonBetonFraisForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Client <span className="text-red-700">*</span></FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedChantierId}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner un client" />
