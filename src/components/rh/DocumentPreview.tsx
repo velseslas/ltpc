@@ -423,7 +423,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
           </p>
         </div>
 
-        <div style={{ marginTop: "60px", display: "flex", justifyContent: "space-between", gap: "40px" }}>
+        <div data-doc-signature style={{ marginTop: "60px", display: "flex", justifyContent: "space-between", gap: "40px" }}>
           <div style={{ flex: 1, textAlign: "center" }}>
             <div style={{ marginBottom: "60px", fontWeight: "bold" }}>Le Salarié</div>
             <div style={{ borderTop: "1px solid #000", paddingTop: "6px", fontSize: "12px" }}>(Lu et approuvé)</div>
