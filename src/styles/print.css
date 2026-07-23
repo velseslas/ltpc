@@ -336,16 +336,16 @@ html.print-mode .print-hide {
 /* aussi la mise en page, évitant tout débordement horizontal.               */
 /* ------------------------------------------------------------------------- */
 @media screen and (max-width: 420px) {
-  [data-ref="report"] { zoom: 0.46; }
+  [data-ref="report"]:not(.no-preview-zoom) { zoom: 0.46; }
 }
 @media screen and (min-width: 421px) and (max-width: 640px) {
-  [data-ref="report"] { zoom: 0.62; }
+  [data-ref="report"]:not(.no-preview-zoom) { zoom: 0.62; }
 }
 @media screen and (min-width: 641px) and (max-width: 820px) {
-  [data-ref="report"] { zoom: 0.82; }
+  [data-ref="report"]:not(.no-preview-zoom) { zoom: 0.82; }
 }
 @media screen and (min-width: 821px) and (max-width: 900px) {
-  [data-ref="report"] { zoom: 0.92; }
+  [data-ref="report"]:not(.no-preview-zoom) { zoom: 0.92; }
 }
 
 
