@@ -45,6 +45,8 @@ export const intervenantRoutes = (
     <Route path="/intervenant/clients/:id/modifier" element={<ClientForm />} />
     <Route path="/intervenant/chantiers/nouveau" element={<ChantierForm />} />
     <Route path="/intervenant/chantiers/:chantierId/modifier" element={<ChantierForm />} />
+    <Route path="/intervenant/clients/:id/chantiers/:chantierId" element={<ChantierDetail />} />
+    <Route path="/intervenant/chantiers/:chantierId" element={<ChantierDetail />} />
     <Route path="/intervenant/producteurs" element={<Producteurs />} />
     <Route path="/intervenant/producteurs/cimenterie" element={<Cimenterie />} />
     <Route path="/intervenant/producteurs/cimenterie/nouveau" element={<CimenterieForm />} />
