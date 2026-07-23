@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
   Building2, User, Mail, Phone, MapPin, 
-  FileText, Plus, Loader2, Calendar, Trash2, Printer, Edit, LayoutGrid, Download, Factory, FileCheck, FolderOpen, ArrowLeft, Pencil, Landmark, HardHat
+  FileText, Plus, Loader2, Calendar, Trash2, Printer, Edit, LayoutGrid, Download, Factory, FileCheck, FolderOpen, ArrowLeft, Pencil, Landmark, HardHat, MoreHorizontal, Eye
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useClient } from "@/hooks/useClients";
 import { useContratsByClient, useDeleteContrat } from "@/hooks/useContrats";
