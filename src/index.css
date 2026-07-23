@@ -573,6 +573,11 @@
     --doc-scale: 1 !important;
   }
 
+  @page rh {
+    size: A4 portrait;
+    margin: 7mm 12mm 10mm 12mm;
+  }
+
   [data-ref="report"][data-print-template="document-rh"] > [data-doc-attestation],
   [data-ref="report"][data-print-template="document-rh"] > [data-doc-certificat],
   [data-ref="report"][data-print-template="document-rh"] > [data-doc-avertissement],
