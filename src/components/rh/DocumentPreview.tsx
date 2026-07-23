@@ -284,7 +284,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             <div><strong>Objet :</strong> Lettre d'avertissement</div>
           </div>
 
-          <div style={bodyStyle}>
+          <div style={bodyStyle} data-doc-body>
             <p style={paragraphStyle}>Madame, Monsieur,</p>
             <p style={paragraphStyle}>
               Suite aux faits constatés en date du <strong>{dateFaitsFormatted}</strong>,
