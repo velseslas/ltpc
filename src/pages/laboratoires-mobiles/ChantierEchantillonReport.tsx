@@ -616,6 +616,8 @@ export default function ChantierEchantillonReport() {
           </div>
         </div>
       </div>
+      </div>
+
 
       {/* Styles d'impression — isole le rapport via position:fixed pour éviter
           les conflits avec le layout parent (sidebar, container max-w, transforms). */}
