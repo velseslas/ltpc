@@ -65,26 +65,39 @@ html.print-orientation-landscape body {
     display: none !important;
   }
 
-  /* Un seul conteneur imprimable prend toute la page */
+  /* Masque les overlays Radix (Dialog, Sheet, Popover) pour éviter que la  */
+  /* modale ne s'imprime devant le rapport.                                  */
+  [data-radix-portal] > *:not(:has([data-print-root])),
+  [data-radix-dialog-overlay],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  /* Un seul conteneur imprimable — extrait du flux (dialog, cartes, etc.)  */
+  /* et positionné plein page pour couvrir la zone imprimable.               */
   [data-print-root] {
+    position: fixed !important;
+    inset: 0 !important;
     display: block !important;
     width: 100% !important;
     max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
     border: 0 !important;
     background: #fff !important;
-    /* Reset any on-screen preview scaling (e.g. --doc-scale) so the       */
-    /* printed page uses the real A4 dimensions.                           */
+    overflow: visible !important;
+    z-index: 2147483647 !important;
+    /* Neutralise le facteur d'échelle d'aperçu écran (--doc-scale).         */
     transform: none !important;
     zoom: 1 !important;
     --doc-scale: 1 !important;
   }
 
-  /* Neutralise les largeurs fixes en mm/px héritées de l'aperçu écran        */
-  /* (ex: DocumentPreview RH avec width: 210mm) afin de tenir dans la zone   */
-  /* imprimable définie par @page.                                            */
+  /* Le conteneur direct de DocumentPreview a une largeur fixe 210mm en     */
+  /* aperçu — on la remplace par la largeur imprimable réelle.               */
   [data-print-root] > *,
   [data-print-root] [data-pdf-page] {
     width: 100% !important;
@@ -92,7 +105,10 @@ html.print-orientation-landscape body {
     margin-left: auto !important;
     margin-right: auto !important;
     box-shadow: none !important;
+    float: none !important;
+    position: static !important;
   }
+
 
   /* Typographie d'impression */
   body {
