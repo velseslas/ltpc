@@ -168,6 +168,7 @@ export default function EchantillonBetonFraisForm({
   });
 
   const selectedClientId = form.watch("client_id");
+  const selectedChantierId = form.watch("chantier_id");
   const selectedCentraleId = form.watch("centrale_id");
   const operateurValue = form.watch("operateur_id");
   const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(
