@@ -308,7 +308,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             </p>
           </div>
 
-          <div style={signatureContainerStyle}>
+          <div style={signatureContainerStyle} data-doc-signature>
             <div style={{ marginBottom: "60px" }}>
               Fait à _______________, le {today}
             </div>
