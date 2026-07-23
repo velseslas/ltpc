@@ -334,11 +334,16 @@ const CarottageDataEntry = () => {
                       <td className="p-1 text-center font-medium text-primary">{r.resistance || "-"}</td>
                       <td className="p-1 text-center font-semibold text-primary">{r.resistance_corrigee || "-"}</td>
                       <td className="p-1">
-                        {elem.carottes.length > 1 && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeCarotte(eIdx, cIdx)}>
-                            <Trash2 className="h-4 w-4" />
+                        <div className="flex items-center justify-center gap-1">
+                          {elem.carottes.length > 1 && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeCarotte(eIdx, cIdx)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => addCarotte(eIdx)} title="Ajouter une carotte">
+                            <Plus className="h-4 w-4" />
                           </Button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))}
