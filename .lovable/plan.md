@@ -1,66 +1,92 @@
 ## Objectif
-Rendre le moteur de formulation strictement conforme à la méthode graphique Dreux-Gorisse. Supprimer le solveur numérique du chemin de production. Aucun invention silencieuse : les ambiguïtés levées par vos réponses sont documentées dans le code.
 
-## Décisions métier validées
-1. **Point A** : bascule par Dmax — `Dmax ≤ 20 mm` → canonique `pA = 50 − √Dmax + K` (K = G' + correction MF) — `Dmax > 20 mm` → linéaire `pA = 38 + 12·G' + 4·(MF−2)` bornée [38, 50].
-2. **Bouton « Optimize Curve »** : suppression complète de l'UI.
-3. **≥3 sables** : erreur bloquante avec message explicite (Dreux ne couvre que 1-2 sables).
-4. **Boucle MF** : suppression — une seule passe (MF cible → distribution figée → pas de recalcul).
+Améliorer la fiche client et introduire une **page Détail Chantier** avec gestion des centrales à béton affectées, puis propager ce filtrage dans les formulaires d'échantillons (compression, traction/fendage, laboratoire chantier).
 
-## Corrections — Lot 1 (bloquant)
+---
 
-### B1. Brancher `splitGravels()` conforme dans le flux principal
-- Fichier : `src/pages/essais/formulation/engine/dreuxGorisseCalculation.ts`
-- Remplacer le contenu de `distributeGravel` (`:916-946`) :
-  - Si 1 gravillon → `100 %`.
-  - Si ≥2 gravillons → appel `splitGravels({ gravillons, refCurve })` de `engine/gravelSplit/index.ts`.
-  - Propager `GravelSplitError` avec message métier.
-- Supprimer `solveSimplexLeastSquares` de ce chemin.
+## 1. Fiche Client — Résumé chantier sur une seule ligne (desktop)
 
-### B2. Formule Point A avec bascule Dmax
-- `dreuxGorisseCalculation.ts:214-221` (`calculatePointA`) : implémenter la bascule Dmax≤20/>20.
-- `engine/gravelSplit/referenceCurve.ts` : accepter la même règle (paramètre `pA` calculé côté appelant plutôt que reconstruit).
-- Corriger le commentaire JSDoc (`:108`).
+Dans le widget/carte chantier de la fiche client (desktop uniquement) :
+- Regrouper Nom + Localisation + Statut + dates sur **une seule ligne** avec troncation (`truncate`) et séparateurs.
+- Mobile : conserver la disposition actuelle empilée.
 
-### B3. Suppression bouton Optimize
-- `src/pages/essais/formulation/ProportionsStep.tsx:381-390` : retirer `handleOptimize` et le bouton associé.
-- `dreuxGorisseCalculation.ts` : marquer `optimizeMix` `@deprecated`, non exporté.
+## 2. Widget Chantier — Menu d'actions standardisé
 
-### B4. Blocage ≥3 sables
-- `dreuxGorisseCalculation.ts:651-666` (`distributeSand`) : si `sables.length > 2` → throw erreur explicite « Dreux-Gorisse ne couvre que 1 ou 2 sables. Réduisez la sélection matériaux. ». Retirer le fallback solveur pour les sables.
+Remplacer les boutons d'action actuels par le **menu `...` (DropdownMenu)** conforme au reste de l'app :
+- Détails (nouveau) → navigue vers `/clients/:clientId/chantiers/:chantierId`
+- Modifier
+- Supprimer
 
-### B5. Une seule passe MF
-- `dreuxGorisseCalculation.ts:408-463` : supprimer la boucle 5-itérations. Calcul en une passe : MF cible → distribution figée.
+## 3. Nouvelle page — Détail Chantier
 
-## Corrections — Lot 2 (important)
+Route : `/clients/:clientId/chantiers/:chantierId`
 
-### I1. Exposer `airOcclus` dans l'UI
-- `ProportionsStep.tsx:346` : lire depuis l'input matériaux (adjuvant entraîneur d'air) au lieu du `0` hardcodé.
+Contenu :
+- Breadcrumb : Clients > [Client] > Chantiers > [Chantier]
+- Bouton retour + titre + statut
+- Bloc **Informations chantier** (nom, adresse, dates, contact, tél…)
+- Bloc **Centrales à béton affectées** :
+  - Bouton `+ Nouvelle centrale à béton`
+  - Grille de widgets centrales déjà affectées au chantier
+  - Chaque widget = résumé centrale + menu `...` (Détails / Retirer du chantier)
 
-### I2. `calcVolumes` affiché
-- `ProportionsStep.tsx:425-435` : utiliser la densité ciment réelle et inclure Vair : `Vg = 1 − Ve − Vc − Vair`.
+## 4. Pop-up d'affectation d'une centrale au chantier
 
-### I3. Vérifications finales étendues + panneau Debug
-- Ajout dans `DebugDreuxPanel.tsx` :
-  - Erreur max, erreur moyenne, RMSE de la courbe de mélange vs OAB.
-  - Tamis présentant le plus grand écart.
-  - Vérification `Vsable + Vgravier = Vgranulats` (tol 1e-6) et `Vsable/Vgravier = G/S` (tol 1e-6).
-  - Vérification `Σ volumes = 1000 L`.
+Au clic sur `+ Nouvelle centrale à béton` :
+- Ouvre un `Dialog` listant les centrales du client (via `client_centrales`)
+- Filtre : masquer celles déjà affectées au chantier
+- Sélection multiple avec cases à cocher + bouton "Affecter"
+- À la confirmation → insertion dans une nouvelle table de liaison
 
-## Non-corrigé (signalé comme ambiguïté / hors périmètre)
-- `DOCUMENT_EXAMPLE` (`documentExampleValidation.ts:35`) laissé à `null` — je ne dispose pas des valeurs de référence du livre. À remplir manuellement par vous, ou fournissez le tableau et je l'intègre.
-- Tests Vitest du module `gravelSplit` : non activés dans ce lot.
+## 5. Filtrage centrales dans les formulaires d'échantillons
 
-## Livrable final
-Après application : rapport structuré (✅/⚠/❌) commité dans `.lovable/audit-dreux-gorisse-phase4.md` avec pour chaque étape : fichier, fonction, formule, entrées, sorties, conformité.
+Adapter les sélecteurs `Centrale à béton` pour filtrer d'abord par **chantier affecté**, puis retomber sur celles du client si aucune affectation :
 
-## Ordre d'exécution
-1. B2 (Point A bascule) — base pour les autres modules.
-2. B1 (brancher splitGravels).
-3. B4 + B5 (bloquer ≥3 sables, supprimer boucle MF).
-4. B3 (supprimer bouton Optimize).
-5. I1 + I2 (air occlus + calcVolumes affiché).
-6. I3 (métriques Debug).
-7. Rédaction rapport d'audit final.
+- Nouveau échantillon Compression
+- Nouveau échantillon Traction / Fendage
+- Nouveau échantillon Laboratoire Chantier
 
-Confirmez-vous ce plan pour que je lance les corrections ?
+---
+
+## Détails techniques
+
+### Base de données (Lovable Cloud)
+
+Nouvelle table de liaison `chantier_centrales` :
+
+```sql
+CREATE TABLE public.chantier_centrales (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  chantier_id uuid NOT NULL REFERENCES public.chantiers(id) ON DELETE CASCADE,
+  centrale_id uuid NOT NULL REFERENCES public.centrales_beton(id) ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(chantier_id, centrale_id)
+);
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.chantier_centrales TO authenticated;
+GRANT ALL ON public.chantier_centrales TO service_role;
+ALTER TABLE public.chantier_centrales ENABLE ROW LEVEL SECURITY;
+-- policies : SELECT authenticated ; INSERT/DELETE via can_write_business()
+```
+
+### Fichiers impactés
+
+- `src/routes/*Routes.tsx` — nouvelle route `/clients/:clientId/chantiers/:chantierId`
+- `src/pages/clients/ChantierDetail.tsx` (nouveau)
+- Fiche client existante (widget chantiers) — layout desktop 1 ligne + DropdownMenu
+- Nouveau hook `useChantierCentrales(chantierId)`
+- Nouveau composant `AffectCentraleDialog.tsx`
+- Formulaires échantillons : Compression, Traction/Fendage, Laboratoire Chantier — remplacer la source de la liste centrales par le hook filtré chantier
+- Réutiliser `CentraleCard` (widget) existant, sinon en créer un compact
+
+### Comportement de repli
+
+Si un chantier n'a aucune centrale affectée : le sélecteur montre les centrales du client (comportement actuel) avec un badge « non filtré » pour ne pas bloquer la saisie existante.
+
+---
+
+## Livrables
+
+1. Nouvelle table `chantier_centrales` + RLS + GRANT
+2. Page Détail Chantier fonctionnelle
+3. Résumé chantier 1 ligne (desktop) + menu `...` harmonisé
+4. Filtrage des centrales dans les 3 formulaires d'échantillons
