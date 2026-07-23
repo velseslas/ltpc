@@ -390,11 +390,10 @@ const CarottageDataEntry = () => {
                     <th className="p-2 text-center font-semibold">fcore Rc (MPa)</th>
                     <th className="p-2 text-center font-semibold">fcorr 16×32 (MPa)</th>
                     <th className="p-2 text-center font-semibold">Verdict</th>
-
-                    <th className="p-2 text-center font-semibold">Rc corr. 16×32 (MPa)</th>
                     <th className="p-2"></th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {elem.carottes.map((r, cIdx) => (
                     <tr key={r.id} className="border-t border-border">
