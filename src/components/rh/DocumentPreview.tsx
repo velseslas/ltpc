@@ -83,8 +83,15 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       fontSize: "14px",
       lineHeight: "1.6",
       boxSizing: "border-box",
+      display: "flex",
+      flexDirection: "column",
       ...sectionStyle,
     };
+
+    const topBlockStyle: React.CSSProperties = { flex: "0 0 auto" };
+    const bodyWrapperStyle: React.CSSProperties = { flex: "0 0 auto" };
+    const signatureBottomStyle: React.CSSProperties = { flex: "0 0 auto", marginTop: "auto" };
+    void topBlockStyle; void bodyWrapperStyle; void signatureBottomStyle;
 
     const renderHeader = () => (
       <>
@@ -168,7 +175,8 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
     };
 
     const signatureContainerStyle: React.CSSProperties = {
-      marginTop: "80px",
+      marginTop: "auto",
+      paddingTop: "60px",
       textAlign: "right",
     };
 
