@@ -360,10 +360,11 @@ export default function ChantierEchantillonReport() {
       </div>
 
       {/* Rapport */}
+      <div className="overflow-x-auto -mx-4 px-4 print:overflow-visible print:mx-0 print:px-0 print:flex print:justify-center md:flex md:justify-center md:mx-0 md:px-0">
       <div 
         ref={reportRef}
         data-ref="report"
-        className="report-table bg-white text-black p-8 rounded-lg shadow-lg max-w-4xl mx-auto print:shadow-none print:p-3"
+        className="report-table bg-white text-black p-8 rounded-lg shadow-lg w-[210mm] mx-auto print:shadow-none print:p-3 no-preview-zoom"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         <ReportHeader
