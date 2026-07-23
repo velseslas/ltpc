@@ -174,7 +174,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
     };
 
     const signatureContainerStyle: React.CSSProperties = {
-      marginTop: "80px",
+      marginTop: "40px",
       textAlign: "right",
     };
 
