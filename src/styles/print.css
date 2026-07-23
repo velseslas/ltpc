@@ -75,6 +75,23 @@ html.print-orientation-landscape body {
     box-shadow: none !important;
     border: 0 !important;
     background: #fff !important;
+    /* Reset any on-screen preview scaling (e.g. --doc-scale) so the       */
+    /* printed page uses the real A4 dimensions.                           */
+    transform: none !important;
+    zoom: 1 !important;
+    --doc-scale: 1 !important;
+  }
+
+  /* Neutralise les largeurs fixes en mm/px héritées de l'aperçu écran        */
+  /* (ex: DocumentPreview RH avec width: 210mm) afin de tenir dans la zone   */
+  /* imprimable définie par @page.                                            */
+  [data-print-root] > *,
+  [data-print-root] [data-pdf-page] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-shadow: none !important;
   }
 
   /* Typographie d'impression */
