@@ -37,6 +37,13 @@ html.print-orientation-landscape body {
   page: landscape;
 }
 
+/* Page dédiée aux Documents RH : marges hautes/basses réduites pour
+   remonter le contenu et mieux équilibrer verticalement. */
+@page rh {
+  size: A4 portrait;
+  margin: 7mm 12mm 10mm 12mm;
+}
+
 /* ------------------------------------------------------------------------- */
 /* Styles activés uniquement à l'impression                                  */
 /* ------------------------------------------------------------------------- */
