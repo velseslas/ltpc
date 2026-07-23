@@ -107,8 +107,9 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
     const rc = (F * 1000) / section_mm2;
     u.resistance = rc.toFixed(2);
     const k = parseFloat(u.k_ld);
-    if (!isNaN(k)) {
-      u.resistance_corrigee = (rc * k).toFixed(2);
+    if (!isNaN(k) && k > 0) {
+      // Correction vers 16×32 : Rc_corr = Rc / K (K ≤ 1 → la résistance augmente)
+      u.resistance_corrigee = (rc / k).toFixed(2);
     }
   }
 
