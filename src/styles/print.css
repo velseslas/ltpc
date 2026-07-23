@@ -44,6 +44,15 @@ html.print-orientation-landscape body {
   margin: 7mm 12mm 10mm 12mm;
 }
 
+@page rh-document {
+  size: A4 portrait;
+  margin: 7mm 12mm 10mm 12mm;
+}
+
+html.print-rh-document body {
+  page: rh-document;
+}
+
 /* ------------------------------------------------------------------------- */
 /* Styles activés uniquement à l'impression                                  */
 /* ------------------------------------------------------------------------- */

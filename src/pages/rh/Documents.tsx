@@ -148,6 +148,7 @@ export default function Documents() {
     PrintService.print({
       title: `${selectedDocument?.type_document || "Document"} - ${selectedIntervenant?.nom || ""}`,
       orientation: "portrait",
+      htmlClass: "print-rh-document",
     });
   const handlePrint = doPrint;
   const handleDownload = doPrint;
