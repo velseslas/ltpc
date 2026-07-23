@@ -380,7 +380,7 @@ const CarottageDataEntry = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · K(L/D) interpolé selon NF P18-418 (1.00→0.87 ; 1.25→0.94 ; 1.50→0.96 ; 1.75→0.98 ; 2.00→1.00).
+            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = Rc / K, K(L/D) interpolé selon NF P18-418 (1.00→0.87 ; 1.25→0.94 ; 1.50→0.96 ; 1.75→0.98 ; 2.00→1.00).
           </p>
         </div>
 
