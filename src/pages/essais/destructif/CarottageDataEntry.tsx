@@ -316,7 +316,32 @@ const CarottageDataEntry = () => {
             <Label>Date de l'essai</Label>
             <Input type="date" value={dateEssai} onChange={(e) => setDateEssai(e.target.value)} />
           </div>
+          <div className="space-y-2">
+            <Label>Classe de béton cible</Label>
+            <Select value={classeBeton} onValueChange={setClasseBeton}>
+              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(CLASSES_BETON).map(([code, v]) => (
+                  <SelectItem key={code} value={code}>{code} — fck cyl {v.cyl} MPa / cube {v.cube} MPa</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {classInfo && (
+            <div className="space-y-2">
+              <Label>Référence</Label>
+              <div className="rounded-md bg-muted/40 border border-border px-3 py-2 text-sm">
+                <span className="font-medium">{classeBeton}</span> — fck cylindre <span className="font-semibold text-primary">{classInfo.cyl} MPa</span> · fck cube {classInfo.cube} MPa
+              </div>
+            </div>
+          )}
         </div>
+
+        <div className="flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+          <Info className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+          <span>Correction L/D selon : <span className="font-semibold text-foreground">{K_METHOD.label}</span>. Le coefficient K(L/D) ramène la résistance vers la référence cylindre 16×32 (L/D=2, K=1).</span>
+        </div>
+
 
         {elements.map((elem, eIdx) => (
           <div key={eIdx} className="space-y-4">
