@@ -552,8 +552,8 @@
   [data-ref="report"][data-print-template="document-rh"] {
     position: static !important;
     display: block !important;
-    width: 180mm !important;
-    max-width: 180mm !important;
+    width: 186mm !important;
+    max-width: 186mm !important;
     height: auto !important;
     min-height: 0 !important;
     margin: 0 auto !important;
@@ -561,6 +561,7 @@
     overflow: visible !important;
     transform: none !important;
     zoom: 1 !important;
+    page: rh !important;
     page-break-after: auto !important;
     break-after: auto !important;
     page-break-inside: avoid !important;
@@ -572,12 +573,12 @@
   [data-ref="report"][data-print-template="document-rh"] > [data-doc-certificat],
   [data-ref="report"][data-print-template="document-rh"] > [data-doc-avertissement],
   [data-ref="report"][data-print-template="document-rh"] > [data-doc-contrat] {
-    width: 180mm !important;
-    max-width: 180mm !important;
+    width: 186mm !important;
+    max-width: 186mm !important;
     min-height: 0 !important;
     height: auto !important;
     margin: 0 !important;
-    padding: 2mm 4mm !important;
+    padding: 0 2mm !important;
     box-sizing: border-box !important;
     background: #fff !important;
     box-shadow: none !important;
@@ -589,7 +590,7 @@
   }
 
   [data-ref="report"][data-print-template="document-rh"] [data-doc-title] {
-    margin: 6mm 0 5mm 0 !important;
+    margin: 5mm 0 4mm 0 !important;
   }
 
   [data-ref="report"][data-print-template="document-rh"] [data-doc-title] span {
@@ -603,18 +604,18 @@
   }
 
   [data-ref="report"][data-print-template="document-rh"] [data-doc-body] p {
-    margin-bottom: 4mm !important;
+    margin-bottom: 3.5mm !important;
     text-indent: 10mm !important;
   }
 
   [data-ref="report"][data-print-template="document-rh"] [data-doc-signature] {
-    margin-top: 12mm !important;
+    margin-top: 9mm !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   [data-ref="report"][data-print-template="document-rh"] [data-doc-signature] > div {
-    margin-bottom: 8mm !important;
+    margin-bottom: 6mm !important;
   }
 }
 
