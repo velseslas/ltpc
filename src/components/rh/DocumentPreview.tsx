@@ -89,8 +89,9 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
     };
 
     const topBlockStyle: React.CSSProperties = { flex: "0 0 auto" };
-    const bodyWrapperStyle: React.CSSProperties = { flex: "1 1 auto" };
+    const bodyWrapperStyle: React.CSSProperties = { flex: "0 0 auto" };
     const signatureBottomStyle: React.CSSProperties = { flex: "0 0 auto", marginTop: "auto" };
+    void topBlockStyle; void bodyWrapperStyle; void signatureBottomStyle;
 
     const renderHeader = () => (
       <>
