@@ -108,8 +108,8 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
     u.resistance = rc.toFixed(2);
     const k = parseFloat(u.k_ld);
     if (!isNaN(k) && k > 0) {
-      // Correction vers 16×32 : Rc_corr = Rc × K (K ≥ 1 pour L/D ≥ 1.5 selon table NF P18-418)
-      u.resistance_corrigee = (rc * k).toFixed(2);
+      // Correction vers 16×32 : Rc_corr = K(L/D) × Rc
+      u.resistance_corrigee = (k * rc).toFixed(2);
     }
   }
 
@@ -380,7 +380,7 @@ const CarottageDataEntry = () => {
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = Rc × K, K(L/D) interpolé selon NF P18-418 (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).
+            * Section = π·D²/4 (mm²) · Volume = π·(D/2)²·L (m³) · Rc = F(kN)·1000/Section · Rc corr. 16×32 = K(L/D) × Rc, K(L/D) interpolé selon NF P18-418 (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).
           </p>
         </div>
 
