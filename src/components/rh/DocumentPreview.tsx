@@ -174,10 +174,10 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
 
     if (type === "attestation") {
       return (
-        <div ref={ref} style={containerStyle}>
+        <div ref={ref} style={containerStyle} data-doc-attestation>
           {renderHeader()}
 
-          <div style={bodyStyle}>
+          <div style={bodyStyle} data-doc-body>
             <p style={paragraphStyle}>
               Je soussigné(e), Directeur(trice) de <strong>{entreprise.nom || "_______________"}</strong>,
             </p>
@@ -195,7 +195,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             </p>
           </div>
 
-          <div style={signatureContainerStyle}>
+          <div style={signatureContainerStyle} data-doc-signature>
             <div style={{ marginBottom: "60px" }}>
               Fait à _______________, le {today}
             </div>
@@ -205,6 +205,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
         </div>
       );
     }
+
 
     // Certificat de travail
     if (type === "certificat") {
