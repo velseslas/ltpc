@@ -186,43 +186,97 @@ html.print-orientation-landscape body {
   /* =====================================================================
    * Documents RH — Attestation / Certificat / Avertissement / Contrat
    * Objectif : rendu HTML vectoriel réel (window.print), UNE seule page
-   * A4 pour l'attestation. Neutralise minHeight:297mm + padding excessifs
-   * du composant DocumentPreview qui provoquaient une page 2 vide.
+   * A4 pour attestation/certificat. Neutralise minHeight:297mm + padding
+   * excessifs + marges d'en-tête/signature du composant DocumentPreview
+   * qui provoquaient une page 2 vide.
    * ===================================================================== */
+  [data-print-template="document-rh"] {
+    width: 100% !important;
+    max-width: none !important;
+  }
   [data-print-template="document-rh"] > * {
     min-height: 0 !important;
     height: auto !important;
-    padding: 4mm 8mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 2mm 6mm !important;
+    margin: 0 !important;
     font-size: 11pt !important;
-    line-height: 1.5 !important;
+    line-height: 1.45 !important;
     background: #fff !important;
     box-shadow: none !important;
   }
-  /* Compacter les grands espaces verticaux de l'attestation pour tenir sur 1 page */
+  /* Compacter l'en-tête (encadré + logo + QR) */
   [data-print-template="document-rh"] [data-doc-title] {
-    margin: 8mm 0 6mm 0 !important;
+    margin: 6mm 0 4mm 0 !important;
   }
   [data-print-template="document-rh"] [data-doc-title] span {
-    font-size: 16pt !important;
+    font-size: 15pt !important;
     letter-spacing: 3px !important;
   }
   [data-print-template="document-rh"] [data-doc-body] {
-    line-height: 1.7 !important;
-    font-size: 11.5pt !important;
+    line-height: 1.55 !important;
+    font-size: 11pt !important;
   }
   [data-print-template="document-rh"] [data-doc-body] p {
-    margin-bottom: 5mm !important;
+    margin-bottom: 3mm !important;
   }
   [data-print-template="document-rh"] [data-doc-signature] {
-    margin-top: 14mm !important;
-  }
-  [data-print-template="document-rh"] [data-doc-signature] > div {
-    margin-bottom: 8mm !important;
-  }
-  /* Empêche la coupe entre corps et signature (attestation) */
-  [data-print-template="document-rh"] [data-doc-attestation] {
+    margin-top: 8mm !important;
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+  [data-print-template="document-rh"] [data-doc-signature] > div {
+    margin-bottom: 5mm !important;
+  }
+  /* Empêche la coupe intra-document pour les docs courts */
+  [data-print-template="document-rh"] [data-doc-attestation],
+  [data-print-template="document-rh"] [data-doc-certificat] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* =====================================================================
+   * Documents Facturation — Contrat / Engagement / Offre / Facture / Devis
+   * Neutralise minHeight:1100px, ombres, et paginate proprement les blocs
+   * `data-pdf-page` multiples via `break-before: page`.
+   * ===================================================================== */
+  [data-print-template="contrat-document"],
+  [data-print-template="engagement-document"],
+  [data-print-template="offre-service-document"],
+  [data-print-template="facture-document"],
+  [data-print-template="devis-document"] {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 0 !important;
+  }
+  [data-print-template="contrat-document"] [data-pdf-page],
+  [data-print-template="engagement-document"] [data-pdf-page],
+  [data-print-template="offre-service-document"] [data-pdf-page],
+  [data-print-template="facture-document"] [data-pdf-page],
+  [data-print-template="devis-document"] [data-pdf-page] {
+    min-height: 0 !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8mm 10mm !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    display: block !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Nouvelle page à chaque bloc `data-pdf-page` sauf le premier */
+  [data-print-template="contrat-document"] [data-pdf-page] + [data-pdf-page],
+  [data-print-template="engagement-document"] [data-pdf-page] + [data-pdf-page],
+  [data-print-template="offre-service-document"] [data-pdf-page] + [data-pdf-page],
+  [data-print-template="facture-document"] [data-pdf-page] + [data-pdf-page],
+  [data-print-template="devis-document"] [data-pdf-page] + [data-pdf-page] {
+    break-before: page !important;
+    page-break-before: always !important;
   }
 }
 

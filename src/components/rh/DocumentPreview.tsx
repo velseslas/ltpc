@@ -210,10 +210,10 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
     // Certificat de travail
     if (type === "certificat") {
       return (
-        <div ref={ref} style={containerStyle}>
+        <div ref={ref} style={containerStyle} data-doc-certificat>
           {renderHeader()}
 
-          <div style={bodyStyle}>
+          <div style={bodyStyle} data-doc-body>
             <p style={paragraphStyle}>
               Je soussigné(e), Directeur(trice) de <strong>{entreprise.nom || "_______________"}</strong>,
             </p>
@@ -238,7 +238,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             </p>
           </div>
 
-          <div style={signatureContainerStyle}>
+          <div style={signatureContainerStyle} data-doc-signature>
             <div style={{ marginBottom: "60px" }}>
               Fait à _______________, le {today}
             </div>
@@ -254,7 +254,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       const niveau = niveauAvertissement || "1er avertissement";
       const niveauColor = niveau === "Dernier avertissement" ? "#b91c1c" : niveau === "2ème avertissement" ? "#c2410c" : "#1e5a7a";
       return (
-        <div ref={ref} style={containerStyle}>
+        <div ref={ref} style={containerStyle} data-doc-avertissement>
           {renderHeader()}
 
           <div style={{ textAlign: "center", marginTop: "-30px", marginBottom: "30px" }}>
@@ -284,7 +284,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             <div><strong>Objet :</strong> Lettre d'avertissement</div>
           </div>
 
-          <div style={bodyStyle}>
+          <div style={bodyStyle} data-doc-body>
             <p style={paragraphStyle}>Madame, Monsieur,</p>
             <p style={paragraphStyle}>
               Suite aux faits constatés en date du <strong>{dateFaitsFormatted}</strong>,
@@ -308,7 +308,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             </p>
           </div>
 
-          <div style={signatureContainerStyle}>
+          <div style={signatureContainerStyle} data-doc-signature>
             <div style={{ marginBottom: "60px" }}>
               Fait à _______________, le {today}
             </div>
@@ -325,7 +325,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       ? new Intl.NumberFormat("fr-FR").format(employe.salaire) + " DA"
       : "_______________";
     return (
-      <div ref={ref} style={containerStyle}>
+      <div ref={ref} style={containerStyle} data-doc-contrat>
         {renderHeader()}
 
         <div style={{ textAlign: "center", marginTop: "-30px", marginBottom: "30px" }}>
@@ -344,7 +344,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
           </span>
         </div>
 
-        <div style={bodyStyle}>
+        <div style={bodyStyle} data-doc-body>
           <p style={{ ...paragraphStyle, textIndent: 0 }}>
             <strong>ENTRE LES SOUSSIGNÉS :</strong>
           </p>
@@ -423,7 +423,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
           </p>
         </div>
 
-        <div style={{ marginTop: "60px", display: "flex", justifyContent: "space-between", gap: "40px" }}>
+        <div data-doc-signature style={{ marginTop: "60px", display: "flex", justifyContent: "space-between", gap: "40px" }}>
           <div style={{ flex: 1, textAlign: "center" }}>
             <div style={{ marginBottom: "60px", fontWeight: "bold" }}>Le Salarié</div>
             <div style={{ borderTop: "1px solid #000", paddingTop: "6px", fontSize: "12px" }}>(Lu et approuvé)</div>
