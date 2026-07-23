@@ -612,83 +612,83 @@ const ClientDetail = () => {
               </Button>
             </div>
 
-            {/* Chantiers Grid */}
+            {/* Chantiers : une ligne desktop / carte compacte mobile */}
             {chantiers && chantiers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-2">
                 {chantiers.map((chantier, index) => (
-                  <div 
+                  <div
                     key={chantier.id}
-                    className="bg-card border border-border rounded-xl p-5 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 animate-fade-in group"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    className="bg-card border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-300 animate-fade-in group"
+                    style={{ animationDelay: `${index * 40}ms` }}
                   >
-                    {/* Header with status and actions */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(chantier.statut)} transition-transform group-hover:scale-105`}>
-                        {getStatusLabel(chantier.statut)}
-                      </span>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8"
-                          onClick={() => navigate(`/intervenant/chantiers/${chantier.id}/modifier?clientId=${id}`)}
-                        >
-                          <Edit className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8"
-                          onClick={() => setChantierToDelete({ id: chantier.id, nom: chantier.nom })}
-                        >
-                          <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive transition-colors" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Title */}
-                    <h4 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {chantier.nom}
-                    </h4>
-
-                    {/* Description */}
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {chantier.description || "Aucune description"}
-                    </p>
-
-                    {/* Location */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                      <MapPin className="w-4 h-4 text-primary/70" />
-                      <span>{chantier.ville || chantier.adresse || "Aucune localisation"}</span>
-                    </div>
-
-                    {/* Contact */}
-                    {(chantier as any).contact && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <User className="w-4 h-4 text-primary/70" />
-                        <span>{(chantier as any).contact}</span>
-                      </div>
-                    )}
-
-                    {/* Téléphone */}
-                    {(chantier as any).telephone && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <Phone className="w-4 h-4 text-primary/70" />
-                        <span>{(chantier as any).telephone}</span>
-                      </div>
-                    )}
-
-                    {/* Dates */}
-                    {(chantier.date_debut || chantier.date_fin) && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 text-primary/70" />
-                        <span>
-                          {chantier.date_debut ? new Date(chantier.date_debut).toLocaleDateString("fr-FR") : "—"}
-                          {" - "}
-                          {chantier.date_fin ? new Date(chantier.date_fin).toLocaleDateString("fr-FR") : "—"}
+                    {/* DESKTOP : une seule ligne */}
+                    <div className="hidden md:flex items-center gap-4 px-4 py-3">
+                      <button
+                        onClick={() => navigate(`/intervenant/clients/${id}/chantiers/${chantier.id}`)}
+                        className="flex-1 min-w-0 flex items-center gap-4 text-left"
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <HardHat className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1 flex items-center gap-3">
+                          <span className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                            {chantier.nom}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(chantier.statut)} shrink-0`}>
+                            {getStatusLabel(chantier.statut)}
+                          </span>
+                        </div>
+                        <span className="hidden lg:flex items-center gap-1.5 text-xs text-muted-foreground shrink-0 min-w-0 max-w-[180px]">
+                          <MapPin className="w-3.5 h-3.5 text-primary/70" />
+                          <span className="truncate">{chantier.ville || chantier.adresse || "—"}</span>
                         </span>
+                        {(chantier as any).contact && (
+                          <span className="hidden xl:flex items-center gap-1.5 text-xs text-muted-foreground shrink-0 min-w-0 max-w-[140px]">
+                            <User className="w-3.5 h-3.5 text-primary/70" />
+                            <span className="truncate">{(chantier as any).contact}</span>
+                          </span>
+                        )}
+                        {(chantier.date_debut || chantier.date_fin) && (
+                          <span className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+                            <Calendar className="w-3.5 h-3.5 text-primary/70" />
+                            {chantier.date_debut ? new Date(chantier.date_debut).toLocaleDateString("fr-FR") : "—"}
+                            {" - "}
+                            {chantier.date_fin ? new Date(chantier.date_fin).toLocaleDateString("fr-FR") : "—"}
+                          </span>
+                        )}
+                      </button>
+                      <ChantierActionsMenu
+                        onDetails={() => navigate(`/intervenant/clients/${id}/chantiers/${chantier.id}`)}
+                        onEdit={() => navigate(`/intervenant/chantiers/${chantier.id}/modifier?clientId=${id}`)}
+                        onDelete={() => setChantierToDelete({ id: chantier.id, nom: chantier.nom })}
+                      />
+                    </div>
+
+                    {/* MOBILE : carte compacte */}
+                    <div className="md:hidden p-4 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <button
+                          onClick={() => navigate(`/intervenant/clients/${id}/chantiers/${chantier.id}`)}
+                          className="flex-1 min-w-0 text-left"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusColor(chantier.statut)}`}>
+                              {getStatusLabel(chantier.statut)}
+                            </span>
+                          </div>
+                          <h4 className="font-semibold text-foreground mt-1.5 truncate">{chantier.nom}</h4>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <MapPin className="w-3 h-3 text-primary/70" />
+                            {chantier.ville || chantier.adresse || "—"}
+                          </p>
+                        </button>
+                        <ChantierActionsMenu
+                          onDetails={() => navigate(`/intervenant/clients/${id}/chantiers/${chantier.id}`)}
+                          onEdit={() => navigate(`/intervenant/chantiers/${chantier.id}/modifier?clientId=${id}`)}
+                          onDelete={() => setChantierToDelete({ id: chantier.id, nom: chantier.nom })}
+                        />
                       </div>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>
