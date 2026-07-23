@@ -264,23 +264,17 @@ const CarottageDataEntry = () => {
             {eIdx > 0 && <div className="border-t border-border" />}
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Élément {eIdx + 1}</h2>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => addCarotte(eIdx)} className="flex items-center gap-1">
-                  <Plus className="h-4 w-4" />
-                  Ajouter une carotte
+              {elements.length > 1 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeElement(eIdx)}
+                  className="flex items-center gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Supprimer
                 </Button>
-                {elements.length > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeElement(eIdx)}
-                    className="flex items-center gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Supprimer
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
