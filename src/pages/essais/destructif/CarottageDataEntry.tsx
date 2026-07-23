@@ -418,7 +418,22 @@ const CarottageDataEntry = () => {
                       </td>
                       <td className="p-1 text-center text-muted-foreground">{r.section || "-"}</td>
                       <td className="p-1 text-center font-medium text-primary">{r.resistance || "-"}</td>
-                      <td className="p-1 text-center font-semibold text-primary">{r.resistance_corrigee || "-"}</td>
+                      <td className="p-1 text-center font-semibold text-primary">
+                        {r.resistance_corrigee || "-"}
+                        {parseFloat(r.elancement) === 2 && r.resistance_corrigee && (
+                          <div className="text-[10px] text-muted-foreground font-normal">L/D=2 · K=1 (aucune correction)</div>
+                        )}
+                      </td>
+                      <td className="p-1 text-center">
+                        {(() => {
+                          const v = getVerdict(parseFloat(r.resistance_corrigee), fckCyl);
+                          if (!v) return <span className="text-muted-foreground">-</span>;
+                          const cls = v.tone === "ok" ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                            : v.tone === "warn" ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                            : "bg-destructive/15 text-destructive border-destructive/30";
+                          return <Badge variant="outline" className={cls}>{v.label}</Badge>;
+                        })()}
+                      </td>
                       <td className="p-1">
                         <div className="flex items-center justify-center gap-1">
                           {elem.carottes.length > 1 && (
@@ -431,6 +446,7 @@ const CarottageDataEntry = () => {
                           </Button>
                         </div>
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
