@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useCentralesForSample } from "@/hooks/useChantierCentrales";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateEchantillonCompression, useUpdateEchantillonCompression } from "@/hooks/useEchantillonsCompression";
 import { supabase } from "@/integrations/supabase/client";
@@ -184,13 +184,14 @@ const CompressionSampleForm = () => {
 
   // Use existingEchantillon values directly for dependent hooks before state is initialized
   const effectiveClientId = (!editInitialized.current && existingEchantillon?.client_id) ? existingEchantillon.client_id : clientId;
+  const effectiveChantierId = (!editInitialized.current && existingEchantillon?.chantier_id) ? existingEchantillon.chantier_id : chantierId;
   const effectiveCentraleId = (!editInitialized.current && existingEchantillon?.centrale_id) ? existingEchantillon.centrale_id : centraleId;
 
   // Data fetching
   const { data: clients = [], isLoading: isLoadingClients } = useClients();
   const { data: chantiers = [], isLoading: isLoadingChantiers } = useChantiersByClient(effectiveClientId);
   const { data: intervenants = [], isLoading: isLoadingIntervenants } = useIntervenants();
-  const { data: centralesFromClient = [], isLoading: isLoadingCentrales } = useCentralesByClient(effectiveClientId);
+  const { data: centralesFromClient = [], isLoading: isLoadingCentrales } = useCentralesForSample(effectiveClientId, effectiveChantierId);
   const { data: formulationsFromCentrale = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId);
 
   // Fallback: load existing centrale/formulation by id (in case they aren't linked to current client/centrale)

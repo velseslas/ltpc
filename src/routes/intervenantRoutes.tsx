@@ -6,6 +6,7 @@ const Clients = lazy(() => import("@/pages/Clients"));
 const ClientDetail = lazy(() => import("@/pages/ClientDetail"));
 const ClientForm = lazy(() => import("@/pages/ClientForm"));
 const ChantierForm = lazy(() => import("@/pages/ChantierForm"));
+const ChantierDetail = lazy(() => import("@/pages/intervenant/ChantierDetail"));
 const Producteurs = lazy(() => import("@/pages/Producteurs"));
 const Cimenterie = lazy(() => import("@/pages/producteurs/Cimenterie"));
 const CimenterieForm = lazy(() => import("@/pages/producteurs/CimenterieForm"));
@@ -44,6 +45,8 @@ export const intervenantRoutes = (
     <Route path="/intervenant/clients/:id/modifier" element={<ClientForm />} />
     <Route path="/intervenant/chantiers/nouveau" element={<ChantierForm />} />
     <Route path="/intervenant/chantiers/:chantierId/modifier" element={<ChantierForm />} />
+    <Route path="/intervenant/clients/:id/chantiers/:chantierId" element={<ChantierDetail />} />
+    <Route path="/intervenant/chantiers/:chantierId" element={<ChantierDetail />} />
     <Route path="/intervenant/producteurs" element={<Producteurs />} />
     <Route path="/intervenant/producteurs/cimenterie" element={<Cimenterie />} />
     <Route path="/intervenant/producteurs/cimenterie/nouveau" element={<CimenterieForm />} />

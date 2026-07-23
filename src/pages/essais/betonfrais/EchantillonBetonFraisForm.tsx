@@ -40,7 +40,7 @@ import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { cn } from "@/lib/utils";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useCentralesForSample } from "@/hooks/useChantierCentrales";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
@@ -168,13 +168,14 @@ export default function EchantillonBetonFraisForm({
   });
 
   const selectedClientId = form.watch("client_id");
+  const selectedChantierId = form.watch("chantier_id");
   const selectedCentraleId = form.watch("centrale_id");
   const operateurValue = form.watch("operateur_id");
   const { isLocked: isOperateurLocked } = useTechnicianOperateurLock(
     operateurValue ?? "",
     (id) => form.setValue("operateur_id", id),
   );
-  const { data: centralesFromClient } = useCentralesByClient(selectedClientId);
+  const { data: centralesFromClient } = useCentralesForSample(selectedClientId, selectedChantierId);
   const { data: chantiersFromClient, isLoading: chantiersLoading } = useChantiersByClient(selectedClientId);
   const { data: formulationsFromCentrale, isLoading: formulationsLoading } = useFormulations(selectedCentraleId);
 
