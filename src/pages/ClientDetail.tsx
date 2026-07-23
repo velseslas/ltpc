@@ -374,8 +374,8 @@ const ClientDetail = () => {
         </div>
       </div>
 
-      {/* Résumé des projets - moved to its own row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      {/* Résumé des projets - single row on desktop */}
+      <div className="grid grid-cols-1 gap-6 mb-8">
         {/* Résumé des projets */}
         <div className="bg-card border border-border rounded-xl p-3 hover:border-primary/30 transition-all duration-300 group">
           <div className="flex items-center gap-2 mb-2">
@@ -387,7 +387,7 @@ const ClientDetail = () => {
             </h3>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <div className="bg-secondary/50 rounded-md p-2">
               <p className="text-xs text-muted-foreground">Total</p>
               <p className="text-xl font-bold text-foreground">{totalChantiers}</p>
