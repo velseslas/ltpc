@@ -232,6 +232,10 @@ const CarottageDataEntry = () => {
   const rcMoyenne = resistances.length > 0 ? resistances.reduce((a, b) => a + b, 0) / resistances.length : 0;
   const rcMoyenneCorr = resistancesCorr.length > 0 ? resistancesCorr.reduce((a, b) => a + b, 0) / resistancesCorr.length : 0;
 
+  const classInfo = classeBeton ? CLASSES_BETON[classeBeton] : null;
+  const fckCyl = classInfo?.cyl ?? 0;
+  const verdictGlobal = getVerdict(rcMoyenneCorr, fckCyl);
+
   const handleSave = async () => {
     if (!id) return;
     try {
@@ -239,11 +243,17 @@ const CarottageDataEntry = () => {
       await updateMutation.mutateAsync({
         id,
         date_essai: dateEssai || null,
+        classe_resistance: classeBeton || null,
         resultats: {
           elements,
           carottes: flat,
           rc_moyenne: rcMoyenne > 0 ? Number(rcMoyenne.toFixed(2)) : null,
           rc_moyenne_corrigee: rcMoyenneCorr > 0 ? Number(rcMoyenneCorr.toFixed(2)) : null,
+          classe_beton: classeBeton || null,
+          fck_cyl: fckCyl || null,
+          fck_cube: classInfo?.cube ?? null,
+          k_methode: K_METHOD.code,
+          verdict: verdictGlobal?.label ?? null,
         } as unknown as Json,
         statut: "termine",
       });
@@ -253,6 +263,7 @@ const CarottageDataEntry = () => {
       toast.error("Erreur lors de l'enregistrement");
     }
   };
+
 
   if (isLoading) {
     return (
