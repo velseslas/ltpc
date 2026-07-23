@@ -173,10 +173,11 @@ const CarottageDataEntry = () => {
   useEffect(() => {
     if (!echantillon) return;
     if (echantillon.date_essai) setDateEssai(echantillon.date_essai);
+    if (echantillon.classe_resistance) setClasseBeton(echantillon.classe_resistance);
     const r = echantillon.resultats as any;
     if (r) {
+      if (r.classe_beton && typeof r.classe_beton === "string") setClasseBeton(r.classe_beton);
       if (Array.isArray(r?.elements)) {
-        // re-compute to ensure derived fields are up to date
         setElements(
           r.elements.map((e: ElementTest) => ({
             ...e,
@@ -190,6 +191,7 @@ const CarottageDataEntry = () => {
       }
     }
   }, [echantillon]);
+
 
   const updateElement = (eIdx: number, field: keyof ElementTest, value: string) => {
     const updated = [...elements];
