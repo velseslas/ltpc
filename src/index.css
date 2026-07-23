@@ -537,6 +537,87 @@
   }
 }
 
+/* =====================================================================
+   Correctif SCOPÉ Documents RH — Certificat / Attestation / Contrat
+   ---------------------------------------------------------------------
+   Cause reproduite : le wrapper RH utilise data-ref="report", donc l'ancien
+   moteur print ci-dessus s'applique. Les règles RH de src/styles/print.css
+   n'étaient pas visibles dans le CSSOM au moment du test ; elles ne pouvaient
+   donc pas neutraliser le minHeight:297mm inline de DocumentPreview.
+
+   Ici on surcharge uniquement [data-print-template="document-rh"] après
+   l'ancien moteur global pour garantir un PDF vectoriel RH sur une page.
+   ===================================================================== */
+@media print {
+  [data-ref="report"][data-print-template="document-rh"] {
+    position: static !important;
+    display: block !important;
+    width: 180mm !important;
+    max-width: 180mm !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    zoom: 1 !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    --doc-scale: 1 !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] > [data-doc-attestation],
+  [data-ref="report"][data-print-template="document-rh"] > [data-doc-certificat],
+  [data-ref="report"][data-print-template="document-rh"] > [data-doc-avertissement],
+  [data-ref="report"][data-print-template="document-rh"] > [data-doc-contrat] {
+    width: 180mm !important;
+    max-width: 180mm !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 2mm 4mm !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.38 !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] [data-doc-title] {
+    margin: 6mm 0 5mm 0 !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] [data-doc-title] span {
+    font-size: 14pt !important;
+    letter-spacing: 3px !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] [data-doc-body] {
+    font-size: 10.5pt !important;
+    line-height: 1.55 !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] [data-doc-body] p {
+    margin-bottom: 4mm !important;
+    text-indent: 10mm !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] [data-doc-signature] {
+    margin-top: 12mm !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  [data-ref="report"][data-print-template="document-rh"] [data-doc-signature] > div {
+    margin-bottom: 8mm !important;
+  }
+}
+
 /* Blinking red border for validation errors */
 @keyframes border-blink {
   0%, 100% { 
