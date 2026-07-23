@@ -254,6 +254,12 @@ const PermeabiliteSampleForm = () => {
     setFormulationId("");
   };
 
+  const handleChantierChange = (value: string) => {
+    setChantierId(value);
+    setCentraleId("");
+    setFormulationId("");
+  };
+
   // Handle centrale change
   const handleCentraleChange = (value: string) => {
     setCentraleId(value);
@@ -423,7 +429,7 @@ const PermeabiliteSampleForm = () => {
               <Label htmlFor="chantier">Chantier <span className="text-red-700">*</span></Label>
               <Select 
                 value={chantierId} 
-                onValueChange={setChantierId}
+                onValueChange={handleChantierChange}
                 disabled={!clientId}
               >
                 <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}>
@@ -442,16 +448,20 @@ const PermeabiliteSampleForm = () => {
 
             <div className="space-y-2">
               <Label htmlFor="centrale">Centrale à Béton <span className="text-red-700">*</span></Label>
-              <Select value={centraleId} onValueChange={handleCentraleChange}>
+              <Select value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
                 <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
-                  <SelectValue placeholder="Sélectionnez une centrale" />
+                  <SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {centrales.map((centrale) => (
-                    <SelectItem key={centrale.id} value={centrale.id}>
-                      {centrale.nom}
-                    </SelectItem>
-                  ))}
+                  {centrales.length === 0 ? (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale affectée à ce chantier</div>
+                  ) : (
+                    centrales.map((centrale) => (
+                      <SelectItem key={centrale.id} value={centrale.id}>
+                        {centrale.nom}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
               <ValidationMessage show={submitted && !centraleId} message="Ce champ est obligatoire" />

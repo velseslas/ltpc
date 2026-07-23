@@ -205,6 +205,17 @@ const TractionFendageSampleForm = () => {
     );
   };
 
+  const handleChantierChange = (value: string) => {
+    setChantierId(value);
+    setCentraleId("");
+    setFormulationId("");
+  };
+
+  const handleCentraleChange = (value: string) => {
+    setCentraleId(value);
+    setFormulationId("");
+  };
+
   const handleSubmit = async () => {
     setSubmitted(true);
 
@@ -326,7 +337,7 @@ const TractionFendageSampleForm = () => {
               <Label>Chantier <span className="text-red-700">*</span></Label>
               <Select 
                 value={chantierId} 
-                onValueChange={setChantierId}
+                onValueChange={handleChantierChange}
                 disabled={!clientId || chantiersLoading}
               >
                 <SelectTrigger className={cn(submitted && !chantierId && "border-red-700")}>
@@ -394,16 +405,20 @@ const TractionFendageSampleForm = () => {
             {/* Centrale */}
             <div className="space-y-2">
               <Label>Centrale à Béton <span className="text-red-700">*</span></Label>
-              <Select value={centraleId} onValueChange={setCentraleId}>
+              <Select value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId}>
                 <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
-                  <SelectValue placeholder="Sélectionner une centrale" />
+                  <SelectValue placeholder={chantierId ? "Sélectionner une centrale" : "Sélectionnez d'abord un chantier"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {centrales?.map((centrale) => (
-                    <SelectItem key={centrale.id} value={centrale.id}>
-                      {centrale.nom}
-                    </SelectItem>
-                  ))}
+                  {centrales?.length === 0 ? (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale affectée à ce chantier</div>
+                  ) : (
+                    centrales?.map((centrale) => (
+                      <SelectItem key={centrale.id} value={centrale.id}>
+                        {centrale.nom}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
               <ValidationMessage show={submitted && !centraleId} message="Ce champ est obligatoire" />

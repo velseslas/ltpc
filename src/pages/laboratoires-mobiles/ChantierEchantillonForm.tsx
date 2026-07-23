@@ -23,8 +23,7 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useChantier } from "@/hooks/useChantiers";
 import { useClient } from "@/hooks/useClients";
-import { useCentralesBeton } from "@/hooks/useCentralesBeton";
-import { useCentralesByClient } from "@/hooks/useCentralesByClient";
+import { useCentralesForSample } from "@/hooks/useChantierCentrales";
 import { useMergedById } from "@/hooks/useExistingDropdownEntities";
 import { useFormulations } from "@/hooks/useFormulations";
 import { useCreateChantierEchantillon } from "@/hooks/useChantierEchantillons";
@@ -146,7 +145,7 @@ export default function ChantierEchantillonForm() {
   const [showError, setShowError] = useState(false);
 
   // Data fetching
-  const { data: centralesByClient = [] } = useCentralesByClient(chantier?.client_id || "");
+  const { data: centralesByChantier = [], isLoading: isLoadingCentrales } = useCentralesForSample(chantier?.client_id || "", chantierId || "");
   // Fetch existing echantillon for edit mode
   const { data: editEchantillon, isLoading: isLoadingEchantillon } = useQuery({
     queryKey: ["echantillon-chantier", echantillonId],
@@ -165,9 +164,9 @@ export default function ChantierEchantillonForm() {
   const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_compression");
   const existingEchantillon: any = editEchantillon || (!isEditMode ? duplicateSource : null);
   // Pre-warm the centrale/formulation dropdowns using the persisted IDs so the
-  // Select label shows immediately, even before centralesByClient resolves.
+  // Select label shows immediately, even before centralesByChantier resolves.
   const effectiveCentraleId = centraleId || existingEchantillon?.centrale_id || null;
-  const centrales = useMergedById("centrales_beton", effectiveCentraleId, centralesByClient, "id, nom, ville");
+  const centrales = useMergedById("centrales_beton", effectiveCentraleId, centralesByChantier, "id, nom, ville");
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId || "");
   const { data: labos } = useLaboratoiresMobiles();
 
@@ -483,16 +482,20 @@ export default function ChantierEchantillonForm() {
             {/* Centrale à béton */}
             <div className="space-y-2">
               <Label htmlFor="centrale">Centrale à béton <span className="text-red-500">*</span></Label>
-              <Select value={centraleId} onValueChange={handleCentraleChange}>
+              <Select value={centraleId} onValueChange={handleCentraleChange} disabled={isLoadingCentrales}>
                 <SelectTrigger className={cn(showError && !centraleId && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une centrale" />
                 </SelectTrigger>
                 <SelectContent>
-                  {centrales.map((centrale) => (
-                    <SelectItem key={centrale.id} value={centrale.id}>
-                      {centrale.nom}
-                    </SelectItem>
-                  ))}
+                  {centrales.length === 0 ? (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">Aucune centrale affectée à ce chantier</div>
+                  ) : (
+                    centrales.map((centrale) => (
+                      <SelectItem key={centrale.id} value={centrale.id}>
+                        {centrale.nom}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
