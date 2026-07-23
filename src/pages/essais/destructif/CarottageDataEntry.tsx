@@ -108,8 +108,8 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
     u.resistance = rc.toFixed(2);
     const k = parseFloat(u.k_ld);
     if (!isNaN(k) && k > 0) {
-      // Correction vers 16×32 : Rc_corr = Rc × K (K ≥ 1 pour L/D ≥ 1.5 selon table NF P18-418)
-      u.resistance_corrigee = (rc * k).toFixed(2);
+      // Correction vers 16×32 : Rc_corr = K(L/D) × Rc
+      u.resistance_corrigee = (k * rc).toFixed(2);
     }
   }
 
