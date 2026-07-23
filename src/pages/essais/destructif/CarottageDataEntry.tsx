@@ -167,6 +167,8 @@ const CarottageDataEntry = () => {
     { element_coule: "", carottes: [emptyCarotte()] },
   ]);
   const [dateEssai, setDateEssai] = useState("");
+  const [classeBeton, setClasseBeton] = useState<string>("");
+
 
   useEffect(() => {
     if (!echantillon) return;
