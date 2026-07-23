@@ -67,13 +67,13 @@ export function useDetachCentraleFromChantier() {
 /**
  * Retourne les centrales filtrées par chantier affecté ;
  * si aucun chantier n'est fourni ou aucune affectation, retombe sur les centrales du client.
+ * Renvoie directement un tableau pour rester compatible avec l'ancien hook useCentralesByClient.
  */
 export function useCentralesForSample(clientId: string | null | undefined, chantierId: string | null | undefined) {
   return useQuery({
     queryKey: ["centrales_by_chantier_or_client", clientId ?? null, chantierId ?? null],
     enabled: !!clientId || !!chantierId,
     queryFn: async () => {
-      // 1) Try chantier-affected first
       if (chantierId) {
         const { data, error } = await supabase
           .from("chantier_centrales")
@@ -82,14 +82,10 @@ export function useCentralesForSample(clientId: string | null | undefined, chant
         if (!error) {
           const list = (data ?? []).map((r: any) => r.centrales_beton).filter(Boolean);
           if (list.length > 0) {
-            return {
-              source: "chantier" as const,
-              data: list.sort((a: any, b: any) => (a.nom ?? "").localeCompare(b.nom ?? "")),
-            };
+            return list.sort((a: any, b: any) => (a.nom ?? "").localeCompare(b.nom ?? ""));
           }
         }
       }
-      // 2) Fallback: client centrales
       if (clientId) {
         const { data, error } = await supabase
           .from("client_centrales")
@@ -97,12 +93,13 @@ export function useCentralesForSample(clientId: string | null | undefined, chant
           .eq("client_id", clientId);
         if (error) throw error;
         const list = (data ?? []).map((r: any) => r.centrales_beton).filter(Boolean);
-        return {
-          source: "client" as const,
-          data: list.sort((a: any, b: any) => (a.nom ?? "").localeCompare(b.nom ?? "")),
-        };
+        return list.sort((a: any, b: any) => (a.nom ?? "").localeCompare(b.nom ?? ""));
       }
-      return { source: "none" as const, data: [] as any[] };
+      return [] as any[];
     },
   });
 }
+
+// Alias to keep the older name used by the sample forms.
+export const useCentralesForSampleWrapper = useCentralesForSample;
+
