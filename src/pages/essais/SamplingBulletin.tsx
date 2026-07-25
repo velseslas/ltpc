@@ -292,37 +292,38 @@ const SamplingBulletin = () => {
         />
       </div>
       
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between print:hidden">
+        <div className="flex items-start gap-3 sm:gap-4">
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate(`/essais/beton/beton-durci/compression/${id}`)}
-            className="h-10 w-10 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="h-10 w-10 shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
               Bulletin d'échantillonnage
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base">
               Échantillon N° <span className="text-primary">EC</span>-{String(echantillon.numero).padStart(3, "0")}
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center sm:w-auto">
-          <ShareButton fileName={`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`} className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
-          <Button variant="outline" onClick={handlePrint} className="w-full sm:w-auto">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+          <Button variant="outline" size="sm" onClick={handlePrint} className="w-full sm:w-auto">
             <Printer className="h-4 w-4 mr-2" />
             Imprimer
           </Button>
-          <Button variant="outline" onClick={handleDownloadPDF} className="w-full sm:w-auto">
+          <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Télécharger PDF
           </Button>
+          <ShareButton fileName={`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`} className="col-span-2 w-full sm:w-auto" />
         </div>
       </div>
+
 
       {/* Bulletin Content */}
       <div className="flex justify-center">
