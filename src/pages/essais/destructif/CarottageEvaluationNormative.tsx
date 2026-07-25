@@ -703,7 +703,46 @@ const CarottageEvaluationNormative = () => {
           </div>
         )}
       </div>
+
+      {/* Impression native A4 — HTML/CSS, texte et tableaux sélectionnables (aucune image de contenu) */}
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 12mm 14mm 14mm 14mm; }
+          body * { visibility: hidden; }
+          .print\\:hidden { display: none !important; }
+          #root { padding: 0 !important; }
+          [data-print-template="carottage-evaluation-normative"],
+          [data-print-template="carottage-evaluation-normative"] * { visibility: visible; }
+          [data-print-template="carottage-evaluation-normative"] {
+            position: absolute; top: 0; left: 0; width: 100%;
+            color: #000; background: #fff;
+            font-size: 11pt;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+          }
+          [data-print-template="carottage-evaluation-normative"] h2,
+          [data-print-template="carottage-evaluation-normative"] h3 {
+            break-after: avoid; page-break-after: avoid;
+          }
+          [data-print-template="carottage-evaluation-normative"] table {
+            width: 100%; border-collapse: collapse; break-inside: auto;
+          }
+          [data-print-template="carottage-evaluation-normative"] thead {
+            display: table-header-group;
+          }
+          [data-print-template="carottage-evaluation-normative"] tr {
+            break-inside: avoid; page-break-inside: avoid;
+          }
+          [data-print-template="carottage-evaluation-normative"] th,
+          [data-print-template="carottage-evaluation-normative"] td {
+            border: 1px solid #000; padding: 3px 6px;
+          }
+          [data-print-template="carottage-evaluation-normative"] > div {
+            break-inside: avoid; page-break-inside: avoid;
+          }
+        }
+      `}</style>
     </div>
+
   );
 };
 
