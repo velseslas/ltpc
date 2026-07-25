@@ -16,10 +16,12 @@ import {
 } from "lucide-react";
 import {
   useRapportTechnique,
+  useRapportValidateur,
   STATUT_LABELS,
   STATUT_COLORS,
   type RapportStatut,
 } from "@/hooks/useRapportsTechniques";
+import { useRapportAutosave, autosaveLabel, readLocalDraft, clearLocalDraft } from "@/hooks/useRapportAutosave";
 import {
   useAnalyzeRapport, useGenerateAIQuestions, useGenerateDraftReport,
   useAIQuestions, useAnswerAIQuestion,
