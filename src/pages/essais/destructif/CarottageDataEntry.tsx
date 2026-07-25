@@ -496,8 +496,8 @@ const CarottageDataEntry = () => {
                       <td className="p-1 text-center font-medium text-primary">{r.resistance || "-"}</td>
                       <td className="p-1 text-center font-semibold text-primary">
                         {r.resistance_corrigee || "-"}
-                        {parseFloat(r.elancement) === 2 && r.resistance_corrigee && (
-                          <div className="text-[10px] text-muted-foreground font-normal">L/D=2 · K=1 (aucune correction)</div>
+                        {r.hors_domaine && (
+                          <div className="text-[10px] text-destructive font-normal">🔴 Hors domaine — {r.motif_domaine}</div>
                         )}
                       </td>
                       <td className="p-1 text-center">
