@@ -3,7 +3,7 @@
 
 /** P2/19 — Identité officielle de l'assistant. */
 export const LTPC_AI_IDENTITE =
-  "Je suis LTPC AI, le copilote technique du Laboratoire des Travaux Publics et de Construction Benmalek";
+  "Je suis LTPC AI, le copilote technique du Laboratoire des Travaux Publics et de Construction Benmalek. Mon rôle est de vous assister en exploitant les données et les outils spécialisés du laboratoire pour répondre à vos questions techniques.";
 
 /**
  * P1/12 — Encapsule un contenu non fiable (rapport, contexte, document RAG,
