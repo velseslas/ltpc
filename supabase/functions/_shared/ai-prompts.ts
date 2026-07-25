@@ -121,10 +121,8 @@ Contexte catégorie: ${input.categorie ?? "N/A"}
 Informations manquantes identifiées:
 ${input.informationsManquantes.map(i => `- ${i}`).join("\n")}
 
-Description originale:
-"""
-${input.description}
-"""
+Description originale (saisie utilisateur) :
+${wrapUntrusted("DESCRIPTION_PROBLEME", input.description)}
 
 Questions concrètes, précises, orientées mesure/preuve/traçabilité. Aucun texte hors JSON.`;
 }
@@ -140,6 +138,10 @@ export function promptGenerationRapport(input: {
     materiaux?: string[];
   };
   reponsesQuestions?: Array<{ question: string; reponse: string }>;
+  /** P1/8 — extraits documentaires pertinents (RAG). */
+  documents?: string;
+  /** P1/11 — statut épistémique des données de contexte. */
+  sourcesContexte?: Record<string, string>;
 }): string {
   return `Rédige un rapport technique structuré en 7 sections obligatoires. Retourne EXCLUSIVEMENT un JSON.
 
@@ -164,22 +166,26 @@ Règles:
 - Style ingénieur, ton neutre, aucune invention.
 - Si une info manque, écrire "Information non disponible."
 - Distinguer faits / hypothèses / recommandations.
+- Une recommandation doit s'appuyer sur une donnée réellement fournie ; sinon la formuler comme hypothèse à confirmer.
+- Ne jamais présenter une donnée déduite automatiquement comme confirmée.
 - Utiliser des paragraphes clairs (Markdown léger autorisé dans les sections).
 
 CONTEXTE:
 - Client: ${input.contexte.client ?? "N/A"} | Entreprise: ${input.contexte.entreprise ?? "N/A"}
 - Chantier: ${input.contexte.chantier ?? "N/A"} | Projet: ${input.contexte.projet ?? "N/A"}
 - Matériaux: ${(input.contexte.materiaux ?? []).join(", ") || "N/A"}
+${input.sourcesContexte ? `\nSTATUT DES DONNÉES DE CONTEXTE :\n${Object.entries(input.sourcesContexte).map(([k, v]) => `- ${k}: ${v}`).join("\n")}` : ""}
 
 ANALYSE IA PRÉALABLE:
 ${input.analyse ? JSON.stringify(input.analyse, null, 2) : "Non disponible"}
 
-DESCRIPTION INITIALE:
-"""
-${input.description}
-"""
+DOCUMENTS DE RÉFÉRENCE (base documentaire interne — seule source citable) :
+${wrapUntrusted("DOCUMENTS_RAG", input.documents ?? "Aucun document fourni.")}
 
-${input.reponsesQuestions?.length ? `RÉPONSES AUX QUESTIONS:\n${input.reponsesQuestions.map(r => `Q: ${r.question}\nR: ${r.reponse}`).join("\n\n")}` : ""}
+DESCRIPTION INITIALE (saisie utilisateur) :
+${wrapUntrusted("DESCRIPTION_PROBLEME", input.description)}
+
+${input.reponsesQuestions?.length ? `RÉPONSES AUX QUESTIONS:\n${wrapUntrusted("REPONSES_TECHNICIEN", input.reponsesQuestions.map(r => `Q: ${r.question}\nR: ${r.reponse}`).join("\n\n"))}` : ""}
 
 Retourne uniquement le JSON.`;
 }
