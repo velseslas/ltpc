@@ -14,6 +14,8 @@ import { EN13791_2019_Evaluator, NORME_2019 } from "./en13791-2019";
 import type { EvaluationInput, EvaluationResultat, NormativeEvaluator, NormeNormative } from "./types";
 
 export * from "./types";
+export * from "./domaine";
+export { prepareCampagne, avertissementPetitEchantillon, resolveAnalyse } from "./shared";
 export { EN13791_2007_Evaluator, NORME_2007, margeK2007 } from "./en13791-2007";
 export { EN13791_2019_Evaluator, NORME_2019, margeKn2019, S_MIN_2019 } from "./en13791-2019";
 
