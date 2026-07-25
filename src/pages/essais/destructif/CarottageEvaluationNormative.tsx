@@ -241,8 +241,16 @@ const CarottageEvaluationNormative = () => {
             ))}
           </SelectContent>
         </Select>
-        {objectif && (
-          <p className="text-sm text-muted-foreground">{OBJECTIFS.find((o) => o.code === objectif)?.description}</p>
+        {objectifDef && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">{objectifDef.description}</p>
+            <Badge variant="outline" className={objectifDef.mode === "conformite" ? "bg-primary/10 text-primary border-primary/40" : "bg-sky-500/15 text-sky-500 border-sky-500/40"}>
+              {objectifDef.mode === "conformite" ? "Analyse de CONFORMITÉ — classe spécifiée obligatoire" : "Analyse d'ESTIMATION — conformité évaluée uniquement si une classe est renseignée"}
+            </Badge>
+            {objectifDef.classeObligatoire && !classeBeton && (
+              <p className="text-sm text-destructive">Classe de béton spécifiée requise pour cet objectif (étape 2).</p>
+            )}
+          </div>
         )}
       </div>
 
