@@ -472,6 +472,8 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
   const { data: entreprise } = useEntreprise();
   const { data: archives = [] } = useDocumentArchives("rapport_technique", rapport.id);
   const { data: reviews = [] } = useAIReviews(rapport.id);
+  // P0/3 — le signataire est le validateur réel du rapport, jamais le représentant de l'entreprise.
+  const { data: validateur } = useRapportValidateur(rapport.id, rapport.statut);
   const reviewM = useReviewRapport();
   const genM = useGenerateOfficialDocument();
   const lastReview = reviews[0] ?? null;
@@ -510,17 +512,18 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
           entreprise: rapport.entreprise ?? null,
           projet: rapport.projet ?? null,
           laboratoire: entreprise?.nom ?? "Laboratoire",
+          statut_officiel: STATUT_LABELS[rapport.statut],
         },
         body_html: previewHtml || html,
         signature: {
-          ingenieur_nom: (entreprise as { representant?: string | null } | null)?.representant ?? null,
-          ingenieur_fonction: "Ingénieur validateur",
+          ingenieur_nom: validateur?.nom ?? null,
+          ingenieur_fonction: validateur?.fonction ?? "Ingénieur validateur",
           cachet_url: (entreprise as { cachet_url?: string | null } | null)?.cachet_url ?? null,
-          date_validation: rapport.valide_at ?? new Date().toISOString(),
+          date_validation: validateur?.valide_at ?? rapport.valide_at ?? null,
         },
         qr_verification_base_url: `${window.location.origin}/verification`,
       });
-      toast({ title: "PDF officiel généré", description: `Version ${res.version} archivée` });
+      toast({ title: "Document officiel généré", description: `Version ${res.version} archivée (HTML natif imprimable)` });
       if (res.public_url) window.open(res.public_url, "_blank");
     } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
   };
