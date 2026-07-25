@@ -5,11 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, Save, ShieldCheck, Info } from "lucide-react";
+import { ArrowLeft, Loader2, Save, ShieldCheck, Info, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
+import { PrintService } from "@/lib/print/PrintService";
 import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import {
   useEvaluationsNormatives,
