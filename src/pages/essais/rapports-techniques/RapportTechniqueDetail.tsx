@@ -81,12 +81,37 @@ export default function RapportTechniqueDetail() {
   const [saveComment, setSaveComment] = useState("");
   const [saveOpen, setSaveOpen] = useState(false);
 
+  const initRef = useRef<string | null>(null);
   useEffect(() => {
     if (!r) return;
-    if (r.editor_html) setHtml(r.editor_html);
-    else if (contenu) setHtml(contenuToHtml(contenu));
+    const serverHtml = r.editor_html ?? (contenu ? contenuToHtml(contenu) : "");
+    // Première initialisation : restaure un brouillon local plus récent (crash / hors ligne).
+    if (initRef.current !== r.id) {
+      initRef.current = r.id;
+      const draft = readLocalDraft(r.id);
+      const serverAt = r.last_autosave_at ?? r.updated_at ?? r.created_at ?? null;
+      const isOfficial = r.statut === "valide" || r.statut === "archive";
+      if (!isOfficial && draft && draft.html !== serverHtml && (!serverAt || new Date(draft.at) > new Date(serverAt))) {
+        setHtml(draft.html);
+        toast({
+          title: "Brouillon local restauré",
+          description: `Modifications non enregistrées du ${new Date(draft.at).toLocaleString("fr-FR")} récupérées.`,
+        });
+        return;
+      }
+      if (draft) clearLocalDraft(r.id);
+    }
+    setHtml(serverHtml);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [r?.id, r?.editor_html]);
+
+  // P2/15 — Autosave (jamais sur un rapport officiel).
+  const autosave = useRapportAutosave({
+    rapportId: id,
+    html,
+    enabled: !!r && r.statut !== "valide" && r.statut !== "archive",
+    baseline: r?.editor_html ?? "",
+  });
 
   const handleAnalyze = async () => {
     try { await analyzeM.mutateAsync(id); toast({ title: "Analyse terminée" }); }
