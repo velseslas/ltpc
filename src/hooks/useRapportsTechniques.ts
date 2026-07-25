@@ -424,6 +424,12 @@ export function useDeletePieceJointe() {
 }
 
 // ------- Contexte automatique chantier -------
+/**
+ * P1/11 — Statut épistémique de chaque donnée de contexte.
+ * Une déduction ne doit jamais être présentée comme un fait confirmé.
+ */
+export type ContexteSource = "confirmee" | "deduite" | "utilisateur" | "manquante" | "ambigue";
+
 export interface ContexteAuto {
   client_id: string | null;
   client_nom: string | null;
@@ -434,7 +440,19 @@ export interface ContexteAuto {
   materiaux: string[];
   formulations: Array<{ id: string; nom: string; resistance_28j: number | null }>;
   essais_disponibles: Array<{ type: string; count: number }>;
+  /** Origine de chaque champ déduit automatiquement. */
+  sources: Record<string, ContexteSource>;
+  /** Horodatage de capture du contexte (le snapshot peut devenir obsolète). */
+  capture_at: string;
 }
+
+export const CONTEXTE_SOURCE_LABELS: Record<ContexteSource, string> = {
+  confirmee: "Donnée confirmée",
+  deduite: "Donnée déduite automatiquement",
+  utilisateur: "Donnée saisie par l'utilisateur",
+  manquante: "Donnée manquante",
+  ambigue: "Donnée ambiguë — à confirmer",
+};
 
 export function useContexteChantier(chantierId?: string | null) {
   return useQuery({
@@ -452,16 +470,30 @@ export function useContexteChantier(chantierId?: string | null) {
       formulations.forEach((f) => f.nom && materiauxSet.add(f.nom));
       const essais: Array<{ type: string; count: number }> = [];
       if (compressionRes.count && compressionRes.count > 0) essais.push({ type: "Compression béton", count: compressionRes.count });
+
+      const entreprise = chantier?.clients?.representant ?? chantier?.clients?.nom ?? null;
+      const projet = chantier?.description ?? chantier?.nom ?? null;
+
       return {
         client_id: chantier?.clients?.id ?? null,
         client_nom: chantier?.clients?.nom ?? null,
         chantier_id: chantierId!,
         chantier_nom: chantier?.nom ?? null,
-        entreprise: chantier?.clients?.representant ?? chantier?.clients?.nom ?? null,
-        projet: chantier?.description ?? chantier?.nom ?? null,
+        entreprise,
+        projet,
         materiaux: Array.from(materiauxSet),
         formulations,
         essais_disponibles: essais,
+        sources: {
+          client_nom: chantier?.clients?.nom ? "confirmee" : "manquante",
+          chantier_nom: chantier?.nom ? "confirmee" : "manquante",
+          // Déduits : representant/nom du client et description/nom du chantier.
+          entreprise: entreprise ? (chantier?.clients?.representant ? "deduite" : "ambigue") : "manquante",
+          projet: projet ? (chantier?.description ? "deduite" : "ambigue") : "manquante",
+          materiaux: materiauxSet.size ? "confirmee" : "manquante",
+          essais_disponibles: essais.length ? "confirmee" : "manquante",
+        },
+        capture_at: new Date().toISOString(),
       };
     },
   });
