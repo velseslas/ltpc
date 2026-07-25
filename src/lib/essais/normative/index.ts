@@ -42,11 +42,14 @@ export function evaluateNormative(input: EvaluationInput): EvaluationResultat {
     return {
       norme: null,
       procedure: null,
+      typeAnalyse: "conformite",
+      estimationSeule: true,
       fckCyl: null,
       fckCube: null,
       carottesValides: [],
       carottesExclues: [],
       carottesAExaminer: [],
+      carottesHorsDomaine: [],
       statistiques: null,
       fckIs: null,
       fckIsDetail: null,
@@ -57,6 +60,7 @@ export function evaluateNormative(input: EvaluationInput): EvaluationResultat {
       verdict: "non_concluant",
       conclusion: "Référentiel normatif non sélectionné ou inconnu. Choisir EN 13791:2007 ou EN 13791:2019.",
       donneesManquantes: ["Référentiel normatif (version) non sélectionné"],
+      avertissements: [],
     };
   }
   // Garde-fou anti-mélange : la procédure doit appartenir au référentiel choisi.
