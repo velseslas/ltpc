@@ -251,12 +251,13 @@ const CarottageDataEntry = () => {
           r.elements.map((e: ElementTest) => ({
             ...e,
             carottes: (e.carottes || []).map((c: any) =>
-              computeCarotte({ ...emptyCarotte(), ...c })
+              // Priorité 7 — identifiant permanent : jamais l'index du tableau
+              computeCarotte({ ...emptyCarotte(), ...c, id: c?.id || crypto.randomUUID() })
             ),
           })),
         );
       } else if (Array.isArray(r)) {
-        setElements([{ element_coule: "", carottes: (r as any[]).map((c) => computeCarotte({ ...emptyCarotte(), ...c })) }]);
+        setElements([{ element_coule: "", carottes: (r as any[]).map((c) => computeCarotte({ ...emptyCarotte(), ...c, id: c?.id || crypto.randomUUID() })) }]);
       }
     }
   }, [echantillon]);
