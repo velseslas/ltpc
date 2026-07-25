@@ -580,23 +580,29 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" /> Génération du PDF officiel
+            <FileText className="h-4 w-4 text-primary" /> Génération du document officiel
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Génère un document PDF officiel avec en-tête, pied de page, pagination, QR code de vérification, signature et cachet.
-            Chaque génération crée une nouvelle version archivée immuable avec empreinte SHA-256.
+            Génère un document officiel <strong>HTML/CSS natif</strong> (aucune image, aucune capture : texte et tableaux
+            restent sélectionnables), mis en page A4 et exportable en PDF via l'impression du navigateur.
+            En-tête, pied de page, QR code vectoriel de vérification, signature du validateur réel et cachet inclus.
+            Chaque génération crée une version archivée immuable avec empreinte SHA-256.
           </p>
           {!canGenerate && (
             <div className="flex items-center gap-2 text-amber-700 text-sm"><AlertTriangle className="h-4 w-4" /> Le rapport doit être validé avant génération officielle.</div>
           )}
+          {canGenerate && !validateur?.nom && (
+            <div className="flex items-center gap-2 text-amber-700 text-sm"><AlertTriangle className="h-4 w-4" /> Validateur non identifié — le bloc signature restera vide.</div>
+          )}
           <Button onClick={runGenerate} disabled={!canGenerate || genM.isPending}>
             {genM.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-            Générer PDF officiel
+            Générer le document officiel
           </Button>
         </CardContent>
       </Card>
+
 
       <Card>
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><Archive className="h-4 w-4" /> Archives ({archives.length})</CardTitle></CardHeader>
