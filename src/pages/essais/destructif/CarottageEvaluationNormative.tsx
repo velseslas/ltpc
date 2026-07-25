@@ -247,17 +247,19 @@ const CarottageEvaluationNormative = () => {
 
   return (
     <div className="space-y-6">
-      <EssaiBreadcrumb
-        items={[
-          { label: "Béton", path: "/essais/beton" },
-          { label: "Destructif", path: "/essais/beton/destructif" },
-          { label: "Carottage", path: basePath },
-          { label: ref, path: `${basePath}/${id}` },
-          { label: "Évaluation normative" },
-        ]}
-      />
+      <div className="print:hidden">
+        <EssaiBreadcrumb
+          items={[
+            { label: "Béton", path: "/essais/beton" },
+            { label: "Destructif", path: "/essais/beton/destructif" },
+            { label: "Carottage", path: basePath },
+            { label: ref, path: `${basePath}/${id}` },
+            { label: "Évaluation normative" },
+          ]}
+        />
+      </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between print:hidden">
         <div className="flex items-start gap-3 sm:gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)}
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0">
