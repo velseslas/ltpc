@@ -195,7 +195,15 @@ export default function RapportTechniqueDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <CardTitle>Rédaction du rapport</CardTitle>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    {!isValide && (
+                      <span
+                        className={`text-xs ${autosave.state === "error" ? "text-destructive" : autosave.state === "offline" ? "text-amber-600" : "text-muted-foreground"}`}
+                        aria-live="polite"
+                      >
+                        {autosaveLabel(autosave.state, autosave.lastSavedAt)}
+                      </span>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => setSaveOpen(true)} disabled={isValide}>
                       <Save className="h-4 w-4 mr-1" /> Enregistrer version
                     </Button>
