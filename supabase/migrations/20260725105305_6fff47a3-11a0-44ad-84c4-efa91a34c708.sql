@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.get_entreprise_public() TO anon;
