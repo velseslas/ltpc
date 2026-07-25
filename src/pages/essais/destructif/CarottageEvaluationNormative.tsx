@@ -100,7 +100,7 @@ const CarottageEvaluationNormative = () => {
     setCarottes((prev) => prev.map((c) => (c.id === cid ? { ...c, motif_exclusion: motif } : c)));
 
   const resultat = useMemo(() => {
-    if (!objectif || !procedureCode) return null;
+    if (!objectif || !normeCode || !procedureCode) return null;
     return evaluateNormative({
       objectif: objectif as ObjectifCode,
       normeCode,
