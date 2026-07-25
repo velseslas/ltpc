@@ -295,12 +295,17 @@ const CarottageDataEntry = () => {
     setElements(elements.filter((_, i) => i !== eIdx));
   };
 
-  // Moyennes globales
+  // Moyennes globales — priorité 8 : calculs sur valeurs BRUTES (aucun toFixed intermédiaire)
   const allCarottes = elements.flatMap((e) => e.carottes);
-  const resistances = allCarottes.map((c) => parseFloat(c.resistance)).filter((v) => !isNaN(v) && v > 0);
-  const resistancesCorr = allCarottes.map((c) => parseFloat(c.resistance_corrigee)).filter((v) => !isNaN(v) && v > 0);
+  const resistances = allCarottes
+    .map((c) => (c.fcore_raw ?? parseFloat(c.resistance)))
+    .filter((v) => typeof v === "number" && isFinite(v) && v > 0) as number[];
+  const resistancesCorr = allCarottes
+    .map((c) => (c.fcorr_raw ?? parseFloat(c.resistance_corrigee)))
+    .filter((v) => typeof v === "number" && isFinite(v) && v > 0) as number[];
   const rcMoyenne = resistances.length > 0 ? resistances.reduce((a, b) => a + b, 0) / resistances.length : 0;
   const rcMoyenneCorr = resistancesCorr.length > 0 ? resistancesCorr.reduce((a, b) => a + b, 0) / resistancesCorr.length : 0;
+  const nbHorsDomaine = allCarottes.filter((c) => c.hors_domaine).length;
 
   const classInfo = classeBeton ? CLASSES_BETON[classeBeton] : null;
   const fckCyl = classInfo?.cyl ?? 0;
@@ -317,12 +322,16 @@ const CarottageDataEntry = () => {
         resultats: {
           elements,
           carottes: flat,
-          rc_moyenne: rcMoyenne > 0 ? Number(rcMoyenne.toFixed(2)) : null,
-          rc_moyenne_corrigee: rcMoyenneCorr > 0 ? Number(rcMoyenneCorr.toFixed(2)) : null,
+          rc_moyenne: rcMoyenne > 0 ? rcMoyenne : null,
+          rc_moyenne_corrigee: rcMoyenneCorr > 0 ? rcMoyenneCorr : null,
           classe_beton: classeBeton || null,
           fck_cyl: fckCyl || null,
           fck_cube: classInfo?.cube ?? null,
           k_methode: K_METHOD.code,
+          k_methode_version: K_METHOD.version,
+          k_methode_domaine: { ld_min: K_METHOD.ldMin, ld_max: K_METHOD.ldMax },
+          k_methode_table: K_METHOD.table,
+          nb_hors_domaine: nbHorsDomaine,
           verdict: verdictGlobal?.label ?? null,
         } as unknown as Json,
         statut: "termine",
