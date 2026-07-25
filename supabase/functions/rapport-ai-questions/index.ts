@@ -2,6 +2,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptQuestionsIntelligentes } from "../_shared/ai-prompts.ts";
+import { retrieveKnowledge, formatKnowledgeBlock, ragSourcesMeta } from "../_shared/rag.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 import { enforceRateLimit } from "../_shared/rate-limit.ts";
 import { requireAuth, canAccessRapport, unauthorized } from "../_shared/auth-guard.ts";
@@ -30,10 +31,19 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ questions: [], message: "Aucune information manquante détectée" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // P3/4 — RAG : sources internes pour ancrer les questions techniques.
+    const chunks = await retrieveKnowledge(
+      admin,
+      [r.titre, r.description_probleme, manquantes.join(" ")].filter(Boolean).join(" "),
+      { topK: 5, excludeSourceId: rapport_id },
+    );
+    const ragSources = ragSourcesMeta(chunks);
+
     const userPrompt = promptQuestionsIntelligentes({
       description: r.description_probleme,
       informationsManquantes: manquantes,
       categorie: (r as { rapport_categories?: { nom?: string } | null }).rapport_categories?.nom ?? null,
+      documents: chunks.length ? formatKnowledgeBlock(chunks) : undefined,
     });
 
     const userId = getUserIdFromReq(req);
@@ -62,9 +72,9 @@ Deno.serve(async (req) => {
         await admin.from("rapport_questions_ia").insert(rows as never);
       }
 
-      await logAICall({ rapport_id, operation: "questions", provider: result.provider, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId });
+      await logAICall({ rapport_id, operation: "questions", provider: result.provider, model: result.model, prompt_system: SYSTEM_INGENIEUR_LABO, prompt_user: userPrompt, raw_response: result.raw, parsed_json: result.parsed, duration_ms: result.durationMs, tokens_input: result.tokensInput, tokens_output: result.tokensOutput, tokens_total: result.tokensTotal, created_by: userId, rag_sources: ragSources });
 
-      return new Response(JSON.stringify({ questions }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ questions, sources: ragSources }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       await logAICall({ rapport_id, operation: "questions", provider: "lovable-ai", model: "google/gemini-2.5-flash", prompt_user: userPrompt, status: "error", error: msg, created_by: userId });

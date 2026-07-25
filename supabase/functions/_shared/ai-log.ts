@@ -17,6 +17,8 @@ export interface AILogEntry {
   status?: "success" | "error";
   error?: string;
   created_by?: string | null;
+  /** P3/5 — sources RAG réellement transmises au modèle (jamais renseigné a posteriori). */
+  rag_sources?: unknown[];
 }
 
 export async function logAICall(entry: AILogEntry) {
@@ -40,6 +42,7 @@ export async function logAICall(entry: AILogEntry) {
       status: entry.status ?? "success",
       error: entry.error,
       created_by: entry.created_by ?? null,
+      rag_sources: (entry.rag_sources ?? []) as never,
     });
   } catch (e) {
     console.error("logAICall failed", e);

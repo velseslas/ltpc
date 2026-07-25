@@ -109,3 +109,25 @@ Si une référence normative est nécessaire, écrire exactement :
     })
     .join("\n---\n");
 }
+
+/**
+ * P3/5 — Métadonnées de traçabilité des sources RÉELLEMENT transmises au modèle.
+ * N'invente rien : ne contient que ce qui est présent dans `ai_knowledge_chunks`.
+ */
+export function ragSourcesMeta(chunks: RagChunk[]) {
+  return chunks.map((c, i) => {
+    const m = (c.metadata ?? {}) as Record<string, unknown>;
+    return {
+      ref: `SRC-${i + 1}`,
+      chunk_id: c.id,
+      source_type: c.source_type,
+      source_id: c.source_id,
+      label: (m.label as string) ?? (m.numero as string) ?? null,
+      norme: (m.norme as string) ?? null,
+      version: (m.version as string) ?? null,
+      clause: (m.clause as string) ?? null,
+      date: (m.date as string) ?? (m.created_at as string) ?? null,
+      score: Number.isFinite(c.score) ? Number(c.score.toFixed(4)) : null,
+    };
+  });
+}
