@@ -14,7 +14,9 @@ import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import {
   useEvaluationsNormatives,
   useCreateEvaluationNormative,
+  useUpdateEvaluationNormative,
 } from "@/hooks/useEvaluationsNormativesCarottage";
+import { useDmaxContexte } from "@/hooks/useDmaxContexte";
 import {
   OBJECTIFS,
   NORMES,
@@ -47,12 +49,16 @@ const CarottageEvaluationNormative = () => {
   const { data: echantillon, isLoading } = useEchantillonCarottage(id || "");
   const { data: historique } = useEvaluationsNormatives(id || "");
   const createMutation = useCreateEvaluationNormative();
+  const updateMutation = useUpdateEvaluationNormative();
 
   const [objectif, setObjectif] = useState<ObjectifCode | "">("");
   const [normeCode, setNormeCode] = useState<string>("");
   const [procedureCode, setProcedureCode] = useState<string>("");
   const [classeBeton, setClasseBeton] = useState<string>("");
   const [dmax, setDmax] = useState<string>("");
+  const [dmaxSource, setDmaxSource] = useState<string | null>(null);
+  const [dmaxManuel, setDmaxManuel] = useState(false);
+  const [brouillonId, setBrouillonId] = useState<string | null>(null);
   const [carottes, setCarottes] = useState<CarotteEvaluee[]>([]);
 
   // ── Récupération des résultats VALIDÉS du Mode A (aucun recalcul) ──
@@ -61,7 +67,10 @@ const CarottageEvaluationNormative = () => {
     const r = echantillon.resultats as Record<string, unknown> | null;
     if (echantillon.classe_resistance) setClasseBeton(echantillon.classe_resistance);
     if (r && typeof r.classe_beton === "string") setClasseBeton(r.classe_beton);
-    if (r && r.dmax != null) setDmax(String(r.dmax));
+    if (r && r.dmax != null) {
+      setDmax(String(r.dmax));
+      setDmaxSource("Données de l'essai (Mode A)");
+    }
 
     type RawCarotte = Record<string, unknown>;
     let raw: { element: string; c: RawCarotte }[] = [];
@@ -150,58 +159,78 @@ const CarottageEvaluationNormative = () => {
   const exclusionsSansMotif = carottes.some((c) => c.statut === "exclue" && !c.motif_exclusion);
 
 
-  const handleSave = async () => {
-    if (!id || !resultat || !objectif) return;
+  const buildPayload = () => {
+    if (!id || !resultat || !objectif) return null;
+    const procedure = getProcedure(normeCode, procedureCode);
+    return {
+      echantillon_id: id,
+      reference: echantillon ? `CR-${String(echantillon.numero).padStart(3, "0")}` : null,
+      objectif,
+      objectif_label: OBJECTIFS.find((o) => o.code === objectif)?.label ?? null,
+      norme_code: normeCode,
+      norme_nom: norme?.nom ?? null,
+      norme_version: norme?.version ?? null,
+      norme_date: norme?.date ?? null,
+      procedure_code: procedureCode,
+      procedure_label: procedure ? `${procedure.label} — ${procedure.clause}` : null,
+      classe_beton: classeBeton || null,
+      fck_cyl: resultat.fckCyl,
+      fck_cube: resultat.fckCube,
+      dmax: num(dmax),
+      dmax_source: dmaxManuel ? "Saisie manuelle (Mode B)" : dmaxSource,
+      // Priorité 6 — archivage intégral des données brutes de chaque carotte (statuts résolus)
+      carottes: [
+        ...resultat.carottesValides,
+        ...resultat.carottesAExaminer,
+        ...resultat.carottesHorsDomaine,
+        ...resultat.carottesExclues,
+      ] as unknown as Json,
+      statistiques: {
+        ...(resultat.statistiques ?? {}),
+        type_analyse: resultat.typeAnalyse,
+        estimation_seule: resultat.estimationSeule,
+        dmax: num(dmax),
+        dmax_source: dmaxManuel ? "Saisie manuelle (Mode B)" : dmaxSource,
+        fck_is: resultat.fckIs,
+        fck_is_detail: resultat.fckIsDetail,
+        seuil_85: resultat.seuil85,
+        seuil_85_detail: resultat.seuil85Detail,
+        avertissements: resultat.avertissements,
+        donnees_manquantes: resultat.donneesManquantes,
+        hors_domaine: resultat.carottesHorsDomaine.map((c) => ({ reference: c.reference, motifs: c.motifs_domaine })),
+      } as unknown as Json,
+      criteres: resultat.criteres as unknown as Json,
+      verdict: resultat.verdict,
+      conclusion: resultat.conclusion,
+    };
+  };
+
+  const persist = async (figee: boolean) => {
+    const payload = buildPayload();
+    if (!payload) return;
     if (exclusionsSansMotif) {
       toast.error("Chaque carotte exclue doit être justifiée");
       return;
     }
-    const procedure = getProcedure(normeCode, procedureCode);
     try {
-      await createMutation.mutateAsync({
-        echantillon_id: id,
-        reference: echantillon ? `CR-${String(echantillon.numero).padStart(3, "0")}` : null,
-        objectif,
-        objectif_label: OBJECTIFS.find((o) => o.code === objectif)?.label ?? null,
-        norme_code: normeCode,
-        norme_nom: norme?.nom ?? null,
-        norme_version: norme?.version ?? null,
-        norme_date: norme?.date ?? null,
-        procedure_code: procedureCode,
-        procedure_label: procedure ? `${procedure.label} — ${procedure.clause}` : null,
-        classe_beton: classeBeton || null,
-        fck_cyl: resultat.fckCyl,
-        fck_cube: resultat.fckCube,
-        // Priorité 6 — archivage intégral des données brutes de chaque carotte (statuts résolus)
-        carottes: [
-          ...resultat.carottesValides,
-          ...resultat.carottesAExaminer,
-          ...resultat.carottesHorsDomaine,
-          ...resultat.carottesExclues,
-        ] as unknown as Json,
-        statistiques: {
-          ...(resultat.statistiques ?? {}),
-          type_analyse: resultat.typeAnalyse,
-          estimation_seule: resultat.estimationSeule,
-          dmax: num(dmax),
-          fck_is: resultat.fckIs,
-          fck_is_detail: resultat.fckIsDetail,
-          seuil_85: resultat.seuil85,
-          seuil_85_detail: resultat.seuil85Detail,
-          avertissements: resultat.avertissements,
-          donnees_manquantes: resultat.donneesManquantes,
-          hors_domaine: resultat.carottesHorsDomaine.map((c) => ({ reference: c.reference, motifs: c.motifs_domaine })),
-        } as unknown as Json,
-        criteres: resultat.criteres as unknown as Json,
-        verdict: resultat.verdict,
-        conclusion: resultat.conclusion,
-        figee: true,
-      });
-      toast.success("Évaluation normative enregistrée (figée dans l'historique)");
+      if (brouillonId) {
+        await updateMutation.mutateAsync({ id: brouillonId, ...payload, figee });
+      } else {
+        const row = await createMutation.mutateAsync({ ...payload, figee });
+        if (!figee) setBrouillonId(row.id);
+      }
+      if (figee) {
+        setBrouillonId(null);
+        toast.success("Évaluation validée et figée définitivement");
+      } else {
+        toast.success("Brouillon enregistré — l'évaluation reste modifiable");
+      }
     } catch {
-      toast.error("Erreur lors de l'enregistrement de l'évaluation");
+      toast.error(figee ? "Erreur lors de la validation de l'évaluation" : "Erreur lors de l'enregistrement du brouillon");
     }
   };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -241,10 +270,16 @@ const CarottageEvaluationNormative = () => {
             </p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={!resultat || createMutation.isPending} className="w-full sm:w-auto">
-          {createMutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-          Enregistrer l'évaluation
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={() => persist(false)} disabled={!resultat || isSaving} className="w-full sm:w-auto">
+            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Enregistrer le brouillon
+          </Button>
+          <Button onClick={() => persist(true)} disabled={!resultat || isSaving} className="w-full sm:w-auto">
+            <ShieldCheck className="h-4 w-4 mr-2" />
+            Valider et figer l'évaluation
+          </Button>
+        </div>
       </div>
 
       {/* ÉTAPE 1 — Objectif */}
@@ -319,7 +354,27 @@ const CarottageEvaluationNormative = () => {
           </div>
           <div className="space-y-2">
             <Label>Dmax du granulat (mm)</Label>
-            <Input type="number" value={dmax} onChange={(e) => setDmax(e.target.value)} placeholder="ex. 20" />
+            <Input
+              type="number"
+              value={dmax}
+              onChange={(e) => { setDmax(e.target.value); setDmaxManuel(true); }}
+              placeholder="ex. 20"
+            />
+            {dmax ? (
+              <p className="text-[11px] text-primary">
+                Dmax utilisé pour l'évaluation : {dmax} mm — source : {dmaxManuel ? "saisie manuelle (Mode B)" : dmaxSource || "non précisée"}
+              </p>
+            ) : (
+              <p className="text-[11px] text-amber-500">
+                Aucun Dmax disponible dans le contexte de l'essai — saisie explicite requise.
+              </p>
+            )}
+            {dmaxCtx?.ambigu && (
+              <p className="text-[11px] text-amber-500">
+                Plusieurs Dmax possibles ({dmaxCtx.candidats.map((c) => `${c.valeur} mm`).join(" / ")}) — aucune valeur n'a été
+                choisie automatiquement, confirmer la valeur applicable.
+              </p>
+            )}
             <p className="text-[11px] text-muted-foreground">Contrôle du domaine : Ø carotte ≥ 3 × Dmax.</p>
           </div>
         </div>
@@ -591,7 +646,7 @@ const CarottageEvaluationNormative = () => {
       {/* Historique / traçabilité */}
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <ShieldCheck className="h-5 w-5 text-primary" /> Historique des évaluations (figées)
+          <ShieldCheck className="h-5 w-5 text-primary" /> Historique des évaluations (brouillons et évaluations figées)
         </h2>
         {!historique || historique.length === 0 ? (
           <p className="text-sm text-muted-foreground">Aucune évaluation normative enregistrée pour cette campagne.</p>
@@ -602,6 +657,13 @@ const CarottageEvaluationNormative = () => {
                 <span>
                   {format(new Date(h.created_at), "dd/MM/yyyy HH:mm", { locale: fr })} • {h.norme_code} {h.norme_version} • Objectif {h.objectif} •{" "}
                   {h.created_by_nom || "—"}
+                  {h.dmax != null && <> • Dmax {h.dmax} mm{h.dmax_source ? ` (${h.dmax_source})` : ""}</>}
+                  {h.figee ? (
+                    <> • figée le {h.validee_at ? format(new Date(h.validee_at), "dd/MM/yyyy HH:mm", { locale: fr }) : "—"}
+                      {h.validee_par_nom ? ` par ${h.validee_par_nom}` : ""}</>
+                  ) : (
+                    <> • brouillon (dernière modification {format(new Date(h.updated_at), "dd/MM/yyyy HH:mm", { locale: fr })})</>
+                  )}
                 </span>
                 <Badge variant="outline" className={VERDICT_LABELS[(h.verdict as keyof typeof VERDICT_LABELS) || "non_concluant"]?.className}>
                   {VERDICT_LABELS[(h.verdict as keyof typeof VERDICT_LABELS) || "non_concluant"]?.label}
