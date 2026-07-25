@@ -8558,6 +8558,24 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_rapport_validateur: {
+        Args: { _rapport_id: string }
+        Returns: {
+          fonction: string
+          nom: string
+          valide_at: string
+        }[]
+      }
+      get_rapport_verification: {
+        Args: { _rapport_id: string }
+        Returns: {
+          created_at: string
+          numero: string
+          qr_token: string
+          sha256: string
+          version: number
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -8591,6 +8609,10 @@ export type Database = {
         Returns: string
       }
       next_rapport_numero: { Args: never; Returns: string }
+      rapport_workflow_transition: {
+        Args: { _action: string; _commentaire?: string; _rapport_id: string }
+        Returns: Json
+      }
       restore_deleted_essai: { Args: { _deleted_id: string }; Returns: string }
       restore_essai_field: {
         Args: {
