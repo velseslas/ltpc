@@ -343,8 +343,6 @@ const CarottageEvaluationNormative = () => {
                   <th className="text-right p-2">fcore (MPa)</th>
                   <th className="text-right p-2">K</th>
                   <th className="text-right p-2">fcorr 16×32 (MPa)</th>
-                  <th className="text-left p-2">Statut</th>
-                  <th className="text-right p-2">fcorr 16×32 (MPa)</th>
                   <th className="text-center p-2">Armature</th>
                   <th className="text-left p-2">Statut</th>
                   <th className="text-left p-2">Justification</th>
