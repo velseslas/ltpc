@@ -47,7 +47,7 @@ const CarottageEvaluationNormative = () => {
   const createMutation = useCreateEvaluationNormative();
 
   const [objectif, setObjectif] = useState<ObjectifCode | "">("");
-  const [normeCode, setNormeCode] = useState<string>("EN13791");
+  const [normeCode, setNormeCode] = useState<string>("");
   const [procedureCode, setProcedureCode] = useState<string>("");
   const [classeBeton, setClasseBeton] = useState<string>("");
   const [carottes, setCarottes] = useState<CarotteEvaluee[]>([]);
