@@ -129,15 +129,16 @@ const CLASSES_BETON: Record<string, { cyl: number; cube: number }> = {
   "C50/60": { cyl: 50, cube: 60 },
 };
 
-// Seuils de verdict configurables (fraction de fck cyl)
+// Seuils INDICATIFS internes (fraction de fck cyl) — aucune valeur normative.
+// Le verdict normatif officiel est produit exclusivement par le Mode B.
 const VERDICT_THRESHOLDS = { conforme: 1.0, marginal: 0.9 };
 
 const getVerdict = (fcorr: number, fckCyl: number) => {
   if (!(fcorr > 0) || !(fckCyl > 0)) return null;
   const ratio = fcorr / fckCyl;
-  if (ratio >= VERDICT_THRESHOLDS.conforme) return { label: "Conforme", tone: "ok" as const };
-  if (ratio >= VERDICT_THRESHOLDS.marginal) return { label: "Limite", tone: "warn" as const };
-  return { label: "Non conforme", tone: "ko" as const };
+  if (ratio >= VERDICT_THRESHOLDS.conforme) return { label: "Au-dessus du seuil indicatif", tone: "ok" as const };
+  if (ratio >= VERDICT_THRESHOLDS.marginal) return { label: "À examiner", tone: "warn" as const };
+  return { label: "En dessous du seuil indicatif", tone: "ko" as const };
 };
 
 const computeCarotte = (c: CarotteResult): CarotteResult => {
@@ -332,7 +333,7 @@ const CarottageDataEntry = () => {
           k_methode_domaine: { ld_min: K_METHOD.ldMin, ld_max: K_METHOD.ldMax },
           k_methode_table: K_METHOD.table,
           nb_hors_domaine: nbHorsDomaine,
-          verdict: verdictGlobal?.label ?? null,
+          indication_interne: verdictGlobal?.label ?? null,
         } as unknown as Json,
         statut: "termine",
       });
@@ -561,20 +562,21 @@ const CarottageDataEntry = () => {
               : verdictGlobal?.tone === "ko" ? "bg-destructive/10 border-destructive/40"
               : "border-border"
             }`}>
-              <span className="text-sm text-muted-foreground">Verdict {classeBeton ? `(vs fck cyl ${fckCyl} MPa)` : ""}</span>
+              <span className="text-sm text-muted-foreground">Résultat indicatif {classeBeton ? `(vs fck cyl ${fckCyl} MPa)` : ""}</span>
               <p className={`text-2xl font-bold ${
                 verdictGlobal?.tone === "ok" ? "text-emerald-500"
                 : verdictGlobal?.tone === "warn" ? "text-amber-500"
                 : verdictGlobal?.tone === "ko" ? "text-destructive"
                 : "text-muted-foreground"
               }`}>{verdictGlobal?.label ?? "À interpréter"}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">Indication interne — ne constitue pas une évaluation normative.</p>
             </div>
           </div>
           <div className="text-xs text-muted-foreground mt-3 space-y-1">
             <p>* Section A = π·D²/4 (mm²) · Volume V = π·(D/2)²·L (m³) · Masse volumique ρ = m/V (kg/m³).</p>
             <p>* fcore = F(kN)·1000 / A(mm²) → MPa · fcorr = K(L/D) × fcore · L/D=2 ⇒ K=1 (aucune correction).</p>
             <p>* Correction L/D selon <span className="font-semibold text-foreground">{K_METHOD.code}</span> — interpolation linéaire (1.00→0.90 ; 1.25→0.96 ; 1.50→1.00 ; 1.75→1.02 ; 2.00→1.03).</p>
-            <p>* Verdict indicatif : comparaison de fcorr moyenne à fck cylindre — n'applique pas les règles statistiques d'acceptation de la norme.</p>
+            <p>* Indication interne — ne constitue pas une évaluation normative : simple comparaison de fcorr à fck cylindre, sans application des règles statistiques d'acceptation de la norme. Le verdict normatif officiel (CONFORME / NON CONFORME / NON CONCLUANT / ESTIMATION) est délivré uniquement par le Mode B — Évaluation normative.</p>
           </div>
         </div>
 
