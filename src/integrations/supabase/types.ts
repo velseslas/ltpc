@@ -5298,6 +5298,95 @@ export type Database = {
           },
         ]
       }
+      evaluations_normatives_carottage: {
+        Row: {
+          carottes: Json
+          classe_beton: string | null
+          conclusion: string | null
+          created_at: string
+          created_by: string | null
+          created_by_nom: string | null
+          criteres: Json
+          echantillon_id: string
+          fck_cube: number | null
+          fck_cyl: number | null
+          figee: boolean
+          id: string
+          norme_code: string
+          norme_date: string | null
+          norme_nom: string | null
+          norme_version: string | null
+          objectif: string
+          objectif_label: string | null
+          procedure_code: string | null
+          procedure_label: string | null
+          reference: string | null
+          statistiques: Json
+          updated_at: string
+          verdict: string | null
+        }
+        Insert: {
+          carottes?: Json
+          classe_beton?: string | null
+          conclusion?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_nom?: string | null
+          criteres?: Json
+          echantillon_id: string
+          fck_cube?: number | null
+          fck_cyl?: number | null
+          figee?: boolean
+          id?: string
+          norme_code: string
+          norme_date?: string | null
+          norme_nom?: string | null
+          norme_version?: string | null
+          objectif: string
+          objectif_label?: string | null
+          procedure_code?: string | null
+          procedure_label?: string | null
+          reference?: string | null
+          statistiques?: Json
+          updated_at?: string
+          verdict?: string | null
+        }
+        Update: {
+          carottes?: Json
+          classe_beton?: string | null
+          conclusion?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_nom?: string | null
+          criteres?: Json
+          echantillon_id?: string
+          fck_cube?: number | null
+          fck_cyl?: number | null
+          figee?: boolean
+          id?: string
+          norme_code?: string
+          norme_date?: string | null
+          norme_nom?: string | null
+          norme_version?: string | null
+          objectif?: string
+          objectif_label?: string | null
+          procedure_code?: string | null
+          procedure_label?: string | null
+          reference?: string | null
+          statistiques?: Json
+          updated_at?: string
+          verdict?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluations_normatives_carottage_echantillon_id_fkey"
+            columns: ["echantillon_id"]
+            isOneToOne: false
+            referencedRelation: "echantillons_carottage"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       factures: {
         Row: {
           chantier_id: string | null
