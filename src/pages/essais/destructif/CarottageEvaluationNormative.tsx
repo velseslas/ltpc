@@ -21,8 +21,10 @@ import {
   CLASSES_BETON_EVAL,
   MOTIFS_EXCLUSION,
   VERDICT_LABELS,
+  STATUT_LABELS,
   evaluateNormative,
   getNorme,
+  getObjectif,
   getProcedure,
   type CarotteEvaluee,
   type ObjectifCode,
@@ -50,6 +52,7 @@ const CarottageEvaluationNormative = () => {
   const [normeCode, setNormeCode] = useState<string>("");
   const [procedureCode, setProcedureCode] = useState<string>("");
   const [classeBeton, setClasseBeton] = useState<string>("");
+  const [dmax, setDmax] = useState<string>("");
   const [carottes, setCarottes] = useState<CarotteEvaluee[]>([]);
 
   // ── Récupération des résultats VALIDÉS du Mode A (aucun recalcul) ──
@@ -58,6 +61,7 @@ const CarottageEvaluationNormative = () => {
     const r = echantillon.resultats as Record<string, unknown> | null;
     if (echantillon.classe_resistance) setClasseBeton(echantillon.classe_resistance);
     if (r && typeof r.classe_beton === "string") setClasseBeton(r.classe_beton);
+    if (r && r.dmax != null) setDmax(String(r.dmax));
 
     type RawCarotte = Record<string, unknown>;
     let raw: { element: string; c: RawCarotte }[] = [];
@@ -71,21 +75,33 @@ const CarottageEvaluationNormative = () => {
 
     setCarottes(
       raw.map(({ element, c }, i) => ({
-        id: String(c.id ?? i),
+        // Priorité 7 — identifiant permanent, jamais l'index
+        id: String(c.id ?? `${echantillon.id}-${c.reference ?? i}`),
         reference: String(c.reference || `C${i + 1}`),
         emplacement: element || echantillon.localisation || "—",
         diametre: num(c.diametre_D),
         longueur: num(c.hauteur_L),
-        ld: num(c.elancement),
-        fcore: num(c.resistance),
-        k: num(c.k_ld),
-        fcorr: num(c.resistance_corrigee),
-        statut: "valide" as StatutCarotte,
+        // Priorité 8 — valeurs brutes prioritaires sur les chaînes arrondies
+        ld: num(c.ld_raw ?? c.elancement),
+        section: num(c.section_mm2_raw ?? c.section),
+        charge: num(c.charge),
+        fcore: num(c.fcore_raw ?? c.resistance),
+        k: num(c.k_raw ?? c.k_ld),
+        k_methode: (r?.k_methode as string) ?? null,
+        k_methode_version: (r?.k_methode_version as string) ?? null,
+        fcorr: num(c.fcorr_raw ?? c.resistance_corrigee),
+        masse_volumique: num(c.masse_volumique_raw ?? c.masse_volumique),
+        date_essai: echantillon.date_essai ?? null,
+        armature: false,
+        // Priorité 10 — statut initial « à examiner » : la validation est un acte explicite
+        statut: (c.hors_domaine ? "hors_domaine" : "a_examiner") as StatutCarotte,
+        motifs_domaine: c.hors_domaine && c.motif_domaine ? [String(c.motif_domaine)] : [],
       })),
     );
   }, [echantillon]);
 
   const norme = getNorme(normeCode);
+  const objectifDef = getObjectif(objectif || null);
   const proceduresDispo = useMemo(
     () => (norme && objectif ? norme.procedures.filter((p) => p.objectifs.includes(objectif)) : []),
     [norme, objectif],
@@ -99,6 +115,9 @@ const CarottageEvaluationNormative = () => {
   const setMotif = (cid: string, motif: string) =>
     setCarottes((prev) => prev.map((c) => (c.id === cid ? { ...c, motif_exclusion: motif } : c)));
 
+  const setArmature = (cid: string, armature: boolean) =>
+    setCarottes((prev) => prev.map((c) => (c.id === cid ? { ...c, armature } : c)));
+
   const resultat = useMemo(() => {
     if (!objectif || !normeCode || !procedureCode) return null;
     return evaluateNormative({
@@ -106,11 +125,13 @@ const CarottageEvaluationNormative = () => {
       normeCode,
       procedureCode,
       classeBeton: classeBeton || null,
+      dmax: num(dmax),
       carottes,
     });
-  }, [objectif, normeCode, procedureCode, classeBeton, carottes]);
+  }, [objectif, normeCode, procedureCode, classeBeton, dmax, carottes]);
 
   const exclusionsSansMotif = carottes.some((c) => c.statut === "exclue" && !c.motif_exclusion);
+
 
   const handleSave = async () => {
     if (!id || !resultat || !objectif) return;
@@ -134,13 +155,25 @@ const CarottageEvaluationNormative = () => {
         classe_beton: classeBeton || null,
         fck_cyl: resultat.fckCyl,
         fck_cube: resultat.fckCube,
-        carottes: carottes as unknown as Json,
+        // Priorité 6 — archivage intégral des données brutes de chaque carotte (statuts résolus)
+        carottes: [
+          ...resultat.carottesValides,
+          ...resultat.carottesAExaminer,
+          ...resultat.carottesHorsDomaine,
+          ...resultat.carottesExclues,
+        ] as unknown as Json,
         statistiques: {
           ...(resultat.statistiques ?? {}),
+          type_analyse: resultat.typeAnalyse,
+          estimation_seule: resultat.estimationSeule,
+          dmax: num(dmax),
           fck_is: resultat.fckIs,
           fck_is_detail: resultat.fckIsDetail,
           seuil_85: resultat.seuil85,
           seuil_85_detail: resultat.seuil85Detail,
+          avertissements: resultat.avertissements,
+          donnees_manquantes: resultat.donneesManquantes,
+          hors_domaine: resultat.carottesHorsDomaine.map((c) => ({ reference: c.reference, motifs: c.motifs_domaine })),
         } as unknown as Json,
         criteres: resultat.criteres as unknown as Json,
         verdict: resultat.verdict,
@@ -208,8 +241,16 @@ const CarottageEvaluationNormative = () => {
             ))}
           </SelectContent>
         </Select>
-        {objectif && (
-          <p className="text-sm text-muted-foreground">{OBJECTIFS.find((o) => o.code === objectif)?.description}</p>
+        {objectifDef && (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">{objectifDef.description}</p>
+            <Badge variant="outline" className={objectifDef.mode === "conformite" ? "bg-primary/10 text-primary border-primary/40" : "bg-sky-500/15 text-sky-500 border-sky-500/40"}>
+              {objectifDef.mode === "conformite" ? "Analyse de CONFORMITÉ — classe spécifiée obligatoire" : "Analyse d'ESTIMATION — conformité évaluée uniquement si une classe est renseignée"}
+            </Badge>
+            {objectifDef.classeObligatoire && !classeBeton && (
+              <p className="text-sm text-destructive">Classe de béton spécifiée requise pour cet objectif (étape 2).</p>
+            )}
+          </div>
         )}
       </div>
 
@@ -219,7 +260,7 @@ const CarottageEvaluationNormative = () => {
         <p className="text-xs text-muted-foreground">
           Le référentiel choisi est appliqué seul : aucune formule, aucun seuil ni aucune clause d'une autre version n'est utilisé dans la même évaluation.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <div className="space-y-2">
             <Label>Référentiel (norme + version) *</Label>
             <Select value={normeCode} onValueChange={(v) => { setNormeCode(v); setProcedureCode(""); }}>
@@ -245,9 +286,13 @@ const CarottageEvaluationNormative = () => {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Classe de béton spécifiée</Label>
+            <Label>
+              Classe de béton spécifiée {objectifDef?.classeObligatoire ? "*" : "(optionnelle)"}
+            </Label>
             <Select value={classeBeton} onValueChange={setClasseBeton}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <SelectTrigger className={objectifDef?.classeObligatoire && !classeBeton ? "border-destructive" : ""}>
+                <SelectValue placeholder="Sélectionner..." />
+              </SelectTrigger>
               <SelectContent>
                 {Object.entries(CLASSES_BETON_EVAL).map(([code, v]) => (
                   <SelectItem key={code} value={code}>{code} — fck cyl {v.cyl} / cube {v.cube} MPa</SelectItem>
@@ -255,12 +300,28 @@ const CarottageEvaluationNormative = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label>Dmax du granulat (mm)</Label>
+            <Input type="number" value={dmax} onChange={(e) => setDmax(e.target.value)} placeholder="ex. 20" />
+            <p className="text-[11px] text-muted-foreground">Contrôle du domaine : Ø carotte ≥ 3 × Dmax.</p>
+          </div>
         </div>
         {procedureCode && (
           <p className="text-xs text-muted-foreground flex items-start gap-2">
             <Info className="h-4 w-4 mt-0.5 shrink-0" />
-            {norme?.nom} — version {norme?.version} • Clause(s) : {getProcedure(normeCode, procedureCode)?.clause}
+            {norme?.nom} — version {norme?.version} • Clause(s) : {getProcedure(normeCode, procedureCode)?.clause} • Entrée attendue : {norme?.entreeAttendue}
           </p>
+        )}
+        {normeCode === "EN13791-2019" && (
+          <div className="rounded-lg border border-sky-500/40 bg-sky-500/10 p-3 text-xs">
+            <p className="font-semibold text-sky-500">A-2 — Chaîne de calcul 2019</p>
+            <p>
+              L'EN 13791:2019 considère la carotte in situ (1,0 ≤ L/D ≤ 2,0) comme directement représentative :
+              la correction d'élancement NF P18-418 appliquée en Mode A est une pratique nationale, surnuméraire
+              au sens de la version 2019. Les valeurs consommées ici restent celles validées en Mode A (fcorr 16×32),
+              cette hypothèse est tracée dans le rapport.
+            </p>
+          </div>
         )}
       </div>
 
@@ -282,12 +343,22 @@ const CarottageEvaluationNormative = () => {
                   <th className="text-right p-2">fcore (MPa)</th>
                   <th className="text-right p-2">K</th>
                   <th className="text-right p-2">fcorr 16×32 (MPa)</th>
+                  <th className="text-center p-2">Armature</th>
                   <th className="text-left p-2">Statut</th>
                   <th className="text-left p-2">Justification</th>
                 </tr>
               </thead>
               <tbody>
-                {carottes.map((c) => (
+                {carottes.map((c) => {
+                  const evaluee =
+                    resultat?.carottesValides.find((x) => x.id === c.id) ??
+                    resultat?.carottesAExaminer.find((x) => x.id === c.id) ??
+                    resultat?.carottesHorsDomaine.find((x) => x.id === c.id) ??
+                    resultat?.carottesExclues.find((x) => x.id === c.id) ??
+                    null;
+                  const statutEffectif = (evaluee?.statut ?? c.statut) as StatutCarotte;
+                  const motifsDomaine = evaluee?.motifs_domaine ?? c.motifs_domaine ?? [];
+                  return (
                   <tr key={c.id} className="border-b border-border/50">
                     <td className="p-2 font-medium">{c.reference}</td>
                     <td className="p-2">{c.emplacement}</td>
@@ -297,15 +368,29 @@ const CarottageEvaluationNormative = () => {
                     <td className="p-2 text-right">{fmt(c.fcore)}</td>
                     <td className="p-2 text-right">{fmt(c.k, 3)}</td>
                     <td className="p-2 text-right font-semibold">{fmt(c.fcorr)}</td>
+                    <td className="p-2 text-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-[hsl(var(--primary))]"
+                        checked={!!c.armature}
+                        onChange={(e) => setArmature(c.id, e.target.checked)}
+                        aria-label={`Présence d'armature dans ${c.reference}`}
+                      />
+                    </td>
                     <td className="p-2">
-                      <Select value={c.statut} onValueChange={(v) => setStatut(c.id, v as StatutCarotte)}>
-                        <SelectTrigger className="h-8 w-[130px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="valide">Valide</SelectItem>
-                          <SelectItem value="a_examiner">À examiner</SelectItem>
-                          <SelectItem value="exclue">Exclue</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex flex-col gap-1">
+                        <Select value={c.statut} onValueChange={(v) => setStatut(c.id, v as StatutCarotte)}>
+                          <SelectTrigger className="h-8 w-[140px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="valide">Valide</SelectItem>
+                            <SelectItem value="a_examiner">À examiner</SelectItem>
+                            <SelectItem value="exclue">Exclue</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Badge variant="outline" className={`w-fit text-[10px] ${STATUT_LABELS[statutEffectif].className}`}>
+                          {STATUT_LABELS[statutEffectif].emoji} {STATUT_LABELS[statutEffectif].label}
+                        </Badge>
+                      </div>
                     </td>
                     <td className="p-2">
                       {c.statut === "exclue" ? (
@@ -323,21 +408,28 @@ const CarottageEvaluationNormative = () => {
                             <Input className="h-8 w-[190px]" placeholder="Préciser..." onChange={(e) => setMotif(c.id, e.target.value)} />
                           )}
                         </div>
+                      ) : motifsDomaine.length ? (
+                        <span className="text-xs text-amber-500">{motifsDomaine.join(" ; ")}</span>
                       ) : (
                         <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
+        <p className="text-xs text-muted-foreground">
+          Les carottes sont initialisées au statut « à examiner » : leur intégration au calcul normatif nécessite une validation explicite.
+        </p>
       </div>
 
       {/* RÉSULTATS */}
       {resultat && (
         <div className="rounded-xl border border-border bg-card p-6 space-y-6" data-ref="report">
+
           <div className="text-center">
             <h2 className="text-lg font-bold uppercase">Évaluation normative de la résistance du béton</h2>
             <p className="text-sm text-muted-foreground">
@@ -359,8 +451,25 @@ const CarottageEvaluationNormative = () => {
               <p><span className="text-muted-foreground">Norme : </span>{resultat.norme?.code} — version {resultat.norme?.version}</p>
               <p><span className="text-muted-foreground">Méthode : </span>{resultat.procedure?.label}</p>
               <p><span className="text-muted-foreground">Clause(s) : </span>{resultat.procedure?.clause}</p>
+              <p>
+                <span className="text-muted-foreground">Nature de l'analyse : </span>
+                {resultat.typeAnalyse === "conformite" ? "Conformité à une classe spécifiée" : "Estimation de la résistance in situ"}
+                {resultat.estimationSeule && " (aucun verdict de conformité)"}
+              </p>
+              <p><span className="text-muted-foreground">Dmax granulat : </span>{dmax ? `${dmax} mm` : "non renseigné"}</p>
             </div>
           </div>
+
+          {/* Avertissements non bloquants */}
+          {resultat.avertissements.length > 0 && (
+            <div className="rounded-lg border border-sky-500/40 bg-sky-500/10 p-4 text-sm">
+              <p className="font-semibold text-sky-500">Avertissements et réserves</p>
+              <ul className="list-disc pl-5 mt-1">
+                {resultat.avertissements.map((a, i) => <li key={i}>{a}</li>)}
+              </ul>
+            </div>
+          )}
+
 
           {/* Niveau 1 */}
           <div>

@@ -11,8 +11,12 @@
  * § 8.1 (conformité à une classe) :
  *     fm(n),is     ≥ 0,85 × (fck + M)   avec M = 4 (Approche 1) ou M = k (Approche 2)
  *     fis,lowest   ≥ 0,85 × (fck − 4)
+ *
+ * SÉPARATION ESTIMATION / CONFORMITÉ (A-1) :
+ *   § 7.3 produit TOUJOURS une estimation de fck,is.
+ *   § 8.1 n'est appliqué que si une classe spécifiée (fck) existe.
  */
-import { buildNiveau1 } from "./shared";
+import { avertissementPetitEchantillon, buildNiveau1, prepareCampagne, resolveAnalyse } from "./shared";
 import {
   CLASSES_BETON_EVAL,
   computeStatistiques,
@@ -33,6 +37,8 @@ export const NORME_2007: NormeNormative = {
   nom: "EN 13791:2007 — Évaluation de la résistance à la compression sur site des structures et éléments préfabriqués en béton",
   version: VERSION,
   date: "2007",
+  entreeAttendue:
+    "Résistance de carotte ramenée à la géométrie de référence (cylindre 16×32, L/D = 2) — la correction d'élancement amont (NF P18-418) est requise.",
   procedures: [
     {
       code: "EN13791-2007-A",
@@ -92,9 +98,11 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
   const fckCyl = cls?.cyl ?? null;
   const fckCube = cls?.cube ?? null;
 
-  const carottesValides = input.carottes.filter((c) => c.statut === "valide");
-  const carottesExclues = input.carottes.filter((c) => c.statut === "exclue");
-  const carottesAExaminer = input.carottes.filter((c) => c.statut === "a_examiner");
+  const campagne = prepareCampagne(input);
+  const { valides: carottesValides, exclues: carottesExclues, aExaminer: carottesAExaminer, horsDomaine: carottesHorsDomaine } = campagne;
+  const avertissements = [...campagne.avertissements];
+
+  const { mode, classeObligatoire, evaluerConformite, estimationSeule } = resolveAnalyse(input.objectif, fckCyl);
 
   const valeurs = carottesValides.map((c) => c.fcorr ?? NaN).filter((v) => isFinite(v) && v > 0);
   const statistiques = computeStatistiques(valeurs);
@@ -102,7 +110,9 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
   const donneesManquantes: string[] = [];
   if (!procedure) donneesManquantes.push("Procédure normative non sélectionnée");
   if (!statistiques) donneesManquantes.push("Aucune carotte valide avec une résistance corrigée fcorr 16×32");
-  if (fckCyl === null) donneesManquantes.push("Classe de béton spécifiée (fck cylindre) non renseignée");
+  if (classeObligatoire && fckCyl === null) {
+    donneesManquantes.push("Classe de béton spécifiée (fck cylindre) obligatoire pour l'objectif de conformité sélectionné");
+  }
   if (procedure && statistiques && statistiques.n < procedure.nMin) {
     donneesManquantes.push(
       `Nombre de résultats insuffisant : ${statistiques.n} carotte(s) valide(s) pour un minimum de ${procedure.nMin} exigé par ${NORME_LABEL}:${VERSION} ${procedure.clause}`,
@@ -111,6 +121,16 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
   if (procedure?.nMax && statistiques && statistiques.n > procedure.nMax) {
     donneesManquantes.push(
       `Nombre de résultats (${statistiques.n}) supérieur au domaine d'application de la procédure (max ${procedure.nMax}) — utiliser l'Approche 1`,
+    );
+  }
+
+  if (statistiques) {
+    const petit = avertissementPetitEchantillon(statistiques.n);
+    if (petit) avertissements.push(petit);
+  }
+  if (estimationSeule) {
+    avertissements.push(
+      "Aucune classe de béton spécifiée : analyse limitée à l'ESTIMATION de la résistance caractéristique in situ (§ 7.3). Les critères de conformité § 8.1 ne sont pas applicables.",
     );
   }
 
@@ -127,10 +147,11 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
     }
   }
 
-  // ── Estimation fck,is (§ 7.3) ──
+  // ── ESTIMATION — fck,is (§ 7.3) : indépendante de toute classe spécifiée ──
   let fckIs: number | null = null;
   let fckIsDetail: string | null = null;
-  if (procedure && statistiques && donneesManquantes.length === 0) {
+  const bloquantEstimation = donneesManquantes.filter((d) => !d.startsWith("Classe de béton spécifiée"));
+  if (procedure && statistiques && bloquantEstimation.length === 0) {
     if (procedure.code === "EN13791-2007-A") {
       const s = Math.max(statistiques.ecartType, 2);
       const a = statistiques.moyenne - 1.48 * s;
@@ -150,10 +171,10 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
     }
   }
 
-  // ── Seuils § 8.1 (2007) ──
-  const applique85 = !!procedure?.critere85 && fckCyl !== null;
+  // ── CONFORMITÉ — seuils § 8.1 (2007), uniquement si fck disponible ──
+  const applique85 = !!procedure?.critere85 && evaluerConformite && fckCyl !== null;
   const seuilMoyenne = applique85 && margeM !== null ? 0.85 * (fckCyl + margeM) : null;
-  const seuilLowest = applique85 ? 0.85 * (fckCyl - 4) : null;
+  const seuilLowest = applique85 && fckCyl !== null ? 0.85 * (fckCyl - 4) : null;
   const seuil85Detail =
     seuilMoyenne !== null
       ? `0,85 × (fck + M) = 0,85 × (${fckCyl} + ${margeM}) = ${seuilMoyenne.toFixed(2)} MPa — ${margeMDetail}`
@@ -227,20 +248,63 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
     );
   }
 
-  const niveau1 = buildNiveau1(input.carottes);
+  const niveau1 = buildNiveau1(campagne.carottes);
 
   let verdict: VerdictNormatif;
   let conclusion: string;
   const evaluables = criteres.filter((c) => c.resultat !== "na");
   const echecs = evaluables.filter((c) => c.resultat === "ko");
 
-  if (donneesManquantes.length > 0 || seuilMoyenne === null || seuilLowest === null) {
+  const base = {
+    norme: NORME_2007,
+    procedure,
+    typeAnalyse: mode,
+    estimationSeule,
+    fckCyl,
+    fckCube,
+    carottesValides,
+    carottesExclues,
+    carottesAExaminer,
+    carottesHorsDomaine,
+    statistiques,
+    fckIs,
+    fckIsDetail,
+    seuil85: seuilMoyenne,
+    seuil85Detail,
+    criteres,
+    niveau1,
+    donneesManquantes,
+    avertissements,
+  };
+
+  // ── CAS 1 — Données insuffisantes ──
+  if (donneesManquantes.length > 0) {
     verdict = "non_concluant";
     conclusion =
-      "Évaluation impossible / données insuffisantes selon EN 13791:2007. Les critères de la procédure sélectionnée ne peuvent pas être appliqués : " +
-      (donneesManquantes.length ? donneesManquantes.join(" ; ") : "seuils de conformité § 8.1 non calculables") +
-      ".";
-  } else if (echecs.length === 0) {
+      "Évaluation impossible / données insuffisantes selon EN 13791:2007 : " + donneesManquantes.join(" ; ") + ".";
+    return { ...base, verdict, conclusion };
+  }
+
+  // ── CAS 2 — ESTIMATION SEULE (pas de valeur de référence applicable) ──
+  if (estimationSeule) {
+    verdict = "estimation";
+    conclusion =
+      `Résistance caractéristique in situ estimée : ${fckIs?.toFixed(2)} MPa (EN 13791:2007 ${procedure?.code === "EN13791-2007-A" ? "§ 7.3.2" : "§ 7.3.3"}), ` +
+      `à partir de ${statistiques?.n} carotte(s) retenue(s) — fm(n),is = ${statistiques?.moyenne.toFixed(2)} MPa, fis,lowest = ${statistiques?.min.toFixed(2)} MPa, ` +
+      `s = ${statistiques?.ecartType.toFixed(2)} MPa (CV = ${statistiques?.coefVariation.toFixed(1)} %). ` +
+      "Aucune classe de béton spécifiée n'ayant été fournie, AUCUNE évaluation de conformité n'est prononcée : ce résultat est une ESTIMATION de résistance et non un verdict de conformité." +
+      (carottesAExaminer.length ? ` ${carottesAExaminer.length} carotte(s) restent au statut « à examiner ».` : "");
+    return { ...base, verdict, conclusion };
+  }
+
+  // ── CAS 3 — ÉVALUATION DE CONFORMITÉ ──
+  if (seuilMoyenne === null || seuilLowest === null) {
+    verdict = "non_concluant";
+    conclusion = "Seuils de conformité § 8.1 non calculables — évaluation de conformité impossible.";
+    return { ...base, verdict, conclusion };
+  }
+
+  if (echecs.length === 0) {
     if (carottesAExaminer.length > 0) {
       verdict = "a_approfondir";
       conclusion = `Tous les critères applicables d'EN 13791:2007 (${procedure?.clause}) sont satisfaits sur les ${statistiques?.n} carottes retenues, mais ${carottesAExaminer.length} carotte(s) restent au statut « à examiner ». Une investigation complémentaire est recommandée avant conclusion définitive.`;
@@ -255,25 +319,7 @@ function evaluate(input: EvaluationInput): EvaluationResultat {
       .join(" ; ")}. Le béton en place ne satisfait pas la classe spécifiée ${input.classeBeton ?? ""}.`;
   }
 
-  return {
-    norme: NORME_2007,
-    procedure,
-    fckCyl,
-    fckCube,
-    carottesValides,
-    carottesExclues,
-    carottesAExaminer,
-    statistiques,
-    fckIs,
-    fckIsDetail,
-    seuil85: seuilMoyenne,
-    seuil85Detail,
-    criteres,
-    niveau1,
-    verdict,
-    conclusion,
-    donneesManquantes,
-  };
+  return { ...base, verdict, conclusion };
 }
 
 export const EN13791_2007_Evaluator: NormativeEvaluator = { norme: NORME_2007, evaluate };

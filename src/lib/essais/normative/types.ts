@@ -13,13 +13,61 @@
 
 export type ObjectifCode = "A" | "B" | "C" | "D" | "E";
 
-export const OBJECTIFS: { code: ObjectifCode; label: string; description: string }[] = [
-  { code: "A", label: "Vérification de conformité d'un béton neuf / ouvrage en construction", description: "Le béton est récent et la classe spécifiée est connue." },
-  { code: "B", label: "Évaluation de la résistance du béton en place", description: "Estimation de la résistance caractéristique in situ." },
-  { code: "C", label: "Évaluation d'un ouvrage existant", description: "Ouvrage ancien, classe spécifiée parfois inconnue." },
-  { code: "D", label: "Investigation suite à un doute sur la résistance", description: "Doute sur la conformité d'une zone identifiée." },
-  { code: "E", label: "Diagnostic / expertise", description: "Contexte d'expertise, conclusions à argumenter." },
+/**
+ * Deux natures d'analyse strictement distinctes (A-1) :
+ *  - "conformite" : comparaison à une classe spécifiée → verdict CONFORME / NON CONFORME
+ *  - "estimation" : estimation de la résistance caractéristique in situ → verdict ESTIMATION
+ * Le verdict de conformité n'est jamais produit sans valeur de référence applicable.
+ */
+export type ModeAnalyse = "conformite" | "estimation";
+
+export const OBJECTIFS: {
+  code: ObjectifCode;
+  label: string;
+  description: string;
+  mode: ModeAnalyse;
+  /** La classe de béton spécifiée est-elle une donnée obligatoire ? */
+  classeObligatoire: boolean;
+}[] = [
+  {
+    code: "A",
+    label: "Vérification de conformité d'un béton neuf / ouvrage en construction",
+    description: "Le béton est récent et la classe spécifiée est connue. Analyse de CONFORMITÉ — la classe spécifiée est obligatoire.",
+    mode: "conformite",
+    classeObligatoire: true,
+  },
+  {
+    code: "B",
+    label: "Évaluation de la résistance du béton en place",
+    description: "Analyse d'ESTIMATION de la résistance caractéristique in situ. La conformité n'est évaluée que si une classe spécifiée est renseignée.",
+    mode: "estimation",
+    classeObligatoire: false,
+  },
+  {
+    code: "C",
+    label: "Évaluation d'un ouvrage existant",
+    description: "Ouvrage ancien, classe spécifiée souvent inconnue. Analyse d'ESTIMATION — un fck,is exploitable est produit même sans classe.",
+    mode: "estimation",
+    classeObligatoire: false,
+  },
+  {
+    code: "D",
+    label: "Investigation suite à un doute sur la résistance",
+    description: "Doute sur la conformité d'une zone identifiée. Analyse de CONFORMITÉ — la classe spécifiée est obligatoire.",
+    mode: "conformite",
+    classeObligatoire: true,
+  },
+  {
+    code: "E",
+    label: "Diagnostic / expertise",
+    description: "Contexte d'expertise. Analyse d'ESTIMATION — conclusions argumentées, verdict de conformité uniquement si une classe est renseignée.",
+    mode: "estimation",
+    classeObligatoire: false,
+  },
 ];
+
+export const getObjectif = (code: ObjectifCode | "" | null | undefined) =>
+  OBJECTIFS.find((o) => o.code === code) ?? null;
 
 export interface ProcedureNormative {
   code: string;
@@ -36,6 +84,8 @@ export interface NormeNormative {
   nom: string;
   version: string;
   date: string;
+  /** Résistance attendue en entrée par le référentiel (traçabilité A-2) */
+  entreeAttendue: string;
   procedures: ProcedureNormative[];
 }
 
@@ -51,7 +101,14 @@ export const CLASSES_BETON_EVAL: Record<string, { cyl: number; cube: number }> =
   "C50/60": { cyl: 50, cube: 60 },
 };
 
-export type StatutCarotte = "valide" | "a_examiner" | "exclue";
+export type StatutCarotte = "valide" | "a_examiner" | "exclue" | "hors_domaine";
+
+export const STATUT_LABELS: Record<StatutCarotte, { label: string; emoji: string; className: string }> = {
+  valide: { label: "Valide", emoji: "🟢", className: "bg-emerald-500/15 text-emerald-500 border-emerald-500/40" },
+  a_examiner: { label: "À examiner", emoji: "🟠", className: "bg-amber-500/15 text-amber-500 border-amber-500/40" },
+  hors_domaine: { label: "Hors domaine", emoji: "🔴", className: "bg-destructive/15 text-destructive border-destructive/40" },
+  exclue: { label: "Exclue", emoji: "⚪", className: "bg-muted text-muted-foreground border-border" },
+};
 
 export const MOTIFS_EXCLUSION = [
   "Carotte endommagée",
@@ -60,22 +117,44 @@ export const MOTIFS_EXCLUSION = [
   "Rupture anormale",
   "Problème de préparation",
   "Résultat non représentatif",
+  "Diamètre insuffisant",
+  "Dmax incompatible",
+  "L/D hors domaine",
+  "Données manquantes",
   "Autre",
 ];
 
+/** Traçabilité complète d'une carotte (priorité 6). */
 export interface CarotteEvaluee {
+  /** Identifiant permanent issu du Mode A (jamais un index de tableau) */
   id: string;
   reference: string;
   emplacement: string;
   diametre: number | null;
   longueur: number | null;
   ld: number | null;
+  /** Section mm² */
+  section: number | null;
+  /** Charge de rupture kN */
+  charge: number | null;
   fcore: number | null;
   k: number | null;
+  /** Méthode de correction d'élancement appliquée par le Mode A */
+  k_methode?: string | null;
+  k_methode_version?: string | null;
   fcorr: number | null;
+  masse_volumique: number | null;
+  date_essai?: string | null;
+  /** Dmax du granulat (mm) — saisi au niveau de la campagne */
+  dmax?: number | null;
+  /** Présence d'armature détectée dans la carotte */
+  armature?: boolean;
   statut: StatutCarotte;
   motif_exclusion?: string;
+  /** Motifs issus du contrôle automatique du domaine d'application */
+  motifs_domaine?: string[];
 }
+
 
 export interface StatistiquesCampagne {
   n: number;
@@ -127,7 +206,7 @@ export interface CritereNormatif {
   commentaire?: string;
 }
 
-export type VerdictNormatif = "conforme" | "non_conforme" | "non_concluant" | "a_approfondir";
+export type VerdictNormatif = "conforme" | "non_conforme" | "non_concluant" | "a_approfondir" | "estimation";
 
 export interface EvaluationInput {
   objectif: ObjectifCode;
@@ -136,16 +215,23 @@ export interface EvaluationInput {
   procedureCode: string;
   classeBeton: string | null;
   carottes: CarotteEvaluee[];
+  /** Dmax du granulat (mm) — contrôle du domaine d'application */
+  dmax?: number | null;
 }
 
 export interface EvaluationResultat {
   norme: NormeNormative | null;
   procedure: ProcedureNormative | null;
+  /** Nature réelle de l'analyse conduite */
+  typeAnalyse: ModeAnalyse;
+  /** true → aucune conformité évaluée (pas de valeur de référence applicable) */
+  estimationSeule: boolean;
   fckCyl: number | null;
   fckCube: number | null;
   carottesValides: CarotteEvaluee[];
   carottesExclues: CarotteEvaluee[];
   carottesAExaminer: CarotteEvaluee[];
+  carottesHorsDomaine: CarotteEvaluee[];
   statistiques: StatistiquesCampagne | null;
   fckIs: number | null;
   fckIsDetail: string | null;
@@ -157,6 +243,8 @@ export interface EvaluationResultat {
   verdict: VerdictNormatif;
   conclusion: string;
   donneesManquantes: string[];
+  /** Avertissements non bloquants (petit échantillon, hors domaine, hypothèses) */
+  avertissements: string[];
 }
 
 /** Contrat que chaque évaluateur de version doit respecter. */
@@ -170,4 +258,6 @@ export const VERDICT_LABELS: Record<VerdictNormatif, { label: string; emoji: str
   non_concluant: { label: "NON CONCLUANT / DONNÉES INSUFFISANTES", emoji: "🟠", className: "bg-amber-500/15 text-amber-500 border-amber-500/40" },
   non_conforme: { label: "NON CONFORME", emoji: "🔴", className: "bg-destructive/15 text-destructive border-destructive/40" },
   a_approfondir: { label: "ÉVALUATION À APPROFONDIR", emoji: "🔵", className: "bg-sky-500/15 text-sky-500 border-sky-500/40" },
+  estimation: { label: "ESTIMATION DE RÉSISTANCE (sans évaluation de conformité)", emoji: "🔵", className: "bg-sky-500/15 text-sky-500 border-sky-500/40" },
 };
+
