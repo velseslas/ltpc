@@ -260,7 +260,7 @@ const CarottageEvaluationNormative = () => {
         <p className="text-xs text-muted-foreground">
           Le référentiel choisi est appliqué seul : aucune formule, aucun seuil ni aucune clause d'une autre version n'est utilisé dans la même évaluation.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <div className="space-y-2">
             <Label>Référentiel (norme + version) *</Label>
             <Select value={normeCode} onValueChange={(v) => { setNormeCode(v); setProcedureCode(""); }}>
