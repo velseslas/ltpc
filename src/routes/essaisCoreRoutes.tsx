@@ -5,6 +5,7 @@ const Essais = lazy(() => import("@/pages/Essais"));
 const RedactionRapportTechnique = lazy(() => import("@/pages/essais/RedactionRapportTechnique"));
 const NouveauRapportTechnique = lazy(() => import("@/pages/essais/rapports-techniques/NouveauRapportTechnique"));
 const RapportTechniqueDetail = lazy(() => import("@/pages/essais/rapports-techniques/RapportTechniqueDetail"));
+const HistoriqueRapportsTechniques = lazy(() => import("@/pages/essais/rapports-techniques/HistoriqueRapportsTechniques"));
 const EssaisAudit = lazy(() => import("@/pages/essais/EssaisAudit"));
 
 /** Routes racines du module Essais (dashboard, rapports techniques, audit). */
