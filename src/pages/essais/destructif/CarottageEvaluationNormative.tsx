@@ -344,11 +344,23 @@ const CarottageEvaluationNormative = () => {
                   <th className="text-right p-2">K</th>
                   <th className="text-right p-2">fcorr 16×32 (MPa)</th>
                   <th className="text-left p-2">Statut</th>
+                  <th className="text-right p-2">fcorr 16×32 (MPa)</th>
+                  <th className="text-center p-2">Armature</th>
+                  <th className="text-left p-2">Statut</th>
                   <th className="text-left p-2">Justification</th>
                 </tr>
               </thead>
               <tbody>
-                {carottes.map((c) => (
+                {carottes.map((c) => {
+                  const evaluee =
+                    resultat?.carottesValides.find((x) => x.id === c.id) ??
+                    resultat?.carottesAExaminer.find((x) => x.id === c.id) ??
+                    resultat?.carottesHorsDomaine.find((x) => x.id === c.id) ??
+                    resultat?.carottesExclues.find((x) => x.id === c.id) ??
+                    null;
+                  const statutEffectif = (evaluee?.statut ?? c.statut) as StatutCarotte;
+                  const motifsDomaine = evaluee?.motifs_domaine ?? c.motifs_domaine ?? [];
+                  return (
                   <tr key={c.id} className="border-b border-border/50">
                     <td className="p-2 font-medium">{c.reference}</td>
                     <td className="p-2">{c.emplacement}</td>
@@ -358,15 +370,29 @@ const CarottageEvaluationNormative = () => {
                     <td className="p-2 text-right">{fmt(c.fcore)}</td>
                     <td className="p-2 text-right">{fmt(c.k, 3)}</td>
                     <td className="p-2 text-right font-semibold">{fmt(c.fcorr)}</td>
+                    <td className="p-2 text-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-[hsl(var(--primary))]"
+                        checked={!!c.armature}
+                        onChange={(e) => setArmature(c.id, e.target.checked)}
+                        aria-label={`Présence d'armature dans ${c.reference}`}
+                      />
+                    </td>
                     <td className="p-2">
-                      <Select value={c.statut} onValueChange={(v) => setStatut(c.id, v as StatutCarotte)}>
-                        <SelectTrigger className="h-8 w-[130px]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="valide">Valide</SelectItem>
-                          <SelectItem value="a_examiner">À examiner</SelectItem>
-                          <SelectItem value="exclue">Exclue</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex flex-col gap-1">
+                        <Select value={c.statut} onValueChange={(v) => setStatut(c.id, v as StatutCarotte)}>
+                          <SelectTrigger className="h-8 w-[140px]"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="valide">Valide</SelectItem>
+                            <SelectItem value="a_examiner">À examiner</SelectItem>
+                            <SelectItem value="exclue">Exclue</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Badge variant="outline" className={`w-fit text-[10px] ${STATUT_LABELS[statutEffectif].className}`}>
+                          {STATUT_LABELS[statutEffectif].emoji} {STATUT_LABELS[statutEffectif].label}
+                        </Badge>
+                      </div>
                     </td>
                     <td className="p-2">
                       {c.statut === "exclue" ? (
@@ -384,21 +410,28 @@ const CarottageEvaluationNormative = () => {
                             <Input className="h-8 w-[190px]" placeholder="Préciser..." onChange={(e) => setMotif(c.id, e.target.value)} />
                           )}
                         </div>
+                      ) : motifsDomaine.length ? (
+                        <span className="text-xs text-amber-500">{motifsDomaine.join(" ; ")}</span>
                       ) : (
                         <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
+        <p className="text-xs text-muted-foreground">
+          Les carottes sont initialisées au statut « à examiner » : leur intégration au calcul normatif nécessite une validation explicite.
+        </p>
       </div>
 
       {/* RÉSULTATS */}
       {resultat && (
         <div className="rounded-xl border border-border bg-card p-6 space-y-6" data-ref="report">
+
           <div className="text-center">
             <h2 className="text-lg font-bold uppercase">Évaluation normative de la résistance du béton</h2>
             <p className="text-sm text-muted-foreground">
