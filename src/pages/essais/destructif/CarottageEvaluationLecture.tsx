@@ -144,10 +144,12 @@ const CarottageEvaluationLecture = () => {
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between print:hidden">
         <div className="flex items-start gap-3 sm:gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}/evaluation-normative`)}
+          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)}
+            title="Retour au détail du carottage"
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
+
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-display font-bold text-foreground">
               Évaluation normative — <span className="text-primary">Lecture seule</span>
@@ -169,8 +171,11 @@ const CarottageEvaluationLecture = () => {
 
       <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm print:hidden flex items-center gap-2">
         <Lock className="h-4 w-4 text-amber-500 shrink-0" />
-        Cette évaluation est figée et présentée en lecture seule. Les valeurs affichées sont les données archivées au moment de sa validation — aucun recalcul n'est effectué.
+        {evaluation.figee
+          ? "Cette évaluation est figée et présentée en lecture seule. Les valeurs affichées sont les données archivées au moment de sa validation — aucun recalcul n'est effectué."
+          : "Ce brouillon d'évaluation est présenté en lecture seule. Les valeurs affichées sont les données archivées lors du dernier enregistrement — aucun recalcul n'est effectué."}
       </div>
+
 
       <div
         className="rounded-xl border border-border bg-card p-6 space-y-6 print:rounded-none print:border-0 print:bg-white print:text-black print:p-0"
