@@ -139,19 +139,72 @@ export function useRapportsTechniques(filters: RapportListFilters = {}) {
   });
 }
 
+/**
+ * Détail d'un rapport.
+ * P2/16 — les jointures client / chantier / catégorie sont explicites :
+ * la vue imprimable et le document officiel en dépendent (auparavant `select("*")`
+ * ⇒ Client / Chantier / Catégorie toujours vides à l'impression).
+ */
 export function useRapportTechnique(id: string) {
   return useQuery({
     queryKey: ["rapports_techniques", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rapports_techniques")
-        .select("*")
+        .select("*, rapport_categories(nom, slug), clients(nom), chantiers(nom), rapport_modeles_bibliotheque(titre)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data as RapportTechnique | null;
+      return data as unknown as RapportDetail | null;
     },
     enabled: !!id,
+  });
+}
+
+export type RapportDetail = RapportListItem & {
+  rapport_modeles_bibliotheque?: { titre: string } | null;
+};
+
+/** Validateur réel du rapport (renvoyé uniquement pour un rapport validé/archivé). */
+export interface RapportValidateur {
+  nom: string | null;
+  fonction: string | null;
+  valide_at: string | null;
+}
+
+export function useRapportValidateur(rapportId?: string | null, statut?: RapportStatut) {
+  const official = statut === "valide" || statut === "archive";
+  return useQuery({
+    queryKey: ["rapport_validateur", rapportId],
+    enabled: !!rapportId && official,
+    queryFn: async (): Promise<RapportValidateur | null> => {
+      const { data, error } = await supabase.rpc("get_rapport_validateur", { _rapport_id: rapportId! });
+      if (error) throw error;
+      const row = (Array.isArray(data) ? data[0] : data) as RapportValidateur | undefined;
+      return row ?? null;
+    },
+  });
+}
+
+/** Jeton de vérification de l'archive officielle réellement enregistrée (QR). */
+export interface RapportVerification {
+  qr_token: string;
+  version: number;
+  numero: string | null;
+  sha256: string;
+  created_at: string;
+}
+
+export function useRapportVerification(rapportId?: string | null) {
+  return useQuery({
+    queryKey: ["rapport_verification", rapportId],
+    enabled: !!rapportId,
+    queryFn: async (): Promise<RapportVerification | null> => {
+      const { data, error } = await supabase.rpc("get_rapport_verification", { _rapport_id: rapportId! });
+      if (error) throw error;
+      const row = (Array.isArray(data) ? data[0] : data) as RapportVerification | undefined;
+      return row ?? null;
+    },
   });
 }
 
