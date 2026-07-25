@@ -79,6 +79,23 @@ export function useEvaluationsNormatives(echantillonId: string) {
   });
 }
 
+/** Lecture d'une évaluation unique (relecture d'une évaluation figée — données archivées). */
+export function useEvaluationNormative(evaluationId: string) {
+  return useQuery({
+    queryKey: ["evaluation-normative-carottage", evaluationId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("evaluations_normatives_carottage")
+        .select("*")
+        .eq("id", evaluationId)
+        .maybeSingle();
+      if (error) throw error;
+      return (data ?? null) as unknown as EvaluationNormativeRow | null;
+    },
+    enabled: !!evaluationId,
+  });
+}
+
 /** Création — brouillon par défaut (figee = false) ou évaluation validée. */
 export function useCreateEvaluationNormative() {
   const queryClient = useQueryClient();
