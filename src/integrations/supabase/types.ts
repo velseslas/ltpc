@@ -7654,6 +7654,7 @@ export type Database = {
           prompt_system: string | null
           prompt_user: string | null
           provider: string
+          rag_sources: Json
           rapport_id: string | null
           raw_response: string | null
           status: string
@@ -7674,6 +7675,7 @@ export type Database = {
           prompt_system?: string | null
           prompt_user?: string | null
           provider?: string
+          rag_sources?: Json
           rapport_id?: string | null
           raw_response?: string | null
           status?: string
@@ -7694,6 +7696,7 @@ export type Database = {
           prompt_system?: string | null
           prompt_user?: string | null
           provider?: string
+          rag_sources?: Json
           rapport_id?: string | null
           raw_response?: string | null
           status?: string
