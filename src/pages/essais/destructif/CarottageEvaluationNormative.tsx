@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, Save, ShieldCheck, Info, Printer } from "lucide-react";
+import { ArrowLeft, Loader2, Save, ShieldCheck, Info, Printer, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -695,9 +695,14 @@ const CarottageEvaluationNormative = () => {
                     <> • brouillon (dernière modification {format(new Date(h.updated_at), "dd/MM/yyyy HH:mm", { locale: fr })})</>
                   )}
                 </span>
-                <Badge variant="outline" className={VERDICT_LABELS[(h.verdict as keyof typeof VERDICT_LABELS) || "non_concluant"]?.className}>
-                  {VERDICT_LABELS[(h.verdict as keyof typeof VERDICT_LABELS) || "non_concluant"]?.label}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={VERDICT_LABELS[(h.verdict as keyof typeof VERDICT_LABELS) || "non_concluant"]?.className}>
+                    {VERDICT_LABELS[(h.verdict as keyof typeof VERDICT_LABELS) || "non_concluant"]?.label}
+                  </Badge>
+                  <Button variant="outline" size="sm" onClick={() => navigate(`${basePath}/${id}/evaluation-normative/${h.id}`)}>
+                    <Eye className="h-4 w-4 mr-1" /> Ouvrir en lecture seule
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
