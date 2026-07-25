@@ -466,7 +466,7 @@ const CarottageDataEntry = () => {
                     <th className="p-2 text-center font-semibold">Section (mm²)</th>
                     <th className="p-2 text-center font-semibold">fcore Rc (MPa)</th>
                     <th className="p-2 text-center font-semibold">fcorr 16×32 (MPa)</th>
-                    <th className="p-2 text-center font-semibold">Verdict</th>
+                    <th className="p-2 text-center font-semibold">Indication</th>
                     <th className="p-2"></th>
                   </tr>
                 </thead>
