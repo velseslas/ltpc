@@ -155,8 +155,13 @@ const CarottageEvaluationNormative = () => {
         classe_beton: classeBeton || null,
         fck_cyl: resultat.fckCyl,
         fck_cube: resultat.fckCube,
-        // Priorité 6 — archivage intégral des données brutes de chaque carotte
-        carottes: resultat.carottes ? (resultat.carottes as unknown as Json) : (carottes as unknown as Json),
+        // Priorité 6 — archivage intégral des données brutes de chaque carotte (statuts résolus)
+        carottes: [
+          ...resultat.carottesValides,
+          ...resultat.carottesAExaminer,
+          ...resultat.carottesHorsDomaine,
+          ...resultat.carottesExclues,
+        ] as unknown as Json,
         statistiques: {
           ...(resultat.statistiques ?? {}),
           type_analyse: resultat.typeAnalyse,
