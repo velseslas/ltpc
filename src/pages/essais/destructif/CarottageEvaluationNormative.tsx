@@ -140,6 +140,7 @@ const CarottageEvaluationNormative = () => {
           fck_is: resultat.fckIs,
           fck_is_detail: resultat.fckIsDetail,
           seuil_85: resultat.seuil85,
+          seuil_85_detail: resultat.seuil85Detail,
         } as unknown as Json,
         criteres: resultat.criteres as unknown as Json,
         verdict: resultat.verdict,
