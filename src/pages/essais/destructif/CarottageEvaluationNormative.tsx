@@ -518,7 +518,19 @@ const CarottageEvaluationNormative = () => {
 
       {/* RÉSULTATS */}
       {resultat && (
-        <div className="rounded-xl border border-border bg-card p-6 space-y-6" data-ref="report">
+        <div
+          className="rounded-xl border border-border bg-card p-6 space-y-6 print:rounded-none print:border-0 print:bg-white print:text-black print:p-0"
+          data-ref="report"
+          data-print-root
+          data-print-template="carottage-evaluation-normative"
+        >
+          <div className="hidden print:block">
+            <EntrepriseHeader
+              title="Évaluation normative de la résistance du béton"
+              subtitle={`Carottage ${ref} — ${resultat.norme?.code ?? ""} version ${resultat.norme?.version ?? ""}`}
+            />
+          </div>
+
 
           <div className="text-center">
             <h2 className="text-lg font-bold uppercase">Évaluation normative de la résistance du béton</h2>
