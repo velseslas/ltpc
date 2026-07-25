@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Pencil, ClipboardEdit, FileBarChart, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, ClipboardEdit, FileBarChart, Loader2, ShieldCheck } from "lucide-react";
 import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -56,9 +56,13 @@ const CarottageDetail = () => {
           <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/saisie`)}>
             <ClipboardEdit className="h-4 w-4 mr-2" /> Saisie
           </Button>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/evaluation-normative`)}>
+            <ShieldCheck className="h-4 w-4 mr-2" /> Évaluation normative
+          </Button>
           <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/rapport`)}>
             <FileBarChart className="h-4 w-4 mr-2" /> Rapport
           </Button>
+
           <Button variant="outline" size="sm" className="w-full sm:w-auto col-span-2 sm:col-auto" onClick={() => navigate(`/essais/beton/destructif/carottage/${id}/modifier`)}>
             <Pencil className="h-4 w-4 mr-2" /> Modifier
           </Button>
