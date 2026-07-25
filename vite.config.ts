@@ -134,23 +134,20 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
+        // ⚠️ Ne PAS séparer react/react-dom des libs qui en dépendent :
+        // le découpage manuel créait un cycle d'initialisation entre chunks
+        // (React undefined → "Cannot read properties of undefined (reading
+        // 'createContext')" en production). On isole uniquement des libs
+        // lourdes et sans dépendance croisée avec l'écosystème React.
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
-          if (id.includes("react-dom") || id.includes("scheduler") || /node_modules\/react\//.test(id)) return "vendor-react";
-          if (id.includes("react-router")) return "vendor-router";
-          if (id.includes("@tanstack/react-query")) return "vendor-query";
-          if (id.includes("@supabase")) return "vendor-supabase";
-          if (id.includes("@radix-ui")) return "vendor-radix";
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "vendor-tiptap";
           if (id.includes("jspdf") || id.includes("html2canvas")) return "vendor-pdf";
-          if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
-          if (id.includes("framer-motion")) return "vendor-motion";
           if (id.includes("date-fns")) return "vendor-date";
-          if (id.includes("lucide-react")) return "vendor-icons";
-          if (id.includes("zod") || id.includes("react-hook-form") || id.includes("@hookform")) return "vendor-forms";
-          return "vendor";
+          return undefined;
         },
       },
     },
+
   },
 }));
