@@ -21,8 +21,10 @@ import {
   CLASSES_BETON_EVAL,
   MOTIFS_EXCLUSION,
   VERDICT_LABELS,
+  STATUT_LABELS,
   evaluateNormative,
   getNorme,
+  getObjectif,
   getProcedure,
   type CarotteEvaluee,
   type ObjectifCode,
@@ -50,6 +52,7 @@ const CarottageEvaluationNormative = () => {
   const [normeCode, setNormeCode] = useState<string>("");
   const [procedureCode, setProcedureCode] = useState<string>("");
   const [classeBeton, setClasseBeton] = useState<string>("");
+  const [dmax, setDmax] = useState<string>("");
   const [carottes, setCarottes] = useState<CarotteEvaluee[]>([]);
 
   // ── Récupération des résultats VALIDÉS du Mode A (aucun recalcul) ──
@@ -58,6 +61,7 @@ const CarottageEvaluationNormative = () => {
     const r = echantillon.resultats as Record<string, unknown> | null;
     if (echantillon.classe_resistance) setClasseBeton(echantillon.classe_resistance);
     if (r && typeof r.classe_beton === "string") setClasseBeton(r.classe_beton);
+    if (r && r.dmax != null) setDmax(String(r.dmax));
 
     type RawCarotte = Record<string, unknown>;
     let raw: { element: string; c: RawCarotte }[] = [];
@@ -71,21 +75,33 @@ const CarottageEvaluationNormative = () => {
 
     setCarottes(
       raw.map(({ element, c }, i) => ({
-        id: String(c.id ?? i),
+        // Priorité 7 — identifiant permanent, jamais l'index
+        id: String(c.id ?? `${echantillon.id}-${c.reference ?? i}`),
         reference: String(c.reference || `C${i + 1}`),
         emplacement: element || echantillon.localisation || "—",
         diametre: num(c.diametre_D),
         longueur: num(c.hauteur_L),
-        ld: num(c.elancement),
-        fcore: num(c.resistance),
-        k: num(c.k_ld),
-        fcorr: num(c.resistance_corrigee),
-        statut: "valide" as StatutCarotte,
+        // Priorité 8 — valeurs brutes prioritaires sur les chaînes arrondies
+        ld: num(c.ld_raw ?? c.elancement),
+        section: num(c.section_mm2_raw ?? c.section),
+        charge: num(c.charge),
+        fcore: num(c.fcore_raw ?? c.resistance),
+        k: num(c.k_raw ?? c.k_ld),
+        k_methode: (r?.k_methode as string) ?? null,
+        k_methode_version: (r?.k_methode_version as string) ?? null,
+        fcorr: num(c.fcorr_raw ?? c.resistance_corrigee),
+        masse_volumique: num(c.masse_volumique_raw ?? c.masse_volumique),
+        date_essai: echantillon.date_essai ?? null,
+        armature: false,
+        // Priorité 10 — statut initial « à examiner » : la validation est un acte explicite
+        statut: (c.hors_domaine ? "hors_domaine" : "a_examiner") as StatutCarotte,
+        motifs_domaine: c.hors_domaine && c.motif_domaine ? [String(c.motif_domaine)] : [],
       })),
     );
   }, [echantillon]);
 
   const norme = getNorme(normeCode);
+  const objectifDef = getObjectif(objectif || null);
   const proceduresDispo = useMemo(
     () => (norme && objectif ? norme.procedures.filter((p) => p.objectifs.includes(objectif)) : []),
     [norme, objectif],
@@ -99,6 +115,9 @@ const CarottageEvaluationNormative = () => {
   const setMotif = (cid: string, motif: string) =>
     setCarottes((prev) => prev.map((c) => (c.id === cid ? { ...c, motif_exclusion: motif } : c)));
 
+  const setArmature = (cid: string, armature: boolean) =>
+    setCarottes((prev) => prev.map((c) => (c.id === cid ? { ...c, armature } : c)));
+
   const resultat = useMemo(() => {
     if (!objectif || !normeCode || !procedureCode) return null;
     return evaluateNormative({
@@ -106,11 +125,13 @@ const CarottageEvaluationNormative = () => {
       normeCode,
       procedureCode,
       classeBeton: classeBeton || null,
+      dmax: num(dmax),
       carottes,
     });
-  }, [objectif, normeCode, procedureCode, classeBeton, carottes]);
+  }, [objectif, normeCode, procedureCode, classeBeton, dmax, carottes]);
 
   const exclusionsSansMotif = carottes.some((c) => c.statut === "exclue" && !c.motif_exclusion);
+
 
   const handleSave = async () => {
     if (!id || !resultat || !objectif) return;
