@@ -21,11 +21,22 @@ interface CarotteResult {
   k_ld: string;            // K(L/D)
   poids: string;           // kg
   volume: string;          // m³
-  masse_volumique: string; // t/m³
+  masse_volumique: string; // kg/m³
   charge: string;          // kN
   section: string;         // mm²
   resistance: string;      // MPa
   resistance_corrigee: string; // MPa avec K
+  // ── Valeurs numériques BRUTES (priorité 8) : aucune troncature ──
+  ld_raw?: number | null;
+  k_raw?: number | null;
+  section_mm2_raw?: number | null;
+  volume_m3_raw?: number | null;
+  masse_volumique_raw?: number | null;
+  fcore_raw?: number | null;
+  fcorr_raw?: number | null;
+  // ── Domaine d'application (priorités 4 & 5) ──
+  hors_domaine?: boolean;
+  motif_domaine?: string | null;
 }
 
 interface ElementTest {
@@ -47,18 +58,37 @@ const emptyCarotte = (): CarotteResult => ({
   section: "",
   resistance: "",
   resistance_corrigee: "",
+  ld_raw: null,
+  k_raw: null,
+  section_mm2_raw: null,
+  volume_m3_raw: null,
+  masse_volumique_raw: null,
+  fcore_raw: null,
+  fcorr_raw: null,
+  hors_domaine: false,
+  motif_domaine: null,
 });
 
 // ─────────────────────────────────────────────────────────────
 // Référentiel normatif du coefficient d'élancement K(L/D)
 // Méthode active : NF P18-418 (interpolation linéaire autorisée)
-// Table configurable — architecture permettant de changer la
-// norme sans modifier la logique de calcul principale.
+//
+// A-4 — CONTINUITÉ : la table est appliquée telle quelle sur tout
+// son domaine, y compris en L/D = 2,00 (K = 1,03). Aucun cas
+// particulier « K = 1 si L/D = 2 » n'est appliqué : il créait une
+// rupture artificielle de 3 % entre L/D = 1,999 et L/D = 2,000.
+//
+// A-5 — DOMAINE : la table ne couvre que 1,00 ≤ L/D ≤ 2,00.
+// Hors de ce domaine, AUCUNE valeur n'est extrapolée ni « clampée » :
+// la carotte est déclarée HORS DOMAINE et aucune fcorr n'est produite.
 // ─────────────────────────────────────────────────────────────
 const K_METHOD = {
   code: "NF P18-418",
-  label: "NF P18-418 — Correction d'élancement L/D vers cylindre 16×32 (L/D=2)",
+  version: "1989",
+  label: "NF P18-418 — Correction d'élancement L/D vers cylindre 16×32",
   allowInterpolation: true,
+  ldMin: 1.0,
+  ldMax: 2.0,
   table: [
     { ld: 1.0, k: 0.90 },
     { ld: 1.25, k: 0.96 },
@@ -68,8 +98,11 @@ const K_METHOD = {
   ],
 };
 
-const computeK = (ld: number): number => {
+/** Retourne K(L/D) ou null si L/D est hors du domaine de la méthode. */
+const computeK = (ld: number): number | null => {
   const t = K_METHOD.table;
+  if (!isFinite(ld)) return null;
+  if (ld < K_METHOD.ldMin - 1e-9 || ld > K_METHOD.ldMax + 1e-9) return null;
   if (ld <= t[0].ld) return t[0].k;
   if (ld >= t[t.length - 1].ld) return t[t.length - 1].k;
   for (let i = 0; i < t.length - 1; i++) {
@@ -80,7 +113,7 @@ const computeK = (ld: number): number => {
       return a.k + r * (b.k - a.k);
     }
   }
-  return 1.0;
+  return null;
 };
 
 // Classes béton EN 206 — fck cylindre et fck cube (MPa)
@@ -114,17 +147,31 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
   const P = parseFloat(u.poids);
   const F = parseFloat(u.charge);
 
+  u.hors_domaine = false;
+  u.motif_domaine = null;
+
   // Rapport d'élancement L/D
   let ld = NaN;
+  let k: number | null = null;
   if (!isNaN(L) && !isNaN(D) && D > 0) {
     ld = L / D;
     u.elancement = ld.toFixed(3);
-    // Cas L/D = 2 → k = 1 (référence 16×32, aucune correction)
-    const k = Math.abs(ld - 2) < 1e-6 ? 1 : computeK(ld);
-    u.k_ld = k.toFixed(3);
+    u.ld_raw = ld;
+    k = computeK(ld);
+    if (k === null) {
+      u.k_ld = "";
+      u.k_raw = null;
+      u.hors_domaine = true;
+      u.motif_domaine = `L/D = ${ld.toFixed(3)} hors du domaine de ${K_METHOD.code} (${K_METHOD.ldMin.toFixed(2)} – ${K_METHOD.ldMax.toFixed(2)})`;
+    } else {
+      u.k_ld = k.toFixed(3);
+      u.k_raw = k;
+    }
   } else {
     u.elancement = "";
     u.k_ld = "";
+    u.ld_raw = null;
+    u.k_raw = null;
   }
 
   // Section (mm²) et volume (m³)
@@ -133,30 +180,49 @@ const computeCarotte = (c: CarotteResult): CarotteResult => {
   if (!isNaN(D) && D > 0) {
     section_mm2 = (Math.PI * D * D) / 4;
     u.section = section_mm2.toFixed(2);
+    u.section_mm2_raw = section_mm2;
     if (!isNaN(L) && L > 0) {
       volume_m3 = (Math.PI * (D / 2) ** 2 * L) / 1e9; // mm³ → m³
       u.volume = volume_m3.toExponential(3);
+      u.volume_m3_raw = volume_m3;
     }
+  } else {
+    u.section_mm2_raw = null;
+    u.volume_m3_raw = null;
   }
 
   // Masse volumique (kg/m³) — indépendante de la résistance
   if (!isNaN(P) && !isNaN(volume_m3) && volume_m3 > 0) {
-    u.masse_volumique = Math.round(P / volume_m3).toString();
+    const rho = P / volume_m3;
+    u.masse_volumique = Math.round(rho).toString();
+    u.masse_volumique_raw = rho;
+  } else {
+    u.masse_volumique_raw = null;
   }
 
   // Résistance brute : fcore = F(N) / A(mm²) = F(kN)·1000 / A → MPa
   if (!isNaN(F) && !isNaN(section_mm2) && section_mm2 > 0) {
     const rc = (F * 1000) / section_mm2;
     u.resistance = rc.toFixed(2);
-    const k = parseFloat(u.k_ld);
-    if (!isNaN(k) && k > 0) {
-      // Résistance corrigée (référence 16×32) : fcorr = k(L/D) × fcore
-      u.resistance_corrigee = (k * rc).toFixed(2);
+    u.fcore_raw = rc;
+    if (k !== null && k > 0) {
+      // Résistance corrigée (référence 16×32) : fcorr = K(L/D) × fcore
+      const fcorr = k * rc;
+      u.resistance_corrigee = fcorr.toFixed(2);
+      u.fcorr_raw = fcorr;
+    } else {
+      // Hors domaine : aucune résistance corrigée n'est produite (A-5)
+      u.resistance_corrigee = "";
+      u.fcorr_raw = null;
     }
+  } else {
+    u.fcore_raw = null;
+    u.fcorr_raw = null;
   }
 
   return u;
 };
+
 
 
 const CarottageDataEntry = () => {
