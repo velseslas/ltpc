@@ -107,6 +107,23 @@ const CarottageEvaluationNormative = () => {
     [norme, objectif],
   );
 
+  // ── Dmax : source de vérité = formulation béton du chantier / client ──
+  const { data: dmaxCtx } = useDmaxContexte(echantillon?.client_id, echantillon?.chantier_id);
+  useEffect(() => {
+    if (dmaxManuel || dmax) return;
+    if (dmaxCtx?.valeur != null) {
+      setDmax(String(dmaxCtx.valeur));
+      setDmaxSource(dmaxCtx.source);
+    }
+  }, [dmaxCtx, dmax, dmaxManuel]);
+
+  // Une procédure devenue non applicable après changement d'objectif est réinitialisée
+  useEffect(() => {
+    if (procedureCode && !proceduresDispo.some((p) => p.code === procedureCode)) setProcedureCode("");
+  }, [proceduresDispo, procedureCode]);
+
+
+
   const setStatut = (cid: string, statut: StatutCarotte) =>
     setCarottes((prev) =>
       prev.map((c) => (c.id === cid ? { ...c, statut, motif_exclusion: statut === "exclue" ? c.motif_exclusion : undefined } : c)),
