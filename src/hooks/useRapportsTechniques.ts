@@ -350,23 +350,42 @@ function detectType(file: File): PieceJointeType {
   return "autre";
 }
 
+// P2/14 — contrôle d'upload : types autorisés + taille maximale.
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+const ALLOWED_EXT = ["pdf", "png", "jpg", "jpeg", "webp", "gif", "doc", "docx", "xls", "xlsx", "csv", "txt"];
+
+/** URL signée courte durée générée à la demande (aucune URL longue durée n'est persistée). */
+export async function getPieceJointeUrl(piece: Pick<PieceJointe, "storage_path" | "url">, ttlSec = 900): Promise<string | null> {
+  if (piece.storage_path) {
+    try { return await DocumentRepository.signedRapportUrl(piece.storage_path, ttlSec); }
+    catch { return null; }
+  }
+  return piece.url ?? null; // compatibilité avec les pièces jointes historiques
+}
+
 export function useUploadPieceJointe() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ rapportId, file }: { rapportId: string; file: File }) => {
+      const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+      if (!ALLOWED_EXT.includes(ext)) {
+        throw new Error(`Type de fichier non autorisé (.${ext}). Formats acceptés : ${ALLOWED_EXT.join(", ")}.`);
+      }
+      if (file.size > MAX_UPLOAD_BYTES) {
+        throw new Error(`Fichier trop volumineux (${Math.round(file.size / 1024 / 1024)} Mo). Maximum 20 Mo.`);
+      }
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData?.user?.id ?? null;
       const type = detectType(file);
-      const ext = file.name.split(".").pop() ?? "bin";
       const path = `${rapportId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       await DocumentRepository.uploadRapportPiece(path, file, { upsert: false, contentType: file.type || undefined });
-      const signedUrl = await DocumentRepository.signedRapportUrl(path, 60 * 60 * 24 * 7);
       const payload = {
         rapport_id: rapportId,
         type,
         nom: file.name,
         storage_path: path,
-        url: signedUrl,
+        // P2/14 : aucune URL signée longue durée persistée en base.
+        url: null,
         uploaded_by: uid,
         meta: { size: file.size, mime: file.type },
       } as never;
