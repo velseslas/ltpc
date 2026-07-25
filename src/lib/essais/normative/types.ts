@@ -206,7 +206,7 @@ export interface CritereNormatif {
   commentaire?: string;
 }
 
-export type VerdictNormatif = "conforme" | "non_conforme" | "non_concluant" | "a_approfondir";
+export type VerdictNormatif = "conforme" | "non_conforme" | "non_concluant" | "a_approfondir" | "estimation";
 
 export interface EvaluationInput {
   objectif: ObjectifCode;
@@ -215,16 +215,23 @@ export interface EvaluationInput {
   procedureCode: string;
   classeBeton: string | null;
   carottes: CarotteEvaluee[];
+  /** Dmax du granulat (mm) — contrôle du domaine d'application */
+  dmax?: number | null;
 }
 
 export interface EvaluationResultat {
   norme: NormeNormative | null;
   procedure: ProcedureNormative | null;
+  /** Nature réelle de l'analyse conduite */
+  typeAnalyse: ModeAnalyse;
+  /** true → aucune conformité évaluée (pas de valeur de référence applicable) */
+  estimationSeule: boolean;
   fckCyl: number | null;
   fckCube: number | null;
   carottesValides: CarotteEvaluee[];
   carottesExclues: CarotteEvaluee[];
   carottesAExaminer: CarotteEvaluee[];
+  carottesHorsDomaine: CarotteEvaluee[];
   statistiques: StatistiquesCampagne | null;
   fckIs: number | null;
   fckIsDetail: string | null;
@@ -236,6 +243,8 @@ export interface EvaluationResultat {
   verdict: VerdictNormatif;
   conclusion: string;
   donneesManquantes: string[];
+  /** Avertissements non bloquants (petit échantillon, hors domaine, hypothèses) */
+  avertissements: string[];
 }
 
 /** Contrat que chaque évaluateur de version doit respecter. */
@@ -249,4 +258,6 @@ export const VERDICT_LABELS: Record<VerdictNormatif, { label: string; emoji: str
   non_concluant: { label: "NON CONCLUANT / DONNÉES INSUFFISANTES", emoji: "🟠", className: "bg-amber-500/15 text-amber-500 border-amber-500/40" },
   non_conforme: { label: "NON CONFORME", emoji: "🔴", className: "bg-destructive/15 text-destructive border-destructive/40" },
   a_approfondir: { label: "ÉVALUATION À APPROFONDIR", emoji: "🔵", className: "bg-sky-500/15 text-sky-500 border-sky-500/40" },
+  estimation: { label: "ESTIMATION DE RÉSISTANCE (sans évaluation de conformité)", emoji: "🔵", className: "bg-sky-500/15 text-sky-500 border-sky-500/40" },
 };
+
