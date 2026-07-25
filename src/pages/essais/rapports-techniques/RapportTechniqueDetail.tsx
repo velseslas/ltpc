@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { BackButton } from "@/components/ui/back-button";
@@ -16,10 +16,12 @@ import {
 } from "lucide-react";
 import {
   useRapportTechnique,
+  useRapportValidateur,
   STATUT_LABELS,
   STATUT_COLORS,
   type RapportStatut,
 } from "@/hooks/useRapportsTechniques";
+import { useRapportAutosave, autosaveLabel, readLocalDraft, clearLocalDraft } from "@/hooks/useRapportAutosave";
 import {
   useAnalyzeRapport, useGenerateAIQuestions, useGenerateDraftReport,
   useAIQuestions, useAnswerAIQuestion,
@@ -79,12 +81,37 @@ export default function RapportTechniqueDetail() {
   const [saveComment, setSaveComment] = useState("");
   const [saveOpen, setSaveOpen] = useState(false);
 
+  const initRef = useRef<string | null>(null);
   useEffect(() => {
     if (!r) return;
-    if (r.editor_html) setHtml(r.editor_html);
-    else if (contenu) setHtml(contenuToHtml(contenu));
+    const serverHtml = r.editor_html ?? (contenu ? contenuToHtml(contenu) : "");
+    // Première initialisation : restaure un brouillon local plus récent (crash / hors ligne).
+    if (initRef.current !== r.id) {
+      initRef.current = r.id;
+      const draft = readLocalDraft(r.id);
+      const serverAt = r.last_autosave_at ?? r.updated_at ?? r.created_at ?? null;
+      const isOfficial = r.statut === "valide" || r.statut === "archive";
+      if (!isOfficial && draft && draft.html !== serverHtml && (!serverAt || new Date(draft.at) > new Date(serverAt))) {
+        setHtml(draft.html);
+        toast({
+          title: "Brouillon local restauré",
+          description: `Modifications non enregistrées du ${new Date(draft.at).toLocaleString("fr-FR")} récupérées.`,
+        });
+        return;
+      }
+      if (draft) clearLocalDraft(r.id);
+    }
+    setHtml(serverHtml);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [r?.id, r?.editor_html]);
+
+  // P2/15 — Autosave (jamais sur un rapport officiel).
+  const autosave = useRapportAutosave({
+    rapportId: id,
+    html,
+    enabled: !!r && r.statut !== "valide" && r.statut !== "archive",
+    baseline: r?.editor_html ?? "",
+  });
 
   const handleAnalyze = async () => {
     try { await analyzeM.mutateAsync(id); toast({ title: "Analyse terminée" }); }
@@ -168,7 +195,15 @@ export default function RapportTechniqueDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <CardTitle>Rédaction du rapport</CardTitle>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    {!isValide && (
+                      <span
+                        className={`text-xs ${autosave.state === "error" ? "text-destructive" : autosave.state === "offline" ? "text-amber-600" : "text-muted-foreground"}`}
+                        aria-live="polite"
+                      >
+                        {autosaveLabel(autosave.state, autosave.lastSavedAt)}
+                      </span>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => setSaveOpen(true)} disabled={isValide}>
                       <Save className="h-4 w-4 mr-1" /> Enregistrer version
                     </Button>
@@ -437,6 +472,8 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
   const { data: entreprise } = useEntreprise();
   const { data: archives = [] } = useDocumentArchives("rapport_technique", rapport.id);
   const { data: reviews = [] } = useAIReviews(rapport.id);
+  // P0/3 — le signataire est le validateur réel du rapport, jamais le représentant de l'entreprise.
+  const { data: validateur } = useRapportValidateur(rapport.id, rapport.statut);
   const reviewM = useReviewRapport();
   const genM = useGenerateOfficialDocument();
   const lastReview = reviews[0] ?? null;
@@ -475,17 +512,18 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
           entreprise: rapport.entreprise ?? null,
           projet: rapport.projet ?? null,
           laboratoire: entreprise?.nom ?? "Laboratoire",
+          statut_officiel: STATUT_LABELS[rapport.statut],
         },
         body_html: previewHtml || html,
         signature: {
-          ingenieur_nom: (entreprise as { representant?: string | null } | null)?.representant ?? null,
-          ingenieur_fonction: "Ingénieur validateur",
+          ingenieur_nom: validateur?.nom ?? null,
+          ingenieur_fonction: validateur?.fonction ?? "Ingénieur validateur",
           cachet_url: (entreprise as { cachet_url?: string | null } | null)?.cachet_url ?? null,
-          date_validation: rapport.valide_at ?? new Date().toISOString(),
+          date_validation: validateur?.valide_at ?? rapport.valide_at ?? null,
         },
         qr_verification_base_url: `${window.location.origin}/verification`,
       });
-      toast({ title: "PDF officiel généré", description: `Version ${res.version} archivée` });
+      toast({ title: "Document officiel généré", description: `Version ${res.version} archivée (HTML natif imprimable)` });
       if (res.public_url) window.open(res.public_url, "_blank");
     } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
   };
@@ -542,23 +580,29 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" /> Génération du PDF officiel
+            <FileText className="h-4 w-4 text-primary" /> Génération du document officiel
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Génère un document PDF officiel avec en-tête, pied de page, pagination, QR code de vérification, signature et cachet.
-            Chaque génération crée une nouvelle version archivée immuable avec empreinte SHA-256.
+            Génère un document officiel <strong>HTML/CSS natif</strong> (aucune image, aucune capture : texte et tableaux
+            restent sélectionnables), mis en page A4 et exportable en PDF via l'impression du navigateur.
+            En-tête, pied de page, QR code vectoriel de vérification, signature du validateur réel et cachet inclus.
+            Chaque génération crée une version archivée immuable avec empreinte SHA-256.
           </p>
           {!canGenerate && (
             <div className="flex items-center gap-2 text-amber-700 text-sm"><AlertTriangle className="h-4 w-4" /> Le rapport doit être validé avant génération officielle.</div>
           )}
+          {canGenerate && !validateur?.nom && (
+            <div className="flex items-center gap-2 text-amber-700 text-sm"><AlertTriangle className="h-4 w-4" /> Validateur non identifié — le bloc signature restera vide.</div>
+          )}
           <Button onClick={runGenerate} disabled={!canGenerate || genM.isPending}>
             {genM.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-            Générer PDF officiel
+            Générer le document officiel
           </Button>
         </CardContent>
       </Card>
+
 
       <Card>
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><Archive className="h-4 w-4" /> Archives ({archives.length})</CardTitle></CardHeader>

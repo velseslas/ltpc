@@ -53,25 +53,67 @@ async function embedBatch(apiKey: string, texts: string[]): Promise<number[][]> 
 
 type Row = { id: string; text: string; metadata: Record<string, unknown> };
 
+/** Texte brut à partir d'un HTML d'éditeur (le RAG n'indexe jamais de balises). */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Sections textuelles d'un contenu_rapport (JSONB structuré par l'IA). */
+function contenuRapportToText(v: unknown): string {
+  if (!v || typeof v !== "object") return "";
+  const c = v as { titre?: string; sections?: Record<string, unknown>; faits?: string[]; hypotheses?: string[]; recommandations_synthese?: string[] };
+  const out: string[] = [];
+  if (c.titre) out.push(String(c.titre));
+  if (c.sections && typeof c.sections === "object") {
+    for (const [k, val] of Object.entries(c.sections)) {
+      if (typeof val === "string" && val.trim()) out.push(`${k}: ${val}`);
+    }
+  }
+  for (const list of [c.faits, c.hypotheses, c.recommandations_synthese]) {
+    if (Array.isArray(list)) out.push(...list.filter((x) => typeof x === "string"));
+  }
+  return out.join("\n");
+}
+
 function buildText(sourceType: string, row: Record<string, unknown>): Row {
   const g = (k: string) => (row[k] == null ? "" : String(row[k]));
   const meta: Record<string, unknown> = { id: row.id };
   let text = "";
   if (sourceType === "rapport_technique") {
+    // Colonnes réelles : contexte_auto (jsonb), contenu_rapport (jsonb), editor_html.
     meta.numero = row.numero; meta.titre = row.titre; meta.statut = row.statut;
-    text = [g("numero"), g("titre"), g("entreprise"), g("projet"), g("description_probleme"), g("contexte"), g("contenu_html")].join("\n");
+    meta.label = row.numero ?? row.titre ?? null;
+    const contexte = row.contexte_auto ? JSON.stringify(row.contexte_auto) : "";
+    text = [
+      g("numero"), g("titre"), g("materiau"), g("gravite"),
+      g("entreprise"), g("projet"), g("description_probleme"),
+      contexte,
+      contenuRapportToText(row.contenu_rapport),
+      htmlToText(g("editor_html")),
+    ].filter(Boolean).join("\n");
   } else if (sourceType === "formulation") {
     meta.nom = row.nom;
+    meta.label = row.nom ?? null;
     text = `Formulation ${g("nom")} — R28j ${g("resistance_28j")} MPa, classe ${g("classe_exposition")}, slump ${g("slump_souhaite")}. Ciment ${g("ciment_quantite")} kg, eau ${g("eau_quantite")} kg, ratio G/S ${g("ratio_gs")}.`;
   } else if (sourceType === "essai_compression") {
     meta.numero = row.numero; meta.ouvrage = row.ouvrage;
+    meta.label = row.numero ? `Essai ${row.numero}` : null;
     text = `Essai compression ${g("numero")} — ouvrage ${g("ouvrage")}, classe ${g("classe_resistance")}, coulage ${g("date_coulage")}. Résultats : ${JSON.stringify(row.resultats ?? {})}`;
   }
   return { id: String(row.id), text, metadata: meta };
 }
 
 const TABLE_FOR: Record<string, { table: string; cols: string }> = {
-  rapport_technique: { table: "rapports_techniques", cols: "id, numero, titre, statut, entreprise, projet, description_probleme, contexte, contenu_html" },
+  rapport_technique: { table: "rapports_techniques", cols: "id, numero, titre, statut, materiau, gravite, entreprise, projet, description_probleme, contexte_auto, contenu_rapport, editor_html" },
   formulation: { table: "formulations", cols: "id, nom, resistance_28j, classe_exposition, slump_souhaite, ciment_quantite, eau_quantite, ratio_gs" },
   essai_compression: { table: "echantillons_compression", cols: "id, numero, ouvrage, classe_resistance, date_coulage, resultats" },
 };

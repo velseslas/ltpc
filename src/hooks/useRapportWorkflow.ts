@@ -131,37 +131,40 @@ export function useWorkflowEvents(rapportId?: string | null) {
   });
 }
 
-const ACTION_TO_STATUT: Record<WorkflowAction, string> = {
-  soumettre: "en_attente_validation",
-  approuver: "valide",
-  refuser: "refuse",
-  demander_correction: "a_completer",
-  publier: "archive", // publie_at renseigné + archive
-  archiver: "archive",
-};
-
+/**
+ * Transitions autorisées (contrôlées côté serveur par la fonction
+ * `rapport_workflow_transition`, SECURITY DEFINER) :
+ *
+ *   brouillon / en_cours / a_completer / refuse --soumettre--> en_attente_validation
+ *   en_attente_validation --approuver--> valide          (validateur ≠ rédacteur)
+ *   en_attente_validation --demander_correction--> a_completer
+ *   en_attente_validation --refuser--> refuse            (motif obligatoire)
+ *   valide --publier--> archive                          (publie_at renseigné)
+ *   valide / refuse --archiver--> archive
+ *
+ * Rôles : seuls super_admin / admin / manager / ingenieur peuvent approuver,
+ * refuser, demander une correction, publier ou archiver. Le rédacteur peut
+ * uniquement soumettre. Aucun contournement possible par écriture directe :
+ * la policy `rap_update` et le trigger `trg_guard_rapport_statut` interdisent
+ * toute écriture sur un rapport validé/archivé et toute transition hors RPC.
+ */
 export function useWorkflowTransition() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { rapportId: string; ancienStatut: string; action: WorkflowAction; commentaire?: string }) => {
-      const { data: u } = await supabase.auth.getUser();
-      const uid = u?.user?.id ?? null;
-      const nouveau = ACTION_TO_STATUT[input.action];
-      const updates: Record<string, unknown> = { statut: nouveau };
-      if (input.action === "approuver") { updates.valide_at = new Date().toISOString(); updates.ingenieur_id = uid; }
-      if (input.action === "refuser") { updates.refuse_at = new Date().toISOString(); updates.motif_refus = input.commentaire ?? null; }
-      if (input.action === "soumettre") { updates.soumis_at = new Date().toISOString(); }
-      if (input.action === "publier") { updates.publie_at = new Date().toISOString(); }
-      await supabase.from("rapports_techniques").update(updates as never).eq("id", input.rapportId);
-      await supabase.from("rapport_workflow_events").insert({
-        rapport_id: input.rapportId, ancien_statut: input.ancienStatut, nouveau_statut: nouveau,
-        action: input.action, commentaire: input.commentaire ?? null, created_by: uid,
-      } as never);
-      return { nouveau };
+      const { data, error } = await supabase.rpc("rapport_workflow_transition", {
+        _rapport_id: input.rapportId,
+        _action: input.action,
+        _commentaire: input.commentaire ?? null,
+      });
+      if (error) throw new Error(error.message);
+      const res = (data ?? {}) as { statut?: string; validateur?: string | null };
+      return { nouveau: res.statut ?? "", validateur: res.validateur ?? null };
     },
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["rapports_techniques", v.rapportId] });
       qc.invalidateQueries({ queryKey: ["rapport_workflow_events", v.rapportId] });
+      qc.invalidateQueries({ queryKey: ["rapport_validateur", v.rapportId] });
       qc.invalidateQueries({ queryKey: ["rapports_techniques"] });
     },
   });

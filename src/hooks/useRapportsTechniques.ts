@@ -139,19 +139,72 @@ export function useRapportsTechniques(filters: RapportListFilters = {}) {
   });
 }
 
+/**
+ * Détail d'un rapport.
+ * P2/16 — les jointures client / chantier / catégorie sont explicites :
+ * la vue imprimable et le document officiel en dépendent (auparavant `select("*")`
+ * ⇒ Client / Chantier / Catégorie toujours vides à l'impression).
+ */
 export function useRapportTechnique(id: string) {
   return useQuery({
     queryKey: ["rapports_techniques", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rapports_techniques")
-        .select("*")
+        .select("*, rapport_categories(nom, slug), clients(nom), chantiers(nom), rapport_modeles_bibliotheque(titre)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data as RapportTechnique | null;
+      return data as unknown as RapportDetail | null;
     },
     enabled: !!id,
+  });
+}
+
+export type RapportDetail = RapportListItem & {
+  rapport_modeles_bibliotheque?: { titre: string } | null;
+};
+
+/** Validateur réel du rapport (renvoyé uniquement pour un rapport validé/archivé). */
+export interface RapportValidateur {
+  nom: string | null;
+  fonction: string | null;
+  valide_at: string | null;
+}
+
+export function useRapportValidateur(rapportId?: string | null, statut?: RapportStatut) {
+  const official = statut === "valide" || statut === "archive";
+  return useQuery({
+    queryKey: ["rapport_validateur", rapportId],
+    enabled: !!rapportId && official,
+    queryFn: async (): Promise<RapportValidateur | null> => {
+      const { data, error } = await supabase.rpc("get_rapport_validateur", { _rapport_id: rapportId! });
+      if (error) throw error;
+      const row = (Array.isArray(data) ? data[0] : data) as RapportValidateur | undefined;
+      return row ?? null;
+    },
+  });
+}
+
+/** Jeton de vérification de l'archive officielle réellement enregistrée (QR). */
+export interface RapportVerification {
+  qr_token: string;
+  version: number;
+  numero: string | null;
+  sha256: string;
+  created_at: string;
+}
+
+export function useRapportVerification(rapportId?: string | null) {
+  return useQuery({
+    queryKey: ["rapport_verification", rapportId],
+    enabled: !!rapportId,
+    queryFn: async (): Promise<RapportVerification | null> => {
+      const { data, error } = await supabase.rpc("get_rapport_verification", { _rapport_id: rapportId! });
+      if (error) throw error;
+      const row = (Array.isArray(data) ? data[0] : data) as RapportVerification | undefined;
+      return row ?? null;
+    },
   });
 }
 
@@ -297,23 +350,42 @@ function detectType(file: File): PieceJointeType {
   return "autre";
 }
 
+// P2/14 — contrôle d'upload : types autorisés + taille maximale.
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+const ALLOWED_EXT = ["pdf", "png", "jpg", "jpeg", "webp", "gif", "doc", "docx", "xls", "xlsx", "csv", "txt"];
+
+/** URL signée courte durée générée à la demande (aucune URL longue durée n'est persistée). */
+export async function getPieceJointeUrl(piece: Pick<PieceJointe, "storage_path" | "url">, ttlSec = 900): Promise<string | null> {
+  if (piece.storage_path) {
+    try { return await DocumentRepository.signedRapportUrl(piece.storage_path, ttlSec); }
+    catch { return null; }
+  }
+  return piece.url ?? null; // compatibilité avec les pièces jointes historiques
+}
+
 export function useUploadPieceJointe() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ rapportId, file }: { rapportId: string; file: File }) => {
+      const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+      if (!ALLOWED_EXT.includes(ext)) {
+        throw new Error(`Type de fichier non autorisé (.${ext}). Formats acceptés : ${ALLOWED_EXT.join(", ")}.`);
+      }
+      if (file.size > MAX_UPLOAD_BYTES) {
+        throw new Error(`Fichier trop volumineux (${Math.round(file.size / 1024 / 1024)} Mo). Maximum 20 Mo.`);
+      }
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData?.user?.id ?? null;
       const type = detectType(file);
-      const ext = file.name.split(".").pop() ?? "bin";
       const path = `${rapportId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       await DocumentRepository.uploadRapportPiece(path, file, { upsert: false, contentType: file.type || undefined });
-      const signedUrl = await DocumentRepository.signedRapportUrl(path, 60 * 60 * 24 * 7);
       const payload = {
         rapport_id: rapportId,
         type,
         nom: file.name,
         storage_path: path,
-        url: signedUrl,
+        // P2/14 : aucune URL signée longue durée persistée en base.
+        url: null,
         uploaded_by: uid,
         meta: { size: file.size, mime: file.type },
       } as never;
@@ -352,6 +424,12 @@ export function useDeletePieceJointe() {
 }
 
 // ------- Contexte automatique chantier -------
+/**
+ * P1/11 — Statut épistémique de chaque donnée de contexte.
+ * Une déduction ne doit jamais être présentée comme un fait confirmé.
+ */
+export type ContexteSource = "confirmee" | "deduite" | "utilisateur" | "manquante" | "ambigue";
+
 export interface ContexteAuto {
   client_id: string | null;
   client_nom: string | null;
@@ -362,7 +440,19 @@ export interface ContexteAuto {
   materiaux: string[];
   formulations: Array<{ id: string; nom: string; resistance_28j: number | null }>;
   essais_disponibles: Array<{ type: string; count: number }>;
+  /** Origine de chaque champ déduit automatiquement. */
+  sources: Record<string, ContexteSource>;
+  /** Horodatage de capture du contexte (le snapshot peut devenir obsolète). */
+  capture_at: string;
 }
+
+export const CONTEXTE_SOURCE_LABELS: Record<ContexteSource, string> = {
+  confirmee: "Donnée confirmée",
+  deduite: "Donnée déduite automatiquement",
+  utilisateur: "Donnée saisie par l'utilisateur",
+  manquante: "Donnée manquante",
+  ambigue: "Donnée ambiguë — à confirmer",
+};
 
 export function useContexteChantier(chantierId?: string | null) {
   return useQuery({
@@ -380,16 +470,30 @@ export function useContexteChantier(chantierId?: string | null) {
       formulations.forEach((f) => f.nom && materiauxSet.add(f.nom));
       const essais: Array<{ type: string; count: number }> = [];
       if (compressionRes.count && compressionRes.count > 0) essais.push({ type: "Compression béton", count: compressionRes.count });
+
+      const entreprise = chantier?.clients?.representant ?? chantier?.clients?.nom ?? null;
+      const projet = chantier?.description ?? chantier?.nom ?? null;
+
       return {
         client_id: chantier?.clients?.id ?? null,
         client_nom: chantier?.clients?.nom ?? null,
         chantier_id: chantierId!,
         chantier_nom: chantier?.nom ?? null,
-        entreprise: chantier?.clients?.representant ?? chantier?.clients?.nom ?? null,
-        projet: chantier?.description ?? chantier?.nom ?? null,
+        entreprise,
+        projet,
         materiaux: Array.from(materiauxSet),
         formulations,
         essais_disponibles: essais,
+        sources: {
+          client_nom: chantier?.clients?.nom ? "confirmee" : "manquante",
+          chantier_nom: chantier?.nom ? "confirmee" : "manquante",
+          // Déduits : representant/nom du client et description/nom du chantier.
+          entreprise: entreprise ? (chantier?.clients?.representant ? "deduite" : "ambigue") : "manquante",
+          projet: projet ? (chantier?.description ? "deduite" : "ambigue") : "manquante",
+          materiaux: materiauxSet.size ? "confirmee" : "manquante",
+          essais_disponibles: essais.length ? "confirmee" : "manquante",
+        },
+        capture_at: new Date().toISOString(),
       };
     },
   });

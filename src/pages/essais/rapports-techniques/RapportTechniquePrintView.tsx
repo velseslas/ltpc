@@ -1,21 +1,28 @@
 /**
  * RapportTechniquePrintView — Vue A4 imprimable des rapports techniques.
  *
- * LOT 1 — Print Engine V2 : ce composant est la source de vérité PDF
- * pour la famille "Rapports techniques". Il est rendu sur une route
- * dédiée sans chrome applicatif et imprimé via PrintService, ce qui
- * produit un PDF strictement identique via Microsoft Print to PDF ou
- * Enregistrer en PDF (aucune rasterisation, aucun html2canvas).
+ * Print Engine V2 : source de vérité d'impression pour la famille
+ * "Rapports techniques". HTML/CSS natif, imprimé via PrintService +
+ * window.print() (Microsoft Print to PDF / Enregistrer en PDF).
+ * Aucune rasterisation, aucun html2canvas, aucun canvas, texte et tableaux
+ * sélectionnables.
  *
- * Aucune donnée métier n'est modifiée : contenu, calculs, QR, SHA-256
- * et archives immuables restent inchangés.
+ * P0/4 — La signature et le cachet officiels n'apparaissent QUE sur un rapport
+ *        validé ou archivé, et nomment le validateur réel (`ingenieur_id`).
+ * P0/5 — Le QR pointe sur le jeton de l'archive officielle réellement
+ *        enregistrée (`document_archives`), jamais sur `rapports_techniques.qr_token`.
  */
 
 import { useEffect, useMemo } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useRapportTechnique, STATUT_LABELS } from "@/hooks/useRapportsTechniques";
+import {
+  useRapportTechnique,
+  useRapportValidateur,
+  useRapportVerification,
+  STATUT_LABELS,
+} from "@/hooks/useRapportsTechniques";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { renderTemplate } from "@/lib/rapports/templateEngine";
 import { ReportHeader } from "@/components/reports/ReportHeader";
@@ -52,15 +59,18 @@ export default function RapportTechniquePrintView() {
   const auto = params.get("auto") === "1";
   const { data: r, isLoading } = useRapportTechnique(id);
   const { data: entreprise } = useEntreprise();
+  const { data: validateur } = useRapportValidateur(id, r?.statut);
+  const { data: verification } = useRapportVerification(id);
 
   const contenu = (r?.contenu_rapport ?? null) as unknown as AIRapportContenu | null;
+  const isOfficiel = r?.statut === "valide" || r?.statut === "archive";
 
   const bodyHtml = useMemo(() => {
     if (!r) return "";
     const html = r.editor_html && r.editor_html.trim().length > 0 ? r.editor_html : contenuToHtml(contenu);
     return renderTemplate(html, {
-      chantier: (r as unknown as { chantiers?: { nom?: string } }).chantiers?.nom ?? null,
-      client: (r as unknown as { clients?: { nom?: string } }).clients?.nom ?? null,
+      chantier: r.chantiers?.nom ?? null,
+      client: r.clients?.nom ?? null,
       entreprise: r.entreprise ?? null,
       projet: r.projet ?? null,
       numero_rapport: r.numero ?? null,
@@ -77,10 +87,19 @@ export default function RapportTechniquePrintView() {
 
   useEffect(() => {
     if (!auto || isLoading || !r) return;
-    const t = window.setTimeout(() => {
+    let cancelled = false;
+    // Attend le chargement des images (logo/cachet) avant d'imprimer.
+    const run = async () => {
+      const imgs = Array.from(document.images);
+      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise<void>(res => {
+        img.addEventListener("load", () => res(), { once: true });
+        img.addEventListener("error", () => res(), { once: true });
+      })));
+      if (cancelled) return;
       PrintService.print({ title: `Rapport technique — ${r.numero ?? r.titre ?? id}` });
-    }, 400);
-    return () => window.clearTimeout(t);
+    };
+    const t = window.setTimeout(() => { void run(); }, 300);
+    return () => { cancelled = true; window.clearTimeout(t); };
   }, [auto, isLoading, r, id]);
 
   if (isLoading) {
@@ -90,17 +109,17 @@ export default function RapportTechniquePrintView() {
     return <div className="p-8 text-sm text-muted-foreground">Rapport introuvable.</div>;
   }
 
-  const chantierNom = (r as unknown as { chantiers?: { nom?: string } }).chantiers?.nom ?? "—";
-  const clientNom = (r as unknown as { clients?: { nom?: string } }).clients?.nom ?? "—";
-  const categorieNom = (r as unknown as { rapport_categories?: { nom?: string } }).rapport_categories?.nom ?? "—";
+  const chantierNom = r.chantiers?.nom ?? "—";
+  const clientNom = r.clients?.nom ?? "—";
+  const categorieNom = r.rapport_categories?.nom ?? "—";
   const graviteLabels: Record<string, string> = {
     faible: "Faible", moderee: "Modérée", elevee: "Élevée", critique: "Critique",
   };
-  const verificationUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/verification/${r.qr_token ?? id}`
+  // P0/5 — QR uniquement si une archive officielle vérifiable existe.
+  const verificationUrl = verification?.qr_token && typeof window !== "undefined"
+    ? `${window.location.origin}/verification/${verification.qr_token}`
     : "";
   const dateEdition = r.valide_at ?? r.updated_at ?? r.created_at;
-  const representant = (entreprise as { representant?: string | null } | null)?.representant ?? null;
   const cachetUrl = (entreprise as { cachet_url?: string | null } | null)?.cachet_url ?? null;
 
   return (
@@ -111,6 +130,13 @@ export default function RapportTechniquePrintView() {
         title="RAPPORT TECHNIQUE"
         subtitle={r.numero ?? undefined}
       />
+
+      {!isOfficiel && (
+        <section className="rt-draft-banner" data-print-keep-together>
+          DOCUMENT DE TRAVAIL — {STATUT_LABELS[r.statut].toUpperCase()} — SANS VALEUR OFFICIELLE.
+          Ni signature, ni cachet, ni vérification d'authenticité.
+        </section>
+      )}
 
       {/* Bloc identification — 2 colonnes équilibrées */}
       <section className="rt-identification" data-print-keep-together>
@@ -159,21 +185,29 @@ export default function RapportTechniquePrintView() {
         dangerouslySetInnerHTML={{ __html: bodyHtml ? sanitizeHtml(bodyHtml) : "<p><em>Rapport en cours de rédaction.</em></p>" }}
       />
 
-      {/* Signature & cachet — insécable */}
-      <section className="rt-signature" data-print-keep-together>
-        <div className="rt-signature-inner">
-          <div className="rt-signature-date">
-            Validé le {r.valide_at ? format(new Date(r.valide_at), "dd/MM/yyyy", { locale: fr }) : "—"}
+      {/* Signature & cachet — uniquement pour un document officiel, validateur réel */}
+      {isOfficiel && (
+        <section className="rt-signature" data-print-keep-together>
+          <div className="rt-signature-inner">
+            <div className="rt-signature-date">
+              Validé le {r.valide_at ? format(new Date(r.valide_at), "dd/MM/yyyy", { locale: fr }) : "—"}
+            </div>
+            <div className="rt-signature-visuals">
+              {cachetUrl && (
+                <img src={cachetUrl} alt="Cachet officiel du laboratoire" className="rt-cachet" />
+              )}
+            </div>
+            <div className="rt-signature-name">{validateur?.nom ?? "Validateur non identifié"}</div>
+            <div className="rt-signature-role">{validateur?.fonction ?? "Ingénieur validateur"}</div>
           </div>
-          <div className="rt-signature-visuals">
-            {cachetUrl && (
-              <img src={cachetUrl} alt="Cachet" className="rt-cachet" />
-            )}
-          </div>
-          <div className="rt-signature-name">{representant ?? "—"}</div>
-          <div className="rt-signature-role">Ingénieur validateur</div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Pied de page répété à l'impression */}
+      <div className="rt-print-footer">
+        {(entreprise?.nom ?? "")} · {r.numero ?? "Document de travail"} · {STATUT_LABELS[r.statut]}
+        {verification ? ` · Archive officielle v${verification.version}` : ""}
+      </div>
     </div>
   );
 }
