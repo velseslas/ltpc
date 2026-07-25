@@ -275,6 +275,20 @@ const CarottageEvaluationNormative = () => {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={() =>
+              PrintService.print({
+                title: `Evaluation-normative-${ref}`,
+                orientation: "portrait",
+              })
+            }
+            disabled={!resultat}
+            className="w-full sm:w-auto"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Imprimer / PDF
+          </Button>
           <Button variant="outline" onClick={() => persist(false)} disabled={!resultat || isSaving} className="w-full sm:w-auto">
             {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             Enregistrer le brouillon
