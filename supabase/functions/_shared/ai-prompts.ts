@@ -59,6 +59,10 @@ export function promptAnalyseProbleme(input: {
   essais?: Array<{ type: string; count: number }>;
   piecesJointes?: Array<{ type: string; nom: string }>;
   reponsesQuestions?: Array<{ question: string; reponse: string }>;
+  /** P1/8 — extraits documentaires pertinents (RAG), déjà bornés et traçables. */
+  documents?: string;
+  /** P1/11 — statut épistémique des données de contexte déduites. */
+  sourcesContexte?: Record<string, string>;
 }): string {
   return `Analyse le problème technique suivant et retourne EXCLUSIVEMENT un JSON valide conforme au schéma ci-dessous. Aucun texte hors JSON.
 
