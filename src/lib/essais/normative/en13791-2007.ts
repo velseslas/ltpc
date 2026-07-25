@@ -45,6 +45,8 @@ export const NORME_2007: NormeNormative = {
       label: "Approche 1 — au moins 15 carottes (estimation avec écart-type)",
       clause: "§ 7.3.2 + § 8.1",
       nMin: 15,
+      // Approche complète (n ≥ 15) : seule voie permettant une évaluation de
+      // conformité à une classe spécifiée, applicable aussi en estimation.
       objectifs: ["A", "B", "C", "D", "E"],
       critere85: true,
     },
@@ -54,7 +56,9 @@ export const NORME_2007: NormeNormative = {
       clause: "§ 7.3.3 + § 8.1",
       nMin: 3,
       nMax: 14,
-      objectifs: ["A", "B", "C", "D", "E"],
+      // Approche à effectif réduit (3 à 14) : réservée à l'estimation de la
+      // résistance in situ (ouvrage en place / existant / expertise).
+      objectifs: ["B", "C", "E"],
       critere85: true,
     },
   ],

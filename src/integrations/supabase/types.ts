@@ -5307,6 +5307,8 @@ export type Database = {
           created_by: string | null
           created_by_nom: string | null
           criteres: Json
+          dmax: number | null
+          dmax_source: string | null
           echantillon_id: string
           fck_cube: number | null
           fck_cyl: number | null
@@ -5323,6 +5325,9 @@ export type Database = {
           reference: string | null
           statistiques: Json
           updated_at: string
+          validee_at: string | null
+          validee_par: string | null
+          validee_par_nom: string | null
           verdict: string | null
         }
         Insert: {
@@ -5333,6 +5338,8 @@ export type Database = {
           created_by?: string | null
           created_by_nom?: string | null
           criteres?: Json
+          dmax?: number | null
+          dmax_source?: string | null
           echantillon_id: string
           fck_cube?: number | null
           fck_cyl?: number | null
@@ -5349,6 +5356,9 @@ export type Database = {
           reference?: string | null
           statistiques?: Json
           updated_at?: string
+          validee_at?: string | null
+          validee_par?: string | null
+          validee_par_nom?: string | null
           verdict?: string | null
         }
         Update: {
@@ -5359,6 +5369,8 @@ export type Database = {
           created_by?: string | null
           created_by_nom?: string | null
           criteres?: Json
+          dmax?: number | null
+          dmax_source?: string | null
           echantillon_id?: string
           fck_cube?: number | null
           fck_cyl?: number | null
@@ -5375,6 +5387,9 @@ export type Database = {
           reference?: string | null
           statistiques?: Json
           updated_at?: string
+          validee_at?: string | null
+          validee_par?: string | null
+          validee_par_nom?: string | null
           verdict?: string | null
         }
         Relationships: [

@@ -73,5 +73,19 @@ export function evaluateNormative(input: EvaluationInput): EvaluationResultat {
       verdict: "non_concluant",
     };
   }
+
+  // Garde-fou objectif → procédure : le moteur refuse une combinaison invalide,
+  // même si l'interface a été contournée.
+  const procedure = evaluator.norme.procedures.find((p) => p.code === input.procedureCode) ?? null;
+  if (procedure && input.objectif && !procedure.objectifs.includes(input.objectif)) {
+    return {
+      ...evaluator.evaluate({ ...input, procedureCode: "" }),
+      procedure: null,
+      conclusion: `Cette procédure n'est pas applicable à l'objectif sélectionné. (${procedure.label} — objectifs applicables : ${procedure.objectifs.join(", ")})`,
+      donneesManquantes: ["Cette procédure n'est pas applicable à l'objectif sélectionné."],
+      verdict: "non_concluant",
+    };
+  }
   return evaluator.evaluate(input);
 }
+
