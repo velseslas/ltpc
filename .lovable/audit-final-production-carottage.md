@@ -133,11 +133,11 @@ Aucune hypothèse présentée comme règle officielle. → 🟠 **A-2 EN ATTENTE
 | Brouillon | 🟢 PASS | — | — |
 | Gel | 🟢 PASS | protégé UI + hook + RLS | — |
 | Historique | 🟢 PASS | — | — |
-| Relecture | 🟠 RÉSERVE | bandeau « évaluation figée » affiché aussi pour un brouillon ouvert en lecture (Lecture L172-176) | Cosmétique |
+| Relecture | 🟢 PASS | UX-1/UX-2 corrigés le 25/07/2026 | — |
 | Rapport | 🟢 PASS | — | — |
 | Impression | 🟢 PASS | 100 % natif A4, texte sélectionnable | — |
 | Unités | 🟢 PASS | — | — |
-| Sécurité | 🟠 RÉSERVE | S-1 : suppression possible d'une évaluation figée par un admin | Moyenne |
+| Sécurité | 🟢 PASS | S-1 corrigé : DELETE = is_admin_only() AND figee = false | — |
 | Régression | 🟢 PASS | typecheck 0 erreur | — |
 
 ### 1. Problèmes critiques
@@ -172,7 +172,9 @@ Aucun.
 
 ### 8. Verdict final
 
-## 🟠 PRÊT POUR PRODUCTION AVEC RÉSERVES
+## 🟢 PRÊT POUR PRODUCTION — UNE SEULE RÉSERVE DOCUMENTAIRE (A-2)
+
+> Mise à jour 25/07/2026 : S-1 corrigé (policy DELETE `is_admin_only() AND figee = false`), UX-1 (bandeau conditionnel brouillon/figée) et UX-2 (retour vers le détail du carottage) corrigés. A-2 reste ouvert et inchangé.
 
 Réserves : **A-2** (décision documentaire volontairement ouverte) et **S-1** (suppression d'une évaluation figée par un administrateur).
 Fonctionnel, technique, normatif (hors A-2), traçabilité, impression et UX : conformes. Aucune correction appliquée.
