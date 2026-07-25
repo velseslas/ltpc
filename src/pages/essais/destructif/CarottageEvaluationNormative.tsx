@@ -451,8 +451,25 @@ const CarottageEvaluationNormative = () => {
               <p><span className="text-muted-foreground">Norme : </span>{resultat.norme?.code} — version {resultat.norme?.version}</p>
               <p><span className="text-muted-foreground">Méthode : </span>{resultat.procedure?.label}</p>
               <p><span className="text-muted-foreground">Clause(s) : </span>{resultat.procedure?.clause}</p>
+              <p>
+                <span className="text-muted-foreground">Nature de l'analyse : </span>
+                {resultat.typeAnalyse === "conformite" ? "Conformité à une classe spécifiée" : "Estimation de la résistance in situ"}
+                {resultat.estimationSeule && " (aucun verdict de conformité)"}
+              </p>
+              <p><span className="text-muted-foreground">Dmax granulat : </span>{dmax ? `${dmax} mm` : "non renseigné"}</p>
             </div>
           </div>
+
+          {/* Avertissements non bloquants */}
+          {resultat.avertissements.length > 0 && (
+            <div className="rounded-lg border border-sky-500/40 bg-sky-500/10 p-4 text-sm">
+              <p className="font-semibold text-sky-500">Avertissements et réserves</p>
+              <ul className="list-disc pl-5 mt-1">
+                {resultat.avertissements.map((a, i) => <li key={i}>{a}</li>)}
+              </ul>
+            </div>
+          )}
+
 
           {/* Niveau 1 */}
           <div>
