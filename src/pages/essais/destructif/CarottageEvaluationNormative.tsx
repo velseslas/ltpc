@@ -309,8 +309,19 @@ const CarottageEvaluationNormative = () => {
         {procedureCode && (
           <p className="text-xs text-muted-foreground flex items-start gap-2">
             <Info className="h-4 w-4 mt-0.5 shrink-0" />
-            {norme?.nom} — version {norme?.version} • Clause(s) : {getProcedure(normeCode, procedureCode)?.clause}
+            {norme?.nom} — version {norme?.version} • Clause(s) : {getProcedure(normeCode, procedureCode)?.clause} • Entrée attendue : {norme?.entreeAttendue}
           </p>
+        )}
+        {normeCode === "EN13791-2019" && (
+          <div className="rounded-lg border border-sky-500/40 bg-sky-500/10 p-3 text-xs">
+            <p className="font-semibold text-sky-500">A-2 — Chaîne de calcul 2019</p>
+            <p>
+              L'EN 13791:2019 considère la carotte in situ (1,0 ≤ L/D ≤ 2,0) comme directement représentative :
+              la correction d'élancement NF P18-418 appliquée en Mode A est une pratique nationale, surnuméraire
+              au sens de la version 2019. Les valeurs consommées ici restent celles validées en Mode A (fcorr 16×32),
+              cette hypothèse est tracée dans le rapport.
+            </p>
+          </div>
         )}
       </div>
 
