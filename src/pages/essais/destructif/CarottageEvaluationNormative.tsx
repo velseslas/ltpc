@@ -5,11 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, Save, ShieldCheck, Info } from "lucide-react";
+import { ArrowLeft, Loader2, Save, ShieldCheck, Info, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { EntrepriseHeader } from "@/components/print/EntrepriseHeader";
+import { PrintService } from "@/lib/print/PrintService";
 import { useEchantillonCarottage } from "@/hooks/useEchantillonsCarottage";
 import {
   useEvaluationsNormatives,
@@ -245,17 +247,19 @@ const CarottageEvaluationNormative = () => {
 
   return (
     <div className="space-y-6">
-      <EssaiBreadcrumb
-        items={[
-          { label: "Béton", path: "/essais/beton" },
-          { label: "Destructif", path: "/essais/beton/destructif" },
-          { label: "Carottage", path: basePath },
-          { label: ref, path: `${basePath}/${id}` },
-          { label: "Évaluation normative" },
-        ]}
-      />
+      <div className="print:hidden">
+        <EssaiBreadcrumb
+          items={[
+            { label: "Béton", path: "/essais/beton" },
+            { label: "Destructif", path: "/essais/beton/destructif" },
+            { label: "Carottage", path: basePath },
+            { label: ref, path: `${basePath}/${id}` },
+            { label: "Évaluation normative" },
+          ]}
+        />
+      </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between print:hidden">
         <div className="flex items-start gap-3 sm:gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}/${id}`)}
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0">
@@ -271,6 +275,20 @@ const CarottageEvaluationNormative = () => {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={() =>
+              PrintService.print({
+                title: `Evaluation-normative-${ref}`,
+                orientation: "portrait",
+              })
+            }
+            disabled={!resultat}
+            className="w-full sm:w-auto"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Imprimer / PDF
+          </Button>
           <Button variant="outline" onClick={() => persist(false)} disabled={!resultat || isSaving} className="w-full sm:w-auto">
             {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
             Enregistrer le brouillon
@@ -500,7 +518,19 @@ const CarottageEvaluationNormative = () => {
 
       {/* RÉSULTATS */}
       {resultat && (
-        <div className="rounded-xl border border-border bg-card p-6 space-y-6" data-ref="report">
+        <div
+          className="rounded-xl border border-border bg-card p-6 space-y-6 print:rounded-none print:border-0 print:bg-white print:text-black print:p-0"
+          data-ref="report"
+          data-print-root
+          data-print-template="carottage-evaluation-normative"
+        >
+          <div className="hidden print:block">
+            <EntrepriseHeader
+              title="Évaluation normative de la résistance du béton"
+              subtitle={`Carottage ${ref} — ${resultat.norme?.code ?? ""} version ${resultat.norme?.version ?? ""}`}
+            />
+          </div>
+
 
           <div className="text-center">
             <h2 className="text-lg font-bold uppercase">Évaluation normative de la résistance du béton</h2>
@@ -644,7 +674,7 @@ const CarottageEvaluationNormative = () => {
       )}
 
       {/* Historique / traçabilité */}
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-6 print:hidden">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-primary" /> Historique des évaluations (brouillons et évaluations figées)
         </h2>
@@ -673,7 +703,46 @@ const CarottageEvaluationNormative = () => {
           </div>
         )}
       </div>
+
+      {/* Impression native A4 — HTML/CSS, texte et tableaux sélectionnables (aucune image de contenu) */}
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 12mm 14mm 14mm 14mm; }
+          body * { visibility: hidden; }
+          .print\\:hidden { display: none !important; }
+          #root { padding: 0 !important; }
+          [data-print-template="carottage-evaluation-normative"],
+          [data-print-template="carottage-evaluation-normative"] * { visibility: visible; }
+          [data-print-template="carottage-evaluation-normative"] {
+            position: absolute; top: 0; left: 0; width: 100%;
+            color: #000; background: #fff;
+            font-size: 11pt;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+          }
+          [data-print-template="carottage-evaluation-normative"] h2,
+          [data-print-template="carottage-evaluation-normative"] h3 {
+            break-after: avoid; page-break-after: avoid;
+          }
+          [data-print-template="carottage-evaluation-normative"] table {
+            width: 100%; border-collapse: collapse; break-inside: auto;
+          }
+          [data-print-template="carottage-evaluation-normative"] thead {
+            display: table-header-group;
+          }
+          [data-print-template="carottage-evaluation-normative"] tr {
+            break-inside: avoid; page-break-inside: avoid;
+          }
+          [data-print-template="carottage-evaluation-normative"] th,
+          [data-print-template="carottage-evaluation-normative"] td {
+            border: 1px solid #000; padding: 3px 6px;
+          }
+          [data-print-template="carottage-evaluation-normative"] > div {
+            break-inside: avoid; page-break-inside: avoid;
+          }
+        }
+      `}</style>
     </div>
+
   );
 };
 
