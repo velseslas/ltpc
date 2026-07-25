@@ -91,12 +91,14 @@ CONTEXTE:
 - Formulations: ${(input.formulations ?? []).map(f => `${f.nom}${f.resistance_28j ? ` (Rc28=${f.resistance_28j})` : ""}`).join(" | ") || "N/A"}
 - Essais disponibles: ${(input.essais ?? []).map(e => `${e.type}(${e.count})`).join(", ") || "N/A"}
 - Pièces jointes: ${(input.piecesJointes ?? []).map(p => `${p.type}:${p.nom}`).join(", ") || "Aucune"}
-${input.reponsesQuestions?.length ? `\nRÉPONSES COMPLÉMENTAIRES DU TECHNICIEN:\n${input.reponsesQuestions.map(r => `- Q: ${r.question}\n  R: ${r.reponse}`).join("\n")}` : ""}
+${input.sourcesContexte ? `\nSTATUT DES DONNÉES DE CONTEXTE (ne jamais présenter une déduction comme un fait) :\n${Object.entries(input.sourcesContexte).map(([k, v]) => `- ${k}: ${v}`).join("\n")}` : ""}
+${input.reponsesQuestions?.length ? `\nRÉPONSES COMPLÉMENTAIRES DU TECHNICIEN:\n${wrapUntrusted("REPONSES_TECHNICIEN", input.reponsesQuestions.map(r => `- Q: ${r.question}\n  R: ${r.reponse}`).join("\n"))}` : ""}
 
-DESCRIPTION DU PROBLÈME:
-"""
-${input.description}
-"""
+DOCUMENTS DE RÉFÉRENCE (base documentaire interne — seule source citable) :
+${wrapUntrusted("DOCUMENTS_RAG", input.documents ?? "Aucun document fourni.")}
+
+DESCRIPTION DU PROBLÈME (saisie utilisateur) :
+${wrapUntrusted("DESCRIPTION_PROBLEME", input.description)}
 
 Retourne uniquement le JSON.`;
 }
