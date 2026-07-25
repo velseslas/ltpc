@@ -4,6 +4,7 @@ import { callAIFeature } from "../_shared/ai-provider.ts";
 import { SYSTEM_INGENIEUR_LABO, promptAnalyseProbleme } from "../_shared/ai-prompts.ts";
 import { logAICall, getUserIdFromReq } from "../_shared/ai-log.ts";
 import { enforceRateLimit } from "../_shared/rate-limit.ts";
+import { retrieveKnowledge, formatKnowledgeBlock } from "../_shared/rag.ts";
 import { requireAuth, canAccessRapport, unauthorized } from "../_shared/auth-guard.ts";
 
 Deno.serve(async (req) => {
@@ -30,6 +31,11 @@ Deno.serve(async (req) => {
     const reponsesQuestions = (questions ?? []).filter(q => q.reponse_utilisateur).map(q => ({ question: q.question, reponse: q.reponse_utilisateur as string }));
 
     const ctx = (r.contexte_auto ?? {}) as Record<string, unknown>;
+
+    // P1/8 — RAG : extraits documentaires internes pertinents (top-K borné, traçables).
+    const ragQuery = [r.titre, r.description_probleme, ((ctx.materiaux as string[]) ?? []).join(" ")].filter(Boolean).join(" ");
+    const chunks = await retrieveKnowledge(admin, ragQuery, { topK: 6, excludeSourceId: rapport_id });
+
     const userPrompt = promptAnalyseProbleme({
       description: r.description_probleme,
       categorie: (r as { rapport_categories?: { nom?: string } | null }).rapport_categories?.nom ?? null,
@@ -44,6 +50,8 @@ Deno.serve(async (req) => {
       essais: (ctx.essais_disponibles as Array<{ type: string; count: number }>) ?? [],
       piecesJointes: pieces ?? [],
       reponsesQuestions,
+      documents: formatKnowledgeBlock(chunks),
+      sourcesContexte: (ctx.sources as Record<string, string>) ?? undefined,
     });
 
     const userId = getUserIdFromReq(req);
