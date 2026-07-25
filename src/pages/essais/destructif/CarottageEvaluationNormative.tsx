@@ -47,7 +47,7 @@ const CarottageEvaluationNormative = () => {
   const createMutation = useCreateEvaluationNormative();
 
   const [objectif, setObjectif] = useState<ObjectifCode | "">("");
-  const [normeCode, setNormeCode] = useState<string>("EN13791");
+  const [normeCode, setNormeCode] = useState<string>("");
   const [procedureCode, setProcedureCode] = useState<string>("");
   const [classeBeton, setClasseBeton] = useState<string>("");
   const [carottes, setCarottes] = useState<CarotteEvaluee[]>([]);
@@ -100,7 +100,7 @@ const CarottageEvaluationNormative = () => {
     setCarottes((prev) => prev.map((c) => (c.id === cid ? { ...c, motif_exclusion: motif } : c)));
 
   const resultat = useMemo(() => {
-    if (!objectif || !procedureCode) return null;
+    if (!objectif || !normeCode || !procedureCode) return null;
     return evaluateNormative({
       objectif: objectif as ObjectifCode,
       normeCode,
@@ -140,6 +140,7 @@ const CarottageEvaluationNormative = () => {
           fck_is: resultat.fckIs,
           fck_is_detail: resultat.fckIsDetail,
           seuil_85: resultat.seuil85,
+          seuil_85_detail: resultat.seuil85Detail,
         } as unknown as Json,
         criteres: resultat.criteres as unknown as Json,
         verdict: resultat.verdict,
@@ -214,23 +215,28 @@ const CarottageEvaluationNormative = () => {
 
       {/* ÉTAPE 2 — Norme / procédure */}
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Étape 2 — Norme et procédure</h2>
+        <h2 className="text-lg font-semibold">Étape 2 — Référentiel normatif et procédure</h2>
+        <p className="text-xs text-muted-foreground">
+          Le référentiel choisi est appliqué seul : aucune formule, aucun seuil ni aucune clause d'une autre version n'est utilisé dans la même évaluation.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label>Norme</Label>
+            <Label>Référentiel (norme + version) *</Label>
             <Select value={normeCode} onValueChange={(v) => { setNormeCode(v); setProcedureCode(""); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={!normeCode ? "border-destructive" : ""}>
+                <SelectValue placeholder="Sélectionner le référentiel..." />
+              </SelectTrigger>
               <SelectContent>
                 {NORMES.map((n) => (
-                  <SelectItem key={n.code} value={n.code}>{n.code.replace("EN", "EN ")} — version {n.version}</SelectItem>
+                  <SelectItem key={n.code} value={n.code}>EN 13791 — version {n.version}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label>Procédure applicable</Label>
-            <Select value={procedureCode} onValueChange={setProcedureCode} disabled={!objectif}>
-              <SelectTrigger><SelectValue placeholder={objectif ? "Sélectionner..." : "Choisir d'abord un objectif"} /></SelectTrigger>
+            <Select value={procedureCode} onValueChange={setProcedureCode} disabled={!objectif || !normeCode}>
+              <SelectTrigger><SelectValue placeholder={!normeCode ? "Choisir d'abord un référentiel" : objectif ? "Sélectionner..." : "Choisir d'abord un objectif"} /></SelectTrigger>
               <SelectContent>
                 {proceduresDispo.map((p) => (
                   <SelectItem key={p.code} value={p.code}>{p.label}</SelectItem>
@@ -389,8 +395,8 @@ const CarottageEvaluationNormative = () => {
             )}
             {resultat.seuil85 !== null && (
               <p className="mt-3 text-sm font-semibold">
-                Seuil 85 % : {resultat.seuil85.toFixed(2)} MPa
-                <span className="font-normal text-muted-foreground"> (0,85 × fck,cyl = 0,85 × {fmt(resultat.fckCyl, 0)})</span>
+                Seuil de conformité : {resultat.seuil85.toFixed(2)} MPa
+                <span className="font-normal text-muted-foreground"> ({resultat.seuil85Detail})</span>
               </p>
             )}
             {resultat.fckIs !== null && (
@@ -409,20 +415,22 @@ const CarottageEvaluationNormative = () => {
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
                     <th className="text-left p-2">Critère</th>
+                    <th className="text-left p-2">Formule</th>
                     <th className="text-right p-2">Valeur calculée</th>
                     <th className="text-right p-2">Valeur exigée</th>
                     <th className="text-center p-2">Résultat</th>
-                    <th className="text-left p-2">Référence</th>
+                    <th className="text-left p-2">Norme / version / clause</th>
                   </tr>
                 </thead>
                 <tbody>
                   {resultat.criteres.map((c, i) => (
                     <tr key={i} className="border-b border-border/50">
                       <td className="p-2">{c.libelle}</td>
+                      <td className="p-2 text-xs">{c.formule}</td>
                       <td className="p-2 text-right">{fmt(c.valeurCalculee)} {c.unite}</td>
                       <td className="p-2 text-right">{c.valeurExigee === null ? "—" : `${c.valeurExigee.toFixed(2)} ${c.unite}`}</td>
                       <td className="p-2 text-center">{c.resultat === "ok" ? "✓" : c.resultat === "ko" ? "✗" : "—"}</td>
-                      <td className="p-2 text-xs text-muted-foreground">{c.reference}</td>
+                      <td className="p-2 text-xs text-muted-foreground">{c.norme}:{c.version} {c.clause}</td>
                     </tr>
                   ))}
                 </tbody>
