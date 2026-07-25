@@ -15,6 +15,8 @@ export const essaisCoreRoutes = (
     <Route path="/essais/redaction-rapport-technique" element={<RedactionRapportTechnique />} />
     <Route path="/essais/rapports-techniques" element={<RedactionRapportTechnique />} />
     <Route path="/essais/rapports-techniques/nouveau" element={<NouveauRapportTechnique />} />
+    {/* P3/1 — doit rester AVANT `/:id`, sinon capturé par la route de détail */}
+    <Route path="/essais/rapports-techniques/historique" element={<HistoriqueRapportsTechniques />} />
     <Route path="/essais/rapports-techniques/:id" element={<RapportTechniqueDetail />} />
     <Route path="/essais/audit" element={<EssaisAudit />} />
   </>
