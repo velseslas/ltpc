@@ -70,7 +70,7 @@ export default function LtpcAI() {
             </div>
             <div>
               <div className="font-semibold text-sm">LTPC AI</div>
-              <div className="text-[10px] text-muted-foreground">Copilote du laboratoire</div>
+              <div className="text-[10px] text-muted-foreground">Copilote technique — LTPC Benmalek</div>
             </div>
           </div>
           <Button className="w-full" size="sm" onClick={newConv} disabled={createM.isPending}>
@@ -364,7 +364,7 @@ function EmptyIntro({ onPick }: { onPick: (q: string) => void }) {
       <div>
         <h2 className="text-2xl font-semibold">LTPC AI</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Copilote intelligent du laboratoire — recherche, analyse et synthèse sur toutes vos données.
+          Copilote technique du Laboratoire des Travaux Publics et de Construction Benmalek — recherche, analyse et synthèse sur vos données internes.
         </p>
       </div>
       <div className="grid sm:grid-cols-2 gap-2 text-left">
