@@ -47,6 +47,7 @@ const CarottageTest = lazy(() => import("@/pages/essais/destructif/CarottageTest
 const CarottageSampleForm = lazy(() => import("@/pages/essais/destructif/CarottageSampleForm"));
 const CarottageDetail = lazy(() => import("@/pages/essais/destructif/CarottageDetail"));
 const CarottageDataEntry = lazy(() => import("@/pages/essais/destructif/CarottageDataEntry"));
+const CarottageEvaluationNormative = lazy(() => import("@/pages/essais/destructif/CarottageEvaluationNormative"));
 const CarottageReport = lazy(() => import("@/pages/essais/destructif/CarottageReport"));
 const EtatEssaisCarottage = lazy(() => import("@/pages/essais/destructif/EtatEssaisCarottage"));
 const EssaiNonDestructif = lazy(() => import("@/pages/essais/EssaiNonDestructif"));
@@ -134,6 +135,7 @@ export const betonRoutes = (
     <Route path="/essais/beton/destructif/carottage/:id" element={<CarottageDetail />} />
     <Route path="/essais/beton/destructif/carottage/:id/modifier" element={<CarottageSampleForm />} />
     <Route path="/essais/beton/destructif/carottage/:id/saisie" element={<CarottageDataEntry />} />
+    <Route path="/essais/beton/destructif/carottage/:id/evaluation-normative" element={<CarottageEvaluationNormative />} />
     <Route path="/essais/beton/destructif/carottage/:id/rapport" element={<CarottageReport />} />
     <Route path="/essais/beton/destructif/carottage/etat-essais" element={<EtatEssaisCarottage />} />
     {/* Non destructif */}
