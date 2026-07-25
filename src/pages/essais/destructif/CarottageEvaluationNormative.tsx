@@ -394,8 +394,8 @@ const CarottageEvaluationNormative = () => {
             )}
             {resultat.seuil85 !== null && (
               <p className="mt-3 text-sm font-semibold">
-                Seuil 85 % : {resultat.seuil85.toFixed(2)} MPa
-                <span className="font-normal text-muted-foreground"> (0,85 × fck,cyl = 0,85 × {fmt(resultat.fckCyl, 0)})</span>
+                Seuil de conformité : {resultat.seuil85.toFixed(2)} MPa
+                <span className="font-normal text-muted-foreground"> ({resultat.seuil85Detail})</span>
               </p>
             )}
             {resultat.fckIs !== null && (
@@ -414,20 +414,22 @@ const CarottageEvaluationNormative = () => {
                 <thead>
                   <tr className="border-b border-border text-muted-foreground">
                     <th className="text-left p-2">Critère</th>
+                    <th className="text-left p-2">Formule</th>
                     <th className="text-right p-2">Valeur calculée</th>
                     <th className="text-right p-2">Valeur exigée</th>
                     <th className="text-center p-2">Résultat</th>
-                    <th className="text-left p-2">Référence</th>
+                    <th className="text-left p-2">Norme / version / clause</th>
                   </tr>
                 </thead>
                 <tbody>
                   {resultat.criteres.map((c, i) => (
                     <tr key={i} className="border-b border-border/50">
                       <td className="p-2">{c.libelle}</td>
+                      <td className="p-2 text-xs">{c.formule}</td>
                       <td className="p-2 text-right">{fmt(c.valeurCalculee)} {c.unite}</td>
                       <td className="p-2 text-right">{c.valeurExigee === null ? "—" : `${c.valeurExigee.toFixed(2)} ${c.unite}`}</td>
                       <td className="p-2 text-center">{c.resultat === "ok" ? "✓" : c.resultat === "ko" ? "✗" : "—"}</td>
-                      <td className="p-2 text-xs text-muted-foreground">{c.reference}</td>
+                      <td className="p-2 text-xs text-muted-foreground">{c.norme}:{c.version} {c.clause}</td>
                     </tr>
                   ))}
                 </tbody>
