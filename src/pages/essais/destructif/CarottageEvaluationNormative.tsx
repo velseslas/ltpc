@@ -214,23 +214,28 @@ const CarottageEvaluationNormative = () => {
 
       {/* ÉTAPE 2 — Norme / procédure */}
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Étape 2 — Norme et procédure</h2>
+        <h2 className="text-lg font-semibold">Étape 2 — Référentiel normatif et procédure</h2>
+        <p className="text-xs text-muted-foreground">
+          Le référentiel choisi est appliqué seul : aucune formule, aucun seuil ni aucune clause d'une autre version n'est utilisé dans la même évaluation.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label>Norme</Label>
+            <Label>Référentiel (norme + version) *</Label>
             <Select value={normeCode} onValueChange={(v) => { setNormeCode(v); setProcedureCode(""); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={!normeCode ? "border-destructive" : ""}>
+                <SelectValue placeholder="Sélectionner le référentiel..." />
+              </SelectTrigger>
               <SelectContent>
                 {NORMES.map((n) => (
-                  <SelectItem key={n.code} value={n.code}>{n.code.replace("EN", "EN ")} — version {n.version}</SelectItem>
+                  <SelectItem key={n.code} value={n.code}>EN 13791 — version {n.version}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
             <Label>Procédure applicable</Label>
-            <Select value={procedureCode} onValueChange={setProcedureCode} disabled={!objectif}>
-              <SelectTrigger><SelectValue placeholder={objectif ? "Sélectionner..." : "Choisir d'abord un objectif"} /></SelectTrigger>
+            <Select value={procedureCode} onValueChange={setProcedureCode} disabled={!objectif || !normeCode}>
+              <SelectTrigger><SelectValue placeholder={!normeCode ? "Choisir d'abord un référentiel" : objectif ? "Sélectionner..." : "Choisir d'abord un objectif"} /></SelectTrigger>
               <SelectContent>
                 {proceduresDispo.map((p) => (
                   <SelectItem key={p.code} value={p.code}>{p.label}</SelectItem>
