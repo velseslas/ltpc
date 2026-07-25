@@ -674,7 +674,7 @@ const CarottageEvaluationNormative = () => {
       )}
 
       {/* Historique / traçabilité */}
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-6 print:hidden">
         <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-primary" /> Historique des évaluations (brouillons et évaluations figées)
         </h2>
