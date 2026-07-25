@@ -286,15 +286,24 @@ const CarottageEvaluationNormative = () => {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Classe de béton spécifiée</Label>
+            <Label>
+              Classe de béton spécifiée {objectifDef?.classeObligatoire ? "*" : "(optionnelle)"}
+            </Label>
             <Select value={classeBeton} onValueChange={setClasseBeton}>
-              <SelectTrigger><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+              <SelectTrigger className={objectifDef?.classeObligatoire && !classeBeton ? "border-destructive" : ""}>
+                <SelectValue placeholder="Sélectionner..." />
+              </SelectTrigger>
               <SelectContent>
                 {Object.entries(CLASSES_BETON_EVAL).map(([code, v]) => (
                   <SelectItem key={code} value={code}>{code} — fck cyl {v.cyl} / cube {v.cube} MPa</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Dmax du granulat (mm)</Label>
+            <Input type="number" value={dmax} onChange={(e) => setDmax(e.target.value)} placeholder="ex. 20" />
+            <p className="text-[11px] text-muted-foreground">Contrôle du domaine : Ø carotte ≥ 3 × Dmax.</p>
           </div>
         </div>
         {procedureCode && (
