@@ -268,6 +268,8 @@ const CompressionSampleForm = () => {
     () => centrales.find((centrale) => centrale.id === centraleId),
     [centrales, centraleId]
   );
+  
+
 
   const selectedFormulation = useMemo(
     () => formulations.find((formulation) => formulation.id === formulationId),
@@ -349,6 +351,17 @@ const CompressionSampleForm = () => {
       }
     }
   }, [existingEchantillon, chantiers, isLoadingChantiers]);
+
+  // Set centraleId after centrales are loaded (restores value in edit mode)
+  useEffect(() => {
+    if (existingEchantillon && !isLoadingCentrales && centrales.length > 0 && !centraleId) {
+      const savedCentraleId = existingEchantillon.centrale_id || "";
+      if (savedCentraleId && centrales.some((c: any) => c.id === savedCentraleId)) {
+        setCentraleId(savedCentraleId);
+      }
+    }
+  }, [existingEchantillon, centrales, isLoadingCentrales, centraleId]);
+
 
   // Set formulationId after formulations are loaded
   useEffect(() => {
