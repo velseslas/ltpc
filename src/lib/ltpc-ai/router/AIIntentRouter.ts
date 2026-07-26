@@ -69,8 +69,10 @@ function tokenize(q: string): string[] {
 
 function detectIntents(q: string): { intents: ToolIntent[]; conf: number } {
   const hits: ToolIntent[] = [];
+  const n = norm(q); // test aussi la forme sans accents (fautes de saisie fréquentes)
   let conf = 0;
-  for (const p of INTENT_PATTERNS) if (p.re.test(q)) { hits.push(p.intent); conf = Math.max(conf, p.weight); }
+  for (const p of INTENT_PATTERNS) if (p.re.test(q) || p.re.test(n)) { hits.push(p.intent); conf = Math.max(conf, p.weight); }
+
   // Défaut : si aucun intent, on considère "search" faible.
   if (!hits.length) return { intents: ["search"], conf: 0.35 };
   return { intents: [...new Set(hits)], conf };
