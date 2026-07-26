@@ -23,12 +23,14 @@ Tu reçois UNIQUEMENT les résultats de ces outils. Tu NE dois JAMAIS :
 RÈGLES ABSOLUES :
 1. Réponds à partir des blocs "Résultats des outils" fournis.
 2. Cite les sources sous la forme [ref:<source_type>:<source_id>] UNIQUEMENT avec des identifiants réellement présents dans les citations fournies. N'invente JAMAIS de référence (jamais [ref:SQLSearchTool:0], jamais un nom d'outil comme source).
-3. COMPTAGE — règle stricte : tout nombre d'enregistrements doit provenir EXCLUSIVEMENT du bloc « DONNÉE VÉRIFIÉE PAR LA BASE DE DONNÉES » (SQLCountTool). Il est interdit de compter les éléments d'une liste, d'une recherche, d'un extrait, du contexte de route, du RAG ou de l'historique. N'accole AUCUNE balise [ref:…] à un chiffre de comptage : écris simplement « Vous avez N … (comptage vérifié en base) ». Si la question est quantitative et qu'aucun bloc « DONNÉE VÉRIFIÉE » n'est fourni, réponds exactement : « Je ne peux pas déterminer ce nombre de manière fiable : aucun comptage vérifié en base n'a été effectué pour cette question. »
+3. COMPTAGE — règle stricte : tout nombre d'enregistrements doit provenir EXCLUSIVEMENT du bloc « DONNÉE VÉRIFIÉE PAR LA BASE DE DONNÉES » (SQLCountTool / BusinessDataTool). Il est interdit de compter les éléments d'une liste, d'une recherche, d'un extrait, du contexte de route, du RAG ou de l'historique. N'accole AUCUNE balise [ref:…] à un chiffre de comptage : écris simplement « Vous avez N … (comptage vérifié en base) ». Si la question est quantitative et qu'aucun bloc « DONNÉE VÉRIFIÉE » n'est fourni, réponds exactement : « Je ne peux pas déterminer ce nombre de manière fiable : aucun comptage vérifié en base n'a été effectué pour cette question. »
 4. Pour les questions statistiques, utilise SQLStatisticsTool.data (moyenne, écart-type, CV).
 5. Pour les questions d'analyse ou recommandation, exploite les findings/recommendations des outils métier (CompressionTool, MixDesignTool, GranulometryTool, NonConformityTool).
 6. Termine par « **Confiance : X %** » en reprenant la confiance agrégée fournie.
 7. Français, ton professionnel, concis. Titres markdown pour les réponses longues.
-8. Si tous les outils ont retourné vide ET aucun compte n'est disponible, dis clairement que la base ne contient pas cette information.`;
+8. Si tous les outils ont retourné vide ET aucun compte n'est disponible, dis clairement que la base ne contient pas cette information.
+9. DONNÉES MÉTIER — BusinessDataTool donne accès en lecture aux entités métier et techniques réelles de LTPC ERP (clients, cimenteries, carrières, adjuvants, centrales, produits, chantiers, laboratoires mobiles, personnel, formulations, tous les essais béton/granulats/géotechnique, carottages, matériel, étalonnages, maintenances, mouvements de matériel, rapports techniques, documents, devis/factures/bons de commande, tarifs). Si ses résultats contiennent l'information, réponds avec ces données réelles. Ne dis JAMAIS « je n'ai pas accès à cette information » quand un outil a renvoyé la donnée : dis « aucune donnée enregistrée » uniquement si le résultat est réellement vide (0). Pour les listes issues de BusinessDataTool, écris simplement le libellé de chaque élément SANS balise [ref:…] (jamais [ref:BusinessDataTool:0]).
+10. Tu n'as aucun accès aux mots de passe, tokens, clés API, secrets, rôles ou permissions : ces données ne te sont jamais transmises. Si on te les demande, refuse.`;
 
 interface ToolResultIn {
   tool: string;
@@ -86,7 +88,7 @@ function buildToolsBlock(results: ToolResultIn[]): string {
 /** Bloc de comptage vérifié en base — seule source autorisée pour un nombre. */
 function buildVerifiedCountBlock(results: ToolResultIn[]): string {
   const counts = results
-    .filter((r) => r.tool === "SQLCountTool" && r.ok)
+    .filter((r) => (r.tool === "SQLCountTool" || r.tool === "BusinessDataTool") && r.ok)
     .flatMap((r) => Object.entries((r.data?.counts ?? {}) as Record<string, number>));
   if (!counts.length) return "";
   const lines = counts.map(([entity, n]) =>
@@ -174,10 +176,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Nettoyage : supprime toute balise [ref:…] invalide (nom d'outil, index numérique,
+    // identifiant inexistant) — garantit qu'aucune référence inventée n'atteint l'UI.
+    const validIds = new Set(providedCitations.map((c) => `${c.source_type}:${c.source_id}`));
+    answer = String(answer).replace(/\s*\[ref:([^\]:]+):([^\]]+)\]/gi, (full, t: string, id: string) =>
+      validIds.has(`${t}:${id}`) ? full : "");
+
     // Filtre les citations effectivement citées dans la réponse.
     const usedIds = new Set<string>();
-    for (const m of String(answer).matchAll(/\[ref:([a-z_]+):([0-9a-f-]{8,})\]/gi)) usedIds.add(`${m[1]}:${m[2]}`);
+    for (const m of answer.matchAll(/\[ref:([a-z_]+):([0-9a-f-]{8,})\]/gi)) usedIds.add(`${m[1]}:${m[2]}`);
     const finalCitations = providedCitations.filter((c) => usedIds.has(`${c.source_type}:${c.source_id}`));
+
 
     console.log("[ltpc-ai-chat]", JSON.stringify({
       q: body.user_query.slice(0, 120),

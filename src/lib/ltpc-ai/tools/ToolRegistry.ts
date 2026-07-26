@@ -5,6 +5,7 @@ import { selectTools } from "./selectTools";
 
 // Import des outils livrés en v1.1.
 import { SQLCountTool } from "./SQLCountTool";
+import { BusinessDataTool } from "./BusinessDataTool";
 import { SQLListTool } from "./SQLListTool";
 import { SQLSearchTool } from "./SQLSearchTool";
 import { SQLStatisticsTool } from "./SQLStatisticsTool";
@@ -40,7 +41,7 @@ export { selectTools };
 
 // Enregistrement par défaut — l'ordre n'a aucune importance.
 [
-  SQLCountTool, SQLListTool, SQLSearchTool, SQLStatisticsTool,
+  BusinessDataTool, SQLCountTool, SQLListTool, SQLSearchTool, SQLStatisticsTool,
   CompressionTool, GranulometryTool, MixDesignTool,
   ReportTool, DocumentTool, MaterialTool, CalibrationTool,
   NonConformityTool, MonitoringTool, KnowledgeTool,
