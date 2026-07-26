@@ -268,7 +268,7 @@ const CompressionSampleForm = () => {
     () => centrales.find((centrale) => centrale.id === centraleId),
     [centrales, centraleId]
   );
-  if (typeof window !== "undefined") console.log("DBG", { centraleId, chantierId, clientId, centrales: centrales.map((c: any) => c.id), sel: (selectedCentrale as any)?.nom });
+  
 
 
   const selectedFormulation = useMemo(
