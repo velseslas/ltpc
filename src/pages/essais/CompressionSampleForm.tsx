@@ -960,84 +960,165 @@ const CompressionSampleForm = () => {
             </div>
 
             <div className="space-y-4">
-              <Label className="text-muted-foreground">Jours d'essai</Label>
+              <Label className="text-muted-foreground">Échéances d'essai</Label>
 
-              <div className="space-y-3">
-                {JOURS_ESSAI.map((jour, index) => (
-                  <div
-                    key={jour.value}
-                    className="flex items-center justify-between p-4 rounded-lg border border-border bg-background"
-                  >
+              <Tabs defaultValue="jours" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="jours">Jours d'essai</TabsTrigger>
+                  <TabsTrigger value="heures">Heures d'essai</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="jours" className="space-y-3 mt-4">
+                  {JOURS_ESSAI.map((jour, index) => (
+                    <div
+                      key={jour.value}
+                      className="flex items-center justify-between p-4 rounded-lg border border-border bg-background"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          id={`jour-${jour.value}`}
+                          checked={joursEssai[index].selected}
+                          onCheckedChange={(checked) =>
+                            handleJourToggle(index, checked as boolean)
+                          }
+                          className="border-primary data-[state=checked]:bg-primary"
+                        />
+                        <Label
+                          htmlFor={`jour-${jour.value}`}
+                          className={cn(
+                            "cursor-pointer",
+                            joursEssai[index].selected
+                              ? "text-primary font-medium"
+                              : "text-foreground"
+                          )}
+                        >
+                          {jour.label}
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-sm">Nombre:</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={joursEssai[index].nombre}
+                          onChange={(e) => handleJourNombreChange(index, e.target.value)}
+                          className="w-20 h-8 bg-muted/50 text-center"
+                          disabled={!joursEssai[index].selected}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Autre jour */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-background">
                     <div className="flex items-center gap-3">
                       <Checkbox
-                        id={`jour-${jour.value}`}
-                        checked={joursEssai[index].selected}
-                        onCheckedChange={(checked) =>
-                          handleJourToggle(index, checked as boolean)
-                        }
+                        id="jour-autre"
+                        checked={autreJourSelected}
+                        onCheckedChange={(checked) => setAutreJourSelected(checked as boolean)}
                         className="border-primary data-[state=checked]:bg-primary"
                       />
-                      <Label
-                        htmlFor={`jour-${jour.value}`}
-                        className={cn(
-                          "cursor-pointer",
-                          joursEssai[index].selected
-                            ? "text-primary font-medium"
-                            : "text-foreground"
-                        )}
-                      >
-                        {jour.label}
+                      <Label htmlFor="jour-autre" className="cursor-pointer text-foreground">
+                        Autre:
                       </Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={autreJour}
+                        onChange={(e) => setAutreJour(e.target.value)}
+                        placeholder="jours"
+                        className="w-20 h-8 bg-muted/50 text-center"
+                        disabled={!autreJourSelected}
+                      />
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground text-sm">Nombre:</span>
                       <Input
                         type="number"
                         min="0"
-                        value={joursEssai[index].nombre}
-                        onChange={(e) => handleJourNombreChange(index, e.target.value)}
+                        value={autreJourNombre}
+                        onChange={(e) => setAutreJourNombre(parseInt(e.target.value) || 0)}
                         className="w-20 h-8 bg-muted/50 text-center"
-                        disabled={!joursEssai[index].selected}
+                        disabled={!autreJourSelected}
                       />
                     </div>
                   </div>
-                ))}
+                </TabsContent>
 
-                {/* Autre jour */}
-                <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-background">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id="jour-autre"
-                      checked={autreJourSelected}
-                      onCheckedChange={(checked) => setAutreJourSelected(checked as boolean)}
-                      className="border-primary data-[state=checked]:bg-primary"
-                    />
-                    <Label htmlFor="jour-autre" className="cursor-pointer text-foreground">
-                      Autre:
-                    </Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={autreJour}
-                      onChange={(e) => setAutreJour(e.target.value)}
-                      placeholder="jours"
-                      className="w-20 h-8 bg-muted/50 text-center"
-                      disabled={!autreJourSelected}
-                    />
+                <TabsContent value="heures" className="space-y-3 mt-4">
+                  {HEURES_ESSAI.map((heure, index) => (
+                    <div
+                      key={heure.value}
+                      className="flex items-center justify-between p-4 rounded-lg border border-border bg-background"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Checkbox
+                          id={`heure-${heure.value}`}
+                          checked={heuresEssai[index].selected}
+                          onCheckedChange={(checked) => handleHeureToggle(index, checked as boolean)}
+                          className="border-primary data-[state=checked]:bg-primary"
+                        />
+                        <Label
+                          htmlFor={`heure-${heure.value}`}
+                          className={cn(
+                            "cursor-pointer",
+                            heuresEssai[index].selected ? "text-primary font-medium" : "text-foreground"
+                          )}
+                        >
+                          {heure.label}
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-sm">Nombre:</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={heuresEssai[index].nombre}
+                          onChange={(e) => handleHeureNombreChange(index, e.target.value)}
+                          className="w-20 h-8 bg-muted/50 text-center"
+                          disabled={!heuresEssai[index].selected}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Autre heure */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-background">
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        id="heure-autre"
+                        checked={autreHeureSelected}
+                        onCheckedChange={(checked) => setAutreHeureSelected(checked as boolean)}
+                        className="border-primary data-[state=checked]:bg-primary"
+                      />
+                      <Label htmlFor="heure-autre" className="cursor-pointer text-foreground">
+                        Autre:
+                      </Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={autreHeure}
+                        onChange={(e) => setAutreHeure(e.target.value)}
+                        placeholder="heures"
+                        className="w-20 h-8 bg-muted/50 text-center"
+                        disabled={!autreHeureSelected}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground text-sm">Nombre:</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={autreHeureNombre}
+                        onChange={(e) => setAutreHeureNombre(parseInt(e.target.value) || 0)}
+                        className="w-20 h-8 bg-muted/50 text-center"
+                        disabled={!autreHeureSelected}
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-sm">Nombre:</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={autreJourNombre}
-                      onChange={(e) => setAutreJourNombre(parseInt(e.target.value) || 0)}
-                      className="w-20 h-8 bg-muted/50 text-center"
-                      disabled={!autreJourSelected}
-                    />
-                  </div>
-                </div>
-              </div>
+                </TabsContent>
+              </Tabs>
+
 
               {/* Validation alert */}
               {parseInt(nombreEprouvettes) > 0 && totalDistribue !== parseInt(nombreEprouvettes) && (
