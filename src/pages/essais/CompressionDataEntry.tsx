@@ -435,7 +435,13 @@ const CompressionDataEntry = () => {
                         Éprouvette {ep.numero}
                       </td>
                       <td className="py-4 px-2">
-                        <span className="text-sm text-foreground">{ep.dateEssai}</span>
+                        <Input
+                          type={ep.isHeures ? "datetime-local" : "date"}
+                          value={toInputValue(ep.dateEssai, ep.isHeures)}
+                          onChange={(e) => handleDateEssaiChange(index, e.target.value)}
+                          className={`bg-muted/50 border-border ${ep.isHeures ? "w-52" : "w-40"} ${!ep.dateEssai ? "border-destructive" : ""}`}
+                          required
+                        />
                       </td>
                       <td className="py-4 px-2">
                         <div className="bg-muted/50 rounded-lg px-4 py-2 w-20 text-center text-foreground font-medium">
