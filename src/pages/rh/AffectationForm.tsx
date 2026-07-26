@@ -78,7 +78,10 @@ export default function AffectationForm() {
     }
   }, [formData.client_id, isInitialized, lastClientId]);
 
+  const selectedChantier = chantiers?.find((c) => c.id === formData.chantier_id);
+
   const errors = {
+
     intervenant_id: submitted && !formData.intervenant_id,
     client_id: submitted && !formData.client_id,
     chantier_id: submitted && !formData.chantier_id,
