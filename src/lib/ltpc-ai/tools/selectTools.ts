@@ -33,6 +33,14 @@ export function selectTools(
     .filter((s) => s.supported && s.score >= min)
     .sort((a, b) => b.score - a.score);
 
+  // Règle 1-bis : BusinessDataTool (données métier réelles) est toujours conservé
+  // s'il est compétent — c'est lui qui garantit qu'aucune donnée métier existante
+  // ne provoque un « je n'ai pas accès à cette information ».
+  {
+    const biz = scores.find((s) => s.tool === "BusinessDataTool" && s.supported);
+    if (biz && !candidates.includes(biz)) candidates = [biz, ...candidates];
+  }
+
   // Règle 2 : intent=count → SQLCountTool doit être en tête, quoi qu'il arrive.
   if (isCount) {
     const countIdx = candidates.findIndex((s) => s.tool === "SQLCountTool");
