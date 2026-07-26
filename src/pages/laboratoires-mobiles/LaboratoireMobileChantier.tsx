@@ -22,6 +22,8 @@ import { EchantillonsStatsCards } from "@/components/laboratoires-mobiles/Echant
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ChantierLocalisationBanner } from "@/components/localisation/ChantierLocalisationBanner";
+
 
 export default function LaboratoireMobileChantier() {
   const navigate = useNavigate();
@@ -194,8 +196,12 @@ export default function LaboratoireMobileChantier() {
         </Card>
       </div>
 
+      {/* LOT 14.1 — Localisation & itinéraire terrain */}
+      <ChantierLocalisationBanner chantier={chantier as any} chantierNom={chantier.nom} />
+
       {/* Échantillons Stats */}
       <EchantillonsStatsCards
+
         total={echantillonStats.total}
         enCours={echantillonStats.enCours}
         termines={echantillonStats.termines}
