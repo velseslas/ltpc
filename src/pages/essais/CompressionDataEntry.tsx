@@ -164,7 +164,7 @@ const CompressionDataEntry = () => {
           const isHeures = je.unite === "heures" && typeof je.heures === "number";
           for (let i = 0; i < je.nombre; i++) {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
-            const dateEssai = data.date_coulage
+            const dateCalculee = data.date_coulage
               ? isHeures
                 ? format(addHours(new Date(data.date_coulage), je.heures!), "dd/MM/yyyy HH:mm")
                 : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
@@ -174,7 +174,8 @@ const CompressionDataEntry = () => {
               numero: eprouvetteNum,
               joursEssai: je.jour,
               echeanceLabel: isHeures ? `${je.heures} h` : String(je.jour),
-              dateEssai,
+              isHeures,
+              dateEssai: existing?.dateEssai || dateCalculee,
               poids: existing?.poids || 0,
               densite: existing?.densite || 0,
               charge: existing?.charge || 0,
