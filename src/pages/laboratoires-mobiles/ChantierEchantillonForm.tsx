@@ -811,8 +811,21 @@ export default function ChantierEchantillonForm() {
             </div>
           </div>
 
-          <div className="mt-6 space-y-4">
-            <Label className="text-muted-foreground">Échéances d'essai</Label>
+        </div>
+
+        {/* Section Échéances d'essai */}
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-foreground">
+              Échéances d'essai
+            </h2>
+            <div className="text-sm text-muted-foreground">
+              Total distribué: <span className="font-semibold text-foreground">{totalDistribue}</span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+
 
             <Tabs defaultValue="jours" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
@@ -983,8 +996,8 @@ export default function ChantierEchantillonForm() {
               </Alert>
             )}
           </div>
-
         </div>
+
 
         {/* Buttons */}
         <div className="flex justify-end gap-4">
