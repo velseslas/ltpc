@@ -176,10 +176,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Nettoyage : supprime toute balise [ref:…] invalide (nom d'outil, index numérique,
+    // identifiant inexistant) — garantit qu'aucune référence inventée n'atteint l'UI.
+    const validIds = new Set(providedCitations.map((c) => `${c.source_type}:${c.source_id}`));
+    answer = String(answer).replace(/\s*\[ref:([^\]:]+):([^\]]+)\]/gi, (full, t: string, id: string) =>
+      validIds.has(`${t}:${id}`) ? full : "");
+
     // Filtre les citations effectivement citées dans la réponse.
     const usedIds = new Set<string>();
-    for (const m of String(answer).matchAll(/\[ref:([a-z_]+):([0-9a-f-]{8,})\]/gi)) usedIds.add(`${m[1]}:${m[2]}`);
+    for (const m of answer.matchAll(/\[ref:([a-z_]+):([0-9a-f-]{8,})\]/gi)) usedIds.add(`${m[1]}:${m[2]}`);
     const finalCitations = providedCitations.filter((c) => usedIds.has(`${c.source_type}:${c.source_id}`));
+
 
     console.log("[ltpc-ai-chat]", JSON.stringify({
       q: body.user_query.slice(0, 120),
