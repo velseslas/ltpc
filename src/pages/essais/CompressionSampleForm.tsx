@@ -410,11 +410,23 @@ const CompressionSampleForm = () => {
       return;
     }
 
-    // Prepare jours_essai data
-    const joursEssaiData = [
+    // Prepare jours_essai data (jours + heures)
+    const joursEssaiData: EcheanceEssai[] = [
       ...joursEssai.filter((j) => j.selected).map((j) => ({ jour: j.jour, nombre: j.nombre })),
       ...(autreJourSelected && autreJour ? [{ jour: parseInt(autreJour), nombre: autreJourNombre }] : []),
+      ...heuresEssai
+        .filter((h) => h.selected)
+        .map((h) => ({ jour: h.heure / 24, nombre: h.nombre, unite: "heures", heures: h.heure })),
+      ...(autreHeureSelected && autreHeure
+        ? [{
+            jour: parseInt(autreHeure) / 24,
+            nombre: autreHeureNombre,
+            unite: "heures",
+            heures: parseInt(autreHeure),
+          }]
+        : []),
     ];
+
 
     const data = {
       client_id: clientId || null,
