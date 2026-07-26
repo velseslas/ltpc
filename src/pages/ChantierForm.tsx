@@ -17,8 +17,10 @@ import { useCreateChantier, useChantier, useUpdateChantier } from "@/hooks/useCh
 import { useClient } from "@/hooks/useClients";
 import { toast } from "sonner";
 import { wilayas } from "@/data/wilayas";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { LocalisationPicker, type LocalisationValue } from "@/components/localisation/LocalisationPicker";
+
 
 const chantierSchema = z.object({
   nom: z.string().min(1, "Le nom du chantier est requis"),
@@ -59,6 +61,12 @@ const ChantierForm = () => {
     },
   });
 
+  const [localisation, setLocalisation] = useState<LocalisationValue>({
+    adresse_localisation: "",
+    latitude: null,
+    longitude: null,
+  });
+
   // Pre-fill form when editing
   useEffect(() => {
     if (chantier && isEditing) {
@@ -72,6 +80,11 @@ const ChantierForm = () => {
         date_fin: chantier.date_fin || "",
         statut: chantier.statut || "planifie",
       });
+      setLocalisation({
+        adresse_localisation: (chantier as any).adresse_localisation || "",
+        latitude: (chantier as any).latitude ?? null,
+        longitude: (chantier as any).longitude ?? null,
+      });
     }
   }, [chantier, isEditing, form]);
 
@@ -82,6 +95,12 @@ const ChantierForm = () => {
       toast.error("Client non spécifié");
       return;
     }
+
+    const localisationPayload = {
+      adresse_localisation: localisation.adresse_localisation.trim() || null,
+      latitude: localisation.latitude,
+      longitude: localisation.longitude,
+    };
     
     try {
       if (isEditing && chantierId) {
@@ -97,6 +116,7 @@ const ChantierForm = () => {
             statut: data.statut,
             date_debut: data.date_debut || null,
             date_fin: data.date_fin || null,
+            ...localisationPayload,
           }
         });
         toast.success("Chantier modifié avec succès");
@@ -112,9 +132,11 @@ const ChantierForm = () => {
           client_id: targetClientId,
           date_debut: data.date_debut || null,
           date_fin: data.date_fin || null,
+          ...localisationPayload,
         });
         toast.success("Chantier créé avec succès");
       }
+
       navigate(`/intervenant/clients/${targetClientId}`);
     } catch (error) {
       toast.error(isEditing ? "Erreur lors de la modification du chantier" : "Erreur lors de la création du chantier");
@@ -313,6 +335,13 @@ const ChantierForm = () => {
                 )}
               </div>
             </div>
+
+            {/* LOT 14.1 — Localisation du chantier */}
+            <div className="mt-6">
+              <LocalisationPicker value={localisation} onChange={setLocalisation} />
+            </div>
+
+
 
             {/* Actions */}
             <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-end gap-3 pt-4 border-t border-border mt-6">

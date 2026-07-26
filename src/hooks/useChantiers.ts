@@ -13,6 +13,10 @@ export interface Chantier {
   statut: string;
   date_debut: string | null;
   date_fin: string | null;
+  /** LOT 14.1 — Localisation (optionnelle) */
+  adresse_localisation: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +32,11 @@ export interface ChantierInsert {
   statut?: string;
   date_debut?: string | null;
   date_fin?: string | null;
+  adresse_localisation?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
+
 
 const repo = getRepositoryForTable<Chantier>("chantiers", {
   defaultOrder: { column: "nom", ascending: true },

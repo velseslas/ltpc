@@ -736,6 +736,7 @@ export type Database = {
       chantiers: {
         Row: {
           adresse: string | null
+          adresse_localisation: string | null
           client_id: string | null
           contact: string | null
           created_at: string
@@ -743,6 +744,8 @@ export type Database = {
           date_fin: string | null
           description: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           nom: string
           statut: string
           telephone: string | null
@@ -751,6 +754,7 @@ export type Database = {
         }
         Insert: {
           adresse?: string | null
+          adresse_localisation?: string | null
           client_id?: string | null
           contact?: string | null
           created_at?: string
@@ -758,6 +762,8 @@ export type Database = {
           date_fin?: string | null
           description?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           nom: string
           statut?: string
           telephone?: string | null
@@ -766,6 +772,7 @@ export type Database = {
         }
         Update: {
           adresse?: string | null
+          adresse_localisation?: string | null
           client_id?: string | null
           contact?: string | null
           created_at?: string
@@ -773,6 +780,8 @@ export type Database = {
           date_fin?: string | null
           description?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           nom?: string
           statut?: string
           telephone?: string | null

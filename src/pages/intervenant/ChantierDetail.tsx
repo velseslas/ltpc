@@ -9,6 +9,8 @@ import { useChantier } from "@/hooks/useChantiers";
 import { useClient } from "@/hooks/useClients";
 import { useChantierCentrales, useDetachCentraleFromChantier } from "@/hooks/useChantierCentrales";
 import { AffectCentraleDialog } from "@/components/clients/AffectCentraleDialog";
+import { ChantierLocalisationSection } from "@/components/localisation/ChantierLocalisationSection";
+
 import { toast } from "sonner";
 
 const statusColor = (s?: string) => {
@@ -127,6 +129,16 @@ const ChantierDetail = () => {
           />
         </div>
       </div>
+
+      {/* LOT 14.1 — Localisation & itinéraire */}
+      <ChantierLocalisationSection
+        chantier={chantier as any}
+        onAddLocalisation={() =>
+          navigate(`/intervenant/chantiers/${chantierId}/modifier?clientId=${effectiveClientId}`)
+        }
+      />
+
+
 
       {/* Centrales à béton */}
       <div className="bg-card border border-border rounded-xl p-5">
