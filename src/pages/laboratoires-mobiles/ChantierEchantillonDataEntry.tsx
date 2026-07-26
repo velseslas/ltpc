@@ -227,7 +227,12 @@ export default function ChantierEchantillonDataEntry() {
 
   const handleSave = async () => {
     if (!echantillonId) return;
-    
+
+    if (eprouvettes.some((ep) => !ep.dateEssai)) {
+      toast.error("La date d'essai est obligatoire pour chaque éprouvette");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const eprouvettesWithData = eprouvettes.filter(e => e.resistance > 0 && e.poids > 0 && e.charge > 0);
