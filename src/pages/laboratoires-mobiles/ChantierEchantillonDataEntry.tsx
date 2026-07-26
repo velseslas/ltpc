@@ -41,6 +41,12 @@ const fromInputValue = (value: string, isHeures?: boolean): string => {
   return isHeures ? `${dd}/${mm}/${yyyy} ${timePart || "00:00"}` : `${dd}/${mm}/${yyyy}`;
 };
 
+const sortEprouvettesByEcheance = (items: EprouvetteData[]): EprouvetteData[] =>
+  [...items].sort((a, b) => {
+    if (a.isHeures !== b.isHeures) return a.isHeures ? -1 : 1;
+    return a.joursEssai - b.joursEssai || a.numero - b.numero;
+  });
+
 interface EchantillonData {
   id: string;
   numero: number;
@@ -114,18 +120,19 @@ export default function ChantierEchantillonDataEntry() {
 
         joursEssai.forEach((je) => {
           const isHeures = je.unite === "heures" && typeof je.heures === "number";
+          const heures = typeof je.heures === "number" ? je.heures : 0;
           for (let i = 0; i < je.nombre; i++) {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
             const dateCalculee = data.date_coulage
               ? isHeures
-                ? format(addHours(new Date(data.date_coulage), je.heures!), "dd/MM/yyyy HH:mm")
+                ? format(addHours(new Date(data.date_coulage), heures), "dd/MM/yyyy HH:mm")
                 : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
               : "";
 
             eprouvettesList.push({
               numero: eprouvetteNum,
               joursEssai: je.jour,
-              echeanceLabel: isHeures ? `${je.heures} h` : String(je.jour),
+              echeanceLabel: isHeures ? `${heures} h` : String(je.jour),
               isHeures,
               dateEssai: existing?.dateEssai || dateCalculee,
               poids: existing?.poids || 0,
@@ -157,7 +164,7 @@ export default function ChantierEchantillonDataEntry() {
           resultats: existingResultats,
         });
 
-        setEprouvettes(eprouvettesList);
+        setEprouvettes(sortEprouvettesByEcheance(eprouvettesList));
       } catch (error) {
         console.error("Error fetching echantillon:", error);
         toast.error("Erreur lors du chargement");
@@ -341,7 +348,7 @@ export default function ChantierEchantillonDataEntry() {
                 <tr className="border-b">
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground"></th>
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Date d'essai</th>
-                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Jours</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Échéance</th>
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Poids (g)</th>
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Densité</th>
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Charge (kN)</th>

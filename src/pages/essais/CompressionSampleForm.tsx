@@ -264,11 +264,22 @@ const CompressionSampleForm = () => {
     return list;
   }, [formulationsFromCentrale, existingFormulation]);
 
+  const selectedCentrale = useMemo(
+    () => centrales.find((centrale) => centrale.id === centraleId),
+    [centrales, centraleId]
+  );
+
+  const selectedFormulation = useMemo(
+    () => formulations.find((formulation) => formulation.id === formulationId),
+    [formulations, formulationId]
+  );
+
   // Initialize all form fields when editing (single consolidated effect)
   useEffect(() => {
     if (existingEchantillon && !editInitialized.current) {
       editInitialized.current = true;
       setClientId(existingEchantillon.client_id || "");
+      setChantierId(existingEchantillon.chantier_id || "");
       setCentraleId(existingEchantillon.centrale_id || "");
       setOperateurId(existingEchantillon.operateur_id || "");
       setOuvrage(existingEchantillon.ouvrage || "");
@@ -691,9 +702,11 @@ const CompressionSampleForm = () => {
               {/* Centrale à béton */}
               <div className="space-y-2">
                 <Label htmlFor="centrale">Centrale à béton <span className="text-red-700">*</span></Label>
-                <Select key={`centrale-${centrales.map((c) => c.id).join("|")}`} value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
+                <Select key={`centrale-${centraleId}-${centrales.map((c) => c.id).join("|")}`} value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
                   <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
-                    <SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} />
+                    <SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"}>
+                      {selectedCentrale?.nom}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {centrales.length === 0 ? (
@@ -714,6 +727,7 @@ const CompressionSampleForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="formulation">Formulation de béton <span className="text-red-700">*</span></Label>
                 <Select
+                  key={`formulation-${formulationId}-${formulations.map((f) => f.id).join("|")}`}
                   value={formulationId}
                   onValueChange={setFormulationId}
                   disabled={!centraleId}
@@ -725,7 +739,9 @@ const CompressionSampleForm = () => {
                           ? "Sélectionnez une formulation"
                           : "Sélectionnez d'abord une centrale"
                       }
-                    />
+                    >
+                      {selectedFormulation?.nom}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {formulations.map((form) => (

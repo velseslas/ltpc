@@ -201,6 +201,16 @@ export default function ChantierEchantillonForm() {
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId || "");
   const { data: labos } = useLaboratoiresMobiles();
 
+  const selectedCentrale = useMemo(
+    () => centrales.find((centrale) => centrale.id === centraleId),
+    [centrales, centraleId]
+  );
+
+  const selectedFormulation = useMemo(
+    () => formulations.find((formulation) => formulation.id === formulationId),
+    [formulations, formulationId]
+  );
+
   // Get the responsable_id (technician) assigned to this chantier's lab
   const responsableId = useMemo(() => {
     if (!labos || !chantierId) return null;
@@ -552,9 +562,11 @@ export default function ChantierEchantillonForm() {
             {/* Centrale à béton */}
             <div className="space-y-2">
               <Label htmlFor="centrale">Centrale à béton <span className="text-red-500">*</span></Label>
-              <Select key={`centrale-${centrales.map((c) => c.id).join("|")}`} value={centraleId} onValueChange={handleCentraleChange} disabled={isLoadingCentrales}>
+              <Select key={`centrale-${centraleId}-${centrales.map((c) => c.id).join("|")}`} value={centraleId} onValueChange={handleCentraleChange} disabled={isLoadingCentrales}>
                 <SelectTrigger className={cn(showError && !centraleId && "animate-border-blink")}>
-                  <SelectValue placeholder="Sélectionnez une centrale" />
+                  <SelectValue placeholder="Sélectionnez une centrale">
+                    {selectedCentrale?.nom}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {centrales.length === 0 ? (
@@ -574,6 +586,7 @@ export default function ChantierEchantillonForm() {
             <div className="space-y-2">
               <Label htmlFor="formulation">Formulation de béton <span className="text-red-500">*</span></Label>
               <Select
+                key={`formulation-${formulationId}-${formulations.map((f) => f.id).join("|")}`}
                 value={formulationId}
                 onValueChange={setFormulationId}
                 disabled={!centraleId}
@@ -585,7 +598,9 @@ export default function ChantierEchantillonForm() {
                         ? "Sélectionnez une formulation"
                         : "Sélectionnez d'abord une centrale"
                     }
-                  />
+                  >
+                    {selectedFormulation?.nom}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {formulations.map((form) => (

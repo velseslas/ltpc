@@ -5,7 +5,7 @@ import { ArrowLeft, Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useEntreprise } from "@/hooks/useEntreprise";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -13,12 +13,33 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 interface EprouvetteData {
   numero: number;
   joursEssai: number;
+  echeanceLabel?: string;
+  isHeures?: boolean;
   dateEssai: string;
   poids: number;
   densite: number;
   charge: number;
   resistance: number;
 }
+
+interface ResultGroup {
+  key: string;
+  label: string;
+  dateEssai: string;
+  sortOrder: number;
+  items: EprouvetteData[];
+}
+
+const getEcheanceLabel = (ep: EprouvetteData): string => {
+  if (ep.echeanceLabel) return ep.echeanceLabel;
+  if (ep.isHeures) return `${Math.round(ep.joursEssai * 24)} h`;
+  return String(ep.joursEssai);
+};
+
+const getEcheanceSortOrder = (ep: EprouvetteData): number => {
+  if (ep.isHeures) return ep.joursEssai;
+  return 1000 + ep.joursEssai;
+};
 
 interface FormulationIngredient {
   quantite: number | null;
@@ -302,15 +323,17 @@ export default function ChantierEchantillonReport() {
   const verificationUrl = `${window.location.origin}/laboratoires-mobiles/chantier/${chantierId}/echantillon/${echantillonId}/rapport`;
 
   // Pre-calculate groups and total rows for the results table
-  const sortedResults = [...echantillon.resultats].sort((a, b) => a.joursEssai - b.joursEssai);
-  const groups: { joursEssai: number; dateEssai: string; items: EprouvetteData[] }[] = [];
+  const sortedResults = [...echantillon.resultats].sort((a, b) => getEcheanceSortOrder(a) - getEcheanceSortOrder(b) || a.numero - b.numero);
+  const groups: ResultGroup[] = [];
   
   sortedResults.forEach((ep) => {
-    const existingGroup = groups.find(g => g.joursEssai === ep.joursEssai);
+    const label = getEcheanceLabel(ep);
+    const key = `${ep.isHeures ? "heures" : "jours"}-${label}-${ep.dateEssai || "sans-date"}`;
+    const existingGroup = groups.find(g => g.key === key);
     if (existingGroup) {
       existingGroup.items.push(ep);
     } else {
-      groups.push({ joursEssai: ep.joursEssai, dateEssai: ep.dateEssai, items: [ep] });
+      groups.push({ key, label, dateEssai: ep.dateEssai, sortOrder: getEcheanceSortOrder(ep), items: [ep] });
     }
   });
 
@@ -510,7 +533,7 @@ export default function ChantierEchantillonReport() {
               <tr>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date d'essai</th>
-                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Âge (jours)</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Échéance</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Poids (g)</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Densité (kg/m³)</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Charge (kN)</th>
@@ -533,7 +556,7 @@ export default function ChantierEchantillonReport() {
                     globalRowIndex++;
 
                     return (
-                      <tr key={`${group.joursEssai}-${ep.numero}`}>
+                      <tr key={`${group.key}-${ep.numero}`}>
                         {isVeryFirstRow && (
                           <td 
                             rowSpan={totalRows} 
@@ -554,7 +577,7 @@ export default function ChantierEchantillonReport() {
                               rowSpan={group.items.length} 
                               className="border border-black px-2 py-2 text-center text-sm font-medium align-middle text-black"
                             >
-                              {group.joursEssai}
+                              {group.label}
                             </td>
                           </>
                         )}
