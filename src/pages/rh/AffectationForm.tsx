@@ -20,6 +20,8 @@ import { useCreateAffectation, useUpdateAffectation, useAffectation } from "@/ho
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { ChantierLocalisationBanner } from "@/components/localisation/ChantierLocalisationBanner";
+
 
 export default function AffectationForm() {
   const navigate = useNavigate();
@@ -235,7 +237,15 @@ export default function AffectationForm() {
                     Le chantier est requis
                   </p>
                 )}
+                {selectedChantier && (
+                  <ChantierLocalisationBanner
+                    chantier={selectedChantier}
+                    chantierNom={selectedChantier.nom}
+                    className="mt-2"
+                  />
+                )}
               </div>
+
 
               {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
