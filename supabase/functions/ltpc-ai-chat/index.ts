@@ -143,7 +143,8 @@ Deno.serve(async (req) => {
     const toolsBlock = buildToolsBlock(toolResults);
     const agentBlock = buildAgentBlock(agentDebug, body.aggregated_confidence);
 
-    const systemContent = SYSTEM_PROMPT + agentBlock + contextBlock + toolsBlock + legacyBlock;
+    const verifiedBlock = buildVerifiedCountBlock(toolResults);
+    const systemContent = SYSTEM_PROMPT + agentBlock + verifiedBlock + contextBlock + toolsBlock + legacyBlock;
 
     const messages = [
       { role: "system", content: systemContent },
