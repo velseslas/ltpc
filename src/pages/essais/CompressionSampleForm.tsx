@@ -318,8 +318,20 @@ const CompressionSampleForm = () => {
   const totalDistribue = useMemo(() => {
     const joursTotal = joursEssai.reduce((sum, j) => sum + (j.selected ? j.nombre : 0), 0);
     const autreTotal = autreJourSelected ? autreJourNombre : 0;
-    return joursTotal + autreTotal;
-  }, [joursEssai, autreJourSelected, autreJourNombre]);
+    const heuresTotal = heuresEssai.reduce((sum, h) => sum + (h.selected ? h.nombre : 0), 0);
+    const autreHeureTotal = autreHeureSelected ? autreHeureNombre : 0;
+    return joursTotal + autreTotal + heuresTotal + autreHeureTotal;
+  }, [joursEssai, autreJourSelected, autreJourNombre, heuresEssai, autreHeureSelected, autreHeureNombre]);
+
+  const handleHeureToggle = (index: number, checked: boolean) => {
+    setHeuresEssai((prev) => prev.map((h, i) => (i === index ? { ...h, selected: checked } : h)));
+  };
+
+  const handleHeureNombreChange = (index: number, value: string) => {
+    const nombre = parseInt(value) || 0;
+    setHeuresEssai((prev) => prev.map((h, i) => (i === index ? { ...h, nombre } : h)));
+  };
+
 
   // Handle client change - reset chantier
   const handleClientChange = (value: string) => {
