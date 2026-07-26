@@ -61,6 +61,12 @@ const ChantierForm = () => {
     },
   });
 
+  const [localisation, setLocalisation] = useState<LocalisationValue>({
+    adresse_localisation: "",
+    latitude: null,
+    longitude: null,
+  });
+
   // Pre-fill form when editing
   useEffect(() => {
     if (chantier && isEditing) {
@@ -74,6 +80,11 @@ const ChantierForm = () => {
         date_fin: chantier.date_fin || "",
         statut: chantier.statut || "planifie",
       });
+      setLocalisation({
+        adresse_localisation: (chantier as any).adresse_localisation || "",
+        latitude: (chantier as any).latitude ?? null,
+        longitude: (chantier as any).longitude ?? null,
+      });
     }
   }, [chantier, isEditing, form]);
 
@@ -84,6 +95,12 @@ const ChantierForm = () => {
       toast.error("Client non spécifié");
       return;
     }
+
+    const localisationPayload = {
+      adresse_localisation: localisation.adresse_localisation.trim() || null,
+      latitude: localisation.latitude,
+      longitude: localisation.longitude,
+    };
     
     try {
       if (isEditing && chantierId) {
@@ -99,6 +116,7 @@ const ChantierForm = () => {
             statut: data.statut,
             date_debut: data.date_debut || null,
             date_fin: data.date_fin || null,
+            ...localisationPayload,
           }
         });
         toast.success("Chantier modifié avec succès");
@@ -114,9 +132,11 @@ const ChantierForm = () => {
           client_id: targetClientId,
           date_debut: data.date_debut || null,
           date_fin: data.date_fin || null,
+          ...localisationPayload,
         });
         toast.success("Chantier créé avec succès");
       }
+
       navigate(`/intervenant/clients/${targetClientId}`);
     } catch (error) {
       toast.error(isEditing ? "Erreur lors de la modification du chantier" : "Erreur lors de la création du chantier");
