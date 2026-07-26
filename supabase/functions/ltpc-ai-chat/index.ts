@@ -83,6 +83,18 @@ function buildToolsBlock(results: ToolResultIn[]): string {
   return parts.join("\n");
 }
 
+/** Bloc de comptage vérifié en base — seule source autorisée pour un nombre. */
+function buildVerifiedCountBlock(results: ToolResultIn[]): string {
+  const counts = results
+    .filter((r) => r.tool === "SQLCountTool" && r.ok)
+    .flatMap((r) => Object.entries((r.data?.counts ?? {}) as Record<string, number>));
+  if (!counts.length) return "";
+  const lines = counts.map(([entity, n]) =>
+    `- Entité : ${entity} · Opération : COUNT(*) · Résultat : ${n} · Périmètre : données accessibles à l'utilisateur (RLS appliquées) · Source : base de données LTPC ERP`);
+  return `\n\n### DONNÉE VÉRIFIÉE PAR LA BASE DE DONNÉES\n${lines.join("\n")}\n- Horodatage serveur : ${new Date().toISOString()}\nUtilise ces valeurs EXACTES, sans les modifier, arrondir, estimer ni remplacer par une valeur de l'historique.`;
+}
+
+
 function buildAgentBlock(dbg?: AgentDebugIn, conf?: number): string {
   if (!dbg) return "";
   return `\n\n### Analyse de l'Agent
