@@ -22,7 +22,10 @@ const INTENT_PATTERNS: Array<{ intent: ToolIntent; re: RegExp; weight: number }>
   // count — priorité maximale, doit toujours produire intent=count avant tout autre.
   // Couvre : combien, combien de, nombre de, total de/des/d', j'ai combien,
   // nous avons combien, on a combien, combien avons-nous, nb, comptez, compte.
-  { intent: "count",      re: /\b(combien|nombre\s+de|nb\s|total\s+(?:de|des|d['’])|comptez?|compte)\b/i, weight: 0.95 },
+  // Tolérant aux fautes de frappe fréquentes (combient, conbien, cbien, kombien)
+  // et aux formulations « nombre de », « nb », « total de », « quantité de ».
+  { intent: "count",      re: /\b(c[oö]mb?ien[tsz]?|conbien[tsz]?|kombien|cbien|combien|nombre|nbre|nb|total|totaux|quantit[ée]s?|compt(?:e|es|ez|er|age)s?)\b/i, weight: 0.95 },
+
   { intent: "list",       re: /\b(liste|listez?|donne(?:z|r)?|montre(?:z|r)?|affiche(?:z|r)?|quels?|quelles?|tous les|toutes les|derniers?|dernières?)\b/i, weight: 0.7 },
   { intent: "search",     re: /\b(cherche|trouve|où|ou est|concernant|à propos|sur le|sur la|contenant)\b/i, weight: 0.7 },
   { intent: "compare",    re: /\b(compare(?:r|z)?|comparaison|versus|vs\b|différence entre|par rapport à)\b/i, weight: 0.85 },
