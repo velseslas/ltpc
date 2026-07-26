@@ -112,6 +112,15 @@ interface JourEssai {
   nombre: number;
 }
 
+interface HeureEssai {
+  heure: number;
+  selected: boolean;
+  nombre: number;
+}
+
+type EcheanceEssai = { jour: number; nombre: number; unite?: string; heures?: number };
+
+
 export default function ChantierEchantillonForm() {
   const navigate = useNavigate();
   const { chantierId, echantillonId } = useParams();
