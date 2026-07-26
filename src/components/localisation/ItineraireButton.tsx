@@ -3,10 +3,8 @@ import { Car, Map } from "lucide-react";
 import {
   buildItineraireUrl,
   buildVoirSurCarteUrl,
-  openExternalNavigation,
   type ChantierLocalisation,
 } from "@/lib/geo";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 /** LOT 14.1 — Lance la navigation externe (Google Maps / URL universelle). */
@@ -23,9 +21,34 @@ export function ItineraireButton({
 }) {
   const url = buildItineraireUrl(localisation);
 
+  const content = (
+    <>
+      <Car className="h-4 w-4" />
+      Itinéraire
+    </>
+  );
+
+  if (!url) {
+    return (
+      <Button
+        type="button"
+        size={size}
+        variant={variant}
+        className={cn(
+          "min-h-[44px] gap-2",
+          !variant && "gradient-primary text-primary-foreground",
+          className,
+        )}
+        disabled
+      >
+        {content}
+      </Button>
+    );
+  }
+
   return (
     <Button
-      type="button"
+      asChild
       size={size}
       variant={variant}
       className={cn(
@@ -33,17 +56,10 @@ export function ItineraireButton({
         !variant && "gradient-primary text-primary-foreground",
         className,
       )}
-      onClick={() => {
-        if (!url) {
-          toast.error("Localisation non renseignée pour ce chantier");
-          return;
-        }
-        openExternalNavigation(url);
-      }}
-      disabled={!url}
     >
-      <Car className="h-4 w-4" />
-      Itinéraire
+      <a href={url} target="_top" rel="noopener noreferrer external">
+        {content}
+      </a>
     </Button>
   );
 }
@@ -60,17 +76,37 @@ export function VoirSurCarteButton({
 }) {
   const url = buildVoirSurCarteUrl(localisation);
 
+  const content = (
+    <>
+      <Map className="h-4 w-4" />
+      Voir sur la carte
+    </>
+  );
+
+  if (!url) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size={size}
+        className={cn("min-h-[44px] gap-2", className)}
+        disabled
+      >
+        {content}
+      </Button>
+    );
+  }
+
   return (
     <Button
-      type="button"
+      asChild
       variant="outline"
       size={size}
       className={cn("min-h-[44px] gap-2", className)}
-      onClick={() => url && openExternalNavigation(url)}
-      disabled={!url}
     >
-      <Map className="h-4 w-4" />
-      Voir sur la carte
+      <a href={url} target="_top" rel="noopener noreferrer external">
+        {content}
+      </a>
     </Button>
   );
 }

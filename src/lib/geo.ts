@@ -46,7 +46,7 @@ export function displayAdresse(loc?: ChantierLocalisation | null): string | null
  */
 export function buildItineraireUrl(loc?: ChantierLocalisation | null): string | null {
   if (hasCoords(loc)) {
-    const dest = `${loc!.latitude},${loc!.longitude}`;
+    const dest = `${loc.latitude},${loc.longitude}`;
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=driving`;
   }
   const adresse = displayAdresse(loc);
@@ -63,8 +63,8 @@ export function buildItineraireUrl(loc?: ChantierLocalisation | null): string | 
  */
 export function buildVoirSurCarteUrl(loc?: ChantierLocalisation | null): string | null {
   if (hasCoords(loc)) {
-    const lat = loc!.latitude as number;
-    const lng = loc!.longitude as number;
+    const lat = loc.latitude;
+    const lng = loc.longitude;
     return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`;
   }
   const adresse = displayAdresse(loc);
@@ -73,37 +73,6 @@ export function buildVoirSurCarteUrl(loc?: ChantierLocalisation | null): string 
   }
   return null;
 }
-
-/**
- * Ouvre une URL externe de façon fiable.
- * `window.open` est souvent bloqué dans un contexte iframe (aperçu intégré,
- * webview) ce qui provoque une page d'erreur « Page bloquée ». On passe donc
- * par un vrai clic sur un lien, avec repli sur la fenêtre parente.
- */
-export function openExternalNavigation(url: string) {
-  try {
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    return;
-  } catch {
-    /* repli ci-dessous */
-  }
-  const win = window.open(url, "_blank", "noopener,noreferrer");
-  if (!win) {
-    try {
-      (window.top ?? window).location.href = url;
-    } catch {
-      window.location.href = url;
-    }
-  }
-}
-
 
 /** Recherche d'adresse (géocodage) — OpenStreetMap Nominatim, sans clé API. */
 export interface GeocodeResult {
