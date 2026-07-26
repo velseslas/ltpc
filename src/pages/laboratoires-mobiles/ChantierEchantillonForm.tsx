@@ -232,28 +232,43 @@ export default function ChantierEchantillonForm() {
       
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
-      // Parse jours_essai
-      const savedJours = existingEchantillon.jours_essai as Array<{ jour: number; nombre: number }> | null;
-      if (savedJours && Array.isArray(savedJours)) {
+      // Parse jours_essai (jours + heures)
+      const savedEcheances = existingEchantillon.jours_essai as EcheanceEssai[] | null;
+      if (savedEcheances && Array.isArray(savedEcheances)) {
+        const savedJours = savedEcheances.filter((e) => e.unite !== "heures");
+        const savedHeures = savedEcheances.filter((e) => e.unite === "heures");
         const standardJours = [1, 3, 7, 14, 28];
-        const updatedJoursEssai = JOURS_ESSAI.map((j) => {
-          const found = savedJours.find((sj) => sj.jour === j.value);
-          return {
-            jour: j.value,
-            selected: !!found,
-            nombre: found?.nombre || 0,
-          };
-        });
-        setJoursEssai(updatedJoursEssai);
-        
-        // Check for custom day
+        const standardHeures = [8, 10, 12, 16, 24];
+
+        setJoursEssai(
+          JOURS_ESSAI.map((j) => {
+            const found = savedJours.find((sj) => sj.jour === j.value);
+            return { jour: j.value, selected: !!found, nombre: found?.nombre || 0 };
+          })
+        );
+
         const autreJourData = savedJours.find((sj) => !standardJours.includes(sj.jour));
         if (autreJourData) {
           setAutreJourSelected(true);
           setAutreJour(String(autreJourData.jour));
           setAutreJourNombre(autreJourData.nombre);
         }
+
+        setHeuresEssai(
+          HEURES_ESSAI.map((h) => {
+            const found = savedHeures.find((sh) => sh.heures === h.value);
+            return { heure: h.value, selected: !!found, nombre: found?.nombre || 0 };
+          })
+        );
+
+        const autreHeureData = savedHeures.find((sh) => !standardHeures.includes(sh.heures ?? 0));
+        if (autreHeureData) {
+          setAutreHeureSelected(true);
+          setAutreHeure(String(autreHeureData.heures));
+          setAutreHeureNombre(autreHeureData.nombre);
+        }
       }
+
     }
   }, [existingEchantillon]);
 
