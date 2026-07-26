@@ -282,10 +282,10 @@ export const BUSINESS_ENTITIES: BusinessEntity[] = [
   // ---------- Essais granulats ----------
   essaiGranulat("granulometrie", "Analyses granulométriques", "echantillons_granulometrie",
     ["granulometrie", "granulométrie", "tamisage", "tamis", "module de finesse", "fuseau"]),
-  essaiGranulat("los_angeles", "Essais Los Angeles", "echantillons_los_angeles", ["los angeles", "coefficient los angeles", "la"]),
+  essaiGranulat("los_angeles", "Essais Los Angeles", "echantillons_los_angeles", ["los angeles", "coefficient los angeles"]),
   essaiGranulat("micro_deval", "Essais Micro-Deval", "echantillons_micro_deval", ["micro deval", "micro-deval", "mde"]),
-  essaiGranulat("equivalent_sable", "Équivalent de sable", "echantillons_equivalent_sable", ["equivalent de sable", "équivalent de sable", "es"]),
-  essaiGranulat("bleu_methylene", "Bleu de méthylène", "echantillons_bleu_methylene", ["bleu de methylene", "bleu de méthylène", "vbs", "mb"]),
+  essaiGranulat("equivalent_sable", "Équivalent de sable", "echantillons_equivalent_sable", ["equivalent de sable", "équivalent de sable"]),
+  essaiGranulat("bleu_methylene", "Bleu de méthylène", "echantillons_bleu_methylene", ["bleu de methylene", "bleu de méthylène", "vbs"]),
   essaiGranulat("forme_granulats", "Coefficient d'aplatissement / forme", "echantillons_forme_granulats", ["aplatissement", "forme des granulats", "coefficient de forme"]),
   essaiGranulat("friabilite", "Friabilité des sables", "echantillons_friabilite", ["friabilite", "friabilité"]),
   essaiGranulat("masse_volumique", "Masse volumique des granulats", "echantillons_masse_volumique", ["masse volumique", "densite granulat", "densité granulat", "absorption"]),
@@ -441,7 +441,10 @@ export const ENTITY_GROUPS: Record<string, string[]> = {
   "producteurs": ["cimenteries", "carrieres", "adjuvants", "sources_eau", "centrales_beton"],
 };
 
-const norm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const norm = (v: string) =>
+  v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    // l'apostrophe est traitée comme une frontière de mot (d'essais → d essais)
+    .replace(/[^a-z0-9]+/g, " ").trim();
 
 export function getEntity(key: string): BusinessEntity | undefined {
   return BUSINESS_ENTITIES.find((e) => e.key === key);
@@ -453,14 +456,14 @@ export function getEntity(key: string): BusinessEntity | undefined {
  * pour que « teneur en eau des sols » gagne sur « teneur en eau des granulats ».
  */
 export function resolveBusinessEntities(query: string, max = 4): BusinessEntity[] {
-  const n = " " + norm(query).replace(/[^a-z0-9']+/g, " ") + " ";
+  const n = " " + norm(query) + " ";
   const scored: Array<{ e: BusinessEntity; score: number }> = [];
 
   for (const e of BUSINESS_ENTITIES) {
     let best = 0;
     for (const kw of e.keywords) {
-      const k = norm(kw).replace(/[^a-z0-9']+/g, " ").trim();
-      if (!k) continue;
+      const k = norm(kw);
+      if (k.length < 3) continue;
       // singulier/pluriel simples : « cimenterie » matche « cimenteries »
       const re = new RegExp(`(^| )${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}s?( |$)`);
       if (re.test(n)) best = Math.max(best, k.length);
@@ -471,7 +474,7 @@ export function resolveBusinessEntities(query: string, max = 4): BusinessEntity[
   // Groupes génériques (fournisseurs, producteurs…) si rien de plus précis.
   if (!scored.length) {
     for (const [kw, keys] of Object.entries(ENTITY_GROUPS)) {
-      if (new RegExp(`(^| )${norm(kw)}( |$)`).test(n)) {
+      if (new RegExp(`(^| )${norm(kw)}s?( |$)`).test(n)) {
         for (const k of keys) {
           const e = getEntity(k);
           if (e) scored.push({ e, score: 3 });
@@ -487,7 +490,7 @@ export function resolveBusinessEntities(query: string, max = 4): BusinessEntity[
 /** Mots du vocabulaire d'entité — retirés des mots-clés de recherche ILIKE. */
 export function entityVocabulary(entities: BusinessEntity[]): Set<string> {
   const bag = new Set<string>();
-  for (const e of entities) for (const kw of e.keywords) for (const w of norm(kw).split(/[^a-z0-9]+/)) if (w) bag.add(w);
+  for (const e of entities) for (const kw of e.keywords) for (const w of norm(kw).split(" ")) if (w) bag.add(w);
   return bag;
 }
 
