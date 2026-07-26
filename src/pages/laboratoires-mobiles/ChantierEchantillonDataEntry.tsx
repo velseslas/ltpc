@@ -352,7 +352,15 @@ export default function ChantierEchantillonDataEntry() {
                 {eprouvettes.map((ep, index) => (
                   <tr key={ep.numero} className="border-b border-border/50">
                     <td className="py-4 px-2 text-sm font-medium">Éprouvette {ep.numero}</td>
-                    <td className="py-4 px-2 text-sm">{ep.dateEssai}</td>
+                    <td className="py-4 px-2">
+                      <Input
+                        type={ep.isHeures ? "datetime-local" : "date"}
+                        value={toInputValue(ep.dateEssai, ep.isHeures)}
+                        onChange={(e) => handleDateEssaiChange(index, e.target.value)}
+                        className={`${ep.isHeures ? "w-52" : "w-40"} ${!ep.dateEssai ? "border-destructive" : ""}`}
+                        required
+                      />
+                    </td>
                     <td className="py-4 px-2">
                       <div className="bg-muted/50 rounded-lg px-4 py-2 w-20 text-center font-medium">{ep.echeanceLabel ?? ep.joursEssai}</div>
                     </td>
