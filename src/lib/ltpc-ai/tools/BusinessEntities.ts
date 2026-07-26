@@ -498,3 +498,13 @@ export function businessEntityMap() {
     count: true, search: e.searchFields.length > 0, get: true,
   }));
 }
+
+/** Construit une clause `.or()` Supabase ILIKE (valeurs échappées). */
+export function buildIlikeOrFields(fields: string[], keywords: string[]): string | null {
+  const clauses: string[] = [];
+  for (const f of fields) for (const k of keywords) {
+    const safe = k.replace(/[%,()"'\\]/g, "");
+    if (safe) clauses.push(`${f}.ilike.%${safe}%`);
+  }
+  return clauses.length ? clauses.join(",") : null;
+}

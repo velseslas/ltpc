@@ -18,7 +18,7 @@ import { runTool } from "./runTool";
 import {
   resolveBusinessEntities, entityVocabulary, rowLabel, rowSnippet,
   buildIlikeOrFields, type BusinessEntity,
-} from "./businessQuery";
+} from "./BusinessEntities";
 
 const LIST_LIMIT = 12;
 const SEARCH_LIMIT = 8;
@@ -104,6 +104,7 @@ export const BusinessDataTool: Tool = {
           }
         }
         lists.push({ entite: e.label, key: e.key, table: e.table, count_exact: total, items });
+        const returned = items.length;
         entity_map.push({ entite: e.label, key: e.key, table: e.table, operation });
         repo_debug.push({
           repository: `BusinessDataTool (${e.key})`, table: e.table, operation,
@@ -112,7 +113,7 @@ export const BusinessDataTool: Tool = {
           sql_preview: operation === "count"
             ? `select count(*) from public.${e.table}`
             : `select ${e.select} from public.${e.table} order by ${e.orderBy.column} limit ${operation === "list" ? LIST_LIMIT : SEARCH_LIMIT}`,
-          rows_returned: (lists.at(-1)?.items.length ?? 0),
+          rows_returned: returned,
           count_exact: total,
           duration_ms: Math.round(performance.now() - t0),
         });
