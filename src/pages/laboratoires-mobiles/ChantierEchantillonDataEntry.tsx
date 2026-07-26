@@ -15,12 +15,31 @@ interface EprouvetteData {
   numero: number;
   joursEssai: number;
   echeanceLabel?: string;
+  isHeures?: boolean;
   dateEssai: string;
   poids: number;
   densite: number;
   charge: number;
   resistance: number;
 }
+
+/** Convertit "dd/MM/yyyy [HH:mm]" vers la valeur attendue par un input date / datetime-local. */
+const toInputValue = (display: string, isHeures?: boolean): string => {
+  if (!display) return "";
+  const [datePart, timePart] = display.split(" ");
+  const [dd, mm, yyyy] = datePart.split("/");
+  if (!yyyy) return "";
+  return isHeures ? `${yyyy}-${mm}-${dd}T${timePart || "00:00"}` : `${yyyy}-${mm}-${dd}`;
+};
+
+/** Convertit la valeur d'un input date / datetime-local vers "dd/MM/yyyy [HH:mm]". */
+const fromInputValue = (value: string, isHeures?: boolean): string => {
+  if (!value) return "";
+  const [datePart, timePart] = value.split("T");
+  const [yyyy, mm, dd] = datePart.split("-");
+  if (!dd) return "";
+  return isHeures ? `${dd}/${mm}/${yyyy} ${timePart || "00:00"}` : `${dd}/${mm}/${yyyy}`;
+};
 
 interface EchantillonData {
   id: string;
