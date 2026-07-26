@@ -99,6 +99,14 @@ const MODES_COULAGE = [
   { value: "autre", label: "Autre" },
 ];
 
+interface HeureEssai {
+  heure: number;
+  selected: boolean;
+  nombre: number;
+}
+
+type EcheanceEssai = { jour: number; nombre: number; unite?: string; heures?: number };
+
 interface JourEssai {
   jour: number;
   selected: boolean;
