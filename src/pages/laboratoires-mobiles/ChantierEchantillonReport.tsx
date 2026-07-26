@@ -32,12 +32,12 @@ interface ResultGroup {
 
 const getEcheanceLabel = (ep: EprouvetteData): string => {
   if (ep.echeanceLabel) return ep.echeanceLabel;
-  if (ep.isHeures) return `${Math.round(ep.joursEssai * 24)} h`;
+  if (ep.isHeures || (ep.joursEssai > 0 && ep.joursEssai < 1)) return `${Math.round(ep.joursEssai * 24)} h`;
   return String(ep.joursEssai);
 };
 
 const getEcheanceSortOrder = (ep: EprouvetteData): number => {
-  if (ep.isHeures) return ep.joursEssai;
+  if (ep.isHeures || (ep.joursEssai > 0 && ep.joursEssai < 1)) return ep.joursEssai;
   return 1000 + ep.joursEssai;
 };
 
@@ -328,7 +328,8 @@ export default function ChantierEchantillonReport() {
   
   sortedResults.forEach((ep) => {
     const label = getEcheanceLabel(ep);
-    const key = `${ep.isHeures ? "heures" : "jours"}-${label}-${ep.dateEssai || "sans-date"}`;
+    const isHourly = ep.isHeures || (ep.joursEssai > 0 && ep.joursEssai < 1);
+    const key = `${isHourly ? "heures" : "jours"}-${label}-${ep.dateEssai || "sans-date"}`;
     const existingGroup = groups.find(g => g.key === key);
     if (existingGroup) {
       existingGroup.items.push(ep);
