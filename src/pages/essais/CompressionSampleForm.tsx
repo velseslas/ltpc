@@ -67,6 +67,14 @@ const JOURS_ESSAI = [
   { value: 28, label: "28 jours" },
 ];
 
+const HEURES_ESSAI = [
+  { value: 8, label: "8 heures" },
+  { value: 10, label: "10 heures" },
+  { value: 12, label: "12 heures" },
+  { value: 16, label: "16 heures" },
+  { value: 24, label: "24 heures" },
+];
+
 const CLASSES_CONSISTANCE = [
   { value: "S1", label: "S1 (10-40 mm)" },
   { value: "S2", label: "S2 (50-90 mm)" },
