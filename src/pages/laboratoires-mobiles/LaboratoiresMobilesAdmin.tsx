@@ -243,7 +243,7 @@ export default function LaboratoiresMobilesAdmin() {
   };
 
   const breadcrumbItems = useMemo((): BreadcrumbItemType[] => {
-    const items: BreadcrumbItemType[] = [{ label: "Laboratoires Chantier", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
+    const items: BreadcrumbItemType[] = [{ label: "Laboratoires Mobiles", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
     if (navState.level === "clients" || navState.level === "chantiers") {
       const wilayaParams = new URLSearchParams({
         level: "clients",
@@ -281,10 +281,10 @@ export default function LaboratoiresMobilesAdmin() {
           )}
           <div>
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
-              Administration - Laboratoires Chantier
+              Administration - Laboratoires Mobiles
             </h1>
             <p className="text-muted-foreground">
-              Gestion administrative des laboratoires chantier par wilaya
+              Gestion administrative des laboratoires mobiles par wilaya
             </p>
           </div>
         </div>

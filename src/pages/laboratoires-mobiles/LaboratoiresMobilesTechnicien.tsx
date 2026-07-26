@@ -223,7 +223,7 @@ export default function LaboratoiresMobilesTechnicien() {
   };
 
   const breadcrumbItems = useMemo((): BreadcrumbItemType[] => {
-    const items: BreadcrumbItemType[] = [{ label: "Laboratoires Chantier", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
+    const items: BreadcrumbItemType[] = [{ label: "Laboratoires Mobiles", path: navState.level === "wilayas" ? undefined : "/laboratoires-mobiles" }];
     if (navState.level === "clients" || navState.level === "chantiers") {
       const wilayaParams = new URLSearchParams({
         level: "clients",
@@ -261,10 +261,10 @@ export default function LaboratoiresMobilesTechnicien() {
           )}
           <div>
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
-              Technicien - Laboratoires Chantier
+              Technicien - Laboratoires Mobiles
             </h1>
             <p className="text-muted-foreground">
-              Vue technicien des laboratoires chantier par wilaya
+              Vue technicien des laboratoires mobiles par wilaya
             </p>
         </div>
       </div>
