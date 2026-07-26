@@ -133,7 +133,7 @@ const CompressionDataEntry = () => {
 
         if (error) throw error;
 
-        const joursEssai = (Array.isArray(data.jours_essai) ? data.jours_essai : []) as { jour: number; nombre: number }[];
+        const joursEssai = (Array.isArray(data.jours_essai) ? data.jours_essai : []) as { jour: number; nombre: number; unite?: string; heures?: number }[];
         const existingResultats = (Array.isArray(data.resultats) ? data.resultats : []) as unknown as EprouvetteData[];
 
         // Build eprouvettes list based on jours_essai configuration
@@ -141,15 +141,19 @@ const CompressionDataEntry = () => {
         let eprouvetteNum = 1;
 
         joursEssai.forEach((je) => {
+          const isHeures = je.unite === "heures" && typeof je.heures === "number";
           for (let i = 0; i < je.nombre; i++) {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
-            const dateEssai = data.date_coulage 
-              ? format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
+            const dateEssai = data.date_coulage
+              ? isHeures
+                ? format(addHours(new Date(data.date_coulage), je.heures!), "dd/MM/yyyy HH:mm")
+                : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
               : "";
 
             eprouvettesList.push({
               numero: eprouvetteNum,
               joursEssai: je.jour,
+              echeanceLabel: isHeures ? `${je.heures} h` : String(je.jour),
               dateEssai,
               poids: existing?.poids || 0,
               densite: existing?.densite || 0,
@@ -159,6 +163,7 @@ const CompressionDataEntry = () => {
             eprouvetteNum++;
           }
         });
+
 
         setEchantillon({
           id: data.id,
