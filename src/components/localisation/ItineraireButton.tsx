@@ -57,7 +57,7 @@ export function ItineraireButton({
         className,
       )}
     >
-      <a href={url} target="_blank" rel="noopener noreferrer external">
+      <a href={url} target="_top" rel="noopener noreferrer external">
         {content}
       </a>
     </Button>
@@ -104,7 +104,7 @@ export function VoirSurCarteButton({
       size={size}
       className={cn("min-h-[44px] gap-2", className)}
     >
-      <a href={url} target="_blank" rel="noopener noreferrer external">
+      <a href={url} target="_top" rel="noopener noreferrer external">
         {content}
       </a>
     </Button>
