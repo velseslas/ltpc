@@ -17,8 +17,10 @@ import { useCreateChantier, useChantier, useUpdateChantier } from "@/hooks/useCh
 import { useClient } from "@/hooks/useClients";
 import { toast } from "sonner";
 import { wilayas } from "@/data/wilayas";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { LocalisationPicker, type LocalisationValue } from "@/components/localisation/LocalisationPicker";
+
 
 const chantierSchema = z.object({
   nom: z.string().min(1, "Le nom du chantier est requis"),
@@ -313,6 +315,13 @@ const ChantierForm = () => {
                 )}
               </div>
             </div>
+
+            {/* LOT 14.1 — Localisation du chantier */}
+            <div className="mt-6">
+              <LocalisationPicker value={localisation} onChange={setLocalisation} />
+            </div>
+
+
 
             {/* Actions */}
             <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-end gap-3 pt-4 border-t border-border mt-6">
