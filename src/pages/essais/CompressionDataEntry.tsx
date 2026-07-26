@@ -288,7 +288,12 @@ const CompressionDataEntry = () => {
 
   const handleSave = async () => {
     if (!id) return;
-    
+
+    if (eprouvettes.some((ep) => !ep.dateEssai)) {
+      toast.error("La date d'essai est obligatoire pour chaque éprouvette");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const results = calculateResults();
