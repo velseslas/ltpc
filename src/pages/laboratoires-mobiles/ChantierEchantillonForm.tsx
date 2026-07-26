@@ -151,6 +151,17 @@ export default function ChantierEchantillonForm() {
   const [autreJour, setAutreJour] = useState("");
   const [autreJourNombre, setAutreJourNombre] = useState(0);
   const [autreJourSelected, setAutreJourSelected] = useState(false);
+  const [heuresEssai, setHeuresEssai] = useState<HeureEssai[]>(
+    HEURES_ESSAI.map((h) => ({
+      heure: h.value,
+      selected: h.value === 12,
+      nombre: h.value === 12 ? 1 : 0,
+    }))
+  );
+  const [autreHeure, setAutreHeure] = useState("");
+  const [autreHeureNombre, setAutreHeureNombre] = useState(0);
+  const [autreHeureSelected, setAutreHeureSelected] = useState(false);
+
   const [temperatureBeton, setTemperatureBeton] = useState("");
   const [temperatureAir, setTemperatureAir] = useState("");
   const [classeConsistance, setClasseConsistance] = useState("");
