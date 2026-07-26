@@ -23,7 +23,7 @@ export const menuItems = [
   { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
   { title: "RH", path: "/rh", icon: UserCog, permission: "rh.voir" },
   { title: "Essais", path: "/essais", icon: FlaskConical, permission: "essais.voir" },
-  { title: "Laboratoires Chantier", path: "/laboratoires-mobiles", icon: Truck, permission: "laboratoires_mobiles.voir" },
+  { title: "Laboratoires Mobiles", path: "/laboratoires-mobiles", icon: Truck, permission: "laboratoires_mobiles.voir" },
   { title: "Matériel Laboratoire", path: "/materiel", icon: Microscope, permission: "materiel.voir" },
   { title: "Facturation", path: "/facturation", icon: Receipt, permission: "facturation.voir" },
   { title: "Documents", path: "/documents", icon: FileText, permission: "documents.voir" },

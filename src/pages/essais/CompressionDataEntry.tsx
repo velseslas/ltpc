@@ -15,12 +15,31 @@ interface EprouvetteData {
   numero: number;
   joursEssai: number;
   echeanceLabel?: string;
+  isHeures?: boolean;
   dateEssai: string;
   poids: number;
   densite: number;
   charge: number;
   resistance: number;
 }
+
+/** Convertit "dd/MM/yyyy [HH:mm]" vers la valeur attendue par un input date / datetime-local. */
+const toInputValue = (display: string, isHeures?: boolean): string => {
+  if (!display) return "";
+  const [datePart, timePart] = display.split(" ");
+  const [dd, mm, yyyy] = datePart.split("/");
+  if (!yyyy) return "";
+  return isHeures ? `${yyyy}-${mm}-${dd}T${timePart || "00:00"}` : `${yyyy}-${mm}-${dd}`;
+};
+
+/** Convertit la valeur d'un input date / datetime-local vers "dd/MM/yyyy [HH:mm]". */
+const fromInputValue = (value: string, isHeures?: boolean): string => {
+  if (!value) return "";
+  const [datePart, timePart] = value.split("T");
+  const [yyyy, mm, dd] = datePart.split("-");
+  if (!dd) return "";
+  return isHeures ? `${dd}/${mm}/${yyyy} ${timePart || "00:00"}` : `${dd}/${mm}/${yyyy}`;
+};
 
 interface EchantillonData {
   id: string;
@@ -145,7 +164,7 @@ const CompressionDataEntry = () => {
           const isHeures = je.unite === "heures" && typeof je.heures === "number";
           for (let i = 0; i < je.nombre; i++) {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
-            const dateEssai = data.date_coulage
+            const dateCalculee = data.date_coulage
               ? isHeures
                 ? format(addHours(new Date(data.date_coulage), je.heures!), "dd/MM/yyyy HH:mm")
                 : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
@@ -155,7 +174,8 @@ const CompressionDataEntry = () => {
               numero: eprouvetteNum,
               joursEssai: je.jour,
               echeanceLabel: isHeures ? `${je.heures} h` : String(je.jour),
-              dateEssai,
+              isHeures,
+              dateEssai: existing?.dateEssai || dateCalculee,
               poids: existing?.poids || 0,
               densite: existing?.densite || 0,
               charge: existing?.charge || 0,
@@ -215,6 +235,13 @@ const CompressionDataEntry = () => {
     });
   };
 
+  const handleDateEssaiChange = (index: number, value: string) => {
+    setEprouvettes(prev =>
+      prev.map((ep, i) => (i === index ? { ...ep, dateEssai: fromInputValue(value, ep.isHeures) } : ep))
+    );
+  };
+
+
   const calculateResults = () => {
     const resistances = eprouvettes
       .map(e => e.resistance)
@@ -261,7 +288,12 @@ const CompressionDataEntry = () => {
 
   const handleSave = async () => {
     if (!id) return;
-    
+
+    if (eprouvettes.some((ep) => !ep.dateEssai)) {
+      toast.error("La date d'essai est obligatoire pour chaque éprouvette");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const results = calculateResults();
@@ -408,7 +440,13 @@ const CompressionDataEntry = () => {
                         Éprouvette {ep.numero}
                       </td>
                       <td className="py-4 px-2">
-                        <span className="text-sm text-foreground">{ep.dateEssai}</span>
+                        <Input
+                          type={ep.isHeures ? "datetime-local" : "date"}
+                          value={toInputValue(ep.dateEssai, ep.isHeures)}
+                          onChange={(e) => handleDateEssaiChange(index, e.target.value)}
+                          className={`bg-muted/50 border-border ${ep.isHeures ? "w-52" : "w-40"} ${!ep.dateEssai ? "border-destructive" : ""}`}
+                          required
+                        />
                       </td>
                       <td className="py-4 px-2">
                         <div className="bg-muted/50 rounded-lg px-4 py-2 w-20 text-center text-foreground font-medium">

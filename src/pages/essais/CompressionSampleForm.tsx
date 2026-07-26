@@ -691,7 +691,7 @@ const CompressionSampleForm = () => {
               {/* Centrale à béton */}
               <div className="space-y-2">
                 <Label htmlFor="centrale">Centrale à béton <span className="text-red-700">*</span></Label>
-                <Select value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
+                <Select key={`centrale-${centrales.map((c) => c.id).join("|")}`} value={centraleId} onValueChange={handleCentraleChange} disabled={!chantierId || isLoadingCentrales}>
                   <SelectTrigger className={cn(submitted && !centraleId && "border-red-700")}>
                     <SelectValue placeholder={chantierId ? "Sélectionnez une centrale" : "Sélectionnez d'abord un chantier"} />
                   </SelectTrigger>
