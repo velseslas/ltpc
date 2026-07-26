@@ -187,6 +187,13 @@ export default function ChantierEchantillonDataEntry() {
     });
   };
 
+  const handleDateEssaiChange = (index: number, value: string) => {
+    setEprouvettes(prev =>
+      prev.map((ep, i) => (i === index ? { ...ep, dateEssai: fromInputValue(value, ep.isHeures) } : ep))
+    );
+  };
+
+
   const calculateResults = () => {
     const resistances = eprouvettes.map(e => e.resistance).filter(r => r > 0);
     if (resistances.length === 0) return { moyenne: 0, caracteristique: 0, classe: "--" };
