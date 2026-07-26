@@ -235,6 +235,13 @@ const CompressionDataEntry = () => {
     });
   };
 
+  const handleDateEssaiChange = (index: number, value: string) => {
+    setEprouvettes(prev =>
+      prev.map((ep, i) => (i === index ? { ...ep, dateEssai: fromInputValue(value, ep.isHeures) } : ep))
+    );
+  };
+
+
   const calculateResults = () => {
     const resistances = eprouvettes
       .map(e => e.resistance)
