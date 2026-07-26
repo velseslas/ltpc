@@ -552,7 +552,7 @@ export default function ChantierEchantillonForm() {
             {/* Centrale à béton */}
             <div className="space-y-2">
               <Label htmlFor="centrale">Centrale à béton <span className="text-red-500">*</span></Label>
-              <Select value={centraleId} onValueChange={handleCentraleChange} disabled={isLoadingCentrales}>
+              <Select key={`centrale-${centrales.map((c) => c.id).join("|")}`} value={centraleId} onValueChange={handleCentraleChange} disabled={isLoadingCentrales}>
                 <SelectTrigger className={cn(showError && !centraleId && "animate-border-blink")}>
                   <SelectValue placeholder="Sélectionnez une centrale" />
                 </SelectTrigger>
