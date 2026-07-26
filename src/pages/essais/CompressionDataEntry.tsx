@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, addDays } from "date-fns";
+import { format, addDays, addHours } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
@@ -14,6 +14,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 interface EprouvetteData {
   numero: number;
   joursEssai: number;
+  echeanceLabel?: string;
   dateEssai: string;
   poids: number;
   densite: number;
@@ -411,7 +412,7 @@ const CompressionDataEntry = () => {
                       </td>
                       <td className="py-4 px-2">
                         <div className="bg-muted/50 rounded-lg px-4 py-2 w-20 text-center text-foreground font-medium">
-                          {ep.joursEssai}
+                          {ep.echeanceLabel ?? ep.joursEssai}
                         </div>
                       </td>
                       <td className="py-4 px-2">

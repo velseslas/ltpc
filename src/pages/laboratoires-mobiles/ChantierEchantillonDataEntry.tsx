@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, addDays } from "date-fns";
+import { format, addDays, addHours } from "date-fns";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { Json } from "@/integrations/supabase/types";
 interface EprouvetteData {
   numero: number;
   joursEssai: number;
+  echeanceLabel?: string;
   dateEssai: string;
   poids: number;
   densite: number;
@@ -86,22 +87,26 @@ export default function ChantierEchantillonDataEntry() {
 
         if (error) throw error;
 
-        const joursEssai = (Array.isArray(data.jours_essai) ? data.jours_essai : []) as { jour: number; nombre: number }[];
+        const joursEssai = (Array.isArray(data.jours_essai) ? data.jours_essai : []) as { jour: number; nombre: number; unite?: string; heures?: number }[];
         const existingResultats = (Array.isArray(data.resultats) ? data.resultats : []) as unknown as EprouvetteData[];
 
         let eprouvettesList: EprouvetteData[] = [];
         let eprouvetteNum = 1;
 
         joursEssai.forEach((je) => {
+          const isHeures = je.unite === "heures" && typeof je.heures === "number";
           for (let i = 0; i < je.nombre; i++) {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
-            const dateEssai = data.date_coulage 
-              ? format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
+            const dateEssai = data.date_coulage
+              ? isHeures
+                ? format(addHours(new Date(data.date_coulage), je.heures!), "dd/MM/yyyy HH:mm")
+                : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
               : "";
 
             eprouvettesList.push({
               numero: eprouvetteNum,
               joursEssai: je.jour,
+              echeanceLabel: isHeures ? `${je.heures} h` : String(je.jour),
               dateEssai,
               poids: existing?.poids || 0,
               densite: existing?.densite || 0,
@@ -317,7 +322,7 @@ export default function ChantierEchantillonDataEntry() {
                     <td className="py-4 px-2 text-sm font-medium">Éprouvette {ep.numero}</td>
                     <td className="py-4 px-2 text-sm">{ep.dateEssai}</td>
                     <td className="py-4 px-2">
-                      <div className="bg-muted/50 rounded-lg px-4 py-2 w-20 text-center font-medium">{ep.joursEssai}</div>
+                      <div className="bg-muted/50 rounded-lg px-4 py-2 w-20 text-center font-medium">{ep.echeanceLabel ?? ep.joursEssai}</div>
                     </td>
                     <td className="py-4 px-2">
                       <Input
