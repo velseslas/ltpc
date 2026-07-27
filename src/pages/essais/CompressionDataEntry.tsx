@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EprouvetteData {
   numero: number;
