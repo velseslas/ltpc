@@ -303,6 +303,7 @@ export default function ChantierEchantillonReport() {
   };
 
   const results = calculateResults();
+  const isCompactInfo = (echantillon?.nombre_eprouvettes ?? 0) >= 12;
 
   if (isLoading) {
     return (
