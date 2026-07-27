@@ -52,6 +52,7 @@ interface EchantillonData {
   numero: number;
   client_nom: string;
   chantier_nom: string;
+  ouvrage: string;
   destination_beton: string;
   type_eprouvette: string;
   dimension_eprouvette: string;
@@ -198,6 +199,7 @@ const CompressionDataEntry = () => {
           numero: data.numero,
           client_nom: data.clients?.nom || "-",
           chantier_nom: data.chantiers?.nom || "-",
+          ouvrage: (data as any).ouvrage || "-",
           destination_beton: data.destination_beton || "-",
           type_eprouvette: data.type_eprouvette || "cube",
           dimension_eprouvette: data.dimension_eprouvette || "150x150x150",
@@ -409,7 +411,10 @@ const CompressionDataEntry = () => {
                   Chantier: <span className="text-foreground font-medium">{echantillon.chantier_nom}</span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Élément coulé: <span className="text-foreground font-medium">{echantillon.destination_beton}</span>
+                  Ouvrage: <span className="text-foreground font-medium">{echantillon.ouvrage}</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Partie de l'ouvrage: <span className="text-foreground font-medium">{echantillon.destination_beton}</span>
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Type éprouvette: <span className="text-foreground font-medium">{echantillon.type_eprouvette}</span>

@@ -53,6 +53,7 @@ interface EchantillonData {
   numero_chantier: number;
   client_nom: string;
   chantier_nom: string;
+  ouvrage: string;
   destination_beton: string;
   type_eprouvette: string;
   dimension_eprouvette: string;
@@ -150,6 +151,7 @@ export default function ChantierEchantillonDataEntry() {
           numero_chantier: (data as any).numero_chantier || data.numero,
           client_nom: data.clients?.nom || "-",
           chantier_nom: data.chantiers?.nom || "-",
+          ouvrage: (data as any).ouvrage || "-",
           destination_beton: data.destination_beton || "-",
           type_eprouvette: data.type_eprouvette || "cube",
           dimension_eprouvette: data.dimension_eprouvette || "150x150x150",
@@ -328,6 +330,12 @@ export default function ChantierEchantillonDataEntry() {
             <div className="space-y-2 text-right">
               <p className="text-sm text-muted-foreground">
                 Chantier: <span className="font-medium">{echantillon.chantier_nom}</span>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Ouvrage: <span className="font-medium">{echantillon.ouvrage}</span>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Partie de l'ouvrage: <span className="font-medium">{echantillon.destination_beton}</span>
               </p>
               <p className="text-sm text-muted-foreground">
                 Type éprouvette: <span className="font-medium">{echantillon.type_eprouvette}</span>
