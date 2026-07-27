@@ -303,6 +303,7 @@ export default function ChantierEchantillonReport() {
   };
 
   const results = calculateResults();
+  const isCompactInfo = (echantillon?.nombre_eprouvettes ?? 0) >= 12;
 
   if (isLoading) {
     return (
@@ -404,20 +405,20 @@ export default function ChantierEchantillonReport() {
             <tbody>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                <td className="border border-black px-3 py-1.5 text-black">EC-{String(echantillon.numero_chantier).padStart(3, "0")}</td>
+                <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">EC-{String(echantillon.numero_chantier).padStart(3, "0")}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.client_nom}</td>
+                <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.client_nom}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantier_nom}</td>
+                <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.chantier_nom}</td>
               </tr>
               {echantillon.essai_convenance && (
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black">Essai de convenance</td>
-                  <td className="border border-black px-3 py-1.5 text-black">
+                  <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">
                     {echantillon.essai_convenance_details || "-"}
                   </td>
                 </tr>
@@ -426,22 +427,33 @@ export default function ChantierEchantillonReport() {
                 <>
                   <tr>
                     <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage}</td>
+                    <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage}</td>
                   </tr>
                   <tr>
                     <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
-                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.destination_beton}</td>
+                    <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.destination_beton}</td>
                   </tr>
                 </>
               )}
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
-              </tr>
-              <tr>
-                <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
-                <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
-              </tr>
+              {isCompactInfo ? (
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                </tr>
+              ) : (
+                <>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                  </tr>
+                </>
+              )}
             </tbody>
           </table>
         </div>
