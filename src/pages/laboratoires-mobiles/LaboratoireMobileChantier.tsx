@@ -118,7 +118,6 @@ export default function LaboratoireMobileChantier() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <p className="text-sm font-semibold text-primary uppercase tracking-wide">Laboratoire Mobile</p>
           <h1 className="text-3xl font-bold">{chantier.nom}</h1>
           <p className="text-muted-foreground">Essais de résistance à la compression</p>
         </div>
