@@ -50,10 +50,10 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
   return (
     <>
       {/* En-tête */}
-      <div data-report-header className="border border-black rounded-lg p-4 mb-6">
+      <div data-report-header className="border border-black rounded-lg p-4 mb-6 print:p-2 print:mb-2">
         <div className="flex items-start justify-between">
           {/* Logo */}
-          <div className="w-24 h-24 border border-gray-300 flex items-center justify-center bg-[#d4e5f7] rounded">
+          <div className="w-24 h-24 print:w-16 print:h-16 border border-gray-300 flex items-center justify-center bg-[#d4e5f7] rounded">
             {logoSrc ? (
               <img src={logoSrc} alt="Logo" className="max-w-full max-h-full object-contain" />
             ) : (
@@ -105,15 +105,15 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
       </div>
 
       {/* Ligne de séparation */}
-      <div className="border-t-2 border-[#1e5a7a] mb-4"></div>
+      <div className="border-t-2 border-[#1e5a7a] mb-4 print:mb-2"></div>
 
       {/* Titre du rapport */}
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-[#1e5a7a] mb-1">
+      <div className="text-center mb-6 print:mb-2">
+        <h2 className="text-xl font-bold text-[#1e5a7a] mb-1 print:text-base print:mb-0.5">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-sm text-black">
+          <p className="text-sm text-black print:text-xs">
             {subtitle}
           </p>
         )}
