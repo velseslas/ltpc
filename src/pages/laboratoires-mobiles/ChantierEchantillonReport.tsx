@@ -660,10 +660,7 @@ export default function ChantierEchantillonReport() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
-          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
-          /* Le rapport est en position fixed : on effondre le flux normal
-             pour éviter une 2e page vierge générée par le layout de l'app. */
-          #root { height: 0 !important; min-height: 0 !important; overflow: hidden !important; }
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
           [data-ref="report"] {
@@ -680,10 +677,6 @@ export default function ChantierEchantillonReport() {
             box-shadow: none !important;
             border-radius: 0 !important;
             font-size: 9pt !important;
-            max-height: 277mm !important;
-            overflow: hidden !important;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
             z-index: 2147483647 !important;
           }
           [data-ref="report"] * { visibility: visible !important; }
