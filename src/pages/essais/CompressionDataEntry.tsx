@@ -137,6 +137,7 @@ const calculateResistance = (chargeKN: number, dimension: string): number => {
 
 const CompressionDataEntry = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

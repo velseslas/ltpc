@@ -90,6 +90,7 @@ const calculateResistance = (chargeKN: number, dimension: string): number => {
 
 export default function ChantierEchantillonDataEntry() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { chantierId, echantillonId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
