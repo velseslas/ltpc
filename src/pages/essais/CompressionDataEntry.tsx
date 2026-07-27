@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,6 +137,7 @@ const calculateResistance = (chargeKN: number, dimension: string): number => {
 
 const CompressionDataEntry = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -328,6 +330,10 @@ const CompressionDataEntry = () => {
         .eq("id", id);
 
       if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
+      queryClient.invalidateQueries({ queryKey: ["echantillons-chantier"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
       toast.success("Données enregistrées avec succès");
       navigate("/essais/beton/beton-durci/compression");
