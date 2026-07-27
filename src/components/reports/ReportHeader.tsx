@@ -105,15 +105,15 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
       </div>
 
       {/* Ligne de séparation */}
-      <div className="border-t-2 border-[#1e5a7a] mb-4"></div>
+      <div className="border-t-2 border-[#1e5a7a] mb-4 print:mb-2"></div>
 
       {/* Titre du rapport */}
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-[#1e5a7a] mb-1">
+      <div className="text-center mb-6 print:mb-2">
+        <h2 className="text-xl font-bold text-[#1e5a7a] mb-1 print:text-base print:mb-0.5">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-sm text-black">
+          <p className="text-sm text-black print:text-xs">
             {subtitle}
           </p>
         )}
