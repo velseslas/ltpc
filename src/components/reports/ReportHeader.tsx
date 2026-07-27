@@ -50,10 +50,10 @@ export function ReportHeader({ entreprise, verificationUrl, title, subtitle }: R
   return (
     <>
       {/* En-tête */}
-      <div data-report-header className="border border-black rounded-lg p-4 mb-6">
+      <div data-report-header className="border border-black rounded-lg p-4 mb-6 print:p-2 print:mb-2">
         <div className="flex items-start justify-between">
           {/* Logo */}
-          <div className="w-24 h-24 border border-gray-300 flex items-center justify-center bg-[#d4e5f7] rounded">
+          <div className="w-24 h-24 print:w-16 print:h-16 border border-gray-300 flex items-center justify-center bg-[#d4e5f7] rounded">
             {logoSrc ? (
               <img src={logoSrc} alt="Logo" className="max-w-full max-h-full object-contain" />
             ) : (
