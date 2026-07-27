@@ -10,6 +10,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EprouvetteData {
   numero: number;
@@ -89,6 +90,7 @@ const calculateResistance = (chargeKN: number, dimension: string): number => {
 
 export default function ChantierEchantillonDataEntry() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { chantierId, echantillonId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -261,6 +263,12 @@ export default function ChantierEchantillonDataEntry() {
         .eq("id", echantillonId);
 
       if (error) throw error;
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", chantierId] }),
+        queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] }),
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+      ]);
 
       toast.success("Données enregistrées avec succès");
       navigate(`/laboratoires-mobiles/chantier/${chantierId}`);

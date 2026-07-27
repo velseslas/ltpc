@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EprouvetteData {
   numero: number;
@@ -136,6 +137,7 @@ const calculateResistance = (chargeKN: number, dimension: string): number => {
 
 const CompressionDataEntry = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -328,6 +330,12 @@ const CompressionDataEntry = () => {
         .eq("id", id);
 
       if (error) throw error;
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] }),
+        queryClient.invalidateQueries({ queryKey: ["echantillons-chantier"] }),
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+      ]);
 
       toast.success("Données enregistrées avec succès");
       navigate("/essais/beton/beton-durci/compression");
