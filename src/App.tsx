@@ -46,6 +46,15 @@ const RapportTechniquePrintView = lazy(() => import("./pages/essais/rapports-tec
 // requêtes réseau redondantes (focus/reconnect) tout en gardant les données
 // fraîches sur navigation. Aucune modification métier.
 const queryClient = new QueryClient({
+  // Filet de sécurité global : après TOUTE mutation réussie (enregistrer,
+  // modifier, supprimer), on invalide les requêtes actives. React Query ne
+  // refetch que les queries actuellement montées → l'écran affiché se met
+  // à jour immédiatement, sans rechargement manuel de la page.
+  mutationCache: new MutationCache({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ type: "active" });
+    },
+  }),
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,        // 5 min : évite les refetch trop fréquents
@@ -60,6 +69,7 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 
 function AuthRedirect() {
   const { user, isLoading } = useAuth();
