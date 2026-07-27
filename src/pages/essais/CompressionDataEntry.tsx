@@ -331,6 +331,12 @@ const CompressionDataEntry = () => {
 
       if (error) throw error;
 
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] }),
+        queryClient.invalidateQueries({ queryKey: ["echantillons-chantier"] }),
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+      ]);
+
       toast.success("Données enregistrées avec succès");
       navigate("/essais/beton/beton-durci/compression");
     } catch (error) {

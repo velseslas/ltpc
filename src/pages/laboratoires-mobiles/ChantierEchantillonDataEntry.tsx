@@ -264,6 +264,12 @@ export default function ChantierEchantillonDataEntry() {
 
       if (error) throw error;
 
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", chantierId] }),
+        queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] }),
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+      ]);
+
       toast.success("Données enregistrées avec succès");
       navigate(`/laboratoires-mobiles/chantier/${chantierId}`);
     } catch (error) {
