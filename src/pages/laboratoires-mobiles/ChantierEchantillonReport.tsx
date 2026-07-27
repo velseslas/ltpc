@@ -680,6 +680,10 @@ export default function ChantierEchantillonReport() {
             box-shadow: none !important;
             border-radius: 0 !important;
             font-size: 9pt !important;
+            max-height: 277mm !important;
+            overflow: hidden !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
             z-index: 2147483647 !important;
           }
           [data-ref="report"] * { visibility: visible !important; }
