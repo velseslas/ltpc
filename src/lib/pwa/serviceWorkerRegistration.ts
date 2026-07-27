@@ -121,12 +121,18 @@ export async function registerServiceWorker(hooks: ServiceWorkerHooks = {}): Pro
     const handleUpdate = () => {
       notifyUpdate(registration);
       hooks.onUpdateAvailable?.(registration);
+      // MAJ automatique : on active immédiatement le nouveau SW pour éviter
+      // qu'une version périmée de l'app reste servie par le cache.
+      applyPendingUpdate();
     };
 
     // Si un worker est déjà en attente (rechargement après build), notifier.
     if (registration.waiting && navigator.serviceWorker.controller) {
       handleUpdate();
     }
+
+    // Recherche active d'une nouvelle version au démarrage.
+    registration.update().catch(() => { /* noop */ });
 
     registration.addEventListener("updatefound", () => {
       const installing = registration.installing;
@@ -138,10 +144,15 @@ export async function registerServiceWorker(hooks: ServiceWorkerHooks = {}): Pro
       });
     });
 
+    let reloading = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       notifyController();
       hooks.onControllerChange?.();
+      if (reloading) return;
+      reloading = true;
+      window.location.reload();
     });
+
 
     hooks.onReady?.(registration);
     return registration;
