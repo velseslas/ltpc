@@ -621,6 +621,11 @@ export default function ChantierEchantillonReport() {
               )}
             </tbody>
           </table>
+          {echantillon.mention_eprouvettes_labo && (
+            <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
+              Éprouvettes confectionnées par le laboratoire comme essai de convenance
+            </p>
+          )}
         </div>
 
         {/* Pied de page */}
