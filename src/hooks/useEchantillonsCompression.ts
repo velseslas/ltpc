@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
 
 export type EchantillonCompression = {
   id: string;
@@ -138,10 +139,12 @@ export function useDeleteEchantillonCompression() {
         .eq("id", id);
 
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      purgeDerivedNotifications(queryClient, id);
     },
   });
 }
+

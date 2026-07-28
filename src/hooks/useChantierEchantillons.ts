@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRepositoryForTable } from "@/lib/repositories";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Json } from "@/integrations/supabase/types";
+import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
 
 export type EchantillonChantier = Tables<"echantillons_compression"> & {
   clients: { id: string; nom: string } | null;
@@ -90,12 +91,13 @@ export function useDeleteChantierEchantillon() {
     mutationFn: async ({ id, chantierId }: { id: string; chantierId: string }) => {
       const res = await echantillonsRepo.delete({ id });
       if (res.error) throw new Error(res.error);
-      return chantierId;
+      return { id, chantierId };
     },
-    onSuccess: (chantierId) => {
+    onSuccess: ({ id, chantierId }) => {
       queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", chantierId] });
       queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      purgeDerivedNotifications(queryClient, id);
     },
   });
 }
+
