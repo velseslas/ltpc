@@ -694,7 +694,7 @@ const CompressionReport = () => {
             </table>
             {echantillon.mention_eprouvettes_labo && (
               <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
-                Éprouvettes confectionnées par le laboratoire comme essai de convenance
+                Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
               </p>
             )}
           </div>
@@ -716,7 +716,7 @@ const CompressionReport = () => {
           )}
 
           {/* Pied de page */}
-          <div data-report-footer className="mt-8 pt-4">
+          <div data-report-footer className="mt-2 pt-1 print:mt-1 print:pt-0">
             <div className="flex justify-between items-end">
               <div className="text-sm text-black">
                 <p>Le Technicien: {echantillon.operateur_nom}</p>

@@ -625,13 +625,13 @@ export default function ChantierEchantillonReport() {
           </table>
           {echantillon.mention_eprouvettes_labo && (
             <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
-              Éprouvettes confectionnées par le laboratoire comme essai de convenance
+              Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
             </p>
           )}
         </div>
 
         {/* Pied de page */}
-        <div className="mt-4 pt-2 border-t border-gray-300 print:mt-3 print:pt-2">
+        <div className="mt-1 pt-1 border-t border-gray-300 print:mt-1 print:pt-1">
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
