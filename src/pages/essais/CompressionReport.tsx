@@ -563,14 +563,14 @@ const CompressionReport = () => {
               </colgroup>
               <thead>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Ciment</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Eau</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Adjuvant</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Sable 1</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Sable 2</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Gravier 1</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Gravier 2</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-medium text-[8px] text-black whitespace-nowrap">Gravier 3</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Ciment</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Eau</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Adjuvant</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Sable 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Sable 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 3</th>
                 </tr>
                 <tr>
                   <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
@@ -595,14 +595,14 @@ const CompressionReport = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.eau.quantite ?? 0} L</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-medium text-black whitespace-nowrap">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.eau.quantite ?? 0} L</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
                 </tr>
               </tbody>
             </table>
@@ -872,6 +872,7 @@ const CompressionReport = () => {
           font-size: 7.5pt !important;
           padding: 2px 3px !important;
           line-height: 1.15 !important;
+          font-weight: 400 !important;
         }
         [data-ref="report"] .formulation-table th { text-align: center !important; }
 
