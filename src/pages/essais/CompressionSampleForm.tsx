@@ -206,6 +206,7 @@ const CompressionSampleForm = () => {
   const [mentionEprouvetteClient, setMentionEprouvetteClient] = useState(false);
   
   const [etuvage, setEtuvage] = useState("non");
+  const [essaiConvenance, setEssaiConvenance] = useState(true);
   const [submitted, setSubmitted] = useState(false);
 
   const editInitialized = useRef(false);
