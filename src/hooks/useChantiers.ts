@@ -117,6 +117,8 @@ export function useDeleteChantier() {
       if (data.clientId) {
         queryClient.invalidateQueries({ queryKey: ["chantiers", "client", data.clientId] });
       }
+      // Retire aussi les notifications liées au chantier et à ses échantillons.
+      purgeDerivedNotifications(queryClient, data.id);
     },
   });
 }
