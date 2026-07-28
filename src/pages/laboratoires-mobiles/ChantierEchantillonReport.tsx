@@ -660,7 +660,13 @@ export default function ChantierEchantillonReport() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
-          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+            height: auto !important;
+            overflow: hidden !important;
+          }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
           [data-ref="report"] {
@@ -669,17 +675,30 @@ export default function ChantierEchantillonReport() {
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
+            bottom: auto !important;
             width: 100% !important;
             max-width: none !important;
+            height: auto !important;
+            max-height: 277mm !important;
+            overflow: hidden !important;
             margin: 0 !important;
-            padding: 6mm 8mm !important;
+            padding: 4mm 6mm !important;
             background: #fff !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             font-size: 9pt !important;
             z-index: 2147483647 !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
-          [data-ref="report"] * { visibility: visible !important; }
+          [data-ref="report"] * {
+            visibility: visible !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+          }
+          [data-ref="report"] > *:last-child { margin-bottom: 0 !important; }
           [data-ref="report"] td, [data-ref="report"] th {
             padding: 2px 4px !important;
             font-size: 9pt !important;
