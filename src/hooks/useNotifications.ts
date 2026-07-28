@@ -127,7 +127,7 @@ export function useNotifications() {
                 severity: "error",
                 title: "Échantillon compression en retard",
                 message: `EC-${String(sample.numero).padStart(3, "0")} — ${joursLabel} — Échu depuis ${maxDays} jours${detailParts ? `\n${detailParts}` : ""}`,
-                link: `/essais/beton/beton-durci/compression/${sample.id}`,
+                link: sampleLink,
                 date: sample.date_coulage,
               });
             }
@@ -143,7 +143,7 @@ export function useNotifications() {
                 severity: minDays <= 1 ? "warning" : "info",
                 title: `Échantillon ${joursLabel} — Échéance proche`,
                 message: `EC-${String(sample.numero).padStart(3, "0")} — ${joursLabel} — Dans ${daysText}${detailParts ? `\n${detailParts}` : ""}`,
-                link: `/essais/beton/beton-durci/compression/${sample.id}`,
+                link: sampleLink,
                 date: sample.date_coulage,
               });
             }
