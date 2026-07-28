@@ -294,6 +294,14 @@
   font-weight: 700 !important;
 }
 
+/* Tableau "Formulation de béton" : toujours en police normale */
+#root .report-table .formulation-table th,
+#root .report-table .formulation-table td,
+.formulation-table th,
+.formulation-table td {
+  font-weight: 400 !important;
+}
+
 #root .report-table h1 {
   font-size: 18px !important;
   color: #1f567d !important;
