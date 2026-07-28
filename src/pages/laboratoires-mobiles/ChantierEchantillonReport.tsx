@@ -625,7 +625,7 @@ export default function ChantierEchantillonReport() {
           </table>
           {echantillon.mention_eprouvettes_labo && (
             <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
-              Éprouvettes confectionnées par le laboratoire comme essai de convenance
+              Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
             </p>
           )}
         </div>

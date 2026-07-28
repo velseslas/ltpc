@@ -674,7 +674,7 @@ export default function ChantierEchantillonForm() {
                   onCheckedChange={(checked) => setMentionEprouvettesLabo(checked === true)}
                 />
                 <Label htmlFor="mention_eprouvettes_labo" className="cursor-pointer">
-                  Éprouvettes confectionnées par le laboratoire comme essai de convenance
+                  Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
                 </Label>
               </div>
             </div>
