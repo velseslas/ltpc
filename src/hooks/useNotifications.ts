@@ -198,9 +198,11 @@ export function useNotifications() {
 
       return notifications;
     },
-    refetchInterval: 60 * 1000, // Actualisation auto toutes les 60s
+    refetchInterval: 30 * 1000, // Actualisation auto toutes les 30s
     refetchOnWindowFocus: true,
     refetchOnMount: "always",
-    staleTime: 30 * 1000,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+
   });
 }
