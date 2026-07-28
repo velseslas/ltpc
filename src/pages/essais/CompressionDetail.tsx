@@ -178,7 +178,7 @@ const CompressionDetail = () => {
         <Button 
           variant="outline" 
           className="mt-4"
-          onClick={() => navigate("/essais/beton/beton-durci/compression")}
+          onClick={() => navigate(`/essais/beton/beton-durci/compression?echantillon=${id}`)}
         >
           Retour à la liste
         </Button>
@@ -203,7 +203,7 @@ const CompressionDetail = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate("/essais/beton/beton-durci/compression")}
+              onClick={() => navigate(`/essais/beton/beton-durci/compression?echantillon=${id}`)}
               className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />

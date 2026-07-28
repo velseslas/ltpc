@@ -14,6 +14,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
+import { useJumpToEchantillonPage } from "@/hooks/useJumpToEchantillonPage";
 
 const getStatutBadge = (statut: string) => {
   switch (statut) {
@@ -34,11 +35,14 @@ const UltrasonTest = () => {
   const deleteEchantillon = useDeleteEchantillonUltrason();
   const basePath = "/essais/beton/non-destructif/ultrason";
 
-  const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, currentPage, setCurrentPage, paginatedData, totalPages, totalItems, startIndex, endIndex } = useTableFilters<EchantillonUltrasonWithRelations>({
+  const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, currentPage, setCurrentPage, filteredData,
+    paginatedData, totalPages, totalItems, startIndex, endIndex } = useTableFilters<EchantillonUltrasonWithRelations>({
     data: echantillons,
     searchFields: [(e) => e.clients?.nom, (e) => e.chantiers?.nom, (e) => e.ouvrage ?? undefined],
     itemsPerPage: 10,
   });
+
+  useJumpToEchantillonPage(filteredData, setCurrentPage, 10);
 
   const handleDelete = async (id: string) => {
     try {

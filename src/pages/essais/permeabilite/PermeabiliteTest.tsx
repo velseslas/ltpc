@@ -27,6 +27,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
+import { useJumpToEchantillonPage } from "@/hooks/useJumpToEchantillonPage";
 
 const getStatutBadge = (statut: string) => {
   switch (statut) {
@@ -80,6 +81,7 @@ const PermeabiliteTest = () => {
     setStatusFilter,
     currentPage,
     setCurrentPage,
+    filteredData,
     paginatedData,
     totalPages,
     totalItems,
@@ -95,6 +97,8 @@ const PermeabiliteTest = () => {
     ],
     itemsPerPage: 10,
   });
+
+  useJumpToEchantillonPage(filteredData, setCurrentPage, 10);
 
   const handleDelete = async (id: string) => {
     try {

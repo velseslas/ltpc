@@ -41,7 +41,7 @@ const CarottageDetail = () => {
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex items-start gap-3 sm:gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate("/essais/beton/destructif/carottage")}
+          <Button variant="outline" size="icon" onClick={() => navigate(`/essais/beton/destructif/carottage?echantillon=${id}`)}
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>

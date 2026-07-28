@@ -93,7 +93,7 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
       });
       
       toast.success("Données enregistrées avec succès");
-      navigate(basePath);
+      navigate(`${basePath}?echantillon=${id}`);
     } catch (error) {
       toast.error("Erreur lors de l'enregistrement");
     }

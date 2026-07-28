@@ -156,7 +156,7 @@ export default function GranulatDetail({ essaiType, essaiTitle, basePath }: Gran
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate(basePath)}
+              onClick={() => navigate(`${basePath}?echantillon=${id}`)}
               className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />

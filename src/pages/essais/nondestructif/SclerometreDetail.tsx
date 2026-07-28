@@ -24,7 +24,7 @@ const SclerometreDetail = () => {
       <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Non Destructif", path: "/essais/beton/non-destructif" }, { label: "Scléromètre", path: basePath }, { label: `SC-${String(echantillon.numero).padStart(3, "0")}` }]} />
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex items-start gap-3 sm:gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"><ArrowLeft className="h-5 w-5" /></Button>
+          <Button variant="outline" size="icon" onClick={() => navigate(`${basePath}?echantillon=${id}`)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"><ArrowLeft className="h-5 w-5" /></Button>
           <div className="min-w-0">
             <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">Essai Scléromètre <span className="text-primary">SC-{String(echantillon.numero).padStart(3, "0")}</span></h1>
             <p className="text-muted-foreground mt-1 text-sm sm:text-base">NF EN 12504-2</p>

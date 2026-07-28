@@ -54,7 +54,7 @@ export default function GeotechniqueDataEntry({ essaiType, essaiTitle, basePath,
         statut: hasResults ? "termine" : "en-cours",
       });
       toast.success("Données enregistrées avec succès");
-      navigate(basePath);
+      navigate(`${basePath}?echantillon=${id}`);
     } catch {
       toast.error("Erreur lors de l'enregistrement");
     }

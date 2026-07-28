@@ -336,7 +336,7 @@ const CompressionDataEntry = () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
       toast.success("Données enregistrées avec succès");
-      navigate("/essais/beton/beton-durci/compression");
+      navigate(`/essais/beton/beton-durci/compression?echantillon=${id}`);
     } catch (error) {
       console.error("Error saving data:", error);
       toast.error("Erreur lors de l'enregistrement");

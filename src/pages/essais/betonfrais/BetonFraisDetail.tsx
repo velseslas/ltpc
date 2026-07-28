@@ -93,7 +93,7 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground mb-4">Échantillon non trouvé</p>
-        <Button onClick={() => navigate(basePath)}>Retour à la liste</Button>
+        <Button onClick={() => navigate(`${basePath}?echantillon=${id}`)}>Retour à la liste</Button>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function BetonFraisDetail({ essaiType, essaiTitle, basePath }: Be
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate(basePath)}
+              onClick={() => navigate(`${basePath}?echantillon=${id}`)}
               className="h-10 w-10 shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />

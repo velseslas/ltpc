@@ -26,6 +26,7 @@ import { EssaiBreadcrumb, BreadcrumbItem as BreadcrumbItemType } from "@/compone
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
+import { useJumpToEchantillonPage } from "@/hooks/useJumpToEchantillonPage";
 import { AdminOnly } from "@/components/common/AdminOnly";
 import { NotTechnicien } from "@/components/common/NotTechnicien";
 
@@ -60,12 +61,15 @@ export function EchantillonGeotechniqueList({ title, essaiType, basePath, backPa
 
   const {
     searchTerm, setSearchTerm, statusFilter, setStatusFilter,
-    currentPage, setCurrentPage, paginatedData, totalPages, totalItems, startIndex, endIndex,
+    currentPage, setCurrentPage, filteredData,
+    paginatedData, totalPages, totalItems, startIndex, endIndex,
   } = useTableFilters<EchantillonGeotechniqueBase>({
     data: echantillons,
     searchFields: [(e) => e.chantiers?.nom, (e) => e.clients?.nom, "type_sol"],
     itemsPerPage: 10,
   });
+
+  useJumpToEchantillonPage(filteredData, setCurrentPage, 10);
 
   const handleDelete = async () => {
     if (!echantillonToDelete) return;
