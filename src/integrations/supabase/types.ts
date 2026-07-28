@@ -1906,6 +1906,7 @@ export type Database = {
           is_laboratoire_chantier: boolean
           jours_essai: Json | null
           mention_eprouvette_client: boolean
+          mention_eprouvettes_labo: boolean
           mention_info_client: boolean
           mode_coulage: string | null
           nombre_eprouvettes: number | null
@@ -1942,6 +1943,7 @@ export type Database = {
           is_laboratoire_chantier?: boolean
           jours_essai?: Json | null
           mention_eprouvette_client?: boolean
+          mention_eprouvettes_labo?: boolean
           mention_info_client?: boolean
           mode_coulage?: string | null
           nombre_eprouvettes?: number | null
@@ -1978,6 +1980,7 @@ export type Database = {
           is_laboratoire_chantier?: boolean
           jours_essai?: Json | null
           mention_eprouvette_client?: boolean
+          mention_eprouvettes_labo?: boolean
           mention_info_client?: boolean
           mode_coulage?: string | null
           nombre_eprouvettes?: number | null
