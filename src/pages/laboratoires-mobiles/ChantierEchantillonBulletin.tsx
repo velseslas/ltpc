@@ -297,17 +297,22 @@ export default function ChantierEchantillonBulletin() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:items-center sm:w-auto">
-          <Button variant="outline" onClick={handlePrint} className="w-full sm:w-auto">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await handleDownloadPDF();
+              handlePrint();
+            }}
+            className="w-full sm:w-auto"
+          >
             <Printer className="h-4 w-4 mr-2" />
-            Imprimer
-          </Button>
-          <Button variant="outline" onClick={handleDownloadPDF} className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
-            Télécharger PDF
+            Imprimer et télécharger
           </Button>
-          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+          <ShareButton className="w-full sm:w-auto" />
         </div>
+
       </div>
 
 
