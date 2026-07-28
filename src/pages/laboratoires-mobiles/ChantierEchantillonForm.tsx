@@ -241,7 +241,7 @@ export default function ChantierEchantillonForm() {
       setClasseResistance((existingEchantillon as { classe_resistance?: string }).classe_resistance || "");
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
-      setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
+      setMentionEprouvettesLabo((existingEchantillon as { mention_eprouvettes_labo?: boolean }).mention_eprouvettes_labo ?? true);
       
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
