@@ -146,7 +146,7 @@ export default function GranulatReport({ essaiType, essaiTitle, normRef, basePat
               </div>
               <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
                 <ShareButton fileName={`rapport-${essaiType}-${fullPrefix}-${String(echantillon.numero).padStart(3, "0")}.pdf`} className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
-                <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="flex items-center gap-2 w-full sm:w-auto">
+                <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="col-span-2 flex items-center gap-2 w-full sm:w-auto sm:col-span-1">
             <Printer className="h-4 w-4" />
             <Download className="h-4 w-4" />
             Imprimer et télécharger
