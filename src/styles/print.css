@@ -193,6 +193,21 @@ html.print-rh-document body {
     image-rendering: -webkit-optimize-contrast;
   }
 
+  /* Logo entreprise : taille fixe lisible à l'impression (tous rapports/documents) */
+  [data-logo] {
+    width: 24mm !important;
+    height: 24mm !important;
+    min-width: 24mm !important;
+    min-height: 24mm !important;
+    flex-shrink: 0 !important;
+  }
+  [data-logo] img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+
+
   /* Liens : ne pas révéler les URL derrière (encombrant) */
   a[href]:after { content: ""; }
 
