@@ -36,6 +36,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
+import { useIntervenants } from "@/hooks/useIntervenants";
+import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 
 const CONDITIONS_CURE = [
   { value: "standard", label: "Cure standard (20°C, 95% HR)" },
@@ -423,7 +425,7 @@ export default function ChantierEchantillonForm() {
       client_id: chantier?.client_id || null,
       centrale_id: cleanValue(centraleId),
       formulation_id: cleanValue(formulationId),
-      operateur_id: responsableId,
+      operateur_id: operateurId || responsableId,
       ouvrage: essaiConvenance ? null : (ouvrage || null),
       destination_beton: essaiConvenance ? null : (destinationBeton || null),
       condition_cure: conditionCure,
@@ -667,6 +669,25 @@ export default function ChantierEchantillonForm() {
                 disabled={essaiConvenance}
               />
             </div>
+
+            {/* Technicien */}
+            {canChooseTechnicien && (
+              <div className="space-y-2">
+                <Label htmlFor="operateur">Technicien</Label>
+                <Select value={operateurId} onValueChange={setOperateurId}>
+                  <SelectTrigger id="operateur">
+                    <SelectValue placeholder="Sélectionnez un technicien" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {techniciens.map((op: any) => (
+                      <SelectItem key={op.id} value={op.id}>
+                        {op.prenom} {op.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Essai de convenance */}
             <div className="space-y-2 md:col-span-2">
