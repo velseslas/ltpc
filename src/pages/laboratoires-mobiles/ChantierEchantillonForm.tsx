@@ -442,6 +442,7 @@ export default function ChantierEchantillonForm() {
             mode_coulage: data.mode_coulage,
             essai_convenance: data.essai_convenance,
             essai_convenance_details: data.essai_convenance_details,
+            mention_eprouvettes_labo: data.mention_eprouvettes_labo,
             
             etuvage: data.etuvage,
           })
