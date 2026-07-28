@@ -379,6 +379,342 @@ export default function ChantierEchantillonReport() {
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
           <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+          <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="col-span-2 flex items-center gap-2 w-full sm:w-auto sm:col-span-1">
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
+          </Button>
+        </div>
+      </div>
+
+      {/* Rapport */}
+      <div className="overflow-x-auto -mx-4 px-4 print:overflow-visible print:mx-0 print:px-0 print:flex print:justify-center md:flex md:justify-center md:mx-0 md:px-0">
+      <div 
+        ref={reportRef}
+        data-ref="report"
+        className="report-table bg-white text-black p-8 rounded-lg shadow-lg w-[210mm] mx-auto print:shadow-none print:p-3 no-preview-zoom"
+        style={{ fontFamily: "Arial, sans-serif" }}
+      >
+        <ReportHeader
+          entreprise={entreprise}
+          verificationUrl={verificationUrl}
+          title="RAPPORT D'ESSAI DE COMPRESSION"
+          subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
+        />
+
+        {/* Identification de l'échantillon */}
+        <div className="mb-3 print:mb-2">
+          <table className="w-full border-collapse border border-black text-sm">
+            <tbody>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
+                <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">EC-{String(echantillon.numero_chantier).padStart(3, "0")}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
+                <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.client_nom}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
+                <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.chantier_nom}</td>
+              </tr>
+              {echantillon.essai_convenance && (
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Essai de convenance</td>
+                  <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">
+                    {echantillon.essai_convenance_details || "-"}
+                  </td>
+                </tr>
+              )}
+              {!echantillon.essai_convenance && (
+                <>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
+                    <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
+                    <td colSpan={isCompactInfo ? 3 : 1} className="border border-black px-3 py-1.5 text-black">{echantillon.destination_beton}</td>
+                  </tr>
+                </>
+              )}
+              {isCompactInfo ? (
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                </tr>
+              ) : (
+                <>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                  </tr>
+                </>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Formulation de béton */}
+        <div className="mb-3 print:mb-2">
+          <h3 className="font-bold text-sm mb-1 underline text-black">Formulation de béton</h3>
+          <div className="mb-1 text-sm text-black">
+            <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
+            <span className="mx-4">|</span>
+            <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
+          </div>
+          <table className="w-full border-collapse border border-black formulation-table">
+
+            <thead>
+              <tr>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Ciment</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Eau</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Adjuvant</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Sable 1</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Sable 2</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Gravier 1</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Gravier 2</th>
+                <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Gravier 3</th>
+              </tr>
+              <tr>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
+              </tr>
+              <tr>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.eau.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
+                <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.eau.quantite ?? 0} L</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Caractéristiques techniques */}
+        <div className="mb-3 print:mb-2">
+          <table className="w-full border-collapse border border-black text-sm">
+            <thead>
+              <tr>
+                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de Résistance</th>
+                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de consistance</th>
+                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Type Moule</th>
+                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C béton</th>
+                <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Air</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_resistance || "—"}</td>
+                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_consistance || "—"}</td>
+                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.type_eprouvette} {echantillon.dimension_eprouvette}</td>
+                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_beton ? `${echantillon.temperature_beton}°C` : "—"}</td>
+                <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_air ? `${echantillon.temperature_air}°C` : "—"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Résultats des essais */}
+        <div className="mb-1 print:mb-0">
+          <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
+          <table className="w-full border-collapse border border-black">
+            <thead>
+              <tr>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date d'essai</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Échéance</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Poids (g)</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Densité (kg/m³)</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Charge (kN)</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Rc (MPa)</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Moy. Rc (MPa)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {echantillon.resultats.length > 0 ? (() => {
+                let globalRowIndex = 0;
+
+                return groups.map((group) => {
+                  const resistances = group.items.map(ep => ep.resistance).filter(r => r > 0);
+                  const moyenneRc = resistances.length > 0 
+                    ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+                    : "—";
+
+                  return group.items.map((ep, idx) => {
+                    const isVeryFirstRow = globalRowIndex === 0;
+                    globalRowIndex++;
+
+                    return (
+                      <tr key={`${group.key}-${ep.numero}`}>
+                        {isVeryFirstRow && (
+                          <td 
+                            rowSpan={totalRows} 
+                            className="border border-black px-2 py-2 text-center text-sm align-middle text-black"
+                          >
+                            {echantillon.date_coulage || "—"}
+                          </td>
+                        )}
+                        {idx === 0 && (
+                          <>
+                            <td 
+                              rowSpan={group.items.length} 
+                              className="border border-black px-2 py-2 text-center text-sm align-middle text-black"
+                            >
+                              {(group.dateEssai || "").split(" ")[0] || "—"}
+                            </td>
+                            <td 
+                              rowSpan={group.items.length} 
+                              className="border border-black px-2 py-2 text-center text-sm font-medium align-middle text-black"
+                            >
+                              {group.label}
+                            </td>
+                          </>
+                        )}
+                        <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.poids || "—"}</td>
+                        <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.densite || "—"}</td>
+                        <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.charge || "—"}</td>
+                        <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{ep.resistance || "—"}</td>
+                        {idx === 0 && (
+                          <td 
+                            rowSpan={group.items.length} 
+                            className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black"
+                          >
+                            {moyenneRc}
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  });
+                });
+              })() : (
+                <tr>
+                  <td colSpan={8} className="border border-black px-2 py-4 text-center text-sm text-black">
+                    Aucune donnée saisie
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          {echantillon.mention_eprouvettes_labo && (
+            <p className="mt-0 text-left text-xs text-black print:text-[8pt]">
+              Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
+            </p>
+          )}
+        </div>
+
+        {/* Pied de page */}
+        <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0">
+          <div className="flex justify-between items-end">
+            <div className="text-sm text-black">
+              <p>Le Technicien: {echantillon.operateur_nom}</p>
+              {echantillon.operateur_signature_url && (
+                <div className="mt-2">
+                  <img 
+                    src={echantillon.operateur_signature_url} 
+                    alt="Signature technicien" 
+                    className="max-h-16 object-contain"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="text-center">
+              <div className="flex flex-col items-center justify-end">
+                {entreprise?.cachet_url ? (
+                  <img 
+                    src={entreprise.cachet_url} 
+                    alt="Cachet entreprise" 
+                    className="max-h-20 object-contain mb-1"
+                  />
+                ) : (
+                  <p className="text-sm font-medium text-black">Signature et cachet</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+
+      {/* Styles d'impression — isole le rapport via position:fixed pour éviter
+          les conflits avec le layout parent (sidebar, container max-w, transforms). */}
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 10mm; }
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
+          body * { visibility: hidden !important; }
+          .print\\:hidden { display: none !important; }
+          /* Empêche toute page blanche supplémentaire */
+          [data-ref="report"] > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+          [data-ref="report"] {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            height: auto !important;
+            max-height: 277mm !important;
+            overflow: hidden !important;
+            visibility: visible !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 6mm 8mm !important;
+            background: #fff !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            font-size: 9pt !important;
+            z-index: 2147483647 !important;
+          }
+          [data-ref="report"] * { visibility: visible !important; }
+          [data-ref="report"] td, [data-ref="report"] th {
+            padding: 2px 4px !important;
+            font-size: 9pt !important;
+            line-height: 1.15 !important;
+          }
+          [data-ref="report"] .formulation-table th,
+          [data-ref="report"] .formulation-table td {
+            font-weight: 400 !important;
+          }
+          [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
           <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="flex items-center gap-2 w-full sm:w-auto">
             <Printer className="h-4 w-4" />
             <Download className="h-4 w-4" />

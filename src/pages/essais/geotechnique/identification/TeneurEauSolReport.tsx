@@ -87,6 +87,95 @@ export default function TeneurEauSolReport() {
           </div>
           <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
             <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+            <Button variant="outline" className="col-span-2 w-full sm:col-span-1 sm:w-auto border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}>
+            <Printer className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
+            Imprimer et télécharger
+          </Button>
+          </div>
+        </div>
+      </div>
+
+      <div ref={printRef} data-ref="report" data-print-root data-print-template="teneur-eau-sol-report" className="bg-white text-black p-8 rounded-lg shadow-sm print:shadow-none print:p-0 max-w-4xl mx-auto print:max-w-none" style={{ fontFamily: "serif" }}>
+        <ReportHeader
+          entreprise={entreprise}
+          verificationUrl={verificationUrl}
+          title="ESSAI DE TENEUR EN EAU DES SOLS"
+          subtitle="NF P 94-050"
+        />
+
+        {/* Infos échantillon */}
+        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+          <div className="border border-gray-300 p-3 rounded">
+            <p><span className="font-bold">N° Échantillon :</span> {numero}</p>
+            <p><span className="font-bold">Client :</span> {echantillon.clients?.nom || "-"}</p>
+            <p><span className="font-bold">Chantier :</span> {echantillon.chantiers?.nom || "-"}</p>
+            {echantillon.carrieres && <p><span className="font-bold">Carrière :</span> {echantillon.carrieres.nom}</p>}
+          </div>
+          <div className="border border-gray-300 p-3 rounded">
+            <p><span className="font-bold">Date de prélèvement :</span> {format(new Date(echantillon.date_prelevement), "dd/MM/yyyy", { locale: fr })}</p>
+            {echantillon.date_essai && <p><span className="font-bold">Date d'essai :</span> {format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</p>}
+            <p><span className="font-bold">Type de sol :</span> {echantillon.type_sol}</p>
+          </div>
+        </div>
+
+        {/* Expression des résultats */}
+        <h3 className="font-bold text-center text-base mb-3">Expression des résultats</h3>
+        <table className="w-full border-collapse border border-black text-sm mb-6">
+          <thead>
+            <tr className="bg-[#d4e5f7]">
+              <th className="border border-black p-2 text-left">Essais</th>
+              <th className="border border-black p-2 text-center w-10"></th>
+              <th className="border border-black p-2 text-center w-28">Prise 01</th>
+              <th className="border border-black p-2 text-center w-28">Prise 02</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                <td className="border border-black p-2">{row.label}</td>
+                <td className="border border-black p-2 text-center text-xs text-gray-600">{row.unit}</td>
+                <td className="border border-black p-2 text-center font-semibold">{row.vals[0]}</td>
+                <td className="border border-black p-2 text-center font-semibold">{row.vals[1]}</td>
+              </tr>
+            ))}
+            {/* MOYEN */}
+            <tr className="bg-[#d4e5f7]">
+              <td className="border border-black p-2 font-bold" colSpan={2}>MOYEN</td>
+              <td className="border border-black p-2 text-center font-bold text-lg" colSpan={2}>
+                {moyen > 0 ? fmt(moyen) : "-"}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Observations */}
+        {r.notes && (
+          <div className="border border-gray-300 p-3 rounded mb-6">
+            <p className="font-bold text-sm mb-1">Observations :</p>
+            <p className="text-sm">{r.notes}</p>
+          </div>
+        )}
+
+        {/* Signature */}
+        <div className="flex justify-between mt-12 text-sm">
+          <div className="text-center">
+            <p className="font-bold mb-8">Le technicien</p>
+            {echantillon.intervenants?.signature_url && (
+              <img src={echantillon.intervenants.signature_url} alt="Signature" className="h-16 mx-auto mb-2" />
+            )}
+            <p>{echantillon.intervenants ? `${echantillon.intervenants.prenom} ${echantillon.intervenants.nom}` : ""}</p>
+          </div>
+          <div className="text-center">
+            <p className="font-bold mb-8">Le directeur du laboratoire</p>
+            <p>_________________________</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
             <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}>
             <Printer className="h-4 w-4 mr-2" />
             <Download className="h-4 w-4 mr-2" />

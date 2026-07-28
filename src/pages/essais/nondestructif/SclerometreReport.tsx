@@ -56,6 +56,176 @@ const SclerometreReport = () => {
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
           <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+          <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="col-span-2 w-full sm:w-auto sm:col-span-1">
+            <Printer className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
+            Imprimer et télécharger
+          </Button>
+        </div>
+      </div>
+
+      <div ref={reportRef} data-ref="report" data-print-root data-print-template="sclerometre-report" className="report-table bg-white text-black p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-4" style={{ fontFamily: "Arial, sans-serif" }}>
+        <ReportHeader entreprise={entreprise} verificationUrl={verificationUrl} title="RAPPORT D'ESSAI AU SCLÉROMÈTRE" subtitle="Norme NF EN 12504-2" />
+
+        {/* Identification */}
+        <div className="mb-6 mt-6">
+          <table className="identification-table w-full border-collapse border border-black text-sm">
+            <tbody>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/6 text-black">N° Échantillon</td>
+                <td className="border border-black px-3 py-1.5 w-1/3 text-black">SC-{String(echantillon.numero).padStart(3, "0")}</td>
+                <td className="border border-black px-3 py-1.5 font-medium w-1/6 text-black">Date d'essai</td>
+                <td className="border border-black px-3 py-1.5 w-1/3 text-black">{format(new Date(echantillon.date_essai), "dd/MM/yyyy", { locale: fr })}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.clients?.nom ?? "-"}</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Âge du béton</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.age_beton_jours ? `${echantillon.age_beton_jours} jours` : "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
+                <td className="border border-black px-3 py-1.5 text-black" colSpan={3}>{echantillon.chantiers?.nom ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage ?? "-"}</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.partie_ouvrage ?? "-"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Orientation</td>
+                <td className="border border-black px-3 py-1.5 text-black capitalize">{echantillon.orientation ?? "-"}</td>
+                <td className="border border-black px-3 py-1.5 font-medium text-black">Classe de résistance</td>
+                <td className="border border-black px-3 py-1.5 text-black">{echantillon.classe_resistance ?? "-"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Résultats */}
+        {resultats && (
+          <>
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Indices de rebond mesurés</h3>
+              {(() => {
+                const elems = resultats.elements as { element_coule: string; mesures: number[] }[] | undefined;
+                if (elems && elems.length > 0) {
+                  const maxPoints = Math.max(...elems.map(e => e.mesures.filter((v: number) => v > 0).length));
+                  return (
+                    <table className="w-full border-collapse border border-black text-sm">
+                      <thead>
+                        <tr>
+                          <th className="border border-black px-2 py-1.5 text-left font-medium text-black">Élément coulé</th>
+                          {Array.from({ length: maxPoints }, (_, i) => (
+                            <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {elems.map((elem, eIdx) => {
+                          const valid = elem.mesures.filter((v: number) => v > 0);
+                          return (
+                            <tr key={eIdx}>
+                              <td className="border border-black px-2 py-1.5 text-left font-medium text-black">{elem.element_coule || "-"}</td>
+                              {Array.from({ length: maxPoints }, (_, i) => (
+                                <td key={i} className="border border-black px-2 py-1.5 text-center text-black">{valid[i] ?? ""}</td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  );
+                }
+                // Legacy single-element fallback
+                const validMesures = resultats.mesures?.filter((v: number) => v > 0) ?? [];
+                return (
+                  <table className="w-full border-collapse border border-black text-sm">
+                    <thead>
+                      <tr>
+                        <th className="border border-black px-2 py-1.5 text-left font-medium text-black">Élément coulé</th>
+                        {validMesures.map((_: number, i: number) => (
+                          <th key={i} className="border border-black px-2 py-1.5 text-center font-medium text-black">P{i + 1}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-black px-2 py-1.5 text-left font-medium text-black">{resultats.element_coule ?? "-"}</td>
+                        {validMesures.map((val: number, i: number) => (
+                          <td key={i} className="border border-black px-2 py-1.5 text-center text-black">{val}</td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                );
+              })()}
+            </div>
+
+            <div className="mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Résultats de l'essai</h3>
+              <table className="w-full border-collapse border border-black text-sm">
+                <tbody>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">Médiane</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{resultats.mediane ?? "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Valeurs retenues</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{resultats.valeurs_retenues?.length ?? "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Indice de rebond corrigé</td>
+                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.indice_corrige ?? "-"}</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Résistance estimée (MPa)</td>
+                    <td className="border border-black px-3 py-1.5 font-bold text-black">{resultats.resistance_estimee ? `${resultats.resistance_estimee} MPa` : "-"}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* Mentions */}
+        {(() => {
+          let mentionsList: string[] = [];
+          try { mentionsList = JSON.parse(echantillon.observations ?? "[]"); } catch {}
+          return Array.isArray(mentionsList) && mentionsList.length > 0 ? (
+            <div className="mt-6 mb-6">
+              <h3 className="font-bold text-sm mb-2 underline text-black">Remarques</h3>
+              <table className="w-full border-collapse border border-black text-sm">
+                <tbody>
+                  {mentionsList.map((m, i) => (
+                    <tr key={i}><td className="border border-black px-3 py-1.5 text-black">{m}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null;
+        })()}
+
+        {/* Footer signatures */}
+        <div className="mt-8 grid grid-cols-2 gap-8 text-black">
+          <div className="text-center">
+            <p className="text-sm font-medium mb-8">Le Technicien</p>
+            <p className="text-sm">_________________</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium mb-8">Le Directeur du Laboratoire</p>
+            <p className="text-sm">_________________</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+};
+
+export default SclerometreReport;
+
           <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="w-full sm:w-auto">
             <Printer className="h-4 w-4 mr-2" />
             <Download className="h-4 w-4 mr-2" />

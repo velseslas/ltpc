@@ -442,6 +442,571 @@ const CompressionReport = () => {
             <div className="flex flex-col items-end gap-2">
               <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
                 <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
+                <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="col-span-2 w-full sm:col-span-1 sm:w-auto flex items-center gap-2">
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
+          </Button>
+              </div>
+              <p className="text-xs text-muted-foreground print:hidden">
+                Conseil : désactivez les en-têtes dans les paramètres d'impression du navigateur
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Rapport — LOT 2 : conteneur unique conforme à print.css
+          (data-print-root) + conventions internes A4 (data-ref="report"). */}
+      <div 
+        ref={reportRef}
+        data-ref="report"
+        data-print-root
+        data-print-template="compression-report"
+        className="report-table mx-auto w-[210mm] max-w-full overflow-x-auto print:overflow-visible bg-white"
+        style={{ fontFamily: "Arial, sans-serif" }}
+      >
+        {/* ============ RAPPORT DÉTAILLÉ ============ */}
+        <div
+          data-pdf-page
+          className="bg-white text-black p-4 rounded-lg shadow-lg print:shadow-none print:rounded-none"
+        >
+          <div data-pdf-content>
+            <ReportHeader
+              entreprise={entreprise}
+              verificationUrl={verificationUrl}
+              title="RAPPORT D'ESSAI DE COMPRESSION"
+              subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
+            />
+
+
+          {/* Identification de l'échantillon */}
+          <div className="mb-6">
+            <table className="identification-table w-full border-collapse text-sm" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "17.5%" }} />
+                <col style={{ width: "17.5%" }} />
+                <col style={{ width: "32.5%" }} />
+                <col style={{ width: "32.5%" }} />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">N° Échantillon</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">EC-{String(echantillon.numero).padStart(3, "0")}</td>
+                </tr>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Client</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.client_nom}</td>
+                </tr>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Chantier</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.chantier_nom}</td>
+                </tr>
+                {echantillon.essai_convenance && (
+                  <tr>
+                    <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Essai de convenance</td>
+                    <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">
+                      {echantillon.essai_convenance_details || "-"}
+                    </td>
+                  </tr>
+                )}
+                {!echantillon.essai_convenance && (
+                  <>
+                    <tr>
+                      <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Ouvrage</td>
+                      <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.ouvrage}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Partie de l'ouvrage</td>
+                      <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.destination_beton}</td>
+                    </tr>
+                  </>
+                )}
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Mode de conservation</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.condition_cure}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Type d'éprouvette</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.type_eprouvette || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Dimension</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.dimension_eprouvette || "—"}</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Température béton</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.temperature_beton != null ? `${echantillon.temperature_beton} °C` : "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Température air</td>
+                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.temperature_air != null ? `${echantillon.temperature_air} °C` : "—"}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Formulation de béton */}
+          <div className="mb-6">
+            <div className="mb-2 text-sm text-black">
+              <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
+              <span className="mx-4">|</span>
+              <span className="font-medium">Classe de béton : </span>{echantillon.classe_resistance || "-"}
+              <span className="mx-2">-</span>
+              {echantillon.classe_consistance || "-"}
+            </div>
+            <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "9%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "13%" }} />
+                <col style={{ width: "13%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "15%" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Ciment</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Eau</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Adjuvant</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Sable 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Sable 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 1</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 2</th>
+                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 3</th>
+                </tr>
+                <tr>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
+                </tr>
+                <tr>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.eau.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.eau.quantite ?? 0} L</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
+                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+          {/* Résultats des essais */}
+          <div className="mb-1 print:mb-0" data-report-fill>
+            <table data-results-table data-rows={totalRows} className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
+              <thead>
+                <tr>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date d'essai</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Échéance</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Poids (g)</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Densité (kg/m³)</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Charge (kN)</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Rc (MPa)</th>
+                  <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Moy. Rc (MPa)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {echantillon.resultats.length > 0 ? (() => {
+                  let globalRowIndex = 0;
+
+                  return groups.map((group) => {
+                    // Calculate average resistance for the group
+                    const resistances = group.items.map(ep => ep.resistance).filter(r => r > 0);
+                    const moyenneRc = resistances.length > 0 
+                      ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+                      : "—";
+
+                    return group.items.map((ep, idx) => {
+                      const isVeryFirstRow = globalRowIndex === 0;
+                      globalRowIndex++;
+
+                      return (
+                        <tr key={`${group.key}-${ep.numero}`}>
+                          {isVeryFirstRow && (
+                            <td 
+                              rowSpan={totalRows} 
+                              className="border border-black px-2 py-2 text-center text-sm align-middle text-black"
+                            >
+                              {echantillon.date_coulage || "—"}
+                            </td>
+                          )}
+                          {idx === 0 && (
+                            <>
+                              <td 
+                                rowSpan={group.items.length} 
+                                className="border border-black px-2 py-2 text-center text-sm align-middle text-black"
+                              >
+                                {(group.dateEssai || "").split(" ")[0] || "—"}
+                              </td>
+                              <td 
+                                rowSpan={group.items.length} 
+                                className="border border-black px-2 py-2 text-center text-sm font-medium align-middle text-black"
+                              >
+                                {group.label}
+                              </td>
+                            </>
+                          )}
+                          <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.poids || "—"}</td>
+                          <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.densite || "—"}</td>
+                          <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.charge || "—"}</td>
+                          <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{ep.resistance || "—"}</td>
+                          {idx === 0 && (
+                            <td 
+                              rowSpan={group.items.length} 
+                              className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black"
+                            >
+                              {moyenneRc}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    });
+                  });
+                })() : (
+                  <tr>
+                    <td colSpan={8} className="border border-black px-2 py-4 text-center text-sm text-black">
+                      Aucune donnée saisie
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            {echantillon.mention_eprouvettes_labo && (
+              <p className="mt-0 text-left text-xs text-black print:text-[8pt]">
+                Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
+              </p>
+            )}
+          </div>
+
+
+          {/* Remarques / Mentions */}
+          {(echantillon.mention_info_client || echantillon.mention_eprouvette_client) && (
+            <div className="mt-4 pt-3 border-t border-gray-300">
+              <p className="font-bold text-sm underline text-black mb-2">Remarques</p>
+              <ul className="list-disc list-inside text-sm text-black space-y-1">
+                {echantillon.mention_info_client && (
+                  <li>Informations fournies par le client</li>
+                )}
+                {echantillon.mention_eprouvette_client && (
+                  <li>Éprouvette confectionnée par le client</li>
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* Pied de page */}
+          <div data-report-footer className="mt-0 pt-0 print:mt-0 print:pt-0">
+            <div className="flex justify-between items-end">
+              <div className="text-sm text-black">
+                <p>Le Technicien: {echantillon.operateur_nom}</p>
+                {echantillon.operateur_signature_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={echantillon.operateur_signature_url} 
+                      alt="Signature technicien" 
+                      className="max-h-16 object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="text-center">
+                <div className="min-h-16 flex flex-col items-center justify-end">
+                  {entreprise?.cachet_url ? (
+                    <img 
+                      src={entreprise.cachet_url} 
+                      alt="Cachet entreprise" 
+                      className="max-h-20 object-contain mb-1"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-black">Signature et cachet</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+        {/* Fin page 2+ */}
+      </div>
+      {/* ===================================================================
+          MISE EN PAGE A4 — SOURCE DE VÉRITÉ UNIQUE
+          Appliquée à l'écran (aperçu), à window.print() et au PDF téléchargé.
+          Le conteneur [data-pdf-page] est un vrai gabarit 210×297mm en
+          flex-column. Le bloc [data-report-fill] absorbe l'espace vertical
+          restant ; le pied de page reste collé en bas via margin-top:auto.
+          Résultat : rendu strictement identique sur les 3 sorties.
+         =================================================================== */}
+      <style>{`
+        /* -----------------------------------------------------------------
+           Variables communes — pilotent toute la typographie et la densité
+           ----------------------------------------------------------------- */
+        [data-ref="report"] {
+          --a4-w: 210mm;
+          --a4-h: 297mm;
+          --a4-pad: 8mm;
+          --tbl-fs: 9.5pt;
+          --tbl-py: 3px;
+          --tbl-px: 6px;
+          --tbl-border: #000;
+          --tbl-line: 1.25;
+          --section-gap: 3.5mm;
+          --title-color: #1e5a7a;
+          /* densité résultats : ajustée dynamiquement selon data-rows */
+          --res-py: 4px;
+          --res-line: 1.3;
+        }
+
+        /* -----------------------------------------------------------------
+           GABARIT A4 (aperçu écran ET impression)
+           ----------------------------------------------------------------- */
+        [data-ref="report"] [data-pdf-page] {
+          width: var(--a4-w);
+          height: var(--a4-h);
+          box-sizing: border-box;
+          padding: var(--a4-pad) !important;
+          margin: 0 auto;
+          background: #ffffff;
+          overflow: hidden;
+          display: block;
+        }
+        [data-ref="report"] [data-pdf-content] {
+          height: 100%;
+          display: flex !important;
+          flex-direction: column;
+          gap: var(--section-gap);
+        }
+        [data-ref="report"] [data-pdf-content] > * { margin: 0 !important; }
+        [data-ref="report"] [data-report-fill] {
+          flex: 0 0 auto;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+        }
+        [data-ref="report"] [data-report-fill] > table {
+          flex: 0 0 auto;
+        }
+        [data-ref="report"] [data-report-footer] {
+          margin-top: 1mm !important;
+          padding-top: 0 !important;
+        }
+
+        /* -----------------------------------------------------------------
+           EN-TÊTE — compact (hauteur réduite ~3mm)
+           ----------------------------------------------------------------- */
+        [data-ref="report"] [data-report-header] {
+          padding: 3px 8px !important;
+          margin-bottom: 0 !important;
+        }
+        [data-ref="report"] [data-report-header] > div { align-items: center !important; }
+        [data-ref="report"] [data-report-header] .w-24 {
+          width: 17mm !important;
+          height: 17mm !important;
+        }
+        [data-ref="report"] [data-report-header] h1 {
+          font-size: 11.5pt !important;
+          line-height: 1.1 !important;
+          margin: 0 0 1px 0 !important;
+        }
+        [data-ref="report"] [data-report-header] p {
+          font-size: 8pt !important;
+          line-height: 1.2 !important;
+          margin: 0 !important;
+        }
+        [data-ref="report"] [data-report-header] + .border-t-2 { margin: 0.5mm 0 0.2mm 0 !important; }
+        [data-ref="report"] [data-report-header] ~ .text-center h2 {
+          font-size: 13pt !important;
+          margin: 0 0 0.5mm 0 !important;
+        }
+        [data-ref="report"] [data-report-header] ~ .text-center p { font-size: 8.5pt !important; margin: 0 !important; }
+
+        /* -----------------------------------------------------------------
+           TABLEAUX — cellules strictement uniformes
+           ----------------------------------------------------------------- */
+        [data-ref="report"] table {
+          width: 100% !important;
+          border-collapse: collapse !important;
+          border-spacing: 0 !important;
+          table-layout: fixed !important;
+        }
+        [data-ref="report"] th,
+        [data-ref="report"] td {
+          border: 1px solid var(--tbl-border) !important;
+          padding: var(--tbl-py) var(--tbl-px) !important;
+          font-size: var(--tbl-fs) !important;
+          line-height: var(--tbl-line) !important;
+          vertical-align: middle !important;
+          word-wrap: break-word;
+          overflow-wrap: anywhere;
+          box-sizing: border-box;
+        }
+        [data-ref="report"] th {
+          background: #f1f5f9 !important;
+          font-weight: 600 !important;
+          text-align: center !important;
+        }
+        [data-ref="report"] h3 {
+          font-size: 10pt !important;
+          font-weight: 700 !important;
+          margin: 0 0 1.5mm 0 !important;
+          color: var(--title-color) !important;
+        }
+
+        /* Table formulation — plus compacte, cellules uniformes */
+        [data-ref="report"] .formulation-table th,
+        [data-ref="report"] .formulation-table td {
+          font-size: 7.5pt !important;
+          padding: 2px 3px !important;
+          line-height: 1.15 !important;
+          font-weight: 400 !important;
+        }
+        [data-ref="report"] .formulation-table th { text-align: center !important; }
+
+        /* Table résultats — densité pilotée par data-rows.
+           Seuls le padding vertical et la line-height varient. */
+        [data-ref="report"] .results-table th,
+        [data-ref="report"] .results-table td {
+          padding-top: var(--res-py) !important;
+          padding-bottom: var(--res-py) !important;
+          line-height: var(--res-line) !important;
+        }
+        [data-ref="report"] .results-table[data-rows="7"],
+        [data-ref="report"] .results-table[data-rows="8"],
+        [data-ref="report"] .results-table[data-rows="9"] {
+          --res-py: 3px;
+          --res-line: 1.2;
+        }
+        [data-ref="report"] .results-table[data-rows="10"],
+        [data-ref="report"] .results-table[data-rows="11"],
+        [data-ref="report"] .results-table[data-rows="12"],
+        [data-ref="report"] .results-table[data-rows="13"] {
+          --res-py: 2px;
+          --res-line: 1.1;
+        }
+        [data-ref="report"] .results-table tbody tr { height: auto; }
+        /* Supprime le double trait entre les groupes d'âges (7j / 28j) :
+           la bordure haute des cellules rowSpan qui débutent un nouveau bloc
+           est retirée ; il reste uniquement la bordure basse du bloc précédent. */
+        #root [data-ref="report"] .results-table tbody tr:not(:first-child) td[rowspan] {
+          border-top: 0 !important;
+        }
+
+        /* Pied de page — signatures serrées, cachet contenu */
+        [data-ref="report"] [data-report-footer] img { max-height: 16mm !important; }
+
+        /* -----------------------------------------------------------------
+           APERÇU ÉCRAN — affiche la feuille A4 comme le PDF final
+           ----------------------------------------------------------------- */
+        @media screen {
+          [data-ref="report"] {
+            width: var(--a4-w) !important;
+            max-width: 100% !important;
+          }
+          [data-ref="report"] [data-pdf-page] {
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            border-radius: 4px;
+          }
+        }
+        ${isPrintRoute ? `
+          html, body, #root {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #e5e7eb;
+          }
+          body { display: flex; justify-content: center; padding: 8mm 0; }
+        ` : ""}
+
+        /* -----------------------------------------------------------------
+           IMPRESSION / EXPORT PDF — rendu strictement identique à l'aperçu
+           ----------------------------------------------------------------- */
+        @media print {
+          @page { size: A4 portrait; margin: 0; }
+
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            height: auto !important;
+            overflow: hidden !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          body * { visibility: hidden; }
+          .print\\:hidden { display: none !important; }
+          body > iframe,
+          body > [data-lovable-badge] { display: none !important; }
+          #root, #root > div, #root main {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+          }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
+          [data-ref="report"] {
+            position: static !important;
+            width: var(--a4-w) !important;
+            max-width: var(--a4-w) !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+          }
+          [data-ref="report"] > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+          [data-ref="report"] [data-pdf-page] {
+            width: var(--a4-w) !important;
+            height: auto !important;
+            max-height: calc(var(--a4-h) - 2mm) !important;
+            overflow: hidden !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          [data-ref="report"] [data-pdf-page]:last-child { page-break-after: avoid !important; }
+          [data-ref="report"] table,
+          [data-ref="report"] tr,
+          [data-ref="report"] thead,
+          [data-ref="report"] tbody {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+        }
+      `}</style>
+
+    </div>
+  );
+};
+
+export default CompressionReport;
+
                 <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="flex items-center gap-2">
             <Printer className="h-4 w-4" />
             <Download className="h-4 w-4" />
