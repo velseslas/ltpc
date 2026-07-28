@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRepositoryForTable } from "@/lib/repositories";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Json } from "@/integrations/supabase/types";
+import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
 
 export type EchantillonChantier = Tables<"echantillons_compression"> & {
   clients: { id: string; nom: string } | null;
