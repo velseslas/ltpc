@@ -533,6 +533,7 @@ const CompressionSampleForm = () => {
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
       mention_info_client: mentionInfoClient,
       mention_eprouvette_client: mentionEprouvetteClient,
+      mention_eprouvettes_labo: mentionEprouvettesLabo,
       
       etuvage: etuvage,
     };
