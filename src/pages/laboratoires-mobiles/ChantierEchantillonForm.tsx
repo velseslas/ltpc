@@ -127,6 +127,7 @@ export default function ChantierEchantillonForm() {
   const navigate = useNavigate();
   const { chantierId, echantillonId } = useParams();
   const isEditMode = Boolean(echantillonId);
+  const backToListPath = isEditMode && echantillonId ? `/laboratoires-mobiles/chantier/${chantierId}?echantillon=${echantillonId}` : `/laboratoires-mobiles/chantier/${chantierId}`;
 
   const { data: chantier, isLoading: isLoadingChantier } = useChantier(chantierId || "");
   const { data: client } = useClient(chantier?.client_id || "");
@@ -459,7 +460,7 @@ export default function ChantierEchantillonForm() {
         await createEchantillon.mutateAsync(data);
         toast.success("Échantillon créé avec succès");
       }
-      navigate(`/laboratoires-mobiles/chantier/${chantierId}`);
+      navigate(backToListPath);
     } catch (error) {
       toast.error(isEditMode ? "Erreur lors de la modification" : "Erreur lors de la création");
     }
@@ -488,7 +489,7 @@ export default function ChantierEchantillonForm() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}`)}
+          onClick={() => navigate(backToListPath)}
           className="h-10 w-10 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -1037,7 +1038,7 @@ export default function ChantierEchantillonForm() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate(`/laboratoires-mobiles/chantier/${chantierId}`)}
+            onClick={() => navigate(backToListPath)}
           >
             Annuler
           </Button>

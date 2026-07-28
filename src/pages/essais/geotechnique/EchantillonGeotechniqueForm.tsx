@@ -76,6 +76,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
+  const backToListPath = isEditing && id ? `${basePath}?echantillon=${id}` : basePath;
 
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: allChantiers, isLoading: chantiersLoading } = useChantiers();
@@ -171,7 +172,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
         await createEchantillon.mutateAsync(createPayload as any);
         toast.success("Échantillon créé avec succès");
       }
-      navigate(basePath);
+      navigate(backToListPath);
     } catch {
       toast.error("Une erreur est survenue");
     }
@@ -212,7 +213,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
       <EssaiBreadcrumb items={breadcrumbItems} />
 
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+        <Button variant="outline" size="icon" onClick={() => navigate(backToListPath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div>
@@ -398,7 +399,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
               />
 
               <div className="flex justify-end gap-4 pt-4">
-                <Button type="button" variant="outline" onClick={() => navigate(basePath)} className="border-border">
+                <Button type="button" variant="outline" onClick={() => navigate(backToListPath)} className="border-border">
                   Annuler
                 </Button>
                 <Button type="submit" disabled={isPending} className="gradient-primary text-primary-foreground">

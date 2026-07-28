@@ -129,6 +129,7 @@ export default function EchantillonBetonFraisForm({
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditing = !!id;
+  const backToListPath = isEditing && id ? `${basePath}?echantillon=${id}` : basePath;
   const prefix = getPrefix(essaiType);
   const fieldConfig = getFieldsForType(essaiType);
   const requireTemperatureBeton = false;
@@ -359,7 +360,7 @@ export default function EchantillonBetonFraisForm({
         toast.success("Échantillon créé avec succès");
       }
 
-      navigate(basePath);
+      navigate(backToListPath);
     } catch (error) {
       toast.error("Erreur lors de l'enregistrement");
     }
@@ -389,7 +390,7 @@ export default function EchantillonBetonFraisForm({
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate(basePath)}
+            onClick={() => navigate(backToListPath)}
             className="h-10 w-10"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -796,7 +797,7 @@ export default function EchantillonBetonFraisForm({
           </Card>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={() => navigate(basePath)}>
+            <Button type="button" variant="outline" onClick={() => navigate(backToListPath)}>
               Annuler
             </Button>
             <Button
