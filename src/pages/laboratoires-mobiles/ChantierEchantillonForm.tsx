@@ -37,6 +37,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useIntervenants } from "@/hooks/useIntervenants";
+import { useAffectations } from "@/hooks/useAffectations";
 import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 
 const CONDITIONS_CURE = [
