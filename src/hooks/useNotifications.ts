@@ -73,7 +73,7 @@ export function useNotifications() {
       // 3. Check for compression samples needing attention (based on jours_essai)
       let compressionQuery = supabase
         .from("echantillons_compression")
-        .select("id, numero, numero_chantier, statut, date_coulage, jours_essai, ouvrage, chantier_id, is_laboratoire_chantier, clients:client_id(nom), chantiers:chantier_id(nom)")
+        .select("id, numero, numero_chantier, statut, date_coulage, jours_essai, resultats, ouvrage, chantier_id, is_laboratoire_chantier, clients:client_id(nom), chantiers:chantier_id(nom)")
         .in("statut", ["a-faire", "en-cours"]);
       if (isTechnicien) {
         if (allowedChantierIds.length === 0) {
@@ -89,8 +89,13 @@ export function useNotifications() {
 
           if (sample.date_coulage && sample.jours_essai) {
             const coulageDate = parseISO(sample.date_coulage);
-            const joursEssaiData = sample.jours_essai as Array<{ jour: number; nombre: number }>;
-            
+            const joursEssaiData = (Array.isArray(sample.jours_essai) ? sample.jours_essai : []) as Array<{
+              jour: number; nombre: number; unite?: string; heures?: number;
+            }>;
+            const resultats = (Array.isArray((sample as any).resultats) ? (sample as any).resultats : []) as Array<{
+              joursEssai?: number; isHeures?: boolean; resistance?: number;
+            }>;
+
             const clientNom = (sample.clients as any)?.nom || "";
             const chantierNom = (sample.chantiers as any)?.nom || "";
             const ouvrage = sample.ouvrage || "";
@@ -104,26 +109,36 @@ export function useNotifications() {
             const sampleLink = (sample as any).is_laboratoire_chantier && sample.chantier_id
               ? `/laboratoires-mobiles/chantier/${sample.chantier_id}/echantillon/${sample.id}`
               : `/essais/beton/beton-durci/compression/${sample.id}`;
-            
-            const overdueJours: { jour: number; daysSince: number }[] = [];
-            const dueJours: { jour: number; daysUntil: number }[] = [];
-            
-            // Check each test day
+
+            const overdueJours: { label: string; daysSince: number }[] = [];
+            const dueJours: { label: string; daysUntil: number }[] = [];
+
+            // Check each test deadline, en ignorant celles déjà réalisées (résultats saisis).
             joursEssaiData.forEach((item) => {
-              const jour = item.jour;
-              const testDate = addDays(coulageDate, jour);
+              const isHeures = item.unite === "heures" && typeof item.heures === "number";
+              const label = isHeures ? `${item.heures} h` : `${item.jour} J`;
+
+              // Nombre d'éprouvettes déjà renseignées pour cette échéance.
+              const done = resultats.filter(
+                (r) => !!r.isHeures === isHeures && Number(r.joursEssai) === Number(item.jour) && Number(r.resistance) > 0
+              ).length;
+              if (done >= (item.nombre ?? 1)) return; // échéance réalisée : pas d'alerte
+
+              const testDate = isHeures
+                ? new Date(coulageDate.getTime() + (item.heures as number) * 3600_000)
+                : addDays(coulageDate, item.jour);
               const daysUntilTest = differenceInDays(testDate, today);
-              
+
               if (daysUntilTest < 0) {
-                overdueJours.push({ jour, daysSince: Math.abs(daysUntilTest) });
+                overdueJours.push({ label, daysSince: Math.abs(daysUntilTest) });
               } else if (daysUntilTest <= 7) {
-                dueJours.push({ jour, daysUntil: daysUntilTest });
+                dueJours.push({ label, daysUntil: daysUntilTest });
               }
             });
-            
+
             // Create single notification for overdue tests
             if (overdueJours.length > 0) {
-              const joursLabel = overdueJours.map(j => `${j.jour}j`).join(" et ");
+              const joursLabel = overdueJours.map(j => j.label).join(" et ");
               const maxDays = Math.max(...overdueJours.map(j => j.daysSince));
               notifications.push({
                 id: `compression-overdue-${sample.id}`,
@@ -135,10 +150,10 @@ export function useNotifications() {
                 date: sample.date_coulage,
               });
             }
-            
+
             // Create single notification for due tests
             if (dueJours.length > 0) {
-              const joursLabel = dueJours.map(j => `${j.jour}j`).join(" et ");
+              const joursLabel = dueJours.map(j => j.label).join(" et ");
               const minDays = Math.min(...dueJours.map(j => j.daysUntil));
               const daysText = minDays === 0 ? "aujourd'hui" : minDays === 1 ? "1 jour" : `${minDays} jours`;
               notifications.push({
@@ -154,6 +169,7 @@ export function useNotifications() {
           }
         });
       }
+
 
       // 3. Check for equipment calibration (skip for techniciens — not scoped by chantier)
       const { data: materiel, error: materielError } = isTechnicien
