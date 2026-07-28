@@ -73,7 +73,7 @@ export function useNotifications() {
       // 3. Check for compression samples needing attention (based on jours_essai)
       let compressionQuery = supabase
         .from("echantillons_compression")
-        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, chantier_id, clients:client_id(nom), chantiers:chantier_id(nom)")
+        .select("id, numero, statut, date_coulage, jours_essai, ouvrage, chantier_id, is_laboratoire_chantier, clients:client_id(nom), chantiers:chantier_id(nom)")
         .in("statut", ["a-faire", "en-cours"]);
       if (isTechnicien) {
         if (allowedChantierIds.length === 0) {
