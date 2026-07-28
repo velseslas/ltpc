@@ -239,6 +239,7 @@ export default function ChantierEchantillonReport() {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          mention_eprouvettes_labo: (data as any).mention_eprouvettes_labo ?? true,
           date_essai: data.date_essai || null,
           etuvage: (data as any).etuvage || null,
         });
