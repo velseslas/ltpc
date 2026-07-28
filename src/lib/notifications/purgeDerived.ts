@@ -15,9 +15,12 @@ function matchesRecord(n: PersistedNotification, recordId: string): boolean {
 }
 
 export function purgeDerivedNotifications(queryClient: QueryClient, recordId: string) {
-  // 1. Notifications dérivées (calculées côté client)
+  // 1. Notifications dérivées (calculées côté client) : par id OU par lien
+  //    (ex. suppression d'un chantier → notifications de ses échantillons).
   queryClient.setQueriesData<Notification[]>({ queryKey: ["notifications"] }, (old) =>
-    Array.isArray(old) ? old.filter((n) => !n.id.includes(recordId)) : old
+    Array.isArray(old)
+      ? old.filter((n) => !n.id.includes(recordId) && !n.link?.includes(recordId))
+      : old
   );
 
   // 2. Notifications persistantes : retrait du cache + suppression en base

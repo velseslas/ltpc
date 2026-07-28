@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRepository, getRepositoryForTable } from "@/lib/repositories";
+import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
 
 export interface Chantier {
   id: string;
@@ -117,6 +118,8 @@ export function useDeleteChantier() {
       if (data.clientId) {
         queryClient.invalidateQueries({ queryKey: ["chantiers", "client", data.clientId] });
       }
+      // Retire aussi les notifications liées au chantier et à ses échantillons.
+      purgeDerivedNotifications(queryClient, data.id);
     },
   });
 }
