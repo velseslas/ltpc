@@ -51,8 +51,8 @@ const UltrasonSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
-  const backToListPath = isEdit && id ? `${basePath}?echantillon=${id}` : basePath;
   const basePath = "/essais/beton/non-destructif/ultrason";
+  const backToListPath = isEdit && id ? `${basePath}?echantillon=${id}` : basePath;
 
   const { data: existingData } = useEchantillonUltrason(id ?? "");
   const { duplicateSource } = useDuplicateSource<any>("echantillons_ultrason");

@@ -53,8 +53,8 @@ const SclerometreSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
-  const backToListPath = isEdit && id ? `${basePath}?echantillon=${id}` : basePath;
   const basePath = "/essais/beton/non-destructif/sclerometre";
+  const backToListPath = isEdit && id ? `${basePath}?echantillon=${id}` : basePath;
 
   const { data: existingData } = useEchantillonSclerometre(id ?? "");
   const { duplicateSource } = useDuplicateSource<any>("echantillons_sclerometre");
