@@ -946,6 +946,8 @@ const CompressionReport = () => {
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
+            height: auto !important;
+            overflow: hidden !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
@@ -968,17 +970,26 @@ const CompressionReport = () => {
             max-width: var(--a4-w) !important;
             margin: 0 auto !important;
             padding: 0 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
             background: #ffffff !important;
-          }
-          [data-ref="report"] [data-pdf-page] {
-            width: var(--a4-w) !important;
-            height: var(--a4-h) !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
             page-break-after: avoid !important;
             break-after: avoid !important;
           }
+          [data-ref="report"] > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+          [data-ref="report"] [data-pdf-page] {
+            width: var(--a4-w) !important;
+            height: auto !important;
+            max-height: calc(var(--a4-h) - 2mm) !important;
+            overflow: hidden !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          [data-ref="report"] [data-pdf-page]:last-child { page-break-after: avoid !important; }
           [data-ref="report"] table,
           [data-ref="report"] tr,
           [data-ref="report"] thead,
