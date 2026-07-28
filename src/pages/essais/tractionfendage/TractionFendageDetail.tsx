@@ -49,7 +49,7 @@ const TractionFendageDetail = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate("/essais/beton/beton-durci/traction-fendage")}
+            onClick={() => navigate(`/essais/beton/beton-durci/traction-fendage?echantillon=${id}`)}
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />

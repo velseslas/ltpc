@@ -73,7 +73,7 @@ export default function BetonFraisDataEntry({ essaiType, essaiTitle, basePath }:
       await updateEchantillon.mutateAsync(updateData);
 
       toast.success("Données enregistrées avec succès");
-      navigate(basePath);
+      navigate(`${basePath}?echantillon=${id}`);
     } catch (error) {
       toast.error("Erreur lors de l'enregistrement");
     }
