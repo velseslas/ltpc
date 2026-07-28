@@ -85,11 +85,10 @@ export default function MaterielInventaire() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={handlePrint}>
-            <Printer className="h-4 w-4" /> Imprimer
-          </Button>
-          <Button variant="outline" className="gap-2" onClick={handleDownloadPDF}>
-            <Download className="h-4 w-4" /> Télécharger PDF
+          <Button variant="outline" className="gap-2" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}>
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
           </Button>
         </div>
       </div>

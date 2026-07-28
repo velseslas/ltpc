@@ -170,8 +170,11 @@ export default function EtatPaiementsEspece() {
       {generated && (
         <>
           <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:justify-end sm:gap-3 print:hidden">
-            <Button variant="outline" onClick={handlePrint} className="gap-2 w-full sm:w-auto"><Printer className="h-4 w-4" />Imprimer</Button>
-            <Button variant="outline" onClick={handleDownload} className="gap-2 w-full sm:w-auto"><Download className="h-4 w-4" />Télécharger PDF</Button>
+            <Button variant="outline" onClick={async () => { await (handleDownload)(); (handlePrint)(); }} className="gap-2 w-full sm:w-auto">
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
+          </Button>
           </div>
 
           <div ref={reportRef} data-print-root data-print-template="etat-paiements-espece" data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>

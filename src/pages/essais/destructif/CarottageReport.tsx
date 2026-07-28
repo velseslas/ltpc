@@ -99,11 +99,10 @@ const CarottageReport = () => {
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
           <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
-          <Button variant="outline" onClick={handlePrint} className="flex items-center gap-2">
-            <Printer className="h-4 w-4" /> Imprimer
-          </Button>
-          <Button variant="outline" onClick={handleDownloadPDF} className="flex items-center gap-2">
-            <Download className="h-4 w-4" /> Télécharger PDF
+          <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="flex items-center gap-2">
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
           </Button>
         </div>
       </div>

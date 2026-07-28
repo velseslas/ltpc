@@ -55,13 +55,10 @@ export default function MaterielAffectationHistorique() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={handlePrint}>
+          <Button variant="outline" className="gap-2" onClick={async () => { await (handleDownload)(); (handlePrint)(); }}>
             <Printer className="h-4 w-4" />
-            Imprimer
-          </Button>
-          <Button variant="outline" className="gap-2" onClick={handleDownload}>
             <Download className="h-4 w-4" />
-            Télécharger PDF
+            Imprimer et télécharger
           </Button>
         </div>
       </div>

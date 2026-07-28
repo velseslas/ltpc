@@ -89,12 +89,11 @@ export default function GranulometrieSolReport() {
           <Button
             variant="outline"
             className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
-            onClick={() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" })}
+            onClick={async () => { await (() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" }))(); (() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" }))(); }}
           >
-            <Download className="h-4 w-4 mr-2" />Télécharger PDF
-          </Button>
-          <Button onClick={() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" })} className="gradient-primary text-primary-foreground">
-            <Printer className="h-4 w-4 mr-2" />Imprimer
+            <Printer className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
+            Imprimer et télécharger
           </Button>
         </div>
       </div>

@@ -135,13 +135,10 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
 
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
           <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
-          <Button variant="outline" onClick={handlePrint} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="w-full sm:w-auto">
             <Printer className="h-4 w-4 mr-2" />
-            Imprimer
-          </Button>
-          <Button variant="outline" onClick={handleDownloadPDF} className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
-            Télécharger PDF
+            Imprimer et télécharger
           </Button>
         </div>
       </div>

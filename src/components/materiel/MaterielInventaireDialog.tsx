@@ -92,13 +92,10 @@ export default function MaterielInventaireDialog({ open, onOpenChange, data }: M
         </DialogHeader>
 
         <div className="flex gap-2 mb-4">
-          <Button variant="outline" className="gap-2" onClick={handlePrint}>
+          <Button variant="outline" className="gap-2" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}>
             <Printer className="h-4 w-4" />
-            Imprimer
-          </Button>
-          <Button variant="outline" className="gap-2" onClick={handleDownloadPDF}>
             <Download className="h-4 w-4" />
-            Télécharger PDF
+            Imprimer et télécharger
           </Button>
         </div>
 

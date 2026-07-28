@@ -85,21 +85,13 @@ export function DocumentViewerDialog({ open, onOpenChange, document }: DocumentV
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handlePrint}
+                onClick={async () => { await (handleDownload)(); (handlePrint)(); }}
                 className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10"
               >
-                <Printer className="w-4 h-4" />
-                <span className="hidden sm:inline">Imprimer</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDownload}
-                className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Télécharger</span>
-              </Button>
+            <Printer className="w-4 h-4" />
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Imprimer et télécharger</span>
+          </Button>
               <Button
                 variant="ghost"
                 size="sm"

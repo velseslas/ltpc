@@ -408,14 +408,11 @@ export default function Documents() {
             </div>
             {isDocumentPreviewable(selectedDocument.type_document) && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
-                  <Printer className="h-4 w-4" />
-                  Imprimer
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleDownload} className="gap-2">
-                  <Download className="h-4 w-4" />
-                  Télécharger
-                </Button>
+                <Button variant="outline" size="sm" onClick={async () => { await (handleDownload)(); (handlePrint)(); }} className="gap-2">
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
+          </Button>
                 <Button variant="outline" size="sm" onClick={handleOpenEmailDialog} className="gap-2">
                   <Mail className="h-4 w-4" />
                   Email
