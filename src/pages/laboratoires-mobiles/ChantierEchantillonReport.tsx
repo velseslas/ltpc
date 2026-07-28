@@ -84,6 +84,7 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  mention_eprouvettes_labo: boolean;
   date_essai: string | null;
   etuvage: string | null;
 }
@@ -238,6 +239,7 @@ export default function ChantierEchantillonReport() {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          mention_eprouvettes_labo: (data as any).mention_eprouvettes_labo ?? true,
           date_essai: data.date_essai || null,
           etuvage: (data as any).etuvage || null,
         });
@@ -621,6 +623,11 @@ export default function ChantierEchantillonReport() {
               )}
             </tbody>
           </table>
+          {echantillon.mention_eprouvettes_labo && (
+            <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
+              Éprouvettes confectionnées par le laboratoire comme essai de convenance
+            </p>
+          )}
         </div>
 
         {/* Pied de page */}

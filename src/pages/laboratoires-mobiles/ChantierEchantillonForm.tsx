@@ -171,6 +171,7 @@ export default function ChantierEchantillonForm() {
   const [modeCoulage, setModeCoulage] = useState("");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
+  const [mentionEprouvettesLabo, setMentionEprouvettesLabo] = useState(true);
   
   const [etuvage, setEtuvage] = useState("non");
   const [showError, setShowError] = useState(false);
@@ -241,6 +242,7 @@ export default function ChantierEchantillonForm() {
       setModeCoulage(existingEchantillon.mode_coulage || "");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
+      setMentionEprouvettesLabo((existingEchantillon as { mention_eprouvettes_labo?: boolean }).mention_eprouvettes_labo ?? true);
       
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
@@ -412,6 +414,7 @@ export default function ChantierEchantillonForm() {
       mode_coulage: cleanValue(modeCoulage),
       essai_convenance: essaiConvenance,
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
+      mention_eprouvettes_labo: mentionEprouvettesLabo,
       etuvage: etuvage,
     };
 
@@ -439,6 +442,7 @@ export default function ChantierEchantillonForm() {
             mode_coulage: data.mode_coulage,
             essai_convenance: data.essai_convenance,
             essai_convenance_details: data.essai_convenance_details,
+            mention_eprouvettes_labo: data.mention_eprouvettes_labo,
             
             etuvage: data.etuvage,
           })
@@ -659,6 +663,20 @@ export default function ChantierEchantillonForm() {
                   className="bg-background mt-2"
                 />
               )}
+            </div>
+
+            {/* Mention éprouvettes confectionnées par le laboratoire */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mention_eprouvettes_labo"
+                  checked={mentionEprouvettesLabo}
+                  onCheckedChange={(checked) => setMentionEprouvettesLabo(checked === true)}
+                />
+                <Label htmlFor="mention_eprouvettes_labo" className="cursor-pointer">
+                  Éprouvettes confectionnées par le laboratoire comme essai de convenance
+                </Label>
+              </div>
             </div>
           </div>
         </div>

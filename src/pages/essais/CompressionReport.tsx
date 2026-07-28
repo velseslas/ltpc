@@ -95,6 +95,7 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  mention_eprouvettes_labo: boolean;
   mention_info_client: boolean;
   mention_eprouvette_client: boolean;
   date_essai: string | null;
@@ -263,6 +264,7 @@ const CompressionReport = () => {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          mention_eprouvettes_labo: (data as any).mention_eprouvettes_labo ?? true,
           mention_info_client: extendedData.mention_info_client || false,
           mention_eprouvette_client: extendedData.mention_eprouvette_client || false,
           date_essai: data.date_essai || null,
@@ -690,6 +692,11 @@ const CompressionReport = () => {
                 )}
               </tbody>
             </table>
+            {echantillon.mention_eprouvettes_labo && (
+              <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
+                Éprouvettes confectionnées par le laboratoire comme essai de convenance
+              </p>
+            )}
           </div>
 
 

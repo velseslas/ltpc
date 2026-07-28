@@ -206,6 +206,7 @@ const CompressionSampleForm = () => {
   const [mentionEprouvetteClient, setMentionEprouvetteClient] = useState(false);
   
   const [etuvage, setEtuvage] = useState("non");
+  const [mentionEprouvettesLabo, setMentionEprouvettesLabo] = useState(true);
   const [submitted, setSubmitted] = useState(false);
 
   const editInitialized = useRef(false);
@@ -300,6 +301,7 @@ const CompressionSampleForm = () => {
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionInfoClient((existingEchantillon as { mention_info_client?: boolean }).mention_info_client || false);
       setMentionEprouvetteClient((existingEchantillon as { mention_eprouvette_client?: boolean }).mention_eprouvette_client || false);
+      setMentionEprouvettesLabo((existingEchantillon as { mention_eprouvettes_labo?: boolean }).mention_eprouvettes_labo ?? true);
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai (jours + heures)
@@ -532,6 +534,7 @@ const CompressionSampleForm = () => {
       essai_convenance_details: essaiConvenance ? (essaiConvenanceDetails || null) : null,
       mention_info_client: mentionInfoClient,
       mention_eprouvette_client: mentionEprouvetteClient,
+      mention_eprouvettes_labo: mentionEprouvettesLabo,
       
       etuvage: etuvage,
     };
@@ -834,6 +837,20 @@ const CompressionSampleForm = () => {
                     className="bg-background mt-2"
                   />
                 )}
+              </div>
+
+              {/* Mention éprouvettes confectionnées par le laboratoire */}
+              <div className="md:col-span-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="mention_eprouvettes_labo"
+                    checked={mentionEprouvettesLabo}
+                    onCheckedChange={(checked) => setMentionEprouvettesLabo(checked === true)}
+                  />
+                  <Label htmlFor="mention_eprouvettes_labo" className="cursor-pointer">
+                    Éprouvettes confectionnées par le laboratoire comme essai de convenance
+                  </Label>
+                </div>
               </div>
             </div>
           </div>
