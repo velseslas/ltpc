@@ -95,6 +95,11 @@ export function useNotifications() {
             const chantierNom = (sample.chantiers as any)?.nom || "";
             const ouvrage = sample.ouvrage || "";
             const detailParts = [clientNom, chantierNom, ouvrage].filter(Boolean).join(" — ");
+            // Les échantillons de laboratoire chantier n'existent pas dans la liste compression :
+            // on pointe vers leur écran dédié pour éviter un lien mort.
+            const sampleLink = (sample as any).is_laboratoire_chantier && sample.chantier_id
+              ? `/laboratoires-mobiles/chantier/${sample.chantier_id}/echantillon/${sample.id}`
+              : `/essais/beton/beton-durci/compression/${sample.id}`;
             
             const overdueJours: { jour: number; daysSince: number }[] = [];
             const dueJours: { jour: number; daysUntil: number }[] = [];
