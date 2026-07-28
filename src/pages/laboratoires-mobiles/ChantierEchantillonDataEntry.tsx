@@ -271,7 +271,7 @@ export default function ChantierEchantillonDataEntry() {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
       toast.success("Données enregistrées avec succès");
-      navigate(`/laboratoires-mobiles/chantier/${chantierId}`);
+      navigate(`/laboratoires-mobiles/chantier/${chantierId}?echantillon=${echantillonId}`);
     } catch (error) {
       console.error("Error saving data:", error);
       toast.error("Erreur lors de l'enregistrement");

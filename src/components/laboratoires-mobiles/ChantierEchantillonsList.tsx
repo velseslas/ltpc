@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Plus, MoreHorizontal, Eye, Pencil, Copy, Trash2, Loader2, ClipboardEdit, FileBarChart, ClipboardList } from "lucide-react";
@@ -76,6 +76,7 @@ interface ChantierEchantillonsListProps {
 
 export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsListProps) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: echantillons, isLoading } = useChantierEchantillons(chantierId);
   const deleteEchantillon = useDeleteChantierEchantillon();
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -87,6 +88,7 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
     setStatusFilter,
     currentPage,
     setCurrentPage,
+    filteredData,
     paginatedData,
     totalPages,
     totalItems,
@@ -102,6 +104,21 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
     ],
     itemsPerPage: 10,
   });
+
+  // Aller directement à la page contenant l'échantillon ciblé (?echantillon=ID)
+  const jumpedRef = useRef(false);
+  const targetId = searchParams.get("echantillon");
+  useEffect(() => {
+    if (jumpedRef.current || !targetId || filteredData.length === 0) return;
+    const index = filteredData.findIndex((e) => e.id === targetId);
+    if (index === -1) return;
+    jumpedRef.current = true;
+    setCurrentPage(Math.floor(index / 10) + 1);
+    const next = new URLSearchParams(searchParams);
+    next.delete("echantillon");
+    setSearchParams(next, { replace: true });
+  }, [targetId, filteredData, setCurrentPage, searchParams, setSearchParams]);
+
 
   const handleDelete = async () => {
     if (!deleteId) return;
