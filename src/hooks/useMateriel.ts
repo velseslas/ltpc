@@ -64,13 +64,15 @@ export function useDeleteMateriel() {
     mutationFn: async (id: string) => {
       const { error } = await repo.delete({ id });
       if (error) throw new Error(error);
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       qc.invalidateQueries({ queryKey: ["materiel"] });
-      qc.invalidateQueries({ queryKey: ["notifications"] });
+      purgeDerivedNotifications(qc, id);
     },
   });
 }
+
 
 export function useMaterielStats() {
   return useQuery({
