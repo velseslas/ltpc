@@ -37,6 +37,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useIntervenants } from "@/hooks/useIntervenants";
+import { useAffectations } from "@/hooks/useAffectations";
 import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 
 const CONDITIONS_CURE = [
@@ -227,15 +228,32 @@ export default function ChantierEchantillonForm() {
   const canChooseTechnicien =
     currentRole === "super_admin" || currentRole === "admin" || currentRole === "manager";
   const { data: intervenants = [] } = useIntervenants();
-  const techniciens = useMemo(
-    () =>
-      intervenants.filter((i: any) => {
-        const posteName = i.postes?.nom?.toUpperCase() || "";
-        const role = (i.role || "").toUpperCase();
-        return posteName.includes("TECHNICIEN") || role.includes("TECHNICIEN");
-      }),
-    [intervenants]
-  );
+  const { data: affectations = [] } = useAffectations();
+
+  // Intervenants affectés à ce chantier (affectations en cours)
+  const affectesChantier = useMemo(() => {
+    const ids = new Set<string>();
+    (affectations || []).forEach((a: any) => {
+      if (a.chantier_id !== chantierId) return;
+      if (a.statut && a.statut !== "en_cours") return;
+      if (a.date_fin && new Date(a.date_fin) < new Date()) return;
+      if (a.intervenant_id) ids.add(a.intervenant_id);
+    });
+    return ids;
+  }, [affectations, chantierId]);
+
+  const techniciens = useMemo(() => {
+    const isTechnicien = (i: any) => {
+      const posteName = i.postes?.nom?.toUpperCase() || "";
+      const role = (i.role || "").toUpperCase();
+      return posteName.includes("TECHNICIEN") || role.includes("TECHNICIEN");
+    };
+    const base = intervenants.filter(isTechnicien);
+    const scoped = base.filter(
+      (i: any) => affectesChantier.has(i.id) || i.id === responsableId
+    );
+    return scoped;
+  }, [intervenants, affectesChantier, responsableId]);
   const [operateurId, setOperateurId] = useState("");
 
   useEffect(() => {
