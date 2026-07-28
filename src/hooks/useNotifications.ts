@@ -27,6 +27,16 @@ export function useNotifications() {
       const notifications: Notification[] = [];
       const today = new Date();
       const allowedSet = new Set(allowedChantierIds);
+      const { data: mobileLabos, error: mobileLabosError } = await supabase
+        .from("laboratoires_mobiles")
+        .select("chantier_id")
+        .not("chantier_id", "is", null);
+      const mobileLabChantierIds = new Set(
+        (mobileLabos ?? [])
+          .map((labo) => labo.chantier_id)
+          .filter((id): id is string => typeof id === "string" && id.length > 0)
+      );
+      const canValidateMobileLabLink = !mobileLabosError;
 
 
       // 1. Check for overdue essais (pending or in-progress for more than 7 days)
@@ -86,6 +96,19 @@ export function useNotifications() {
 
       if (!compressionError && compressionSamples) {
         compressionSamples.forEach((sample) => {
+          const isLaboratoireChantier = Boolean((sample as any).is_laboratoire_chantier);
+
+          // Un échantillon mobile ne doit générer une notification que si son chantier
+          // est encore rattaché à un laboratoire mobile. Cela évite les alertes fantômes
+          // après suppression/désaffectation du laboratoire chantier (ex. chantier Tiaret).
+          if (
+            isLaboratoireChantier &&
+            canValidateMobileLabLink &&
+            (!sample.chantier_id || !mobileLabChantierIds.has(sample.chantier_id))
+          ) {
+            return;
+          }
+
 
           if (sample.date_coulage && sample.jours_essai) {
             const coulageDate = parseISO(sample.date_coulage);
@@ -101,12 +124,12 @@ export function useNotifications() {
             const ouvrage = sample.ouvrage || "";
             const detailParts = [clientNom, chantierNom, ouvrage].filter(Boolean).join(" — ");
             // Numérotation affichée : numéro chantier pour les labos mobiles, numéro global sinon.
-            const numeroAffiche = (sample as any).is_laboratoire_chantier
+            const numeroAffiche = isLaboratoireChantier
               ? ((sample as any).numero_chantier ?? sample.numero)
               : sample.numero;
             // Les échantillons de laboratoire chantier n'existent pas dans la liste compression :
             // on pointe vers leur écran dédié pour éviter un lien mort.
-            const sampleLink = (sample as any).is_laboratoire_chantier && sample.chantier_id
+            const sampleLink = isLaboratoireChantier && sample.chantier_id
               ? `/laboratoires-mobiles/chantier/${sample.chantier_id}/echantillon/${sample.id}`
               : `/essais/beton/beton-durci/compression/${sample.id}`;
 
