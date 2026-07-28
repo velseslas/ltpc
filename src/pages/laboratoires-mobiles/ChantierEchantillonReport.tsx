@@ -466,7 +466,8 @@ export default function ChantierEchantillonReport() {
             <span className="mx-4">|</span>
             <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
           </div>
-          <table className="w-full border-collapse border border-black">
+          <table className="w-full border-collapse border border-black formulation-table">
+
             <thead>
               <tr>
                 <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Ciment</th>
