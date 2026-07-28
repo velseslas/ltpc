@@ -84,6 +84,7 @@ interface EchantillonData {
   classe_resistance: string | null;
   essai_convenance: boolean;
   essai_convenance_details: string | null;
+  mention_eprouvettes_labo: boolean;
   date_essai: string | null;
   etuvage: string | null;
 }
