@@ -90,12 +90,13 @@ export function useDeleteChantierEchantillon() {
     mutationFn: async ({ id, chantierId }: { id: string; chantierId: string }) => {
       const res = await echantillonsRepo.delete({ id });
       if (res.error) throw new Error(res.error);
-      return chantierId;
+      return { id, chantierId };
     },
-    onSuccess: (chantierId) => {
+    onSuccess: ({ id, chantierId }) => {
       queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", chantierId] });
       queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      purgeDerivedNotifications(queryClient, id);
     },
   });
 }
+
