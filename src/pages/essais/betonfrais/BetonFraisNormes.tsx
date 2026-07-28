@@ -297,20 +297,13 @@ export default function BetonFraisNormes() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handlePrint(norme.id)}
+                      onClick={async () => { await (() => handleDownloadPDF(norme.id))(); (() => handlePrint(norme.id))(); }}
                       className="flex items-center gap-2"
                     >
-                      <Printer className="h-4 w-4" />
-                      Imprimer
-                    </Button>
-                    <Button 
-                      size="sm"
-                      onClick={() => handleDownloadPDF(norme.id)}
-                      className="flex items-center gap-2 gradient-primary text-primary-foreground"
-                    >
-                      <Download className="h-4 w-4" />
-                      Télécharger PDF
-                    </Button>
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
+          </Button>
                   </div>
                 </CardContent>
               </CollapsibleContent>

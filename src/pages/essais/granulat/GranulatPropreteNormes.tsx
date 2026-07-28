@@ -185,14 +185,11 @@ const GranulatPropreteNormes = () => {
                       <ClipboardList className="h-4 w-4 mr-2" />
                       Feuille d'essai
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handlePrint(norme)}>
-                      <Printer className="h-4 w-4 mr-2" />
-                      Imprimer
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(norme)}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Télécharger PDF
-                    </Button>
+                    <Button variant="outline" size="sm" onClick={async () => { await (() => handleDownloadPDF(norme))(); (() => handlePrint(norme))(); }}>
+            <Printer className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
+            Imprimer et télécharger
+          </Button>
                   </div>
 
                   <div className="space-y-4">

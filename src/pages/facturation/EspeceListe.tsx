@@ -158,8 +158,11 @@ export default function EspeceListe() {
             <DialogTitle>Aperçu du reçu</DialogTitle>
           </DialogHeader>
           <div className="flex justify-end gap-2 mb-2">
-            <Button variant="outline" size="sm" onClick={handlePrintPreview}>Imprimer</Button>
-            <Button variant="outline" size="sm" onClick={handleDownloadPreview}>Télécharger</Button>
+            <Button variant="outline" size="sm" onClick={async () => { await (handleDownloadPreview)(); (handlePrintPreview)(); }}>
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
+          </Button>
           </div>
           {previewUrl && (
             previewUrl.toLowerCase().endsWith(".pdf") ? (

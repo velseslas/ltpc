@@ -141,11 +141,10 @@ export default function FacturePreview() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3">
-          <Button variant="outline" onClick={handlePrint} className="gap-2 w-full sm:w-auto">
-            <Printer className="h-4 w-4" /> Imprimer
-          </Button>
-          <Button variant="outline" onClick={handleDownload} className="gap-2 w-full sm:w-auto">
-            <Download className="h-4 w-4" /> Télécharger PDF
+          <Button variant="outline" onClick={async () => { await (handleDownload)(); (handlePrint)(); }} className="gap-2 w-full sm:w-auto">
+            <Printer className="h-4 w-4" />
+            <Download className="h-4 w-4" />
+            Imprimer et télécharger
           </Button>
         </div>
       </div>

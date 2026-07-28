@@ -258,14 +258,11 @@ const NonDestructifNormes = () => {
               <CollapsibleContent>
                 <div className="px-6 pb-6 space-y-6 border-t border-border/50 pt-6">
                   <div className="flex gap-3 justify-end">
-                    <Button variant="outline" size="sm" onClick={() => handlePrint(norme)}>
-                      <Printer className="h-4 w-4 mr-2" />
-                      Imprimer
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(norme)}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Télécharger PDF
-                    </Button>
+                    <Button variant="outline" size="sm" onClick={async () => { await (() => handleDownloadPDF(norme))(); (() => handlePrint(norme))(); }}>
+            <Printer className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
+            Imprimer et télécharger
+          </Button>
                   </div>
 
                   <div className="space-y-4">

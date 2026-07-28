@@ -79,14 +79,11 @@ export function ContratPreviewDialog({ open, onOpenChange, contrat }: ContratPre
             </div>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <Button variant="ghost" size="sm" onClick={handlePrint} className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10">
-              <Printer className="w-4 h-4" />
-              <span className="hidden sm:inline">Imprimer</span>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleDownload} className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10">
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Télécharger</span>
-            </Button>
+            <Button variant="ghost" size="sm" onClick={async () => { await (handleDownload)(); (handlePrint)(); }} className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10">
+            <Printer className="w-4 h-4" />
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Imprimer et télécharger</span>
+          </Button>
             <Button variant="ghost" size="sm" onClick={handleShare} className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10">
               <Share2 className="w-4 h-4" />
               <span className="hidden sm:inline">Partager</span>
