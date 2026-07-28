@@ -232,7 +232,7 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
 
       {/* Actions */}
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate(basePath)}>
+        <Button variant="outline" onClick={() => navigate(`${basePath}?echantillon=${id}`)}>
           Annuler
         </Button>
         <Button
