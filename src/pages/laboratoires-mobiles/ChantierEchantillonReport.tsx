@@ -671,7 +671,7 @@ export default function ChantierEchantillonReport() {
           /* Le contenu masqué (visibility:hidden) occupe toujours le flux et
              génère une 2e page vierge : on le neutralise complètement. */
           body > * { display: none !important; }
-          body > #root { display: block !important; height: 0 !important; overflow: hidden !important; }
+          body > #root { display: block !important; height: 0 !important; overflow: visible !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
           [data-ref="report"] {
