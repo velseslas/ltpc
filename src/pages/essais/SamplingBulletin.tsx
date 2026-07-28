@@ -311,17 +311,23 @@ const SamplingBulletin = () => {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
-          <Button variant="outline" size="sm" onClick={handlePrint} className="w-full sm:w-auto">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              await handleDownloadPDF();
+              handlePrint();
+            }}
+            className="w-full sm:w-auto"
+          >
             <Printer className="h-4 w-4 mr-2" />
-            Imprimer
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadPDF} className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
-            Télécharger PDF
+            Imprimer et télécharger
           </Button>
-          <ShareButton fileName={`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`} className="col-span-2 w-full sm:w-auto" />
+          <ShareButton fileName={`bulletin-echantillonnage-EC-${String(echantillon?.numero).padStart(3, "0")}.pdf`} className="w-full sm:w-auto" />
         </div>
+
       </div>
 
 
