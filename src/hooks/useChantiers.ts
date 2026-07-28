@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRepository, getRepositoryForTable } from "@/lib/repositories";
+import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
 
 export interface Chantier {
   id: string;
