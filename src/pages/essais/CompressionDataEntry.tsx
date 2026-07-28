@@ -185,7 +185,7 @@ const CompressionDataEntry = () => {
               joursEssai: je.jour,
               echeanceLabel: isHeures ? `${heures} h` : String(je.jour),
               isHeures,
-              dateEssai: existing?.dateEssai || dateCalculee,
+              dateEssai: isHeures ? (existing?.dateEssai || dateCalculee) : (dateCalculee || existing?.dateEssai || ""),
               poids: existing?.poids || 0,
               densite: existing?.densite || 0,
               charge: existing?.charge || 0,
