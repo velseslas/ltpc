@@ -24,22 +24,22 @@ interface EprouvetteData {
   resistance: number;
 }
 
-/** Convertit "dd/MM/yyyy [HH:mm]" vers la valeur attendue par un input date / datetime-local. */
+/** Convertit "dd/MM/yyyy" vers la valeur attendue par un input date. */
 const toInputValue = (display: string, isHeures?: boolean): string => {
   if (!display) return "";
-  const [datePart, timePart] = display.split(" ");
+  const [datePart] = display.split(" ");
   const [dd, mm, yyyy] = datePart.split("/");
   if (!yyyy) return "";
-  return isHeures ? `${yyyy}-${mm}-${dd}T${timePart || "00:00"}` : `${yyyy}-${mm}-${dd}`;
+  return `${yyyy}-${mm}-${dd}`;
 };
 
-/** Convertit la valeur d'un input date / datetime-local vers "dd/MM/yyyy [HH:mm]". */
+/** Convertit la valeur d'un input date vers "dd/MM/yyyy". */
 const fromInputValue = (value: string, isHeures?: boolean): string => {
   if (!value) return "";
-  const [datePart, timePart] = value.split("T");
+  const [datePart] = value.split("T");
   const [yyyy, mm, dd] = datePart.split("-");
   if (!dd) return "";
-  return isHeures ? `${dd}/${mm}/${yyyy} ${timePart || "00:00"}` : `${dd}/${mm}/${yyyy}`;
+  return `${dd}/${mm}/${yyyy}`;
 };
 
 const sortEprouvettesByEcheance = (items: EprouvetteData[]): EprouvetteData[] =>
@@ -128,7 +128,7 @@ export default function ChantierEchantillonDataEntry() {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
             const dateCalculee = data.date_coulage
               ? isHeures
-                ? format(addHours(new Date(data.date_coulage), heures), "dd/MM/yyyy HH:mm")
+                ? format(addHours(new Date(data.date_coulage), heures), "dd/MM/yyyy")
                 : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
               : "";
 
@@ -376,7 +376,7 @@ export default function ChantierEchantillonDataEntry() {
                     <td className="py-4 px-2">
                       {ep.isHeures ? (
                         <Input
-                          type="datetime-local"
+                          type="date"
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
                           className={`w-52 ${!ep.dateEssai ? "border-destructive" : ""}`}

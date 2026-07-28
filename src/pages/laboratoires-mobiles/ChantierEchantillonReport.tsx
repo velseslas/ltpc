@@ -592,7 +592,7 @@ export default function ChantierEchantillonReport() {
                               rowSpan={group.items.length} 
                               className="border border-black px-2 py-2 text-center text-sm align-middle text-black"
                             >
-                              {group.dateEssai || "—"}
+                              {(group.dateEssai || "").split(" ")[0] || "—"}
                             </td>
                             <td 
                               rowSpan={group.items.length} 
