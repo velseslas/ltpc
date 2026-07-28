@@ -111,9 +111,11 @@ const ClientDetail = () => {
       toast.success("Chantier supprimé avec succès");
       setChantierToDelete(null);
     } catch (error) {
-      toast.error("Erreur lors de la suppression");
+      toast.error(error instanceof Error ? error.message : "Erreur lors de la suppression");
+      setChantierToDelete(null);
     }
   };
+
 
   const handleDeleteMoa = async () => {
     if (!moaToDelete || !id) return;

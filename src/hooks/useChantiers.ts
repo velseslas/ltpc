@@ -105,14 +105,35 @@ export function useUpdateChantier() {
   });
 }
 
+/** Traduit une erreur de contrainte de clé étrangère en message métier lisible. */
+function describeChantierDeleteError(raw: string): string {
+  const msg = raw || "";
+  if (!/foreign key|violates|23503/i.test(msg)) return msg || "Erreur lors de la suppression du chantier";
+  const table = msg.match(/table "([^"]+)"/)?.[1] || msg.match(/on table "?([a-z_]+)"?/i)?.[1];
+  const labels: Record<string, string> = {
+    echantillons_compression: "des échantillons de compression",
+    echantillons_carottage: "des carottages",
+    laboratoires_mobiles: "un laboratoire mobile",
+    factures: "des factures",
+    devis: "des devis",
+    contrats: "des contrats",
+    bons_commande: "des bons de commande",
+    formulations: "des formulations",
+    rapports_techniques: "des rapports techniques",
+  };
+  const what = (table && labels[table]) || (table ? `des données liées (${table.replace(/_/g, " ")})` : "des données liées");
+  return `Suppression impossible : ce chantier contient encore ${what}. Supprimez-les d'abord.`;
+}
+
 export function useDeleteChantier() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, clientId }: { id: string; clientId?: string }) => {
       const { error } = await repo.delete({ id });
-      if (error) throw new Error(error);
+      if (error) throw new Error(describeChantierDeleteError(String(error)));
       return { id, clientId };
     },
+
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["chantiers"] });
       if (data.clientId) {
