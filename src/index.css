@@ -534,6 +534,89 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
+  /* Laboratoire mobile — impression/PDF isolée depuis le bouton du rapport.
+     Le clone direct dans <body> évite que le layout applicatif masqué génère
+     une page blanche supplémentaire. */
+  body.labo-mobile-report-printing {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.labo-mobile-report-printing #root,
+  body.labo-mobile-report-printing > :not(#labo-mobile-report-print-clone) {
+    display: none !important;
+  }
+
+  #labo-mobile-report-print-clone {
+    display: block !important;
+    visibility: visible !important;
+    position: fixed !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: 277mm !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 4mm 6mm !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 9pt !important;
+    line-height: 1.15 !important;
+    z-index: 2147483647 !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #labo-mobile-report-print-clone,
+  #labo-mobile-report-print-clone * {
+    visibility: visible !important;
+    box-sizing: border-box !important;
+    color: #000 !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #labo-mobile-report-print-clone table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+  }
+
+  #labo-mobile-report-print-clone td,
+  #labo-mobile-report-print-clone th {
+    border: 1px solid #000 !important;
+    padding: 2px 4px !important;
+    font-size: 9pt !important;
+    line-height: 1.15 !important;
+    height: auto !important;
+  }
+
+  #labo-mobile-report-print-clone [data-report-header] {
+    padding: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  #labo-mobile-report-print-clone [data-report-footer] {
+    margin-top: 8px !important;
+    padding-top: 6px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #labo-mobile-report-print-clone > *:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
 }
 
 /* =====================================================================

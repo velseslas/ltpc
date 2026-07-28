@@ -41,6 +41,9 @@ const getEcheanceSortOrder = (ep: EprouvetteData): number => {
   return 1000 + ep.joursEssai;
 };
 
+const PRINT_CLONE_ID = "labo-mobile-report-print-clone";
+const PRINT_BODY_CLASS = "labo-mobile-report-printing";
+
 interface FormulationIngredient {
   quantite: number | null;
   produit_nom: string | null;
@@ -295,11 +298,43 @@ export default function ChantierEchantillonReport() {
     };
   };
 
-  const handlePrint = () => window.print();
+  const cleanupPrintClone = () => {
+    const existingClone = document.getElementById(PRINT_CLONE_ID);
+    if (existingClone) existingClone.remove();
+    document.body.classList.remove(PRINT_BODY_CLASS);
+    window.removeEventListener("afterprint", cleanupPrintClone);
+  };
+
+  const printIsolatedReport = () => {
+    const source = reportRef.current;
+    if (!source) {
+      window.print();
+      return;
+    }
+
+    cleanupPrintClone();
+
+    const clone = source.cloneNode(true) as HTMLElement;
+    clone.id = PRINT_CLONE_ID;
+    clone.setAttribute("data-labo-mobile-print-clone", "true");
+    clone.removeAttribute("data-ref");
+    document.body.appendChild(clone);
+    document.body.classList.add(PRINT_BODY_CLASS);
+    window.addEventListener("afterprint", cleanupPrintClone);
+
+    window.setTimeout(() => {
+      try {
+        window.print();
+      } finally {
+        window.setTimeout(cleanupPrintClone, 500);
+      }
+    }, 50);
+  };
+
+  const handlePrint = () => printIsolatedReport();
 
   const handleDownloadPDF = async () => {
-    const { downloadReportAsPDF } = await import("@/lib/pdf");
-    downloadReportAsPDF(`rapport-compression-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`);
+    printIsolatedReport();
   };
 
   const results = calculateResults();
@@ -622,7 +657,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Pied de page */}
-        <div className="mt-4 pt-2 border-t border-gray-300 print:mt-3 print:pt-2">
+        <div data-report-footer className="mt-4 pt-2 border-t border-gray-300 print:mt-3 print:pt-2">
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
