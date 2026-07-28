@@ -669,10 +669,19 @@ export default function ChantierEchantillonReport() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
-          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
+          /* Empêche toute page blanche supplémentaire */
+          [data-ref="report"] > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }
           [data-ref="report"] {
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            height: auto !important;
+            max-height: 277mm !important;
+            overflow: hidden !important;
             visibility: visible !important;
             position: fixed !important;
             top: 0 !important;
