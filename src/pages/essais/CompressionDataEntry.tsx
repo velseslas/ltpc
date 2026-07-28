@@ -550,7 +550,7 @@ const CompressionDataEntry = () => {
         <div className="flex justify-end gap-4">
           <Button
             variant="outline"
-            onClick={() => navigate("/essais/beton/beton-durci/compression")}
+            onClick={() => navigate(`/essais/beton/beton-durci/compression?echantillon=${id}`)}
           >
             Annuler
           </Button>

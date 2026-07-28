@@ -175,7 +175,7 @@ export default function GeotechniqueDataEntry({ essaiType, essaiTitle, basePath,
       </Card>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => navigate(basePath)}>Annuler</Button>
+        <Button variant="outline" onClick={() => navigate(`${basePath}?echantillon=${id}`)}>Annuler</Button>
         <Button onClick={handleSave} disabled={updateEchantillon.isPending} className="gradient-primary text-primary-foreground">
           {updateEchantillon.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
           Sauvegarder
