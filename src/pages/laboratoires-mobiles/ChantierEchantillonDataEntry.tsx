@@ -137,7 +137,9 @@ export default function ChantierEchantillonDataEntry() {
               joursEssai: je.jour,
               echeanceLabel: isHeures ? `${heures} h` : String(je.jour),
               isHeures,
-              dateEssai: existing?.dateEssai || dateCalculee,
+              // Les échéances en jours sont toujours recalculées depuis la date de coulage
+              // (les valeurs stockées peuvent être décalées si les échéances ont été modifiées).
+              dateEssai: isHeures ? (existing?.dateEssai || dateCalculee) : (dateCalculee || existing?.dateEssai || ""),
               poids: existing?.poids || 0,
               densite: existing?.densite || 0,
               charge: existing?.charge || 0,
