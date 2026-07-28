@@ -220,6 +220,31 @@ export default function ChantierEchantillonForm() {
     return labo?.responsable_id || null;
   }, [labos, chantierId]);
 
+  // Technicien (sélectionnable uniquement pour super_admin / admin / manager)
+  const { data: currentRole } = useCurrentUserRole();
+  const canChooseTechnicien =
+    currentRole === "super_admin" || currentRole === "admin" || currentRole === "manager";
+  const { data: intervenants = [] } = useIntervenants();
+  const techniciens = useMemo(
+    () =>
+      intervenants.filter((i: any) => {
+        const posteName = i.postes?.nom?.toUpperCase() || "";
+        const role = (i.role || "").toUpperCase();
+        return posteName.includes("TECHNICIEN") || role.includes("TECHNICIEN");
+      }),
+    [intervenants]
+  );
+  const [operateurId, setOperateurId] = useState("");
+
+  useEffect(() => {
+    if (!operateurId) {
+      const initial = existingEchantillon?.operateur_id || responsableId;
+      if (initial) setOperateurId(initial);
+    }
+  }, [existingEchantillon, responsableId, operateurId]);
+
+
+
   // Initialize form with existing data
   useEffect(() => {
     if (existingEchantillon) {
