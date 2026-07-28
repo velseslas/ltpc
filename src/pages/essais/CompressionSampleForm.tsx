@@ -301,6 +301,7 @@ const CompressionSampleForm = () => {
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionInfoClient((existingEchantillon as { mention_info_client?: boolean }).mention_info_client || false);
       setMentionEprouvetteClient((existingEchantillon as { mention_eprouvette_client?: boolean }).mention_eprouvette_client || false);
+      setMentionEprouvettesLabo((existingEchantillon as { mention_eprouvettes_labo?: boolean }).mention_eprouvettes_labo ?? true);
       setEtuvage((existingEchantillon as any).etuvage || "non");
       
       // Parse jours_essai (jours + heures)
