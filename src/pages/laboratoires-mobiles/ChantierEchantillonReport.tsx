@@ -31,9 +31,13 @@ interface ResultGroup {
 }
 
 const getEcheanceLabel = (ep: EprouvetteData): string => {
-  if (ep.echeanceLabel) return ep.echeanceLabel;
+  if (ep.echeanceLabel) {
+    return /h/i.test(ep.echeanceLabel) || /j/i.test(ep.echeanceLabel)
+      ? ep.echeanceLabel
+      : `${ep.echeanceLabel} J`;
+  }
   if (ep.isHeures || (ep.joursEssai > 0 && ep.joursEssai < 1)) return `${Math.round(ep.joursEssai * 24)} h`;
-  return String(ep.joursEssai);
+  return `${ep.joursEssai} J`;
 };
 
 const getEcheanceSortOrder = (ep: EprouvetteData): number => {
