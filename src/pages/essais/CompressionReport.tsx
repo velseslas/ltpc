@@ -872,6 +872,7 @@ const CompressionReport = () => {
           font-size: 7.5pt !important;
           padding: 2px 3px !important;
           line-height: 1.15 !important;
+          font-weight: 400 !important;
         }
         [data-ref="report"] .formulation-table th { text-align: center !important; }
 

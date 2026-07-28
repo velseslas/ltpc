@@ -685,6 +685,10 @@ export default function ChantierEchantillonReport() {
             font-size: 9pt !important;
             line-height: 1.15 !important;
           }
+          [data-ref="report"] .formulation-table th,
+          [data-ref="report"] .formulation-table td {
+            font-weight: 400 !important;
+          }
           [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
         }
       `}</style>
