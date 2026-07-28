@@ -264,6 +264,7 @@ const CompressionReport = () => {
           classe_resistance: (data as { classe_resistance?: string }).classe_resistance || null,
           essai_convenance: data.essai_convenance || false,
           essai_convenance_details: data.essai_convenance_details || null,
+          mention_eprouvettes_labo: (data as any).mention_eprouvettes_labo ?? true,
           mention_info_client: extendedData.mention_info_client || false,
           mention_eprouvette_client: extendedData.mention_eprouvette_client || false,
           date_essai: data.date_essai || null,
