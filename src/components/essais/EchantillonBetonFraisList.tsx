@@ -34,6 +34,7 @@ import { EssaiBreadcrumb, BreadcrumbItem } from "@/components/essais/EssaiBreadc
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
+import { useJumpToEchantillonPage } from "@/hooks/useJumpToEchantillonPage";
 import {
   useEchantillonsBetonFraisByType,
   useDeleteEchantillonBetonFraisByType,
@@ -99,6 +100,8 @@ export function EchantillonBetonFraisList({
     ],
     itemsPerPage: 10,
   });
+
+  useJumpToEchantillonPage(filteredData, setCurrentPage, 10);
 
   const handleDelete = async () => {
     if (!deleteId) return;

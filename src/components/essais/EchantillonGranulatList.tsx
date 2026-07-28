@@ -55,6 +55,7 @@ import { EssaiBreadcrumb, BreadcrumbItem as BreadcrumbItemType } from "@/compone
 import { EchantillonFilters } from "@/components/essais/EchantillonFilters";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useTableFilters } from "@/hooks/useTableFilters";
+import { useJumpToEchantillonPage } from "@/hooks/useJumpToEchantillonPage";
 import { AdminOnly } from "@/components/common/AdminOnly";
 import { NotTechnicien } from "@/components/common/NotTechnicien";
 
@@ -110,6 +111,7 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
     setStatusFilter,
     currentPage,
     setCurrentPage,
+    filteredData,
     paginatedData,
     totalPages,
     totalItems,
@@ -123,6 +125,8 @@ export function EchantillonGranulatList({ title, essaiType, basePath, backPath, 
     ],
     itemsPerPage: 10,
   });
+
+  useJumpToEchantillonPage(filteredData, setCurrentPage, 10);
 
   const handleDelete = async () => {
     if (!echantillonToDelete) return;
