@@ -612,7 +612,7 @@ const CompressionReport = () => {
 
 
           {/* Résultats des essais */}
-          <div className="mb-6" data-report-fill>
+          <div className="mb-1 print:mb-0" data-report-fill>
             <table data-results-table data-rows={totalRows} className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
@@ -693,7 +693,7 @@ const CompressionReport = () => {
               </tbody>
             </table>
             {echantillon.mention_eprouvettes_labo && (
-              <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
+              <p className="mt-0 text-left text-xs text-black print:text-[8pt]">
                 Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
               </p>
             )}
@@ -716,7 +716,7 @@ const CompressionReport = () => {
           )}
 
           {/* Pied de page */}
-          <div data-report-footer className="mt-2 pt-1 print:mt-1 print:pt-0">
+          <div data-report-footer className="mt-0 pt-0 print:mt-0 print:pt-0">
             <div className="flex justify-between items-end">
               <div className="text-sm text-black">
                 <p>Le Technicien: {echantillon.operateur_nom}</p>
@@ -798,18 +798,17 @@ const CompressionReport = () => {
         }
         [data-ref="report"] [data-pdf-content] > * { margin: 0 !important; }
         [data-ref="report"] [data-report-fill] {
-          flex: 1 1 auto;
+          flex: 0 0 auto;
           display: flex;
           flex-direction: column;
           min-height: 0;
         }
         [data-ref="report"] [data-report-fill] > table {
-          flex: 1 1 auto;
-          height: 100%;
+          flex: 0 0 auto;
         }
         [data-ref="report"] [data-report-footer] {
-          margin-top: auto !important;
-          padding-top: 3mm !important;
+          margin-top: 1mm !important;
+          padding-top: 0 !important;
         }
 
         /* -----------------------------------------------------------------
