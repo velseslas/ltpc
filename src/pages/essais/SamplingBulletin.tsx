@@ -603,9 +603,10 @@ const SamplingBulletin = () => {
       <style>{`
         @media print {
           @page {
-            size: A4;
-            margin: 6mm;
+            size: A4 portrait;
+            margin: 5mm;
           }
+          html, body { margin: 0 !important; padding: 0 !important; }
           body * {
             visibility: hidden;
           }
@@ -616,21 +617,26 @@ const SamplingBulletin = () => {
             position: absolute;
             left: 0;
             top: 0;
-            width: 210mm;
+            width: 200mm;
+            max-width: 200mm;
             min-height: 0 !important;
-            padding: 5mm !important;
-            font-size: 9.5px !important;
+            max-height: 287mm;
+            overflow: hidden;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 9px !important;
             page-break-after: avoid;
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          #bulletin-content .mb-3 { margin-bottom: 14px !important; }
-          #bulletin-content .mb-4 { margin-bottom: 18px !important; }
-          #bulletin-content .py-2 { padding-top: 6px !important; padding-bottom: 6px !important; }
-          #bulletin-content .py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
-          #bulletin-content .p-3 { padding: 10px !important; }
-          #bulletin-content .h-16 { height: 52px !important; }
-          #bulletin-content .h-10 { height: 40px !important; }
+          #bulletin-content .mb-3 { margin-bottom: 8px !important; }
+          #bulletin-content .mb-4 { margin-bottom: 10px !important; }
+          #bulletin-content .mb-2 { margin-bottom: 6px !important; }
+          #bulletin-content .py-2 { padding-top: 3px !important; padding-bottom: 3px !important; }
+          #bulletin-content .py-1 { padding-top: 2px !important; padding-bottom: 2px !important; }
+          #bulletin-content .p-3 { padding: 6px !important; }
+          #bulletin-content .h-16 { height: 44px !important; }
+          #bulletin-content .h-10 { height: 32px !important; }
         }
       `}</style>
 
