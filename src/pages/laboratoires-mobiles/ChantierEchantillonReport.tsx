@@ -665,13 +665,12 @@ export default function ChantierEchantillonReport() {
             padding: 0 !important;
             background: #fff !important;
             height: auto !important;
-            max-height: 277mm !important;
             overflow: hidden !important;
           }
           /* Le contenu masqué (visibility:hidden) occupe toujours le flux et
-             génère une 2e page vierge : on le neutralise complètement. */
-          body > * { display: none !important; }
-          body > #root { display: block !important; height: 0 !important; overflow: visible !important; }
+             génère une 2e page vierge : on l'aplatit sans le retirer du DOM
+             (le rapport en position:fixed reste imprimé). */
+          body > * { height: 0 !important; max-height: 0 !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
           [data-ref="report"] {
