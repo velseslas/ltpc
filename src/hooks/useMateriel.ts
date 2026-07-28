@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { getRepositoryForTable } from "@/lib/repositories";
+import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
 
 export type Materiel = Tables<"materiel">;
 export type MaterielInsert = TablesInsert<"materiel">;
