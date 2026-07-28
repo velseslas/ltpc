@@ -88,7 +88,7 @@ export default function GranulometrieSolReport() {
           <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
           <Button
             variant="outline"
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="col-span-2 w-full sm:col-span-1 sm:w-auto border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
             onClick={async () => { await (() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" }))(); (() => PrintService.print({ title: `Rapport Granulométrie Sol ${numero}`, orientation: "portrait" }))(); }}
           >
             <Printer className="h-4 w-4 mr-2" />

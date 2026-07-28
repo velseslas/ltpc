@@ -87,7 +87,7 @@ export default function TeneurEauSolReport() {
           </div>
           <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
             <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
-            <Button variant="outline" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}>
+            <Button variant="outline" className="col-span-2 w-full sm:col-span-1 sm:w-auto border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}>
             <Printer className="h-4 w-4 mr-2" />
             <Download className="h-4 w-4 mr-2" />
             Imprimer et télécharger
