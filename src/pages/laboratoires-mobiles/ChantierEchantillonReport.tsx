@@ -41,9 +41,6 @@ const getEcheanceSortOrder = (ep: EprouvetteData): number => {
   return 1000 + ep.joursEssai;
 };
 
-const PRINT_CLONE_ID = "labo-mobile-report-print-clone";
-const PRINT_BODY_CLASS = "labo-mobile-report-printing";
-
 interface FormulationIngredient {
   quantite: number | null;
   produit_nom: string | null;
@@ -298,43 +295,11 @@ export default function ChantierEchantillonReport() {
     };
   };
 
-  const cleanupPrintClone = () => {
-    const existingClone = document.getElementById(PRINT_CLONE_ID);
-    if (existingClone) existingClone.remove();
-    document.body.classList.remove(PRINT_BODY_CLASS);
-    window.removeEventListener("afterprint", cleanupPrintClone);
-  };
-
-  const printIsolatedReport = () => {
-    const source = reportRef.current;
-    if (!source) {
-      window.print();
-      return;
-    }
-
-    cleanupPrintClone();
-
-    const clone = source.cloneNode(true) as HTMLElement;
-    clone.id = PRINT_CLONE_ID;
-    clone.setAttribute("data-labo-mobile-print-clone", "true");
-    clone.removeAttribute("data-ref");
-    document.body.appendChild(clone);
-    document.body.classList.add(PRINT_BODY_CLASS);
-    window.addEventListener("afterprint", cleanupPrintClone);
-
-    window.setTimeout(() => {
-      try {
-        window.print();
-      } finally {
-        window.setTimeout(cleanupPrintClone, 500);
-      }
-    }, 50);
-  };
-
-  const handlePrint = () => printIsolatedReport();
+  const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
-    printIsolatedReport();
+    const { downloadReportAsPDF } = await import("@/lib/pdf");
+    downloadReportAsPDF(`rapport-compression-EC-${String(echantillon?.numero_chantier).padStart(3, "0")}`);
   };
 
   const results = calculateResults();
@@ -657,7 +622,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Pied de page */}
-        <div data-report-footer className="mt-4 pt-2 border-t border-gray-300 print:mt-3 print:pt-2">
+        <div className="mt-4 pt-2 border-t border-gray-300 print:mt-3 print:pt-2">
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
@@ -695,17 +660,7 @@ export default function ChantierEchantillonReport() {
       <style>{`
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #fff !important;
-            height: auto !important;
-            overflow: hidden !important;
-          }
-          /* Le contenu masqué (visibility:hidden) occupe toujours le flux et
-             génère une 2e page vierge : on l'aplatit sans le retirer du DOM
-             (le rapport en position:fixed reste imprimé). */
-          body > * { height: 0 !important; max-height: 0 !important; overflow: hidden !important; }
+          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
           [data-ref="report"] {
@@ -714,30 +669,17 @@ export default function ChantierEchantillonReport() {
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
-            bottom: auto !important;
             width: 100% !important;
             max-width: none !important;
-            height: auto !important;
-            max-height: 277mm !important;
-            overflow: hidden !important;
             margin: 0 !important;
-            padding: 4mm 6mm !important;
+            padding: 6mm 8mm !important;
             background: #fff !important;
             box-shadow: none !important;
             border-radius: 0 !important;
             font-size: 9pt !important;
             z-index: 2147483647 !important;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
           }
-          [data-ref="report"] * {
-            visibility: visible !important;
-            page-break-after: avoid !important;
-            break-after: avoid !important;
-          }
-          [data-ref="report"] > *:last-child { margin-bottom: 0 !important; }
+          [data-ref="report"] * { visibility: visible !important; }
           [data-ref="report"] td, [data-ref="report"] th {
             padding: 2px 4px !important;
             font-size: 9pt !important;
