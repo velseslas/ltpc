@@ -543,7 +543,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Résultats des essais */}
-        <div className="mb-3 print:mb-2">
+        <div className="mb-1 print:mb-0">
           <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
           <table className="w-full border-collapse border border-black">
             <thead>
@@ -624,14 +624,14 @@ export default function ChantierEchantillonReport() {
             </tbody>
           </table>
           {echantillon.mention_eprouvettes_labo && (
-            <p className="mt-1 text-left text-xs text-black print:text-[8pt]">
+            <p className="mt-0 text-left text-xs text-black print:text-[8pt]">
               Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
             </p>
           )}
         </div>
 
         {/* Pied de page */}
-        <div className="mt-1 pt-1 border-t border-gray-300 print:mt-1 print:pt-1">
+        <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0">
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
@@ -646,7 +646,7 @@ export default function ChantierEchantillonReport() {
               )}
             </div>
             <div className="text-center">
-              <div className="min-h-16 flex flex-col items-center justify-end">
+              <div className="flex flex-col items-center justify-end">
                 {entreprise?.cachet_url ? (
                   <img 
                     src={entreprise.cachet_url} 
