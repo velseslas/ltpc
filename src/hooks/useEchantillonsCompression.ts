@@ -138,10 +138,12 @@ export function useDeleteEchantillonCompression() {
         .eq("id", id);
 
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
       queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      purgeDerivedNotifications(queryClient, id);
     },
   });
 }
+
