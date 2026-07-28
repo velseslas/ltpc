@@ -136,6 +136,7 @@ const CompressionSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
+  const backToListPath = isEditMode && id ? `/essais/beton/beton-durci/compression?echantillon=${id}` : "/essais/beton/beton-durci/compression";
   
   const createEchantillon = useCreateEchantillonCompression();
   const updateEchantillon = useUpdateEchantillonCompression();
@@ -583,7 +584,7 @@ const CompressionSampleForm = () => {
         
         toast.success("Échantillon créé avec succès");
       }
-      navigate("/essais/beton/beton-durci/compression");
+      navigate(backToListPath);
     } catch (error) {
       toast.error(isEditMode ? "Erreur lors de la modification" : "Erreur lors de la création de l'échantillon");
     }
@@ -615,7 +616,7 @@ const CompressionSampleForm = () => {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/essais/beton/beton-durci/compression")}
+          onClick={() => navigate(backToListPath)}
           className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -1252,7 +1253,7 @@ const CompressionSampleForm = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/essais/beton/beton-durci/compression")}
+              onClick={() => navigate(backToListPath)}
             >
               Annuler
             </Button>

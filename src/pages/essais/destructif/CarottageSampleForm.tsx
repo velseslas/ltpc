@@ -61,6 +61,7 @@ const CarottageSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
+  const backToListPath = isEditing && id ? `/essais/beton/destructif/carottage?echantillon=${id}` : "/essais/beton/destructif/carottage";
 
   const { data: existingData, isLoading: loadingExisting } = useEchantillonCarottage(id || "");
   const { duplicateSource, isDuplicateLoading } = useDuplicateSource<any>("echantillons_carottage");
@@ -141,7 +142,7 @@ const CarottageSampleForm = () => {
         await createMutation.mutateAsync(payload);
         toast.success("Échantillon créé avec succès");
       }
-      navigate("/essais/beton/destructif/carottage");
+      navigate(backToListPath);
     } catch {
       toast.error("Erreur lors de l'enregistrement");
     }
@@ -165,7 +166,7 @@ const CarottageSampleForm = () => {
       />
 
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate("/essais/beton/destructif/carottage")}
+        <Button variant="outline" size="icon" onClick={() => navigate(backToListPath)}
           className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -289,7 +290,7 @@ const CarottageSampleForm = () => {
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={() => navigate("/essais/beton/destructif/carottage")}>Annuler</Button>
+          <Button variant="outline" onClick={() => navigate(backToListPath)}>Annuler</Button>
           <Button onClick={handleSubmit} disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
             {isEditing ? "Enregistrer" : "Créer l'échantillon"}

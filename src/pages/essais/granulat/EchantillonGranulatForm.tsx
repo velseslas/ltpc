@@ -81,6 +81,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = !!id;
+  const backToListPath = isEditing && id ? `${basePath}?echantillon=${id}` : basePath;
 
   const { data: carrieres, isLoading: carrieresLoading } = useCarrieres();
   const { data: intervenants } = useIntervenants();
@@ -202,7 +203,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
         await createEchantillon.mutateAsync(mergeDuplicateData(data, duplicateSource));
         toast.success("Échantillon créé avec succès");
       }
-      navigate(basePath);
+      navigate(backToListPath);
     } catch (error) {
       toast.error("Une erreur est survenue");
     }
@@ -473,7 +474,7 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate(basePath)}
+                  onClick={() => navigate(backToListPath)}
                   className="border-border"
                 >
                   Annuler

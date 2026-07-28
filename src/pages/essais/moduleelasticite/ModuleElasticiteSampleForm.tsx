@@ -98,6 +98,7 @@ const ModuleElasticiteSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id && id !== "nouveau";
+  const backToListPath = isEditMode && id ? `/essais/beton/beton-durci/module-elasticite?echantillon=${id}` : "/essais/beton/beton-durci/module-elasticite";
 
   const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonModuleElasticiteById(
     isEditMode ? id : undefined
@@ -332,7 +333,7 @@ const ModuleElasticiteSampleForm = () => {
         await createEchantillon.mutateAsync(data);
         toast.success("Échantillon créé avec succès");
       }
-      navigate("/essais/beton/beton-durci/module-elasticite");
+      navigate(backToListPath);
     } catch (error) {
       toast.error(isEditMode ? "Erreur lors de la modification" : "Erreur lors de la création de l'échantillon");
     }
@@ -363,7 +364,7 @@ const ModuleElasticiteSampleForm = () => {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/essais/beton/beton-durci/module-elasticite")}
+          onClick={() => navigate(backToListPath)}
           className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -805,7 +806,7 @@ const ModuleElasticiteSampleForm = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate("/essais/beton/beton-durci/module-elasticite")}
+            onClick={() => navigate(backToListPath)}
           >
             Annuler
           </Button>

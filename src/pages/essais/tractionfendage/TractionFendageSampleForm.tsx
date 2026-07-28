@@ -91,6 +91,7 @@ const TractionFendageSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
+  const backToListPath = isEditMode && id ? `/essais/beton/beton-durci/traction-fendage?echantillon=${id}` : "/essais/beton/beton-durci/traction-fendage";
   
   const createEchantillon = useCreateEchantillonTractionFendage();
   const updateEchantillon = useUpdateEchantillonTractionFendage();
@@ -264,7 +265,7 @@ const TractionFendageSampleForm = () => {
         await createEchantillon.mutateAsync(data);
         toast.success("Échantillon créé avec succès");
       }
-      navigate("/essais/beton/beton-durci/traction-fendage");
+      navigate(backToListPath);
     } catch (error) {
       toast.error("Erreur lors de l'enregistrement");
     }
@@ -294,7 +295,7 @@ const TractionFendageSampleForm = () => {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/essais/beton/beton-durci/traction-fendage")}
+          onClick={() => navigate(backToListPath)}
           className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -640,7 +641,7 @@ const TractionFendageSampleForm = () => {
         <div className="flex justify-end gap-4">
           <Button
             variant="outline"
-            onClick={() => navigate("/essais/beton/beton-durci/traction-fendage")}
+            onClick={() => navigate(backToListPath)}
           >
             Annuler
           </Button>

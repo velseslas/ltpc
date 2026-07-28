@@ -98,6 +98,7 @@ const PermeabiliteSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id && id !== "nouveau";
+  const backToListPath = isEditMode && id ? `/essais/beton/beton-durci/permeabilite?echantillon=${id}` : "/essais/beton/beton-durci/permeabilite";
 
   const { data: editEchantillon, isLoading: isLoadingEchantillon } = useEchantillonPermeabiliteById(
     isEditMode ? id : undefined
@@ -338,7 +339,7 @@ const PermeabiliteSampleForm = () => {
         await createEchantillon.mutateAsync(data);
         toast.success("Échantillon créé avec succès");
       }
-      navigate("/essais/beton/beton-durci/permeabilite");
+      navigate(backToListPath);
     } catch (error) {
       toast.error(isEditMode ? "Erreur lors de la modification" : "Erreur lors de la création de l'échantillon");
     }
@@ -369,7 +370,7 @@ const PermeabiliteSampleForm = () => {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/essais/beton/beton-durci/permeabilite")}
+          onClick={() => navigate(backToListPath)}
           className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -835,7 +836,7 @@ const PermeabiliteSampleForm = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate("/essais/beton/beton-durci/permeabilite")}
+            onClick={() => navigate(backToListPath)}
           >
             Annuler
           </Button>

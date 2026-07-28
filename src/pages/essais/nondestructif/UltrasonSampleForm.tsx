@@ -51,6 +51,7 @@ const UltrasonSampleForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const backToListPath = isEdit && id ? `${basePath}?echantillon=${id}` : basePath;
   const basePath = "/essais/beton/non-destructif/ultrason";
 
   const { data: existingData } = useEchantillonUltrason(id ?? "");
@@ -125,7 +126,7 @@ const UltrasonSampleForm = () => {
         await createMutation.mutateAsync(payload);
         toast.success("Essai créé avec succès");
       }
-      navigate(basePath);
+      navigate(backToListPath);
     } catch {
       toast.error("Erreur lors de l'enregistrement");
     }
@@ -137,7 +138,7 @@ const UltrasonSampleForm = () => {
     <div className="space-y-6">
       <EssaiBreadcrumb items={[{ label: "Béton", path: "/essais/beton" }, { label: "Non Destructif", path: "/essais/beton/non-destructif" }, { label: "Ultrason", path: basePath }, { label: isEdit ? "Modifier" : "Nouveau" }]} />
       <div className="flex items-start gap-4">
-        <Button variant="outline" size="icon" onClick={() => navigate(basePath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+        <Button variant="outline" size="icon" onClick={() => navigate(backToListPath)} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
@@ -245,7 +246,7 @@ const UltrasonSampleForm = () => {
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={() => navigate(basePath)}>Annuler</Button>
+          <Button variant="outline" onClick={() => navigate(backToListPath)}>Annuler</Button>
           <Button onClick={handleSubmit} disabled={isSubmitting} className="flex items-center gap-2">
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {isEdit ? "Modifier" : "Enregistrer"}
