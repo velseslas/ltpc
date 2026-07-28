@@ -660,6 +660,20 @@ export default function ChantierEchantillonForm() {
                 />
               )}
             </div>
+
+            {/* Mention éprouvettes confectionnées par le laboratoire */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mention_eprouvettes_labo"
+                  checked={mentionEprouvettesLabo}
+                  onCheckedChange={(checked) => setMentionEprouvettesLabo(checked === true)}
+                />
+                <Label htmlFor="mention_eprouvettes_labo" className="cursor-pointer">
+                  Éprouvettes confectionnées par le laboratoire comme essai de convenance
+                </Label>
+              </div>
+            </div>
           </div>
         </div>
 
