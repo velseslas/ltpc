@@ -249,13 +249,17 @@ export default function AffectationForm() {
                   Chantier <span className="text-red-700">*</span>
                 </Label>
                 <Select
+                  key={`chantier-${formData.client_id}-${chantiers?.length ?? 0}`}
                   value={formData.chantier_id}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, chantier_id: value }))}
-                  disabled={!formData.client_id}
+                  disabled={!formData.client_id || chantiersLoading}
                 >
                   <SelectTrigger className={errors.chantier_id ? "border-red-700 focus-visible:ring-red-700" : ""}>
-                    <SelectValue placeholder={formData.client_id ? "Sélectionner un chantier" : "Sélectionnez d'abord un client"} />
+                    <SelectValue placeholder={formData.client_id ? "Sélectionner un chantier" : "Sélectionnez d'abord un client"}>
+                      {chantierLabel}
+                    </SelectValue>
                   </SelectTrigger>
+
                   <SelectContent>
                     {chantiers?.map(chantier => (
                       <SelectItem key={chantier.id} value={chantier.id}>
