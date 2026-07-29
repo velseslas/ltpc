@@ -30,6 +30,8 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
   const warningCount = notifications.filter((n) => n.severity === "warning").length
     + persisted.filter((p) => !p.is_read && p.priority === "warning").length;
   const totalCount = notifications.length + persistedUnread;
+  // Le badge n'affiche que les éléments en retard (urgents)
+  const badgeCount = errorCount;
 
   const handleNotificationClick = (notification: Notification) => {
     if (notification.link) {
@@ -65,7 +67,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label={totalCount > 0 ? `Notifications (${totalCount} non lues)` : "Notifications"}
+          aria-label={badgeCount > 0 ? `Notifications (${badgeCount} en retard)` : "Notifications"}
           className={cn(
             "relative flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group w-full",
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -74,7 +76,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
         >
           <div className="relative flex-shrink-0">
             <Bell className="w-5 h-5 group-hover:text-primary transition-colors" />
-            {totalCount > 0 && (
+            {badgeCount > 0 && (
               <span
                 className={cn(
                   "absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full",
@@ -85,7 +87,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
                     : "bg-primary text-primary-foreground"
                 )}
               >
-                {totalCount > 99 ? "99+" : totalCount}
+                {badgeCount > 99 ? "99+" : badgeCount}
               </span>
             )}
           </div>
