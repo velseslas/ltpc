@@ -43,43 +43,47 @@ export default function AffectationForm() {
     date_debut: "",
     date_fin: "",
     notes: "",
+    statut: "en_cours",
   });
   const [isInitialized, setIsInitialized] = useState(false);
   const [lastClientId, setLastClientId] = useState("");
-  const [isPreFilling, setIsPreFilling] = useState(false);
+  const isPreFilling = isEditing && !isInitialized;
 
   // Get chantiers filtered by selected client
-  const { data: chantiers } = useChantiersByClient(formData.client_id);
+  const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(formData.client_id);
 
   // Load existing data when editing
   useEffect(() => {
     if (existingAffectation && !isInitialized) {
-      setIsPreFilling(true);
-      setTimeout(() => {
-        setFormData({
-          intervenant_id: existingAffectation.intervenant_id,
-          client_id: existingAffectation.client_id,
-          chantier_id: existingAffectation.chantier_id,
-          date_debut: existingAffectation.date_debut || "",
-          date_fin: existingAffectation.date_fin || "",
-          notes: existingAffectation.notes || "",
-        });
-        setLastClientId(existingAffectation.client_id);
-        setIsInitialized(true);
-        setIsPreFilling(false);
-      }, 100);
+      setFormData({
+        intervenant_id: existingAffectation.intervenant_id,
+        client_id: existingAffectation.client_id,
+        chantier_id: existingAffectation.chantier_id,
+        date_debut: existingAffectation.date_debut || "",
+        date_fin: existingAffectation.date_fin || "",
+        notes: existingAffectation.notes || "",
+        statut: existingAffectation.statut || "en_cours",
+      });
+      setLastClientId(existingAffectation.client_id);
+      setIsInitialized(true);
     }
   }, [existingAffectation, isInitialized]);
 
   // Reset chantier when client changes (only after initialization and if client actually changed)
   useEffect(() => {
-    if (isInitialized && formData.client_id && formData.client_id !== lastClientId) {
+    if ((isInitialized || !isEditing) && formData.client_id && formData.client_id !== lastClientId) {
       setFormData(prev => ({ ...prev, chantier_id: "" }));
       setLastClientId(formData.client_id);
     }
-  }, [formData.client_id, isInitialized, lastClientId]);
+  }, [formData.client_id, isInitialized, isEditing, lastClientId]);
 
   const selectedChantier = chantiers?.find((c) => c.id === formData.chantier_id);
+  const chantierLabel =
+    selectedChantier?.nom ??
+    (formData.chantier_id
+      ? (existingAffectation as any)?.chantier?.nom ?? "Chantier sélectionné"
+      : undefined);
+
 
   const errors = {
 
