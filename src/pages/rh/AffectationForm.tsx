@@ -245,9 +245,13 @@ export default function AffectationForm() {
 
               {/* Chantier - filtered by client */}
               <div className="space-y-2">
-                <Label htmlFor="chantier_id">
-                  Chantier <span className="text-red-700">*</span>
-                </Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="chantier_id">
+                    Chantier <span className="text-red-700">*</span>
+                  </Label>
+                  <ChantierStatutBadge statut={selectedChantier?.statut} />
+                </div>
+
                 <Select
                   key={`chantier-${formData.client_id}-${chantiers?.length ?? 0}`}
                   value={formData.chantier_id}
