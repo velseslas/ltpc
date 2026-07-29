@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { ChantierStatutBadge } from "@/components/chantiers/ChantierStatutBadge";
 import {
   Select,
   SelectContent,
@@ -78,7 +79,7 @@ export default function Affectations() {
     return Array.from(map.values());
   }, [filtered]);
 
-  const isActive = (a: any) => !a.date_fin || new Date(a.date_fin) >= new Date();
+  
 
   const handleDelete = async (id: string) => {
     try {
@@ -206,17 +207,20 @@ export default function Affectations() {
                     )}
                   </div>
                   <div className="text-right space-y-2 shrink-0">
-                    <div className="flex items-center gap-2 justify-end">
+                    <div className="flex items-center gap-2 justify-end flex-wrap">
+                      <ChantierStatutBadge statut={a.chantier?.statut} />
                       <Badge
                         variant="outline"
                         className={
-                          isActive(a)
+                          a.statut !== "inactif"
                             ? "bg-green-500/20 text-green-400 border-green-500/30"
                             : "bg-muted text-muted-foreground"
                         }
                       >
-                        {isActive(a) ? "Active" : "Terminée"}
+                        <span className="h-1.5 w-1.5 rounded-full bg-current mr-1.5" />
+                        {a.statut !== "inactif" ? "Technicien actif" : "Technicien inactif"}
                       </Badge>
+
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">

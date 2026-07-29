@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { ChantierLocalisationBanner } from "@/components/localisation/ChantierLocalisationBanner";
+import { ChantierStatutBadge } from "@/components/chantiers/ChantierStatutBadge";
 
 
 export default function AffectationForm() {
@@ -43,7 +44,7 @@ export default function AffectationForm() {
     date_debut: "",
     date_fin: "",
     notes: "",
-    statut: "en_cours",
+    statut: "actif",
   });
   const [isInitialized, setIsInitialized] = useState(false);
   const [lastClientId, setLastClientId] = useState("");
@@ -62,7 +63,7 @@ export default function AffectationForm() {
         date_debut: existingAffectation.date_debut || "",
         date_fin: existingAffectation.date_fin || "",
         notes: existingAffectation.notes || "",
-        statut: existingAffectation.statut || "en_cours",
+        statut: existingAffectation.statut === "inactif" ? "inactif" : "actif",
       });
       setLastClientId(existingAffectation.client_id);
       setIsInitialized(true);
@@ -245,9 +246,13 @@ export default function AffectationForm() {
 
               {/* Chantier - filtered by client */}
               <div className="space-y-2">
-                <Label htmlFor="chantier_id">
-                  Chantier <span className="text-red-700">*</span>
-                </Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="chantier_id">
+                    Chantier <span className="text-red-700">*</span>
+                  </Label>
+                  <ChantierStatutBadge statut={selectedChantier?.statut} />
+                </div>
+
                 <Select
                   key={`chantier-${formData.client_id}-${chantiers?.length ?? 0}`}
                   value={formData.chantier_id}
@@ -320,10 +325,10 @@ export default function AffectationForm() {
                 </div>
               </div>
 
-              {/* Statut */}
+              {/* Statut du technicien sur l'affectation */}
               <div className="space-y-2">
                 <Label htmlFor="statut">
-                  Statut <span className="text-red-700">*</span>
+                  Statut du technicien <span className="text-red-700">*</span>
                 </Label>
                 <Select
                   value={formData.statut}
@@ -333,13 +338,15 @@ export default function AffectationForm() {
                     <SelectValue placeholder="Sélectionner un statut" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en_cours">En cours</SelectItem>
-                    <SelectItem value="planifiee">Planifiée</SelectItem>
-                    <SelectItem value="suspendue">Suspendue</SelectItem>
-                    <SelectItem value="terminee">Terminée</SelectItem>
+                    <SelectItem value="actif">Actif</SelectItem>
+                    <SelectItem value="inactif">Inactif</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  Le statut du chantier (en cours / terminé) est géré depuis la fiche du chantier.
+                </p>
               </div>
+
 
 
 
