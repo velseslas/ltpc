@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.sync_entreprise_branding() FROM PUBLIC, anon, authenticated;

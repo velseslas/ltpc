@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Lock, User, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useEntreprise } from "@/hooks/useEntreprise";
+import { useEntrepriseBranding } from "@/hooks/useEntreprise";
 import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
@@ -20,7 +20,7 @@ const Auth = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data: entreprise, isLoading: isEntrepriseLoading } = useEntreprise();
+  const { data: entreprise, isLoading: isEntrepriseLoading } = useEntrepriseBranding();
 
   const isUsersLoading = false;
 

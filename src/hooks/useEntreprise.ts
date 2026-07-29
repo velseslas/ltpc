@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { callRpc, DocumentRepository, getRepositoryForTable } from "@/lib/repositories";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Entreprise {
   id: string;
@@ -47,6 +48,23 @@ export const useEntreprise = () => {
       const err = error as { code?: string; message?: string } | null;
       const expiredJwt = err?.code === "PGRST303" || /jwt expired|token is expired/i.test(err?.message || "");
       return expiredJwt && failureCount < 2;
+    },
+  });
+};
+
+// Branding public (nom + logo) — lisible sans être connecté (page de login).
+// Table dédiée `entreprise_branding` synchronisée depuis `entreprise`.
+export const useEntrepriseBranding = () => {
+  return useQuery({
+    queryKey: ["entreprise", "branding"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("entreprise_branding" as never)
+        .select("id, nom, logo_url")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return (data ?? null) as { id: string; nom: string; logo_url: string | null } | null;
     },
   });
 };
