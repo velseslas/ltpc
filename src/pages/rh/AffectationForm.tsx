@@ -320,6 +320,29 @@ export default function AffectationForm() {
                 </div>
               </div>
 
+              {/* Statut */}
+              <div className="space-y-2">
+                <Label htmlFor="statut">
+                  Statut <span className="text-red-700">*</span>
+                </Label>
+                <Select
+                  value={formData.statut}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, statut: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en_cours">En cours</SelectItem>
+                    <SelectItem value="planifiee">Planifiée</SelectItem>
+                    <SelectItem value="suspendue">Suspendue</SelectItem>
+                    <SelectItem value="terminee">Terminée</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+
+
               {/* Notes */}
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
