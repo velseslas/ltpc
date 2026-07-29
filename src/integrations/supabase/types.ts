@@ -5081,6 +5081,27 @@ export type Database = {
         }
         Relationships: []
       }
+      entreprise_branding: {
+        Row: {
+          id: string
+          logo_url: string | null
+          nom: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          logo_url?: string | null
+          nom?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          logo_url?: string | null
+          nom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       essais: {
         Row: {
           client_id: string | null
@@ -8608,6 +8629,7 @@ export type Database = {
       }
       is_admin_only: { Args: never; Returns: boolean }
       is_admin_or_manager: { Args: never; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
       log_audit_action: {
         Args: {
           p_action: string
