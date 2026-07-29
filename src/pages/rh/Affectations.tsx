@@ -135,8 +135,8 @@ export default function Affectations() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="relative flex-1 min-w-[240px]">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:flex-wrap">
+        <div className="relative w-full sm:flex-1 sm:min-w-[240px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher technicien, client, chantier..."
@@ -146,7 +146,7 @@ export default function Affectations() {
           />
         </div>
         <Select value={clientFilter} onValueChange={setClientFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Client" />
           </SelectTrigger>
           <SelectContent>
@@ -159,7 +159,7 @@ export default function Affectations() {
           </SelectContent>
         </Select>
         <Select value={technicienFilter} onValueChange={setTechnicienFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Technicien" />
           </SelectTrigger>
           <SelectContent>
@@ -188,10 +188,10 @@ export default function Affectations() {
               {items.map((a: any) => (
                 <div
                   key={a.id}
-                  className="bg-muted/50 rounded-lg p-4 flex items-start justify-between gap-4"
+                  className="bg-muted/50 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4"
                 >
                   <div className="space-y-1 flex-1 min-w-0">
-                    <h4 className="font-medium text-foreground">
+                    <h4 className="font-medium text-foreground break-words">
                       {a.chantier?.nom || "Chantier inconnu"}
                     </h4>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -206,8 +206,8 @@ export default function Affectations() {
                       <p className="text-xs text-muted-foreground italic mt-1">{a.notes}</p>
                     )}
                   </div>
-                  <div className="text-right space-y-2 shrink-0">
-                    <div className="flex items-center gap-2 justify-end flex-wrap">
+                  <div className="w-full sm:w-auto sm:text-right space-y-2 sm:shrink-0">
+                    <div className="flex items-center gap-2 flex-wrap sm:justify-end">
                       <ChantierStatutBadge statut={a.chantier?.statut} />
                       <Badge
                         variant="outline"
@@ -258,7 +258,7 @@ export default function Affectations() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground justify-end">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground sm:justify-end">
                       <Calendar className="h-3 w-3" />
                       {a.date_debut
                         ? `Du ${format(new Date(a.date_debut), "dd/MM/yyyy", { locale: fr })}`
