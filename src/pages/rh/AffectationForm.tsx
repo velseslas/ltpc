@@ -97,6 +97,29 @@ export default function AffectationForm() {
       return;
     }
 
+    // Sécurité : un technicien ne peut pas être affecté 2 fois au même chantier
+    // sur des périodes qui se chevauchent
+    const INF = "9999-12-31";
+    const newStart = formData.date_debut;
+    const newEnd = formData.date_fin || INF;
+    const conflit = (allAffectations || []).find((a) => {
+      if (isEditing && a.id === id) return false;
+      if (a.intervenant_id !== formData.intervenant_id) return false;
+      if (a.chantier_id !== formData.chantier_id) return false;
+      const start = a.date_debut;
+      const end = a.date_fin || INF;
+      return newStart <= end && start <= newEnd;
+    });
+
+    if (conflit) {
+      toast.error(
+        `Ce technicien est déjà affecté à ce chantier sur la période du ${conflit.date_debut}${
+          conflit.date_fin ? ` au ${conflit.date_fin}` : " (en cours)"
+        }.`
+      );
+      return;
+    }
+
     try {
       if (isEditing && id) {
         await updateAffectation.mutateAsync({
@@ -116,7 +139,12 @@ export default function AffectationForm() {
       }
       navigate("/rh/affectations");
     } catch (error) {
-      toast.error("Erreur lors de l'enregistrement");
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("affectations_no_overlap_per_chantier") || msg.includes("conflicting key")) {
+        toast.error("Ce technicien est déjà affecté à ce chantier sur cette période.");
+      } else {
+        toast.error("Erreur lors de l'enregistrement");
+      }
       console.error(error);
     }
   };
