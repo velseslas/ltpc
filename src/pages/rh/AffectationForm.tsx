@@ -43,43 +43,47 @@ export default function AffectationForm() {
     date_debut: "",
     date_fin: "",
     notes: "",
+    statut: "en_cours",
   });
   const [isInitialized, setIsInitialized] = useState(false);
   const [lastClientId, setLastClientId] = useState("");
-  const [isPreFilling, setIsPreFilling] = useState(false);
+  const isPreFilling = isEditing && !isInitialized;
 
   // Get chantiers filtered by selected client
-  const { data: chantiers } = useChantiersByClient(formData.client_id);
+  const { data: chantiers, isLoading: chantiersLoading } = useChantiersByClient(formData.client_id);
 
   // Load existing data when editing
   useEffect(() => {
     if (existingAffectation && !isInitialized) {
-      setIsPreFilling(true);
-      setTimeout(() => {
-        setFormData({
-          intervenant_id: existingAffectation.intervenant_id,
-          client_id: existingAffectation.client_id,
-          chantier_id: existingAffectation.chantier_id,
-          date_debut: existingAffectation.date_debut || "",
-          date_fin: existingAffectation.date_fin || "",
-          notes: existingAffectation.notes || "",
-        });
-        setLastClientId(existingAffectation.client_id);
-        setIsInitialized(true);
-        setIsPreFilling(false);
-      }, 100);
+      setFormData({
+        intervenant_id: existingAffectation.intervenant_id,
+        client_id: existingAffectation.client_id,
+        chantier_id: existingAffectation.chantier_id,
+        date_debut: existingAffectation.date_debut || "",
+        date_fin: existingAffectation.date_fin || "",
+        notes: existingAffectation.notes || "",
+        statut: existingAffectation.statut || "en_cours",
+      });
+      setLastClientId(existingAffectation.client_id);
+      setIsInitialized(true);
     }
   }, [existingAffectation, isInitialized]);
 
   // Reset chantier when client changes (only after initialization and if client actually changed)
   useEffect(() => {
-    if (isInitialized && formData.client_id && formData.client_id !== lastClientId) {
+    if ((isInitialized || !isEditing) && formData.client_id && formData.client_id !== lastClientId) {
       setFormData(prev => ({ ...prev, chantier_id: "" }));
       setLastClientId(formData.client_id);
     }
-  }, [formData.client_id, isInitialized, lastClientId]);
+  }, [formData.client_id, isInitialized, isEditing, lastClientId]);
 
   const selectedChantier = chantiers?.find((c) => c.id === formData.chantier_id);
+  const chantierLabel =
+    selectedChantier?.nom ??
+    (formData.chantier_id
+      ? (existingAffectation as any)?.chantier?.nom ?? "Chantier sélectionné"
+      : undefined);
+
 
   const errors = {
 
@@ -245,13 +249,17 @@ export default function AffectationForm() {
                   Chantier <span className="text-red-700">*</span>
                 </Label>
                 <Select
+                  key={`chantier-${formData.client_id}-${chantiers?.length ?? 0}`}
                   value={formData.chantier_id}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, chantier_id: value }))}
-                  disabled={!formData.client_id}
+                  disabled={!formData.client_id || chantiersLoading}
                 >
                   <SelectTrigger className={errors.chantier_id ? "border-red-700 focus-visible:ring-red-700" : ""}>
-                    <SelectValue placeholder={formData.client_id ? "Sélectionner un chantier" : "Sélectionnez d'abord un client"} />
+                    <SelectValue placeholder={formData.client_id ? "Sélectionner un chantier" : "Sélectionnez d'abord un client"}>
+                      {chantierLabel}
+                    </SelectValue>
                   </SelectTrigger>
+
                   <SelectContent>
                     {chantiers?.map(chantier => (
                       <SelectItem key={chantier.id} value={chantier.id}>
@@ -311,6 +319,29 @@ export default function AffectationForm() {
                   />
                 </div>
               </div>
+
+              {/* Statut */}
+              <div className="space-y-2">
+                <Label htmlFor="statut">
+                  Statut <span className="text-red-700">*</span>
+                </Label>
+                <Select
+                  value={formData.statut}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, statut: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en_cours">En cours</SelectItem>
+                    <SelectItem value="planifiee">Planifiée</SelectItem>
+                    <SelectItem value="suspendue">Suspendue</SelectItem>
+                    <SelectItem value="terminee">Terminée</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+
 
               {/* Notes */}
               <div className="space-y-2">
