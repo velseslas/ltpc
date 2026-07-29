@@ -327,6 +327,8 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
           </div>
         </div>
       </div>
+      </div>
+
 
       <style>{`
         @media print {
