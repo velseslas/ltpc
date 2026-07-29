@@ -165,11 +165,13 @@ export default function AffectationForm() {
                     <SelectValue placeholder="Sélectionner un technicien" />
                   </SelectTrigger>
                   <SelectContent>
-                    {intervenants?.map(intervenant => (
-                      <SelectItem key={intervenant.id} value={intervenant.id}>
-                        {intervenant.prenom} {intervenant.nom} - {intervenant.role}
-                      </SelectItem>
-                    ))}
+                    {intervenants
+                      ?.filter(i => (i.role || "").toLowerCase().includes("techn"))
+                      .map(intervenant => (
+                        <SelectItem key={intervenant.id} value={intervenant.id}>
+                          {intervenant.prenom} {intervenant.nom} - {intervenant.role}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 {errors.intervenant_id && (
