@@ -79,7 +79,7 @@ export default function Affectations() {
     return Array.from(map.values());
   }, [filtered]);
 
-  const isActive = (a: any) => !a.date_fin || new Date(a.date_fin) >= new Date();
+  
 
   const handleDelete = async (id: string) => {
     try {
