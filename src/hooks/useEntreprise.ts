@@ -51,6 +51,23 @@ export const useEntreprise = () => {
   });
 };
 
+// Branding public (nom + logo) — lisible sans être connecté (page de login).
+// Table dédiée `entreprise_branding` synchronisée depuis `entreprise`.
+export const useEntrepriseBranding = () => {
+  return useQuery({
+    queryKey: ["entreprise", "branding"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("entreprise_branding" as never)
+        .select("id, nom, logo_url")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return (data ?? null) as { id: string; nom: string; logo_url: string | null } | null;
+    },
+  });
+};
+
 // Full entreprise record including sensitive banking / tax IDs.
 // Reserved for admin-only pages (settings, facture/devis previews).
 // RLS restricts the underlying table to super_admin / admin.
