@@ -125,12 +125,13 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-foreground break-words">
               Rapport - <span className="text-primary">{prefix}-{String(echantillon.numero).padStart(3, "0")}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">{essaiTitle}</p>
           </div>
+
         </div>
 
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
@@ -143,12 +144,13 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
         </div>
       </div>
 
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-x-visible sm:px-0 print:mx-0 print:overflow-visible print:px-0">
       <div
         ref={reportRef}
         data-ref="report"
         data-print-root
         data-print-template={templateId}
-        className="report-table bg-white p-8 rounded-lg border border-border max-w-4xl mx-auto print:border-0 print:shadow-none print:max-w-none print:p-0"
+        className="report-table bg-white p-4 sm:p-8 rounded-lg border border-border w-[760px] max-w-none sm:w-full sm:max-w-4xl mx-auto print:border-0 print:shadow-none print:w-full print:max-w-none print:p-0"
       >
         <ReportHeader
           entreprise={entreprise}
@@ -325,6 +327,8 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
           </div>
         </div>
       </div>
+      </div>
+
 
       <style>{`
         @media print {

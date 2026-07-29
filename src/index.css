@@ -337,6 +337,18 @@
   line-height: 1.25 !important;
 }
 
+/* Mobile (écran uniquement) : évite le chevauchement des libellés dans les
+   tableaux d'identification des rapports — l'impression reste inchangée. */
+@media screen and (max-width: 767px) {
+  #root .report-table .identification-table th,
+  #root .report-table .identification-table td {
+    white-space: normal !important;
+    height: auto !important;
+    word-break: break-word !important;
+  }
+}
+
+
 @media print {
   @page {
     size: A4 portrait;
