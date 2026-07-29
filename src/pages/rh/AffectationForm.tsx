@@ -16,7 +16,7 @@ import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { useCreateAffectation, useUpdateAffectation, useAffectation } from "@/hooks/useAffectations";
+import { useCreateAffectation, useUpdateAffectation, useAffectation, useAffectations } from "@/hooks/useAffectations";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
@@ -31,6 +31,7 @@ export default function AffectationForm() {
   const { data: intervenants, isLoading: intervenantsLoading } = useIntervenants();
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: existingAffectation, isLoading: affectationLoading } = useAffectation(id || "");
+  const { data: allAffectations } = useAffectations();
   const createAffectation = useCreateAffectation();
   const updateAffectation = useUpdateAffectation();
 
