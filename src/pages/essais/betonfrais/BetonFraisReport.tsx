@@ -125,12 +125,13 @@ export default function BetonFraisReport({ essaiType, essaiTitle, normRef, baseP
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-foreground break-words">
               Rapport - <span className="text-primary">{prefix}-{String(echantillon.numero).padStart(3, "0")}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">{essaiTitle}</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">{essaiTitle}</p>
           </div>
+
         </div>
 
         <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
