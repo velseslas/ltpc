@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { callRpc, DocumentRepository, getRepositoryForTable } from "@/lib/repositories";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Entreprise {
   id: string;
