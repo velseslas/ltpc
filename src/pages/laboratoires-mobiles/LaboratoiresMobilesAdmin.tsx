@@ -272,27 +272,28 @@ export default function LaboratoiresMobilesAdmin() {
     <div className="space-y-6">
       <AppBreadcrumb items={breadcrumbItems} />
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3 sm:items-center sm:gap-4 min-w-0">
           {navState.level !== "wilayas" && (
-            <Button variant="outline" size="icon" onClick={handleBack} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+            <Button variant="outline" size="icon" onClick={handleBack} className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           )}
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent break-words">
               Administration - Laboratoires Mobiles
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Gestion administrative des laboratoires mobiles par wilaya
             </p>
           </div>
         </div>
-        <Button onClick={() => navigate("/laboratoires-mobiles/nouveau")} className="gap-2">
+        <Button onClick={() => navigate("/laboratoires-mobiles/nouveau")} className="gap-2 w-full sm:w-auto shrink-0">
           <Plus className="h-4 w-4" />
           Nouveau chantier
         </Button>
       </div>
+
 
       {/* Stats Cards */}
       <AdminStatsCards
