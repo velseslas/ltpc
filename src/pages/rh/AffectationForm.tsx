@@ -44,7 +44,7 @@ export default function AffectationForm() {
     date_debut: "",
     date_fin: "",
     notes: "",
-    statut: "en_cours",
+    statut: "actif",
   });
   const [isInitialized, setIsInitialized] = useState(false);
   const [lastClientId, setLastClientId] = useState("");
@@ -63,7 +63,7 @@ export default function AffectationForm() {
         date_debut: existingAffectation.date_debut || "",
         date_fin: existingAffectation.date_fin || "",
         notes: existingAffectation.notes || "",
-        statut: existingAffectation.statut || "en_cours",
+        statut: existingAffectation.statut === "inactif" ? "inactif" : "actif",
       });
       setLastClientId(existingAffectation.client_id);
       setIsInitialized(true);
