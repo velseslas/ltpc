@@ -16,7 +16,7 @@ import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
-import { useCreateAffectation, useUpdateAffectation, useAffectation } from "@/hooks/useAffectations";
+import { useCreateAffectation, useUpdateAffectation, useAffectation, useAffectations } from "@/hooks/useAffectations";
 import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
@@ -31,6 +31,7 @@ export default function AffectationForm() {
   const { data: intervenants, isLoading: intervenantsLoading } = useIntervenants();
   const { data: clients, isLoading: clientsLoading } = useClients();
   const { data: existingAffectation, isLoading: affectationLoading } = useAffectation(id || "");
+  const { data: allAffectations } = useAffectations();
   const createAffectation = useCreateAffectation();
   const updateAffectation = useUpdateAffectation();
 
@@ -96,6 +97,29 @@ export default function AffectationForm() {
       return;
     }
 
+    // Sécurité : un technicien ne peut pas être affecté 2 fois au même chantier
+    // sur des périodes qui se chevauchent
+    const INF = "9999-12-31";
+    const newStart = formData.date_debut;
+    const newEnd = formData.date_fin || INF;
+    const conflit = (allAffectations || []).find((a) => {
+      if (isEditing && a.id === id) return false;
+      if (a.intervenant_id !== formData.intervenant_id) return false;
+      if (a.chantier_id !== formData.chantier_id) return false;
+      const start = a.date_debut;
+      const end = a.date_fin || INF;
+      return newStart <= end && start <= newEnd;
+    });
+
+    if (conflit) {
+      toast.error(
+        `Ce technicien est déjà affecté à ce chantier sur la période du ${conflit.date_debut}${
+          conflit.date_fin ? ` au ${conflit.date_fin}` : " (en cours)"
+        }.`
+      );
+      return;
+    }
+
     try {
       if (isEditing && id) {
         await updateAffectation.mutateAsync({
@@ -115,7 +139,12 @@ export default function AffectationForm() {
       }
       navigate("/rh/affectations");
     } catch (error) {
-      toast.error("Erreur lors de l'enregistrement");
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("affectations_no_overlap_per_chantier") || msg.includes("conflicting key")) {
+        toast.error("Ce technicien est déjà affecté à ce chantier sur cette période.");
+      } else {
+        toast.error("Erreur lors de l'enregistrement");
+      }
       console.error(error);
     }
   };
