@@ -325,10 +325,10 @@ export default function AffectationForm() {
                 </div>
               </div>
 
-              {/* Statut */}
+              {/* Statut du technicien sur l'affectation */}
               <div className="space-y-2">
                 <Label htmlFor="statut">
-                  Statut <span className="text-red-700">*</span>
+                  Statut du technicien <span className="text-red-700">*</span>
                 </Label>
                 <Select
                   value={formData.statut}
@@ -338,13 +338,15 @@ export default function AffectationForm() {
                     <SelectValue placeholder="Sélectionner un statut" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en_cours">En cours</SelectItem>
-                    <SelectItem value="planifiee">Planifiée</SelectItem>
-                    <SelectItem value="suspendue">Suspendue</SelectItem>
-                    <SelectItem value="terminee">Terminée</SelectItem>
+                    <SelectItem value="actif">Actif</SelectItem>
+                    <SelectItem value="inactif">Inactif</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  Le statut du chantier (en cours / terminé) est géré depuis la fiche du chantier.
+                </p>
               </div>
+
 
 
 
