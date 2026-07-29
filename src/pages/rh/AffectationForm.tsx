@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { FormLoadingOverlay } from "@/components/ui/form-loading-overlay";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { ChantierLocalisationBanner } from "@/components/localisation/ChantierLocalisationBanner";
+import { ChantierStatutBadge } from "@/components/chantiers/ChantierStatutBadge";
 
 
 export default function AffectationForm() {
