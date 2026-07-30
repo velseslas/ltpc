@@ -22,7 +22,8 @@ export default function FactureForm() {
   const [form, setForm] = useState({
     numero: "", client_id: "", chantier_id: "",
     date_emission: new Date().toISOString().split("T")[0],
-    date_echeance: "", statut: "impayee", observations: ""
+    date_echeance: "", statut: "impayee", observations: "",
+    mode_paiement: "espece", periode: new Date().toISOString().slice(0, 7)
   });
 
   // Auto-generate numero
