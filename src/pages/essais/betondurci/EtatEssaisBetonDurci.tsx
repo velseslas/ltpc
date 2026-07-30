@@ -277,12 +277,12 @@ export default function EtatEssaisBetonDurci() {
               <thead>
                 <tr className="bg-[#1e5a7a] text-white">
                   <th className="border border-black p-1.5 text-center">N°</th>
-                  <th className="border border-black p-1.5 text-center">Date coulage</th>
                   <th className="border border-black p-1.5 text-center">Entreprise</th>
                   <th className="border border-black p-1.5 text-center">Chantier</th>
-                  <th className="border border-black p-1.5 text-center">Centrale</th>
                   <th className="border border-black p-1.5 text-center">Ouvrage</th>
                   <th className="border border-black p-1.5 text-center">Partie ouvrage</th>
+                  <th className="border border-black p-1.5 text-center">Date coulage</th>
+                  <th className="border border-black p-1.5 text-center">Centrale</th>
                   <th className="border border-black p-1.5 text-center">Statut</th>
                 </tr>
               </thead>
