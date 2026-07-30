@@ -25,7 +25,8 @@ export default function FactureEdit() {
   const [form, setForm] = useState({
     numero: "", client_id: "", chantier_id: "",
     date_emission: "", date_echeance: "",
-    statut: "impayee", observations: ""
+    statut: "impayee", observations: "",
+    mode_paiement: "espece", periode: ""
   });
 
   useEffect(() => {
@@ -38,6 +39,8 @@ export default function FactureEdit() {
         date_echeance: facture.date_echeance || "",
         statut: facture.statut || "impayee",
         observations: facture.observations || "",
+        mode_paiement: (facture as any).mode_paiement || "espece",
+        periode: (facture as any).periode || "",
       });
     }
   }, [facture]);
