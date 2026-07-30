@@ -100,6 +100,22 @@ export default function FactureForm() {
             <div className="grid gap-2"><Label>Date émission *</Label><Input type="date" value={form.date_emission} onChange={e => setForm(p => ({ ...p, date_emission: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>Date échéance</Label><Input type="date" value={form.date_echeance} onChange={e => setForm(p => ({ ...p, date_echeance: e.target.value }))} /></div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Mode de paiement</Label>
+              <Select value={form.mode_paiement} onValueChange={v => setForm(p => ({ ...p, mode_paiement: v }))}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cheque">Chèque</SelectItem>
+                  <SelectItem value="espece">Espèce</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Période (mois / année)</Label>
+              <Input type="month" value={form.periode} onChange={e => setForm(p => ({ ...p, periode: e.target.value }))} />
+            </div>
+          </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4">
             <Button onClick={handleSubmit} disabled={createMutation.isPending}>Enregistrer</Button>
