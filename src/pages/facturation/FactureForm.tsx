@@ -47,6 +47,7 @@ export default function FactureForm() {
         client_id: form.client_id || null,
         chantier_id: form.chantier_id || null,
         date_echeance: form.date_echeance || null,
+        periode: form.periode || null,
         montant_ht: 0,
         taux_tva: 0,
         montant_tva: 0,
