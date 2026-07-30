@@ -4,6 +4,7 @@ import { Plus, FileText, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit, Fil
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/ui/back-button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -30,12 +31,14 @@ export default function FactureListe() {
   const { data, isLoading } = useFactures();
   const deleteMutation = useDeleteFacture();
   const [search, setSearch] = useState("");
+  const [modeFilter, setModeFilter] = useState("tous");
 
   const handleDelete = async (id: string) => {
     try { await deleteMutation.mutateAsync(id); toast.success("Facture supprimée"); } catch { toast.error("Erreur"); }
   };
 
   const filtered = data?.filter((f: any) => {
+    if (modeFilter !== "tous" && (f.mode_paiement || "") !== modeFilter) return false;
     if (!search) return true;
     const s = search.toLowerCase();
     return (f.numero?.toLowerCase().includes(s) ||
@@ -48,12 +51,22 @@ export default function FactureListe() {
   return (
     <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Factures" }]} />
-      <div className="flex items-center gap-3">
-        <BackButton to="/facturation" />
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Factures</h1>
-          <p className="text-muted-foreground">Gestion des factures clients</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-3">
+          <BackButton to="/facturation" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Factures</h1>
+            <p className="text-muted-foreground">Gestion des factures clients</p>
+          </div>
         </div>
+        <Select value={modeFilter} onValueChange={setModeFilter}>
+          <SelectTrigger className="w-full sm:w-[200px] sm:ml-auto"><SelectValue placeholder="Mode de paiement" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="tous">Tous les modes</SelectItem>
+            <SelectItem value="cheque">Chèque</SelectItem>
+            <SelectItem value="espece">Espèce</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center gap-3">

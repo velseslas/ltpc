@@ -22,7 +22,8 @@ export default function FactureForm() {
   const [form, setForm] = useState({
     numero: "", client_id: "", chantier_id: "",
     date_emission: new Date().toISOString().split("T")[0],
-    date_echeance: "", statut: "impayee", observations: ""
+    date_echeance: "", statut: "impayee", observations: "",
+    mode_paiement: "espece", periode: new Date().toISOString().slice(0, 7)
   });
 
   // Auto-generate numero
@@ -46,6 +47,7 @@ export default function FactureForm() {
         client_id: form.client_id || null,
         chantier_id: form.chantier_id || null,
         date_echeance: form.date_echeance || null,
+        periode: form.periode || null,
         montant_ht: 0,
         taux_tva: 0,
         montant_tva: 0,
@@ -97,6 +99,22 @@ export default function FactureForm() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Date émission *</Label><Input type="date" value={form.date_emission} onChange={e => setForm(p => ({ ...p, date_emission: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>Date échéance</Label><Input type="date" value={form.date_echeance} onChange={e => setForm(p => ({ ...p, date_echeance: e.target.value }))} /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Mode de paiement</Label>
+              <Select value={form.mode_paiement} onValueChange={v => setForm(p => ({ ...p, mode_paiement: v }))}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cheque">Chèque</SelectItem>
+                  <SelectItem value="espece">Espèce</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Période (mois / année)</Label>
+              <Input type="month" value={form.periode} onChange={e => setForm(p => ({ ...p, periode: e.target.value }))} />
+            </div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4">
