@@ -211,6 +211,9 @@ const CompressionTest = () => {
                         ? format(new Date(echantillon.date_coulage), "dd/MM/yyyy", { locale: fr })
                         : "-"}
                     </TableCell>
+                    <TableCell className="text-foreground">
+                      {echantillon.centrales_beton?.nom ?? "-"}
+                    </TableCell>
                     <TableCell className="text-center">
                       {getStatutBadge(echantillon.statut)}
                     </TableCell>
