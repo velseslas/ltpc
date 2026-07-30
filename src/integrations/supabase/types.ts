@@ -5443,12 +5443,14 @@ export type Database = {
           date_echeance: string | null
           date_emission: string
           id: string
+          mode_paiement: string | null
           montant_ht: number
           montant_paye: number
           montant_ttc: number
           montant_tva: number
           numero: string
           observations: string | null
+          periode: string | null
           statut: string
           taux_tva: number
           updated_at: string
@@ -5460,12 +5462,14 @@ export type Database = {
           date_echeance?: string | null
           date_emission?: string
           id?: string
+          mode_paiement?: string | null
           montant_ht?: number
           montant_paye?: number
           montant_ttc?: number
           montant_tva?: number
           numero: string
           observations?: string | null
+          periode?: string | null
           statut?: string
           taux_tva?: number
           updated_at?: string
@@ -5477,12 +5481,14 @@ export type Database = {
           date_echeance?: string | null
           date_emission?: string
           id?: string
+          mode_paiement?: string | null
           montant_ht?: number
           montant_paye?: number
           montant_ttc?: number
           montant_tva?: number
           numero?: string
           observations?: string | null
+          periode?: string | null
           statut?: string
           taux_tva?: number
           updated_at?: string
