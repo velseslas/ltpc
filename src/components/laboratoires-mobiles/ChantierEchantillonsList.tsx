@@ -201,12 +201,12 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
                     {echantillon.usage ?? "-"}
                   </TableCell>
                   <TableCell className="text-foreground">
-                    {echantillon.centrales_beton?.nom ?? "-"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
                     {echantillon.date_coulage 
                       ? format(new Date(echantillon.date_coulage), "dd/MM/yyyy", { locale: fr })
                       : "-"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.centrales_beton?.nom ?? "-"}
                   </TableCell>
                   <TableCell className="text-center">
                     {getStatutBadge(echantillon.statut)}
