@@ -169,8 +169,8 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
               <TableHead className="text-muted-foreground font-medium">N°</TableHead>
               <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
               <TableHead className="text-muted-foreground font-medium">Partie de l'ouvrage</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Centrale</TableHead>
               <TableHead className="text-muted-foreground font-medium">Date de coulage</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Centrale</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
             </TableRow>
