@@ -50,12 +50,22 @@ export default function FactureListe() {
   return (
     <div data-essai-mobile className="space-y-6">
       <AppBreadcrumb items={[{ label: "Facturation", path: "/facturation" }, { label: "Factures" }]} />
-      <div className="flex items-center gap-3">
-        <BackButton to="/facturation" />
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Factures</h1>
-          <p className="text-muted-foreground">Gestion des factures clients</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-3">
+          <BackButton to="/facturation" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Factures</h1>
+            <p className="text-muted-foreground">Gestion des factures clients</p>
+          </div>
         </div>
+        <Select value={modeFilter} onValueChange={setModeFilter}>
+          <SelectTrigger className="w-full sm:w-[200px] sm:ml-auto"><SelectValue placeholder="Mode de paiement" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="tous">Tous les modes</SelectItem>
+            <SelectItem value="cheque">Chèque</SelectItem>
+            <SelectItem value="espece">Espèce</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center gap-3">
