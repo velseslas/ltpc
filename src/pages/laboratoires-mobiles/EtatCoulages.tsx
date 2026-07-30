@@ -264,12 +264,12 @@ export default function EtatCoulages() {
                       <td className="border border-black p-1.5 text-center font-medium">
                         EC-{String(e.numero_chantier || e.numero).padStart(3, "0")}
                       </td>
+                      <td className="border border-black p-1.5">{e.ouvrage || "—"}</td>
+                      <td className="border border-black p-1.5">{e.destination_beton || "—"}</td>
                       <td className="border border-black p-1.5 text-center">
                         {e.date_coulage ? format(new Date(e.date_coulage), "dd/MM/yyyy") : "—"}
                       </td>
                       <td className="border border-black p-1.5">{e.centrales_beton?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.ouvrage || "—"}</td>
-                      <td className="border border-black p-1.5">{e.destination_beton || "—"}</td>
                       <td className="border border-black p-1.5 text-center">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-xs font-medium",
