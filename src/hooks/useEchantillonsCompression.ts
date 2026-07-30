@@ -69,7 +69,8 @@ export function useEchantillonsCompression(scope: EchantillonsCompressionScope =
         .select(`
           *,
           clients:client_id(id, nom),
-          chantiers:chantier_id(id, nom)
+          chantiers:chantier_id(id, nom),
+          centrales_beton:centrale_id(id, nom)
         `);
 
       if (scope === "essais") {
