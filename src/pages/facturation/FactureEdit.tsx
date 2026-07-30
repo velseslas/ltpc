@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { PeriodeSelect } from "@/components/facturation/PeriodeSelect";
 import { useFacture, useUpdateFacture } from "@/hooks/useFacturation";
 import { useClients } from "@/hooks/useClients";
 import { useChantiers } from "@/hooks/useChantiers";
@@ -122,7 +123,7 @@ export default function FactureEdit() {
             </div>
             <div className="grid gap-2">
               <Label>Période (mois / année)</Label>
-              <Input type="month" value={form.periode} onChange={e => setForm(p => ({ ...p, periode: e.target.value }))} />
+              <PeriodeSelect value={form.periode} onChange={v => setForm(p => ({ ...p, periode: v }))} />
             </div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>

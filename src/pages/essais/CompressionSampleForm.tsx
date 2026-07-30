@@ -188,8 +188,8 @@ const CompressionSampleForm = () => {
   const [heuresEssai, setHeuresEssai] = useState<HeureEssai[]>(
     HEURES_ESSAI.map((h) => ({
       heure: h.value,
-      selected: h.value === 12,
-      nombre: h.value === 12 ? 1 : 0,
+      selected: false,
+      nombre: 0,
     }))
   );
   const [autreHeure, setAutreHeure] = useState("");
