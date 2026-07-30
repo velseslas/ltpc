@@ -169,8 +169,8 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
               <TableHead className="text-muted-foreground font-medium">N°</TableHead>
               <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
               <TableHead className="text-muted-foreground font-medium">Partie de l'ouvrage</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Centrale</TableHead>
               <TableHead className="text-muted-foreground font-medium">Date de coulage</TableHead>
+              <TableHead className="text-muted-foreground font-medium">Centrale</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
               <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
             </TableRow>
@@ -201,12 +201,12 @@ export function ChantierEchantillonsList({ chantierId }: ChantierEchantillonsLis
                     {echantillon.usage ?? "-"}
                   </TableCell>
                   <TableCell className="text-foreground">
-                    {echantillon.centrales_beton?.nom ?? "-"}
-                  </TableCell>
-                  <TableCell className="text-foreground">
                     {echantillon.date_coulage 
                       ? format(new Date(echantillon.date_coulage), "dd/MM/yyyy", { locale: fr })
                       : "-"}
+                  </TableCell>
+                  <TableCell className="text-foreground">
+                    {echantillon.centrales_beton?.nom ?? "-"}
                   </TableCell>
                   <TableCell className="text-center">
                     {getStatutBadge(echantillon.statut)}

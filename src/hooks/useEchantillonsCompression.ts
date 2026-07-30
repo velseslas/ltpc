@@ -57,6 +57,7 @@ export type EchantillonCompressionInsert = {
 export type EchantillonWithRelations = EchantillonCompression & {
   clients: { id: string; nom: string } | null;
   chantiers: { id: string; nom: string } | null;
+  centrales_beton: { id: string; nom: string } | null;
 };
 
 export function useEchantillonsCompression(scope: EchantillonsCompressionScope = "essais") {
@@ -68,7 +69,8 @@ export function useEchantillonsCompression(scope: EchantillonsCompressionScope =
         .select(`
           *,
           clients:client_id(id, nom),
-          chantiers:chantier_id(id, nom)
+          chantiers:chantier_id(id, nom),
+          centrales_beton:centrale_id(id, nom)
         `);
 
       if (scope === "essais") {

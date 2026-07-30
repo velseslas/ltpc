@@ -164,6 +164,7 @@ const CompressionTest = () => {
                 <TableHead className="text-muted-foreground font-medium">Ouvrage</TableHead>
                 <TableHead className="text-muted-foreground font-medium">Partie de l'ouvrage</TableHead>
                 <TableHead className="text-muted-foreground font-medium">Date de coulage</TableHead>
+                <TableHead className="text-muted-foreground font-medium">Centrale</TableHead>
                 <TableHead className="text-muted-foreground font-medium text-center">Statut</TableHead>
                 <TableHead className="text-muted-foreground font-medium text-center">Actions</TableHead>
               </TableRow>
@@ -171,13 +172,13 @@ const CompressionTest = () => {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     Aucun échantillon trouvé
                   </TableCell>
                 </TableRow>
@@ -209,6 +210,9 @@ const CompressionTest = () => {
                       {echantillon.date_coulage 
                         ? format(new Date(echantillon.date_coulage), "dd/MM/yyyy", { locale: fr })
                         : "-"}
+                    </TableCell>
+                    <TableCell className="text-foreground">
+                      {echantillon.centrales_beton?.nom ?? "-"}
                     </TableCell>
                     <TableCell className="text-center">
                       {getStatutBadge(echantillon.statut)}

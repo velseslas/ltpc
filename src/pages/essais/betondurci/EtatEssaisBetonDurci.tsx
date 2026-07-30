@@ -277,12 +277,12 @@ export default function EtatEssaisBetonDurci() {
               <thead>
                 <tr className="bg-[#1e5a7a] text-white">
                   <th className="border border-black p-1.5 text-center">N°</th>
-                  <th className="border border-black p-1.5 text-center">Date coulage</th>
                   <th className="border border-black p-1.5 text-center">Entreprise</th>
                   <th className="border border-black p-1.5 text-center">Chantier</th>
-                  <th className="border border-black p-1.5 text-center">Centrale</th>
                   <th className="border border-black p-1.5 text-center">Ouvrage</th>
                   <th className="border border-black p-1.5 text-center">Partie ouvrage</th>
+                  <th className="border border-black p-1.5 text-center">Date coulage</th>
+                  <th className="border border-black p-1.5 text-center">Centrale</th>
                   <th className="border border-black p-1.5 text-center">Statut</th>
                 </tr>
               </thead>
@@ -299,14 +299,14 @@ export default function EtatEssaisBetonDurci() {
                       <td className="border border-black p-1.5 text-center font-medium">
                         {essaiConfig.prefix}-{String(e.numero).padStart(3, "0")}
                       </td>
+                      <td className="border border-black p-1.5">{e.clients?.nom || "—"}</td>
+                      <td className="border border-black p-1.5">{e.chantiers?.nom || "—"}</td>
+                      <td className="border border-black p-1.5">{e.ouvrage || "—"}</td>
+                      <td className="border border-black p-1.5">{e.destination_beton || "—"}</td>
                       <td className="border border-black p-1.5 text-center">
                         {e.date_coulage ? format(new Date(e.date_coulage), "dd/MM/yyyy") : "—"}
                       </td>
-                      <td className="border border-black p-1.5">{e.clients?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.chantiers?.nom || "—"}</td>
                       <td className="border border-black p-1.5">{e.centrales_beton?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.ouvrage || "—"}</td>
-                      <td className="border border-black p-1.5">{e.destination_beton || "—"}</td>
                       <td className="border border-black p-1.5 text-center">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-xs font-medium",
