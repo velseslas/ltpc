@@ -30,12 +30,14 @@ export default function FactureListe() {
   const { data, isLoading } = useFactures();
   const deleteMutation = useDeleteFacture();
   const [search, setSearch] = useState("");
+  const [modeFilter, setModeFilter] = useState("tous");
 
   const handleDelete = async (id: string) => {
     try { await deleteMutation.mutateAsync(id); toast.success("Facture supprimée"); } catch { toast.error("Erreur"); }
   };
 
   const filtered = data?.filter((f: any) => {
+    if (modeFilter !== "tous" && (f.mode_paiement || "") !== modeFilter) return false;
     if (!search) return true;
     const s = search.toLowerCase();
     return (f.numero?.toLowerCase().includes(s) ||
