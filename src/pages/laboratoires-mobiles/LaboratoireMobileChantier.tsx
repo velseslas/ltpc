@@ -196,8 +196,18 @@ export default function LaboratoireMobileChantier() {
                 <User className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Technicien</p>
-                <p className="font-medium">{technicienNom || "Non affecté"}</p>
+                <p className="text-sm text-muted-foreground">
+                  {techniciensNoms.length > 1 ? "Techniciens" : "Technicien"}
+                </p>
+                {techniciensNoms.length === 0 ? (
+                  <p className="font-medium">Non affecté</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1">
+                    {techniciensNoms.map((n) => (
+                      <Badge key={n} variant="secondary" className="font-medium">{n}</Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
