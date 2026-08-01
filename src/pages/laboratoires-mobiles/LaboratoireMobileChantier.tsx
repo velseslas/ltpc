@@ -23,6 +23,8 @@ import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { ChantierLocalisationBanner } from "@/components/localisation/ChantierLocalisationBanner";
+import { useAffectationsByChantier } from "@/hooks/useAffectations";
+import { useIntervenants } from "@/hooks/useIntervenants";
 
 
 export default function LaboratoireMobileChantier() {
