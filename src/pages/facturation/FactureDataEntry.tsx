@@ -118,6 +118,7 @@ export default function FactureDataEntry() {
         const l = lignes[i];
         await supabase.from("lignes_facture").insert({
           facture_id: id,
+          code_essai: l.code_essai || null,
           description: l.description,
           quantite: l.quantite,
           prix_unitaire: l.prix_unitaire,
