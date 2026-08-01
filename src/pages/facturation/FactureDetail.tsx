@@ -48,6 +48,9 @@ export default function FactureDetail() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/apercu`)}>
+            <FileText className="h-4 w-4" />Facture
+          </Button>
           <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/saisie`)}>
             <ClipboardEdit className="h-4 w-4" />Saisie
           </Button>
