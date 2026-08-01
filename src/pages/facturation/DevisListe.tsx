@@ -51,7 +51,7 @@ export default function DevisListe() {
       if (error || !devis) throw error;
 
       const year = new Date().getFullYear();
-      const prefix = `FAC-${year}-`;
+      const prefix = `FCH-${year}-`;
       const { data: factures } = await supabase.from("factures").select("numero").like("numero", `${prefix}%`);
       const existing = (factures || []).map((f: any) => parseInt(f.numero.replace(prefix, "")) || 0);
       const next = (existing.length > 0 ? Math.max(...existing) : 0) + 1;
