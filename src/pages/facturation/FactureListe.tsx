@@ -79,6 +79,9 @@ export default function FactureListe() {
             className="pl-10 h-11 bg-card border-border"
           />
         </div>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => navigate("/facturation/factures/etat")}>
+          <ListFilter className="h-4 w-4" />État des factures
+        </Button>
         <Button className="gap-2 shrink-0" onClick={() => navigate("/facturation/factures/nouveau")}>
           <Plus className="h-4 w-4" />Nouvelle facture
         </Button>
