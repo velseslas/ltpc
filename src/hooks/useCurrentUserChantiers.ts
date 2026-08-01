@@ -4,10 +4,15 @@ import { useAuth } from "@/hooks/useAuth";
 
 const utilisateursRepo = getRepositoryForTable<{ intervenant_id: string | null }>("utilisateurs", { defaultSelect: "intervenant_id" });
 const labosRepo = getRepositoryForTable<{ chantier_id: string | null }>("laboratoires_mobiles", { defaultSelect: "chantier_id" });
+const affectationsRepo = getRepositoryForTable<{ chantier_id: string | null; statut: string | null; date_fin: string | null }>(
+  "affectations",
+  { defaultSelect: "chantier_id, statut, date_fin" }
+);
 
 /**
  * Returns the chantier IDs assigned to the current logged-in technician.
- * Links: auth.user → utilisateurs.user_id → intervenant_id → laboratoires_mobiles.responsable_id
+ * Sources: laboratoires_mobiles.responsable_id (technicien affecté au labo)
+ * AND the RH `affectations` table (technicien affecté au chantier).
  */
 export function useCurrentUserChantiers() {
   const { user } = useAuth();
@@ -24,16 +29,26 @@ export function useCurrentUserChantiers() {
       }
 
       const intervenantId = utilisateur.intervenant_id;
+      const chantierIdSet = new Set<string>();
 
-      // Source of truth: laboratoires_mobiles.responsable_id ("Technicien affecté").
-      // We ignore the RH `affectations` table (generic project assignments).
       const { data: labos } = await labosRepo.list({
         select: "chantier_id",
         filters: { responsable_id: intervenantId },
       });
-      const chantierIdSet = new Set<string>();
       (labos as Array<{ chantier_id: string | null }>).forEach((l) => {
         if (l.chantier_id) chantierIdSet.add(l.chantier_id);
+      });
+
+      // Affectations RH (technicien ↔ chantier, plusieurs par chantier possibles)
+      const { data: affectations } = await affectationsRepo.list({
+        select: "chantier_id, statut, date_fin",
+        filters: { intervenant_id: intervenantId },
+      });
+      (affectations as Array<{ chantier_id: string | null; statut: string | null; date_fin: string | null }>).forEach((a) => {
+        const statut = (a.statut || "").toLowerCase();
+        if (statut === "inactif" || statut === "termine" || statut === "terminé") return;
+        if (a.date_fin && new Date(a.date_fin) < new Date()) return;
+        if (a.chantier_id) chantierIdSet.add(a.chantier_id);
       });
 
       return { intervenantId, chantierIds: Array.from(chantierIdSet) };
