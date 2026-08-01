@@ -34,6 +34,7 @@ export const facturationRoutes = (
   <>
     <Route path="/facturation" element={<FacturationDashboard />} />
     <Route path="/facturation/factures" element={<FactureListe />} />
+    <Route path="/facturation/factures/etat" element={<EtatFactures />} />
     <Route path="/facturation/factures/nouveau" element={<FactureForm />} />
     <Route path="/facturation/factures/:id" element={<FactureDetail />} />
     <Route path="/facturation/factures/:id/saisie" element={<FactureDataEntry />} />
