@@ -206,6 +206,13 @@ export default function ChantierEchantillonForm() {
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId || "");
   const { data: labos } = useLaboratoiresMobiles();
 
+  // Si le chantier n'a qu'une seule centrale affectée, la sélectionner par défaut.
+  useEffect(() => {
+    if (!centraleId && !existingEchantillon && centralesByChantier.length === 1) {
+      setCentraleId((centralesByChantier[0] as any).id);
+    }
+  }, [centraleId, existingEchantillon, centralesByChantier]);
+
   const selectedCentrale = useMemo(
     () => centrales.find((centrale) => centrale.id === centraleId),
     [centrales, centraleId]
