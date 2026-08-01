@@ -93,6 +93,10 @@ export default function FacturePreview() {
 
   const dateEmission = format(new Date(facture.date_emission), "dd/MM/yyyy", { locale: fr });
   const dateEcheance = facture.date_echeance ? format(new Date(facture.date_echeance), "dd/MM/yyyy", { locale: fr }) : null;
+  const periodeRaw = (facture as any).periode as string | null;
+  const periodeLabel = periodeRaw
+    ? format(new Date(`${periodeRaw.slice(0, 7)}-01T00:00:00`), "MMMM yyyy", { locale: fr })
+    : "—";
 
   const qrData = `Facture: ${facture.numero} | Client: ${client.nom || "—"} | Montant: ${Number(facture.montant_ttc).toLocaleString()} DA | Date: ${dateEmission}`;
 
