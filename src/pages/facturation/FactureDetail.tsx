@@ -24,6 +24,7 @@ export default function FactureDetail() {
   if (isLoading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
   if (!facture) return <div className="text-center py-12 text-muted-foreground">Facture non trouvée</div>;
 
+  const isEspece = ((facture as any).mode_paiement || "") === "espece";
   const lignes = (facture as any).lignes_facture || [];
   const sortedLignes = [...lignes].sort((a: any, b: any) => a.ordre - b.ordre);
 
@@ -76,9 +77,9 @@ export default function FactureDetail() {
           <h2 className="text-lg font-semibold">Montants</h2>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div><span className="text-muted-foreground">Montant HT</span><p className="font-medium text-lg">{Number(facture.montant_ht).toLocaleString()} DA</p></div>
-            <div><span className="text-muted-foreground">TVA ({facture.taux_tva}%)</span><p className="font-medium text-lg">{Number(facture.montant_tva).toLocaleString()} DA</p></div>
+            {!isEspece && <div><span className="text-muted-foreground">TVA ({facture.taux_tva}%)</span><p className="font-medium text-lg">{Number(facture.montant_tva).toLocaleString()} DA</p></div>}
             <div className="col-span-2">
-              <span className="text-muted-foreground">Montant TTC</span>
+              <span className="text-muted-foreground">{isEspece ? "Montant total" : "Montant TTC"}</span>
               <p className="font-bold text-2xl text-primary">{Number(facture.montant_ttc).toLocaleString()} DA</p>
             </div>
           </div>
