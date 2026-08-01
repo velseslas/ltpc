@@ -35,9 +35,12 @@ export default function FactureDataEntry() {
   const [tauxTva, setTauxTva] = useState(19);
   const [saving, setSaving] = useState(false);
 
+  const isEspece = ((facture as any)?.mode_paiement || "") === "espece";
+
   useEffect(() => {
     if (facture) {
-      setTauxTva(Number(facture.taux_tva) || 19);
+      const espece = ((facture as any).mode_paiement || "") === "espece";
+      setTauxTva(espece ? 0 : (Number(facture.taux_tva) || 19));
       const existing = (facture as any).lignes_facture;
       if (existing && existing.length > 0) {
         setLignes(
@@ -97,7 +100,8 @@ export default function FactureDataEntry() {
   };
 
   const montantHT = lignes.reduce((s, l) => s + l.montant, 0);
-  const montantTVA = Math.round(montantHT * tauxTva / 100 * 100) / 100;
+  const effectiveTva = isEspece ? 0 : tauxTva;
+  const montantTVA = Math.round(montantHT * effectiveTva / 100 * 100) / 100;
   const montantTTC = Math.round((montantHT + montantTVA) * 100) / 100;
 
   const handleSave = async () => {
@@ -130,7 +134,7 @@ export default function FactureDataEntry() {
       await updateFacture.mutateAsync({
         id,
         montant_ht: montantHT,
-        taux_tva: tauxTva,
+        taux_tva: effectiveTva,
         montant_tva: montantTVA,
         montant_ttc: montantTTC,
       });
@@ -277,6 +281,7 @@ export default function FactureDataEntry() {
               <span className="text-xs text-muted-foreground">Montant HT</span>
               <p className="text-xl font-bold">{montantHT.toLocaleString()} DA</p>
             </div>
+            {!isEspece && (
             <div className="rounded-lg border border-border p-4 text-center space-y-1">
               <span className="text-xs text-muted-foreground">Taux TVA</span>
               <Input
@@ -288,12 +293,15 @@ export default function FactureDataEntry() {
                 className="text-center text-sm h-8"
               />
             </div>
+            )}
+            {!isEspece && (
             <div className="rounded-lg bg-primary/10 border border-primary/30 p-4 text-center">
               <span className="text-xs text-muted-foreground">TVA ({tauxTva}%)</span>
               <p className="text-xl font-bold text-primary">{montantTVA.toLocaleString()} DA</p>
             </div>
+            )}
             <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4 text-center">
-              <span className="text-xs text-muted-foreground">Montant TTC</span>
+              <span className="text-xs text-muted-foreground">{isEspece ? "Montant total" : "Montant TTC"}</span>
               <p className="text-xl font-bold text-emerald-500">{montantTTC.toLocaleString()} DA</p>
             </div>
           </div>
