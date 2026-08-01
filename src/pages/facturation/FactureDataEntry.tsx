@@ -211,9 +211,9 @@ export default function FactureDataEntry() {
               <Label className="md:hidden text-xs">Désignation</Label>
               <Input
                 value={ligne.description}
-                onChange={(e) => updateLigne(idx, "description", e.target.value)}
+                readOnly
                 placeholder="Désignation"
-                className="text-xs"
+                className="text-xs bg-muted/50"
               />
             </div>
 
@@ -236,8 +236,8 @@ export default function FactureDataEntry() {
                 type="number"
                 min={0}
                 value={ligne.prix_unitaire || ""}
-                onChange={(e) => updateLigne(idx, "prix_unitaire", parseFloat(e.target.value) || 0)}
-                className="text-center text-xs"
+                readOnly
+                className="text-center text-xs bg-muted/50"
               />
             </div>
 
