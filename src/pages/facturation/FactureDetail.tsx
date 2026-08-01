@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Pencil, ClipboardEdit, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, ClipboardEdit, Loader2, FileText } from "lucide-react";
 import { useFacture } from "@/hooks/useFacturation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -48,6 +48,9 @@ export default function FactureDetail() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/apercu`)}>
+            <FileText className="h-4 w-4" />Facture
+          </Button>
           <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/saisie`)}>
             <ClipboardEdit className="h-4 w-4" />Saisie
           </Button>

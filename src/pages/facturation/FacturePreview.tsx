@@ -93,6 +93,10 @@ export default function FacturePreview() {
 
   const dateEmission = format(new Date(facture.date_emission), "dd/MM/yyyy", { locale: fr });
   const dateEcheance = facture.date_echeance ? format(new Date(facture.date_echeance), "dd/MM/yyyy", { locale: fr }) : null;
+  const periodeRaw = (facture as any).periode as string | null;
+  const periodeLabel = periodeRaw
+    ? format(new Date(`${periodeRaw.slice(0, 7)}-01T00:00:00`), "MMMM yyyy", { locale: fr })
+    : "—";
 
   const qrData = `Facture: ${facture.numero} | Client: ${client.nom || "—"} | Montant: ${Number(facture.montant_ttc).toLocaleString()} DA | Date: ${dateEmission}`;
 
@@ -196,7 +200,7 @@ export default function FacturePreview() {
               <div style={{ width: "220px", border: "1px solid #000", borderRadius: "6px", padding: "12px" }}>
                 <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "8px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>DÉTAILS</p>
                 <p style={{ fontSize: "11px", ...sectionStyle }}><strong>N° :</strong> {facture.numero}</p>
-                <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Date :</strong> {dateEmission}</p>
+                <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Période :</strong> {periodeLabel}</p>
                 {dateEcheance && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Échéance :</strong> {dateEcheance}</p>}
               </div>
             </div>
