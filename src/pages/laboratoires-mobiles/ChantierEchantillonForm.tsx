@@ -235,7 +235,8 @@ export default function ChantierEchantillonForm() {
     const ids = new Set<string>();
     (affectations || []).forEach((a: any) => {
       if (a.chantier_id !== chantierId) return;
-      if (a.statut && a.statut !== "en_cours") return;
+      const statut = (a.statut || "").toLowerCase();
+      if (statut === "inactif" || statut === "termine" || statut === "terminé") return;
       if (a.date_fin && new Date(a.date_fin) < new Date()) return;
       if (a.intervenant_id) ids.add(a.intervenant_id);
     });
