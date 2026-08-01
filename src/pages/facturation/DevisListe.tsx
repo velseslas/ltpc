@@ -59,6 +59,7 @@ export default function DevisListe() {
 
       const { data: newFacture, error: facErr } = await supabase.from("factures").insert({
         numero,
+        mode_paiement: "cheque",
         client_id: devis.client_id,
         chantier_id: devis.chantier_id,
         date_emission: new Date().toISOString().split("T")[0],
