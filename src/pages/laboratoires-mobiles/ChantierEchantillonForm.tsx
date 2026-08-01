@@ -170,9 +170,9 @@ export default function ChantierEchantillonForm() {
 
   const [temperatureBeton, setTemperatureBeton] = useState("");
   const [temperatureAir, setTemperatureAir] = useState("");
-  const [classeConsistance, setClasseConsistance] = useState("");
+  const [classeConsistance, setClasseConsistance] = useState("S4");
   const [classeResistance, setClasseResistance] = useState("");
-  const [modeCoulage, setModeCoulage] = useState("");
+  const [modeCoulage, setModeCoulage] = useState("pompe");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
   const [mentionEprouvettesLabo, setMentionEprouvettesLabo] = useState(true);
