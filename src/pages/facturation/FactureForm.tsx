@@ -27,18 +27,19 @@ export default function FactureForm() {
     mode_paiement: "espece", periode: new Date().toISOString().slice(0, 7)
   });
 
-  // Auto-generate numero
+  // Auto-generate numero (préfixe selon mode de paiement)
   useEffect(() => {
     if (factures) {
       const year = new Date().getFullYear();
-      const prefix = `FAC-${year}-`;
+      const base = form.mode_paiement === "cheque" ? "FCH" : "FES";
+      const prefix = `${base}-${year}-`;
       const existing = factures
         .filter((f: any) => f.numero?.startsWith(prefix))
         .map((f: any) => parseInt(f.numero.replace(prefix, "")) || 0);
       const next = (existing.length > 0 ? Math.max(...existing) : 0) + 1;
       setForm(p => ({ ...p, numero: `${prefix}${String(next).padStart(3, "0")}` }));
     }
-  }, [factures]);
+  }, [factures, form.mode_paiement]);
 
   const handleSubmit = async () => {
     if (!form.numero) { toast.error("Le numéro est obligatoire"); return; }
