@@ -23,6 +23,8 @@ import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { ChantierLocalisationBanner } from "@/components/localisation/ChantierLocalisationBanner";
+import { useAffectationsByChantier } from "@/hooks/useAffectations";
+import { useIntervenants } from "@/hooks/useIntervenants";
 
 
 export default function LaboratoireMobileChantier() {
@@ -35,14 +37,34 @@ export default function LaboratoireMobileChantier() {
   const { data: echantillons } = useChantierEchantillons(chantierId || "");
   const { data: labos } = useLaboratoiresMobiles();
 
-  const technicienNom = useMemo(() => {
-    if (!labos || !chantierId) return null;
-    const labo = labos.find(l => l.chantier_id === chantierId);
-    if (labo?.intervenants) {
-      return `${labo.intervenants.prenom} ${labo.intervenants.nom}`;
+  const { data: affectations } = useAffectationsByChantier(chantierId || "");
+  const { data: intervenants } = useIntervenants();
+
+  // Un chantier peut avoir plusieurs techniciens (affectations RH + responsable labo)
+  const techniciensNoms = useMemo(() => {
+    const noms: string[] = [];
+    const seen = new Set<string>();
+
+    const labo = labos?.find((l) => l.chantier_id === chantierId);
+    if (labo?.responsable_id && labo?.intervenants) {
+      seen.add(labo.responsable_id);
+      noms.push(`${labo.intervenants.prenom} ${labo.intervenants.nom}`);
     }
-    return null;
-  }, [labos, chantierId]);
+
+    (affectations || []).forEach((a: any) => {
+      const statut = (a.statut || "").toLowerCase();
+      if (statut === "inactif" || statut === "termine" || statut === "terminé") return;
+      if (a.date_fin && new Date(a.date_fin) < new Date()) return;
+      if (!a.intervenant_id || seen.has(a.intervenant_id)) return;
+      const i = intervenants?.find((x: any) => x.id === a.intervenant_id);
+      if (!i) return;
+      seen.add(a.intervenant_id);
+      noms.push(`${i.prenom} ${i.nom}`);
+    });
+
+    return noms;
+  }, [labos, chantierId, affectations, intervenants]);
+
 
   const wilayaPath = useMemo(() => {
     if (!chantier?.ville) return undefined;
@@ -174,8 +196,18 @@ export default function LaboratoireMobileChantier() {
                 <User className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Technicien</p>
-                <p className="font-medium">{technicienNom || "Non affecté"}</p>
+                <p className="text-sm text-muted-foreground">
+                  {techniciensNoms.length > 1 ? "Techniciens" : "Technicien"}
+                </p>
+                {techniciensNoms.length === 0 ? (
+                  <p className="font-medium">Non affecté</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1">
+                    {techniciensNoms.map((n) => (
+                      <Badge key={n} variant="secondary" className="font-medium">{n}</Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
