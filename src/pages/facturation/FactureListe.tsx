@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, FileText, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit, FileOutput, Search } from "lucide-react";
+import { Plus, FileText, MoreHorizontal, Eye, Pencil, Trash2, ClipboardEdit, FileOutput, Search, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/ui/back-button";
@@ -79,6 +79,9 @@ export default function FactureListe() {
             className="pl-10 h-11 bg-card border-border"
           />
         </div>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => navigate("/facturation/factures/etat")}>
+          <ListFilter className="h-4 w-4" />État des factures
+        </Button>
         <Button className="gap-2 shrink-0" onClick={() => navigate("/facturation/factures/nouveau")}>
           <Plus className="h-4 w-4" />Nouvelle facture
         </Button>
