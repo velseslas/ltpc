@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 
 const FacturationDashboard = lazy(() => import("@/pages/facturation/FacturationDashboard"));
 const FactureListe = lazy(() => import("@/pages/facturation/FactureListe"));
+const EtatFactures = lazy(() => import("@/pages/facturation/EtatFactures"));
 const FactureForm = lazy(() => import("@/pages/facturation/FactureForm"));
 const FactureDetail = lazy(() => import("@/pages/facturation/FactureDetail"));
 const FactureDataEntry = lazy(() => import("@/pages/facturation/FactureDataEntry"));
