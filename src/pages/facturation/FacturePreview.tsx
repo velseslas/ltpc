@@ -196,7 +196,7 @@ export default function FacturePreview() {
               <div style={{ width: "220px", border: "1px solid #000", borderRadius: "6px", padding: "12px" }}>
                 <p style={{ fontSize: "12px", fontWeight: "bold", color: "#1e5a7a", marginBottom: "8px", borderBottom: "1px solid #ccc", paddingBottom: "4px", ...sectionStyle }}>DÉTAILS</p>
                 <p style={{ fontSize: "11px", ...sectionStyle }}><strong>N° :</strong> {facture.numero}</p>
-                <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Date :</strong> {dateEmission}</p>
+                <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Période :</strong> {periodeLabel}</p>
                 {dateEcheance && <p style={{ fontSize: "11px", ...sectionStyle }}><strong>Échéance :</strong> {dateEcheance}</p>}
               </div>
             </div>
