@@ -170,9 +170,9 @@ export default function ChantierEchantillonForm() {
 
   const [temperatureBeton, setTemperatureBeton] = useState("");
   const [temperatureAir, setTemperatureAir] = useState("");
-  const [classeConsistance, setClasseConsistance] = useState("");
+  const [classeConsistance, setClasseConsistance] = useState("S4");
   const [classeResistance, setClasseResistance] = useState("");
-  const [modeCoulage, setModeCoulage] = useState("");
+  const [modeCoulage, setModeCoulage] = useState("pompe");
   const [essaiConvenance, setEssaiConvenance] = useState(false);
   const [essaiConvenanceDetails, setEssaiConvenanceDetails] = useState("");
   const [mentionEprouvettesLabo, setMentionEprouvettesLabo] = useState(true);
@@ -205,6 +205,13 @@ export default function ChantierEchantillonForm() {
   const centrales = useMergedById("centrales_beton", effectiveCentraleId, centralesByChantier, "id, nom, ville");
   const { data: formulations = [], isLoading: isLoadingFormulations } = useFormulations(effectiveCentraleId || "");
   const { data: labos } = useLaboratoiresMobiles();
+
+  // Si le chantier n'a qu'une seule centrale affectée, la sélectionner par défaut.
+  useEffect(() => {
+    if (!centraleId && !existingEchantillon && centralesByChantier.length === 1) {
+      setCentraleId((centralesByChantier[0] as any).id);
+    }
+  }, [centraleId, existingEchantillon, centralesByChantier]);
 
   const selectedCentrale = useMemo(
     () => centrales.find((centrale) => centrale.id === centraleId),
@@ -283,9 +290,9 @@ export default function ChantierEchantillonForm() {
       setNombreEprouvettes(String(existingEchantillon.nombre_eprouvettes || 6));
       setTemperatureBeton(existingEchantillon.temperature_beton?.toString() || "");
       setTemperatureAir(existingEchantillon.temperature_air?.toString() || "");
-      setClasseConsistance(existingEchantillon.classe_consistance || "");
+      setClasseConsistance(existingEchantillon.classe_consistance || "S4");
       setClasseResistance((existingEchantillon as { classe_resistance?: string }).classe_resistance || "");
-      setModeCoulage(existingEchantillon.mode_coulage || "");
+      setModeCoulage(existingEchantillon.mode_coulage || "pompe");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionEprouvettesLabo((existingEchantillon as { mention_eprouvettes_labo?: boolean }).mention_eprouvettes_labo ?? true);
