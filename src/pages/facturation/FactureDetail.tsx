@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Pencil, ClipboardEdit, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, ClipboardEdit, Loader2, FileText } from "lucide-react";
 import { useFacture } from "@/hooks/useFacturation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
