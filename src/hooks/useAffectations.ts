@@ -25,6 +25,19 @@ export function useAffectations() {
   });
 }
 
+export function useAffectationsByChantier(chantierId: string) {
+  return useQuery({
+    queryKey: ["affectations", "chantier", chantierId],
+    queryFn: async () => (
+      await repo.list({
+        select: "id, chantier_id, intervenant_id, statut, date_debut, date_fin",
+        filters: { chantier_id: chantierId },
+      })
+    ).data,
+    enabled: !!chantierId,
+  });
+}
+
 export function useAffectation(id: string) {
   return useQuery({
     queryKey: ["affectations", id],

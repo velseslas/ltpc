@@ -37,7 +37,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useIntervenants } from "@/hooks/useIntervenants";
-import { useAffectations } from "@/hooks/useAffectations";
+import { useAffectationsByChantier } from "@/hooks/useAffectations";
 import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 
 const CONDITIONS_CURE = [
@@ -228,13 +228,12 @@ export default function ChantierEchantillonForm() {
   const canChooseTechnicien =
     currentRole === "super_admin" || currentRole === "admin" || currentRole === "manager";
   const { data: intervenants = [] } = useIntervenants();
-  const { data: affectations = [] } = useAffectations();
+  const { data: affectations = [] } = useAffectationsByChantier(chantierId || "");
 
   // Intervenants affectés à ce chantier (affectations en cours)
   const affectesChantier = useMemo(() => {
     const ids = new Set<string>();
     (affectations || []).forEach((a: any) => {
-      if (a.chantier_id !== chantierId) return;
       const statut = (a.statut || "").toLowerCase();
       if (statut === "inactif" || statut === "termine" || statut === "terminé") return;
       if (a.date_fin && new Date(a.date_fin) < new Date()) return;
