@@ -283,9 +283,9 @@ export default function ChantierEchantillonForm() {
       setNombreEprouvettes(String(existingEchantillon.nombre_eprouvettes || 6));
       setTemperatureBeton(existingEchantillon.temperature_beton?.toString() || "");
       setTemperatureAir(existingEchantillon.temperature_air?.toString() || "");
-      setClasseConsistance(existingEchantillon.classe_consistance || "");
+      setClasseConsistance(existingEchantillon.classe_consistance || "S4");
       setClasseResistance((existingEchantillon as { classe_resistance?: string }).classe_resistance || "");
-      setModeCoulage(existingEchantillon.mode_coulage || "");
+      setModeCoulage(existingEchantillon.mode_coulage || "pompe");
       setEssaiConvenance((existingEchantillon as { essai_convenance?: boolean }).essai_convenance || false);
       setEssaiConvenanceDetails((existingEchantillon as { essai_convenance_details?: string }).essai_convenance_details || "");
       setMentionEprouvettesLabo((existingEchantillon as { mention_eprouvettes_labo?: boolean }).mention_eprouvettes_labo ?? true);
