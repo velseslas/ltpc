@@ -94,14 +94,15 @@ export default function FacturePreview() {
   const dateEmission = format(new Date(facture.date_emission), "dd/MM/yyyy", { locale: fr });
   const dateEcheance = facture.date_echeance ? format(new Date(facture.date_echeance), "dd/MM/yyyy", { locale: fr }) : null;
   const isEspece = ((facture as any).mode_paiement || "") === "espece";
+  const totalFacture = isEspece ? Number(facture.montant_ht) : Number(facture.montant_ttc);
   const periodeRaw = (facture as any).periode as string | null;
   const periodeLabel = periodeRaw
     ? format(new Date(`${periodeRaw.slice(0, 7)}-01T00:00:00`), "MMMM yyyy", { locale: fr })
     : "—";
 
-  const qrData = `Facture: ${facture.numero} | Client: ${client.nom || "—"} | Montant: ${Number(facture.montant_ttc).toLocaleString()} DA | Date: ${dateEmission}`;
+  const qrData = `Facture: ${facture.numero} | Client: ${client.nom || "—"} | Montant: ${totalFacture.toLocaleString()} DA | Date: ${dateEmission}`;
 
-  const montantTTCEntier = Math.floor(Number(facture.montant_ttc));
+  const montantTTCEntier = Math.floor(totalFacture);
   const montantEnLettres = numberToFrenchWords(montantTTCEntier);
 
   const doPrint = () => {
@@ -250,7 +251,7 @@ export default function FacturePreview() {
                   )}
                   <tr>
                     <td style={{ ...cellStyle, fontWeight: "bold", backgroundColor: "#1e5a7a", color: "#fff", fontSize: "13px" }}>{isEspece ? "Total" : "Total TTC"}</td>
-                    <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold", fontSize: "14px", backgroundColor: "#e8f4f8" }}>{Number(facture.montant_ttc).toLocaleString("fr-FR", { minimumFractionDigits: 2 })} DA</td>
+                    <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold", fontSize: "14px", backgroundColor: "#e8f4f8" }}>{totalFacture.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} DA</td>
                   </tr>
                 </tbody>
               </table>

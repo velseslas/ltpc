@@ -111,7 +111,7 @@ export default function FactureListe() {
                     <TableCell>{(f.clients as any)?.nom || "—"}</TableCell>
                     <TableCell>{(f.chantiers as any)?.nom || "—"}</TableCell>
                     <TableCell>{format(new Date(f.date_emission), "dd/MM/yyyy", { locale: fr })}</TableCell>
-                    <TableCell>{Number(f.montant_ttc).toLocaleString()} DA</TableCell>
+                    <TableCell>{Number((f.mode_paiement || "") === "espece" ? f.montant_ht : f.montant_ttc).toLocaleString()} DA</TableCell>
                     <TableCell>{statutBadge(f.statut)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
