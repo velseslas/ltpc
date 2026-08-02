@@ -188,8 +188,8 @@ export default function EtatFactures() {
       {/* Rapport */}
       {generated && (
         <>
-          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:justify-end sm:gap-3 print:hidden">
           <div className="grid grid-cols-1 gap-2 w-full sm:flex sm:w-auto sm:justify-end sm:gap-3 print:hidden">
+
             <Select value={orientation} onValueChange={(v) => setOrientation(v as "landscape" | "portrait")}>
               <SelectTrigger className="w-full sm:w-[190px]">
                 <SelectValue />
