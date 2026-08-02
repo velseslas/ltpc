@@ -64,6 +64,7 @@ export default function EtatFactures() {
   const handlePrint = () => window.print();
   const handleDownload = async () => downloadReportAsPDF("etat-factures");
 
+
   const selectedClient = clients?.find((c: any) => c.id === clientFilter);
   const selectedChantier = chantiers?.find((c: any) => c.id === chantierFilter);
 
