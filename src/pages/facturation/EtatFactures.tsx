@@ -34,6 +34,8 @@ export default function EtatFactures() {
   const [dateDebut, setDateDebut] = useState<Date | undefined>();
   const [dateFin, setDateFin] = useState<Date | undefined>();
   const [generated, setGenerated] = useState(false);
+  const [orientation, setOrientation] = useState<"landscape" | "portrait">("landscape");
+
 
   const { data: chantiers } = useChantiersByClient(clientFilter !== "all" ? clientFilter : "");
 
