@@ -34,6 +34,8 @@ export default function EtatFactures() {
   const [dateDebut, setDateDebut] = useState<Date | undefined>();
   const [dateFin, setDateFin] = useState<Date | undefined>();
   const [generated, setGenerated] = useState(false);
+  const [orientation, setOrientation] = useState<"landscape" | "portrait">("landscape");
+
 
   const { data: chantiers } = useChantiersByClient(clientFilter !== "all" ? clientFilter : "");
 
@@ -63,6 +65,7 @@ export default function EtatFactures() {
 
   const handlePrint = () => window.print();
   const handleDownload = async () => downloadReportAsPDF("etat-factures");
+
 
   const selectedClient = clients?.find((c: any) => c.id === clientFilter);
   const selectedChantier = chantiers?.find((c: any) => c.id === chantierFilter);
@@ -185,7 +188,17 @@ export default function EtatFactures() {
       {/* Rapport */}
       {generated && (
         <>
-          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:justify-end sm:gap-3 print:hidden">
+          <div className="grid grid-cols-1 gap-2 w-full sm:flex sm:w-auto sm:justify-end sm:gap-3 print:hidden">
+
+            <Select value={orientation} onValueChange={(v) => setOrientation(v as "landscape" | "portrait")}>
+              <SelectTrigger className="w-full sm:w-[190px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="landscape">Vue paysage</SelectItem>
+                <SelectItem value="portrait">Vue normale (portrait)</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" onClick={async () => { await handleDownload(); handlePrint(); }} className="gap-2 w-full sm:w-auto">
               <Printer className="h-4 w-4" />
               <Download className="h-4 w-4" />
@@ -193,7 +206,13 @@ export default function EtatFactures() {
             </Button>
           </div>
 
-          <div ref={reportRef} data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+          <div
+            ref={reportRef}
+            data-ref="report"
+            className="bg-white text-black p-8 print:p-4"
+            style={{ minWidth: orientation === "landscape" ? "900px" : undefined }}
+          >
+
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/facturation/factures/etat`}
@@ -264,6 +283,18 @@ export default function EtatFactures() {
           </div>
         </>
       )}
+
+      <style>{`
+        @media print {
+          @page { size: A4 ${orientation}; margin: 10mm; }
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          body * { visibility: hidden; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
+          [data-ref="report"] { position: absolute; left: 0; top: 0; width: 100%; min-width: 0 !important; padding: 0 !important; }
+          .print\\:hidden { display: none !important; }
+        }
+      `}</style>
     </div>
+
   );
 }
