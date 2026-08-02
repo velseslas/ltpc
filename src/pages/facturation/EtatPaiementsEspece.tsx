@@ -158,7 +158,7 @@ export default function EtatPaiementsEspece() {
             </div>
           </div>
 
-          <div className="flex justify-end mt-4 gap-2">
+          <div className="flex mt-4 gap-2 print:hidden">
             <Button onClick={() => setGenerated(true)} className="gap-2">
               <ListFilter className="h-4 w-4" />Générer
             </Button>

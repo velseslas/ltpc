@@ -279,9 +279,9 @@ export default function DevisDataEntry() {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={() => navigate(`/facturation/devis/${id}`)}>Annuler</Button>
-          <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
+        <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate(`/facturation/devis/${id}`)}>Annuler</Button>
+          <Button onClick={handleSave} disabled={saving} className="flex items-center justify-center gap-2 w-full sm:w-auto">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Enregistrer
           </Button>
