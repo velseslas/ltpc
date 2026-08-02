@@ -283,6 +283,18 @@ export default function EtatFactures() {
           </div>
         </>
       )}
+
+      <style>{`
+        @media print {
+          @page { size: A4 ${orientation}; margin: 10mm; }
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          body * { visibility: hidden; }
+          [data-ref="report"], [data-ref="report"] * { visibility: visible; }
+          [data-ref="report"] { position: absolute; left: 0; top: 0; width: 100%; min-width: 0 !important; padding: 0 !important; }
+          .print\\:hidden { display: none !important; }
+        }
+      `}</style>
     </div>
+
   );
 }
