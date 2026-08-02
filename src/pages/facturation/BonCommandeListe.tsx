@@ -56,7 +56,7 @@ export default function BonCommandeListe() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -66,7 +66,7 @@ export default function BonCommandeListe() {
             className="pl-10 h-11 bg-card border-border"
           />
         </div>
-        <Button className="gap-2 shrink-0" onClick={() => navigate("/facturation/bons-commande/nouveau")}>
+        <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => navigate("/facturation/bons-commande/nouveau")}>
           <Plus className="h-4 w-4" />Nouveau bon
         </Button>
       </div>

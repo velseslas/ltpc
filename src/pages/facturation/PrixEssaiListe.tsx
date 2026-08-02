@@ -87,7 +87,7 @@ export default function PrixEssaiListe() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -99,7 +99,7 @@ export default function PrixEssaiListe() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2 shrink-0" onClick={() => handleOpen()}><Plus className="h-4 w-4" />Nouveau prix</Button>
+            <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => handleOpen()}><Plus className="h-4 w-4" />Nouveau prix</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editId ? "Modifier le prix" : "Nouveau prix essai"}</DialogTitle></DialogHeader>
