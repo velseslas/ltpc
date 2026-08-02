@@ -36,7 +36,7 @@ export default function FactureDetail() {
         { label: facture.numero },
       ]} />
 
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate("/facturation/factures")} className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
             <ArrowLeft className="h-5 w-5" />
@@ -48,14 +48,14 @@ export default function FactureDetail() {
             <p className="text-muted-foreground mt-1">Détails de la facture</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/apercu`)}>
+        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+          <Button variant="outline" className="flex items-center justify-center gap-2 w-full sm:w-auto" onClick={() => navigate(`/facturation/factures/${id}/apercu`)}>
             <FileText className="h-4 w-4" />Facture
           </Button>
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/saisie`)}>
+          <Button variant="outline" className="flex items-center justify-center gap-2 w-full sm:w-auto" onClick={() => navigate(`/facturation/factures/${id}/saisie`)}>
             <ClipboardEdit className="h-4 w-4" />Saisie
           </Button>
-          <Button className="flex items-center gap-2" onClick={() => navigate(`/facturation/factures/${id}/modifier`)}>
+          <Button className="flex items-center justify-center gap-2 w-full sm:w-auto" onClick={() => navigate(`/facturation/factures/${id}/modifier`)}>
             <Pencil className="h-4 w-4" />Modifier
           </Button>
         </div>

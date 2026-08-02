@@ -41,7 +41,7 @@ export default function DevisDetail() {
         { label: devis.numero },
       ]} />
 
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-3">
           <BackButton to="/facturation/devis" />
           <div>
@@ -49,14 +49,14 @@ export default function DevisDetail() {
             <p className="text-muted-foreground text-sm">{format(new Date(devis.date_emission), "dd MMMM yyyy", { locale: fr })}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate(`/facturation/devis/${id}/apercu`)} className="gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+          <Button variant="outline" onClick={() => navigate(`/facturation/devis/${id}/apercu`)} className="gap-2 w-full sm:w-auto">
             <FileOutput className="h-4 w-4" /> Aperçu
           </Button>
-          <Button variant="outline" onClick={() => navigate(`/facturation/devis/${id}/saisie`)} className="gap-2">
+          <Button variant="outline" onClick={() => navigate(`/facturation/devis/${id}/saisie`)} className="gap-2 w-full sm:w-auto">
             <ClipboardEdit className="h-4 w-4" /> Saisie de données
           </Button>
-          <Button onClick={() => navigate(`/facturation/devis/${id}/modifier`)} className="gap-2">
+          <Button onClick={() => navigate(`/facturation/devis/${id}/modifier`)} className="gap-2 w-full sm:w-auto">
             <Pencil className="h-4 w-4" /> Modifier
           </Button>
         </div>
