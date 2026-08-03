@@ -8579,8 +8579,13 @@ export type Database = {
       }
     }
     Functions: {
+      can_access_chantier_data: {
+        Args: { _chantier_id: string }
+        Returns: boolean
+      }
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
+      current_intervenant_id: { Args: never; Returns: string }
       get_entreprise_public: {
         Args: never
         Returns: {
@@ -8635,6 +8640,7 @@ export type Database = {
       }
       is_admin_only: { Args: never; Returns: boolean }
       is_admin_or_manager: { Args: never; Returns: boolean }
+      is_privileged_staff: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       log_audit_action: {
         Args: {
