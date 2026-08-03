@@ -22,3 +22,9 @@ verify_jwt = true
 # short-lived signed URL only. Internal fields never exposed.
 [functions.verify-archive]
 verify_jwt = false
+
+# Public direct-file endpoint: serves the archived document itself so a shared
+# link renders natively in the browser (inline application/pdf) instead of the
+# internal preview page. Scoped by the same random archive token.
+[functions.document-file]
+verify_jwt = false
