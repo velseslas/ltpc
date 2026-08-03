@@ -31,7 +31,8 @@ import {
   useRapportVersions, useSaveVersion, useRestoreVersion,
   useWorkflowEvents, useWorkflowTransition, type WorkflowAction,
 } from "@/hooks/useRapportWorkflow";
-import { useDocumentArchives, useGenerateOfficialDocument, getSignedArchiveUrl } from "@/hooks/useDocumentArchives";
+import { useDocumentArchives, useGenerateOfficialDocument } from "@/hooks/useDocumentArchives";
+import { buildDirectFileUrl } from "@/lib/documents/shareLink";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import type { AIAnalyse, AIRapportContenu } from "@/lib/ai/aiProvider";
 import { renderTemplate } from "@/lib/rapports/templateEngine";
@@ -524,13 +525,22 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
         qr_verification_base_url: `${window.location.origin}/verification`,
       });
       toast({ title: "Document officiel généré", description: `Version ${res.version} archivée (HTML natif imprimable)` });
-      if (res.public_url) window.open(res.public_url, "_blank");
+      if (res.qr_token) window.open(buildDirectFileUrl(res.qr_token), "_blank", "noopener");
     } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
   };
 
-  const openArchive = async (pdfPath: string) => {
-    try { const url = await getSignedArchiveUrl(pdfPath, 3600); window.open(url, "_blank"); }
-    catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
+  // Ouvre/partage le FICHIER archivé lui-même (rendu natif inline), jamais la page interne.
+  const openArchive = (qrToken: string) => {
+    window.open(buildDirectFileUrl(qrToken), "_blank", "noopener");
+  };
+
+  const copyShareLink = async (qrToken: string) => {
+    try {
+      await navigator.clipboard.writeText(buildDirectFileUrl(qrToken));
+      toast({ title: "Lien du document copié", description: "Le destinataire ouvrira directement le fichier." });
+    } catch {
+      toast({ title: "Erreur", description: "Copie impossible", variant: "destructive" });
+    }
   };
 
   const sevColor: Record<string, string> = {
@@ -617,7 +627,8 @@ function OfficialDocumentPanel({ rapport, html, previewHtml }: {
                 <div className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString("fr-FR")} · {a.generated_by_nom ?? "—"} · {a.pdf_size ? `${Math.round(a.pdf_size / 1024)} Ko` : ""}</div>
                 <div className="text-xs text-muted-foreground truncate font-mono">SHA-256 : {a.sha256.substring(0, 32)}…</div>
               </div>
-              <Button size="sm" variant="outline" onClick={() => openArchive(a.pdf_url)}><Eye className="h-4 w-4 mr-1" /> Ouvrir</Button>
+              <Button size="sm" variant="outline" onClick={() => openArchive(a.qr_token)}><Eye className="h-4 w-4 mr-1" /> Ouvrir</Button>
+              <Button size="sm" variant="outline" onClick={() => copyShareLink(a.qr_token)}>Lien de partage</Button>
               <Button size="sm" variant="ghost" asChild>
                 <a href={`/verification/${a.qr_token}`} target="_blank" rel="noreferrer">Vérifier</a>
               </Button>
