@@ -21,7 +21,7 @@ const TOKEN_REGEX = /^[a-f0-9]{16,128}$/i;
 function contentTypeFor(path: string): string {
   const p = path.toLowerCase();
   if (p.endsWith(".pdf")) return "application/pdf";
-  if (p.endsWith(".html") || p.endsWith(".htm")) return "text/html; charset=utf-8";
+  if (p.endsWith(".html") || p.endsWith(".htm")) return "application/xhtml+xml; charset=utf-8";
   if (p.endsWith(".png")) return "image/png";
   if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return "image/jpeg";
   return "application/octet-stream";
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
     // des fonctions (qui force `text/plain` + CSP sandbox). On redirige donc
     // vers l'URL signée du fichier dans le stockage, qui sert le document avec
     // son vrai type MIME : le navigateur l'affiche nativement.
-    const isHtml = /\.html?$/i.test(row.pdf_path);
+    const isHtml = false;
     if (isHtml && req.method === "GET" && !forceDownload) {
       const { data: signed } = await admin.storage
         .from("documents-officiels")
