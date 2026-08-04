@@ -81,7 +81,9 @@ class WebShareProvider implements ShareProvider {
 
   async share(payload: SharePayload, channel: ShareChannel = "auto"): Promise<ShareResult> {
     const { meta, subject, message, getPdf, fileName } = payload;
-    const url = meta.secureUrl || (typeof window !== "undefined" ? window.location.href : "");
+    // Un lien partagé doit TOUJOURS pointer vers le fichier archivé.
+    // Aucune retombée sur l'URL de la page applicative LTPC.
+    const url = meta.secureUrl || "";
     const finalFileName = fileName || `${(meta.documentNumber || meta.documentName).replace(/\s+/g, "-")}.pdf`;
 
     import.meta.env.DEV && console.log(`${LOG} share() channel=${channel}`, {
@@ -92,6 +94,9 @@ class WebShareProvider implements ShareProvider {
 
     // --- Canaux explicites ---
     if (channel === "copy-link") {
+      if (!url) {
+        return { ok: false, channel, action: "error", message: "Lien du document indisponible — réessayez dans un instant." };
+      }
       try {
         await navigator.clipboard.writeText(url);
         import.meta.env.DEV && console.log(`${LOG} lien copié`);
