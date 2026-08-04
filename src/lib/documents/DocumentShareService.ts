@@ -94,6 +94,9 @@ class WebShareProvider implements ShareProvider {
 
     // --- Canaux explicites ---
     if (channel === "copy-link") {
+      if (!url) {
+        return { ok: false, channel, action: "error", message: "Lien du document indisponible — réessayez dans un instant." };
+      }
       try {
         await navigator.clipboard.writeText(url);
         import.meta.env.DEV && console.log(`${LOG} lien copié`);
