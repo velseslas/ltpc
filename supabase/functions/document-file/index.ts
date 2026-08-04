@@ -21,7 +21,7 @@ const TOKEN_REGEX = /^[a-f0-9]{16,128}$/i;
 function contentTypeFor(path: string): string {
   const p = path.toLowerCase();
   if (p.endsWith(".pdf")) return "application/pdf";
-  if (p.endsWith(".html") || p.endsWith(".htm")) return "application/xhtml+xml; charset=utf-8";
+  if (p.endsWith(".html") || p.endsWith(".htm")) return "text/html; charset=utf-8";
   if (p.endsWith(".png")) return "image/png";
   if (p.endsWith(".jpg") || p.endsWith(".jpeg")) return "image/jpeg";
   return "application/octet-stream";
@@ -58,23 +58,6 @@ Deno.serve(async (req) => {
 
     const row = Array.isArray(data) ? data[0] : data;
     if (!row?.pdf_path) return fail(404, "not_found_or_expired");
-
-    // Les archives HTML natives ne peuvent pas être rendues par la passerelle
-    // des fonctions (qui force `text/plain` + CSP sandbox). On redirige donc
-    // vers l'URL signée du fichier dans le stockage, qui sert le document avec
-    // son vrai type MIME : le navigateur l'affiche nativement.
-    const isHtml = false;
-    if (isHtml && req.method === "GET" && !forceDownload) {
-      const { data: signed } = await admin.storage
-        .from("documents-officiels")
-        .createSignedUrl(row.pdf_path, 3600);
-      if (signed?.signedUrl) {
-        return new Response(null, {
-          status: 302,
-          headers: { ...corsHeaders, Location: signed.signedUrl, "Cache-Control": "private, max-age=30" },
-        });
-      }
-    }
 
     const { data: file, error: derr } = await admin.storage
       .from("documents-officiels")
