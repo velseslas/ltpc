@@ -185,6 +185,7 @@ const CompressionDataEntry = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
   const [eprouvettes, setEprouvettes] = useState<EprouvetteData[]>([]);
+  const [echeanceViolations, setEcheanceViolations] = useState<EcheanceViolation[]>([]);
 
   useEffect(() => {
     const fetchEchantillon = async () => {
@@ -351,6 +352,12 @@ const CompressionDataEntry = () => {
       return;
     }
 
+    const violations = findEcheanceViolations(eprouvettes);
+    if (violations.length > 0) {
+      setEcheanceViolations(violations);
+      return;
+    }
+
     setIsSaving(true);
     try {
       const results = calculateResults();
@@ -506,10 +513,10 @@ const CompressionDataEntry = () => {
                       <td className="py-4 px-2">
                         {ep.isHeures ? (
                           <Input
-                            type="date"
+                            type="datetime-local"
                             value={toInputValue(ep.dateEssai, true)}
                             onChange={(e) => handleDateEssaiChange(index, e.target.value)}
-                            className={`bg-muted/50 border-border w-52 ${!ep.dateEssai ? "border-destructive" : ""}`}
+                            className={`bg-muted/50 border-border w-56 ${!ep.dateEssai ? "border-destructive" : ""}`}
                             required
                           />
                         ) : (
@@ -613,6 +620,33 @@ const CompressionDataEntry = () => {
             Sauvegarder
           </Button>
         </div>
+
+        <Dialog open={echeanceViolations.length > 0} onOpenChange={() => {}}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-destructive">Date d'écrasement non atteinte</DialogTitle>
+              <DialogDescription>
+                L'enregistrement est impossible : la date de saisie est antérieure à la date d'écrasement prévue.
+              </DialogDescription>
+            </DialogHeader>
+            <ul className="space-y-2 text-sm">
+              {echeanceViolations.map((v) => (
+                <li key={v.numero} className="rounded-md border border-border bg-muted/40 p-3">
+                  <p className="font-medium">Éprouvette {v.numero}</p>
+                  <p className="text-muted-foreground">
+                    Date d'écrasement : <span className="font-semibold text-foreground">{v.echeance}</span>
+                  </p>
+                  <p className="text-muted-foreground">Date saisie : {v.saisie}</p>
+                </li>
+              ))}
+            </ul>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEcheanceViolations([])}>
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
   );
 };
