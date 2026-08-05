@@ -519,6 +519,31 @@ export default function ChantierEchantillonDataEntry() {
           Enregistrer
         </Button>
       </div>
+
+      <Dialog open={echeanceViolations.length > 0} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" hideClose>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Date d'écrasement non atteinte</DialogTitle>
+            <DialogDescription>
+              L'enregistrement est impossible : la date de saisie est antérieure à la date d'écrasement prévue.
+            </DialogDescription>
+          </DialogHeader>
+          <ul className="space-y-2 text-sm">
+            {echeanceViolations.map((v) => (
+              <li key={v.numero} className="rounded-md border border-border bg-muted/40 p-3">
+                <p className="font-medium">Éprouvette {v.numero}</p>
+                <p className="text-muted-foreground">Date d'écrasement : <span className="font-semibold text-foreground">{v.echeance}</span></p>
+                <p className="text-muted-foreground">Date saisie : {v.saisie}</p>
+              </li>
+            ))}
+          </ul>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEcheanceViolations([])}>
+              Annuler
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
