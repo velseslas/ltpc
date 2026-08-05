@@ -140,6 +140,7 @@ export default function ChantierEchantillonDataEntry() {
   const [isSaving, setIsSaving] = useState(false);
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
   const [eprouvettes, setEprouvettes] = useState<EprouvetteData[]>([]);
+  const [echeanceViolations, setEcheanceViolations] = useState<EcheanceViolation[]>([]);
 
   useEffect(() => {
     const fetchEchantillon = async () => {
