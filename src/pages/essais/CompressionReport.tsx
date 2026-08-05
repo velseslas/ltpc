@@ -674,12 +674,20 @@ const CompressionReport = () => {
                           <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.charge || "—"}</td>
                           <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{ep.resistance || "—"}</td>
                           {idx === 0 && (
-                            <td 
-                              rowSpan={group.items.length} 
-                              className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black"
-                            >
-                              {moyenneRc}
-                            </td>
+                            <>
+                              <td 
+                                rowSpan={group.items.length} 
+                                className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black"
+                              >
+                                {moyenneRc}
+                              </td>
+                              <td 
+                                rowSpan={group.items.length} 
+                                className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black"
+                              >
+                                {moyenneRc !== "—" ? (Number(moyenneRc) * 0.85).toFixed(2) : "—"}
+                              </td>
+                            </>
                           )}
                         </tr>
                       );
@@ -687,7 +695,7 @@ const CompressionReport = () => {
                   });
                 })() : (
                   <tr>
-                    <td colSpan={8} className="border border-black px-2 py-4 text-center text-sm text-black">
+                    <td colSpan={9} className="border border-black px-2 py-4 text-center text-sm text-black">
                       Aucune donnée saisie
                     </td>
                   </tr>
