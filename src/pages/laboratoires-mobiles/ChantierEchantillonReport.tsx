@@ -557,6 +557,7 @@ export default function ChantierEchantillonReport() {
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Charge (kN)</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Rc (MPa)</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Moy. Rc (MPa)</th>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Moy. Rc (MPa) 16×32</th>
               </tr>
             </thead>
             <tbody>
