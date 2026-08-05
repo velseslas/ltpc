@@ -11,6 +11,7 @@ import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface EprouvetteData {
   numero: number;
@@ -521,7 +522,7 @@ export default function ChantierEchantillonDataEntry() {
       </div>
 
       <Dialog open={echeanceViolations.length > 0} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md" hideClose>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-destructive">Date d'écrasement non atteinte</DialogTitle>
             <DialogDescription>
