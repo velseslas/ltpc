@@ -170,10 +170,13 @@ export default function ChantierEchantillonDataEntry() {
           const heures = typeof je.heures === "number" ? je.heures : 0;
           for (let i = 0; i < je.nombre; i++) {
             const existing = existingResultats.find(r => r.numero === eprouvetteNum);
-            const dateCalculee = data.date_coulage
+            const echeanceDate = data.date_coulage
               ? isHeures
-                ? format(addHours(new Date(data.date_coulage), heures), "dd/MM/yyyy")
-                : format(addDays(new Date(data.date_coulage), je.jour), "dd/MM/yyyy")
+                ? addHours(new Date(data.date_coulage), heures)
+                : addDays(new Date(data.date_coulage), je.jour)
+              : null;
+            const dateCalculee = echeanceDate
+              ? format(echeanceDate, isHeures ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy")
               : "";
 
             eprouvettesList.push({
@@ -181,6 +184,7 @@ export default function ChantierEchantillonDataEntry() {
               joursEssai: je.jour,
               echeanceLabel: isHeures ? `${heures} h` : String(je.jour),
               isHeures,
+              echeanceISO: echeanceDate ? echeanceDate.toISOString() : undefined,
               // Les échéances en jours sont toujours recalculées depuis la date de coulage
               // (les valeurs stockées peuvent être décalées si les échéances ont été modifiées).
               dateEssai: isHeures ? (existing?.dateEssai || dateCalculee) : (dateCalculee || existing?.dateEssai || ""),
