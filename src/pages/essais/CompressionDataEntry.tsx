@@ -11,6 +11,7 @@ import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface EprouvetteData {
   numero: number;
@@ -18,28 +19,43 @@ interface EprouvetteData {
   echeanceLabel?: string;
   isHeures?: boolean;
   dateEssai: string;
+  /** Échéance théorique (ISO) calculée depuis la date de coulage. */
+  echeanceISO?: string;
   poids: number;
   densite: number;
   charge: number;
   resistance: number;
 }
 
-/** Convertit "dd/MM/yyyy" vers la valeur attendue par un input date. */
+/** Convertit "dd/MM/yyyy" ou "dd/MM/yyyy HH:mm" vers la valeur attendue par l'input. */
 const toInputValue = (display: string, isHeures?: boolean): string => {
   if (!display) return "";
-  const [datePart] = display.split(" ");
+  const [datePart, timePart] = display.split(" ");
   const [dd, mm, yyyy] = datePart.split("/");
   if (!yyyy) return "";
+  if (isHeures) return `${yyyy}-${mm}-${dd}T${timePart || "00:00"}`;
   return `${yyyy}-${mm}-${dd}`;
 };
 
-/** Convertit la valeur d'un input date vers "dd/MM/yyyy". */
+/** Convertit la valeur d'un input vers "dd/MM/yyyy" (+ " HH:mm" si heures). */
 const fromInputValue = (value: string, isHeures?: boolean): string => {
   if (!value) return "";
-  const [datePart] = value.split("T");
+  const [datePart, timePart] = value.split("T");
   const [yyyy, mm, dd] = datePart.split("-");
   if (!dd) return "";
+  if (isHeures) return `${dd}/${mm}/${yyyy} ${(timePart || "00:00").slice(0, 5)}`;
   return `${dd}/${mm}/${yyyy}`;
+};
+
+/** Convertit "dd/MM/yyyy[ HH:mm]" en Date. */
+const parseDisplayDate = (display: string): Date | null => {
+  if (!display) return null;
+  const [datePart, timePart] = display.split(" ");
+  const [dd, mm, yyyy] = datePart.split("/");
+  if (!yyyy) return null;
+  const [hh, mi] = (timePart || "00:00").split(":");
+  const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd), Number(hh) || 0, Number(mi) || 0);
+  return isNaN(d.getTime()) ? null : d;
 };
 
 const sortEprouvettesByEcheance = (items: EprouvetteData[]): EprouvetteData[] =>
@@ -47,6 +63,32 @@ const sortEprouvettesByEcheance = (items: EprouvetteData[]): EprouvetteData[] =>
     if (a.isHeures !== b.isHeures) return a.isHeures ? -1 : 1;
     return a.joursEssai - b.joursEssai || a.numero - b.numero;
   });
+
+type EcheanceViolation = { numero: number; echeance: string; saisie: string };
+
+/** Éprouvettes renseignées dont la date d'essai précède l'échéance d'écrasement. */
+const findEcheanceViolations = (items: EprouvetteData[]): EcheanceViolation[] => {
+  const violations: EcheanceViolation[] = [];
+  for (const ep of items) {
+    const hasData = (ep.poids || 0) > 0 || (ep.charge || 0) > 0 || (ep.resistance || 0) > 0;
+    if (!hasData || !ep.echeanceISO) continue;
+    const saisie = parseDisplayDate(ep.dateEssai);
+    if (!saisie) continue;
+    const echeance = new Date(ep.echeanceISO);
+    if (!ep.isHeures) {
+      echeance.setHours(0, 0, 0, 0);
+      saisie.setHours(0, 0, 0, 0);
+    }
+    if (saisie.getTime() < echeance.getTime()) {
+      violations.push({
+        numero: ep.numero,
+        echeance: format(echeance, ep.isHeures ? "dd/MM/yyyy HH:mm" : "dd/MM/yyyy"),
+        saisie: ep.dateEssai,
+      });
+    }
+  }
+  return violations;
+};
 
 interface EchantillonData {
   id: string;
