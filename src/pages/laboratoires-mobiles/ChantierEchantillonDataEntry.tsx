@@ -434,10 +434,10 @@ export default function ChantierEchantillonDataEntry() {
                     <td className="py-4 px-2">
                       {ep.isHeures ? (
                         <Input
-                          type="date"
+                          type="datetime-local"
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
-                          className={`w-52 ${!ep.dateEssai ? "border-destructive" : ""}`}
+                          className={`w-56 ${!ep.dateEssai ? "border-destructive" : ""}`}
                           required
                         />
                       ) : (
