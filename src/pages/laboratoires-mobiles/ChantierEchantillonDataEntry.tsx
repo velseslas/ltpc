@@ -294,6 +294,13 @@ export default function ChantierEchantillonDataEntry() {
       return;
     }
 
+    const violations = findEcheanceViolations(eprouvettes);
+    if (violations.length > 0) {
+      setEcheanceViolations(violations);
+      return;
+    }
+
+
     setIsSaving(true);
     try {
       const eprouvettesWithData = eprouvettes.filter(e => e.resistance > 0 && e.poids > 0 && e.charge > 0);
