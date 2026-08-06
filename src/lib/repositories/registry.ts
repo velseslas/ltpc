@@ -122,7 +122,10 @@ export function getRepositoryForTable<T = Record<string, unknown>>(
   table: string,
   opts: { defaultSelect?: string; defaultOrder?: { column: string; ascending: boolean }; searchFields?: string[] } = {},
 ): Repository<T> {
-  const key = `__adhoc__:${table}`;
+  // La clé inclut le select/order : deux hooks peuvent lire la même table
+  // avec des jointures différentes sans se voler mutuellement leur config.
+  const orderKey = opts.defaultOrder ? `${opts.defaultOrder.column}:${opts.defaultOrder.ascending}` : "-";
+  const key = `__adhoc__:${table}|${opts.defaultSelect ?? "*"}|${orderKey}`;
   const cached = CACHE.get(key) as Repository<T> | undefined;
   if (cached) return cached;
   const repo = new Repository<T>({
