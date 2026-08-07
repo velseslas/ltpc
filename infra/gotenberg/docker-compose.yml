@@ -1,0 +1,68 @@
+# Gotenberg — moteur PDF vectoriel LTPC (environnement SÉPARÉ, VPS auto-hébergé)
+#
+# Gotenberg n'est JAMAIS exposé directement à Internet : il écoute uniquement sur
+# le réseau Docker interne. Seul Caddy (HTTPS + secret d'appel) est publié.
+#
+#   Internet ──HTTPS──> Caddy (443) ──réseau interne──> Gotenberg (3000)
+#
+# Aucune donnée métier n'est persistée : aucun volume monté, conteneur en
+# lecture seule, /tmp en tmpfs (effacé à chaque redémarrage).
+
+services:
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: ltpc-gotenberg
+    restart: unless-stopped
+    # PAS de "ports:" — aucun port publié sur l'hôte.
+    expose:
+      - "3000"
+    networks:
+      - pdfnet
+    command:
+      - "gotenberg"
+      - "--api-port=3000"
+      - "--api-timeout=90s"
+      - "--chromium-disable-javascript=false"       # React/Recharts requis
+      - "--chromium-allow-list=^https://ltpc\\.lovable\\.app/__render/.*$$"
+      - "--chromium-max-queue-size=8"
+      - "--api-enable-health-check-logging=false"
+      - "--log-level=error"                          # aucune URL/donnée métier loguée
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=512m
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 2g
+    cpus: 2
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: ltpc-gotenberg-proxy
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    environment:
+      - GOTENBERG_DOMAIN=${GOTENBERG_DOMAIN}
+      - GOTENBERG_SHARED_SECRET=${GOTENBERG_SHARED_SECRET}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - gotenberg
+    networks:
+      - pdfnet
+
+networks:
+  pdfnet:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
