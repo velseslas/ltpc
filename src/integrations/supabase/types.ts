@@ -8784,6 +8784,13 @@ export type Database = {
       }
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
+      conversation_sender_names: {
+        Args: { _conversation_id: string }
+        Returns: {
+          nom: string
+          user_id: string
+        }[]
+      }
       create_chantier_conversation: {
         Args: { _chantier_id: string; _participants: string[]; _titre: string }
         Returns: string
@@ -8858,6 +8865,22 @@ export type Database = {
       }
       is_privileged_staff: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      list_conversations: {
+        Args: { _limit?: number; _offset?: number }
+        Returns: {
+          chantier_id: string
+          chantier_nom: string
+          id: string
+          is_archived: boolean
+          last_message_at: string
+          last_message_preview: string
+          other_user_id: string
+          other_user_nom: string
+          titre: string
+          type: string
+          unread_count: number
+        }[]
+      }
       log_audit_action: {
         Args: {
           p_action: string
