@@ -1113,6 +1113,88 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_archived: boolean
+          joined_at: string
+          last_read_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          joined_at?: string
+          last_read_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          joined_at?: string
+          last_read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          chantier_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          titre: string | null
+          type: Database["public"]["Enums"]["conversation_type"]
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          titre?: string | null
+          type?: Database["public"]["Enums"]["conversation_type"]
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          titre?: string | null
+          type?: Database["public"]["Enums"]["conversation_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "chantiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       devis: {
         Row: {
           chantier_id: string | null
@@ -6694,6 +6776,44 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movement_items: {
         Row: {
           created_at: string
@@ -8658,8 +8778,23 @@ export type Database = {
         Args: { _chantier_id: string }
         Returns: boolean
       }
+      can_access_conversation: {
+        Args: { _conversation_id: string }
+        Returns: boolean
+      }
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
+      conversation_sender_names: {
+        Args: { _conversation_id: string }
+        Returns: {
+          nom: string
+          user_id: string
+        }[]
+      }
+      create_chantier_conversation: {
+        Args: { _chantier_id: string; _participants: string[]; _titre: string }
+        Returns: string
+      }
       current_intervenant_id: { Args: never; Returns: string }
       get_database_stats: { Args: never; Returns: Json }
       get_entreprise_public: {
@@ -8680,6 +8815,10 @@ export type Database = {
           telephone: string
           updated_at: string
         }[]
+      }
+      get_or_create_direct_conversation: {
+        Args: { _other_user_id: string }
+        Returns: string
       }
       get_rapport_validateur: {
         Args: { _rapport_id: string }
@@ -8716,8 +8855,32 @@ export type Database = {
       }
       is_admin_only: { Args: never; Returns: boolean }
       is_admin_or_manager: { Args: never; Returns: boolean }
+      is_conversation_owner: {
+        Args: { _conversation_id: string }
+        Returns: boolean
+      }
+      is_conversation_participant: {
+        Args: { _conversation_id: string }
+        Returns: boolean
+      }
       is_privileged_staff: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      list_conversations: {
+        Args: { _limit?: number; _offset?: number }
+        Returns: {
+          chantier_id: string
+          chantier_nom: string
+          id: string
+          is_archived: boolean
+          last_message_at: string
+          last_message_preview: string
+          other_user_id: string
+          other_user_nom: string
+          titre: string
+          type: string
+          unread_count: number
+        }[]
+      }
       log_audit_action: {
         Args: {
           p_action: string
@@ -8749,6 +8912,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      search_messaging_users: {
+        Args: { _q: string }
+        Returns: {
+          nom: string
+          role: string
+          user_id: string
+        }[]
+      }
+      unread_messages_count: { Args: never; Returns: number }
       verify_archive_by_token: {
         Args: { _max_age_days?: number; _token: string }
         Returns: {
@@ -8773,6 +8945,7 @@ export type Database = {
         | "operateur"
         | "lecteur"
         | "ingenieur"
+      conversation_type: "direct" | "chantier"
       essai_status: "pending" | "in-progress" | "completed" | "cancelled"
       item_etat: "bon" | "usage" | "casse" | "manquant" | "a_reparer"
       materiel_statut_courant:
@@ -8964,6 +9137,7 @@ export const Constants = {
         "lecteur",
         "ingenieur",
       ],
+      conversation_type: ["direct", "chantier"],
       essai_status: ["pending", "in-progress", "completed", "cancelled"],
       item_etat: ["bon", "usage", "casse", "manquant", "a_reparer"],
       materiel_statut_courant: [

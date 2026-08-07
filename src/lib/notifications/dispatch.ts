@@ -16,7 +16,8 @@ export type NotificationEvent =
   | "affectation_creee"
   | "rapport_valide"
   | "rapport_a_valider"
-  | "echantillon_cree";
+  | "echantillon_cree"
+  | "message_recu";
 
 export async function dispatchNotificationEvent(
   event: NotificationEvent,
