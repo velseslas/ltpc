@@ -15,11 +15,16 @@ export interface ConversationSummary {
   is_archived: boolean;
 }
 
+export type MessageType = "text" | "audio";
+
 export interface Message {
   id: string;
   conversation_id: string;
   sender_id: string;
-  content: string;
+  content: string | null;
+  message_type: MessageType;
+  audio_path: string | null;
+  audio_duration: number | null;
   created_at: string;
   deleted_at: string | null;
 }

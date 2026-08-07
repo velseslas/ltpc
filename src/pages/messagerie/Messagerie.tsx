@@ -23,6 +23,8 @@ import {
   type ConversationSummary,
 } from "@/hooks/useMessagerie";
 import { NewConversationDialog } from "@/components/messagerie/NewConversationDialog";
+import { VoiceRecorder } from "@/components/messagerie/VoiceRecorder";
+import { VoiceMessage } from "@/components/messagerie/VoiceMessage";
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
@@ -44,11 +46,12 @@ export default function Messagerie() {
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
   const [newOpen, setNewOpen] = useState(false);
+  const [voiceActive, setVoiceActive] = useState(false);
 
   const { data: conversations = [], isLoading } = useConversations();
   const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
-  const { sendMessage, markRead, archiveConversation } = useMessagerieActions();
+  const { sendMessage, sendVoiceMessage, markRead, archiveConversation } = useMessagerieActions();
 
   const active = useMemo(
     () => conversations.find((c) => c.id === conversationId) ?? null,
@@ -180,6 +183,19 @@ export default function Messagerie() {
       }
     );
     requestAnimationFrame(() => scrollToBottom("smooth"));
+  };
+
+  const handleSendVoice = (blob: Blob, duration: number, mimeType: string) => {
+    if (!conversationId) return;
+    atBottomRef.current = true;
+    sendVoiceMessage.mutate(
+      { conversationId, blob, duration, mimeType },
+      {
+        onError: (e) =>
+          toast({ title: "Envoi du vocal impossible", description: (e as Error).message, variant: "destructive" }),
+        onSuccess: () => requestAnimationFrame(() => scrollToBottom("smooth")),
+      }
+    );
   };
 
 
@@ -324,7 +340,11 @@ export default function Messagerie() {
                             {names[m.sender_id] ?? "Utilisateur"}
                           </p>
                         )}
-                        <p>{m.content}</p>
+                        {m.message_type === "audio" && m.audio_path ? (
+                          <VoiceMessage path={m.audio_path} duration={m.audio_duration} mine={mine} />
+                        ) : (
+                          <p>{m.content}</p>
+                        )}
                         <p className={cn("text-[10px] mt-1", mine ? "opacity-70" : "text-muted-foreground")}>
                           {format(new Date(m.created_at), "dd/MM HH:mm", { locale: fr })}
                         </p>
@@ -349,31 +369,40 @@ export default function Messagerie() {
 
           <div className="relative z-10 shrink-0 border-t border-border bg-card p-2 sm:p-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-2 py-1.5 focus-within:ring-1 focus-within:ring-ring">
-              <Textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
-                onFocus={() => {
-                  if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Écrire un message…"
-                rows={1}
-                className="min-h-[38px] max-h-28 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:ring-0"
+              <VoiceRecorder
+                sending={sendVoiceMessage.isPending}
+                onRecordingChange={setVoiceActive}
+                onSend={handleSendVoice}
               />
-              <Button
-                size="icon"
-                className="h-9 w-9 shrink-0 rounded-full"
-                onClick={handleSend}
-                disabled={!draft.trim() || sendMessage.isPending}
-                aria-label="Envoyer"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              {!voiceActive && (
+                <>
+                  <Textarea
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
+                    onFocus={() => {
+                      if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    placeholder="Écrire un message…"
+                    rows={1}
+                    className="min-h-[38px] max-h-28 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:ring-0"
+                  />
+                  <Button
+                    size="icon"
+                    className="h-9 w-9 shrink-0 rounded-full"
+                    onClick={handleSend}
+                    disabled={!draft.trim() || sendMessage.isPending}
+                    aria-label="Envoyer"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 

@@ -28,6 +28,7 @@ import {
   type Message,
   type MessagingUser,
 } from "@/lib/messagerie/model";
+import { buildAudioPath, validateAudioUpload } from "@/lib/messagerie/audio";
 
 const PAGE_SIZE = 30;
 
@@ -95,7 +96,7 @@ export function useMessages(conversationId: string | null) {
       if (!conversationId) return [];
       const { data, error } = await supabase
         .from("messages")
-        .select("id, conversation_id, sender_id, content, created_at, deleted_at")
+        .select("id, conversation_id, sender_id, content, message_type, audio_path, audio_duration, created_at, deleted_at")
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: false })
         .limit(limit);
@@ -191,6 +192,48 @@ export function useMessagerieActions() {
       void dispatchNotificationEvent("message_recu", created.id);
     },
   });
+  /** Message vocal : upload Storage privé puis création du message (rollback si échec). */
+  const sendVoiceMessage = useMutation({
+    mutationFn: async ({ conversationId, blob, duration, mimeType }: {
+      conversationId: string; blob: Blob; duration: number; mimeType: string;
+    }) => {
+      const problem = validateAudioUpload({ mime: mimeType, size: blob.size, duration });
+      if (problem) throw new Error(problem);
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) throw new Error("Non authentifié");
+
+      const path = buildAudioPath(conversationId, crypto.randomUUID(), mimeType);
+      const { error: upErr } = await _supabase.storage
+        .from("message-audio")
+        .upload(path, blob, { contentType: mimeType.split(";")[0], upsert: false });
+      if (upErr) throw new Error("Envoi du vocal impossible : " + upErr.message);
+
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversationId,
+          sender_id: uid,
+          message_type: "audio",
+          audio_path: path,
+          audio_duration: Math.round(duration),
+        })
+        .select("id")
+        .single();
+      if (error) {
+        // Pas de message incomplet : on supprime le fichier orphelin.
+        await _supabase.storage.from("message-audio").remove([path]);
+        throw error;
+      }
+      return data as { id: string };
+    },
+    onSuccess: (created, vars) => {
+      qc.invalidateQueries({ queryKey: ["messages", vars.conversationId] });
+      invalidateLists();
+      void dispatchNotificationEvent("message_recu", created.id);
+    },
+  });
+
 
   const openDirectConversation = useMutation({
     mutationFn: async (otherUserId: string): Promise<string> => {
@@ -242,5 +285,5 @@ export function useMessagerieActions() {
     onSuccess: invalidateLists,
   });
 
-  return { sendMessage, openDirectConversation, createChantierConversation, markRead, archiveConversation };
+  return { sendMessage, sendVoiceMessage, openDirectConversation, createChantierConversation, markRead, archiveConversation };
 }
