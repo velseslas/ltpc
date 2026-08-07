@@ -180,7 +180,8 @@ export const PushService = {
     if (!supported) {
       return { supported, permission, swReady: false, subscribed: false, subscription: null };
     }
-    const reg = await this.readyRegistration();
+    const reg = await this.activeRegistration();
+
     let subscription: PushSubscription | null = null;
     if (reg) {
       try { subscription = (await reg.pushManager.getSubscription()) ?? null; }
