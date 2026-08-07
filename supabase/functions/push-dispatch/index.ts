@@ -62,7 +62,7 @@ async function buildNotification(event: AllowedEvent, resourceId: string): Promi
       priority: "info",
       title: "Nouvelle affectation",
       message: `Vous êtes affecté au chantier ${chantierNom}${aff.date_debut ? ` à partir du ${aff.date_debut}` : ""}.`,
-      link: aff.chantier_id ? `/chantiers/${aff.chantier_id}` : "/rh/affectations",
+      link: aff.chantier_id ? `/intervenant/chantiers/${aff.chantier_id}` : "/rh/affectations",
     };
   }
 
@@ -83,7 +83,7 @@ async function buildNotification(event: AllowedEvent, resourceId: string): Promi
         priority: "success",
         title: "Rapport validé",
         message: `${label} vient d'être validé.`,
-        link: `/rapports-techniques/${rap.id}`,
+        link: `/essais/rapports-techniques/${rap.id}`,
       };
     }
 
@@ -95,7 +95,7 @@ async function buildNotification(event: AllowedEvent, resourceId: string): Promi
       priority: "warning",
       title: "Rapport à valider",
       message: `${label} est en attente de validation.`,
-      link: `/rapports-techniques/${rap.id}`,
+      link: `/essais/rapports-techniques/${rap.id}`,
     };
   }
 
