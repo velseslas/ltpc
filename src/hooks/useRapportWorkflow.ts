@@ -163,11 +163,15 @@ export function useWorkflowTransition() {
       const res = (data ?? {}) as { statut?: string; validateur?: string | null };
       return { nouveau: res.statut ?? "", validateur: res.validateur ?? null };
     },
-    onSuccess: (_d, v) => {
+    onSuccess: (d, v) => {
       qc.invalidateQueries({ queryKey: ["rapports_techniques", v.rapportId] });
       qc.invalidateQueries({ queryKey: ["rapport_workflow_events", v.rapportId] });
       qc.invalidateQueries({ queryKey: ["rapport_validateur", v.rapportId] });
       qc.invalidateQueries({ queryKey: ["rapports_techniques"] });
+      // LOT 14.2 — événements métier → notification LTPC (in-app + Push).
+      if (d.nouveau === "valide") void dispatchNotificationEvent("rapport_valide", v.rapportId);
+      else if (d.nouveau === "en_attente_validation") void dispatchNotificationEvent("rapport_a_valider", v.rapportId);
     },
+
   });
 }
