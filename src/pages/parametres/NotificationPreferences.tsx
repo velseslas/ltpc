@@ -208,9 +208,9 @@ export default function NotificationPreferences() {
                       size="sm"
                       variant="outline"
                       onClick={handleEnablePush}
-                      disabled={permission === "denied" || permission === "unsupported"}
+                      disabled={pushBusy || permission === "denied" || permission === "unsupported"}
                     >
-                      Activer
+                      {pushBusy ? "Activation…" : "Activer"}
                     </Button>
                   )}
                 </div>
