@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
+import { dispatchNotificationEvent } from "@/lib/notifications/dispatch";
 
 export type EchantillonCompression = {
   id: string;
@@ -101,9 +102,13 @@ export function useCreateEchantillonCompression() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (created) => {
+      // Événement métier → notification persistante + Push (jamais bloquant).
+      if (created?.id) void dispatchNotificationEvent("echantillon_cree", created.id);
       queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notif-center"] });
+      queryClient.invalidateQueries({ queryKey: ["notif-center-unread"] });
     },
   });
 }

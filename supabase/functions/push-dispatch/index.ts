@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
       webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
     }
 
-    const built = await buildNotification(event as AllowedEvent, resourceId);
+    const built = await buildNotification(event as AllowedEvent, resourceId, guard.userId);
     if (!built) {
       return new Response(JSON.stringify({ error: "Ressource introuvable" }), {
         status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -3,6 +3,7 @@ import { getRepositoryForTable } from "@/lib/repositories";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Json } from "@/integrations/supabase/types";
 import { purgeDerivedNotifications } from "@/lib/notifications/purgeDerived";
+import { dispatchNotificationEvent } from "@/lib/notifications/dispatch";
 
 export type EchantillonChantier = Tables<"echantillons_compression"> & {
   clients: { id: string; nom: string } | null;
@@ -76,10 +77,14 @@ export function useCreateChantierEchantillon() {
       if (res.error) throw new Error(res.error);
       return res.data[0];
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (created, variables) => {
+      // Événement métier → notification persistante + Push (jamais bloquant).
+      if (created?.id) void dispatchNotificationEvent("echantillon_cree", created.id);
       queryClient.invalidateQueries({ queryKey: ["echantillons-chantier", variables.chantier_id] });
       queryClient.invalidateQueries({ queryKey: ["echantillons-compression"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notif-center"] });
+      queryClient.invalidateQueries({ queryKey: ["notif-center-unread"] });
     },
   });
 }
