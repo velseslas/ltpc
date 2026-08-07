@@ -142,8 +142,10 @@ export default function Messagerie() {
       const vv = window.visualViewport;
       const viewportH = vv ? vv.height : window.innerHeight;
       const top = el.getBoundingClientRect().top - (vv ? vv.offsetTop : 0);
-      const bottomGap = isMobile ? 88 : 24; // barre de navigation mobile / marge desktop
-      const h = Math.max(320, viewportH - top - bottomGap);
+      const bottomGap = isMobile ? 64 : 24; // barre de navigation mobile / marge desktop
+      // Ne jamais imposer une grande hauteur minimale : avec le clavier ouvert,
+      // elle dépasserait le visual viewport et masquerait le composer.
+      const h = Math.max(140, viewportH - top - bottomGap);
       setBoxHeight(h);
       if (atBottomRef.current) requestAnimationFrame(() => scrollToBottom());
     };
@@ -252,14 +254,14 @@ export default function Messagerie() {
   );
 
   const thread = (
-    <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden overscroll-none">
       {!active ? (
         <div className="flex-1 grid place-items-center text-sm text-muted-foreground p-6 text-center">
           Sélectionnez une conversation pour commencer.
         </div>
       ) : (
         <>
-          <div className="p-3 border-b border-border flex items-center gap-2">
+          <div className="shrink-0 p-3 border-b border-border flex items-center gap-2">
             {isMobile && (
               <Button variant="ghost" size="icon" onClick={() => navigate("/messagerie")} aria-label="Retour">
                 <ArrowLeft className="w-4 h-4" />
@@ -291,12 +293,12 @@ export default function Messagerie() {
             </Button>
           </div>
 
-          <div className="relative flex-1 min-h-0 bg-background">
+          <div className="relative h-0 flex-1 min-h-0 overflow-hidden bg-background">
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
-              className="h-full overflow-y-auto overscroll-contain px-3 py-4 sm:px-4"
+              style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overflowAnchor: "none" }}
+              className="absolute inset-0 overflow-x-hidden overflow-y-scroll overscroll-y-contain touch-pan-y px-3 py-4 sm:px-4"
             >
 
               {hasMore && (
@@ -345,7 +347,7 @@ export default function Messagerie() {
             )}
           </div>
 
-          <div className="shrink-0 border-t border-border bg-card p-2 sm:p-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+          <div className="relative z-10 shrink-0 border-t border-border bg-card p-2 sm:p-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-2 py-1.5 focus-within:ring-1 focus-within:ring-ring">
               <Textarea
                 value={draft}
