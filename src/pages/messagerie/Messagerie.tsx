@@ -252,7 +252,7 @@ export default function Messagerie() {
   );
 
   const thread = (
-    <div className="flex flex-col h-full min-w-0">
+    <div className="flex flex-col h-full min-h-0 min-w-0 overflow-hidden">
       {!active ? (
         <div className="flex-1 grid place-items-center text-sm text-muted-foreground p-6 text-center">
           Sélectionnez une conversation pour commencer.
