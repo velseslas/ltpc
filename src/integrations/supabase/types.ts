@@ -8661,6 +8661,7 @@ export type Database = {
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
       current_intervenant_id: { Args: never; Returns: string }
+      get_database_stats: { Args: never; Returns: Json }
       get_entreprise_public: {
         Args: never
         Returns: {
