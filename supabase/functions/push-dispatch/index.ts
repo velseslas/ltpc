@@ -25,6 +25,7 @@ const ALLOWED_EVENTS = [
   "rapport_valide",
   "rapport_a_valider",
   "echantillon_cree",
+  "message_recu",
 ] as const;
 type AllowedEvent = (typeof ALLOWED_EVENTS)[number];
 
@@ -152,6 +153,36 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
       title: "Rapport à valider",
       message: `${label} est en attente de validation.`,
       link: `/essais/rapports-techniques/${rap.id}`,
+    };
+  }
+
+  if (event === "message_recu") {
+    const { data: msg } = await admin.from("messages")
+      .select("id, conversation_id, sender_id, content, created_at")
+      .eq("id", resourceId).maybeSingle();
+    if (!msg) return null;
+    // Seul l'expéditeur réel du message peut déclencher la notification.
+    if (msg.sender_id !== callerId) return null;
+
+    const { data: parts } = await admin.from("conversation_participants")
+      .select("user_id").eq("conversation_id", msg.conversation_id);
+    const recipients = Array.from(new Set(
+      (parts ?? []).map((p: { user_id: string }) => p.user_id).filter((u: string) => u && u !== callerId)
+    ));
+
+    const { data: sender } = await admin.from("utilisateurs")
+      .select("nom").eq("user_id", callerId).maybeSingle();
+    const senderNom = (sender as { nom?: string } | null)?.nom ?? "Un utilisateur";
+    const extrait = String(msg.content ?? "").slice(0, 120);
+
+    return {
+      recipients,
+      type: "message_recu",
+      category: "systeme",
+      priority: "info",
+      title: "Nouveau message",
+      message: `${senderNom} vous a envoyé un message : ${extrait}`,
+      link: `/messagerie/${msg.conversation_id}`,
     };
   }
 
