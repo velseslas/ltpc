@@ -28,6 +28,7 @@ import {
   type Message,
   type MessagingUser,
 } from "@/lib/messagerie/model";
+import { buildAudioPath, validateAudioUpload } from "@/lib/messagerie/audio";
 
 const PAGE_SIZE = 30;
 
