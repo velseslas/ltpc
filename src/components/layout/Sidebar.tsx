@@ -10,6 +10,7 @@ import {
   FileText,
   Settings,
   Sparkles,
+  MessageSquare,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -20,6 +21,7 @@ import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
 export const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
   { title: "LTPC AI", path: "/ltpc-ai", icon: Sparkles },
+  { title: "Messagerie", path: "/messagerie", icon: MessageSquare },
   { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
   { title: "RH", path: "/rh", icon: UserCog, permission: "rh.voir" },
   { title: "Essais", path: "/essais", icon: FlaskConical, permission: "essais.voir" },

@@ -29,6 +29,7 @@ import { materielRoutes } from "@/routes/materielRoutes";
 import { facturationRoutes } from "@/routes/facturationRoutes";
 import { documentsRoutes } from "@/routes/documentsRoutes";
 import { parametresRoutes } from "@/routes/parametresRoutes";
+import { messagerieRoutes } from "@/routes/messagerieRoutes";
 
 // Pages transverses (accueil, auth, LTPC AI, print, verif).
 const Index = lazy(() => import("./pages/Index"));
@@ -151,6 +152,7 @@ const AppRoutes = () => (
       {facturationRoutes}
       {documentsRoutes}
       {parametresRoutes}
+      {messagerieRoutes}
     </Route>
 
     <Route path="*" element={<NotFound />} />
