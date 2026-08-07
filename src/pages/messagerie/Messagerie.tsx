@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, isToday, isYesterday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
+import { ArrowDown, ArrowLeft, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
