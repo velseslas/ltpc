@@ -1,5 +1,5 @@
 // LOT 15 — Messagerie interne LTPC : hooks React Query + Realtime.
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase as _supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,12 +79,18 @@ export function useUnreadMessagesCount() {
   });
 }
 
-/** Messages d'une conversation (les plus récents d'abord côté serveur, réordonnés à l'affichage). */
+/** Messages d'une conversation avec chargement progressif (pagination vers le haut). */
 export function useMessages(conversationId: string | null) {
   const qc = useQueryClient();
+  const [pages, setPages] = useState(1);
+
+  // Réinitialise la pagination au changement de conversation.
+  useEffect(() => { setPages(1); }, [conversationId]);
+
+  const limit = PAGE_SIZE * pages;
 
   const query = useQuery({
-    queryKey: ["messages", conversationId],
+    queryKey: ["messages", conversationId, limit],
     queryFn: async (): Promise<Message[]> => {
       if (!conversationId) return [];
       const { data, error } = await supabase
@@ -92,13 +98,19 @@ export function useMessages(conversationId: string | null) {
         .select("id, conversation_id, sender_id, content, created_at, deleted_at")
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: false })
-        .limit(PAGE_SIZE * 4);
+        .limit(limit);
       if (error) throw error;
       return ((data ?? []) as Message[]).slice().reverse();
     },
     enabled: !!conversationId,
     staleTime: 5_000,
+    placeholderData: (prev: Message[] | undefined) => prev,
   });
+
+  const hasMore = (query.data?.length ?? 0) >= limit;
+  const loadOlder = useCallback(() => {
+    if (!query.isFetching && hasMore) setPages((p) => p + 1);
+  }, [query.isFetching, hasMore]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -113,8 +125,9 @@ export function useMessages(conversationId: string | null) {
     return () => { supabase.removeChannel(channel); };
   }, [conversationId, qc]);
 
-  return query;
+  return { ...query, hasMore, loadOlder, isLoadingOlder: query.isFetching && pages > 1 };
 }
+
 
 /** Noms des participants (pour l'affichage de l'expéditeur). */
 export function useConversationParticipants(conversationId: string | null) {

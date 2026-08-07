@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, isToday, isYesterday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
+import { ArrowDown, ArrowLeft, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,7 +46,7 @@ export default function Messagerie() {
   const [newOpen, setNewOpen] = useState(false);
 
   const { data: conversations = [], isLoading } = useConversations();
-  const { data: messages = [] } = useMessages(conversationId ?? null);
+  const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
   const { sendMessage, markRead, archiveConversation } = useMessagerieActions();
 
@@ -71,15 +71,89 @@ export default function Messagerie() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, messages.length]);
 
+  // ---- Défilement du fil : auto-scroll uniquement si déjà en bas ----
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const atBottomRef = useRef(true);
+  const prevFirstIdRef = useRef<string | null>(null);
+  const prevLenRef = useRef(0);
+  const restoreRef = useRef<number | null>(null);
+  const [showJump, setShowJump] = useState(false);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+    atBottomRef.current = true;
+    setShowJump(false);
+  };
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    atBottomRef.current = distance < 80;
+    setShowJump(!atBottomRef.current);
+    // Chargement progressif des messages précédents.
+    if (el.scrollTop < 120 && hasMore && !isLoadingOlder) {
+      restoreRef.current = el.scrollHeight - el.scrollTop;
+      loadOlder();
+    }
+  };
+
+  // Nouvelle conversation : on ouvre en bas.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length, conversationId]);
+    prevFirstIdRef.current = null;
+    prevLenRef.current = 0;
+    restoreRef.current = null;
+    atBottomRef.current = true;
+    requestAnimationFrame(() => scrollToBottom());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || messages.length === 0) return;
+    const firstId = messages[0]?.id ?? null;
+    const prependedOlder = prevFirstIdRef.current !== null && firstId !== prevFirstIdRef.current;
+
+    if (prependedOlder && restoreRef.current !== null) {
+      // Restaure la position visuelle après ajout des messages précédents.
+      el.scrollTop = el.scrollHeight - restoreRef.current;
+      restoreRef.current = null;
+    } else if (messages.length > prevLenRef.current && atBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ block: "end" });
+    } else if (messages.length > prevLenRef.current) {
+      setShowJump(true);
+    }
+
+    prevFirstIdRef.current = firstId;
+    prevLenRef.current = messages.length;
+  }, [messages]);
+
+  // ---- Clavier mobile : la zone de saisie reste visible ----
+  const [kbOffset, setKbOffset] = useState(0);
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : undefined;
+    if (!vv) return;
+    const onResize = () => {
+      const overlap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKbOffset(overlap);
+      if (atBottomRef.current) requestAnimationFrame(() => scrollToBottom());
+    };
+    vv.addEventListener("resize", onResize);
+    vv.addEventListener("scroll", onResize);
+    return () => {
+      vv.removeEventListener("resize", onResize);
+      vv.removeEventListener("scroll", onResize);
+    };
+  }, []);
 
   const handleSend = () => {
     const body = draft.trim();
     if (!body || !conversationId) return;
     setDraft("");
+    atBottomRef.current = true;
     sendMessage.mutate(
       { conversationId, content: body },
       {
@@ -89,7 +163,9 @@ export default function Messagerie() {
         },
       }
     );
+    requestAnimationFrame(() => scrollToBottom("smooth"));
   };
+
 
   const showList = !isMobile || !conversationId;
   const showThread = !isMobile || !!conversationId;
@@ -201,39 +277,68 @@ export default function Messagerie() {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 min-h-0">
-            <div className="space-y-3">
-              {messages.map((m) => {
-                const mine = m.sender_id === user?.id;
-                return (
-                  <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
-                    <div
-                      className={cn(
-                        "max-w-[80%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap break-words",
-                        mine ? "bg-primary text-primary-foreground" : "bg-muted"
-                      )}
-                    >
-                      {!mine && (
-                        <p className="text-[11px] font-medium opacity-70 mb-0.5">
-                          {names[m.sender_id] ?? "Utilisateur"}
+          <div className="relative flex-1 min-h-0">
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="h-full overflow-y-auto overscroll-contain p-4"
+            >
+              {hasMore && (
+                <div className="flex justify-center pb-3">
+                  <Button variant="ghost" size="sm" onClick={loadOlder} disabled={isLoadingOlder}>
+                    {isLoadingOlder ? "Chargement…" : "Charger les messages précédents"}
+                  </Button>
+                </div>
+              )}
+              <div className="space-y-3">
+                {messages.map((m) => {
+                  const mine = m.sender_id === user?.id;
+                  return (
+                    <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
+                      <div
+                        className={cn(
+                          "max-w-[80%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap break-words",
+                          mine ? "bg-primary text-primary-foreground" : "bg-muted"
+                        )}
+                      >
+                        {!mine && (
+                          <p className="text-[11px] font-medium opacity-70 mb-0.5">
+                            {names[m.sender_id] ?? "Utilisateur"}
+                          </p>
+                        )}
+                        <p>{m.content}</p>
+                        <p className={cn("text-[10px] mt-1", mine ? "opacity-70" : "text-muted-foreground")}>
+                          {format(new Date(m.created_at), "dd/MM HH:mm", { locale: fr })}
                         </p>
-                      )}
-                      <p>{m.content}</p>
-                      <p className={cn("text-[10px] mt-1", mine ? "opacity-70" : "text-muted-foreground")}>
-                        {format(new Date(m.created_at), "dd/MM HH:mm", { locale: fr })}
-                      </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-              <div ref={bottomRef} />
+                  );
+                })}
+                <div ref={bottomRef} />
+              </div>
             </div>
+
+            {showJump && (
+              <Button
+                size="sm"
+                className="absolute bottom-3 left-1/2 -translate-x-1/2 shadow-md"
+                onClick={() => scrollToBottom("smooth")}
+              >
+                <ArrowDown className="w-4 h-4 mr-1.5" /> Derniers messages
+              </Button>
+            )}
           </div>
 
-          <div className="shrink-0 p-3 border-t border-border flex items-end gap-2 bg-card">
+          <div
+            className="shrink-0 p-3 border-t border-border flex items-end gap-2 bg-card"
+            style={{ paddingBottom: kbOffset ? kbOffset + 12 : undefined }}
+          >
             <Textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
+              onFocus={() => {
+                if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -253,6 +358,7 @@ export default function Messagerie() {
               <Send className="w-4 h-4" />
             </Button>
           </div>
+
         </>
       )}
     </div>
