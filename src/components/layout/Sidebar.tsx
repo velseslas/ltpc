@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
+import { useUnreadMessagesCount } from "@/hooks/useMessagerie";
 
 export const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
