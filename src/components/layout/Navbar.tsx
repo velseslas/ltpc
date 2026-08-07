@@ -1,6 +1,7 @@
-import { LogOut, Building2, Menu } from "lucide-react";
+import { LogOut, Building2, Menu, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
+import { useUnreadMessagesCount } from "@/hooks/useMessagerie";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ export function Navbar({ onMenuClick }: NavbarProps = {}) {
   const { toast } = useToast();
   const { data: entreprise } = useEntreprise();
   const navigate = useNavigate();
+  const { data: unreadMessages = 0 } = useUnreadMessagesCount();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -87,6 +89,21 @@ export function Navbar({ onMenuClick }: NavbarProps = {}) {
 
         {/* Right section: notifications + user */}
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Messagerie"
+            title="Messagerie"
+            onClick={() => navigate("/messagerie")}
+            className="relative touch-target flex items-center justify-center rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            <MessageSquare className="w-5 h-5" />
+            {unreadMessages > 0 && (
+              <span className="absolute top-0.5 right-0.5 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full min-w-4 h-4 px-1 grid place-items-center">
+                {unreadMessages > 99 ? "99+" : unreadMessages}
+              </span>
+            )}
+          </button>
+
           <NotificationBell collapsed={true} />
 
           <div className="relative" ref={userMenuRef}>
