@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, isToday, isYesterday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowDown, ArrowLeft, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
+import { ArrowDown, ArrowLeft, Check, CheckCheck, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   conversationLabel,
   useConversationParticipants,
+  useConversationReadCutoff,
   useConversations,
   useMessagerieActions,
   useMessages,
@@ -51,6 +52,7 @@ export default function Messagerie() {
   const { data: conversations = [], isLoading } = useConversations();
   const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
+  const readCutoff = useConversationReadCutoff(conversationId ?? null);
   const { sendMessage, sendVoiceMessage, markRead, archiveConversation } = useMessagerieActions();
 
   const active = useMemo(
@@ -345,8 +347,16 @@ export default function Messagerie() {
                         ) : (
                           <p>{m.content}</p>
                         )}
-                        <p className={cn("text-[10px] mt-1", mine ? "opacity-70" : "text-muted-foreground")}>
+                        <p className={cn(
+                          "text-[10px] mt-1 flex items-center gap-1",
+                          mine ? "justify-end opacity-70" : "text-muted-foreground"
+                        )}>
                           {format(new Date(m.created_at), "dd/MM HH:mm", { locale: fr })}
+                          {mine && (
+                            readCutoff && new Date(m.created_at) <= new Date(readCutoff)
+                              ? <CheckCheck className="w-3.5 h-3.5" aria-label="Lu" />
+                              : <Check className="w-3.5 h-3.5" aria-label="Envoyé" />
+                          )}
                         </p>
                       </div>
                     </div>

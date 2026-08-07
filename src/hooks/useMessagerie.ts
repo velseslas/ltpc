@@ -122,11 +122,51 @@ export function useMessages(conversationId: string | null) {
         { event: "*", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
         () => qc.invalidateQueries({ queryKey: ["messages", conversationId] })
       )
+      // LOT 15.2 — accusés de lecture : même canal, aucun nouveau WebSocket.
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversation_participants",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        () => qc.invalidateQueries({ queryKey: ["conversation-read-state", conversationId] })
+      )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [conversationId, qc]);
 
   return { ...query, hasMore, loadOlder, isLoadingOlder: query.isFetching && pages > 1 };
+}
+
+/**
+ * LOT 15.2 — Date de lecture la plus ancienne parmi les AUTRES participants.
+ * Un message envoyé est « lu » (✓✓) si created_at <= cette date.
+ */
+export function useConversationReadCutoff(conversationId: string | null): string | null {
+  const { user } = useAuth();
+  const { data } = useQuery({
+    queryKey: ["conversation-read-state", conversationId],
+    queryFn: async (): Promise<string | null> => {
+      if (!conversationId || !user?.id) return null;
+      const { data, error } = await supabase
+        .from("conversation_participants")
+        .select("user_id, last_read_at")
+        .eq("conversation_id", conversationId);
+      if (error) return null;
+      const others = ((data ?? []) as { user_id: string; last_read_at: string | null }[])
+        .filter((p) => p.user_id !== user.id);
+      if (others.length === 0) return null;
+      if (others.some((p) => !p.last_read_at)) return null;
+      return others
+        .map((p) => p.last_read_at as string)
+        .reduce((min, d) => (new Date(d) < new Date(min) ? d : min));
+    },
+    enabled: !!conversationId && !!user?.id,
+    staleTime: 5_000,
+  });
+  return data ?? null;
 }
 
 
