@@ -285,5 +285,5 @@ export function useMessagerieActions() {
     onSuccess: invalidateLists,
   });
 
-  return { sendMessage, openDirectConversation, createChantierConversation, markRead, archiveConversation };
+  return { sendMessage, sendVoiceMessage, openDirectConversation, createChantierConversation, markRead, archiveConversation };
 }
