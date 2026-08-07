@@ -1,0 +1,59 @@
+# Caddy — terminaison HTTPS + contrôle d'accès du moteur PDF LTPC.
+#
+# Règles :
+#  - HTTPS obligatoire (certificat Let's Encrypt automatique).
+#  - Seul l'endpoint de conversion URL est routé ; tout le reste → 404.
+#  - Chaque requête doit porter l'en-tête secret X-LTPC-Render-Secret.
+#  - Aucun accès public : sans le secret, la réponse est 404 (pas 401),
+#    afin de ne rien révéler de l'existence du service.
+
+{
+	email admin@ltpc.dz
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+{$GOTENBERG_DOMAIN} {
+	encode zstd gzip
+
+	# Journalisation minimale : pas de corps, pas de query string.
+	log {
+		output stdout
+		format console
+		level ERROR
+	}
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+	}
+
+	# Sonde de santé interne (réservée au monitoring de l'hôte).
+	handle /healthz {
+		respond "ok" 200
+	}
+
+	@authorized {
+		path /forms/chromium/convert/url
+		method POST
+		header X-LTPC-Render-Secret {$GOTENBERG_SHARED_SECRET}
+	}
+
+	handle @authorized {
+		reverse_proxy gotenberg:3000 {
+			header_up -X-LTPC-Render-Secret
+			transport http {
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	# Tout le reste (y compris /forms/... sans secret) est invisible.
+	handle {
+		respond 404
+	}
+}
