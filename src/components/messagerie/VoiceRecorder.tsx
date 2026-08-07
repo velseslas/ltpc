@@ -40,7 +40,8 @@ export function VoiceRecorder({ disabled, sending, onSend, onRecordingChange }: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => { onRecordingChange?.(recording); }, [recording, onRecordingChange]);
+  // « actif » = enregistrement en cours OU aperçu en attente d'envoi.
+  useEffect(() => { onRecordingChange?.(recording || !!preview); }, [recording, preview, onRecordingChange]);
 
   const stop = useCallback((cancel: boolean) => {
     cancelledRef.current = cancel;
