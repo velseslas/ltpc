@@ -24,7 +24,6 @@ export function pickAudioMimeType(
   supports: (t: string) => boolean = (t) =>
     typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(t)
 ): string | null {
-  if (typeof MediaRecorder === "undefined") return null;
   return CANDIDATES.find((t) => {
     try { return supports(t); } catch { return false; }
   }) ?? null;
