@@ -51,7 +51,7 @@ export default function Messagerie() {
   const { data: conversations = [], isLoading } = useConversations();
   const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
-  const { sendMessage, markRead, archiveConversation } = useMessagerieActions();
+  const { sendMessage, sendVoiceMessage, markRead, archiveConversation } = useMessagerieActions();
 
   const active = useMemo(
     () => conversations.find((c) => c.id === conversationId) ?? null,
