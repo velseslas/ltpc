@@ -16,6 +16,7 @@ import { useCentralesBeton } from "@/hooks/useCentralesBeton";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { useRenderParams, frozenDate, frozenString } from "@/lib/render/renderParams";
 import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
 import { useEchantillonsTractionFendage } from "@/hooks/useEchantillonsTractionFendage";
 import { useEchantillonsModuleElasticite } from "@/hooks/useEchantillonsModuleElasticite";
@@ -81,13 +82,17 @@ export default function EtatEssaisBetonDurci() {
   const { data: entreprise } = useEntreprise();
   const { data: echantillons, isLoading } = useEchantillonsBetonDurciByType(essaiType);
 
-  const [clientFilter, setClientFilter] = useState("all");
-  const [chantierFilter, setChantierFilter] = useState("all");
-  const [centraleFilter, setCentraleFilter] = useState("all");
-  const [dateDebut, setDateDebut] = useState<Date | undefined>();
-  const [dateFin, setDateFin] = useState<Date | undefined>();
-  const [statutFilter, setStatutFilter] = useState("all");
-  const [generated, setGenerated] = useState(false);
+  // §7.2 — Rendu PDF déterministe : filtres figés côté serveur par le jeton de
+  // rendu. Hors contexte PDF, `frozen` vaut null et l'écran est inchangé.
+  const frozen = useRenderParams("etat-essais-beton-durci");
+
+  const [clientFilter, setClientFilter] = useState(() => frozenString(frozen, "client", "all"));
+  const [chantierFilter, setChantierFilter] = useState(() => frozenString(frozen, "chantier", "all"));
+  const [centraleFilter, setCentraleFilter] = useState(() => frozenString(frozen, "centrale", "all"));
+  const [dateDebut, setDateDebut] = useState<Date | undefined>(() => frozenDate(frozen, "date_debut"));
+  const [dateFin, setDateFin] = useState<Date | undefined>(() => frozenDate(frozen, "date_fin"));
+  const [statutFilter, setStatutFilter] = useState(() => frozenString(frozen, "statut", "all"));
+  const [generated, setGenerated] = useState(() => frozen !== null);
 
   const { data: chantiers } = useChantiersByClient(clientFilter !== "all" ? clientFilter : "");
 

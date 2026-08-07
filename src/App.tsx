@@ -41,6 +41,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const VerificationPage = lazy(() => import("./pages/verification/VerificationPage"));
 const CompressionReport = lazy(() => import("./pages/essais/CompressionReport"));
 const RapportTechniquePrintView = lazy(() => import("./pages/essais/rapports-techniques/RapportTechniquePrintView"));
+const RenderBootstrap = lazy(() => import("./pages/render/RenderBootstrap"));
 
 // Phase 5 — Performance : defaults React Query optimisés pour réduire les
 // requêtes réseau redondantes (focus/reconnect) tout en gardant les données
@@ -96,6 +97,18 @@ const AppRoutes = () => (
     {/* Routes publiques */}
     <Route path="/auth" element={<AuthRedirect />} />
     <Route path="/verification/:token" element={<VerificationPage />} />
+
+    {/* §7.2 — Point d'entrée du moteur PDF : consomme le jeton de rendu figé
+        côté serveur puis redirige vers la route d'impression réelle LTPC. */}
+    <Route
+      path="/__render/:token"
+      element={
+        <Suspense fallback={<div className="p-8 text-sm">Chargement…</div>}>
+          <RenderBootstrap />
+        </Suspense>
+      }
+    />
+
 
     {/* Page d'impression A4 dédiée — source de vérité PDF, sans chrome */}
     <Route
