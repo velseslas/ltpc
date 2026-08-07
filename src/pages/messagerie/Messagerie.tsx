@@ -324,7 +324,11 @@ export default function Messagerie() {
                             {names[m.sender_id] ?? "Utilisateur"}
                           </p>
                         )}
-                        <p>{m.content}</p>
+                        {m.message_type === "audio" && m.audio_path ? (
+                          <VoiceMessage path={m.audio_path} duration={m.audio_duration} mine={mine} />
+                        ) : (
+                          <p>{m.content}</p>
+                        )}
                         <p className={cn("text-[10px] mt-1", mine ? "opacity-70" : "text-muted-foreground")}>
                           {format(new Date(m.created_at), "dd/MM HH:mm", { locale: fr })}
                         </p>
