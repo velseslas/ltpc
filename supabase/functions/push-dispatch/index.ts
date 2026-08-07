@@ -80,6 +80,43 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
     };
   }
 
+  if (event === "echantillon_cree") {
+    const { data: ech } = await admin.from("echantillons_compression")
+      .select("id, numero, numero_chantier, chantier_id, ouvrage, is_laboratoire_chantier, chantiers:chantier_id(nom), clients:client_id(nom)")
+      .eq("id", resourceId).maybeSingle();
+    if (!ech) return null;
+
+    const chantierNom = (ech.chantiers as { nom?: string } | null)?.nom ?? "un chantier";
+    const clientNom = (ech.clients as { nom?: string } | null)?.nom ?? "";
+    const numeroAffiche = ech.is_laboratoire_chantier
+      ? (ech.numero_chantier ?? ech.numero)
+      : ech.numero;
+    const reference = `EC-${String(numeroAffiche ?? "").padStart(3, "0")}`;
+
+    // Destinataires : relations métier existantes uniquement —
+    // intervenants affectés au chantier + encadrement. Le créateur est exclu.
+    const [affectes, encadrement] = await Promise.all([
+      userIdsForChantierAffectations(ech.chantier_id as string | null),
+      userIdsForRoles(["super_admin", "admin", "manager", "ingenieur"]),
+    ]);
+    const recipients = Array.from(new Set([...affectes, ...encadrement])).filter((u) => u !== callerId);
+
+    // Lien interne LTPC reconstruit côté serveur (jamais fourni par le client).
+    const link = ech.is_laboratoire_chantier && ech.chantier_id
+      ? `/laboratoires-mobiles/chantier/${ech.chantier_id}/echantillon/${ech.id}`
+      : `/essais/beton/beton-durci/compression/${ech.id}`;
+
+    return {
+      recipients,
+      type: "echantillon_cree",
+      category: "compression",
+      priority: "info",
+      title: "Nouvel échantillon",
+      message: `${reference} — nouvel échantillon créé pour le chantier ${chantierNom}${clientNom ? ` (${clientNom})` : ""}${ech.ouvrage ? ` — ${ech.ouvrage}` : ""}.`,
+      link,
+    };
+  }
+
   if (event === "rapport_valide" || event === "rapport_a_valider") {
     const { data: rap } = await admin.from("rapports_techniques")
       .select("id, numero, titre, statut, technicien_id, created_by").eq("id", resourceId).maybeSingle();
