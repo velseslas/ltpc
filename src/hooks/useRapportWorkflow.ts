@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getAIProvider, type ImproveAction } from "@/lib/ai/aiProvider";
+import { dispatchNotificationEvent } from "@/lib/notifications/dispatch";
+
 
 // ---- Improve IA sur un texte sélectionné ----
 export function useImproveText() {
