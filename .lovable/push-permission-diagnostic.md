@@ -134,3 +134,21 @@ Le badge « Permission nécessaire » est la branche par défaut d'une condition
    remonter une raison explicite (`key-mismatch`) au lieu du générique « Activation impossible ».
 5. Hygiène DB : à l'upsert d'un nouvel endpoint, désactiver les anciens endpoints du même
    `user_id` + même `user_agent` (évite les doublons Android constatés).
+
+---
+
+## 10 — SUIVI : correctif appliqué (LOT 14.2, 07/08/2026)
+
+Diagnostic **clos**. Les 5 corrections recommandées ont été implémentées :
+
+1. `PushService.readyRegistration()` — attente réelle de `navigator.serviceWorker.ready` (timeout 10 s)
+   avant tout accès à `pushManager` ; erreurs distinguées de « pas d'abonnement ».
+2. Badge séparé en 8 états explicites — le libellé « Permission nécessaire » **n'existe plus** dans le code.
+3. Rafraîchissement sur `serviceWorker.ready`, `controllerchange` et `visibilitychange` (aucun polling).
+4. `subscribe()` réutilise l'abonnement existant ; en cas d'échec réel, raison `subscribe-failed`
+   avec la cause technique (`Name: message`) affichée et loguée ; clé VAPID comparée octet à octet,
+   renouvellement propre si incompatible.
+5. Déduplication en base par **appareil** (`user_id` + `user_agent`), multi-appareils préservé ;
+   migration non destructive appliquée (désactivation, aucune suppression).
+
+Détail complet : `.lovable/lot14-2-push-final-validation.md`.
