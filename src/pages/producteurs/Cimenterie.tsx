@@ -52,7 +52,7 @@ const Cimenterie = () => {
           className="gap-2 gradient-primary text-primary-foreground"
           onClick={() => navigate("/intervenant/producteurs/cimenterie/nouveau")}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="hidden md:inline-block w-4 h-4" />
           Nouvelle Cimenterie
         </Button>
       </div>

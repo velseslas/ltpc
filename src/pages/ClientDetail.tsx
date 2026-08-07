@@ -434,7 +434,7 @@ const ClientDetail = () => {
               setIsCentraleFormOpen(true);
             }}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="hidden md:inline-block w-4 h-4" />
             Nouvelle centrale
           </Button>
         </div>
@@ -610,7 +610,7 @@ const ClientDetail = () => {
                 className="gap-2 gradient-primary text-primary-foreground"
                 onClick={() => navigate(`/intervenant/chantiers/nouveau?clientId=${id}`)}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="hidden md:inline-block w-4 h-4" />
                 Nouveau chantier
               </Button>
             </div>
@@ -715,7 +715,7 @@ const ClientDetail = () => {
                 className="gap-2 gradient-primary text-primary-foreground"
                 onClick={() => setIsContractFormOpen(true)}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="hidden md:inline-block w-4 h-4" />
                 Nouveau Contrat
               </Button>
             </div>
@@ -821,7 +821,7 @@ const ClientDetail = () => {
                 className="gap-2 gradient-primary text-primary-foreground"
                 onClick={() => setIsDocAdminFormOpen(true)}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="hidden md:inline-block w-4 h-4" />
                 Nouveau Document
               </Button>
             </div>

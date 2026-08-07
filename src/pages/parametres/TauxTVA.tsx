@@ -141,7 +141,7 @@ const TauxTVAPage = () => {
           </div>
         </div>
         <Button onClick={() => handleOpenDialog()} className="gap-2">
-          <Plus className="h-4 w-4" />
+          <Plus className="hidden md:inline-block h-4 w-4" />
           Nouveau taux
         </Button>
       </div>

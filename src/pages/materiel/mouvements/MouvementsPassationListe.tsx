@@ -47,7 +47,7 @@ export default function MouvementsPassationListe() {
           </div>
         </div>
         <Button onClick={() => navigate("/materiel/mouvements/nouveau/passation")}>
-          <Plus className="h-4 w-4 mr-2" /> Nouvelle passation
+          <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" /> Nouvelle passation
         </Button>
       </div>
 

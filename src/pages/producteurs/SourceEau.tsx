@@ -52,7 +52,7 @@ const SourceEau = () => {
           className="gap-2 gradient-primary text-primary-foreground"
           onClick={() => navigate("/intervenant/producteurs/eau/nouveau")}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="hidden md:inline-block w-4 h-4" />
           Nouvelle Source
         </Button>
       </div>

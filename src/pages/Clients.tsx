@@ -85,7 +85,7 @@ const Clients = () => {
           className="gap-2 h-11 w-full sm:w-auto gradient-primary text-primary-foreground"
           onClick={() => navigate("/intervenant/clients/nouveau")}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="hidden md:inline-block w-4 h-4" />
           Nouveau Client
         </Button>
       </div>

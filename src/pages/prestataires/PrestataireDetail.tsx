@@ -89,7 +89,7 @@ export default function PrestataireDetail() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" />Bons de commande ({bons.length})</CardTitle>
           <Button className="gap-2" onClick={() => navigate(`/intervenant/prestataires/${id}/bon-commande/nouveau`)}>
-            <Plus className="h-4 w-4" />Nouveau BC
+            <Plus className="hidden md:inline-block h-4 w-4" />Nouveau BC
           </Button>
         </CardHeader>
         <CardContent>

@@ -97,7 +97,7 @@ export default function MaterielListe() {
           <ClipboardList className="h-4 w-4" />
           Inventaire
         </Button>
-        <Button className="gap-2" onClick={() => navigate("/materiel/liste/nouveau")}><Plus className="h-4 w-4" />Nouveau</Button>
+        <Button className="gap-2" onClick={() => navigate("/materiel/liste/nouveau")}><Plus className="hidden md:inline-block h-4 w-4" />Nouveau</Button>
       </div>
 
       <Card>
