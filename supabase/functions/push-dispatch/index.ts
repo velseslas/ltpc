@@ -158,7 +158,7 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
 
   if (event === "message_recu") {
     const { data: msg } = await admin.from("messages")
-      .select("id, conversation_id, sender_id, content, created_at")
+      .select("id, conversation_id, sender_id, content, message_type, created_at")
       .eq("id", resourceId).maybeSingle();
     if (!msg) return null;
     // Seul l'expéditeur réel du message peut déclencher la notification.
@@ -173,6 +173,7 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
     const { data: sender } = await admin.from("utilisateurs")
       .select("nom").eq("user_id", callerId).maybeSingle();
     const senderNom = (sender as { nom?: string } | null)?.nom ?? "Un utilisateur";
+    const isAudio = (msg as { message_type?: string }).message_type === "audio";
     const extrait = String(msg.content ?? "").slice(0, 120);
 
     return {
@@ -180,8 +181,10 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
       type: "message_recu",
       category: "systeme",
       priority: "info",
-      title: "Nouveau message",
-      message: `${senderNom} vous a envoyé un message : ${extrait}`,
+      title: isAudio ? "Nouveau message vocal" : "Nouveau message",
+      message: isAudio
+        ? `${senderNom} vous a envoyé un message vocal`
+        : `${senderNom} vous a envoyé un message : ${extrait}`,
       link: `/messagerie/${msg.conversation_id}`,
     };
   }
