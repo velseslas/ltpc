@@ -112,7 +112,7 @@ export const PushService = {
     if (!this.isSupported()) return null;
     try {
       const immediate = await navigator.serviceWorker.getRegistration();
-      if (immediate?.active) return immediate;
+      if (immediate?.active?.state === "activated") return immediate;
       const reg = await Promise.race([
         navigator.serviceWorker.ready,
         new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs)),
@@ -122,6 +122,37 @@ export const PushService = {
       return null;
     }
   },
+
+  /**
+   * Registration dont le worker est RÉELLEMENT `activated`.
+   * Chrome lève `AbortError: … no active service worker` si `subscribe()` est
+   * appelé sur une registration dont le worker est encore `installing`/`waiting`
+   * (cas typique juste après une mise à jour du SW ou un démarrage à froid).
+   */
+  async activeRegistration(timeoutMs: number = SW_READY_TIMEOUT_MS): Promise<ServiceWorkerRegistration | null> {
+    const reg = await this.readyRegistration(timeoutMs);
+    if (!reg) return null;
+    if (reg.active?.state === "activated") return reg;
+
+    const pending = reg.installing ?? reg.waiting ?? reg.active ?? null;
+    if (pending) {
+      await new Promise<void>((resolve) => {
+        const done = () => { pending.removeEventListener("statechange", onChange); resolve(); };
+        const onChange = () => { if (pending.state === "activated" || pending.state === "redundant") done(); };
+        pending.addEventListener("statechange", onChange);
+        setTimeout(done, timeoutMs);
+      });
+    }
+
+    // Re-lecture : la registration peut avoir été remplacée entre-temps.
+    try {
+      const fresh = (await navigator.serviceWorker.getRegistration()) ?? reg;
+      return fresh.active?.state === "activated" ? fresh : null;
+    } catch {
+      return reg.active?.state === "activated" ? reg : null;
+    }
+  },
+
 
   async requestPermission(): Promise<NotificationPermission | "unsupported"> {
     if (!this.isSupported()) return "unsupported";
