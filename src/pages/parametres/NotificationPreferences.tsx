@@ -37,6 +37,7 @@ export default function NotificationPreferences() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [swReady, setSwReady]           = useState(true);
   const [pushError, setPushError]       = useState<string | null>(null);
+  const [pushBusy, setPushBusy]         = useState(false);
   const [checking, setChecking]         = useState(true);
 
   const refreshPushState = useCallback(async () => {
@@ -112,28 +113,35 @@ export default function NotificationPreferences() {
   };
 
   const handleEnablePush = async () => {
+    if (pushBusy) return;              // verrou UI : jamais deux activations concurrentes
+    setPushBusy(true);
     setPushError(null);
-    const r = await PushService.subscribe();
-    if (r.ok) {
-      toast.success("Push activé sur cet appareil");
-    } else if (r.reason === "vapid-missing") {
-      setPushError("Configuration Push indisponible (clé publique absente)");
-      toast.error("Configuration Push indisponible");
-    } else if (r.reason === "permission-denied") {
-      toast.error("Notifications bloquées dans le navigateur — réautorisez-les depuis les paramètres du site");
-    } else if (r.reason === "permission-default") {
-      toast.error("Autorisation nécessaire — acceptez la demande du navigateur");
-    } else if (r.reason === "unsupported") {
-      toast.error("Push non supporté sur ce navigateur");
-    } else if (r.reason === "sw-unavailable") {
-      toast.error("Service Worker indisponible, veuillez réessayer (Push actif uniquement sur l'application publiée)");
-    } else {
-      // Erreur technique réelle : jamais présentée comme un refus de permission.
-      setPushError(r.detail ? `Activation Push impossible — ${r.detail}` : "Activation Push impossible");
-      toast.error(r.detail ? `Activation Push impossible — ${r.detail}` : "Activation Push impossible");
+    try {
+      const r = await PushService.subscribe();
+      if (r.ok) {
+        toast.success("Push activé sur cet appareil");
+      } else if (r.reason === "vapid-missing") {
+        setPushError("Configuration Push indisponible (clé publique absente)");
+        toast.error("Configuration Push indisponible");
+      } else if (r.reason === "permission-denied") {
+        toast.error("Notifications bloquées dans le navigateur — réautorisez-les depuis les paramètres du site");
+      } else if (r.reason === "permission-default") {
+        toast.error("Autorisation nécessaire — acceptez la demande du navigateur");
+      } else if (r.reason === "unsupported") {
+        toast.error("Push non supporté sur ce navigateur");
+      } else if (r.reason === "sw-unavailable") {
+        toast.error("Service Worker indisponible, veuillez réessayer (Push actif uniquement sur l'application publiée)");
+      } else {
+        // Erreur technique réelle : jamais présentée comme un refus de permission.
+        setPushError(r.detail ? `Activation Push impossible — ${r.detail}` : "Activation Push impossible");
+        toast.error(r.detail ? `Activation Push impossible — ${r.detail}` : "Activation Push impossible");
+      }
+      await refreshPushState();
+    } finally {
+      setPushBusy(false);
     }
-    await refreshPushState();
   };
+
 
   const handleDisablePush = async () => {
     const ok = await PushService.unsubscribe();
@@ -200,9 +208,9 @@ export default function NotificationPreferences() {
                       size="sm"
                       variant="outline"
                       onClick={handleEnablePush}
-                      disabled={permission === "denied" || permission === "unsupported"}
+                      disabled={pushBusy || permission === "denied" || permission === "unsupported"}
                     >
-                      Activer
+                      {pushBusy ? "Activation…" : "Activer"}
                     </Button>
                   )}
                 </div>
