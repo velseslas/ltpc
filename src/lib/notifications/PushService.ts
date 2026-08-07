@@ -1,10 +1,12 @@
-// Phase 9 — Service Push Web (WebPush API).
-// N'effectue une souscription réelle que si une clé VAPID publique est
-// disponible (VITE_VAPID_PUBLIC_KEY). Sinon, expose une API "stub" cohérente.
+// Phase 9 / LOT 14.2 — Service Push Web (WebPush API).
+// La clé publique VAPID provient de `./vapid` (override possible via
+// VITE_VAPID_PUBLIC_KEY). La clé privée n'est JAMAIS référencée ici.
 import { supabase as _supabase } from "@/integrations/supabase/client";
+import { VAPID_PUBLIC_KEY as CONFIGURED_VAPID_PUBLIC_KEY } from "./vapid";
 const supabase = _supabase as unknown as { from: (t: string) => any; auth: typeof _supabase.auth };
 
-const VAPID_PUBLIC_KEY: string | undefined = (import.meta as { env?: Record<string, string> }).env?.VITE_VAPID_PUBLIC_KEY;
+const VAPID_PUBLIC_KEY: string | undefined = CONFIGURED_VAPID_PUBLIC_KEY || undefined;
+
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
