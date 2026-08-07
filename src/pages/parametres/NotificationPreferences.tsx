@@ -101,15 +101,15 @@ export default function NotificationPreferences() {
   return (
     <>
       <AppBreadcrumb items={[{ label: "Paramètres", path: "/parametres" }, { label: "Notifications" }]} />
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" size="icon" onClick={() => navigate("/parametres")}>
+      <div className="flex items-start gap-3 mb-6">
+        <Button variant="outline" size="icon" className="shrink-0" onClick={() => navigate("/parametres")}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-display font-bold">
+        <div className="min-w-0">
+          <h1 className="text-xl md:text-3xl font-display font-bold leading-tight">
             Préférences de <span className="text-primary text-glow">Notifications</span>
           </h1>
-          <p className="text-muted-foreground">Personnalisez les canaux, fréquences et catégories</p>
+          <p className="text-xs md:text-base text-muted-foreground">Personnalisez les canaux, fréquences et catégories</p>
         </div>
       </div>
 
@@ -130,10 +130,10 @@ export default function NotificationPreferences() {
                 <div className="flex items-center gap-3"><Bell className="w-4 h-4" /><Label>Notifications dans l'application</Label></div>
                 <Switch checked={inapp} onCheckedChange={setInapp} />
               </div>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Smartphone className="w-4 h-4" />
-                  <div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <Smartphone className="w-4 h-4 mt-1 shrink-0" />
+                  <div className="min-w-0">
                     <Label>Notifications Push (Web / PWA)</Label>
                     <p className="text-xs text-muted-foreground">{pushStatus.label}</p>
                     {permission === "denied" && (
@@ -145,7 +145,7 @@ export default function NotificationPreferences() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-2 shrink-0 pl-7 sm:pl-0">
                   <Badge variant={pushStatus.variant}>{pushStatus.badge}</Badge>
                   <Switch checked={pushEnabled} onCheckedChange={setPushEnabled} />
                   {isSubscribed ? (
@@ -182,7 +182,7 @@ export default function NotificationPreferences() {
             </CardHeader>
             <CardContent>
               <Select value={freq} onValueChange={(v) => setFreq(v as NotificationFrequency)}>
-                <SelectTrigger className="max-w-md"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full max-w-md"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {FREQUENCIES.map((f) => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}
                 </SelectContent>
@@ -197,10 +197,10 @@ export default function NotificationPreferences() {
               <CardDescription>Décochez celles que vous ne voulez plus recevoir</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {(Object.keys(CATEGORY_META) as NotificationCategory[]).map((cat) => (
-                  <label key={cat} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/50 cursor-pointer">
-                    <span className="text-sm">{CATEGORY_META[cat].label}</span>
+                  <label key={cat} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-primary/50 cursor-pointer">
+                    <span className="text-sm min-w-0">{CATEGORY_META[cat].label}</span>
                     <Switch checked={!disabled.includes(cat)} onCheckedChange={() => toggleCategory(cat)} />
                   </label>
                 ))}
@@ -209,7 +209,7 @@ export default function NotificationPreferences() {
           </Card>
 
           <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={save.isPending} className="gap-2">
+            <Button onClick={handleSave} disabled={save.isPending} className="gap-2 w-full sm:w-auto">
               {save.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Enregistrer
             </Button>
