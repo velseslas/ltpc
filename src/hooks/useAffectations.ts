@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { getRepositoryForTable } from "@/lib/repositories";
+import { dispatchNotificationEvent } from "@/lib/notifications/dispatch";
+
 
 export type Affectation = Tables<"affectations">;
 export type AffectationInsert = TablesInsert<"affectations">;
@@ -54,9 +56,16 @@ export function useCreateAffectation() {
       if (error) throw new Error(error);
       return data[0];
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["affectations"] }),
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["affectations"] });
+      // LOT 14.2 — événement métier → notification LTPC (in-app + Push).
+      // Non bloquant : un échec de notification n'affecte pas l'affectation.
+      const id = (created as Affectation | undefined)?.id;
+      if (id) void dispatchNotificationEvent("affectation_creee", id);
+    },
   });
 }
+
 
 export function useUpdateAffectation() {
   const qc = useQueryClient();
