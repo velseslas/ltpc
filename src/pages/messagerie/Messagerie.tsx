@@ -46,7 +46,7 @@ export default function Messagerie() {
   const [newOpen, setNewOpen] = useState(false);
 
   const { data: conversations = [], isLoading } = useConversations();
-  const { data: messages = [] } = useMessages(conversationId ?? null);
+  const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
   const { sendMessage, markRead, archiveConversation } = useMessagerieActions();
 
@@ -71,15 +71,89 @@ export default function Messagerie() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, messages.length]);
 
+  // ---- Défilement du fil : auto-scroll uniquement si déjà en bas ----
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const atBottomRef = useRef(true);
+  const prevFirstIdRef = useRef<string | null>(null);
+  const prevLenRef = useRef(0);
+  const restoreRef = useRef<number | null>(null);
+  const [showJump, setShowJump] = useState(false);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+    atBottomRef.current = true;
+    setShowJump(false);
+  };
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    atBottomRef.current = distance < 80;
+    setShowJump(!atBottomRef.current);
+    // Chargement progressif des messages précédents.
+    if (el.scrollTop < 120 && hasMore && !isLoadingOlder) {
+      restoreRef.current = el.scrollHeight - el.scrollTop;
+      loadOlder();
+    }
+  };
+
+  // Nouvelle conversation : on ouvre en bas.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length, conversationId]);
+    prevFirstIdRef.current = null;
+    prevLenRef.current = 0;
+    restoreRef.current = null;
+    atBottomRef.current = true;
+    requestAnimationFrame(() => scrollToBottom());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || messages.length === 0) return;
+    const firstId = messages[0]?.id ?? null;
+    const prependedOlder = prevFirstIdRef.current !== null && firstId !== prevFirstIdRef.current;
+
+    if (prependedOlder && restoreRef.current !== null) {
+      // Restaure la position visuelle après ajout des messages précédents.
+      el.scrollTop = el.scrollHeight - restoreRef.current;
+      restoreRef.current = null;
+    } else if (messages.length > prevLenRef.current && atBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ block: "end" });
+    } else if (messages.length > prevLenRef.current) {
+      setShowJump(true);
+    }
+
+    prevFirstIdRef.current = firstId;
+    prevLenRef.current = messages.length;
+  }, [messages]);
+
+  // ---- Clavier mobile : la zone de saisie reste visible ----
+  const [kbOffset, setKbOffset] = useState(0);
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : undefined;
+    if (!vv) return;
+    const onResize = () => {
+      const overlap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKbOffset(overlap);
+      if (atBottomRef.current) requestAnimationFrame(() => scrollToBottom());
+    };
+    vv.addEventListener("resize", onResize);
+    vv.addEventListener("scroll", onResize);
+    return () => {
+      vv.removeEventListener("resize", onResize);
+      vv.removeEventListener("scroll", onResize);
+    };
+  }, []);
 
   const handleSend = () => {
     const body = draft.trim();
     if (!body || !conversationId) return;
     setDraft("");
+    atBottomRef.current = true;
     sendMessage.mutate(
       { conversationId, content: body },
       {
@@ -89,7 +163,9 @@ export default function Messagerie() {
         },
       }
     );
+    requestAnimationFrame(() => scrollToBottom("smooth"));
   };
+
 
   const showList = !isMobile || !conversationId;
   const showThread = !isMobile || !!conversationId;
