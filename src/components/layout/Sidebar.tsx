@@ -10,19 +10,16 @@ import {
   FileText,
   Settings,
   Sparkles,
-  MessageSquare,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePermissionContext } from "@/hooks/usePermissionContext";
 import { useCurrentUserChantiers } from "@/hooks/useCurrentUserChantiers";
-import { useUnreadMessagesCount } from "@/hooks/useMessagerie";
 
 export const menuItems = [
   { title: "Tableau de bord", path: "/", icon: LayoutDashboard, permission: "dashboard.voir" },
   { title: "LTPC AI", path: "/ltpc-ai", icon: Sparkles },
-  { title: "Messagerie", path: "/messagerie", icon: MessageSquare },
   { title: "Intervenant", path: "/intervenant", icon: Users, permission: "intervenants.voir" },
   { title: "RH", path: "/rh", icon: UserCog, permission: "rh.voir" },
   { title: "Essais", path: "/essais", icon: FlaskConical, permission: "essais.voir" },
@@ -59,7 +56,6 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const visibleItems = useVisibleMenuItems();
-  const { data: unreadMessages = 0 } = useUnreadMessagesCount();
 
   return (
     <aside
@@ -75,7 +71,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <ul className="space-y-1.5">
           {visibleItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const badge = item.path === "/messagerie" ? unreadMessages : 0;
+            const badge = 0;
             return (
               <li key={item.path}>
                 <NavLink
