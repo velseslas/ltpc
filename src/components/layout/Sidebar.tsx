@@ -71,7 +71,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <ul className="space-y-1.5">
           {visibleItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const badge = 0;
             return (
               <li key={item.path}>
                 <NavLink
@@ -93,16 +92,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   />
                   {!collapsed && (
                     <span className="text-sm font-medium truncate flex-1">{item.title}</span>
-                  )}
-                  {badge > 0 && (
-                    <span
-                      className={cn(
-                        "bg-primary text-primary-foreground text-[10px] font-semibold rounded-full min-w-5 h-5 px-1.5 grid place-items-center",
-                        collapsed && "absolute top-1 right-1 min-w-4 h-4 px-1"
-                      )}
-                    >
-                      {badge > 99 ? "99+" : badge}
-                    </span>
                   )}
                 </NavLink>
               </li>
