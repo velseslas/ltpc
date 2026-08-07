@@ -52,7 +52,7 @@ const Carriere = () => {
           className="gap-2 gradient-primary text-primary-foreground"
           onClick={() => navigate("/intervenant/producteurs/carriere/nouveau")}
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="hidden md:inline-block w-4 h-4" />
           Nouvelle Carrière
         </Button>
       </div>

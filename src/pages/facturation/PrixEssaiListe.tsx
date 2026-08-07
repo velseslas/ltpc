@@ -99,7 +99,7 @@ export default function PrixEssaiListe() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => handleOpen()}><Plus className="h-4 w-4" />Nouveau prix</Button>
+            <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => handleOpen()}><Plus className="hidden md:inline-block h-4 w-4" />Nouveau prix</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>{editId ? "Modifier le prix" : "Nouveau prix essai"}</DialogTitle></DialogHeader>

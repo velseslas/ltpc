@@ -129,7 +129,7 @@ export default function Affectations() {
           </div>
         </div>
         <Button className="w-full sm:w-auto" onClick={() => navigate("/rh/affectations/nouveau")}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" />
           Nouvelle affectation
         </Button>
       </div>

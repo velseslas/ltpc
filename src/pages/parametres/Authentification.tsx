@@ -285,7 +285,7 @@ const Authentification = () => {
               setFormData({ poste_id: "", intervenant_id: "", mot_de_passe: "", statut: "actif", role: "technicien" });
               setIsDialogOpen(true);
             }}>
-              <Plus className="h-4 w-4" />
+              <Plus className="hidden md:inline-block h-4 w-4" />
               Nouveau
             </Button>
           </div>

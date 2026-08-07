@@ -152,7 +152,7 @@ const ChantierDetail = () => {
             onClick={() => setAffectOpen(true)}
             disabled={!effectiveClientId}
           >
-            <Plus className="w-4 h-4" /> Nouvelle centrale à béton
+            <Plus className="hidden md:inline-block w-4 h-4" /> Nouvelle centrale à béton
           </Button>
         </div>
 

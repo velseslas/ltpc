@@ -289,7 +289,7 @@ export default function LaboratoiresMobilesAdmin() {
           </div>
         </div>
         <Button onClick={() => navigate("/laboratoires-mobiles/nouveau")} className="gap-2 w-full sm:w-auto shrink-0">
-          <Plus className="h-4 w-4" />
+          <Plus className="hidden md:inline-block h-4 w-4" />
           Nouveau chantier
         </Button>
       </div>

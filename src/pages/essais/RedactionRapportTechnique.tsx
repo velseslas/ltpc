@@ -125,7 +125,7 @@ export default function RedactionRapportTechnique() {
             onClick={() => navigate("/essais/rapports-techniques/nouveau")}
             className="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:opacity-90"
           >
-            <Plus className="h-4 w-4 mr-2" /> Nouveau rapport
+            <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" /> Nouveau rapport
           </Button>
         </div>
       </div>

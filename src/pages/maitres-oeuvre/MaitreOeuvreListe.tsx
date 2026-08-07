@@ -60,7 +60,7 @@ export default function MaitreOeuvreListe() {
           <Input placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 h-11" />
         </div>
         <Button className="gap-2 h-11" onClick={() => navigate("/intervenant/maitres-oeuvre/nouveau")}>
-          <Plus className="h-4 w-4" />Nouveau MOE
+          <Plus className="hidden md:inline-block h-4 w-4" />Nouveau MOE
         </Button>
       </div>
 

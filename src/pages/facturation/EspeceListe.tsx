@@ -88,7 +88,7 @@ export default function EspeceListe() {
           <FileBarChart className="h-4 w-4" />État des paiements
         </Button>
         <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => navigate("/facturation/espece/nouveau")}>
-          <Plus className="h-4 w-4" />Nouveau paiement
+          <Plus className="hidden md:inline-block h-4 w-4" />Nouveau paiement
         </Button>
       </div>
 

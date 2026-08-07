@@ -47,7 +47,7 @@ export default function MouvementsDechargeListe() {
           </div>
         </div>
         <Button onClick={() => navigate("/materiel/mouvements/nouveau/decharge")}>
-          <Plus className="h-4 w-4 mr-2" /> Nouvelle décharge
+          <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" /> Nouvelle décharge
         </Button>
       </div>
 

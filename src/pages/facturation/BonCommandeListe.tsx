@@ -67,7 +67,7 @@ export default function BonCommandeListe() {
           />
         </div>
         <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => navigate("/facturation/bons-commande/nouveau")}>
-          <Plus className="h-4 w-4" />Nouveau bon
+          <Plus className="hidden md:inline-block h-4 w-4" />Nouveau bon
         </Button>
       </div>
 

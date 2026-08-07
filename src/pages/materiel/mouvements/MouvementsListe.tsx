@@ -44,7 +44,7 @@ export default function MouvementsListe() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => PrintService.print({ title: "Liste des mouvements", orientation: "landscape" })}><Printer className="h-4 w-4 mr-2" /> Imprimer</Button>
           <Button onClick={() => navigate("/materiel/mouvements/nouveau/affectation")}>
-            <Plus className="h-4 w-4 mr-2" /> Nouveau
+            <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" /> Nouveau
           </Button>
         </div>
       </div>

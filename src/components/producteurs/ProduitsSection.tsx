@@ -53,7 +53,7 @@ export function ProduitsSection({ producteurId, producteurType }: ProduitsSectio
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Produits</h2>
         <Button onClick={handleNewProduit}>
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="hidden md:inline-block md:mr-2 h-4 w-4" />
           Nouveau Produit
         </Button>
       </div>

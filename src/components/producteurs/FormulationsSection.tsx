@@ -102,7 +102,7 @@ export function FormulationsSection({ centraleId }: FormulationsSectionProps) {
           onClick={() => navigate(`/intervenant/producteurs/centrale/${centraleId}/formulation/nouveau`)}
           className="gap-2"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="hidden md:inline-block w-4 h-4" />
           Nouvelle Formulation
         </Button>
       </div>

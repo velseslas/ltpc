@@ -215,7 +215,7 @@ const AttestationsBonneExecution = () => {
           />
         </div>
         <Button className="gap-2 gradient-primary text-primary-foreground" onClick={() => { setEditItem(null); setFormOpen(true); }}>
-          <Plus className="w-4 h-4" />
+          <Plus className="hidden md:inline-block w-4 h-4" />
           Nouveau
         </Button>
       </div>

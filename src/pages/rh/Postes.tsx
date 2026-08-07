@@ -94,7 +94,7 @@ export default function Postes() {
             />
           </div>
           <Button onClick={() => navigate("/rh/postes/nouveau")} className="gap-2">
-            <Plus className="h-4 w-4" />
+            <Plus className="hidden md:inline-block h-4 w-4" />
             Nouveau
           </Button>
         </div>

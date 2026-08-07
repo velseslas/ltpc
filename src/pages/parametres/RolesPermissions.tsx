@@ -228,7 +228,7 @@ const RolesPermissions = () => {
               {ROLES.length} rôles système · {aliasDefs.length} rôles personnalisés
             </div>
             <Button onClick={() => setIsNewRoleOpen(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Nouveau rôle
+              <Plus className="hidden md:inline-block h-4 w-4 md:mr-1" /> Nouveau rôle
             </Button>
           </div>
 
@@ -864,7 +864,7 @@ const RolesPermissions = () => {
                 <Dialog open={isNewPermissionOpen} onOpenChange={setIsNewPermissionOpen}>
                   <DialogTrigger asChild>
                     <Button>
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" />
                       Nouvelle permission
                     </Button>
                   </DialogTrigger>

@@ -67,7 +67,7 @@ export default function VirementListe() {
           />
         </div>
         <Button className="gap-2 w-full sm:w-auto shrink-0" onClick={() => navigate("/facturation/virements/nouveau")}>
-          <Plus className="h-4 w-4" />Nouveau virement
+          <Plus className="hidden md:inline-block h-4 w-4" />Nouveau virement
         </Button>
       </div>
 

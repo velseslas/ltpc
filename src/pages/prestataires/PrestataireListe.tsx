@@ -60,7 +60,7 @@ export default function PrestataireListe() {
           <Input placeholder="Rechercher un prestataire..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 h-11" />
         </div>
         <Button className="gap-2 h-11" onClick={() => navigate("/intervenant/prestataires/nouveau")}>
-          <Plus className="h-4 w-4" />Nouveau prestataire
+          <Plus className="hidden md:inline-block h-4 w-4" />Nouveau prestataire
         </Button>
       </div>
 

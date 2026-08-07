@@ -74,7 +74,7 @@ export default function LtpcAI() {
             </div>
           </div>
           <Button className="w-full" size="sm" onClick={newConv} disabled={createM.isPending}>
-            <Plus className="h-4 w-4 mr-2" /> Nouvelle conversation
+            <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" /> Nouvelle conversation
           </Button>
           <div className="relative">
             <Search className="h-3.5 w-3.5 absolute left-2 top-2.5 text-muted-foreground" />
