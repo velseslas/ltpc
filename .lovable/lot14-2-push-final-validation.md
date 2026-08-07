@@ -101,3 +101,19 @@ prochaine activation.
 Test I / volet Push de J : faire déclencher `echantillon_cree` par **un autre utilisateur**
 (le créateur est exclu des destinataires) avec le téléphone abonné, puis vérifier la réception
 et l'ouverture de la bonne page au clic (`notificationclick` inchangé, deep-link interne).
+
+---
+
+## Addendum — AbortError sur `pushManager.subscribe()` (07/08/2026)
+
+Cause racine confirmée : **CAS C — appels `subscribe()` concurrents** sur la même
+registration (preuve : abonnements créés à 1–3 s d'intervalle pour un même
+`user_agent` en base). VAPID (65 octets, 0x04) et conversion base64url validées :
+CAS A écarté. SW prêt via `navigator.serviceWorker.ready` : CAS D déjà couvert.
+
+Correctifs : verrou single-flight dans `PushService.subscribe()`, délai 300 ms
+après renouvellement, reprise unique sur `AbortError`/`InvalidStateError` avec
+nettoyage **local** de l'abonnement, verrou UI `pushBusy` sur le bouton Activer.
+
+Détail complet : `.lovable/pushmanager-aborterror-resolution.md`.
+Statut : 🟠 test physique Android restant.
