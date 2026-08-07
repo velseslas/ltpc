@@ -30,6 +30,7 @@ export const parametresRoutes = (
     <Route path="/parametres/authentification" element={<Authentification />} />
     <Route path="/parametres/securite" element={<Securite />} />
     <Route path="/parametres/audit" element={<AuditLog />} />
+    <Route path="/parametres/journal-connexions" element={<JournalConnexions />} />
     <Route path="/parametres/notifications" element={<NotificationsSettings />} />
     <Route path="/parametres/notifications-preferences" element={<NotificationPreferences />} />
     <Route path="/parametres/database" element={<DatabaseSettings />} />
