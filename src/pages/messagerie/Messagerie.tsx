@@ -185,7 +185,7 @@ export default function Messagerie() {
   const showThread = !isMobile || !!conversationId;
 
   const list = (
-    <div className="flex flex-col h-full border-r border-border">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden border-r border-border">
       <div className="p-3 space-y-3 border-b border-border">
         <div className="flex items-center justify-between gap-2">
           <h1 className="text-lg font-semibold">Messagerie</h1>
