@@ -112,7 +112,7 @@ export const PushService = {
     if (!this.isSupported()) return null;
     try {
       const immediate = await navigator.serviceWorker.getRegistration();
-      if (immediate?.active) return immediate;
+      if (immediate?.active?.state === "activated") return immediate;
       const reg = await Promise.race([
         navigator.serviceWorker.ready,
         new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs)),
@@ -122,6 +122,37 @@ export const PushService = {
       return null;
     }
   },
+
+  /**
+   * Registration dont le worker est RÉELLEMENT `activated`.
+   * Chrome lève `AbortError: … no active service worker` si `subscribe()` est
+   * appelé sur une registration dont le worker est encore `installing`/`waiting`
+   * (cas typique juste après une mise à jour du SW ou un démarrage à froid).
+   */
+  async activeRegistration(timeoutMs: number = SW_READY_TIMEOUT_MS): Promise<ServiceWorkerRegistration | null> {
+    const reg = await this.readyRegistration(timeoutMs);
+    if (!reg) return null;
+    if (reg.active?.state === "activated") return reg;
+
+    const pending = reg.installing ?? reg.waiting ?? reg.active ?? null;
+    if (pending) {
+      await new Promise<void>((resolve) => {
+        const done = () => { pending.removeEventListener("statechange", onChange); resolve(); };
+        const onChange = () => { if (pending.state === "activated" || pending.state === "redundant") done(); };
+        pending.addEventListener("statechange", onChange);
+        setTimeout(done, timeoutMs);
+      });
+    }
+
+    // Re-lecture : la registration peut avoir été remplacée entre-temps.
+    try {
+      const fresh = (await navigator.serviceWorker.getRegistration()) ?? reg;
+      return fresh.active?.state === "activated" ? fresh : null;
+    } catch {
+      return reg.active?.state === "activated" ? reg : null;
+    }
+  },
+
 
   async requestPermission(): Promise<NotificationPermission | "unsupported"> {
     if (!this.isSupported()) return "unsupported";
@@ -149,7 +180,8 @@ export const PushService = {
     if (!supported) {
       return { supported, permission, swReady: false, subscribed: false, subscription: null };
     }
-    const reg = await this.readyRegistration();
+    const reg = await this.activeRegistration();
+
     let subscription: PushSubscription | null = null;
     if (reg) {
       try { subscription = (await reg.pushManager.getSubscription()) ?? null; }
@@ -179,7 +211,9 @@ export const PushService = {
     if (!VAPID_PUBLIC_KEY) return { ok: false, reason: "vapid-missing" };
 
     // Service Worker d'abord : une indisponibilité SW n'est pas un refus de permission.
-    const reg = await this.readyRegistration();
+    // On exige un worker `activated` : sinon Chrome lève
+    // « AbortError: … no active service worker ».
+    let reg = await this.activeRegistration();
     if (!reg) return { ok: false, reason: "sw-unavailable" };
 
     // Abonnement déjà présent et compatible → réutilisation, aucun subscribe().
@@ -211,7 +245,7 @@ export const PushService = {
     }
 
     // Une tentative + une reprise après nettoyage local : AbortError signifie que
-    // la registration était encore occupée / l'ancien abonnement encore lié.
+    // la registration était encore occupée / sans worker actif.
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const sub = await reg.pushManager.subscribe({
@@ -222,10 +256,18 @@ export const PushService = {
         return { ok: true, subscription: sub };
       } catch (e) {
         const name = e instanceof Error ? e.name : "Error";
-        const detail = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+        const message = e instanceof Error ? e.message : String(e);
+        const detail = `${name}: ${message}`;
         console.error(`[PushService] pushManager.subscribe failed (tentative ${attempt}) —`, detail);
-        const retryable = attempt === 1 && (name === "AbortError" || name === "InvalidStateError");
-        if (!retryable) return { ok: false, reason: "subscribe-failed", detail };
+        const noActiveWorker = /no active service worker/i.test(message);
+        const retryable = attempt === 1 && (name === "AbortError" || name === "InvalidStateError" || noActiveWorker);
+        if (!retryable) {
+          return {
+            ok: false,
+            reason: noActiveWorker ? "sw-unavailable" : "subscribe-failed",
+            detail,
+          };
+        }
 
         // Nettoyage LOCAL uniquement (cet appareil) avant la seconde tentative.
         try {
@@ -236,9 +278,16 @@ export const PushService = {
             await this.deactivateEndpoint(staleEndpoint);
           }
         } catch { /* noop */ }
+
         await sleep(1000);
+        // Re-acquisition : la registration a pu être remplacée par une mise à
+        // jour du SW (ancienne registration devenue `redundant`).
+        const fresh = await this.activeRegistration();
+        if (!fresh) return { ok: false, reason: "sw-unavailable", detail };
+        reg = fresh;
       }
     }
+
     return { ok: false, reason: "subscribe-failed", detail: "AbortError persistant après reprise" };
   },
 
