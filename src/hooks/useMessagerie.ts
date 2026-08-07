@@ -95,7 +95,7 @@ export function useMessages(conversationId: string | null) {
       if (!conversationId) return [];
       const { data, error } = await supabase
         .from("messages")
-        .select("id, conversation_id, sender_id, content, created_at, deleted_at")
+        .select("id, conversation_id, sender_id, content, message_type, audio_path, audio_duration, created_at, deleted_at")
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: false })
         .limit(limit);
