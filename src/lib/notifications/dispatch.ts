@@ -15,7 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 export type NotificationEvent =
   | "affectation_creee"
   | "rapport_valide"
-  | "rapport_a_valider";
+  | "rapport_a_valider"
+  | "echantillon_cree";
 
 export async function dispatchNotificationEvent(
   event: NotificationEvent,
