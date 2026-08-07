@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { setFrozenRenderContext } from "@/lib/render/renderParams";
+import { armPrintReadySignal } from "@/lib/render/printReady";
 
 export default function RenderBootstrap() {
   const { token = "" } = useParams();
