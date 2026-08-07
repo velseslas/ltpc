@@ -34,6 +34,12 @@ export default function NotificationPreferences() {
   const [freq, setFreq]                 = useState<NotificationFrequency>("immediat");
   const [disabled, setDisabled]         = useState<NotificationCategory[]>([]);
   const [permission, setPermission]     = useState<string>("default");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const refreshPushState = async () => {
+    setPermission(String(PushService.currentPermission()));
+    setIsSubscribed(!!(await PushService.getSubscription()));
+  };
 
   useEffect(() => {
     if (prefs) {
@@ -44,8 +50,18 @@ export default function NotificationPreferences() {
       setFreq(prefs.frequency);
       setDisabled(prefs.disabled_categories);
     }
-    setPermission(String(PushService.currentPermission()));
+    void refreshPushState();
   }, [prefs]);
+
+  // 🟢 actif · 🟠 permission nécessaire · 🔴 refusée · ⚪ non disponible
+  const pushStatus: { badge: string; label: string; variant: "default" | "secondary" | "destructive" | "outline" } =
+    permission === "unsupported" || !PushService.isSupported()
+      ? { badge: "⚪ Non disponible", label: "Push non supporté par ce navigateur", variant: "outline" }
+      : permission === "denied"
+      ? { badge: "🔴 Refusée", label: "Permission refusée par le navigateur", variant: "destructive" }
+      : isSubscribed && permission === "granted"
+      ? { badge: "🟢 Push actif", label: "Cet appareil recevra les notifications Push", variant: "default" }
+      : { badge: "🟠 Permission nécessaire", label: "Activez les notifications pour cet appareil", variant: "secondary" };
 
   const toggleCategory = (cat: NotificationCategory) => {
     setDisabled((prev) => prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]);
@@ -65,18 +81,22 @@ export default function NotificationPreferences() {
 
   const handleEnablePush = async () => {
     const r = await PushService.subscribe();
-    setPermission(String(PushService.currentPermission()));
-    if (r.ok) toast.success("Notifications Push activées");
-    else if (r.reason === "vapid-missing") toast.warning("Clé VAPID absente — Push non activé");
-    else if (r.reason === "permission-denied") toast.error("Permission refusée");
+    await refreshPushState();
+    if (r.ok) toast.success("Push activé sur cet appareil");
+    else if (r.reason === "vapid-missing") toast.error("Configuration Push indisponible");
+    else if (r.reason === "permission-denied") toast.error("Permission refusée — réautorisez depuis les paramètres du navigateur");
     else if (r.reason === "unsupported") toast.error("Push non supporté sur ce navigateur");
+    else if (r.reason === "no-sw") toast.error("Service Worker indisponible (Push actif uniquement sur l'application publiée)");
     else toast.error("Activation impossible");
   };
 
   const handleDisablePush = async () => {
     const ok = await PushService.unsubscribe();
-    if (ok) toast.success("Push désactivé");
+    await refreshPushState();
+    if (ok) toast.success("Push désactivé sur cet appareil");
+    else toast.error("Désactivation impossible");
   };
+
 
   return (
     <>
