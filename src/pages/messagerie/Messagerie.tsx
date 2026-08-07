@@ -131,23 +131,37 @@ export default function Messagerie() {
     prevLenRef.current = messages.length;
   }, [messages]);
 
-  // ---- Clavier mobile : la zone de saisie reste visible ----
-  const [kbOffset, setKbOffset] = useState(0);
+  // ---- Hauteur réelle disponible (clavier mobile inclus) : le composer reste visible ----
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [boxHeight, setBoxHeight] = useState<number | null>(null);
+
   useEffect(() => {
-    const vv = typeof window !== "undefined" ? window.visualViewport : undefined;
-    if (!vv) return;
-    const onResize = () => {
-      const overlap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      setKbOffset(overlap);
+    const compute = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const vv = window.visualViewport;
+      const viewportH = vv ? vv.height : window.innerHeight;
+      const top = el.getBoundingClientRect().top - (vv ? vv.offsetTop : 0);
+      const bottomGap = isMobile ? 88 : 24; // barre de navigation mobile / marge desktop
+      const h = Math.max(320, viewportH - top - bottomGap);
+      setBoxHeight(h);
       if (atBottomRef.current) requestAnimationFrame(() => scrollToBottom());
     };
-    vv.addEventListener("resize", onResize);
-    vv.addEventListener("scroll", onResize);
+    compute();
+    const vv = window.visualViewport;
+    window.addEventListener("resize", compute);
+    window.addEventListener("orientationchange", compute);
+    vv?.addEventListener("resize", compute);
+    vv?.addEventListener("scroll", compute);
     return () => {
-      vv.removeEventListener("resize", onResize);
-      vv.removeEventListener("scroll", onResize);
+      window.removeEventListener("resize", compute);
+      window.removeEventListener("orientationchange", compute);
+      vv?.removeEventListener("resize", compute);
+      vv?.removeEventListener("scroll", compute);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, conversationId]);
+
 
   const handleSend = () => {
     const body = draft.trim();
