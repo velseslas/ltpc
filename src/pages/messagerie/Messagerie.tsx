@@ -353,31 +353,40 @@ export default function Messagerie() {
 
           <div className="relative z-10 shrink-0 border-t border-border bg-card p-2 sm:p-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
             <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-2 py-1.5 focus-within:ring-1 focus-within:ring-ring">
-              <Textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
-                onFocus={() => {
-                  if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Écrire un message…"
-                rows={1}
-                className="min-h-[38px] max-h-28 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:ring-0"
+              <VoiceRecorder
+                sending={sendVoiceMessage.isPending}
+                onRecordingChange={setVoiceActive}
+                onSend={handleSendVoice}
               />
-              <Button
-                size="icon"
-                className="h-9 w-9 shrink-0 rounded-full"
-                onClick={handleSend}
-                disabled={!draft.trim() || sendMessage.isPending}
-                aria-label="Envoyer"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              {!voiceActive && (
+                <>
+                  <Textarea
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
+                    onFocus={() => {
+                      if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                      }
+                    }}
+                    placeholder="Écrire un message…"
+                    rows={1}
+                    className="min-h-[38px] max-h-28 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:ring-0"
+                  />
+                  <Button
+                    size="icon"
+                    className="h-9 w-9 shrink-0 rounded-full"
+                    onClick={handleSend}
+                    disabled={!draft.trim() || sendMessage.isPending}
+                    aria-label="Envoyer"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
