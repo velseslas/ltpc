@@ -211,7 +211,9 @@ export const PushService = {
     if (!VAPID_PUBLIC_KEY) return { ok: false, reason: "vapid-missing" };
 
     // Service Worker d'abord : une indisponibilité SW n'est pas un refus de permission.
-    const reg = await this.readyRegistration();
+    // On exige un worker `activated` : sinon Chrome lève
+    // « AbortError: … no active service worker ».
+    let reg = await this.activeRegistration();
     if (!reg) return { ok: false, reason: "sw-unavailable" };
 
     // Abonnement déjà présent et compatible → réutilisation, aucun subscribe().
@@ -243,7 +245,7 @@ export const PushService = {
     }
 
     // Une tentative + une reprise après nettoyage local : AbortError signifie que
-    // la registration était encore occupée / l'ancien abonnement encore lié.
+    // la registration était encore occupée / sans worker actif.
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const sub = await reg.pushManager.subscribe({
@@ -254,10 +256,18 @@ export const PushService = {
         return { ok: true, subscription: sub };
       } catch (e) {
         const name = e instanceof Error ? e.name : "Error";
-        const detail = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+        const message = e instanceof Error ? e.message : String(e);
+        const detail = `${name}: ${message}`;
         console.error(`[PushService] pushManager.subscribe failed (tentative ${attempt}) —`, detail);
-        const retryable = attempt === 1 && (name === "AbortError" || name === "InvalidStateError");
-        if (!retryable) return { ok: false, reason: "subscribe-failed", detail };
+        const noActiveWorker = /no active service worker/i.test(message);
+        const retryable = attempt === 1 && (name === "AbortError" || name === "InvalidStateError" || noActiveWorker);
+        if (!retryable) {
+          return {
+            ok: false,
+            reason: noActiveWorker ? "sw-unavailable" : "subscribe-failed",
+            detail,
+          };
+        }
 
         // Nettoyage LOCAL uniquement (cet appareil) avant la seconde tentative.
         try {
@@ -268,9 +278,16 @@ export const PushService = {
             await this.deactivateEndpoint(staleEndpoint);
           }
         } catch { /* noop */ }
+
         await sleep(1000);
+        // Re-acquisition : la registration a pu être remplacée par une mise à
+        // jour du SW (ancienne registration devenue `redundant`).
+        const fresh = await this.activeRegistration();
+        if (!fresh) return { ok: false, reason: "sw-unavailable", detail };
+        reg = fresh;
       }
     }
+
     return { ok: false, reason: "subscribe-failed", detail: "AbortError persistant après reprise" };
   },
 
