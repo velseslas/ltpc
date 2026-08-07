@@ -20,7 +20,12 @@ const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "mailto:contact@ltpc.dz";
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-const ALLOWED_EVENTS = ["affectation_creee", "rapport_valide", "rapport_a_valider"] as const;
+const ALLOWED_EVENTS = [
+  "affectation_creee",
+  "rapport_valide",
+  "rapport_a_valider",
+  "echantillon_cree",
+] as const;
 type AllowedEvent = (typeof ALLOWED_EVENTS)[number];
 
 interface BuiltNotification {
