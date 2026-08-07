@@ -166,9 +166,15 @@ export const PushService = {
 
   /**
    * Active le Push. Réutilise systématiquement l'abonnement existant.
-   * Ne renouvelle que si l'abonnement existant n'est pas lié à la clé VAPID actuelle.
+   * Sérialisé par un verrou : un seul flux d'activation à la fois (AbortError).
    */
-  async subscribe(): Promise<{ ok: boolean; reason?: PushFailureReason; detail?: string; subscription?: PushSubscription }> {
+  async subscribe(): Promise<SubscribeResult> {
+    if (inFlight) return inFlight;
+    inFlight = this.subscribeInternal().finally(() => { inFlight = null; });
+    return inFlight;
+  },
+
+  async subscribeInternal(): Promise<SubscribeResult> {
     if (!this.isSupported()) return { ok: false, reason: "unsupported" };
     if (!VAPID_PUBLIC_KEY) return { ok: false, reason: "vapid-missing" };
 
@@ -200,21 +206,42 @@ export const PushService = {
       const staleEndpoint = existing.endpoint;
       try { await existing.unsubscribe(); } catch { /* noop */ }
       await this.deactivateEndpoint(staleEndpoint);
+      // Laisse le push service libérer la registration avant un nouveau subscribe.
+      await sleep(300);
     }
 
-    try {
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: applicationServerKeyBuffer(),
-      });
-      await this.registerSubscription(sub);
-      return { ok: true, subscription: sub };
-    } catch (e) {
-      const detail = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
-      console.error("[PushService] pushManager.subscribe failed —", detail);
-      return { ok: false, reason: "subscribe-failed", detail };
+    // Une tentative + une reprise après nettoyage local : AbortError signifie que
+    // la registration était encore occupée / l'ancien abonnement encore lié.
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: applicationServerKeyBuffer(),
+        });
+        await this.registerSubscription(sub);
+        return { ok: true, subscription: sub };
+      } catch (e) {
+        const name = e instanceof Error ? e.name : "Error";
+        const detail = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+        console.error(`[PushService] pushManager.subscribe failed (tentative ${attempt}) —`, detail);
+        const retryable = attempt === 1 && (name === "AbortError" || name === "InvalidStateError");
+        if (!retryable) return { ok: false, reason: "subscribe-failed", detail };
+
+        // Nettoyage LOCAL uniquement (cet appareil) avant la seconde tentative.
+        try {
+          const stale = await reg.pushManager.getSubscription();
+          if (stale) {
+            const staleEndpoint = stale.endpoint;
+            await stale.unsubscribe().catch(() => false);
+            await this.deactivateEndpoint(staleEndpoint);
+          }
+        } catch { /* noop */ }
+        await sleep(1000);
+      }
     }
+    return { ok: false, reason: "subscribe-failed", detail: "AbortError persistant après reprise" };
   },
+
 
   async unsubscribe(): Promise<boolean> {
     const sub = await this.getSubscription();
