@@ -185,6 +185,19 @@ export default function Messagerie() {
     requestAnimationFrame(() => scrollToBottom("smooth"));
   };
 
+  const handleSendVoice = (blob: Blob, duration: number, mimeType: string) => {
+    if (!conversationId) return;
+    atBottomRef.current = true;
+    sendVoiceMessage.mutate(
+      { conversationId, blob, duration, mimeType },
+      {
+        onError: (e) =>
+          toast({ title: "Envoi du vocal impossible", description: (e as Error).message, variant: "destructive" }),
+        onSuccess: () => requestAnimationFrame(() => scrollToBottom("smooth")),
+      }
+    );
+  };
+
 
   const showList = !isMobile || !conversationId;
   const showThread = !isMobile || !!conversationId;
