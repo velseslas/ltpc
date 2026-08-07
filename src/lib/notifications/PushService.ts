@@ -55,15 +55,21 @@ export const PushService = {
     } catch { return null; }
   },
 
-  /** Souscrit et enregistre côté serveur. Nécessite VITE_VAPID_PUBLIC_KEY. */
+  /** Souscrit et enregistre côté serveur. Nécessite la clé publique VAPID. */
   async subscribe(): Promise<{ ok: boolean; reason?: string; subscription?: PushSubscription }> {
     if (!this.isSupported()) return { ok: false, reason: "unsupported" };
     if (!VAPID_PUBLIC_KEY) return { ok: false, reason: "vapid-missing" };
     const perm = await this.requestPermission();
     if (perm !== "granted") return { ok: false, reason: "permission-denied" };
     try {
-      const reg = await navigator.serviceWorker.getRegistration();
+      // Attend que le Service Worker soit réellement prêt (PWA fraîchement installée).
+      const reg = (await navigator.serviceWorker.getRegistration())
+        ?? (await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise<undefined>((r) => setTimeout(() => r(undefined), 8000)),
+        ]));
       if (!reg) return { ok: false, reason: "no-sw" };
+
       const existing = await reg.pushManager.getSubscription();
       const key = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const sub = existing ?? await reg.pushManager.subscribe({
