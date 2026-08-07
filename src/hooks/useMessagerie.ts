@@ -1,5 +1,5 @@
 // LOT 15 — Messagerie interne LTPC : hooks React Query + Realtime.
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase as _supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
