@@ -70,6 +70,24 @@ function detectPlatform(): string {
   return "web";
 }
 
+/**
+ * LOT 14.2 (AbortError) — verrou d'activation.
+ * Chrome/Android lève `AbortError` lorsqu'un `subscribe()` est demandé alors
+ * qu'une opération pushManager (subscribe/unsubscribe) est déjà en cours sur la
+ * même registration. Les paires d'abonnements créées à 1–3 s d'intervalle en
+ * base prouvent ces appels concurrents. Un seul flux d'activation à la fois.
+ */
+let inFlight: Promise<SubscribeResult> | null = null;
+
+export interface SubscribeResult {
+  ok: boolean;
+  reason?: PushFailureReason;
+  detail?: string;
+  subscription?: PushSubscription;
+}
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
 export const PushService = {
   isSupported(): boolean {
     return typeof window !== "undefined"
