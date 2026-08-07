@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { conversationLabel, MESSAGE_MAX_LENGTH, type ConversationSummary } from "@/hooks/useMessagerie";
+import { conversationLabel, isSendableMessage, MESSAGE_MAX_LENGTH, sortConversations, type ConversationSummary } from "@/lib/messagerie/model";
 
 const base: ConversationSummary = {
   id: "c1",
@@ -15,10 +15,7 @@ const base: ConversationSummary = {
   is_archived: false,
 };
 
-const isSendable = (raw: string) => {
-  const body = raw.trim();
-  return body.length > 0 && body.length <= MESSAGE_MAX_LENGTH;
-};
+const isSendable = isSendableMessage;
 
 describe("messagerie", () => {
   it("libellé d'une conversation directe = nom de l'interlocuteur", () => {
@@ -47,7 +44,8 @@ describe("messagerie", () => {
     const list: ConversationSummary[] = [
       { ...base, id: "a", last_message_at: "2026-01-01T09:00:00Z" },
       { ...base, id: "b", last_message_at: "2026-01-01T12:00:00Z" },
-    ].sort((x, y) => +new Date(y.last_message_at) - +new Date(x.last_message_at));
-    expect(list.map((c) => c.id)).toEqual(["b", "a"]);
+    ];
+    const sorted = sortConversations(list);
+    expect(sorted.map((c) => c.id)).toEqual(["b", "a"]);
   });
 });

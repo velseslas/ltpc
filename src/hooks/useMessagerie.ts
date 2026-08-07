@@ -14,42 +14,22 @@ const supabase = _supabase as unknown as {
   removeChannel: typeof _supabase.removeChannel;
 };
 
-export const MESSAGE_MAX_LENGTH = 4000;
+export {
+  MESSAGE_MAX_LENGTH,
+  conversationLabel,
+  isSendableMessage,
+  sortConversations,
+} from "@/lib/messagerie/model";
+export type { ConversationSummary, Message, MessagingUser } from "@/lib/messagerie/model";
+
+import {
+  MESSAGE_MAX_LENGTH as MAX_LEN,
+  type ConversationSummary,
+  type Message,
+  type MessagingUser,
+} from "@/lib/messagerie/model";
+
 const PAGE_SIZE = 30;
-
-export interface ConversationSummary {
-  id: string;
-  type: "direct" | "chantier";
-  titre: string | null;
-  chantier_id: string | null;
-  chantier_nom: string | null;
-  other_user_id: string | null;
-  other_user_nom: string | null;
-  last_message_at: string;
-  last_message_preview: string | null;
-  unread_count: number;
-  is_archived: boolean;
-}
-
-export interface Message {
-  id: string;
-  conversation_id: string;
-  sender_id: string;
-  content: string;
-  created_at: string;
-  deleted_at: string | null;
-}
-
-export interface MessagingUser {
-  user_id: string;
-  nom: string | null;
-  role: string | null;
-}
-
-export function conversationLabel(c: ConversationSummary): string {
-  if (c.type === "chantier") return c.titre || c.chantier_nom || "Conversation chantier";
-  return c.other_user_nom || "Utilisateur";
-}
 
 /** Liste des conversations (triées : dernier message en premier). */
 export function useConversations() {
@@ -179,7 +159,7 @@ export function useMessagerieActions() {
     mutationFn: async ({ conversationId, content }: { conversationId: string; content: string }) => {
       const body = content.trim();
       if (!body) throw new Error("Message vide");
-      if (body.length > MESSAGE_MAX_LENGTH) throw new Error("Message trop long");
+      if (body.length > MAX_LEN) throw new Error("Message trop long");
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) throw new Error("Non authentifié");
