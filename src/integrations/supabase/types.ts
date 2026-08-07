@@ -6778,30 +6778,39 @@ export type Database = {
       }
       messages: {
         Row: {
-          content: string
+          audio_duration: number | null
+          audio_path: string | null
+          content: string | null
           conversation_id: string
           created_at: string
           deleted_at: string | null
           edited_at: string | null
           id: string
+          message_type: string
           sender_id: string
         }
         Insert: {
-          content: string
+          audio_duration?: number | null
+          audio_path?: string | null
+          content?: string | null
           conversation_id: string
           created_at?: string
           deleted_at?: string | null
           edited_at?: string | null
           id?: string
+          message_type?: string
           sender_id: string
         }
         Update: {
-          content?: string
+          audio_duration?: number | null
+          audio_path?: string | null
+          content?: string | null
           conversation_id?: string
           created_at?: string
           deleted_at?: string | null
           edited_at?: string | null
           id?: string
+          message_type?: string
           sender_id?: string
         }
         Relationships: [
