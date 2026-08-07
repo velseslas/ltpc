@@ -47,7 +47,21 @@ async function userIdsForRoles(roles: string[]): Promise<string[]> {
   return Array.from(new Set((data ?? []).map((r: { user_id: string }) => r.user_id)));
 }
 
-async function buildNotification(event: AllowedEvent, resourceId: string): Promise<BuiltNotification | null> {
+/** Résout les user_id auth des intervenants actuellement affectés à un chantier. */
+async function userIdsForChantierAffectations(chantierId: string | null): Promise<string[]> {
+  if (!chantierId) return [];
+  const { data: affs } = await admin.from("affectations")
+    .select("intervenant_id").eq("chantier_id", chantierId);
+  const ids = Array.from(new Set(
+    (affs ?? []).map((a: { intervenant_id: string | null }) => a.intervenant_id).filter((v): v is string => !!v)
+  ));
+  if (ids.length === 0) return [];
+  const { data } = await admin.from("utilisateurs")
+    .select("user_id").in("intervenant_id", ids).eq("statut", "actif");
+  return (data ?? []).map((u: { user_id: string | null }) => u.user_id).filter((v): v is string => !!v);
+}
+
+async function buildNotification(event: AllowedEvent, resourceId: string, callerId: string): Promise<BuiltNotification | null> {
   if (event === "affectation_creee") {
     const { data: aff } = await admin.from("affectations")
       .select("id, intervenant_id, chantier_id, date_debut, chantiers:chantier_id(nom), intervenants:intervenant_id(nom, prenom)")
