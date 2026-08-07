@@ -121,7 +121,9 @@ Deno.serve(async (req) => {
       });
     } catch (e) {
       clearTimeout(timer);
-      return json({ error: `Moteur PDF injoignable : ${e instanceof Error ? e.message : "timeout"}` }, 502);
+      // L'URL du moteur n'est jamais renvoyée au client (ni le secret).
+      console.error("gotenberg_unreachable", e instanceof Error ? e.name : "unknown");
+      return json({ error: "Moteur PDF injoignable" }, 502);
     }
     clearTimeout(timer);
 
