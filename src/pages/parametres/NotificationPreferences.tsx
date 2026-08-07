@@ -37,6 +37,7 @@ export default function NotificationPreferences() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [swReady, setSwReady]           = useState(true);
   const [pushError, setPushError]       = useState<string | null>(null);
+  const [pushBusy, setPushBusy]         = useState(false);
   const [checking, setChecking]         = useState(true);
 
   const refreshPushState = useCallback(async () => {
