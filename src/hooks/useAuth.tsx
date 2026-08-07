@@ -84,6 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        setTimeout(() => {
+          if (nextSession.user) void logConnexionStart(nextSession.user);
+        }, 0);
+      }
+
       // On preview refresh, the restored INITIAL_SESSION can contain an expired
       // access token. Refresh it before exposing the user to protected queries.
       if (shouldRefreshSession(nextSession)) {
