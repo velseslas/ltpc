@@ -58,6 +58,7 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const visibleItems = useVisibleMenuItems();
+  const { data: unreadMessages = 0 } = useUnreadMessagesCount();
 
   return (
     <aside
@@ -73,13 +74,14 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <ul className="space-y-1.5">
           {visibleItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const badge = item.path === "/messagerie" ? unreadMessages : 0;
             return (
               <li key={item.path}>
                 <NavLink
                   to={item.path}
                   title={collapsed ? item.title : undefined}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group",
+                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group relative",
                     isActive
                       ? "bg-primary/10 text-primary box-glow"
                       : "text-sidebar-foreground hover:bg-primary/10 hover:text-primary",
@@ -93,9 +95,25 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                     )}
                   />
                   {!collapsed && (
-                    <span className="text-sm font-medium truncate">{item.title}</span>
+                    <span className="text-sm font-medium truncate flex-1">{item.title}</span>
+                  )}
+                  {badge > 0 && (
+                    <span
+                      className={cn(
+                        "bg-primary text-primary-foreground text-[10px] font-semibold rounded-full min-w-5 h-5 px-1.5 grid place-items-center",
+                        collapsed && "absolute top-1 right-1 min-w-4 h-4 px-1"
+                      )}
+                    >
+                      {badge > 99 ? "99+" : badge}
+                    </span>
                   )}
                 </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
               </li>
             );
           })}
