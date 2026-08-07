@@ -17,6 +17,7 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { useRenderParams, frozenDate, frozenString } from "@/lib/render/renderParams";
 
 export default function EtatCoulages() {
   const navigate = useNavigate();
@@ -29,13 +30,17 @@ export default function EtatCoulages() {
   const { data: entreprise } = useEntreprise();
   const { data: centrales } = useCentralesBeton();
 
-  const [dateDebut, setDateDebut] = useState<Date | undefined>();
-  const [dateFin, setDateFin] = useState<Date | undefined>();
-  const [ouvrageFilter, setOuvrageFilter] = useState("all");
-  const [partieFilter, setPartieFilter] = useState("all");
-  const [centraleFilter, setCentraleFilter] = useState("all");
-  const [statutFilter, setStatutFilter] = useState("all");
-  const [generated, setGenerated] = useState(false);
+  // §7.2 — Rendu PDF déterministe : filtres figés côté serveur par le jeton de
+  // rendu. Hors contexte PDF, `frozen` vaut null et l'écran est inchangé.
+  const frozen = useRenderParams("etat-coulages");
+
+  const [dateDebut, setDateDebut] = useState<Date | undefined>(() => frozenDate(frozen, "date_debut"));
+  const [dateFin, setDateFin] = useState<Date | undefined>(() => frozenDate(frozen, "date_fin"));
+  const [ouvrageFilter, setOuvrageFilter] = useState(() => frozenString(frozen, "ouvrage", "all"));
+  const [partieFilter, setPartieFilter] = useState(() => frozenString(frozen, "partie", "all"));
+  const [centraleFilter, setCentraleFilter] = useState(() => frozenString(frozen, "centrale", "all"));
+  const [statutFilter, setStatutFilter] = useState(() => frozenString(frozen, "statut", "all"));
+  const [generated, setGenerated] = useState(() => frozen !== null);
 
   // Extract unique values for filters
   const ouvrages = useMemo(() => {

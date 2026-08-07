@@ -8325,6 +8325,42 @@ export type Database = {
           },
         ]
       }
+      render_tokens: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          params: Json
+          report_kind: string
+          resource_id: string | null
+          token: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          params?: Json
+          report_kind: string
+          resource_id?: string | null
+          token: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          params?: Json
+          report_kind?: string
+          resource_id?: string | null
+          token?: string
+        }
+        Relationships: []
+      }
       role_definitions: {
         Row: {
           alias_of: Database["public"]["Enums"]["app_role"] | null

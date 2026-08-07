@@ -381,11 +381,26 @@
     visibility: hidden !important;
   }
 
-  /* ...then reveal only the report tree */
+  /* ...then reveal only the report tree.
+     §7.1 — Deux racines d'impression coexistent dans Phase 11 :
+     `[data-ref="report"]` (rapports d'essais) et `[data-print-root]`
+     (Print Engine V2 — rapports techniques). Les deux doivent être révélées,
+     sinon la racine V2 reste invisible → PDF blanc sous Chromium/Gotenberg. */
   [data-ref="report"],
-  [data-ref="report"] * {
+  [data-ref="report"] *,
+  [data-print-root],
+  [data-print-root] * {
     visibility: visible !important;
   }
+
+  /* La racine V2 doit également remonter dans le flux normal */
+  [data-print-root] {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
 
   /* Display report in normal flow (fixes multi-page clipping and charts) */
   [data-ref="report"] {
