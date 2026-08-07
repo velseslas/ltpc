@@ -30,8 +30,9 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
   const warningCount = notifications.filter((n) => n.severity === "warning").length
     + persisted.filter((p) => !p.is_read && p.priority === "warning").length;
   const totalCount = notifications.length + persistedUnread;
-  // Le badge n'affiche que les éléments en retard (urgents)
-  const badgeCount = errorCount;
+  // Le badge reflète exactement ce que l'utilisateur peut consulter dans la cloche :
+  // notifications métier persistantes non lues + alertes dynamiques calculées.
+  const badgeCount = totalCount;
 
   const handleNotificationClick = (notification: Notification) => {
     if (notification.link) {
@@ -67,7 +68,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label={badgeCount > 0 ? `Notifications (${badgeCount} en retard)` : "Notifications"}
+          aria-label={badgeCount > 0 ? `Notifications (${badgeCount} à consulter)` : "Notifications"}
           className={cn(
             "relative flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group w-full",
             "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",

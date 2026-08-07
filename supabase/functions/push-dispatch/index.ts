@@ -52,7 +52,21 @@ async function userIdsForRoles(roles: string[]): Promise<string[]> {
   return Array.from(new Set((data ?? []).map((r: { user_id: string }) => r.user_id)));
 }
 
-async function buildNotification(event: AllowedEvent, resourceId: string): Promise<BuiltNotification | null> {
+/** Résout les user_id auth des intervenants actuellement affectés à un chantier. */
+async function userIdsForChantierAffectations(chantierId: string | null): Promise<string[]> {
+  if (!chantierId) return [];
+  const { data: affs } = await admin.from("affectations")
+    .select("intervenant_id").eq("chantier_id", chantierId);
+  const ids = Array.from(new Set(
+    (affs ?? []).map((a: { intervenant_id: string | null }) => a.intervenant_id).filter((v): v is string => !!v)
+  ));
+  if (ids.length === 0) return [];
+  const { data } = await admin.from("utilisateurs")
+    .select("user_id").in("intervenant_id", ids).eq("statut", "actif");
+  return (data ?? []).map((u: { user_id: string | null }) => u.user_id).filter((v): v is string => !!v);
+}
+
+async function buildNotification(event: AllowedEvent, resourceId: string, callerId: string): Promise<BuiltNotification | null> {
   if (event === "affectation_creee") {
     const { data: aff } = await admin.from("affectations")
       .select("id, intervenant_id, chantier_id, date_debut, chantiers:chantier_id(nom), intervenants:intervenant_id(nom, prenom)")
@@ -68,6 +82,43 @@ async function buildNotification(event: AllowedEvent, resourceId: string): Promi
       title: "Nouvelle affectation",
       message: `Vous êtes affecté au chantier ${chantierNom}${aff.date_debut ? ` à partir du ${aff.date_debut}` : ""}.`,
       link: aff.chantier_id ? `/intervenant/chantiers/${aff.chantier_id}` : "/rh/affectations",
+    };
+  }
+
+  if (event === "echantillon_cree") {
+    const { data: ech } = await admin.from("echantillons_compression")
+      .select("id, numero, numero_chantier, chantier_id, ouvrage, is_laboratoire_chantier, chantiers:chantier_id(nom), clients:client_id(nom)")
+      .eq("id", resourceId).maybeSingle();
+    if (!ech) return null;
+
+    const chantierNom = (ech.chantiers as { nom?: string } | null)?.nom ?? "un chantier";
+    const clientNom = (ech.clients as { nom?: string } | null)?.nom ?? "";
+    const numeroAffiche = ech.is_laboratoire_chantier
+      ? (ech.numero_chantier ?? ech.numero)
+      : ech.numero;
+    const reference = `EC-${String(numeroAffiche ?? "").padStart(3, "0")}`;
+
+    // Destinataires : relations métier existantes uniquement —
+    // intervenants affectés au chantier + encadrement. Le créateur est exclu.
+    const [affectes, encadrement] = await Promise.all([
+      userIdsForChantierAffectations(ech.chantier_id as string | null),
+      userIdsForRoles(["super_admin", "admin", "manager", "ingenieur"]),
+    ]);
+    const recipients = Array.from(new Set([...affectes, ...encadrement])).filter((u) => u !== callerId);
+
+    // Lien interne LTPC reconstruit côté serveur (jamais fourni par le client).
+    const link = ech.is_laboratoire_chantier && ech.chantier_id
+      ? `/laboratoires-mobiles/chantier/${ech.chantier_id}/echantillon/${ech.id}`
+      : `/essais/beton/beton-durci/compression/${ech.id}`;
+
+    return {
+      recipients,
+      type: "echantillon_cree",
+      category: "compression",
+      priority: "info",
+      title: "Nouvel échantillon",
+      message: `${reference} — nouvel échantillon créé pour le chantier ${chantierNom}${clientNom ? ` (${clientNom})` : ""}${ech.ouvrage ? ` — ${ech.ouvrage}` : ""}.`,
+      link,
     };
   }
 
@@ -173,7 +224,7 @@ Deno.serve(async (req) => {
       webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
     }
 
-    const built = await buildNotification(event as AllowedEvent, resourceId);
+    const built = await buildNotification(event as AllowedEvent, resourceId, guard.userId);
     if (!built) {
       return new Response(JSON.stringify({ error: "Ressource introuvable" }), {
         status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
