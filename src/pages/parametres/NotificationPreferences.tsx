@@ -110,23 +110,39 @@ export default function NotificationPreferences() {
                 <div className="flex items-center gap-3"><Bell className="w-4 h-4" /><Label>Notifications dans l'application</Label></div>
                 <Switch checked={inapp} onCheckedChange={setInapp} />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <Smartphone className="w-4 h-4" />
                   <div>
                     <Label>Notifications Push (Web / PWA)</Label>
-                    <p className="text-xs text-muted-foreground">Permission : {permission}</p>
+                    <p className="text-xs text-muted-foreground">{pushStatus.label}</p>
+                    {permission === "denied" && (
+                      <p className="text-xs text-muted-foreground mt-1 max-w-md">
+                        Les notifications sont bloquées par le navigateur. Réautorisez-les
+                        depuis les paramètres du site (icône cadenas dans la barre d'adresse),
+                        puis revenez sur cette page.
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge variant={pushStatus.variant}>{pushStatus.badge}</Badge>
                   <Switch checked={pushEnabled} onCheckedChange={setPushEnabled} />
-                  {permission !== "granted" ? (
-                    <Button size="sm" variant="outline" onClick={handleEnablePush}>Activer</Button>
-                  ) : (
+                  {isSubscribed ? (
                     <Button size="sm" variant="ghost" onClick={handleDisablePush}>Désactiver</Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleEnablePush}
+                      disabled={permission === "denied" || permission === "unsupported"}
+                    >
+                      Activer
+                    </Button>
                   )}
                 </div>
               </div>
+
               <div className="flex items-center justify-between opacity-60">
                 <div className="flex items-center gap-3"><Mail className="w-4 h-4" /><Label>Email <Badge variant="outline" className="ml-2">Bientôt</Badge></Label></div>
                 <Switch checked={email} onCheckedChange={setEmail} />
