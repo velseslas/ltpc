@@ -5860,6 +5860,45 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_connexions: {
+        Row: {
+          connexion_at: string
+          created_at: string
+          deconnexion_at: string | null
+          duree_secondes: number | null
+          id: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+          utilisateur_email: string | null
+          utilisateur_nom: string | null
+        }
+        Insert: {
+          connexion_at?: string
+          created_at?: string
+          deconnexion_at?: string | null
+          duree_secondes?: number | null
+          id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+          utilisateur_email?: string | null
+          utilisateur_nom?: string | null
+        }
+        Update: {
+          connexion_at?: string
+          created_at?: string
+          deconnexion_at?: string | null
+          duree_secondes?: number | null
+          id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+          utilisateur_email?: string | null
+          utilisateur_nom?: string | null
+        }
+        Relationships: []
+      }
       laboratoires_mobiles: {
         Row: {
           chantier_id: string | null

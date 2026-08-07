@@ -1,6 +1,7 @@
 import { useEffect, useState, createContext, useContext, ReactNode, useMemo } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { logConnexionStart, logConnexionEnd } from "@/lib/auth/connectionLog";
 
 interface AuthContextType {
   user: User | null;
@@ -83,6 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        setTimeout(() => {
+          if (nextSession.user) void logConnexionStart(nextSession.user);
+        }, 0);
+      }
+
       // On preview refresh, the restored INITIAL_SESSION can contain an expired
       // access token. Refresh it before exposing the user to protected queries.
       if (shouldRefreshSession(nextSession)) {
@@ -152,6 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    await logConnexionEnd();
     const { error } = await supabase.auth.signOut();
     if (error) {
       await supabase.auth.signOut({ scope: "local" }).catch(() => {});

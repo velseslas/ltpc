@@ -17,6 +17,7 @@ const SystemeSettings = lazy(() => import("@/pages/parametres/SystemeSettings"))
 const RolesPermissions = lazy(() => import("@/pages/parametres/RolesPermissions"));
 const IAAPISettings = lazy(() => import("@/pages/parametres/IAAPISettings"));
 const NotificationPreferences = lazy(() => import("@/pages/parametres/NotificationPreferences"));
+const JournalConnexions = lazy(() => import("@/pages/parametres/JournalConnexions"));
 
 /** Routes de paramétrage (entreprise, TVA, utilisateurs, sécurité, notifications, etc.). */
 export const parametresRoutes = (
@@ -29,6 +30,7 @@ export const parametresRoutes = (
     <Route path="/parametres/authentification" element={<Authentification />} />
     <Route path="/parametres/securite" element={<Securite />} />
     <Route path="/parametres/audit" element={<AuditLog />} />
+    <Route path="/parametres/journal-connexions" element={<JournalConnexions />} />
     <Route path="/parametres/notifications" element={<NotificationsSettings />} />
     <Route path="/parametres/notifications-preferences" element={<NotificationPreferences />} />
     <Route path="/parametres/database" element={<DatabaseSettings />} />

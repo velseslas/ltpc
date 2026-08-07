@@ -13,7 +13,8 @@ import {
   QrCode, 
   Settings,
   UserCog,
-  Brain
+  Brain,
+  LogIn
 } from "lucide-react";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
@@ -83,6 +84,15 @@ const Parametres = () => {
       gradient: "from-teal-500/20 to-cyan-500/10",
       iconColor: "text-teal-500",
       path: "/parametres/audit"
+    },
+    {
+      id: "journal-connexions",
+      title: "Journal des connexions",
+      description: "Connexions, déconnexions et temps de connexion des utilisateurs",
+      icon: LogIn,
+      gradient: "from-lime-500/20 to-emerald-500/10",
+      iconColor: "text-lime-500",
+      path: "/parametres/journal-connexions"
     },
     {
       id: "notifications",
