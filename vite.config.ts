@@ -33,7 +33,10 @@ export default defineConfig(({ mode }) => ({
       devOptions: { enabled: false },
       workbox: {
         sourcemap: false,
+        // LOT 14.2 — handlers `push` / `notificationclick` (aucun impact cache).
+        importScripts: ["/push-sw.js"],
         cleanupOutdatedCaches: true,
+
         clientsClaim: true,
         // MAJ jamais silencieuse : le nouveau SW est activé au rechargement
         // demandé explicitement par l'utilisateur (PWAUpdatePrompt).
