@@ -201,7 +201,7 @@ export default function Messagerie() {
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 p-4">
+          <div className="flex-1 overflow-y-auto p-4 min-h-0">
             <div className="space-y-3">
               {messages.map((m) => {
                 const mine = m.sender_id === user?.id;
@@ -228,9 +228,9 @@ export default function Messagerie() {
               })}
               <div ref={bottomRef} />
             </div>
-          </ScrollArea>
+          </div>
 
-          <div className="p-3 border-t border-border flex items-end gap-2">
+          <div className="shrink-0 p-3 border-t border-border flex items-end gap-2 bg-card">
             <Textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
