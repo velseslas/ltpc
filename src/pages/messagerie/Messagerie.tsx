@@ -46,6 +46,7 @@ export default function Messagerie() {
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
   const [newOpen, setNewOpen] = useState(false);
+  const [voiceActive, setVoiceActive] = useState(false);
 
   const { data: conversations = [], isLoading } = useConversations();
   const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
