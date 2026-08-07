@@ -114,11 +114,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </ul>
       </nav>
 
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+
 
       {/* Collapse Button */}
       <button
