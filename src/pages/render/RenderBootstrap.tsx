@@ -37,6 +37,7 @@ export default function RenderBootstrap() {
         params: data.params ?? {},
       });
       document.documentElement.setAttribute("data-render-status", "ready");
+      armPrintReadySignal();
       document.documentElement.setAttribute("data-render-kind", String(data.report_kind));
       navigate(String(data.path), { replace: true });
     })();
