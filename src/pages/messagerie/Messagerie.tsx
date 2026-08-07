@@ -131,23 +131,37 @@ export default function Messagerie() {
     prevLenRef.current = messages.length;
   }, [messages]);
 
-  // ---- Clavier mobile : la zone de saisie reste visible ----
-  const [kbOffset, setKbOffset] = useState(0);
+  // ---- Hauteur réelle disponible (clavier mobile inclus) : le composer reste visible ----
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [boxHeight, setBoxHeight] = useState<number | null>(null);
+
   useEffect(() => {
-    const vv = typeof window !== "undefined" ? window.visualViewport : undefined;
-    if (!vv) return;
-    const onResize = () => {
-      const overlap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      setKbOffset(overlap);
+    const compute = () => {
+      const el = containerRef.current;
+      if (!el) return;
+      const vv = window.visualViewport;
+      const viewportH = vv ? vv.height : window.innerHeight;
+      const top = el.getBoundingClientRect().top - (vv ? vv.offsetTop : 0);
+      const bottomGap = isMobile ? 88 : 24; // barre de navigation mobile / marge desktop
+      const h = Math.max(320, viewportH - top - bottomGap);
+      setBoxHeight(h);
       if (atBottomRef.current) requestAnimationFrame(() => scrollToBottom());
     };
-    vv.addEventListener("resize", onResize);
-    vv.addEventListener("scroll", onResize);
+    compute();
+    const vv = window.visualViewport;
+    window.addEventListener("resize", compute);
+    window.addEventListener("orientationchange", compute);
+    vv?.addEventListener("resize", compute);
+    vv?.addEventListener("scroll", compute);
     return () => {
-      vv.removeEventListener("resize", onResize);
-      vv.removeEventListener("scroll", onResize);
+      window.removeEventListener("resize", compute);
+      window.removeEventListener("orientationchange", compute);
+      vv?.removeEventListener("resize", compute);
+      vv?.removeEventListener("scroll", compute);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, conversationId]);
+
 
   const handleSend = () => {
     const body = draft.trim();
@@ -277,12 +291,14 @@ export default function Messagerie() {
             </Button>
           </div>
 
-          <div className="relative flex-1 min-h-0">
+          <div className="relative flex-1 min-h-0 bg-background">
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="h-full overflow-y-auto overscroll-contain p-4"
+              style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+              className="h-full overflow-y-auto overscroll-contain px-3 py-4 sm:px-4"
             >
+
               {hasMore && (
                 <div className="flex justify-center pb-3">
                   <Button variant="ghost" size="sm" onClick={loadOlder} disabled={isLoadingOlder}>
@@ -329,35 +345,36 @@ export default function Messagerie() {
             )}
           </div>
 
-          <div
-            className="shrink-0 p-3 border-t border-border flex items-end gap-2 bg-card"
-            style={{ paddingBottom: kbOffset ? kbOffset + 12 : undefined }}
-          >
-            <Textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
-              onFocus={() => {
-                if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder="Écrire un message…"
-              rows={1}
-              className="min-h-[42px] max-h-32 resize-none"
-            />
-            <Button
-              size="icon"
-              onClick={handleSend}
-              disabled={!draft.trim() || sendMessage.isPending}
-              aria-label="Envoyer"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+          <div className="shrink-0 border-t border-border bg-card p-2 sm:p-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            <div className="flex items-end gap-2 rounded-2xl border border-border bg-background px-2 py-1.5 focus-within:ring-1 focus-within:ring-ring">
+              <Textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value.slice(0, MESSAGE_MAX_LENGTH))}
+                onFocus={() => {
+                  if (atBottomRef.current) setTimeout(() => scrollToBottom("smooth"), 250);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder="Écrire un message…"
+                rows={1}
+                className="min-h-[38px] max-h-28 resize-none border-0 bg-transparent px-1 py-1.5 shadow-none focus-visible:ring-0"
+              />
+              <Button
+                size="icon"
+                className="h-9 w-9 shrink-0 rounded-full"
+                onClick={handleSend}
+                disabled={!draft.trim() || sendMessage.isPending}
+                aria-label="Envoyer"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
+
 
         </>
       )}
@@ -366,10 +383,15 @@ export default function Messagerie() {
 
   return (
     <>
-      <div className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-7rem)] grid md:grid-cols-[320px_1fr] rounded-lg border border-border overflow-hidden bg-card">
+      <div
+        ref={containerRef}
+        style={{ height: boxHeight ?? undefined }}
+        className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-7rem)] grid md:grid-cols-[320px_1fr] rounded-lg border border-border overflow-hidden bg-card"
+      >
         {showList && list}
         {showThread && thread}
       </div>
+
       <NewConversationDialog open={newOpen} onOpenChange={setNewOpen} />
     </>
   );
