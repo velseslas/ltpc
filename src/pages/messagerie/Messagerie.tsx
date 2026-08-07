@@ -291,12 +291,14 @@ export default function Messagerie() {
             </Button>
           </div>
 
-          <div className="relative flex-1 min-h-0">
+          <div className="relative flex-1 min-h-0 bg-background">
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="h-full overflow-y-auto overscroll-contain p-4"
+              style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+              className="h-full overflow-y-auto overscroll-contain px-3 py-4 sm:px-4"
             >
+
               {hasMore && (
                 <div className="flex justify-center pb-3">
                   <Button variant="ghost" size="sm" onClick={loadOlder} disabled={isLoadingOlder}>
