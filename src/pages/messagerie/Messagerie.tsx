@@ -23,6 +23,8 @@ import {
   type ConversationSummary,
 } from "@/hooks/useMessagerie";
 import { NewConversationDialog } from "@/components/messagerie/NewConversationDialog";
+import { VoiceRecorder } from "@/components/messagerie/VoiceRecorder";
+import { VoiceMessage } from "@/components/messagerie/VoiceMessage";
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
