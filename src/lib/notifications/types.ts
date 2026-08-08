@@ -77,9 +77,9 @@ export const PRIORITY_META: Record<NotificationPriority, { label: string; color:
 };
 
 export const CATEGORY_META: Record<NotificationCategory, { label: string }> = {
-  // LOT 14.4 — catégories Push dédiées (échéances compression + messages reçus).
-  echeance_compression: { label: "Échéances compression (Push)" },
-  message_recu:   { label: "Messages reçus (Push)" },
+  // Libellés strictement métier : le canal (in-app / Push) n'apparaît jamais ici.
+  echeance_compression: { label: "Échéance d'essai de compression" },
+  message_recu:   { label: "Messages" },
   laboratoire:    { label: "Laboratoire" },
   essais:         { label: "Essais" },
   compression:    { label: "Compression" },
@@ -117,4 +117,16 @@ export function getPriorityMeta(priority: string | null | undefined): { label: s
     return PRIORITY_META[priority as NotificationPriority];
   }
   return PRIORITY_META.info;
+}
+
+/**
+ * Sévérité d'affichage historique de la cloche : 🔴 Urgent / 🟠 Avertissement / 🔵 Information.
+ * Dérivée UNIQUEMENT de `priority` (jamais du canal).
+ */
+export type NotificationSeverity = "error" | "warning" | "info";
+
+export function severityFromPriority(priority: string | null | undefined): NotificationSeverity {
+  if (priority === "critical" || priority === "urgent") return "error";
+  if (priority === "warning") return "warning";
+  return "info";
 }

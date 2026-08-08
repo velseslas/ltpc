@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bell, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCheck, Archive, Sparkles } from "lucide-react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
 import { usePersistedNotifications, useUnreadNotificationCount, useNotificationActions } from "@/hooks/useNotificationCenter";
-import { getCategoryMeta, getPriorityMeta } from "@/lib/notifications/types";
+import { getCategoryMeta, severityFromPriority } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
@@ -26,9 +26,9 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
   const navigate = useNavigate();
 
   const errorCount = notifications.filter((n) => n.severity === "error").length
-    + persisted.filter((p) => !p.is_read && (p.priority === "urgent" || p.priority === "critical")).length;
+    + persisted.filter((p) => !p.is_read && severityFromPriority(p.priority) === "error").length;
   const warningCount = notifications.filter((n) => n.severity === "warning").length
-    + persisted.filter((p) => !p.is_read && p.priority === "warning").length;
+    + persisted.filter((p) => !p.is_read && severityFromPriority(p.priority) === "warning").length;
   const totalCount = notifications.length + persistedUnread;
   // Le badge reflète exactement ce que l'utilisateur peut consulter dans la cloche :
   // notifications métier persistantes non lues + alertes dynamiques calculées.
@@ -128,19 +128,22 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {persisted.map((p) => (
+              {persisted.map((p) => {
+                const severity = severityFromPriority(p.priority);
+                return (
                 <div
                   key={`p-${p.id}`}
                   className={cn(
                     "w-full p-3 text-left transition-colors border-l-2",
-                    p.is_read ? "border-l-border bg-transparent" : "border-l-primary bg-primary/5",
+                    getSeverityBg(severity),
+                    p.is_read && "opacity-70",
                   )}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-0.5">
                       {p.source === "ai"
                         ? <Sparkles className="w-4 h-4 text-violet-400" />
-                        : <Bell className={cn("w-4 h-4", getPriorityMeta(p.priority).color)} />}
+                        : getSeverityIcon(severity)}
                     </div>
                     <button
                       onClick={() => {
@@ -160,7 +163,8 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
                     </Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               {notifications.map((notification) => (
                 <button
                   key={notification.id}

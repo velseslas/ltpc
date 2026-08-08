@@ -14,6 +14,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
+import { usePersistedNotifications, useNotificationActions } from "@/hooks/useNotificationCenter";
+import { getCategoryMeta, severityFromPriority, type NotificationSeverity } from "@/lib/notifications/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,33 +33,87 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 type SeverityFilter = "all" | "error" | "warning" | "info";
 type TypeFilter = "all" | "overdue_test" | "pending_test" | "calibration_due" | "calibration_overdue";
 
+/** Élément unifié : notification persistante (source de vérité) ou alerte dérivée. */
+interface UnifiedNotification {
+  key: string;
+  id: string;
+  severity: NotificationSeverity;
+  type: string;
+  title: string;
+  message: string;
+  link: string | null;
+  categoryLabel: string | null;
+  persisted: boolean;
+  isRead: boolean;
+  createdAt: string | null;
+}
+
 export default function Notifications() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: notifications = [], isLoading, isFetching, refetch } = useNotifications();
+  // F1 — la page « Voir tout » lit la source de vérité persistante,
+  // avec le MÊME filtre que la cloche (channel = 'inapp', non archivées).
+  const { data: persisted = [], isLoading: persistedLoading } = usePersistedNotifications({ limit: 200 });
+  const { markRead } = useNotificationActions();
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
+  const allItems = useMemo<UnifiedNotification[]>(() => {
+    const fromPersisted: UnifiedNotification[] = persisted.map((p) => ({
+      key: `p-${p.id}`,
+      id: p.id,
+      severity: severityFromPriority(p.priority),
+      type: p.type,
+      title: p.title,
+      message: p.message ?? "",
+      link: p.link,
+      categoryLabel: getCategoryMeta(p.category).label,
+      persisted: true,
+      isRead: p.is_read,
+      createdAt: p.created_at,
+    }));
+    const fromDerived: UnifiedNotification[] = notifications.map((n) => ({
+      key: `d-${n.id}`,
+      id: n.id,
+      severity: n.severity,
+      type: n.type,
+      title: n.title,
+      message: n.message,
+      link: n.link ?? null,
+      categoryLabel: null,
+      persisted: false,
+      isRead: false,
+      createdAt: null,
+    }));
+    const order: Record<NotificationSeverity, number> = { error: 0, warning: 1, info: 2 };
+    return [...fromPersisted, ...fromDerived].sort((a, b) => {
+      const d = order[a.severity] - order[b.severity];
+      if (d !== 0) return d;
+      return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
+    });
+  }, [persisted, notifications]);
+
   const filteredNotifications = useMemo(() => {
-    return notifications.filter((n) => {
+    return allItems.filter((n) => {
       if (severityFilter !== "all" && n.severity !== severityFilter) return false;
       if (typeFilter !== "all" && n.type !== typeFilter) return false;
       return true;
     });
-  }, [notifications, severityFilter, typeFilter]);
+  }, [allItems, severityFilter, typeFilter]);
 
   const stats = useMemo(() => {
     return {
-      total: notifications.length,
-      errors: notifications.filter((n) => n.severity === "error").length,
-      warnings: notifications.filter((n) => n.severity === "warning").length,
-      info: notifications.filter((n) => n.severity === "info").length,
-      overdueTests: notifications.filter((n) => n.type === "overdue_test").length,
-      pendingTests: notifications.filter((n) => n.type === "pending_test").length,
-      calibrationDue: notifications.filter((n) => n.type === "calibration_due").length,
-      calibrationOverdue: notifications.filter((n) => n.type === "calibration_overdue").length,
+      total: allItems.length,
+      errors: allItems.filter((n) => n.severity === "error").length,
+      warnings: allItems.filter((n) => n.severity === "warning").length,
+      info: allItems.filter((n) => n.severity === "info").length,
+      overdueTests: allItems.filter((n) => n.type === "overdue_test").length,
+      pendingTests: allItems.filter((n) => n.type === "pending_test").length,
+      calibrationDue: allItems.filter((n) => n.type === "calibration_due").length,
+      calibrationOverdue: allItems.filter((n) => n.type === "calibration_overdue").length,
     };
-  }, [notifications]);
+  }, [allItems]);
 
   const handleRefresh = async () => {
     // Remove cached data so the UI clears and the query is fully refetched
@@ -81,7 +137,7 @@ export default function Notifications() {
     }
   };
 
-  const getTypeIcon = (type: Notification["type"]) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
       case "overdue_test":
       case "pending_test":
@@ -94,7 +150,7 @@ export default function Notifications() {
     }
   };
 
-  const getTypeLabel = (type: Notification["type"]) => {
+  const getTypeLabel = (type: string) => {
     switch (type) {
       case "overdue_test":
         return "Essai en retard";
@@ -291,7 +347,7 @@ export default function Notifications() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {isLoading ? (
+          {(isLoading || persistedLoading) && allItems.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
@@ -309,11 +365,15 @@ export default function Notifications() {
             <div className="divide-y divide-border">
               {filteredNotifications.map((notification) => (
                 <button
-                  key={notification.id}
-                  onClick={() => notification.link && navigate(notification.link)}
+                  key={notification.key}
+                  onClick={() => {
+                    if (notification.persisted && !notification.isRead) markRead.mutate(notification.id);
+                    if (notification.link) navigate(notification.link);
+                  }}
                   className={cn(
                     "w-full p-4 text-left transition-colors hover:bg-secondary/50",
                     getSeverityBg(notification.severity),
+                    notification.isRead && "opacity-70",
                     notification.link && "cursor-pointer"
                   )}
                 >
@@ -322,7 +382,7 @@ export default function Notifications() {
                       {getSeverityIcon(notification.severity)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <p className="font-medium text-foreground">
                           {notification.title}
                         </p>
@@ -333,6 +393,11 @@ export default function Notifications() {
                           {getTypeIcon(notification.type)}
                           {getTypeLabel(notification.type)}
                         </Badge>
+                        {notification.categoryLabel && (
+                          <Badge variant="secondary" className="text-xs">
+                            {notification.categoryLabel}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {notification.message}
