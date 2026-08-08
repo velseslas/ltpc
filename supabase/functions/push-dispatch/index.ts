@@ -165,9 +165,21 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
     if (msg.sender_id !== callerId) return null;
 
     const { data: parts } = await admin.from("conversation_participants")
-      .select("user_id").eq("conversation_id", msg.conversation_id);
+      .select("user_id, last_read_at").eq("conversation_id", msg.conversation_id);
+
+    // LOT 15.4 — Présence : le client rafraîchit `last_read_at` toutes les 20 s
+    // tant que la conversation est ouverte ET l'onglet visible. Un destinataire
+    // « présent » voit déjà le message en Realtime : ni notification ni Push.
+    const PRESENCE_WINDOW_MS = 45_000;
+    const nowMs = Date.now();
     const recipients = Array.from(new Set(
-      (parts ?? []).map((p: { user_id: string }) => p.user_id).filter((u: string) => u && u !== callerId)
+      (parts ?? [])
+        .filter((p: { user_id: string; last_read_at: string | null }) => {
+          if (!p.user_id || p.user_id === callerId) return false;
+          if (!p.last_read_at) return true;
+          return nowMs - new Date(p.last_read_at).getTime() > PRESENCE_WINDOW_MS;
+        })
+        .map((p: { user_id: string }) => p.user_id)
     ));
 
     const { data: sender } = await admin.from("utilisateurs")
