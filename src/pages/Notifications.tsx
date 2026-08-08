@@ -137,7 +137,7 @@ export default function Notifications() {
     }
   };
 
-  const getTypeIcon = (type: Notification["type"]) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
       case "overdue_test":
       case "pending_test":
@@ -365,11 +365,15 @@ export default function Notifications() {
             <div className="divide-y divide-border">
               {filteredNotifications.map((notification) => (
                 <button
-                  key={notification.id}
-                  onClick={() => notification.link && navigate(notification.link)}
+                  key={notification.key}
+                  onClick={() => {
+                    if (notification.persisted && !notification.isRead) markRead.mutate(notification.id);
+                    if (notification.link) navigate(notification.link);
+                  }}
                   className={cn(
                     "w-full p-4 text-left transition-colors hover:bg-secondary/50",
                     getSeverityBg(notification.severity),
+                    notification.isRead && "opacity-70",
                     notification.link && "cursor-pointer"
                   )}
                 >
@@ -378,7 +382,7 @@ export default function Notifications() {
                       {getSeverityIcon(notification.severity)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <p className="font-medium text-foreground">
                           {notification.title}
                         </p>
@@ -389,6 +393,11 @@ export default function Notifications() {
                           {getTypeIcon(notification.type)}
                           {getTypeLabel(notification.type)}
                         </Badge>
+                        {notification.categoryLabel && (
+                          <Badge variant="secondary" className="text-xs">
+                            {notification.categoryLabel}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {notification.message}
