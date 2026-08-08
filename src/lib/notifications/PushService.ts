@@ -111,8 +111,24 @@ export const PushService = {
   async readyRegistration(timeoutMs: number = SW_READY_TIMEOUT_MS): Promise<ServiceWorkerRegistration | null> {
     if (!this.isSupported()) return null;
     try {
-      const immediate = await navigator.serviceWorker.getRegistration();
+      let immediate = await navigator.serviceWorker.getRegistration();
       if (immediate?.active?.state === "activated") return immediate;
+
+      // Aucun Service Worker enregistré (1er lancement, MAJ, SW désenregistré) :
+      // `navigator.serviceWorker.ready` ne résoudrait jamais → on enregistre
+      // à la demande via le wrapper (qui refuse proprement en dev/preview).
+      if (!immediate) {
+        try {
+          const { registerServiceWorker } = await import("@/lib/pwa/serviceWorkerRegistration");
+          immediate = (await registerServiceWorker()) ?? undefined;
+        } catch { /* noop */ }
+        if (!immediate) {
+          try { immediate = await navigator.serviceWorker.getRegistration(); } catch { /* noop */ }
+        }
+        if (!immediate) return null;
+        if (immediate.active?.state === "activated") return immediate;
+      }
+
       const reg = await Promise.race([
         navigator.serviceWorker.ready,
         new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs)),
@@ -122,6 +138,7 @@ export const PushService = {
       return null;
     }
   },
+
 
   /**
    * Registration dont le worker est RÉELLEMENT `activated`.
