@@ -6,6 +6,7 @@ import { ReactNode, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PushActivationBanner } from "@/components/notifications/PushActivationBanner";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -39,6 +40,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           collapsed ? "md:ml-16" : "md:ml-56"
         )}
       >
+        <PushActivationBanner />
         <ErrorBoundary>{children}</ErrorBoundary>
       </main>
       <BottomNavigation onMenuClick={() => setDrawerOpen(true)} />
