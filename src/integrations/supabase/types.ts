@@ -5053,6 +5053,39 @@ export type Database = {
           },
         ]
       }
+      echeances_push_log: {
+        Row: {
+          created_at: string
+          echantillon_id: string
+          echeance_key: string
+          echeance_type: string
+          id: string
+          notification_id: string | null
+          push_sent: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          echantillon_id: string
+          echeance_key: string
+          echeance_type: string
+          id?: string
+          notification_id?: string | null
+          push_sent?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          echantillon_id?: string
+          echeance_key?: string
+          echeance_type?: string
+          id?: string
+          notification_id?: string | null
+          push_sent?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       engagement_articles: {
         Row: {
           article_number: number
@@ -8988,6 +9021,8 @@ export type Database = {
         | "pwa"
         | "administration"
         | "systeme"
+        | "echeance_compression"
+        | "message_recu"
       notification_frequency:
         | "immediat"
         | "5min"
@@ -9181,6 +9216,8 @@ export const Constants = {
         "pwa",
         "administration",
         "systeme",
+        "echeance_compression",
+        "message_recu",
       ],
       notification_frequency: [
         "immediat",
