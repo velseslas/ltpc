@@ -280,7 +280,7 @@ Deno.serve(async (req) => {
           user_id: uid,
           type: e.type === "overdue" ? "overdue_test" : "pending_test",
           category: CATEGORY,
-          priority: e.type === "overdue" ? "warning" : "info",
+          priority: e.type === "overdue" ? "urgent" : "info",
           title: e.title,
           message: e.message,
           link: e.link,
