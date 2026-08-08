@@ -307,9 +307,17 @@ export function useMessagerieActions() {
         .update({ last_read_at: new Date().toISOString() })
         .eq("conversation_id", conversationId)
         .eq("user_id", uid);
+      // LOT 15.4 — la cloche ne doit pas rester avec des `message_recu` non lus
+      // pour une conversation que l'utilisateur vient d'ouvrir.
+      await NotificationRepository.markConversationMessagesRead(conversationId);
     },
-    onSuccess: invalidateLists,
+    onSuccess: () => {
+      invalidateLists();
+      qc.invalidateQueries({ queryKey: ["notif-center"] });
+      qc.invalidateQueries({ queryKey: ["notif-center-unread"] });
+    },
   });
+
 
   const archiveConversation = useMutation({
     mutationFn: async ({ conversationId, archived }: { conversationId: string; archived: boolean }) => {
