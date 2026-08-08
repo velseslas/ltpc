@@ -36,6 +36,7 @@ export default function NotificationPreferences() {
   const [permission, setPermission]     = useState<string>("default");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [swReady, setSwReady]           = useState(true);
+  const [swUpdating, setSwUpdating]     = useState(false);
   const [pushError, setPushError]       = useState<string | null>(null);
   const [pushBusy, setPushBusy]         = useState(false);
   const [checking, setChecking]         = useState(true);
@@ -45,6 +46,7 @@ export default function NotificationPreferences() {
     setPermission(String(st.permission));
     setIsSubscribed(st.subscribed);
     setSwReady(st.swReady);
+    setSwUpdating(st.swUpdating);
     setChecking(false);
   }, []);
 
