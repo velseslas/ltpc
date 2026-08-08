@@ -336,3 +336,40 @@ export function useMessagerieActions() {
 
   return { sendMessage, sendVoiceMessage, openDirectConversation, createChantierConversation, markRead, archiveConversation };
 }
+
+/**
+ * LOT 15.4 — Présence légère : tant que la conversation est ouverte ET l'onglet
+ * visible, on rafraîchit `last_read_at` (colonne existante). Le serveur en
+ * déduit que l'utilisateur regarde la conversation et n'émet ni notification
+ * in-app ni Push pour cette conversation. Aucune table ni RLS supplémentaire.
+ */
+export function useConversationPresence(conversationId: string | null) {
+  useEffect(() => {
+    if (!conversationId) return;
+    let stopped = false;
+
+    const touch = async () => {
+      if (stopped || document.visibilityState !== "visible") return;
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) return;
+      await supabase
+        .from("conversation_participants")
+        .update({ last_read_at: new Date().toISOString() })
+        .eq("conversation_id", conversationId)
+        .eq("user_id", uid);
+    };
+
+    void touch();
+    const timer = window.setInterval(() => { void touch(); }, 20_000);
+    const onVisible = () => { void touch(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [conversationId]);
+}
