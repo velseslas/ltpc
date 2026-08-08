@@ -5,7 +5,9 @@ export type NotificationCategory =
   | "laboratoire" | "essais" | "compression" | "formulation" | "granulats"
   | "geotechnique" | "rapports" | "documents" | "facturation" | "materiel"
   | "etalonnage" | "intervenants" | "rh" | "ltpc_ai" | "pwa"
-  | "administration" | "systeme";
+  | "administration" | "systeme"
+  // LOT 14.4 — catégories Push dédiées.
+  | "echeance_compression" | "message_recu";
 
 export type NotificationFrequency =
   | "immediat" | "5min" | "15min" | "30min" | "quotidien" | "hebdomadaire";
@@ -69,6 +71,9 @@ export const PRIORITY_META: Record<NotificationPriority, { label: string; color:
 };
 
 export const CATEGORY_META: Record<NotificationCategory, { label: string }> = {
+  // LOT 14.4 — catégories Push dédiées (échéances compression + messages reçus).
+  echeance_compression: { label: "Échéances compression (Push)" },
+  message_recu:   { label: "Messages reçus (Push)" },
   laboratoire:    { label: "Laboratoire" },
   essais:         { label: "Essais" },
   compression:    { label: "Compression" },

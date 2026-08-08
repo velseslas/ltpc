@@ -179,7 +179,9 @@ async function buildNotification(event: AllowedEvent, resourceId: string, caller
     return {
       recipients,
       type: "message_recu",
-      category: "systeme",
+      // Catégorie dédiée : le message reçu ne doit plus être coupé par la
+      // catégorie générique `systeme` désactivée dans les préférences.
+      category: "message_recu",
       priority: "info",
       title: isAudio ? "Nouveau message vocal" : "Nouveau message",
       message: isAudio
