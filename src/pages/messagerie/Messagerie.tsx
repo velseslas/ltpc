@@ -18,6 +18,7 @@ import {
   useConversationParticipants,
   useConversationReadCutoff,
   useConversations,
+  useConversationPresence,
   useMessagerieActions,
   useMessages,
   MESSAGE_MAX_LENGTH,
