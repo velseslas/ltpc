@@ -12,7 +12,8 @@ export type NotificationCategory =
 export type NotificationFrequency =
   | "immediat" | "5min" | "15min" | "30min" | "quotidien" | "hebdomadaire";
 
-export type NotificationSource = "system" | "ai" | "user" | "workflow" | "push";
+// `scheduler` : notifications créées par la fonction planifiée `echeances-dispatch`.
+export type NotificationSource = "system" | "ai" | "user" | "workflow" | "push" | "scheduler";
 
 export interface PersistedNotification {
   id: string;
