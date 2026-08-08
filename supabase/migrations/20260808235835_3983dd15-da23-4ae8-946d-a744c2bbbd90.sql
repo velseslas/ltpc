@@ -1,0 +1,1 @@
+UPDATE public.notifications SET priority = 'urgent' WHERE category = 'echeance_compression' AND type = 'overdue_test' AND priority <> 'urgent';
