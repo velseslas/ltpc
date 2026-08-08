@@ -257,6 +257,16 @@ Deno.serve(async (req) => {
 
       for (const e of visible) {
         // 4. Idempotence : l'insertion unique fait office de verrou.
+        //    En test à blanc on ne consomme PAS la clé d'idempotence : on se contente
+        //    de vérifier si l'échéance a déjà été poussée.
+        if (dryRun) {
+          const { data: exists } = await admin.from("echeances_push_log").select("id")
+            .eq("user_id", uid).eq("echantillon_id", e.echantillonId)
+            .eq("echeance_type", e.type).eq("echeance_key", e.key).maybeSingle();
+          if (exists) skippedDuplicate++;
+          continue;
+        }
+
         const { data: logRow, error: logError } = await admin.from("echeances_push_log").insert({
           user_id: uid,
           echantillon_id: e.echantillonId,
@@ -265,7 +275,6 @@ Deno.serve(async (req) => {
         }).select("id").maybeSingle();
 
         if (logError || !logRow) { skippedDuplicate++; continue; }
-        if (dryRun) continue;
 
         const { data: notif } = await admin.from("notifications").insert({
           user_id: uid,
