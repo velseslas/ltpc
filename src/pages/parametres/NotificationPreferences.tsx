@@ -68,15 +68,37 @@ export default function NotificationPreferences() {
     document.addEventListener("visibilitychange", onVisible);
 
     let sw: ServiceWorkerContainer | undefined;
+    const cleanups: Array<() => void> = [];
     if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
       sw = navigator.serviceWorker;
       sw.addEventListener("controllerchange", refreshPushState);
       // Le SW peut devenir actif APRÈS le montage React (démarrage à froid PWA).
       sw.ready.then(() => refreshPushState()).catch(() => { /* noop */ });
+      // Mise à jour en cours : ré-évaluer dès que le worker passe `activated`.
+      sw.getRegistration().then((reg) => {
+        if (!reg) return;
+        const onUpdateFound = () => {
+          const w = reg.installing ?? reg.waiting;
+          void refreshPushState();
+          if (!w) return;
+          const onState = () => { void refreshPushState(); };
+          w.addEventListener("statechange", onState);
+          cleanups.push(() => w.removeEventListener("statechange", onState));
+        };
+        reg.addEventListener("updatefound", onUpdateFound);
+        cleanups.push(() => reg.removeEventListener("updatefound", onUpdateFound));
+        const pending = reg.installing ?? reg.waiting;
+        if (pending) {
+          const onState = () => { void refreshPushState(); };
+          pending.addEventListener("statechange", onState);
+          cleanups.push(() => pending.removeEventListener("statechange", onState));
+        }
+      }).catch(() => { /* noop */ });
     }
     return () => {
       document.removeEventListener("visibilitychange", onVisible);
       sw?.removeEventListener("controllerchange", refreshPushState);
+      cleanups.forEach((fn) => { try { fn(); } catch { /* noop */ } });
     };
   }, [refreshPushState]);
 
@@ -92,6 +114,8 @@ export default function NotificationPreferences() {
       ? { badge: "🟢 Push actif", label: "Cet appareil recevra les notifications Push", variant: "default" }
       : pushError
       ? { badge: "🔴 Activation Push impossible", label: pushError, variant: "destructive" }
+      : permission === "granted" && !swReady && swUpdating
+      ? { badge: "🟠 Mise à jour en cours", label: "Mise à jour de l'application en cours — le Push redeviendra actif dans quelques instants", variant: "secondary" }
       : permission === "granted" && !swReady
       ? { badge: "🟠 Service Worker indisponible", label: "Service Worker indisponible, veuillez réessayer", variant: "secondary" }
       : permission === "granted"
