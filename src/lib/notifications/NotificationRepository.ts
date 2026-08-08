@@ -79,6 +79,22 @@ export const NotificationRepository = {
       .update({ is_read: true, read_at: new Date().toISOString() }).eq("id", id);
   },
 
+  /**
+   * LOT 15.4 — marque comme lues les notifications `message_recu` d'une
+   * conversation donnée (ouverture depuis la cloche, le Push ou l'app).
+   */
+  async markConversationMessagesRead(conversationId: string): Promise<void> {
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id;
+    if (!uid || !conversationId) return;
+    await supabase.from("notifications")
+      .update({ is_read: true, read_at: new Date().toISOString() })
+      .eq("user_id", uid)
+      .eq("type", "message_recu")
+      .eq("is_read", false)
+      .eq("link", `/messagerie/${conversationId}`);
+  },
+
   async markAllRead(): Promise<void> {
     const { data: auth } = await supabase.auth.getUser();
     const uid = auth.user?.id;
