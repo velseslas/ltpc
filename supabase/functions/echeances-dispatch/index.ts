@@ -192,9 +192,13 @@ async function pushToUser(userId: string, payload: Record<string, unknown>): Pro
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Accès : soit le cron (secret partagé), soit un administrateur authentifié (exécution manuelle).
+  // Accès : soit le cron (jeton interne, non exposé au client), soit un administrateur authentifié.
   const cronHeader = req.headers.get("x-cron-secret") ?? "";
   let authorized = CRON_SECRET.length > 0 && cronHeader === CRON_SECRET;
+  if (!authorized && cronHeader.length >= 16) {
+    const { data: tok } = await admin.from("cron_tokens").select("token").eq("name", "echeances").maybeSingle();
+    authorized = !!tok?.token && tok.token === cronHeader;
+  }
   if (!authorized) {
     const guard = await requireAuth(req);
     if (!guard.ok) return guard.response;
