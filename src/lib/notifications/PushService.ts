@@ -28,6 +28,9 @@ export interface PushState {
   supported: boolean;
   permission: NotificationPermission | "unsupported";
   swReady: boolean;
+  /** Une registration existe mais son worker est encore `installing`/`waiting`
+   *  (mise à jour normale du SW) — ce n'est PAS une indisponibilité. */
+  swUpdating: boolean;
   subscribed: boolean;
   subscription: PushSubscription | null;
 }
