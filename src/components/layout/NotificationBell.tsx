@@ -163,7 +163,8 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
                     </Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               {notifications.map((notification) => (
                 <button
                   key={notification.id}
