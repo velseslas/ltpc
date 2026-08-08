@@ -26,7 +26,10 @@ export const NotificationRepository = {
     const uid = auth.user?.id;
     if (!uid) return [];
 
-    let q = supabase.from("notifications").select("*").eq("user_id", uid);
+    // LOT 15.6 — la cloche n'affiche QUE le canal in-app.
+    // Les evenements Push-only (echeances compression, messages recus) sont
+    // stockes avec channel = 'push' et restent invisibles ici.
+    let q = supabase.from("notifications").select("*").eq("user_id", uid).eq("channel", "inapp");
     if (filters.category && filters.category !== "all") q = q.eq("category", filters.category);
     if (filters.priority && filters.priority !== "all") q = q.eq("priority", filters.priority);
     if (filters.unreadOnly) q = q.eq("is_read", false);
@@ -47,7 +50,7 @@ export const NotificationRepository = {
     const { count } = await supabase
       .from("notifications")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", uid).eq("is_read", false).eq("is_archived", false);
+      .eq("user_id", uid).eq("channel", "inapp").eq("is_read", false).eq("is_archived", false);
     return count ?? 0;
   },
 
@@ -68,6 +71,7 @@ export const NotificationRepository = {
       data: input.data ?? {},
       source: input.source ?? "system",
       role: input.role ?? null,
+      channel: input.channel ?? "inapp",
     };
     const { data, error } = await supabase.from("notifications").insert(payload).select().single();
     if (error) { console.warn("[NotificationRepository] create failed", error); return null; }

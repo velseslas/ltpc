@@ -15,6 +15,9 @@ export type NotificationFrequency =
 // `scheduler` : notifications créées par la fonction planifiée `echeances-dispatch`.
 export type NotificationSource = "system" | "ai" | "user" | "workflow" | "push" | "scheduler";
 
+// LOT 15.6 — canal de destination : `inapp` (cloche) ou `push` (telephone seul).
+export type NotificationChannel = "inapp" | "push";
+
 export interface PersistedNotification {
   id: string;
   user_id: string;
@@ -28,6 +31,7 @@ export interface PersistedNotification {
   link: string | null;
   data: Record<string, unknown>;
   source: NotificationSource;
+  channel: NotificationChannel;
   role: string | null;
   is_read: boolean;
   is_archived: boolean;
@@ -48,6 +52,7 @@ export interface NotificationInput {
   link?: string;
   data?: Record<string, unknown>;
   source?: NotificationSource;
+  channel?: NotificationChannel;
   role?: string;
 }
 

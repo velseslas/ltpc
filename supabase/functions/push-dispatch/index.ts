@@ -236,6 +236,9 @@ async function pushToUser(userId: string, payload: Record<string, unknown>): Pro
 }
 
 /** Respecte les préférences utilisateur (canaux, catégories, heures calmes). */
+// LOT 15.6 — categories dont les notifications sont exclusivement Push.
+const PUSH_ONLY_CATEGORIES = ["message_recu", "echeance_compression"];
+
 function pushAllowed(prefs: Record<string, unknown> | null, category: string): { inapp: boolean; push: boolean } {
   if (!prefs) return { inapp: true, push: true };
   const disabled = (prefs.disabled_categories as string[] | null) ?? [];
@@ -296,6 +299,9 @@ Deno.serve(async (req) => {
         link: built.link,
         data: { resource_id: resourceId, event },
         source: "workflow",
+        // LOT 15.6 — separation Push / cloche : les evenements Push-only
+        // (messages recus) ne sont pas destines au centre de notifications.
+        channel: PUSH_ONLY_CATEGORIES.includes(built.category) ? "push" : "inapp",
       }).select("id").single();
       created++;
 
