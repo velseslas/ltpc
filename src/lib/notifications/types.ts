@@ -12,7 +12,8 @@ export type NotificationCategory =
 export type NotificationFrequency =
   | "immediat" | "5min" | "15min" | "30min" | "quotidien" | "hebdomadaire";
 
-export type NotificationSource = "system" | "ai" | "user" | "workflow" | "push";
+// `scheduler` : notifications créées par la fonction planifiée `echeances-dispatch`.
+export type NotificationSource = "system" | "ai" | "user" | "workflow" | "push" | "scheduler";
 
 export interface PersistedNotification {
   id: string;
@@ -92,3 +93,23 @@ export const CATEGORY_META: Record<NotificationCategory, { label: string }> = {
   administration: { label: "Administration" },
   systeme:        { label: "Système" },
 };
+
+/**
+ * LOT 14.5 — Lecture tolérante des métadonnées.
+ * La base peut contenir des catégories/priorités plus récentes que le client
+ * installé (PWA mise en cache). Sans repli, `META[cle].label` lève
+ * « Cannot read properties of undefined (reading 'label') ».
+ */
+export function getCategoryMeta(category: string | null | undefined): { label: string } {
+  if (category && category in CATEGORY_META) {
+    return CATEGORY_META[category as NotificationCategory];
+  }
+  return { label: category ? String(category).replace(/_/g, " ") : "Notification" };
+}
+
+export function getPriorityMeta(priority: string | null | undefined): { label: string; color: string; order: number; icon: string } {
+  if (priority && priority in PRIORITY_META) {
+    return PRIORITY_META[priority as NotificationPriority];
+  }
+  return PRIORITY_META.info;
+}

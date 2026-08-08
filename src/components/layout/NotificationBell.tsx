@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bell, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCheck, Archive, Sparkles } from "lucide-react";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
 import { usePersistedNotifications, useUnreadNotificationCount, useNotificationActions } from "@/hooks/useNotificationCenter";
-import { CATEGORY_META, PRIORITY_META } from "@/lib/notifications/types";
+import { getCategoryMeta, getPriorityMeta } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
@@ -140,7 +140,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
                     <div className="flex-shrink-0 mt-0.5">
                       {p.source === "ai"
                         ? <Sparkles className="w-4 h-4 text-violet-400" />
-                        : <Bell className={cn("w-4 h-4", PRIORITY_META[p.priority].color)} />}
+                        : <Bell className={cn("w-4 h-4", getPriorityMeta(p.priority).color)} />}
                     </div>
                     <button
                       onClick={() => {
@@ -151,7 +151,7 @@ export function NotificationBell({ collapsed }: NotificationBellProps) {
                     >
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
-                        <Badge variant="outline" className="text-[10px] px-1 py-0">{CATEGORY_META[p.category].label}</Badge>
+                        <Badge variant="outline" className="text-[10px] px-1 py-0">{getCategoryMeta(p.category).label}</Badge>
                       </div>
                       {p.message && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{p.message}</p>}
                     </button>
