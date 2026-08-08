@@ -80,7 +80,13 @@ export function useNotifications() {
         });
       }
 
-      // 3. Check for compression samples needing attention (based on jours_essai)
+      // 3. Échéances des essais de compression (labo + laboratoire mobile).
+      // LOT 15.6 — ces échéances sont désormais un canal Push exclusif
+      // (voir `echeances-dispatch`) : elles ne doivent plus apparaître dans la
+      // cloche ni être comptées dans son badge. Le calcul reste inchangé côté
+      // serveur ; on se contente de ne plus produire d'alerte in-app ici.
+      const ECHEANCES_COMPRESSION_PUSH_ONLY = true;
+
       let compressionQuery = supabase
         .from("echantillons_compression")
         .select("id, numero, numero_chantier, statut, date_coulage, jours_essai, resultats, ouvrage, chantier_id, is_laboratoire_chantier, clients:client_id(nom), chantiers:chantier_id(nom)")
@@ -92,7 +98,10 @@ export function useNotifications() {
           compressionQuery = compressionQuery.in("chantier_id", allowedChantierIds);
         }
       }
-      const { data: compressionSamples, error: compressionError } = await compressionQuery;
+      const { data: compressionSamples, error: compressionError } = ECHEANCES_COMPRESSION_PUSH_ONLY
+        ? { data: [] as any[], error: null }
+        : await compressionQuery;
+
 
       if (!compressionError && compressionSamples) {
         compressionSamples.forEach((sample) => {
