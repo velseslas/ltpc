@@ -6,6 +6,7 @@ import { ReactNode, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PushActivationBanner } from "@/components/notifications/PushActivationBanner";
 
 interface MainLayoutProps {
   children: ReactNode;
