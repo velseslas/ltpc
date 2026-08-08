@@ -192,9 +192,13 @@ async function pushToUser(userId: string, payload: Record<string, unknown>): Pro
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Accès : soit le cron (secret partagé), soit un administrateur authentifié (exécution manuelle).
+  // Accès : soit le cron (jeton interne, non exposé au client), soit un administrateur authentifié.
   const cronHeader = req.headers.get("x-cron-secret") ?? "";
   let authorized = CRON_SECRET.length > 0 && cronHeader === CRON_SECRET;
+  if (!authorized && cronHeader.length >= 16) {
+    const { data: tok } = await admin.from("cron_tokens").select("token").eq("name", "echeances").maybeSingle();
+    authorized = !!tok?.token && tok.token === cronHeader;
+  }
   if (!authorized) {
     const guard = await requireAuth(req);
     if (!guard.ok) return guard.response;
@@ -253,6 +257,16 @@ Deno.serve(async (req) => {
 
       for (const e of visible) {
         // 4. Idempotence : l'insertion unique fait office de verrou.
+        //    En test à blanc on ne consomme PAS la clé d'idempotence : on se contente
+        //    de vérifier si l'échéance a déjà été poussée.
+        if (dryRun) {
+          const { data: exists } = await admin.from("echeances_push_log").select("id")
+            .eq("user_id", uid).eq("echantillon_id", e.echantillonId)
+            .eq("echeance_type", e.type).eq("echeance_key", e.key).maybeSingle();
+          if (exists) skippedDuplicate++;
+          continue;
+        }
+
         const { data: logRow, error: logError } = await admin.from("echeances_push_log").insert({
           user_id: uid,
           echantillon_id: e.echantillonId,
@@ -261,7 +275,6 @@ Deno.serve(async (req) => {
         }).select("id").maybeSingle();
 
         if (logError || !logRow) { skippedDuplicate++; continue; }
-        if (dryRun) continue;
 
         const { data: notif } = await admin.from("notifications").insert({
           user_id: uid,
