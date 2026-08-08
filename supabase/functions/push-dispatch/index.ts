@@ -236,10 +236,11 @@ async function pushToUser(userId: string, payload: Record<string, unknown>): Pro
 }
 
 /** Respecte les préférences utilisateur (canaux, catégories, heures calmes). */
-// LOT 15.6 / 15.7 — le canal est determine EXPLICITEMENT par categorie.
-// Seules ces categories sont Push-only ; toute autre categorie (dont `systeme`)
-// est une notification interne et doit etre creee avec channel = 'inapp'.
-const PUSH_ONLY_CATEGORIES = ["message_recu", "echeance_compression"];
+// LOT 15.8 — le canal est determine EXPLICITEMENT par categorie.
+// Seul `message_recu` est Push-only (la messagerie a son propre badge).
+// `echeance_compression` est desormais IN-APP + PUSH : une seule notification
+// metier, diffusee aussi en Push. Toute autre categorie => 'inapp'.
+const PUSH_ONLY_CATEGORIES = ["message_recu"];
 
 function pushAllowed(prefs: Record<string, unknown> | null, category: string): { inapp: boolean; push: boolean } {
   if (!prefs) return { inapp: true, push: true };
