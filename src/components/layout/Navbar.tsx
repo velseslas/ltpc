@@ -1,6 +1,7 @@
 import { LogOut, Building2, Menu, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
+import { PushActivationItem } from "@/components/notifications/PushActivationItem";
 import { useUnreadMessagesCount } from "@/hooks/useMessagerie";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -133,7 +134,6 @@ export function Navbar({ onMenuClick }: NavbarProps = {}) {
                   <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
                 </div>
                 <PushActivationItem />
-                <div className="w-56" />
                 <button
                   onClick={handleSignOut}
                   className="flex items-center gap-2 w-full px-3 py-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
