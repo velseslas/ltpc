@@ -198,23 +198,39 @@ export const PushService = {
     const supported = this.isSupported();
     const permission = this.currentPermission();
     if (!supported) {
-      return { supported, permission, swReady: false, subscribed: false, subscription: null };
+      return { supported, permission, swReady: false, swUpdating: false, subscribed: false, subscription: null };
     }
+    // `navigator.serviceWorker.ready` reste la référence pour « worker actif ».
     const reg = await this.activeRegistration();
 
+    // Tolérance aux mises à jour : si aucun worker `activated` n'est disponible,
+    // une registration en cours d'installation/attente n'est PAS une absence de SW.
+    let effective: ServiceWorkerRegistration | null = reg;
+    let swUpdating = false;
+    if (!reg) {
+      let pending: ServiceWorkerRegistration | null = null;
+      try { pending = (await navigator.serviceWorker.getRegistration()) ?? null; } catch { pending = null; }
+      if (pending && (pending.installing || pending.waiting || pending.active)) {
+        effective = pending;
+        swUpdating = true;
+      }
+    }
+
     let subscription: PushSubscription | null = null;
-    if (reg) {
-      try { subscription = (await reg.pushManager.getSubscription()) ?? null; }
+    if (effective) {
+      try { subscription = (await effective.pushManager.getSubscription()) ?? null; }
       catch { subscription = null; }
     }
     return {
       supported,
       permission,
       swReady: !!reg,
+      swUpdating,
       subscribed: !!subscription,
       subscription,
     };
   },
+
 
   /**
    * Active le Push. Réutilise systématiquement l'abonnement existant.
