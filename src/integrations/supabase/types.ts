@@ -7011,6 +7011,7 @@ export type Database = {
       notifications: {
         Row: {
           category: Database["public"]["Enums"]["notification_category"]
+          channel: string
           color: string | null
           created_at: string
           data: Json
@@ -7031,6 +7032,7 @@ export type Database = {
         }
         Insert: {
           category?: Database["public"]["Enums"]["notification_category"]
+          channel?: string
           color?: string | null
           created_at?: string
           data?: Json
@@ -7051,6 +7053,7 @@ export type Database = {
         }
         Update: {
           category?: Database["public"]["Enums"]["notification_category"]
+          channel?: string
           color?: string | null
           created_at?: string
           data?: Json

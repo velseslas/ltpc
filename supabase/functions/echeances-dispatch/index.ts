@@ -286,6 +286,8 @@ Deno.serve(async (req) => {
           link: e.link,
           data: { echantillon_id: e.echantillonId, echeance: e.key, echeance_type: e.type },
           source: "scheduler",
+          // LOT 15.6 — evenement Push-only : jamais affiche dans la cloche.
+          channel: "push",
         }).select("id").maybeSingle();
         created++;
 
