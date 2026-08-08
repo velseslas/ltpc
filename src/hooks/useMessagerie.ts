@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase as _supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { dispatchNotificationEvent } from "@/lib/notifications/dispatch";
+import { NotificationRepository } from "@/lib/notifications/NotificationRepository";
 
 // Types Supabase régénérés après migration — cast souple pour les tables récentes.
 const supabase = _supabase as unknown as {
