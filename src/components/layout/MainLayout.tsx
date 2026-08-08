@@ -40,6 +40,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           collapsed ? "md:ml-16" : "md:ml-56"
         )}
       >
+        <PushActivationBanner />
         <ErrorBoundary>{children}</ErrorBoundary>
       </main>
       <BottomNavigation onMenuClick={() => setDrawerOpen(true)} />
