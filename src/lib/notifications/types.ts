@@ -69,6 +69,9 @@ export const PRIORITY_META: Record<NotificationPriority, { label: string; color:
 };
 
 export const CATEGORY_META: Record<NotificationCategory, { label: string }> = {
+  // LOT 14.4 — catégories Push dédiées (échéances compression + messages reçus).
+  echeance_compression: { label: "Échéances compression (Push)" },
+  message_recu:   { label: "Messages reçus (Push)" },
   laboratoire:    { label: "Laboratoire" },
   essais:         { label: "Essais" },
   compression:    { label: "Compression" },
