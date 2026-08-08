@@ -150,7 +150,7 @@ export default function Notifications() {
     }
   };
 
-  const getTypeLabel = (type: Notification["type"]) => {
+  const getTypeLabel = (type: string) => {
     switch (type) {
       case "overdue_test":
         return "Essai en retard";
@@ -347,7 +347,7 @@ export default function Notifications() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {isLoading ? (
+          {(isLoading || persistedLoading) && allItems.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
