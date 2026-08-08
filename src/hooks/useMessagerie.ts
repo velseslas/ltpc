@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase as _supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { dispatchNotificationEvent } from "@/lib/notifications/dispatch";
+import { NotificationRepository } from "@/lib/notifications/NotificationRepository";
 
 // Types Supabase régénérés après migration — cast souple pour les tables récentes.
 const supabase = _supabase as unknown as {
@@ -307,9 +308,17 @@ export function useMessagerieActions() {
         .update({ last_read_at: new Date().toISOString() })
         .eq("conversation_id", conversationId)
         .eq("user_id", uid);
+      // LOT 15.4 — la cloche ne doit pas rester avec des `message_recu` non lus
+      // pour une conversation que l'utilisateur vient d'ouvrir.
+      await NotificationRepository.markConversationMessagesRead(conversationId);
     },
-    onSuccess: invalidateLists,
+    onSuccess: () => {
+      invalidateLists();
+      qc.invalidateQueries({ queryKey: ["notif-center"] });
+      qc.invalidateQueries({ queryKey: ["notif-center-unread"] });
+    },
   });
+
 
   const archiveConversation = useMutation({
     mutationFn: async ({ conversationId, archived }: { conversationId: string; archived: boolean }) => {
@@ -326,4 +335,41 @@ export function useMessagerieActions() {
   });
 
   return { sendMessage, sendVoiceMessage, openDirectConversation, createChantierConversation, markRead, archiveConversation };
+}
+
+/**
+ * LOT 15.4 — Présence légère : tant que la conversation est ouverte ET l'onglet
+ * visible, on rafraîchit `last_read_at` (colonne existante). Le serveur en
+ * déduit que l'utilisateur regarde la conversation et n'émet ni notification
+ * in-app ni Push pour cette conversation. Aucune table ni RLS supplémentaire.
+ */
+export function useConversationPresence(conversationId: string | null) {
+  useEffect(() => {
+    if (!conversationId) return;
+    let stopped = false;
+
+    const touch = async () => {
+      if (stopped || document.visibilityState !== "visible") return;
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid) return;
+      await supabase
+        .from("conversation_participants")
+        .update({ last_read_at: new Date().toISOString() })
+        .eq("conversation_id", conversationId)
+        .eq("user_id", uid);
+    };
+
+    void touch();
+    const timer = window.setInterval(() => { void touch(); }, 20_000);
+    const onVisible = () => { void touch(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [conversationId]);
 }

@@ -18,6 +18,7 @@ import {
   useConversationParticipants,
   useConversationReadCutoff,
   useConversations,
+  useConversationPresence,
   useMessagerieActions,
   useMessages,
   MESSAGE_MAX_LENGTH,
@@ -70,11 +71,16 @@ export default function Messagerie() {
     );
   }, [conversations, search]);
 
-  // Marquage lu à l'ouverture d'une conversation.
+  // Marquage lu à l'ouverture d'une conversation — uniquement si l'onglet est
+  // visible (LOT 15.4 : une PWA en arrière-plan ne « consulte » pas la conversation).
   useEffect(() => {
-    if (conversationId) markRead.mutate(conversationId);
+    if (conversationId && document.visibilityState === "visible") markRead.mutate(conversationId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, messages.length]);
+
+  // Présence : signale au serveur que cette conversation est activement consultée.
+  useConversationPresence(conversationId ?? null);
+
 
   // ---- Défilement du fil : auto-scroll uniquement si déjà en bas ----
   const scrollRef = useRef<HTMLDivElement>(null);
