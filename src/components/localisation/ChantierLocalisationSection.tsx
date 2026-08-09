@@ -2,18 +2,26 @@ import { MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChantierMap } from "./ChantierMap";
 import { ItineraireButton, VoirSurCarteButton } from "./ItineraireButton";
+import { ChantierLocalisationEditButton } from "./ChantierLocalisationEditButton";
 import { displayAdresse, formatCoords, hasCoords, type ChantierLocalisation } from "@/lib/geo";
 
 /**
  * LOT 14.1 — Section « Localisation » de la fiche chantier.
  * Aucune coordonnée n'est inventée : si le chantier n'a pas de position,
  * on affiche « Localisation non renseignée ».
+ *
+ * LOT Localisation 15-21 — bouton « Modifier la localisation » (Mobile + Desktop),
+ * visible uniquement avec la permission `chantiers.modifier`.
  */
 export function ChantierLocalisationSection({
   chantier,
+  chantierId,
+  clientId,
   onAddLocalisation,
 }: {
   chantier?: ChantierLocalisation | null;
+  chantierId?: string | null;
+  clientId?: string | null;
   onAddLocalisation?: () => void;
 }) {
   const adresse = displayAdresse(chantier);
@@ -29,6 +37,12 @@ export function ChantierLocalisationSection({
           <div className="grid grid-cols-2 sm:flex gap-2">
             <VoirSurCarteButton localisation={chantier} size="sm" className="w-full sm:w-auto" />
             <ItineraireButton localisation={chantier} size="sm" className="w-full sm:w-auto" />
+            <ChantierLocalisationEditButton
+              chantierId={chantierId}
+              clientId={clientId}
+              chantier={chantier}
+              className="col-span-2 w-full sm:w-auto"
+            />
           </div>
         )}
       </div>
