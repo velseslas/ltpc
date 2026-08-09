@@ -112,20 +112,23 @@ export function LocalisationShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Partager la localisation</DialogTitle>
-          <DialogDescription>
-            Envoyez la position du chantier via le partage natif de votre appareil ou copiez le
-            lien.
+      <DialogContent className="sm:max-w-2xl max-w-[calc(100vw-2rem)] w-full p-4 sm:p-6">
+        <DialogHeader className="pr-8 sm:pr-0">
+          <DialogTitle className="text-left sm:text-left leading-tight">
+            Partager la localisation
+          </DialogTitle>
+          <DialogDescription className="text-left sm:text-left">
+            Envoyez la position du chantier via le partage natif de votre appareil ou copiez le lien.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm space-y-1">
-          <p className="font-medium text-foreground">{chantierNom || "Localisation du chantier"}</p>
-          {adresse && <p className="text-xs text-muted-foreground">{adresse}</p>}
+        <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm space-y-1 overflow-hidden">
+          <p className="font-medium text-foreground break-words">
+            {chantierNom || "Localisation du chantier"}
+          </p>
+          {adresse && <p className="text-xs text-muted-foreground break-words">{adresse}</p>}
           {url && (
-            <p className="text-xs text-muted-foreground truncate" title={url}>
+            <p className="text-xs text-muted-foreground break-all" title={url}>
               Lien : {url}
             </p>
           )}
@@ -139,6 +142,7 @@ export function LocalisationShareDialog({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Objet"
+              className="w-full"
             />
           </div>
           <div className="space-y-1.5">
@@ -148,6 +152,7 @@ export function LocalisationShareDialog({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={5}
+              className="w-full min-h-[120px] resize-y"
             />
           </div>
         </div>
@@ -155,20 +160,26 @@ export function LocalisationShareDialog({
         {notice && (
           <div className="rounded-md border border-border bg-muted/50 p-3 text-sm text-foreground flex gap-2">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-            <span>{notice}</span>
+            <span className="break-words">{notice}</span>
           </div>
         )}
 
         <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className="w-full sm:w-auto justify-center"
+          >
             <X className="h-4 w-4 mr-2" />
             Fermer
           </Button>
-          <div className="flex flex-wrap gap-2 sm:justify-end">
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end w-full sm:w-auto">
             <Button
               variant="outline"
               onClick={() => runShare("copy-link")}
               disabled={loading || !hasUrl}
+              className="w-full sm:w-auto justify-center"
             >
               <Link2 className="h-4 w-4 mr-2" />
               Copier le lien
@@ -176,7 +187,7 @@ export function LocalisationShareDialog({
             <Button
               onClick={() => runShare("auto")}
               disabled={loading || !hasUrl}
-              className="gradient-primary text-primary-foreground"
+              className="gradient-primary text-primary-foreground w-full sm:w-auto justify-center"
             >
               <Send className="h-4 w-4 mr-2" />
               Partager
