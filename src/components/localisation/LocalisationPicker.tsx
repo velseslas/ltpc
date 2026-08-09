@@ -170,7 +170,7 @@ export function LocalisationPicker({ value, onChange }: LocalisationPickerProps)
           longitude={value.longitude}
           editable
           onChange={(lat, lng) => setPoint(lat, lng)}
-          className="h-[280px] md:h-[340px]"
+          className="h-[280px] md:h-[340px] max-h-[45vh]"
         />
       </div>
 
