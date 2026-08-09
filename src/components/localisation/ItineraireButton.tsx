@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Car, Map, Share, Check } from "lucide-react";
+import { Car, Map, Share } from "lucide-react";
 import {
   buildItineraireUrl,
   buildVoirSurCarteUrl,
+  displayAdresse,
   type ChantierLocalisation,
 } from "@/lib/geo";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { useState } from "react";
+import { LocalisationShareDialog } from "./LocalisationShareDialog";
+
+
 
 /** LOT 14.1 — Lance la navigation externe (Google Maps / URL universelle). */
 export function ItineraireButton({
@@ -123,7 +126,7 @@ export function VoirSurCarteButton({
   );
 }
 
-/** LOT 14.1 — Partage la position du chantier (API Web Share ou copie dans le presse-papiers). */
+/** Partage la localisation du chantier via le dialogue de partage LTPC (même UX que les rapports/documents). */
 export function PartagerButton({
   localisation,
   chantierNom,
@@ -135,52 +138,31 @@ export function PartagerButton({
   className?: string;
   size?: "sm" | "default" | "lg";
 }) {
-  const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
   const url = buildVoirSurCarteUrl(localisation);
 
-  const handleShare = async () => {
-    if (!url) return;
-    const title = chantierNom ? `Localisation — ${chantierNom}` : "Localisation du chantier";
-    const text = `Localisation du chantier${chantierNom ? ` « ${chantierNom} »` : ""}`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({ title, text, url });
-        return;
-      }
-    } catch (e: any) {
-      // AbortError = utilisateur a annulé le partage natif, on ne fait rien.
-      if (e?.name === "AbortError") return;
-      // Sinon on tente le fallback presse-papiers.
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      toast.success("Lien de localisation copié dans le presse-papiers");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Impossible de partager la localisation");
-    }
-  };
-
-  const content = (
+  return (
     <>
-      {copied ? <Check className="h-4 w-4" /> : <Share className="h-4 w-4" />}
-      Partager
+      <Button
+        type="button"
+        variant="outline"
+        size={size}
+        className={cn("min-h-[44px] gap-2", className)}
+        disabled={!url}
+        onClick={() => setOpen(true)}
+      >
+        <Share className="h-4 w-4" />
+        Partager
+      </Button>
+      <LocalisationShareDialog
+        open={open}
+        onOpenChange={setOpen}
+        chantierNom={chantierNom}
+        adresse={displayAdresse(localisation)}
+        url={url}
+      />
     </>
   );
-
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      size={size}
-      className={cn("min-h-[44px] gap-2", className)}
-      disabled={!url}
-      onClick={handleShare}
-    >
-      {content}
-    </Button>
-  );
 }
+
+
