@@ -1,7 +1,7 @@
 import { MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChantierMap } from "./ChantierMap";
-import { ItineraireButton, VoirSurCarteButton } from "./ItineraireButton";
+import { ItineraireButton, PartagerButton, VoirSurCarteButton } from "./ItineraireButton";
 import { ChantierLocalisationEditButton } from "./ChantierLocalisationEditButton";
 import { displayAdresse, formatCoords, hasCoords, type ChantierLocalisation } from "@/lib/geo";
 
