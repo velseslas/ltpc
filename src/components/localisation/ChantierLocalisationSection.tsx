@@ -37,11 +37,17 @@ export function ChantierLocalisationSection({
           <div className="grid grid-cols-2 sm:flex gap-2">
             <VoirSurCarteButton localisation={chantier} size="sm" className="w-full sm:w-auto" />
             <ItineraireButton localisation={chantier} size="sm" className="w-full sm:w-auto" />
+            <PartagerButton
+              localisation={chantier}
+              chantierNom={chantier?.nom}
+              size="sm"
+              className="w-full sm:w-auto"
+            />
             <ChantierLocalisationEditButton
               chantierId={chantierId}
               clientId={clientId}
               chantier={chantier}
-              className="col-span-2 w-full sm:w-auto"
+              className="w-full sm:w-auto"
             />
           </div>
         )}

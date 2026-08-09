@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ItineraireButton, VoirSurCarteButton } from "./ItineraireButton";
+import { ItineraireButton, PartagerButton, VoirSurCarteButton } from "./ItineraireButton";
 import { ChantierLocalisationEditButton } from "./ChantierLocalisationEditButton";
 import { displayAdresse, hasCoords, type ChantierLocalisation } from "@/lib/geo";
 import { useIsMobile } from "@/hooks/use-mobile";
