@@ -133,6 +133,8 @@ const ChantierDetail = () => {
       {/* LOT 14.1 — Localisation & itinéraire */}
       <ChantierLocalisationSection
         chantier={chantier as any}
+        chantierId={chantierId}
+        clientId={effectiveClientId}
         onAddLocalisation={() =>
           navigate(`/intervenant/chantiers/${chantierId}/modifier?clientId=${effectiveClientId}`)
         }

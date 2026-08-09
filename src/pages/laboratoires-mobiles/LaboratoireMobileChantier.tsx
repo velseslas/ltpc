@@ -229,7 +229,12 @@ export default function LaboratoireMobileChantier() {
       </div>
 
       {/* LOT 14.1 — Localisation & itinéraire terrain */}
-      <ChantierLocalisationBanner chantier={chantier as any} chantierNom={chantier.nom} />
+      <ChantierLocalisationBanner
+        chantier={chantier as any}
+        chantierNom={chantier.nom}
+        chantierId={(chantier as any).id}
+        clientId={(chantier as any).client_id}
+      />
 
       {/* Échantillons Stats */}
       <EchantillonsStatsCards
