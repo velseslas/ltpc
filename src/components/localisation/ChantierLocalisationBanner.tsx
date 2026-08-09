@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraireButton, VoirSurCarteButton } from "./ItineraireButton";
+import { ChantierLocalisationEditButton } from "./ChantierLocalisationEditButton";
 import { displayAdresse, hasCoords, type ChantierLocalisation } from "@/lib/geo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -18,10 +19,14 @@ import { cn } from "@/lib/utils";
 export function ChantierLocalisationBanner({
   chantier,
   chantierNom,
+  chantierId,
+  clientId,
   className,
 }: {
   chantier?: ChantierLocalisation | null;
   chantierNom?: string | null;
+  chantierId?: string | null;
+  clientId?: string | null;
   className?: string;
 }) {
   const isMobile = useIsMobile();
@@ -58,6 +63,13 @@ export function ChantierLocalisationBanner({
           localisation={chantier}
           size="sm"
           className={cn("w-full sm:w-auto", !localise && "opacity-60")}
+        />
+        <ChantierLocalisationEditButton
+          chantierId={chantierId}
+          clientId={clientId}
+          chantier={chantier}
+          mode={localise ? "edit" : "add"}
+          className="col-span-2 w-full sm:w-auto"
         />
       </div>
     </div>
