@@ -303,6 +303,8 @@ export default function EtatCoulages() {
               <span>Généré le {format(new Date(), "dd/MM/yyyy à HH:mm", { locale: fr })}</span>
             </div>
           </div>
+          </div>
+
         </>
       )}
 
