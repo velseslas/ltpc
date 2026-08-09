@@ -16,6 +16,7 @@ import { usePaiementsEspece } from "@/hooks/useFacturation";
 import { ReportHeader } from "@/components/reports/ReportHeader";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { PrintService } from "@/lib/print/PrintService";
+import { ZoomableReport } from "@/components/ui/zoomable-report";
 
 // LOT 8 — Template État des paiements en espèce (paysage).
 PrintService.registerTemplate({
@@ -181,7 +182,7 @@ export default function EtatPaiementsEspece() {
             </Button>
           </div>
 
-          <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
+          <ZoomableReport className="w-full">
           <div ref={reportRef} data-print-root data-print-template="etat-paiements-espece" data-ref="report" className="bg-white text-black p-4 sm:p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
@@ -256,7 +257,7 @@ export default function EtatPaiementsEspece() {
               <span>Généré le {format(new Date(), "dd/MM/yyyy à HH:mm", { locale: fr })}</span>
             </div>
           </div>
-          </div>
+          </ZoomableReport>
         </>
       )}
 

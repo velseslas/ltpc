@@ -23,6 +23,7 @@ import { useEchantillonsModuleElasticite } from "@/hooks/useEchantillonsModuleEl
 import { useEchantillonsPermeabilite } from "@/hooks/useEchantillonsPermeabilite";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { ZoomableReport } from "@/components/ui/zoomable-report";
 
 const ESSAI_TYPES: Record<string, { label: string; prefix: string }> = {
   "compression": { label: "Compression", prefix: "EC" },
@@ -260,7 +261,7 @@ export default function EtatEssaisBetonDurci() {
             </Button>
           </div>
 
-          <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
+          <ZoomableReport className="w-full">
           <div ref={reportRef} data-ref="report" className="bg-white text-black p-4 sm:p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
@@ -338,7 +339,7 @@ export default function EtatEssaisBetonDurci() {
               <span>Généré le {format(new Date(), "dd/MM/yyyy à HH:mm", { locale: fr })}</span>
             </div>
           </div>
-          </div>
+          </ZoomableReport>
         </>
       )}
 
