@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -21,6 +21,27 @@ function Recenter({ lat, lng, zoom }: { lat: number; lng: number; zoom?: number 
   useEffect(() => {
     map.setView([lat, lng], zoom ?? map.getZoom(), { animate: true });
   }, [lat, lng, zoom, map]);
+  return null;
+}
+
+/** Recalcule la taille de la carte après ouverture du modal / redimensionnement. */
+function InvalidateSize() {
+  const map = useMap();
+  useEffect(() => {
+    const invalidate = () => map.invalidateSize({ animate: false });
+    const t1 = window.setTimeout(invalidate, 60);
+    const t2 = window.setTimeout(invalidate, 350);
+    const container = map.getContainer();
+    const ro = new ResizeObserver(() => invalidate());
+    ro.observe(container);
+    window.addEventListener("resize", invalidate);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      ro.disconnect();
+      window.removeEventListener("resize", invalidate);
+    };
+  }, [map]);
   return null;
 }
 
@@ -62,7 +83,7 @@ export function ChantierMap({
   return (
     <div
       className={cn(
-        "w-full max-w-full overflow-hidden rounded-xl border border-border bg-muted/30",
+        "relative w-full max-w-full min-h-0 overflow-hidden rounded-xl border border-border bg-muted/30",
         className,
       )}
     >
@@ -71,8 +92,9 @@ export function ChantierMap({
         zoom={hasPoint ? zoom : 5}
         scrollWheelZoom={false}
         className="h-full w-full"
-        style={{ height: "100%", width: "100%", minHeight: 240 }}
+        style={{ height: "100%", width: "100%" }}
       >
+        <InvalidateSize />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

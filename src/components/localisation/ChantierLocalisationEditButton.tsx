@@ -98,8 +98,8 @@ export function ChantierLocalisationEditButton({
       </Button>
 
       <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : cancel())}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col gap-4 overflow-hidden">
+          <DialogHeader className="shrink-0">
             <DialogTitle>
               {mode === "add" ? "Ajouter la localisation" : "Modifier la localisation"}
             </DialogTitle>
@@ -110,9 +110,11 @@ export function ChantierLocalisationEditButton({
             </DialogDescription>
           </DialogHeader>
 
-          <LocalisationPicker value={draft} onChange={setDraft} />
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+            <LocalisationPicker value={draft} onChange={setDraft} />
+          </div>
 
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+          <div className="shrink-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t border-border">
             <Button
               type="button"
               variant="outline"
