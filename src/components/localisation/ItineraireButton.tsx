@@ -126,7 +126,7 @@ export function VoirSurCarteButton({
   );
 }
 
-/** Partage la localisation du chantier via le même dialogue que les rapports/documents. */
+/** Partage la localisation du chantier via le dialogue de partage LTPC (même UX que les rapports/documents). */
 export function PartagerButton({
   localisation,
   chantierNom,
@@ -139,36 +139,7 @@ export function PartagerButton({
   size?: "sm" | "default" | "lg";
 }) {
   const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const url = buildVoirSurCarteUrl(localisation);
-
-  const handleClick = async () => {
-    if (!url) return;
-    try {
-      if (navigator.share && navigator.canShare && navigator.canShare({ url })) {
-        await navigator.share({
-          title: chantierNom ? `Localisation — ${chantierNom}` : "Localisation du chantier",
-          text: `Localisation du chantier${chantierNom ? ` « ${chantierNom} »` : ""}`,
-          url,
-        });
-        return;
-      }
-    } catch (e: any) {
-      if (e?.name === "AbortError") return;
-    }
-    setOpen(true);
-  };
-
-  const copyOnly = async () => {
-    if (!url) return;
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // silent fail
-    }
-  };
 
   return (
     <>
@@ -178,9 +149,9 @@ export function PartagerButton({
         size={size}
         className={cn("min-h-[44px] gap-2", className)}
         disabled={!url}
-        onClick={handleClick}
+        onClick={() => setOpen(true)}
       >
-        {copied ? <Check className="h-4 w-4" /> : <Share className="h-4 w-4" />}
+        <Share className="h-4 w-4" />
         Partager
       </Button>
       <LocalisationShareDialog
@@ -193,4 +164,5 @@ export function PartagerButton({
     </>
   );
 }
+
 
