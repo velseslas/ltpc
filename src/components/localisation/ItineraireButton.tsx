@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Car, Map, Share, Check } from "lucide-react";
+import { Car, Map, Share } from "lucide-react";
 import {
   buildItineraireUrl,
   buildVoirSurCarteUrl,
@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { LocalisationShareDialog } from "./LocalisationShareDialog";
+
 
 
 /** LOT 14.1 — Lance la navigation externe (Google Maps / URL universelle). */
