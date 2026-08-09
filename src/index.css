@@ -771,15 +771,3 @@ html[data-animations="off"] *::after {
   max-width: 100%;
   contain: paint;
 }
-
-.leaflet-pane,
-.leaflet-top,
-.leaflet-bottom,
-.leaflet-control {
-  z-index: auto;
-}
-
-.leaflet-top,
-.leaflet-bottom {
-  position: absolute;
-}
