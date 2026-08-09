@@ -214,7 +214,7 @@ export default function EtatFactures() {
           <div
             ref={reportRef}
             data-ref="report"
-            className="bg-white text-black p-8 print:p-4"
+            className="bg-white text-black p-4 sm:p-8 print:p-4"
             style={{ minWidth: orientation === "landscape" ? "900px" : undefined }}
           >
 
@@ -232,16 +232,16 @@ export default function EtatFactures() {
               </p>
             </div>
 
-            <table className="w-full border-collapse text-xs">
+            <table className="w-full border-collapse text-sm print:text-xs">
               <thead>
                 <tr className="bg-transparent text-black">
-                  <th className="border border-black p-1.5 text-center">N° Facture</th>
-                  <th className="border border-black p-1.5 text-center">Client</th>
-                  <th className="border border-black p-1.5 text-center">Chantier</th>
-                  <th className="border border-black p-1.5 text-center">Date</th>
-                  <th className="border border-black p-1.5 text-center">Mode</th>
-                  <th className="border border-black p-1.5 text-center">Montant</th>
-                  <th className="border border-black p-1.5 text-center">Statut</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">N° Facture</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Client</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Chantier</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Date</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Mode</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Montant</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Statut</th>
                 </tr>
               </thead>
               <tbody>
@@ -254,19 +254,19 @@ export default function EtatFactures() {
                 ) : (
                   filtered.map((f: any, idx: number) => (
                     <tr key={f.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="border border-black p-1.5 text-center font-medium">{f.numero}</td>
-                      <td className="border border-black p-1.5">{f.clients?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{f.chantiers?.nom || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5 text-center font-medium">{f.numero}</td>
+                      <td className="border border-black p-2 print:p-1.5">{f.clients?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5">{f.chantiers?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         {f.date_emission ? format(new Date(f.date_emission), "dd/MM/yyyy") : "—"}
                       </td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         {f.mode_paiement === "cheque" ? "Chèque" : f.mode_paiement === "espece" ? "Espèce" : "—"}
                       </td>
-                      <td className="border border-black p-1.5 text-right">
+                      <td className="border border-black p-2 print:p-1.5 text-right">
                         {Number((f.mode_paiement || "") === "espece" ? f.montant_ht : f.montant_ttc).toLocaleString()} DA
                       </td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-xs font-medium",
                           f.statut === "payee" && "bg-green-100 text-green-800",

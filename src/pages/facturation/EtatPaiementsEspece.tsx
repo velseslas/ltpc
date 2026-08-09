@@ -182,7 +182,7 @@ export default function EtatPaiementsEspece() {
           </div>
 
           <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
-          <div ref={reportRef} data-print-root data-print-template="etat-paiements-espece" data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+          <div ref={reportRef} data-print-root data-print-template="etat-paiements-espece" data-ref="report" className="bg-white text-black p-4 sm:p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/facturation/espece/etat`}
@@ -201,17 +201,17 @@ export default function EtatPaiementsEspece() {
               {statutFilter !== "all" && <span><strong>Statut :</strong> {statutFilter === "recu" ? "Reçu" : "En attente"}</span>}
             </div>
 
-            <table className="w-full border-collapse text-xs">
+            <table className="w-full border-collapse text-sm print:text-xs">
               <thead>
                 <tr className="bg-transparent text-black">
-                  <th className="border border-black p-1.5 text-center">N°</th>
-                  <th className="border border-black p-1.5 text-center">N° Reçu</th>
-                  <th className="border border-black p-1.5 text-center">Date paiement</th>
-                  <th className="border border-black p-1.5 text-center">Entreprise</th>
-                  <th className="border border-black p-1.5 text-center">Chantier</th>
-                  <th className="border border-black p-1.5 text-center">Montant (DA)</th>
-                  <th className="border border-black p-1.5 text-center">Statut</th>
-                  <th className="border border-black p-1.5 text-center">Observations</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">N°</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">N° Reçu</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Date paiement</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Entreprise</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Chantier</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Montant (DA)</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Statut</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Observations</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,13 +220,13 @@ export default function EtatPaiementsEspece() {
                 ) : (
                   filtered.map((e: any, idx: number) => (
                     <tr key={e.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="border border-black p-1.5 text-center font-medium">{idx + 1}</td>
-                      <td className="border border-black p-1.5 text-center">{e.numero_recu || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">{format(new Date(e.date_paiement), "dd/MM/yyyy")}</td>
-                      <td className="border border-black p-1.5">{e.clients?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.chantiers?.nom || "—"}</td>
-                      <td className="border border-black p-1.5 text-right font-medium">{Number(e.montant).toLocaleString()}</td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5 text-center font-medium">{idx + 1}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-center">{e.numero_recu || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-center">{format(new Date(e.date_paiement), "dd/MM/yyyy")}</td>
+                      <td className="border border-black p-2 print:p-1.5">{e.clients?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5">{e.chantiers?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-right font-medium">{Number(e.montant).toLocaleString()}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-xs font-medium",
                           e.statut === "recu" && "bg-green-100 text-green-800",
@@ -235,7 +235,7 @@ export default function EtatPaiementsEspece() {
                           {e.statut === "recu" ? "Reçu" : "En attente"}
                         </span>
                       </td>
-                      <td className="border border-black p-1.5 text-xs">{e.observations || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-xs">{e.observations || "—"}</td>
                     </tr>
                   ))
                 )}
@@ -243,9 +243,9 @@ export default function EtatPaiementsEspece() {
               {filtered.length > 0 && (
                 <tfoot>
                   <tr className="bg-gray-100 font-bold">
-                    <td colSpan={5} className="border border-black p-1.5 text-right">TOTAL</td>
-                    <td className="border border-black p-1.5 text-right">{totalMontant.toLocaleString()} DA</td>
-                    <td colSpan={2} className="border border-black p-1.5"></td>
+                    <td colSpan={5} className="border border-black p-2 print:p-1.5 text-right">TOTAL</td>
+                    <td className="border border-black p-2 print:p-1.5 text-right">{totalMontant.toLocaleString()} DA</td>
+                    <td colSpan={2} className="border border-black p-2 print:p-1.5"></td>
                   </tr>
                 </tfoot>
               )}

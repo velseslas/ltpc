@@ -251,7 +251,7 @@ export default function EtatEssaisGranulat() {
           </div>
 
           <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
-          <div ref={reportRef} data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+          <div ref={reportRef} data-ref="report" className="bg-white text-black p-4 sm:p-8 print:p-4" style={{ minWidth: "900px" }}>
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/essais/granulat/etat-essais?type=${essaiType}`}
@@ -275,17 +275,17 @@ export default function EtatEssaisGranulat() {
             </div>
 
             {/* Table */}
-            <table className="w-full border-collapse text-xs">
+            <table className="w-full border-collapse text-sm print:text-xs">
               <thead>
                 <tr className="bg-transparent text-black">
-                  <th className="border border-black p-1.5 text-center">N°</th>
-                  <th className="border border-black p-1.5 text-center">Date réception</th>
-                  <th className="border border-black p-1.5 text-center">Entreprise</th>
-                  <th className="border border-black p-1.5 text-center">Chantier</th>
-                  <th className="border border-black p-1.5 text-center">Carrière</th>
-                  <th className="border border-black p-1.5 text-center">Produit</th>
-                  <th className="border border-black p-1.5 text-center">Date essai</th>
-                  <th className="border border-black p-1.5 text-center">Statut</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">N°</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Date réception</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Entreprise</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Chantier</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Carrière</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Produit</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Date essai</th>
+                  <th className="border border-black p-2 print:p-1.5 text-center">Statut</th>
                 </tr>
               </thead>
               <tbody>
@@ -298,20 +298,20 @@ export default function EtatEssaisGranulat() {
                 ) : (
                   filtered.map((e, idx) => (
                     <tr key={e.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="border border-black p-1.5 text-center font-medium">
+                      <td className="border border-black p-2 print:p-1.5 text-center font-medium">
                         {prefix}-{String(e.numero).padStart(3, "0")}
                       </td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         {e.date_reception ? format(new Date(e.date_reception), "dd/MM/yyyy") : "—"}
                       </td>
-                      <td className="border border-black p-1.5">{e.clients?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.chantiers?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.carrieres?.nom || "—"}</td>
-                      <td className="border border-black p-1.5">{e.produit || "—"}</td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5">{e.clients?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5">{e.chantiers?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5">{e.carrieres?.nom || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5">{e.produit || "—"}</td>
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         {e.date_essai ? format(new Date(e.date_essai), "dd/MM/yyyy") : "—"}
                       </td>
-                      <td className="border border-black p-1.5 text-center">
+                      <td className="border border-black p-2 print:p-1.5 text-center">
                         <span className={cn(
                           "px-1.5 py-0.5 rounded text-xs font-medium",
                           e.statut === "termine" && "bg-green-100 text-green-800",
