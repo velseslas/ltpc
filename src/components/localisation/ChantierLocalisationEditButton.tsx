@@ -94,7 +94,7 @@ export function ChantierLocalisationEditButton({
         className={cn("min-h-[44px] gap-2", className)}
       >
         {mode === "add" ? <Plus className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
-        {mode === "add" ? "Ajouter la localisation" : "Modifier la localisation"}
+        {mode === "add" ? "Ajouter la localisation" : "Modifier"}
       </Button>
 
       <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : cancel())}>
