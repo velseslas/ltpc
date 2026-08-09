@@ -199,13 +199,18 @@ export default function EtatFactures() {
                 <SelectItem value="portrait">Vue normale (portrait)</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={async () => { await handleDownload(); handlePrint(); }} className="gap-2 w-full sm:w-auto">
-              <Printer className="h-4 w-4" />
-              <Download className="h-4 w-4" />
+            <Button
+              variant="outline"
+              onClick={async () => { await handleDownload(); handlePrint(); }}
+              className="gap-2 w-full sm:w-auto whitespace-normal text-center h-auto min-h-10 py-2 text-xs sm:text-sm leading-tight"
+            >
+              <Printer className="h-4 w-4 shrink-0" />
+              <Download className="h-4 w-4 shrink-0" />
               Imprimer et télécharger
             </Button>
           </div>
 
+          <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
           <div
             ref={reportRef}
             data-ref="report"
@@ -229,7 +234,7 @@ export default function EtatFactures() {
 
             <table className="w-full border-collapse text-xs">
               <thead>
-                <tr className="bg-[#1e5a7a] text-white">
+                <tr className="bg-transparent text-black">
                   <th className="border border-black p-1.5 text-center">N° Facture</th>
                   <th className="border border-black p-1.5 text-center">Client</th>
                   <th className="border border-black p-1.5 text-center">Chantier</th>
@@ -280,6 +285,7 @@ export default function EtatFactures() {
               <span>Total : {filtered.length} facture(s) — {totalMontant.toLocaleString()} DA</span>
               <span>Généré le {format(new Date(), "dd/MM/yyyy à HH:mm", { locale: fr })}</span>
             </div>
+          </div>
           </div>
         </>
       )}
