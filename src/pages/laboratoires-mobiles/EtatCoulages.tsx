@@ -211,15 +211,21 @@ export default function EtatCoulages() {
       {/* Report */}
       {generated && (
         <>
-          <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:justify-end sm:gap-3 print:hidden">
-            <Button variant="outline" onClick={async () => { await (handleDownload)(); (handlePrint)(); }} className="gap-2 w-full sm:w-auto">
-            <Printer className="h-4 w-4" />
-            <Download className="h-4 w-4" />
-            Imprimer et télécharger
-          </Button>
+          <div className="flex w-full sm:w-auto sm:justify-end gap-2 sm:gap-3 print:hidden">
+            <Button
+              variant="outline"
+              onClick={async () => { await (handleDownload)(); (handlePrint)(); }}
+              className="gap-2 w-full sm:w-auto whitespace-normal text-center h-auto min-h-10 py-2 text-xs sm:text-sm leading-tight"
+            >
+              <Printer className="h-4 w-4 shrink-0" />
+              <Download className="h-4 w-4 shrink-0" />
+              Imprimer et télécharger
+            </Button>
           </div>
 
+          <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
           <div ref={reportRef} data-ref="report" className="bg-white text-black p-8 print:p-4" style={{ minWidth: "900px" }}>
+
             <ReportHeader
               entreprise={entreprise}
               verificationUrl={`${window.location.origin}/laboratoires-mobiles/chantier/${chantierId}/etat-coulages`}
@@ -247,7 +253,7 @@ export default function EtatCoulages() {
             {/* Table */}
             <table className="w-full border-collapse text-xs">
               <thead>
-                <tr className="bg-[#1e5a7a] text-white">
+                <tr className="bg-transparent text-black">
                   <th className="border border-black p-1.5 text-center">N°</th>
                   <th className="border border-black p-1.5 text-center">Ouvrage</th>
                   <th className="border border-black p-1.5 text-center">Partie ouvrage</th>
@@ -297,6 +303,8 @@ export default function EtatCoulages() {
               <span>Généré le {format(new Date(), "dd/MM/yyyy à HH:mm", { locale: fr })}</span>
             </div>
           </div>
+          </div>
+
         </>
       )}
 
