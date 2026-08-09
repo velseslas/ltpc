@@ -67,7 +67,15 @@ export function ChantierLocalisationSection({
         <div className="text-center py-8 border border-dashed border-border rounded-lg">
           <MapPin className="w-10 h-10 mx-auto mb-3 opacity-50 text-muted-foreground" />
           <p className="text-muted-foreground">Localisation non renseignée</p>
-          {onAddLocalisation && (
+          <div className="mt-4 flex justify-center">
+            <ChantierLocalisationEditButton
+              chantierId={chantierId}
+              clientId={clientId}
+              chantier={chantier}
+              mode="add"
+            />
+          </div>
+          {!chantierId && onAddLocalisation && (
             <Button
               type="button"
               variant="outline"
