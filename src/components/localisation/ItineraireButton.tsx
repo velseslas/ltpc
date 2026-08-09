@@ -3,11 +3,13 @@ import { Car, Map, Share, Check } from "lucide-react";
 import {
   buildItineraireUrl,
   buildVoirSurCarteUrl,
+  displayAdresse,
   type ChantierLocalisation,
 } from "@/lib/geo";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { useState } from "react";
+import { LocalisationShareDialog } from "./LocalisationShareDialog";
+
 
 /** LOT 14.1 — Lance la navigation externe (Google Maps / URL universelle). */
 export function ItineraireButton({
