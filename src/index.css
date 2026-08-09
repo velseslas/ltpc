@@ -759,3 +759,27 @@ html[data-animations="off"] *::after {
   }
 }
 
+
+/* Localisation — confinement strict de Leaflet dans son conteneur (modal Desktop).
+   La carte crée son propre contexte d'empilement : ni les panes, ni les tuiles,
+   ni les contrôles +/- ne peuvent déborder visuellement du modal. */
+.leaflet-container {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  contain: paint;
+}
+
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control {
+  z-index: auto;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  position: absolute;
+}
