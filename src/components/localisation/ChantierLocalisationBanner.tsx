@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ItineraireButton, VoirSurCarteButton } from "./ItineraireButton";
+import { ItineraireButton, PartagerButton, VoirSurCarteButton } from "./ItineraireButton";
 import { ChantierLocalisationEditButton } from "./ChantierLocalisationEditButton";
 import { displayAdresse, hasCoords, type ChantierLocalisation } from "@/lib/geo";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -64,12 +64,18 @@ export function ChantierLocalisationBanner({
           size="sm"
           className={cn("w-full sm:w-auto", !localise && "opacity-60")}
         />
+        <PartagerButton
+          localisation={chantier}
+          chantierNom={chantierNom}
+          size="sm"
+          className="w-full sm:w-auto"
+        />
         <ChantierLocalisationEditButton
           chantierId={chantierId}
           clientId={clientId}
           chantier={chantier}
           mode={localise ? "edit" : "add"}
-          className="col-span-2 w-full sm:w-auto"
+          className="w-full sm:w-auto"
         />
       </div>
     </div>
