@@ -16,6 +16,7 @@ import { useEntreprise } from "@/hooks/useEntreprise";
 import { useClients } from "@/hooks/useClients";
 import { useChantiersByClient } from "@/hooks/useChantiers";
 import { useFactures } from "@/hooks/useFacturation";
+import { ZoomableReport } from "@/components/ui/zoomable-report";
 
 const BACK_PATH = "/facturation/factures";
 
@@ -210,7 +211,7 @@ export default function EtatFactures() {
             </Button>
           </div>
 
-          <div className="w-full overflow-x-auto print:overflow-visible" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}>
+          <ZoomableReport className="w-full">
           <div
             ref={reportRef}
             data-ref="report"
@@ -286,7 +287,7 @@ export default function EtatFactures() {
               <span>Généré le {format(new Date(), "dd/MM/yyyy à HH:mm", { locale: fr })}</span>
             </div>
           </div>
-          </div>
+          </ZoomableReport>
         </>
       )}
 
