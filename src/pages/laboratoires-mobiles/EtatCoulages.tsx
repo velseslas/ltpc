@@ -253,7 +253,7 @@ export default function EtatCoulages() {
             {/* Table */}
             <table className="w-full border-collapse text-xs">
               <thead>
-                <tr className="bg-[#1e5a7a] text-white">
+                <tr className="bg-transparent text-black">
                   <th className="border border-black p-1.5 text-center">N°</th>
                   <th className="border border-black p-1.5 text-center">Ouvrage</th>
                   <th className="border border-black p-1.5 text-center">Partie ouvrage</th>
