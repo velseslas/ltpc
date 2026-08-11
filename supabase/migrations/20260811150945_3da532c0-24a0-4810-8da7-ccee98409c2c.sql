@@ -1,0 +1,1 @@
+ALTER TABLE public.lignes_facture ADD COLUMN IF NOT EXISTS code_essai text;

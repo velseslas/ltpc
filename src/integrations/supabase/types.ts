@@ -6262,6 +6262,7 @@ export type Database = {
       }
       lignes_facture: {
         Row: {
+          code_essai: string | null
           created_at: string
           description: string
           facture_id: string
@@ -6272,6 +6273,7 @@ export type Database = {
           quantite: number
         }
         Insert: {
+          code_essai?: string | null
           created_at?: string
           description: string
           facture_id: string
@@ -6282,6 +6284,7 @@ export type Database = {
           quantite?: number
         }
         Update: {
+          code_essai?: string | null
           created_at?: string
           description?: string
           facture_id?: string
