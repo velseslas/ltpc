@@ -2,31 +2,67 @@ import { Building, Plus, Search, ArrowLeft, MapPin, Phone, Mail, User, Loader2 }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCentralesBeton } from "@/hooks/useCentralesBeton";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import { WilayaCard } from "@/components/laboratoires-mobiles/WilayaCard";
+import { wilayas } from "@/data/wilayas";
+
+const NON_RENSEIGNEE = "Non renseignée";
 
 const CentraleBeton = () => {
   const navigate = useNavigate();
   const { data: centrales, isLoading, error } = useCentralesBeton();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedWilaya, setSelectedWilaya] = useState<string | null>(null);
 
-  const filtered = centrales?.filter(item =>
-    item.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.ville?.toLowerCase().includes(searchTerm.toLowerCase())
+  const wilayasWithCentrales = useMemo(() => {
+    const counts = new Map<string, number>();
+    (centrales || []).forEach((c) => {
+      const key = c.ville && c.ville.trim() ? c.ville.trim() : NON_RENSEIGNEE;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    });
+    const ordered = wilayas
+      .filter((w) => counts.has(w.nom))
+      .map((w) => ({ code: w.code, nom: w.nom, count: counts.get(w.nom) || 0 }));
+    const extras = Array.from(counts.keys())
+      .filter((k) => !wilayas.some((w) => w.nom === k))
+      .map((k) => ({ code: k, nom: k, count: counts.get(k) || 0 }));
+    return [...ordered, ...extras];
+  }, [centrales]);
+
+  const maxCount = useMemo(
+    () => Math.max(...wilayasWithCentrales.map((w) => w.count), 1),
+    [wilayasWithCentrales]
   );
+
+  const filtered = centrales?.filter((item) => {
+    const key = item.ville && item.ville.trim() ? item.ville.trim() : NON_RENSEIGNEE;
+    if (selectedWilaya && key !== selectedWilaya) return false;
+    const term = searchTerm.toLowerCase();
+    return (
+      item.nom.toLowerCase().includes(term) ||
+      item.ville?.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <>
       <AppBreadcrumb items={[
         { label: "Intervenants", path: "/intervenant" },
         { label: "Producteurs", path: "/intervenant/producteurs" },
-        { label: "Centrales à béton" }
+        { label: "Centrales à béton", path: selectedWilaya ? "/intervenant/producteurs/centrale" : undefined },
+        ...(selectedWilaya ? [{ label: selectedWilaya }] : []),
       ]} />
 
        <div className="mb-8">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate("/intervenant/producteurs")} className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => (selectedWilaya ? setSelectedWilaya(null) : navigate("/intervenant/producteurs"))}
+            className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-3xl font-display font-bold text-foreground">
@@ -34,7 +70,7 @@ const CentraleBeton = () => {
           </h1>
         </div>
         <p className="text-muted-foreground mt-2">
-          Gérez vos centrales de production de béton
+          {selectedWilaya ? `Centrales de la wilaya de ${selectedWilaya}` : "Sélectionnez une wilaya pour voir ses centrales"}
         </p>
       </div>
 
@@ -66,6 +102,28 @@ const CentraleBeton = () => {
           <div className="text-center py-12 text-destructive">
             Erreur lors du chargement des données
           </div>
+        ) : !selectedWilaya && !searchTerm ? (
+          wilayasWithCentrales.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Building className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>Aucune centrale à béton trouvée</p>
+              <p className="text-sm mt-1">Ajoutez votre première centrale pour commencer</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              {wilayasWithCentrales.map((w, index) => (
+                <WilayaCard
+                  key={w.code}
+                  nom={w.nom}
+                  chantiersCount={w.count}
+                  maxChantiers={maxCount}
+                  colorIndex={index}
+                  label="Centrales"
+                  onClick={() => setSelectedWilaya(w.nom)}
+                />
+              ))}
+            </div>
+          )
         ) : filtered?.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <Building className="w-12 h-12 mx-auto mb-4 opacity-50" />

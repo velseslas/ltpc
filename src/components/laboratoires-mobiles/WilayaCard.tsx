@@ -8,6 +8,7 @@ interface WilayaCardProps {
   maxChantiers: number;
   colorIndex: number;
   onClick: () => void;
+  label?: string;
 }
 
 const colorVariants = [
@@ -21,7 +22,7 @@ const colorVariants = [
   { bg: "bg-amber-500/20", icon: "text-amber-500", bar: "bg-amber-500" },
 ];
 
-export function WilayaCard({ nom, chantiersCount, maxChantiers, colorIndex, onClick }: WilayaCardProps) {
+export function WilayaCard({ nom, chantiersCount, maxChantiers, colorIndex, onClick, label = "Chantiers actifs" }: WilayaCardProps) {
   const colors = colorVariants[colorIndex % colorVariants.length];
   const progressPercent = maxChantiers > 0 ? (chantiersCount / maxChantiers) * 100 : 0;
 
@@ -38,7 +39,7 @@ export function WilayaCard({ nom, chantiersCount, maxChantiers, colorIndex, onCl
         <h3 className="font-semibold text-lg text-foreground mb-3">{nom}</h3>
         
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-muted-foreground">Chantiers actifs</span>
+          <span className="text-sm text-muted-foreground">{label}</span>
           <span className="text-sm font-semibold text-foreground">{chantiersCount}</span>
         </div>
         
