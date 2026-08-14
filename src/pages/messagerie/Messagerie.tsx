@@ -47,29 +47,59 @@ export default function Messagerie() {
 
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
-  const [newOpen, setNewOpen] = useState(false);
   const [voiceActive, setVoiceActive] = useState(false);
 
   const { data: conversations = [], isLoading } = useConversations();
+  const { data: allUsers = [] } = useSearchMessagingUsers("");
   const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
   const readCutoff = useConversationReadCutoff(conversationId ?? null);
-  const { sendMessage, sendVoiceMessage, markRead, archiveConversation } = useMessagerieActions();
+  const { sendMessage, sendVoiceMessage, markRead, archiveConversation, openDirectConversation } =
+    useMessagerieActions();
 
   const active = useMemo(
     () => conversations.find((c) => c.id === conversationId) ?? null,
     [conversations, conversationId]
   );
 
-  const filtered = useMemo(() => {
+  type Entry =
+    | { kind: "conv"; key: string; conv: ConversationSummary }
+    | { kind: "user"; key: string; userId: string; label: string; sub: string | null };
+
+  const filtered = useMemo<Entry[]>(() => {
     const q = search.trim().toLowerCase();
     const visible = conversations.filter((c) => !c.is_archived);
-    if (!q) return visible;
-    return visible.filter((c) =>
-      [conversationLabel(c), c.chantier_nom ?? "", c.last_message_preview ?? ""]
-        .join(" ").toLowerCase().includes(q)
+    const withConv = new Set(
+      visible.filter((c) => c.type === "direct" && c.other_user_id).map((c) => c.other_user_id as string)
     );
-  }, [conversations, search]);
+    const convEntries: Entry[] = visible.map((c) => ({ kind: "conv", key: c.id, conv: c }));
+    const userEntries: Entry[] = allUsers
+      .filter((u) => u.user_id && u.user_id !== user?.id && !withConv.has(u.user_id))
+      .map((u) => ({
+        kind: "user",
+        key: `u-${u.user_id}`,
+        userId: u.user_id,
+        label: u.nom || "Utilisateur",
+        sub: u.role ?? null,
+      }));
+    const all = [...convEntries, ...userEntries];
+    if (!q) return all;
+    return all.filter((e) =>
+      (e.kind === "conv"
+        ? [conversationLabel(e.conv), e.conv.chantier_nom ?? "", e.conv.last_message_preview ?? ""]
+        : [e.label, e.sub ?? ""]
+      ).join(" ").toLowerCase().includes(q)
+    );
+  }, [conversations, allUsers, search, user?.id]);
+
+  const openUser = (userId: string) => {
+    openDirectConversation.mutate(userId, {
+      onSuccess: (id) => navigate(`/messagerie/${id}`),
+      onError: (e) =>
+        toast({ title: "Impossible d'ouvrir la conversation", description: (e as Error).message, variant: "destructive" }),
+    });
+  };
+
 
   // Marquage lu à l'ouverture d'une conversation — uniquement si l'onglet est
   // visible (LOT 15.4 : une PWA en arrière-plan ne « consulte » pas la conversation).
