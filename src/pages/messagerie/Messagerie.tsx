@@ -259,14 +259,36 @@ export default function Messagerie() {
       <ScrollArea className="flex-1">
         {isLoading && <p className="p-4 text-sm text-muted-foreground">Chargement…</p>}
         {!isLoading && filtered.length === 0 && (
-          <p className="p-4 text-sm text-muted-foreground">Aucune conversation.</p>
+          <p className="p-4 text-sm text-muted-foreground">Aucun utilisateur.</p>
         )}
         <ul>
-          {filtered.map((c: ConversationSummary) => {
+          {filtered.map((e) => {
+            if (e.kind === "user") {
+              return (
+                <li key={e.key}>
+                  <button
+                    onClick={() => openUser(e.userId)}
+                    disabled={openDirectConversation.isPending}
+                    className="w-full text-left px-3 py-3 flex gap-3 items-center hover:bg-muted/60 transition-colors"
+                  >
+                    <Avatar className="h-9 w-9 shrink-0">
+                      <AvatarFallback className="text-xs">{initials(e.label)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm font-medium truncate block">{e.label}</span>
+                      <span className="text-xs text-muted-foreground truncate block">
+                        {e.sub || "Aucun message"}
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              );
+            }
+            const c = e.conv;
             const label = conversationLabel(c);
             const isActive = c.id === conversationId;
             return (
-              <li key={c.id}>
+              <li key={e.key}>
                 <button
                   onClick={() => navigate(`/messagerie/${c.id}`)}
                   className={cn(
