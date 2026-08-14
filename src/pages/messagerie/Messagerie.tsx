@@ -245,9 +245,6 @@ export default function Messagerie() {
       <div className="p-3 space-y-3 border-b border-border">
         <div className="flex items-center justify-between gap-2">
           <h1 className="text-lg font-semibold">Messagerie</h1>
-          <Button size="sm" onClick={() => setNewOpen(true)}>
-            <MessageSquarePlus className="w-4 h-4 mr-1.5" /> Nouvelle
-          </Button>
         </div>
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
