@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { format, isToday, isYesterday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowDown, ArrowLeft, Check, CheckCheck, MapPin, MessageSquarePlus, Search, Send, Archive } from "lucide-react";
+import { ArrowDown, ArrowLeft, Check, CheckCheck, MapPin, Search, Send, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,10 +21,10 @@ import {
   useConversationPresence,
   useMessagerieActions,
   useMessages,
+  useSearchMessagingUsers,
   MESSAGE_MAX_LENGTH,
   type ConversationSummary,
 } from "@/hooks/useMessagerie";
-import { NewConversationDialog } from "@/components/messagerie/NewConversationDialog";
 import { VoiceRecorder } from "@/components/messagerie/VoiceRecorder";
 import { VoiceMessage } from "@/components/messagerie/VoiceMessage";
 
@@ -47,29 +47,59 @@ export default function Messagerie() {
 
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
-  const [newOpen, setNewOpen] = useState(false);
   const [voiceActive, setVoiceActive] = useState(false);
 
   const { data: conversations = [], isLoading } = useConversations();
+  const { data: allUsers = [] } = useSearchMessagingUsers("");
   const { data: messages = [], hasMore, loadOlder, isLoadingOlder } = useMessages(conversationId ?? null);
   const { data: names = {} } = useConversationParticipants(conversationId ?? null);
   const readCutoff = useConversationReadCutoff(conversationId ?? null);
-  const { sendMessage, sendVoiceMessage, markRead, archiveConversation } = useMessagerieActions();
+  const { sendMessage, sendVoiceMessage, markRead, archiveConversation, openDirectConversation } =
+    useMessagerieActions();
 
   const active = useMemo(
     () => conversations.find((c) => c.id === conversationId) ?? null,
     [conversations, conversationId]
   );
 
-  const filtered = useMemo(() => {
+  type Entry =
+    | { kind: "conv"; key: string; conv: ConversationSummary }
+    | { kind: "user"; key: string; userId: string; label: string; sub: string | null };
+
+  const filtered = useMemo<Entry[]>(() => {
     const q = search.trim().toLowerCase();
     const visible = conversations.filter((c) => !c.is_archived);
-    if (!q) return visible;
-    return visible.filter((c) =>
-      [conversationLabel(c), c.chantier_nom ?? "", c.last_message_preview ?? ""]
-        .join(" ").toLowerCase().includes(q)
+    const withConv = new Set(
+      visible.filter((c) => c.type === "direct" && c.other_user_id).map((c) => c.other_user_id as string)
     );
-  }, [conversations, search]);
+    const convEntries: Entry[] = visible.map((c) => ({ kind: "conv", key: c.id, conv: c }));
+    const userEntries: Entry[] = allUsers
+      .filter((u) => u.user_id && u.user_id !== user?.id && !withConv.has(u.user_id))
+      .map((u) => ({
+        kind: "user",
+        key: `u-${u.user_id}`,
+        userId: u.user_id,
+        label: u.nom || "Utilisateur",
+        sub: u.role ?? null,
+      }));
+    const all = [...convEntries, ...userEntries];
+    if (!q) return all;
+    return all.filter((e) =>
+      (e.kind === "conv"
+        ? [conversationLabel(e.conv), e.conv.chantier_nom ?? "", e.conv.last_message_preview ?? ""]
+        : [e.label, e.sub ?? ""]
+      ).join(" ").toLowerCase().includes(q)
+    );
+  }, [conversations, allUsers, search, user?.id]);
+
+  const openUser = (userId: string) => {
+    openDirectConversation.mutate(userId, {
+      onSuccess: (id) => navigate(`/messagerie/${id}`),
+      onError: (e) =>
+        toast({ title: "Impossible d'ouvrir la conversation", description: (e as Error).message, variant: "destructive" }),
+    });
+  };
+
 
   // Marquage lu à l'ouverture d'une conversation — uniquement si l'onglet est
   // visible (LOT 15.4 : une PWA en arrière-plan ne « consulte » pas la conversation).
@@ -215,9 +245,6 @@ export default function Messagerie() {
       <div className="p-3 space-y-3 border-b border-border">
         <div className="flex items-center justify-between gap-2">
           <h1 className="text-lg font-semibold">Messagerie</h1>
-          <Button size="sm" onClick={() => setNewOpen(true)}>
-            <MessageSquarePlus className="w-4 h-4 mr-1.5" /> Nouvelle
-          </Button>
         </div>
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -232,14 +259,36 @@ export default function Messagerie() {
       <ScrollArea className="flex-1">
         {isLoading && <p className="p-4 text-sm text-muted-foreground">Chargement…</p>}
         {!isLoading && filtered.length === 0 && (
-          <p className="p-4 text-sm text-muted-foreground">Aucune conversation.</p>
+          <p className="p-4 text-sm text-muted-foreground">Aucun utilisateur.</p>
         )}
         <ul>
-          {filtered.map((c: ConversationSummary) => {
+          {filtered.map((e) => {
+            if (e.kind === "user") {
+              return (
+                <li key={e.key}>
+                  <button
+                    onClick={() => openUser(e.userId)}
+                    disabled={openDirectConversation.isPending}
+                    className="w-full text-left px-3 py-3 flex gap-3 items-center hover:bg-muted/60 transition-colors"
+                  >
+                    <Avatar className="h-9 w-9 shrink-0">
+                      <AvatarFallback className="text-xs">{initials(e.label)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm font-medium truncate block">{e.label}</span>
+                      <span className="text-xs text-muted-foreground truncate block">
+                        {e.sub || "Aucun message"}
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              );
+            }
+            const c = e.conv;
             const label = conversationLabel(c);
             const isActive = c.id === conversationId;
             return (
-              <li key={c.id}>
+              <li key={e.key}>
                 <button
                   onClick={() => navigate(`/messagerie/${c.id}`)}
                   className={cn(
@@ -429,17 +478,13 @@ export default function Messagerie() {
   );
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        style={{ height: boxHeight ?? undefined }}
-        className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-7rem)] grid grid-rows-[minmax(0,1fr)] md:grid-cols-[320px_1fr] rounded-lg border border-border overflow-hidden bg-card"
-      >
-        {showList && list}
-        {showThread && thread}
-      </div>
-
-      <NewConversationDialog open={newOpen} onOpenChange={setNewOpen} />
-    </>
+    <div
+      ref={containerRef}
+      style={{ height: boxHeight ?? undefined }}
+      className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-7rem)] grid grid-rows-[minmax(0,1fr)] md:grid-cols-[320px_1fr] rounded-lg border border-border overflow-hidden bg-card"
+    >
+      {showList && list}
+      {showThread && thread}
+    </div>
   );
 }
