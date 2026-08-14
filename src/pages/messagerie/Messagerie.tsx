@@ -21,10 +21,10 @@ import {
   useConversationPresence,
   useMessagerieActions,
   useMessages,
+  useSearchMessagingUsers,
   MESSAGE_MAX_LENGTH,
   type ConversationSummary,
 } from "@/hooks/useMessagerie";
-import { NewConversationDialog } from "@/components/messagerie/NewConversationDialog";
 import { VoiceRecorder } from "@/components/messagerie/VoiceRecorder";
 import { VoiceMessage } from "@/components/messagerie/VoiceMessage";
 
