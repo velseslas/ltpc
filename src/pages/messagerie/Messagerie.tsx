@@ -478,17 +478,13 @@ export default function Messagerie() {
   );
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        style={{ height: boxHeight ?? undefined }}
-        className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-7rem)] grid grid-rows-[minmax(0,1fr)] md:grid-cols-[320px_1fr] rounded-lg border border-border overflow-hidden bg-card"
-      >
-        {showList && list}
-        {showThread && thread}
-      </div>
-
-      <NewConversationDialog open={newOpen} onOpenChange={setNewOpen} />
-    </>
+    <div
+      ref={containerRef}
+      style={{ height: boxHeight ?? undefined }}
+      className="h-[calc(100dvh-11rem)] md:h-[calc(100dvh-7rem)] grid grid-rows-[minmax(0,1fr)] md:grid-cols-[320px_1fr] rounded-lg border border-border overflow-hidden bg-card"
+    >
+      {showList && list}
+      {showThread && thread}
+    </div>
   );
 }
