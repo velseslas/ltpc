@@ -116,7 +116,7 @@ const IAAPISettings = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -126,7 +126,7 @@ const IAAPISettings = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
+          <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
             <Brain className="h-6 w-6 text-white" />
           </div>
           <div>

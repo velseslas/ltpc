@@ -215,7 +215,7 @@ const Utilisateurs = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -225,21 +225,21 @@ const Utilisateurs = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500">
-              <Users className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
                 <span className="text-primary">Utilisateurs</span>
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Gérer les utilisateurs, les rôles et les permissions
               </p>
             </div>
           </div>
         </div>
-        <Button className="gap-2" onClick={() => handleOpenDialog()}>
+        <Button className="gap-2 w-full sm:w-auto" onClick={() => handleOpenDialog()}>
           <Plus className="h-4 w-4" />
           Ajouter un utilisateur
         </Button>
@@ -285,9 +285,9 @@ const Utilisateurs = () => {
       {/* Search and Table */}
       <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>Liste des utilisateurs</CardTitle>
-            <div className="relative w-64">
+            <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher..."
@@ -381,7 +381,7 @@ const Utilisateurs = () => {
               <div className="text-sm text-muted-foreground">
                 Affichage de {startIndex + 1} à {endIndex} sur {filteredUsers.length} utilisateurs
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">{page}</Button>

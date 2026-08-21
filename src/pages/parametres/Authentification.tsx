@@ -248,7 +248,7 @@ const Authentification = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -258,14 +258,14 @@ const Authentification = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-blue-500">
-            <KeyRound className="w-6 h-6 text-white" />
+          <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br from-sky-500 to-blue-500">
+            <KeyRound className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
               <span className="text-primary">Authentification</span>
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Gestion des comptes utilisateurs et authentification
             </p>
           </div>
@@ -281,7 +281,7 @@ const Authentification = () => {
               <CardTitle>Utilisateurs</CardTitle>
               <Badge variant="outline" className="ml-2">{utilisateurs.length}</Badge>
             </div>
-            <Button className="gap-2" onClick={() => {
+            <Button className="gap-2 px-3" onClick={() => {
               setFormData({ poste_id: "", intervenant_id: "", mot_de_passe: "", statut: "actif", role: "technicien" });
               setIsDialogOpen(true);
             }}>
@@ -376,7 +376,7 @@ const Authentification = () => {
               <div className="text-sm text-muted-foreground">
                 Affichage de {(currentPage - 1) * ITEMS_PER_PAGE + 1} à {Math.min(currentPage * ITEMS_PER_PAGE, utilisateurs.length)} sur {utilisateurs.length} utilisateurs
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
                 {Array.from({ length: Math.ceil(utilisateurs.length / ITEMS_PER_PAGE) }, (_, i) => i + 1).map(page => (
                   <Button key={page} variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="w-8 h-8 p-0">{page}</Button>

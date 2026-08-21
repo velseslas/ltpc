@@ -185,7 +185,7 @@ const RolesPermissions = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -195,17 +195,17 @@ const RolesPermissions = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground break-words">
             <span className="text-primary text-glow">Rôles & Permissions</span>
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Gérez les rôles utilisateurs et leurs permissions d'accès
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="roles" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+        <TabsList className="grid h-auto w-full grid-cols-3 gap-1 [&>*]:text-xs sm:[&>*]:text-sm [&>*]:px-1.5 [&>*]:py-2 lg:w-auto lg:inline-grid">
           <TabsTrigger value="roles" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Rôles
@@ -486,7 +486,7 @@ const RolesPermissions = () => {
               </div>
 
               {!modulesLoading && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4">
                   {(() => {
                     const grantedIds = selectedRole === 'super_admin'
                       ? (permissions?.map(p => p.id) || [])
