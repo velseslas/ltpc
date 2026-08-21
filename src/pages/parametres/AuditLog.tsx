@@ -73,7 +73,7 @@ const AuditLog = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -83,15 +83,15 @@ const AuditLog = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500">
-              <FileText className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
                 Journal d'<span className="text-primary">Audit</span>
               </h1>
-              <p className="text-muted-foreground">Suivi des actions des utilisateurs</p>
+              <p className="text-sm text-muted-foreground">Suivi des actions des utilisateurs</p>
             </div>
           </div>
         </div>
@@ -237,7 +237,7 @@ const AuditLog = () => {
               <div className="text-sm text-muted-foreground">
                 Affichage de {startIndex + 1} à {endIndex} sur {filteredEntries.length} entrées
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Précédent</Button>
                 {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                   const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));

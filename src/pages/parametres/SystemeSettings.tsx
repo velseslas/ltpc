@@ -172,7 +172,7 @@ const SystemeSettings = () => {
       ]} />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -182,21 +182,21 @@ const SystemeSettings = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500">
-              <Settings className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
                 <span className="text-primary">Système</span>
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Configuration générale du système
               </p>
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={handleExportSettings} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
             <Download className="h-4 w-4" />
             Exporter

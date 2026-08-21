@@ -164,14 +164,14 @@ const Entreprise = () => {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
-            <Building2 className="w-6 h-6 text-white" />
+          <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground break-words">
               Informations de l'<span className="text-primary text-glow">entreprise</span>
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Configurez les informations de votre entreprise qui apparaîtront sur les documents officiels
             </p>
             {entreprise?.siege_social && (
