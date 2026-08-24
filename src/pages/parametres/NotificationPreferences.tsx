@@ -156,7 +156,7 @@ export default function NotificationPreferences() {
       } else if (r.reason === "unsupported") {
         toast.error("Push non supporté sur ce navigateur");
       } else if (r.reason === "sw-unavailable") {
-        toast.error("Service Worker indisponible, veuillez réessayer (Push actif uniquement sur l'application publiée)");
+        toast.error(r.detail ? `Service Worker indisponible (${r.detail}) — réessayez après un rechargement complet de l'application` : "Service Worker indisponible — réessayez après un rechargement complet de l'application");
       } else {
         // Erreur technique réelle : jamais présentée comme un refus de permission.
         setPushError(r.detail ? `Activation Push impossible — ${r.detail}` : "Activation Push impossible");
