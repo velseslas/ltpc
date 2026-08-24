@@ -294,7 +294,11 @@ export const PushService = {
     // On exige un worker `activated` : sinon Chrome lève
     // « AbortError: … no active service worker ».
     let reg = await this.activeRegistration();
-    if (!reg) return { ok: false, reason: "sw-unavailable" };
+    if (!reg) {
+      const ctx = this.swContext();
+      const detail = ctx.ok ? "aucun Service Worker actif" : `contexte : ${ctx.detail}`;
+      return { ok: false, reason: "sw-unavailable", detail };
+    }
 
     // Abonnement déjà présent et compatible → réutilisation, aucun subscribe().
     let existing: PushSubscription | null = null;
