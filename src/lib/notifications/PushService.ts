@@ -106,6 +106,48 @@ export const PushService = {
     return Notification.permission;
   },
 
+  /** Contexte permettant réellement d'enregistrer un Service Worker. */
+  swContext(): { ok: boolean; detail: string } {
+    if (typeof window === "undefined") return { ok: false, detail: "no-window" };
+    if (!("serviceWorker" in navigator)) return { ok: false, detail: "no-sw-api" };
+    try { if (window.self !== window.top) return { ok: false, detail: "iframe" }; }
+    catch { return { ok: false, detail: "iframe" }; }
+    if (!window.isSecureContext) return { ok: false, detail: "insecure-context" };
+    return { ok: true, detail: "ok" };
+  },
+
+  /** Attend l'activation d'un worker donné (ou expire). */
+  async awaitActivation(worker: ServiceWorker | null, timeoutMs: number): Promise<void> {
+    if (!worker || worker.state === "activated") return;
+    await new Promise<void>((resolve) => {
+      const done = () => { worker.removeEventListener("statechange", onChange); resolve(); };
+      const onChange = () => { if (worker.state === "activated" || worker.state === "redundant") done(); };
+      worker.addEventListener("statechange", onChange);
+      setTimeout(done, timeoutMs);
+    });
+  },
+
+  /**
+   * Enregistrement direct de `/sw.js` (récupération). Utilisé quand aucune
+   * registration exploitable n'existe : PWA fraîchement installée, worker
+   * `redundant`, ou SW désenregistré par un passage en preview.
+   */
+  async forceRegister(timeoutMs: number = SW_READY_TIMEOUT_MS): Promise<ServiceWorkerRegistration | null> {
+    if (!this.swContext().ok) return null;
+    try {
+      const head = await fetch("/sw.js", { method: "HEAD", cache: "no-store" });
+      if (!head.ok) return null;
+    } catch { return null; }
+    try {
+      const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      await this.awaitActivation(reg.installing ?? reg.waiting ?? reg.active ?? null, timeoutMs);
+      const fresh = (await navigator.serviceWorker.getRegistration()) ?? reg;
+      return fresh;
+    } catch {
+      return null;
+    }
+  },
+
   /**
    * Attend que le Service Worker soit RÉELLEMENT prêt (démarrage à froid PWA).
    * `navigator.serviceWorker.ready` est la source de vérité ; `getRegistration()`
@@ -117,14 +159,13 @@ export const PushService = {
       let immediate = await navigator.serviceWorker.getRegistration();
       if (immediate?.active?.state === "activated") return immediate;
 
-      // Aucun Service Worker enregistré (1er lancement, MAJ, SW désenregistré) :
-      // `navigator.serviceWorker.ready` ne résoudrait jamais → on enregistre
-      // à la demande via le wrapper (qui refuse proprement en dev/preview).
-      if (!immediate) {
-        try {
-          const { registerServiceWorker } = await import("@/lib/pwa/serviceWorkerRegistration");
-          immediate = (await registerServiceWorker()) ?? undefined;
-        } catch { /* noop */ }
+      // Registration inexploitable (aucun worker, ou worker `redundant`) :
+      // `navigator.serviceWorker.ready` ne résoudrait jamais.
+      const unusable = !immediate
+        || (!immediate.installing && !immediate.waiting && (!immediate.active || immediate.active.state === "redundant"));
+
+      if (unusable) {
+        immediate = (await this.forceRegister(timeoutMs)) ?? undefined;
         if (!immediate) {
           try { immediate = await navigator.serviceWorker.getRegistration(); } catch { /* noop */ }
         }
@@ -151,27 +192,30 @@ export const PushService = {
    */
   async activeRegistration(timeoutMs: number = SW_READY_TIMEOUT_MS): Promise<ServiceWorkerRegistration | null> {
     const reg = await this.readyRegistration(timeoutMs);
-    if (!reg) return null;
-    if (reg.active?.state === "activated") return reg;
+    if (reg?.active?.state === "activated") return reg;
 
-    const pending = reg.installing ?? reg.waiting ?? reg.active ?? null;
-    if (pending) {
-      await new Promise<void>((resolve) => {
-        const done = () => { pending.removeEventListener("statechange", onChange); resolve(); };
-        const onChange = () => { if (pending.state === "activated" || pending.state === "redundant") done(); };
-        pending.addEventListener("statechange", onChange);
-        setTimeout(done, timeoutMs);
-      });
+    if (reg) {
+      await this.awaitActivation(reg.installing ?? reg.waiting ?? reg.active ?? null, timeoutMs);
+      try {
+        const fresh = (await navigator.serviceWorker.getRegistration()) ?? reg;
+        if (fresh.active?.state === "activated") return fresh;
+      } catch { /* noop */ }
     }
 
-    // Re-lecture : la registration peut avoir été remplacée entre-temps.
-    try {
-      const fresh = (await navigator.serviceWorker.getRegistration()) ?? reg;
-      return fresh.active?.state === "activated" ? fresh : null;
-    } catch {
-      return reg.active?.state === "activated" ? reg : null;
+    // Dernière chance : ré-enregistrement direct puis attente d'activation.
+    const forced = await this.forceRegister(timeoutMs);
+    if (forced?.active?.state === "activated") return forced;
+    if (forced) {
+      await this.awaitActivation(forced.installing ?? forced.waiting ?? forced.active ?? null, timeoutMs);
+      try {
+        const fresh = (await navigator.serviceWorker.getRegistration()) ?? forced;
+        if (fresh.active?.state === "activated") return fresh;
+      } catch { /* noop */ }
     }
+    return null;
   },
+
+
 
 
   async requestPermission(): Promise<NotificationPermission | "unsupported"> {
