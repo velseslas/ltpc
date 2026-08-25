@@ -42,6 +42,12 @@ import AISuggestionDialog from "@/components/rapports/AISuggestionDialog";
 import type { Editor } from "@tiptap/react";
 import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
 
+/** Vrai si la section porte une information réelle (et non le libellé de repli de l'IA). */
+function hasContent(v?: string | null): boolean {
+  const t = (v ?? "").trim();
+  return t.length > 0 && t.toLowerCase() !== "information non disponible.";
+}
+
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
   const s = c.sections ?? ({} as Partial<NonNullable<AIRapportContenu["sections"]>>);
@@ -50,12 +56,19 @@ function contenuToHtml(c: AIRapportContenu | null): string {
     ["Analyse technique", s.analyse_technique], ["Conséquences", s.consequences],
     ["Recommandations", s.recommandations], ["Conclusion", s.conclusion],
   ];
-  const body = sections.map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "Information non disponible.").replace(/\n/g, "<br/>")}</p>`).join("");
+  // Ne jamais fabriquer un squelette de sections vides : il serait autosauvegardé
+  // puis figé à la validation, produisant un rapport « vide » à l'impression.
+  const body = sections
+    .filter(([, b]) => hasContent(b))
+    .map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "").replace(/\n/g, "<br/>")}</p>`)
+    .join("");
   const faits = c.faits?.length ? `<h3>Faits</h3><ul>${c.faits.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
   const hyps = c.hypotheses?.length ? `<h3>Hypothèses</h3><ul>${c.hypotheses.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
   const reco = c.recommandations_synthese?.length ? `<h3>Recommandations (synthèse)</h3><ul>${c.recommandations_synthese.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
+  if (!body && !faits && !hyps && !reco) return "";
   return `<h1>${escapeHtml(c.titre || "Rapport technique")}</h1>${body}${faits}${hyps}${reco}`;
 }
+
 
 export default function RapportTechniqueDetail() {
   const { id = "" } = useParams();
