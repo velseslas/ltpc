@@ -83,7 +83,7 @@ export const REPOSITORY_CONFIGS = {
     name: "etalonnages", table: "etalonnage_materiel",
     defaultSelect: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat",
     defaultOrder: { column: "date_prochain_etalonnage", ascending: true },
-    searchFields: ["organisme", "numero_certificat", "statut"],
+    searchFields: ["organisme", "numero_certificat", "resultat"],
   },
   utilisateurs: {
     name: "utilisateurs", table: "utilisateurs",
