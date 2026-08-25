@@ -1,92 +1,46 @@
-## Objectif
+# LTPC AI — diagnostic et remise en état
 
-Améliorer la fiche client et introduire une **page Détail Chantier** avec gestion des centrales à béton affectées, puis propager ce filtrage dans les formulaires d'échantillons (compression, traction/fendage, laboratoire chantier).
+## Ce que le diagnostic a montré (vérifié)
 
----
+- Le moteur IA côté serveur **fonctionne** : un appel direct à la fonction de chat répond correctement en 0,9 s (modèle Gemini, réponse en français, présentation correcte).
+- **La base de connaissances est vide** : 0 fragment indexé. Tous les outils de raisonnement (RAG, analyse, recommandation, synthèse) renvoient donc systématiquement « aucun résultat » — c'est la cause directe des réponses vides ou du « je n'ai pas accès à cette information ».
+- **Des données métier sont réellement vides** : la table des essais généraux ne contient aucune ligne, ce qui rend certaines réponses légitimement nulles mais incompréhensibles pour l'utilisateur.
+- **Régression d'accès** : depuis le durcissement de sécurité, seuls les administrateurs/managers peuvent lire la table clients. Pour un technicien, tous les outils IA touchant aux clients échouent en silence (l'erreur est avalée et transformée en réponse vide).
+- **Les erreurs d'outils sont invisibles** : quand un outil échoue, l'interface n'affiche rien de compréhensible ; l'utilisateur voit soit une réponse vague, soit une erreur brute sans cause.
+- La limite d'usage est de 20 requêtes par minute et par utilisateur : au-delà, la réponse est « Limite atteinte », ce qui peut expliquer les « aucune réponse » lors de tests répétés.
 
-## 1. Fiche Client — Résumé chantier sur une seule ligne (desktop)
+Le symptôme « aucune réponse / erreur » n'a pas encore de cause confirmée : il sera reproduit et tracé en première étape, avant correction.
 
-Dans le widget/carte chantier de la fiche client (desktop uniquement) :
-- Regrouper Nom + Localisation + Statut + dates sur **une seule ligne** avec troncation (`truncate`) et séparateurs.
-- Mobile : conserver la disposition actuelle empilée.
+## Ce qui sera fait
 
-## 2. Widget Chantier — Menu d'actions standardisé
+### 1. Reproduire et rendre l'erreur visible
+- Reproduire l'envoi d'un message dans l'application et capturer l'erreur exacte (console, réseau, journaux de la fonction).
+- Afficher dans le fil de discussion un bandeau clair quand un outil échoue : nom de l'outil et motif, au lieu d'un silence.
+- Message d'erreur explicite et distinct pour : limite atteinte, crédits épuisés, session expirée, panne réseau.
 
-Remplacer les boutons d'action actuels par le **menu `...` (DropdownMenu)** conforme au reste de l'app :
-- Détails (nouveau) → navigue vers `/clients/:clientId/chantiers/:chantierId`
-- Modifier
-- Supprimer
+### 2. Remplir la base de connaissances (cause n°1 des réponses vides)
+- Bouton d'indexation dans la page « Base de connaissances » avec compteur de fragments indexés et date de dernière indexation.
+- Indexation des rapports techniques, formulations et essais existants via la fonction d'indexation déjà présente.
+- Tant que l'index est vide, l'assistant l'annonce explicitement plutôt que d'affirmer qu'il n'a pas accès.
 
-## 3. Nouvelle page — Détail Chantier
+### 3. Rétablir l'accès des techniciens sans rouvrir la faille
+- Redonner aux techniciens la lecture des clients de leurs chantiers affectés, uniquement via la fonction restreinte déjà existante (identité seulement, pas de données bancaires/fiscales).
+- Faire lire cette source restreinte par les outils IA quand l'utilisateur n'est pas admin/manager.
 
-Route : `/clients/:clientId/chantiers/:chantierId`
-
-Contenu :
-- Breadcrumb : Clients > [Client] > Chantiers > [Chantier]
-- Bouton retour + titre + statut
-- Bloc **Informations chantier** (nom, adresse, dates, contact, tél…)
-- Bloc **Centrales à béton affectées** :
-  - Bouton `+ Nouvelle centrale à béton`
-  - Grille de widgets centrales déjà affectées au chantier
-  - Chaque widget = résumé centrale + menu `...` (Détails / Retirer du chantier)
-
-## 4. Pop-up d'affectation d'une centrale au chantier
-
-Au clic sur `+ Nouvelle centrale à béton` :
-- Ouvre un `Dialog` listant les centrales du client (via `client_centrales`)
-- Filtre : masquer celles déjà affectées au chantier
-- Sélection multiple avec cases à cocher + bouton "Affecter"
-- À la confirmation → insertion dans une nouvelle table de liaison
-
-## 5. Filtrage centrales dans les formulaires d'échantillons
-
-Adapter les sélecteurs `Centrale à béton` pour filtrer d'abord par **chantier affecté**, puis retomber sur celles du client si aucune affectation :
-
-- Nouveau échantillon Compression
-- Nouveau échantillon Traction / Fendage
-- Nouveau échantillon Laboratoire Chantier
-
----
+### 4. Fiabiliser les réponses
+- Un outil en échec ne doit plus vider la réponse : les autres résultats sont conservés et la réponse indique ce qui a échoué.
+- Distinguer « aucune donnée enregistrée » (0 ligne réelle) de « accès refusé » (erreur de permission) dans le texte de la réponse.
 
 ## Détails techniques
 
-### Base de données (Lovable Cloud)
+- `src/lib/ltpc-ai/AgentOrchestrator.ts` : remonter les erreurs d'outils dans `debug` et dans le message assistant (aujourd'hui elles sont uniquement tracées).
+- `src/hooks/useLtpcAI.ts` : typer et propager les erreurs de `functions.invoke` (429 / 402 / 401) vers un message utilisateur ; ne pas laisser la mutation échouer sans trace en base.
+- `src/pages/ltpc-ai/LtpcAI.tsx` : bandeau d'erreur outil + état « base de connaissances vide ».
+- `src/pages/ltpc-ai/KnowledgeBase.tsx` : action d'indexation appelant `ltpc-ai-rag-index`, affichage du nombre de chunks.
+- Migration : politique de lecture scopée sur `clients` pour les techniciens (via `can_access_chantier_data`), sans exposer les colonnes sensibles ; ajustement des outils lecture (`BusinessDataTool`, repository `clients`) pour utiliser la source scopée hors admin.
+- Aucune modification du modèle IA, du fournisseur, ni du contrat d'échange client/fonction.
 
-Nouvelle table de liaison `chantier_centrales` :
+## Vérification
 
-```sql
-CREATE TABLE public.chantier_centrales (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  chantier_id uuid NOT NULL REFERENCES public.chantiers(id) ON DELETE CASCADE,
-  centrale_id uuid NOT NULL REFERENCES public.centrales_beton(id) ON DELETE CASCADE,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(chantier_id, centrale_id)
-);
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.chantier_centrales TO authenticated;
-GRANT ALL ON public.chantier_centrales TO service_role;
-ALTER TABLE public.chantier_centrales ENABLE ROW LEVEL SECURITY;
--- policies : SELECT authenticated ; INSERT/DELETE via can_write_business()
-```
-
-### Fichiers impactés
-
-- `src/routes/*Routes.tsx` — nouvelle route `/clients/:clientId/chantiers/:chantierId`
-- `src/pages/clients/ChantierDetail.tsx` (nouveau)
-- Fiche client existante (widget chantiers) — layout desktop 1 ligne + DropdownMenu
-- Nouveau hook `useChantierCentrales(chantierId)`
-- Nouveau composant `AffectCentraleDialog.tsx`
-- Formulaires échantillons : Compression, Traction/Fendage, Laboratoire Chantier — remplacer la source de la liste centrales par le hook filtré chantier
-- Réutiliser `CentraleCard` (widget) existant, sinon en créer un compact
-
-### Comportement de repli
-
-Si un chantier n'a aucune centrale affectée : le sélecteur montre les centrales du client (comportement actuel) avec un badge « non filtré » pour ne pas bloquer la saisie existante.
-
----
-
-## Livrables
-
-1. Nouvelle table `chantier_centrales` + RLS + GRANT
-2. Page Détail Chantier fonctionnelle
-3. Résumé chantier 1 ligne (desktop) + menu `...` harmonisé
-4. Filtrage des centrales dans les 3 formulaires d'échantillons
+- Envoi de 3 questions types (comptage, liste, analyse) en compte admin puis technicien.
+- Contrôle : réponse non vide, chiffres cohérents avec l'écran, citations présentes après indexation, message d'erreur explicite en cas d'échec volontaire.
