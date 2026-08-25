@@ -8,7 +8,7 @@ export type Affectation = Tables<"affectations">;
 export type AffectationInsert = TablesInsert<"affectations">;
 export type AffectationUpdate = TablesUpdate<"affectations">;
 
-const FULL_SELECT = `*, intervenant:intervenants(*), client:clients(*), chantier:chantiers(*)`;
+const FULL_SELECT = `*, intervenant:intervenants(id, nom, prenom, email, telephone, role, departement, statut, date_embauche, poste_id, specialite, signature_url, created_at, updated_at), client:clients(*), chantier:chantiers(*)`;
 const BY_INT_SELECT = `*, client:clients(*), chantier:chantiers(*)`;
 
 const repo = getRepositoryForTable<Affectation>("affectations", {

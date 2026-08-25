@@ -31,7 +31,7 @@ import {
   Image,
   Download
 } from "lucide-react";
-import { useIntervenant } from "@/hooks/useIntervenants";
+import { useIntervenant, useIntervenantHR } from "@/hooks/useIntervenants";
 import { useAffectationsByIntervenant } from "@/hooks/useAffectations";
 import { useDocumentsRH } from "@/hooks/useDocumentsRH";
 import { usePostes } from "@/hooks/usePostes";
@@ -42,7 +42,10 @@ import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 export default function EmployeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: employe, isLoading: loadingEmploye } = useIntervenant(id || "");
+  const { data: employeBase, isLoading: loadingEmploye } = useIntervenant(id || "");
+  const { data: hr } = useIntervenantHR(id || "");
+  // Les champs RH sensibles ne sont renvoyés qu'aux admins/responsables.
+  const employe = employeBase ? { ...employeBase, ...(hr ?? {}) } as typeof employeBase & Partial<NonNullable<typeof hr>> : employeBase;
   const { data: affectations, isLoading: loadingAffectations } = useAffectationsByIntervenant(id || "");
   const { documents, isLoading: loadingDocuments } = useDocumentsRH();
   const { data: postes } = usePostes();

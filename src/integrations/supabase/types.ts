@@ -8934,6 +8934,30 @@ export type Database = {
         }
         Returns: boolean
       }
+      intervenant_hr: {
+        Args: { _id: string }
+        Returns: {
+          adresse: string
+          cin: string
+          cnas: string
+          date_naissance: string
+          id: string
+          notes: string
+          salaire: number
+        }[]
+      }
+      intervenant_hr_save: {
+        Args: {
+          _adresse?: string
+          _cin?: string
+          _cnas?: string
+          _date_naissance?: string
+          _id: string
+          _notes?: string
+          _salaire?: number
+        }
+        Returns: undefined
+      }
       is_admin_only: { Args: never; Returns: boolean }
       is_admin_or_manager: { Args: never; Returns: boolean }
       is_conversation_owner: {
