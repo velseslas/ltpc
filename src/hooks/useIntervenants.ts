@@ -145,7 +145,7 @@ export function useDeleteIntervenant() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await repo.delete({ id });
+      const { error } = await repo.delete({ id }, { select: SAFE_COLUMNS });
       if (error) throw new Error(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["intervenants"] }),
