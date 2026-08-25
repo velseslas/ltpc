@@ -358,7 +358,7 @@ export class Repository<T = Record<string, unknown>> {
   }
 
   /** DELETE avec filtres. Refuse une suppression sans filtre pour éviter les accidents. */
-  async delete(filters: Record<string, RepoFilter>): Promise<RepoMutationResult<T>> {
+  async delete(filters: Record<string, RepoFilter>, opts: { select?: string } = {}): Promise<RepoMutationResult<T>> {
     const t0 = performance.now();
     if (!filters || Object.keys(filters).length === 0) {
       return {
