@@ -47,7 +47,7 @@ export const REPOSITORY_CONFIGS = {
     name: "essais", table: "essais",
     defaultSelect: "*",
     defaultOrder: { column: "created_at", ascending: false },
-    searchFields: ["type", "statut", "reference"],
+    searchFields: ["type_essai", "nom", "reference"],
   },
   granulometrie: {
     name: "granulometrie", table: "echantillons_granulometrie",
