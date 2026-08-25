@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import {
   useRapportTechnique,
+  useUpdateRapportTechnique,
   useRapportValidateur,
   STATUT_LABELS,
   STATUT_COLORS,
