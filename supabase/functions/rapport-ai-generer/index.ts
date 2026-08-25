@@ -63,10 +63,12 @@ Deno.serve(async (req) => {
       // Un contenu vide (JSON non parsé ou sections toutes vides) ne doit jamais être
       // enregistré : il figerait un rapport « vide » à l'impression.
       const sectionsUtiles = Object.values(parsed.sections ?? {}).filter(
-        (v) => typeof v === "string" && v.trim() && v.trim().toLowerCase() !== "information non disponible.",
+        (v) => typeof v === "string"
+          && v.trim().length >= 40
+          && !v.trim().toLowerCase().startsWith("information non disponible"),
       );
-      if (sectionsUtiles.length === 0) {
-        throw new Error("AI_EMPTY_CONTENT: le modèle n'a retourné aucun contenu exploitable. Relancez la génération.");
+      if (sectionsUtiles.length < 3) {
+        throw new Error("AI_EMPTY_CONTENT: le modèle n'a pas retourné au moins trois sections substantielles. Aucun contenu n'a été enregistré.");
       }
       await admin.from("rapports_techniques").update({
         contenu_rapport: result.parsed as never,
