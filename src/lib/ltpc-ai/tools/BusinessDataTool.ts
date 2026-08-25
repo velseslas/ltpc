@@ -14,7 +14,7 @@
 import { sb } from "./sbAny";
 import type { Tool, RouterDecision, ToolResult } from "./types";
 import type { AICitation } from "../types";
-import { runTool } from "./runTool";
+import { runTool, errorMessage } from "./runTool";
 import {
   resolveBusinessEntities, entityVocabulary, rowLabel, rowSnippet,
   buildIlikeOrFields, type BusinessEntity,
