@@ -7,6 +7,8 @@
 // et les mutations (insert/update/delete/upsert) — ce qui permet aux hooks
 // existants d'être migrés sans perdre de fonctionnalité.
 import { supabase } from "@/integrations/supabase/client";
+import { textSearchFields } from "@/lib/ltpc-ai/tools/nonTextFields";
+
 
 export interface RepoOrder { column: string; ascending: boolean }
 
@@ -250,7 +252,9 @@ export class Repository<T = Record<string, unknown>> {
 
     let q = sb.from(this.config.table).select(select, { count: "exact" });
 
-    if (fields.length && keywords.length) {
+    const searchable = textSearchFields(this.config.table, fields);
+    if (searchable.length && keywords.length) {
+
       const parts: string[] = [];
       for (const f of fields) for (const k of keywords) {
         const safe = k.replace(/[%,()"'\\]/g, "");

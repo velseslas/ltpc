@@ -1,6 +1,8 @@
 // Mapping centralisé « domaine du router → table Supabase + colonnes ILIKE ».
 // Utilisé par les outils SQL* pour éviter la duplication.
 import type { ToolDomain } from "./types";
+import { textSearchFields } from "./nonTextFields";
+
 
 export interface DomainSpec {
   table: string;
