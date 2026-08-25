@@ -319,10 +319,11 @@ export const BUSINESS_ENTITIES: BusinessEntity[] = [
   {
     key: "essais", label: "Registre des essais", table: "essais", category: "essais",
     keywords: ["essai", "essais", "test", "tests", "prelevement", "prélèvement", "prelevements", "echantillon", "échantillon", "echantillons"],
-    select: "id, type, statut, reference, created_at",
-    searchFields: ["type", "statut", "reference"],
+    select: "id, nom, type_essai, statut, reference, created_at",
+    searchFields: ["type_essai", "nom", "reference"],
     orderBy: { column: "created_at", ascending: false },
-    labelCols: ["type", "reference"], snippetCols: ["statut"],
+    labelCols: ["nom", "reference"], snippetCols: ["type_essai", "statut"],
+
     source_type: "essai", url: "/essais",
   },
 

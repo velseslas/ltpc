@@ -63,13 +63,14 @@ export const DOMAIN_SPECS: Partial<Record<ToolDomain, DomainSpec>> = {
   },
   essais: {
     table: "essais", source_type: "essai",
-    searchFields: ["type", "statut", "reference"],
+    searchFields: ["type_essai", "nom", "reference"],
     orderBy: { column: "created_at", ascending: false },
-    select: "id, type, statut, reference, created_at",
-    labelOf: (r) => s(`${r.type ?? "Essai"} ${r.reference ?? ""}`, 80),
+    select: "id, nom, type_essai, statut, reference, created_at",
+    labelOf: (r) => s(`${r.nom ?? r.type_essai ?? "Essai"} ${r.reference ?? ""}`, 80),
     refOf: (r) => (r.reference as string | null) ?? null,
     snippetOf: (r) => s(String(r.statut ?? "")),
   },
+
   granulometrie: {
     table: "echantillons_granulometrie", source_type: "essai_granulometrie",
     searchFields: ["numero", "statut"],
