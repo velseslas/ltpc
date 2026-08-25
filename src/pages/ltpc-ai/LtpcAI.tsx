@@ -32,6 +32,7 @@ export default function LtpcAI() {
   const activeId = params.get("c");
   const [tab, setTab] = useState<"active" | "favorite" | "archived">("active");
   const [search, setSearch] = useState("");
+  const [navOpen, setNavOpen] = useState(false);
   const [debugMode, setDebugMode] = useState<boolean>(() => localStorage.getItem("ltpc-ai-debug") === "1");
   useEffect(() => { localStorage.setItem("ltpc-ai-debug", debugMode ? "1" : "0"); }, [debugMode]);
 
