@@ -29,6 +29,8 @@ import { ReportHeader } from "@/components/reports/ReportHeader";
 import { PrintService } from "@/lib/print/PrintService";
 import type { AIRapportContenu } from "@/lib/ai/aiProvider";
 import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
+import { hasContenu as hasContent, stripPlaceholderSections } from "@/lib/rapports/contenu";
+
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
@@ -39,13 +41,14 @@ function contenuToHtml(c: AIRapportContenu | null): string {
     ["Recommandations", s.recommandations], ["Conclusion", s.conclusion],
   ];
   const body = sections
-    .filter(([, b]) => b && b.trim().length > 0)
+    .filter(([, b]) => hasContent(b))
     .map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "").replace(/\n/g, "<br/>")}</p>`)
     .join("");
   const list = (title: string, items?: string[]) =>
     items?.length ? `<h3>${escapeHtml(title)}</h3><ul>${items.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
   return `${body}${list("Faits", c.faits)}${list("Hypothèses", c.hypotheses)}${list("Recommandations (synthèse)", c.recommandations_synthese)}`;
 }
+
 
 PrintService.registerTemplate({
   id: "rapport-technique",
@@ -67,7 +70,9 @@ export default function RapportTechniquePrintView() {
 
   const bodyHtml = useMemo(() => {
     if (!r) return "";
-    const html = r.editor_html && r.editor_html.trim().length > 0 ? r.editor_html : contenuToHtml(contenu);
+    const stored = stripPlaceholderSections(r.editor_html ?? "");
+    const html = stored.trim().length > 0 ? stored : contenuToHtml(contenu);
+    if (!html.trim()) return "";
     return renderTemplate(html, {
       chantier: r.chantiers?.nom ?? null,
       client: r.clients?.nom ?? null,
@@ -78,6 +83,7 @@ export default function RapportTechniquePrintView() {
       date: r.valide_at ?? r.created_at ?? null,
     });
   }, [r, contenu]);
+
 
   useEffect(() => {
     document.title = r?.numero
@@ -180,10 +186,15 @@ export default function RapportTechniquePrintView() {
       )}
 
       {/* Corps du rapport */}
-      <section
-        className="rt-body prose-print"
-        dangerouslySetInnerHTML={{ __html: bodyHtml ? sanitizeHtml(bodyHtml) : "<p><em>Rapport en cours de rédaction.</em></p>" }}
-      />
+      {bodyHtml ? (
+        <section className="rt-body prose-print" dangerouslySetInnerHTML={{ __html: sanitizeHtml(bodyHtml) }} />
+      ) : (
+        <section className="rt-body prose-print" data-print-keep-together>
+          <p><em>Aucun contenu rédigé pour ce rapport.</em></p>
+          <p><em>Ouvrir le rapport dans l'éditeur, générer le contenu avec l'IA ou le saisir manuellement, puis enregistrer une version avant impression.</em></p>
+        </section>
+      )}
+
 
       {/* Signature & cachet — uniquement pour un document officiel, validateur réel */}
       {isOfficiel && (

@@ -41,6 +41,8 @@ import RichTextEditor from "@/components/rapports/RichTextEditor";
 import AISuggestionDialog from "@/components/rapports/AISuggestionDialog";
 import type { Editor } from "@tiptap/react";
 import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
+import { hasContenu as hasContent, stripPlaceholderSections } from "@/lib/rapports/contenu";
+
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
@@ -50,12 +52,19 @@ function contenuToHtml(c: AIRapportContenu | null): string {
     ["Analyse technique", s.analyse_technique], ["Conséquences", s.consequences],
     ["Recommandations", s.recommandations], ["Conclusion", s.conclusion],
   ];
-  const body = sections.map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "Information non disponible.").replace(/\n/g, "<br/>")}</p>`).join("");
+  // Ne jamais fabriquer un squelette de sections vides : il serait autosauvegardé
+  // puis figé à la validation, produisant un rapport « vide » à l'impression.
+  const body = sections
+    .filter(([, b]) => hasContent(b))
+    .map(([t, b]) => `<h2>${escapeHtml(t)}</h2><p>${escapeHtml(b || "").replace(/\n/g, "<br/>")}</p>`)
+    .join("");
   const faits = c.faits?.length ? `<h3>Faits</h3><ul>${c.faits.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
   const hyps = c.hypotheses?.length ? `<h3>Hypothèses</h3><ul>${c.hypotheses.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
   const reco = c.recommandations_synthese?.length ? `<h3>Recommandations (synthèse)</h3><ul>${c.recommandations_synthese.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>` : "";
+  if (!body && !faits && !hyps && !reco) return "";
   return `<h1>${escapeHtml(c.titre || "Rapport technique")}</h1>${body}${faits}${hyps}${reco}`;
 }
+
 
 export default function RapportTechniqueDetail() {
   const { id = "" } = useParams();
@@ -142,7 +151,7 @@ export default function RapportTechniqueDetail() {
     } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
   };
 
-  const previewHtml = () => renderTemplate(html, {
+  const previewHtml = () => renderTemplate(stripPlaceholderSections(html) || html, {
     chantier: (r as never as { chantiers?: { nom?: string } } | null)?.chantiers?.nom ?? null,
     client: (r as never as { clients?: { nom?: string } } | null)?.clients?.nom ?? null,
     entreprise: r?.entreprise ?? null,
@@ -150,6 +159,7 @@ export default function RapportTechniqueDetail() {
     numero_rapport: r?.numero ?? null,
     titre: r?.titre ?? null,
   });
+
 
   const isValide = r?.statut === "valide" || r?.statut === "archive";
 
