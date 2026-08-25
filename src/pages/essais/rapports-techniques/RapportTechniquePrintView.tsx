@@ -207,10 +207,15 @@ export default function RapportTechniquePrintView() {
       )}
 
       {/* Corps du rapport */}
-      <section
-        className="rt-body prose-print"
-        dangerouslySetInnerHTML={{ __html: bodyHtml ? sanitizeHtml(bodyHtml) : "<p><em>Rapport en cours de rédaction.</em></p>" }}
-      />
+      {bodyHtml ? (
+        <section className="rt-body prose-print" dangerouslySetInnerHTML={{ __html: sanitizeHtml(bodyHtml) }} />
+      ) : (
+        <section className="rt-body prose-print" data-print-keep-together>
+          <p><em>Aucun contenu rédigé pour ce rapport.</em></p>
+          <p><em>Ouvrir le rapport dans l'éditeur, générer le contenu avec l'IA ou le saisir manuellement, puis enregistrer une version avant impression.</em></p>
+        </section>
+      )}
+
 
       {/* Signature & cachet — uniquement pour un document officiel, validateur réel */}
       {isOfficiel && (
