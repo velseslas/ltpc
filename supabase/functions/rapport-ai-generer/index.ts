@@ -59,7 +59,15 @@ Deno.serve(async (req) => {
         temperature: 0.4,
       });
 
-      const parsed = (result.parsed ?? {}) as { titre?: string };
+      const parsed = (result.parsed ?? {}) as { titre?: string; sections?: Record<string, string> };
+      // Un contenu vide (JSON non parsé ou sections toutes vides) ne doit jamais être
+      // enregistré : il figerait un rapport « vide » à l'impression.
+      const sectionsUtiles = Object.values(parsed.sections ?? {}).filter(
+        (v) => typeof v === "string" && v.trim() && v.trim().toLowerCase() !== "information non disponible.",
+      );
+      if (sectionsUtiles.length === 0) {
+        throw new Error("AI_EMPTY_CONTENT: le modèle n'a retourné aucun contenu exploitable. Relancez la génération.");
+      }
       await admin.from("rapports_techniques").update({
         contenu_rapport: result.parsed as never,
         titre: parsed.titre ?? r.titre ?? "Rapport technique",
