@@ -503,11 +503,12 @@ export function businessEntityMap() {
 }
 
 /** Construit une clause `.or()` Supabase ILIKE (valeurs échappées). */
-export function buildIlikeOrFields(fields: string[], keywords: string[]): string | null {
+export function buildIlikeOrFields(fields: string[], keywords: string[], table?: string): string | null {
   const clauses: string[] = [];
-  for (const f of fields) for (const k of keywords) {
+  for (const f of textSearchFields(table, fields)) for (const k of keywords) {
     const safe = k.replace(/[%,()"'\\]/g, "");
     if (safe) clauses.push(`${f}.ilike.%${safe}%`);
   }
   return clauses.length ? clauses.join(",") : null;
 }
+

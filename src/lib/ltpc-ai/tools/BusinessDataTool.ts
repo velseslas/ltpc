@@ -107,7 +107,7 @@ export const BusinessDataTool: Tool = {
 
         let items: unknown[] = [];
         if (operation !== "count") {
-          const or = kws.length ? buildIlikeOrFields(e.searchFields, kws) : null;
+          const or = kws.length ? buildIlikeOrFields(e.searchFields, kws, e.table) : null;
           const data = await rowsOf(e, operation === "list" ? LIST_LIMIT : SEARCH_LIMIT, or, kws);
           rows += data.length;
           items = data.map((r) => ({
