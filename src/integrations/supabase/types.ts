@@ -177,13 +177,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "affectations_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "affectations_intervenant_id_fkey"
             columns: ["intervenant_id"]
             isOneToOne: false
@@ -505,13 +498,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "attestations_bonne_execution_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       bons_commande: {
@@ -573,13 +559,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bons_commande_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
         ]
@@ -817,13 +796,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "chantiers_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       cimenteries: {
@@ -909,13 +881,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "client_centrales_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       client_maitres_oeuvre: {
@@ -943,13 +908,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "client_maitres_oeuvre_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -986,13 +944,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "client_maitres_ouvrage_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -1158,13 +1109,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "contrats_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
         ]
@@ -1333,13 +1277,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "devis_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       document_archives: {
@@ -1433,13 +1370,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_administratifs_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
         ]
@@ -1588,13 +1518,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_affaissement_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_affaissement_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -1686,13 +1609,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_bleu_methylene_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -1797,13 +1713,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_carottage_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_carottage_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -1894,13 +1803,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_cbr_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_cbr_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -1975,13 +1877,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_cisaillement_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -2072,13 +1967,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_classification_sol_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -2232,13 +2120,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_compression_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_compression_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -2323,13 +2204,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_compression_simple_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_compression_simple_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2404,13 +2278,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_densite_place_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -2491,13 +2358,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_densitometre_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -2588,13 +2448,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_ecrasement_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_ecrasement_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2679,13 +2532,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_equivalent_sable_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -2776,13 +2622,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_forme_granulats_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_forme_granulats_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2870,13 +2709,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_friabilite_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_friabilite_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -2961,13 +2793,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_granulometrie_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -3061,13 +2886,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_granulometrie_sol_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_granulometrie_sol_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -3158,13 +2976,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_limites_atterberg_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_limites_atterberg_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -3249,13 +3060,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_los_angeles_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -3346,13 +3150,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_masse_volumique_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_masse_volumique_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -3440,13 +3237,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_matiere_organique_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_matiere_organique_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -3531,13 +3321,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_micro_deval_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -3664,13 +3447,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_module_elasticite_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_module_elasticite_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -3755,13 +3531,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_oedometrique_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_oedometrique_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -3836,13 +3605,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_penetrometre_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -3975,13 +3737,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_permeabilite_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_permeabilite_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -4066,13 +3821,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_plaque_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_plaque_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -4147,13 +3895,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_pressiometre_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -4247,13 +3988,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_proctor_modifie_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_proctor_modifie_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -4344,13 +4078,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_proctor_normal_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_proctor_normal_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -4437,13 +4164,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_sclerometre_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_sclerometre_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -4518,13 +4238,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_sondage_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -4630,13 +4343,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_temperature_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -4755,13 +4461,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_temps_prise_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_temps_prise_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -4877,13 +4576,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_teneur_air_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_teneur_air_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -4978,13 +4670,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_teneur_eau_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_teneur_eau_operateur_id_fkey"
             columns: ["operateur_id"]
             isOneToOne: false
@@ -5072,13 +4757,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_teneur_eau_sol_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -5205,13 +4883,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "echantillons_traction_fendage_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "echantillons_traction_fendage_formulation_id_fkey"
             columns: ["formulation_id"]
             isOneToOne: false
@@ -5293,13 +4964,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_triaxial_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -5389,13 +5053,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "echantillons_ultrason_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -5639,13 +5296,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "essais_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -5991,13 +5641,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "factures_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       formulations: {
@@ -6177,13 +5820,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "formulations_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -6464,13 +6100,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "laboratoires_mobiles_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "laboratoires_mobiles_responsable_id_fkey"
             columns: ["responsable_id"]
             isOneToOne: false
@@ -6545,13 +6174,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lettres_engagement_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
         ]
@@ -7557,13 +7179,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "offres_prix_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       offres_service: {
@@ -7627,13 +7242,6 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "offres_service_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
         ]
       }
       paiements_cheque: {
@@ -7682,13 +7290,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "paiements_cheque_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
         ]
@@ -7752,13 +7353,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "paiements_espece_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "paiements_espece_facture_id_fkey"
             columns: ["facture_id"]
             isOneToOne: false
@@ -7813,13 +7407,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "paiements_virement_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
             referencedColumns: ["id"]
           },
           {
@@ -8948,13 +8535,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rapports_techniques_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients_scoped"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rapports_techniques_modele_id_fkey"
             columns: ["modele_id"]
             isOneToOne: false
@@ -9230,45 +8810,6 @@ export type Database = {
       }
     }
     Views: {
-      clients_scoped: {
-        Row: {
-          adresse: string | null
-          contact: string | null
-          created_at: string | null
-          email: string | null
-          id: string | null
-          nom: string | null
-          representant: string | null
-          telephone: string | null
-          updated_at: string | null
-          ville: string | null
-        }
-        Insert: {
-          adresse?: string | null
-          contact?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          nom?: string | null
-          representant?: string | null
-          telephone?: string | null
-          updated_at?: string | null
-          ville?: string | null
-        }
-        Update: {
-          adresse?: string | null
-          contact?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          nom?: string | null
-          representant?: string | null
-          telephone?: string | null
-          updated_at?: string | null
-          ville?: string | null
-        }
-        Relationships: []
-      }
       intervenants_directory: {
         Row: {
           created_at: string | null
@@ -9309,6 +8850,21 @@ export type Database = {
       }
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
+      clients_scoped: {
+        Args: never
+        Returns: {
+          adresse: string
+          contact: string
+          created_at: string
+          email: string
+          id: string
+          nom: string
+          representant: string
+          telephone: string
+          updated_at: string
+          ville: string
+        }[]
+      }
       conversation_sender_names: {
         Args: { _conversation_id: string }
         Returns: {
