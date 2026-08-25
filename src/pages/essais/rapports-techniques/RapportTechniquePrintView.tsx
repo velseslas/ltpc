@@ -29,29 +29,8 @@ import { ReportHeader } from "@/components/reports/ReportHeader";
 import { PrintService } from "@/lib/print/PrintService";
 import type { AIRapportContenu } from "@/lib/ai/aiProvider";
 import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
+import { hasContenu as hasContent, stripPlaceholderSections } from "@/lib/rapports/contenu";
 
-const PLACEHOLDER = "information non disponible.";
-
-/** Vrai si la section porte une information réelle (et non le libellé de repli de l'IA). */
-function hasContent(v?: string | null): boolean {
-  const t = (v ?? "").trim();
-  return t.length > 0 && t.toLowerCase() !== PLACEHOLDER;
-}
-
-/**
- * Retire les sections « Information non disponible. » d'un HTML enregistré :
- * d'anciens rapports ont figé un squelette de sections vides, qui s'imprimait
- * comme un rapport intégralement vide.
- */
-function stripPlaceholderSections(html: string): string {
-  const cleaned = html.replace(
-    /<h([2-3])[^>]*>[\s\S]*?<\/h\1>\s*<p[^>]*>\s*Information non disponible\.?\s*<\/p>/gi,
-    "",
-  );
-  const text = cleaned.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").trim();
-  // Seul un titre résiduel (ex. « Rapport technique ») ne constitue pas un contenu.
-  return text.length > 0 ? cleaned : "";
-}
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
