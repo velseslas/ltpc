@@ -430,17 +430,17 @@ function Composer({ onSend, disabled }: { onSend: (text: string) => void; disabl
   const [text, setText] = useState("");
   const submit = () => { const t = text.trim(); if (!t || disabled) return; onSend(t); setText(""); };
   return (
-    <div className="border-t p-3">
+    <div className="border-t p-2 md:p-3">
       <div className="max-w-3xl mx-auto flex items-end gap-2">
         <Textarea
           value={text} onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
           placeholder="Posez votre question à LTPC AI…"
-          rows={2} className="resize-none"
+          rows={2} className="resize-none text-sm"
         />
-        <Button onClick={submit} disabled={disabled || !text.trim()}>
-          {disabled ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-          Analyser
+        <Button onClick={submit} disabled={disabled || !text.trim()} className="shrink-0 px-3 sm:px-4">
+          {disabled ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 sm:mr-1" />}
+          <span className="hidden sm:inline">Analyser</span>
         </Button>
       </div>
       <p className="text-[10px] text-muted-foreground text-center mt-1">
