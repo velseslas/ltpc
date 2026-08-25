@@ -20,7 +20,10 @@
 // Toutes les requêtes partent du client Supabase authentifié → RLS appliquées.
 // -----------------------------------------------------------------------------
 
+import { textSearchFields } from "./nonTextFields";
+
 export interface BusinessEntity {
+
   key: string;                       // identifiant interne (ex. "cimenteries")
   label: string;                     // libellé métier affiché à l'IA
   table: string;                     // table réelle du schéma public
