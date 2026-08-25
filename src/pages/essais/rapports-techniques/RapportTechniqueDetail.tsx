@@ -90,6 +90,10 @@ export default function RapportTechniqueDetail() {
   const [wfComment, setWfComment] = useState("");
   const [saveComment, setSaveComment] = useState("");
   const [saveOpen, setSaveOpen] = useState(false);
+  const [descEdit, setDescEdit] = useState(false);
+  const [descDraft, setDescDraft] = useState("");
+  const updateM = useUpdateRapportTechnique();
+
 
   const initRef = useRef<string | null>(null);
   useEffect(() => {
