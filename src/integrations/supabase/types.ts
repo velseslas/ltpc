@@ -8850,6 +8850,21 @@ export type Database = {
       }
       can_access_rapport: { Args: { _rapport_id: string }; Returns: boolean }
       can_write_business: { Args: never; Returns: boolean }
+      clients_scoped: {
+        Args: never
+        Returns: {
+          adresse: string
+          contact: string
+          created_at: string
+          email: string
+          id: string
+          nom: string
+          representant: string
+          telephone: string
+          updated_at: string
+          ville: string
+        }[]
+      }
       conversation_sender_names: {
         Args: { _conversation_id: string }
         Returns: {
