@@ -12,7 +12,7 @@ export const CONTENU_PLACEHOLDER = "information non disponible.";
 /** Vrai si la valeur porte une information réelle (et non le libellé de repli). */
 export function hasContenu(value?: string | null): boolean {
   const t = (value ?? "").trim();
-  return t.length > 0 && t.toLowerCase() !== CONTENU_PLACEHOLDER;
+  return t.length > 0 && !t.toLowerCase().startsWith(CONTENU_PLACEHOLDER.replace(/\.$/, ""));
 }
 
 /**
@@ -21,7 +21,7 @@ export function hasContenu(value?: string | null): boolean {
  */
 export function stripPlaceholderSections(html: string): string {
   const cleaned = (html ?? "").replace(
-    /<h([2-3])[^>]*>[\s\S]*?<\/h\1>\s*<p[^>]*>\s*Information non disponible\.?\s*<\/p>/gi,
+    /<h([2-3])[^>]*>[\s\S]*?<\/h\1>\s*<p[^>]*>\s*Information non disponible[^<]*<\/p>/gi,
     "",
   );
   const text = cleaned.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").trim();
