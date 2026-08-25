@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Separator } from "@/components/ui/separator";
 import {
   Loader2, Sparkles, HelpCircle, FileText, AlertTriangle, CheckCircle2, History, Send,
-  CheckCircle, XCircle, RotateCcw, Save, Archive, Upload, Eye, Printer,
+  CheckCircle, XCircle, RotateCcw, Save, Archive, Upload, Eye, Printer, Pencil,
 } from "lucide-react";
 import {
   useRapportTechnique,
