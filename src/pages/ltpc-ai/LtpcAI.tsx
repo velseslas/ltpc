@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Bot, Plus, Star, Archive, Trash2, Send, Loader2, ExternalLink, Sparkles, Search, MessageSquare, Bug, ChevronDown } from "lucide-react";
+import { Bot, Plus, Star, Archive, Trash2, Send, Loader2, ExternalLink, Sparkles, Search, MessageSquare, Bug, ChevronDown, Menu } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -59,69 +60,85 @@ export default function LtpcAI() {
     } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "", variant: "destructive" }); }
   };
 
-  return (
-    <div className="flex h-[calc(100vh-4rem)] gap-3 p-3">
-      {/* Sidebar */}
-      <aside className="w-72 shrink-0 flex flex-col border rounded-lg bg-card">
-        <div className="p-3 border-b space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <div className="font-semibold text-sm">LTPC AI</div>
-              <div className="text-[10px] text-muted-foreground">Copilote technique — LTPC Benmalek</div>
-            </div>
+  const sidebarBody = (
+    <>
+      <div className="p-3 border-b space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-primary" />
           </div>
-          <Button className="w-full" size="sm" onClick={newConv} disabled={createM.isPending}>
-            <Plus className="hidden md:inline-block h-4 w-4 md:mr-2" /> Nouvelle conversation
-          </Button>
-          <div className="relative">
-            <Search className="h-3.5 w-3.5 absolute left-2 top-2.5 text-muted-foreground" />
-            <Input className="pl-7 h-8 text-xs" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div>
+            <div className="font-semibold text-sm">LTPC AI</div>
+            <div className="text-[10px] text-muted-foreground">Copilote technique — LTPC Benmalek</div>
           </div>
         </div>
-        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="mx-2 mt-2 grid grid-cols-3">
-            <TabsTrigger value="active" className="text-xs">Actives</TabsTrigger>
-            <TabsTrigger value="favorite" className="text-xs">Favoris</TabsTrigger>
-            <TabsTrigger value="archived" className="text-xs">Archives</TabsTrigger>
-          </TabsList>
-          <TabsContent value={tab} className="flex-1 min-h-0 mt-2">
-            <ScrollArea className="h-full">
-              <ul className="px-2 pb-3 space-y-1">
-                {filtered.length === 0 && <li className="text-xs text-muted-foreground p-3 text-center">Aucune conversation</li>}
-                {filtered.map((c) => (
-                  <ConversationRow key={c.id} conv={c} active={c.id === activeId}
-                    onOpen={() => openConv(c.id)}
-                    onFav={() => updateM.mutate({ id: c.id, patch: { is_favorite: !c.is_favorite } })}
-                    onArchive={() => updateM.mutate({ id: c.id, patch: { is_archived: !c.is_archived } })}
-                    onDelete={() => { if (confirm("Supprimer cette conversation ?")) deleteM.mutate(c.id); }} />
-                ))}
-              </ul>
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+        <Button className="w-full" size="sm" onClick={() => { newConv(); setNavOpen(false); }} disabled={createM.isPending}>
+          <Plus className="h-4 w-4 mr-2" /> Nouvelle conversation
+        </Button>
+        <div className="relative">
+          <Search className="h-3.5 w-3.5 absolute left-2 top-2.5 text-muted-foreground" />
+          <Input className="pl-7 h-8 text-xs" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
+      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="flex-1 flex flex-col min-h-0">
+        <TabsList className="mx-2 mt-2 grid grid-cols-3">
+          <TabsTrigger value="active" className="text-xs">Actives</TabsTrigger>
+          <TabsTrigger value="favorite" className="text-xs">Favoris</TabsTrigger>
+          <TabsTrigger value="archived" className="text-xs">Archives</TabsTrigger>
+        </TabsList>
+        <TabsContent value={tab} className="flex-1 min-h-0 mt-2">
+          <ScrollArea className="h-full">
+            <ul className="px-2 pb-3 space-y-1">
+              {filtered.length === 0 && <li className="text-xs text-muted-foreground p-3 text-center">Aucune conversation</li>}
+              {filtered.map((c) => (
+                <ConversationRow key={c.id} conv={c} active={c.id === activeId}
+                  onOpen={() => { openConv(c.id); setNavOpen(false); }}
+                  onFav={() => updateM.mutate({ id: c.id, patch: { is_favorite: !c.is_favorite } })}
+                  onArchive={() => updateM.mutate({ id: c.id, patch: { is_archived: !c.is_archived } })}
+                  onDelete={() => { if (confirm("Supprimer cette conversation ?")) deleteM.mutate(c.id); }} />
+              ))}
+            </ul>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+    </>
+  );
+
+  return (
+    <div className="flex h-[calc(100dvh-4rem)] gap-3 p-2 md:p-3">
+      {/* Sidebar desktop */}
+      <aside className="hidden md:flex w-72 shrink-0 flex-col border rounded-lg bg-card">
+        {sidebarBody}
       </aside>
 
+      {/* Sidebar mobile */}
+      <Sheet open={navOpen} onOpenChange={setNavOpen}>
+        <SheetContent side="left" className="p-0 w-[85vw] max-w-xs flex flex-col">
+          {sidebarBody}
+        </SheetContent>
+      </Sheet>
+
       {/* Chat */}
-      <main className="flex-1 flex flex-col border rounded-lg bg-card overflow-hidden">
-        <header className="border-b px-4 py-2 flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          <div className="text-sm font-medium truncate flex-1">
+      <main className="flex-1 min-w-0 flex flex-col border rounded-lg bg-card overflow-hidden">
+        <header className="border-b px-2 md:px-4 py-2 flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 shrink-0" onClick={() => setNavOpen(true)} aria-label="Conversations">
+            <Menu className="h-4 w-4" />
+          </Button>
+          <MessageSquare className="hidden sm:block h-4 w-4 text-muted-foreground" />
+          <div className="text-sm font-medium truncate flex-1 min-w-0">
             {conversations.find((c) => c.id === activeId)?.titre ?? "LTPC AI"}
           </div>
           {context?.entity_type && (
-            <Badge variant="outline" className="text-[10px] capitalize">Contexte : {context.entity_type}</Badge>
+            <Badge variant="outline" className="hidden sm:inline-flex text-[10px] capitalize">Contexte : {context.entity_type}</Badge>
           )}
-          <div className="flex items-center gap-1.5 pl-2 border-l">
+          <div className="flex items-center gap-1.5 pl-2 border-l shrink-0">
             <Bug className={`h-3.5 w-3.5 ${debugMode ? "text-primary" : "text-muted-foreground"}`} />
-            <Label htmlFor="dbg" className="text-[10px] cursor-pointer">Debug</Label>
+            <Label htmlFor="dbg" className="text-[10px] cursor-pointer hidden sm:inline">Debug</Label>
             <Switch id="dbg" checked={debugMode} onCheckedChange={setDebugMode} />
           </div>
         </header>
 
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea className="flex-1 p-3 md:p-4">
           {!activeId ? (
             <EmptyIntro onPick={async (q) => { const c = await createM.mutateAsync(undefined); setParams({ c: c.id }); setTimeout(() => sendM.mutate({ conversationId: c.id, content: q, context, debug: debugMode }), 100); }} />
           ) : loadingMessages ? (
