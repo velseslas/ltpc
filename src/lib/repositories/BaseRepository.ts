@@ -256,7 +256,7 @@ export class Repository<T = Record<string, unknown>> {
     if (searchable.length && keywords.length) {
 
       const parts: string[] = [];
-      for (const f of fields) for (const k of keywords) {
+      for (const f of searchable) for (const k of keywords) {
         const safe = k.replace(/[%,()"'\\]/g, "");
         if (safe) parts.push(`${f}.ilike.%${safe}%`);
       }

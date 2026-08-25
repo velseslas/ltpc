@@ -162,13 +162,15 @@ export function domainsWithSpec(domains: ToolDomain[]): ToolDomain[] {
   return domains.filter((d) => DOMAIN_SPECS[d]);
 }
 
-/** Construit une clause `.or()` supabase à partir de mots-clés (avec échappement). */
-export function buildIlikeOr(fields: string[], keywords: string[]): string | null {
+/** Construit une clause `.or()` supabase à partir de mots-clés (avec échappement).
+ *  Les colonnes enum sont écartées : un ILIKE dessus est rejeté par Postgres. */
+export function buildIlikeOr(fields: string[], keywords: string[], table?: string): string | null {
   if (!keywords.length) return null;
   const clauses: string[] = [];
-  for (const f of fields) for (const k of keywords) {
+  for (const f of textSearchFields(table, fields)) for (const k of keywords) {
     const safe = k.replace(/[%,()"'\\]/g, "");
     if (safe) clauses.push(`${f}.ilike.%${safe}%`);
   }
   return clauses.length ? clauses.join(",") : null;
 }
+

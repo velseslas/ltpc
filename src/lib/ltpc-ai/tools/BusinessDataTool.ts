@@ -140,7 +140,7 @@ export const BusinessDataTool: Tool = {
         });
       } catch (err) {
         ok = false;
-        errMsg = err instanceof Error ? err.message : String(err);
+        errMsg = errorMessage(err);
         repo_debug.push({
           repository: `BusinessDataTool (${e.key})`, table: e.table, operation,
           select: e.select, filters: {}, sql_preview: `-- erreur: ${errMsg}`,
