@@ -124,7 +124,7 @@ export const DOMAIN_SPECS: Partial<Record<ToolDomain, DomainSpec>> = {
     table: "etalonnage_materiel", source_type: "etalonnage",
     searchFields: ["organisme", "numero_certificat", "statut"],
     orderBy: { column: "date_prochain_etalonnage", ascending: true },
-    select: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, statut",
+    select: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat",
     labelOf: (r) => s(`Étalonnage ${r.numero_certificat ?? ""}`, 80),
     refOf: (r) => (r.numero_certificat as string | null) ?? null,
     urlOf: () => `/materiel/etalonnage`,

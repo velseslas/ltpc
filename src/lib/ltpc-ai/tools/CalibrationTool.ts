@@ -14,7 +14,7 @@ export const CalibrationTool: Tool = {
   execute: (d) => runTool(CalibrationTool, async () => {
     const horizon = new Date(Date.now() + DAYS * 24 * 3600 * 1000).toISOString().slice(0, 10);
     const { data, error } = await sb.from("etalonnage_materiel")
-      .select("id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, statut")
+      .select("id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat")
       .lte("date_prochain_etalonnage", horizon)
       .order("date_prochain_etalonnage", { ascending: true }).limit(30);
     if (error) throw error;
