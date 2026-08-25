@@ -91,7 +91,9 @@ export default function RapportTechniquePrintView() {
 
   const bodyHtml = useMemo(() => {
     if (!r) return "";
-    const html = r.editor_html && r.editor_html.trim().length > 0 ? r.editor_html : contenuToHtml(contenu);
+    const stored = stripPlaceholderSections(r.editor_html ?? "");
+    const html = stored.trim().length > 0 ? stored : contenuToHtml(contenu);
+    if (!html.trim()) return "";
     return renderTemplate(html, {
       chantier: r.chantiers?.nom ?? null,
       client: r.clients?.nom ?? null,
@@ -102,6 +104,7 @@ export default function RapportTechniquePrintView() {
       date: r.valide_at ?? r.created_at ?? null,
     });
   }, [r, contenu]);
+
 
   useEffect(() => {
     document.title = r?.numero
