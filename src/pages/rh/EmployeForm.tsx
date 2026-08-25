@@ -17,9 +17,11 @@ import { Save, X, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   useIntervenant,
+  useIntervenantHR,
   useCreateIntervenant,
   useUpdateIntervenant,
 } from "@/hooks/useIntervenants";
+
 import { usePostes } from "@/hooks/usePostes";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 
@@ -29,7 +31,11 @@ const EmployeForm = () => {
   const { toast } = useToast();
   const isEditing = !!id;
 
-  const { data: employe, isLoading: isLoadingEmploye } = useIntervenant(id || "");
+  const { data: employeBase, isLoading: isLoadingEmploye } = useIntervenant(id || "");
+  const { data: hr } = useIntervenantHR(id || "");
+  // Champs RH sensibles : chargés uniquement pour les admins/responsables.
+  const employe = employeBase ? { ...employeBase, ...(hr ?? {}) } : employeBase;
+
   const { data: postes } = usePostes();
   const createEmploye = useCreateIntervenant();
   const updateEmploye = useUpdateIntervenant();
@@ -77,7 +83,9 @@ const EmployeForm = () => {
         signature_url: (employe as any).signature_url || null,
       });
     }
-  }, [employe]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employeBase, hr]);
+
 
   const errors = {
     nom: submitted && !formData.nom.trim(),

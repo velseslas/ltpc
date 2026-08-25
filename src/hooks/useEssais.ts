@@ -16,7 +16,7 @@ export type EssaiWithRelations = Essai & {
 const FULL_SELECT = `
   *,
   clients(*),
-  intervenants(*),
+  intervenants(id, nom, prenom, email, telephone, role, departement, statut, date_embauche, poste_id, specialite, signature_url, created_at, updated_at),
   materiel(*)
 `;
 

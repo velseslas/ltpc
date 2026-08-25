@@ -12,7 +12,7 @@ export type LaboratoireMobileWithRelations = LaboratoireMobile & {
   chantiers: { id: string; nom: string; ville: string | null } | null;
 };
 
-const DETAIL_SELECT = `*, intervenants(*), clients(id, nom), chantiers(id, nom, ville)`;
+const DETAIL_SELECT = `*, intervenants(id, nom, prenom, email, telephone, role, departement, statut, date_embauche, poste_id, specialite, signature_url, created_at, updated_at), clients(id, nom), chantiers(id, nom, ville)`;
 const detailRepo = getRepositoryForTable<LaboratoireMobileWithRelations>("laboratoires_mobiles", {
   defaultSelect: DETAIL_SELECT,
 });

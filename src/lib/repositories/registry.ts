@@ -27,16 +27,19 @@ export const REPOSITORY_CONFIGS = {
   },
   laboratoires_mobiles: {
     name: "laboratoires_mobiles", table: "laboratoires_mobiles",
-    defaultSelect: "*, intervenants(*), clients(id, nom), chantiers(id, nom, ville)",
+    defaultSelect: "*, intervenants(id, nom, prenom, email, telephone, role, departement, statut, date_embauche, poste_id, specialite, signature_url, created_at, updated_at), clients(id, nom), chantiers(id, nom, ville)",
     defaultOrder: { column: "nom", ascending: true },
     searchFields: ["nom", "reference"],
   },
   intervenants: {
     name: "intervenants", table: "intervenants",
-    defaultSelect: "*",
+    // Champs RH sensibles (cin, cnas, adresse, salaire, date_naissance, notes)
+    // volontairement exclus : ils passent par la fonction admin `intervenant_hr`.
+    defaultSelect: "id, nom, prenom, email, telephone, role, departement, statut, date_embauche, poste_id, specialite, signature_url, created_at, updated_at",
     defaultOrder: { column: "nom", ascending: true },
-    searchFields: ["nom", "prenom", "email", "fonction"],
+    searchFields: ["nom", "prenom", "email", "specialite"],
   },
+
   compression: {
     name: "compression", table: "echantillons_compression",
     defaultSelect: "id, numero, numero_chantier, ouvrage, classe_resistance, statut, date_coulage, created_at",
