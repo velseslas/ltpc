@@ -128,9 +128,15 @@ export function useRapportsTechniques(filters: RapportListFilters = {}) {
       }
       if (filters.categorieId) q = q.eq("categorie_id", filters.categorieId);
       if (filters.search) {
-        q = q.or(
-          `titre.ilike.%${filters.search}%,description_probleme.ilike.%${filters.search}%,numero.ilike.%${filters.search}%`
-        );
+        const search = filters.search.trim().replace(/[%,()"'\\]/g, "");
+        if (search) {
+          const clauses = [
+            `titre.ilike.%${search}%`,
+            `description_probleme.ilike.%${search}%`,
+          ];
+          if (/^\d+$/.test(search)) clauses.push(`numero.eq.${Number(search)}`);
+          q = q.or(clauses.join(","));
+        }
       }
       const { data, error } = await q;
       if (error) throw error;

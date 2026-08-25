@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
-import { getRepository, getRepositoryForTable } from "@/lib/repositories";
+import { getRepositoryForTable } from "@/lib/repositories";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 
@@ -25,7 +25,9 @@ export function useClients() {
     enabled: !roleLoading,
     queryFn: async () => {
       if (privileged) {
-        const { data } = await getRepository("clients").list();
+        // Les rôles privilégiés lisent la table directement afin de conserver
+        // les champs fiscaux affichés dans la liste (ICE, NIF, NIS, RIB).
+        const { data } = await clientsRepo.list();
         return data as Client[];
       }
       // Les non-privilégiés (techniciens…) n'accèdent qu'à l'identité du client,
@@ -39,10 +41,22 @@ export function useClients() {
 
 
 export function useClient(id: string) {
+  const { data: role, isLoading: roleLoading } = useCurrentUserRole();
+  const privileged = !!role && PRIVILEGED_ROLES.includes(role);
+
   return useQuery({
-    queryKey: ["clients", id],
-    queryFn: async () => (await clientsRepo.getById(id)).data,
-    enabled: !!id,
+    queryKey: ["clients", id, privileged ? "full" : "scoped"],
+    queryFn: async () => {
+      if (privileged) return (await clientsRepo.getById(id)).data;
+
+      // La table contient des données fiscales et bancaires interdites aux
+      // techniciens. Le détail doit donc utiliser la même fonction sécurisée
+      // que la liste, puis sélectionner le client demandé côté client.
+      const { data, error } = await supabase.rpc("clients_scoped");
+      if (error) throw error;
+      return ((data ?? []).find((client) => client.id === id) ?? null) as unknown as Client | null;
+    },
+    enabled: !!id && !roleLoading,
   });
 }
 
