@@ -32,6 +32,7 @@ import {
   Save,
 } from "lucide-react";
 import { useChantiers } from "@/hooks/useChantiers";
+import { useClients } from "@/hooks/useClients";
 import {
   useRapportCategories,
   useRapportModeles,
@@ -72,9 +73,8 @@ export default function NouveauRapportTechnique() {
 
   // Form state
   const [chantierId, setChantierId] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
   const [clientNom, setClientNom] = useState("");
-  const [entreprise, setEntreprise] = useState("");
-  const [projet, setProjet] = useState("");
   const [dateProbleme, setDateProbleme] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [categorieId, setCategorieId] = useState<string | null>(null);
   const [modeleId, setModeleId] = useState<string | null>(initialModeleId);
@@ -85,6 +85,7 @@ export default function NouveauRapportTechnique() {
 
   // Data
   const { data: chantiers = [] } = useChantiers();
+  const { data: clients = [] } = useClients();
   const { data: categories = [] } = useRapportCategories();
   const { data: modeles = [] } = useRapportModeles(categorieId);
   const { data: contexte } = useContexteChantier(chantierId);
@@ -94,13 +95,17 @@ export default function NouveauRapportTechnique() {
   const uploadPiece = useUploadPieceJointe();
   const deletePiece = useDeletePieceJointe();
 
-  // Auto-populate context when chantier changes
+  // Chantiers filtrés par client sélectionné
+  const filteredChantiers = useMemo(
+    () => (clientId ? chantiers.filter((c) => c.client_id === clientId) : []),
+    [chantiers, clientId],
+  );
+
+  // Nom du client sélectionné
   useEffect(() => {
-    if (!contexte) return;
-    if (contexte.client_nom) setClientNom(contexte.client_nom);
-    if (contexte.entreprise) setEntreprise(contexte.entreprise);
-    if (contexte.projet) setProjet(contexte.projet);
-  }, [contexte]);
+    const c = clients.find((x) => x.id === clientId);
+    setClientNom(c?.nom ?? "");
+  }, [clientId, clients]);
 
   // Pre-select modele's categorie
   useEffect(() => {
@@ -120,9 +125,7 @@ export default function NouveauRapportTechnique() {
       categorie_id: categorieId,
       modele_id: modeleId,
       chantier_id: chantierId,
-      client_id: contexte?.client_id ?? null,
-      entreprise: entreprise || null,
-      projet: projet || null,
+      client_id: clientId ?? contexte?.client_id ?? null,
       materiau: materiau || null,
       date_probleme: dateProbleme || null,
       gravite,
@@ -135,7 +138,7 @@ export default function NouveauRapportTechnique() {
         version_form: 2,
       },
     };
-  }, [titre, description, categorieId, modeleId, chantierId, contexte, entreprise, projet, materiau, dateProbleme, gravite, step]);
+  }, [titre, description, categorieId, modeleId, chantierId, contexte, clientId, materiau, dateProbleme, gravite, step]);
 
   // Save draft (create or update)
   const saveDraft = useCallback(async (silent = false) => {
@@ -319,19 +322,35 @@ export default function NouveauRapportTechnique() {
         <CardContent className="space-y-6">
           {step === "contexte" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <Label>Chantier <span className="text-red-500">*</span></Label>
-                <Select value={chantierId ?? ""} onValueChange={(v) => setChantierId(v || null)}>
-                  <SelectTrigger className={errClass(!chantierId)}>
-                    <SelectValue placeholder="Sélectionner un chantier" />
+              <div>
+                <Label>Client <span className="text-red-500">*</span></Label>
+                <Select
+                  value={clientId ?? ""}
+                  onValueChange={(v) => { setClientId(v || null); setChantierId(null); }}
+                >
+                  <SelectTrigger className={errClass(!clientId)}>
+                    <SelectValue placeholder="Sélectionner un client" />
                   </SelectTrigger>
                   <SelectContent>
-                    {chantiers.map((c) => (
+                    {clients.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground mt-1">Les informations client, entreprise, projet et matériaux sont récupérées automatiquement.</p>
+              </div>
+              <div>
+                <Label>Chantier <span className="text-red-500">*</span></Label>
+                <Select value={chantierId ?? ""} onValueChange={(v) => setChantierId(v || null)} disabled={!clientId}>
+                  <SelectTrigger className={errClass(!chantierId)}>
+                    <SelectValue placeholder={clientId ? "Sélectionner un chantier" : "Choisir d'abord un client"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredChantiers.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">Les informations de contexte et matériaux sont récupérées automatiquement.</p>
               </div>
 
               {contexte && (
@@ -356,22 +375,10 @@ export default function NouveauRapportTechnique() {
               )}
 
               <div>
-                <Label>Client</Label>
-                <Input value={clientNom} onChange={(e) => setClientNom(e.target.value)} placeholder="Auto-rempli" />
-              </div>
-              <div>
-                <Label>Entreprise</Label>
-                <Input value={entreprise} onChange={(e) => setEntreprise(e.target.value)} />
-              </div>
-              <div>
-                <Label>Projet</Label>
-                <Input value={projet} onChange={(e) => setProjet(e.target.value)} />
-              </div>
-              <div>
                 <Label>Date du problème</Label>
                 <Input type="date" value={dateProbleme} onChange={(e) => setDateProbleme(e.target.value)} />
               </div>
-              <div className="md:col-span-2">
+              <div>
                 <Label>Matériau concerné (facultatif)</Label>
                 <Input value={materiau} onChange={(e) => setMateriau(e.target.value)} placeholder="Ex : Sable 0/4, Béton C25/30…" />
               </div>
@@ -523,8 +530,6 @@ export default function NouveauRapportTechnique() {
               )}
               <RecapRow label="Chantier" value={contexte?.chantier_nom ?? "—"} />
               <RecapRow label="Client" value={clientNom || "—"} />
-              <RecapRow label="Entreprise" value={entreprise || "—"} />
-              <RecapRow label="Projet" value={projet || "—"} />
               <RecapRow label="Catégorie" value={categories.find((c) => c.id === categorieId)?.nom ?? "—"} />
               <RecapRow label="Modèle" value={modeles.find((m) => m.id === modeleId)?.titre ?? "—"} />
               <RecapRow label="Gravité" value={<Badge className={GRAVITE_COLORS[gravite]}>{GRAVITE_LABELS[gravite]}</Badge>} />
