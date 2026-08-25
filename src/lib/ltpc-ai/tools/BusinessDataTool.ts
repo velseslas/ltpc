@@ -36,13 +36,33 @@ function searchKeywords(d: RouterDecision, entities: BusinessEntity[]): string[]
   return d.keywords.filter((k) => k.length > 2 && !vocab.has(k)).slice(0, 4);
 }
 
+/** Tables verrouillées par RLS dont la lecture passe par une fonction scopée. */
+const RPC_SOURCES: Record<string, string> = { clients: "clients_scoped" };
+
+async function rpcRows(fn: string): Promise<Record<string, unknown>[]> {
+  const { data, error } = await sb.rpc(fn);
+  if (error) throw new Error(`${fn}(): ${error.message}`);
+  return (data ?? []) as Record<string, unknown>[];
+}
+
 async function countEntity(e: BusinessEntity) {
+  const fn = RPC_SOURCES[e.table];
+  if (fn) return (await rpcRows(fn)).length;
   const { count, error } = await sb.from(e.table).select("id", { count: "exact", head: true });
   if (error) throw new Error(`${e.table}: ${error.message}`);
   return count ?? 0;
 }
 
-async function rowsOf(e: BusinessEntity, limit: number, or: string | null) {
+async function rowsOf(e: BusinessEntity, limit: number, or: string | null, keywords: string[] = []) {
+  const fn = RPC_SOURCES[e.table];
+  if (fn) {
+    const rows = await rpcRows(fn);
+    const kws = keywords.map((k) => k.toLowerCase()).filter(Boolean);
+    const matched = kws.length
+      ? rows.filter((r) => e.searchFields.some((f) => kws.some((k) => String(r[f] ?? "").toLowerCase().includes(k))))
+      : rows;
+    return matched.slice(0, limit);
+  }
   let q = sb.from(e.table).select(e.select);
   if (or) q = q.or(or);
   const { data, error } = await q
@@ -51,6 +71,7 @@ async function rowsOf(e: BusinessEntity, limit: number, or: string | null) {
   if (error) throw new Error(`${e.table}: ${error.message}`);
   return (data ?? []) as Record<string, unknown>[];
 }
+
 
 export const BusinessDataTool: Tool = {
   name: "BusinessDataTool",
@@ -87,7 +108,7 @@ export const BusinessDataTool: Tool = {
         let items: unknown[] = [];
         if (operation !== "count") {
           const or = kws.length ? buildIlikeOrFields(e.searchFields, kws) : null;
-          const data = await rowsOf(e, operation === "list" ? LIST_LIMIT : SEARCH_LIMIT, or);
+          const data = await rowsOf(e, operation === "list" ? LIST_LIMIT : SEARCH_LIMIT, or, kws);
           rows += data.length;
           items = data.map((r) => ({
             id: r.id,

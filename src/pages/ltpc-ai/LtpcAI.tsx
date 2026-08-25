@@ -145,8 +145,15 @@ export default function LtpcAI() {
             id = c.id;
             setParams({ c: id });
           }
-          sendM.mutate({ conversationId: id, content: text, context, debug: debugMode });
+          sendM.mutate({ conversationId: id, content: text, context, debug: debugMode }, {
+            onError: (e) => toast({
+              title: "LTPC AI n'a pas pu répondre",
+              description: e instanceof Error ? e.message : "Erreur inconnue",
+              variant: "destructive",
+            }),
+          });
         }} />
+
       </main>
     </div>
   );
@@ -190,6 +197,8 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
           <ReactMarkdown>{msg.content.replace(/\[ref:[a-z_]+:[0-9a-f-]{8,}\]/gi, "")}</ReactMarkdown>
         </div>
         {msg.citations && msg.citations.length > 0 && <Citations items={msg.citations} />}
+        <ToolErrors meta={msg.meta} />
+
         {(msg.meta?.debug || msg.meta?.search_debug) && <DebugPanel meta={msg.meta} />}
         {msg.meta?.model && (
           <div className="text-[10px] text-muted-foreground mt-1">
@@ -201,7 +210,27 @@ function MessageBubble({ msg }: { msg: AIMessage }) {
   );
 }
 
+function ToolErrors({ meta }: { meta: AIMessage["meta"] }) {
+  const errs = (meta as { tool_errors?: Array<{ tool: string; error: string }> })?.tool_errors ?? [];
+  if (!errs.length) return null;
+  return (
+    <Card className="mt-2 p-2 border-destructive/40 bg-destructive/5">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-destructive mb-1">
+        Données partiellement indisponibles ({errs.length})
+      </div>
+      <ul className="space-y-0.5">
+        {errs.map((e, i) => (
+          <li key={i} className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">{e.tool}</span> — {e.error}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
 function Citations({ items }: { items: AICitation[] }) {
+
   return (
     <Card className="mt-2 p-2 bg-muted/40 border-dashed">
       <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Sources ({items.length})</div>

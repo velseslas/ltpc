@@ -13,7 +13,12 @@ export const REPOSITORY_CONFIGS = {
     defaultSelect: "*",
     defaultOrder: { column: "nom", ascending: true },
     searchFields: ["nom", "ville", "contact", "telephone"],
+    // La table `clients` n'est lisible que par admin/manager (données bancaires
+    // et fiscales). La lecture passe donc par la fonction scopée : identité
+    // seulement, et uniquement les clients des chantiers accessibles.
+    rpcSource: "clients_scoped",
   },
+
   chantiers: {
     name: "chantiers", table: "chantiers",
     defaultSelect: "*",
