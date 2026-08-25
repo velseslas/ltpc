@@ -1,0 +1,11 @@
+--- a/supabase/functions/rapport-ai-generer/index.ts
++++ b/supabase/functions/rapport-ai-generer/index.ts
+@@ -65,7 +65,7 @@
+       const sectionsUtiles = Object.values(parsed.sections ?? {}).filter(
+-        (v) => typeof v === "string" && v.trim() && v.trim().toLowerCase() !== "information non disponible.",
++        (v) => typeof v === "string" && v.trim() && v.trim().toLowerCase() !== "information non disponible." && v.trim().toLowerCase() !== "information non disponible",
+       );
+       if (sectionsUtiles.length === 0) {
+-        throw new Error("AI_EMPTY_CONTENT: le modèle n'a retourné aucun contenu exploitable. Relancez la génération.");
++        throw new Error("AI_EMPTY_CONTENT: Contenu vide ou placeholders uniquement. Modèle : " + result.model + ". Sections : " + JSON.stringify(parsed.sections));
+       }
