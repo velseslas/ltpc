@@ -12,10 +12,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Separator } from "@/components/ui/separator";
 import {
   Loader2, Sparkles, HelpCircle, FileText, AlertTriangle, CheckCircle2, History, Send,
-  CheckCircle, XCircle, RotateCcw, Save, Archive, Upload, Eye, Printer,
+  CheckCircle, XCircle, RotateCcw, Save, Archive, Upload, Eye, Printer, Pencil,
 } from "lucide-react";
 import {
   useRapportTechnique,
+  useUpdateRapportTechnique,
   useRapportValidateur,
   STATUT_LABELS,
   STATUT_COLORS,
@@ -90,6 +91,10 @@ export default function RapportTechniqueDetail() {
   const [wfComment, setWfComment] = useState("");
   const [saveComment, setSaveComment] = useState("");
   const [saveOpen, setSaveOpen] = useState(false);
+  const [descEdit, setDescEdit] = useState(false);
+  const [descDraft, setDescDraft] = useState("");
+  const updateM = useUpdateRapportTechnique();
+
 
   const initRef = useRef<string | null>(null);
   useEffect(() => {
@@ -249,9 +254,48 @@ export default function RapportTechniqueDetail() {
           {/* --- IA --- */}
           <TabsContent value="ia" className="space-y-4">
             <Card>
-              <CardHeader><CardTitle>Description du problème</CardTitle></CardHeader>
-              <CardContent><p className="whitespace-pre-wrap text-sm">{r.description_probleme}</p></CardContent>
+              <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+                <CardTitle>Description du problème</CardTitle>
+                {!descEdit ? (
+                  <Button variant="outline" size="sm" onClick={() => { setDescDraft(r.description_probleme ?? ""); setDescEdit(true); }}>
+                    <Pencil className="h-4 w-4 mr-2" /> Modifier
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setDescEdit(false)} disabled={updateM.isPending}>Annuler</Button>
+                    <Button
+                      size="sm"
+                      disabled={updateM.isPending || !descDraft.trim()}
+                      onClick={async () => {
+                        try {
+                          await updateM.mutateAsync({ id, description_probleme: descDraft.trim() });
+                          setDescEdit(false);
+                          toast({ title: "Description mise à jour", description: "Relancez l'analyse pour prendre en compte les précisions." });
+                        } catch (e) {
+                          toast({ title: "Échec de l'enregistrement", description: (e as Error).message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      {updateM.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                      Enregistrer
+                    </Button>
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent>
+                {descEdit ? (
+                  <Textarea
+                    value={descDraft}
+                    onChange={(e) => setDescDraft(e.target.value)}
+                    rows={8}
+                    placeholder="Décrivez le problème avec un maximum de précisions (matériaux, dates, mesures, contexte)…"
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm">{r.description_probleme}</p>
+                )}
+              </CardContent>
             </Card>
+
             <div className="flex flex-wrap gap-2">
               <Button onClick={handleAnalyze} disabled={analyzeM.isPending}>
                 {analyzeM.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
