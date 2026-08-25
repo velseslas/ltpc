@@ -175,18 +175,18 @@ export default function RapportTechniqueDetail() {
         { label: "Assistant IA", path: "/essais/redaction-rapport-technique" },
         { label: r?.numero || r?.titre || "Rapport" },
       ]} />
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
         <BackButton to="/essais/redaction-rapport-technique" />
-        <h1 className="text-2xl font-bold">{r?.numero || r?.titre || "Rapport technique"}</h1>
+        <h1 className="text-lg sm:text-2xl font-bold break-words">{r?.numero || r?.titre || "Rapport technique"}</h1>
         {r && <Badge className={STATUT_COLORS[r.statut]} variant="outline">{STATUT_LABELS[r.statut]}</Badge>}
         {r && <Badge variant="outline">v{r.version_courante ?? 1}</Badge>}
         {r && (
-          <div className="ml-auto flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => window.open(`/reports/rapport-technique/${r.id}/print`, "_blank")}>
-              <Eye className="h-4 w-4 mr-1" /> Aperçu impression
+          <div className="w-full sm:w-auto sm:ml-auto grid grid-cols-2 sm:flex gap-2">
+            <Button size="sm" variant="outline" className="w-full sm:w-auto whitespace-normal h-auto py-2 text-xs sm:text-sm" onClick={() => window.open(`/reports/rapport-technique/${r.id}/print`, "_blank")}>
+              <Eye className="h-4 w-4 mr-1 shrink-0" /> Aperçu impression
             </Button>
-            <Button size="sm" onClick={() => window.open(`/reports/rapport-technique/${r.id}/print?auto=1`, "_blank")}>
-              <Printer className="h-4 w-4 mr-1" /> Imprimer / PDF
+            <Button size="sm" className="w-full sm:w-auto whitespace-normal h-auto py-2 text-xs sm:text-sm" onClick={() => window.open(`/reports/rapport-technique/${r.id}/print?auto=1`, "_blank")}>
+              <Printer className="h-4 w-4 mr-1 shrink-0" /> Imprimer / PDF
             </Button>
           </div>
         )}
@@ -198,33 +198,33 @@ export default function RapportTechniqueDetail() {
         <Card><CardContent className="p-6 text-muted-foreground">Rapport introuvable.</CardContent></Card>
       ) : (
         <Tabs defaultValue="editeur">
-          <TabsList>
-            <TabsTrigger value="editeur"><FileText className="h-4 w-4 mr-1" /> Éditeur</TabsTrigger>
-            <TabsTrigger value="ia"><Sparkles className="h-4 w-4 mr-1" /> Analyse IA</TabsTrigger>
-            <TabsTrigger value="validation"><CheckCircle className="h-4 w-4 mr-1" /> Validation</TabsTrigger>
-            <TabsTrigger value="historique"><History className="h-4 w-4 mr-1" /> Historique ({versions.length + wfEvents.length})</TabsTrigger>
+          <TabsList className="w-full justify-start overflow-x-auto flex-nowrap">
+            <TabsTrigger value="editeur" className="text-xs sm:text-sm shrink-0"><FileText className="h-4 w-4 mr-1" /> Éditeur</TabsTrigger>
+            <TabsTrigger value="ia" className="text-xs sm:text-sm shrink-0"><Sparkles className="h-4 w-4 mr-1" /> Analyse IA</TabsTrigger>
+            <TabsTrigger value="validation" className="text-xs sm:text-sm shrink-0"><CheckCircle className="h-4 w-4 mr-1" /> Validation</TabsTrigger>
+            <TabsTrigger value="historique" className="text-xs sm:text-sm shrink-0"><History className="h-4 w-4 mr-1" /> Historique ({versions.length + wfEvents.length})</TabsTrigger>
           </TabsList>
 
           {/* --- ÉDITEUR --- */}
           <TabsContent value="editeur" className="space-y-4">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <CardTitle>Rédaction du rapport</CardTitle>
-                  <div className="flex items-center gap-2">
+                <div className="flex items-start sm:items-center justify-between gap-2 flex-wrap">
+                  <CardTitle className="text-base sm:text-lg">Rédaction du rapport</CardTitle>
+                  <div className="w-full sm:w-auto flex items-center gap-2 flex-wrap">
                     {!isValide && (
                       <span
-                        className={`text-xs ${autosave.state === "error" ? "text-destructive" : autosave.state === "offline" ? "text-amber-600" : "text-muted-foreground"}`}
+                        className={`text-xs w-full sm:w-auto ${autosave.state === "error" ? "text-destructive" : autosave.state === "offline" ? "text-amber-600" : "text-muted-foreground"}`}
                         aria-live="polite"
                       >
                         {autosaveLabel(autosave.state, autosave.lastSavedAt)}
                       </span>
                     )}
-                    <Button size="sm" variant="outline" onClick={() => setSaveOpen(true)} disabled={isValide}>
-                      <Save className="h-4 w-4 mr-1" /> Enregistrer version
+                    <Button size="sm" variant="outline" className="flex-1 sm:flex-none text-xs sm:text-sm" onClick={() => setSaveOpen(true)} disabled={isValide}>
+                      <Save className="h-4 w-4 mr-1 shrink-0" /> Enregistrer version
                     </Button>
-                    <Button size="sm" variant="outline" onClick={handleGenerate} disabled={generateM.isPending || isValide}>
-                      {generateM.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+                    <Button size="sm" variant="outline" className="flex-1 sm:flex-none text-xs sm:text-sm" onClick={handleGenerate} disabled={generateM.isPending || isValide}>
+                      {generateM.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1 shrink-0" />}
                       Générer avec IA
                     </Button>
                   </div>
