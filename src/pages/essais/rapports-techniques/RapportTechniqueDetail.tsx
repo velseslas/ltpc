@@ -41,12 +41,8 @@ import RichTextEditor from "@/components/rapports/RichTextEditor";
 import AISuggestionDialog from "@/components/rapports/AISuggestionDialog";
 import type { Editor } from "@tiptap/react";
 import { sanitizeHtml, escapeHtml } from "@/lib/sanitize";
+import { hasContenu as hasContent, stripPlaceholderSections } from "@/lib/rapports/contenu";
 
-/** Vrai si la section porte une information réelle (et non le libellé de repli de l'IA). */
-function hasContent(v?: string | null): boolean {
-  const t = (v ?? "").trim();
-  return t.length > 0 && t.toLowerCase() !== "information non disponible.";
-}
 
 function contenuToHtml(c: AIRapportContenu | null): string {
   if (!c) return "";
