@@ -151,7 +151,7 @@ export default function RapportTechniqueDetail() {
     } catch (e) { toast({ title: "Erreur", description: e instanceof Error ? e.message : "Échec", variant: "destructive" }); }
   };
 
-  const previewHtml = () => renderTemplate(html, {
+  const previewHtml = () => renderTemplate(stripPlaceholderSections(html) || html, {
     chantier: (r as never as { chantiers?: { nom?: string } } | null)?.chantiers?.nom ?? null,
     client: (r as never as { clients?: { nom?: string } } | null)?.clients?.nom ?? null,
     entreprise: r?.entreprise ?? null,
@@ -159,6 +159,7 @@ export default function RapportTechniqueDetail() {
     numero_rapport: r?.numero ?? null,
     titre: r?.titre ?? null,
   });
+
 
   const isValide = r?.statut === "valide" || r?.statut === "archive";
 
