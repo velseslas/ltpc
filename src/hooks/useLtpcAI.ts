@@ -66,6 +66,24 @@ export function useCurrentContext(): { context: AIContext | null; loading: boole
   return { context, loading };
 }
 
+/** Traduit une erreur technique en message clair pour l'utilisateur. */
+function humanizeAIError(raw: string): string {
+  const m = raw.toLowerCase();
+  if (m.includes("429") || m.includes("rate limit") || m.includes("limite")) {
+    return "Limite d'utilisation atteinte (trop de questions en peu de temps). Réessayez dans une minute.";
+  }
+  if (m.includes("402") || m.includes("credit")) {
+    return "Crédits IA épuisés : rechargez les crédits Lovable pour continuer à utiliser LTPC AI.";
+  }
+  if (m.includes("401") || m.includes("jwt") || m.includes("unauthorized")) {
+    return "Session expirée : reconnectez-vous puis relancez votre question.";
+  }
+  if (m.includes("failed to fetch") || m.includes("network")) {
+    return "Connexion au service IA impossible (réseau ou service indisponible). Réessayez.";
+  }
+  return raw;
+}
+
 /** Envoi d'un message : Router → Tools (client) → edge function → persistance. */
 export function useSendMessage() {
   const qc = useQueryClient();
@@ -79,6 +97,9 @@ export function useSendMessage() {
 
       // === Agent v1.1 : Router + Tools s'exécutent côté client (RLS naturel) ===
       const agent = await AgentOrchestrator.run(input.content, input.context);
+      const toolErrors = agent.tool_results
+        .filter((r) => !r.ok && r.error)
+        .map((r) => ({ tool: r.tool, error: String(r.error) }));
 
       const { data, error } = await supabase.functions.invoke("ltpc-ai-chat", {
         body: {
@@ -94,12 +115,13 @@ export function useSendMessage() {
           debug: input.debug ?? false,
         },
       });
-      if (error) throw new Error(error.message);
-      if (data?.error) throw new Error(String(data.error));
+      if (error) throw new Error(humanizeAIError(error.message));
+      if (data?.error) throw new Error(humanizeAIError(String(data.error)));
 
       const meta = {
         ...(data.meta ?? {}),
         confidence: agent.aggregated_confidence,
+        ...(toolErrors.length ? { tool_errors: toolErrors } : {}),
         ...(input.debug ? { debug: data.debug, agent_debug: agent.debug } : {}),
       };
 
@@ -120,4 +142,5 @@ export function useSendMessage() {
     },
   });
 }
+
 

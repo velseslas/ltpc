@@ -1,6 +1,8 @@
 // Mapping centralisé « domaine du router → table Supabase + colonnes ILIKE ».
 // Utilisé par les outils SQL* pour éviter la duplication.
 import type { ToolDomain } from "./types";
+import { textSearchFields } from "./nonTextFields";
+
 
 export interface DomainSpec {
   table: string;
@@ -61,13 +63,14 @@ export const DOMAIN_SPECS: Partial<Record<ToolDomain, DomainSpec>> = {
   },
   essais: {
     table: "essais", source_type: "essai",
-    searchFields: ["type", "statut", "reference"],
+    searchFields: ["type_essai", "nom", "reference"],
     orderBy: { column: "created_at", ascending: false },
-    select: "id, type, statut, reference, created_at",
-    labelOf: (r) => s(`${r.type ?? "Essai"} ${r.reference ?? ""}`, 80),
+    select: "id, nom, type_essai, statut, reference, created_at",
+    labelOf: (r) => s(`${r.nom ?? r.type_essai ?? "Essai"} ${r.reference ?? ""}`, 80),
     refOf: (r) => (r.reference as string | null) ?? null,
     snippetOf: (r) => s(String(r.statut ?? "")),
   },
+
   granulometrie: {
     table: "echantillons_granulometrie", source_type: "essai_granulometrie",
     searchFields: ["numero", "statut"],
@@ -119,13 +122,13 @@ export const DOMAIN_SPECS: Partial<Record<ToolDomain, DomainSpec>> = {
   },
   etalonnages: {
     table: "etalonnage_materiel", source_type: "etalonnage",
-    searchFields: ["organisme", "numero_certificat", "statut"],
-    orderBy: { column: "date_prochaine", ascending: true },
-    select: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochaine, statut",
+    searchFields: ["organisme", "numero_certificat", "resultat"],
+    orderBy: { column: "date_prochain_etalonnage", ascending: true },
+    select: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat",
     labelOf: (r) => s(`Étalonnage ${r.numero_certificat ?? ""}`, 80),
     refOf: (r) => (r.numero_certificat as string | null) ?? null,
     urlOf: () => `/materiel/etalonnage`,
-    snippetOf: (r) => s(`${r.organisme ?? ""} · Prochain : ${r.date_prochaine ?? "?"}`),
+    snippetOf: (r) => s(`${r.organisme ?? ""} · Prochain : ${r.date_prochain_etalonnage ?? "?"}`),
   },
   non_conformites: {
     // Approximé sur rapports_techniques filtrés (pas de table dédiée).
@@ -160,13 +163,15 @@ export function domainsWithSpec(domains: ToolDomain[]): ToolDomain[] {
   return domains.filter((d) => DOMAIN_SPECS[d]);
 }
 
-/** Construit une clause `.or()` supabase à partir de mots-clés (avec échappement). */
-export function buildIlikeOr(fields: string[], keywords: string[]): string | null {
+/** Construit une clause `.or()` supabase à partir de mots-clés (avec échappement).
+ *  Les colonnes enum sont écartées : un ILIKE dessus est rejeté par Postgres. */
+export function buildIlikeOr(fields: string[], keywords: string[], table?: string): string | null {
   if (!keywords.length) return null;
   const clauses: string[] = [];
-  for (const f of fields) for (const k of keywords) {
+  for (const f of textSearchFields(table, fields)) for (const k of keywords) {
     const safe = k.replace(/[%,()"'\\]/g, "");
     if (safe) clauses.push(`${f}.ilike.%${safe}%`);
   }
   return clauses.length ? clauses.join(",") : null;
 }
+

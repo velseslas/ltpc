@@ -7,6 +7,8 @@
 // et les mutations (insert/update/delete/upsert) — ce qui permet aux hooks
 // existants d'être migrés sans perdre de fonctionnalité.
 import { supabase } from "@/integrations/supabase/client";
+import { textSearchFields } from "@/lib/ltpc-ai/tools/nonTextFields";
+
 
 export interface RepoOrder { column: string; ascending: boolean }
 
@@ -54,6 +56,14 @@ export interface RepositoryConfig {
   defaultOrder?: RepoOrder;
   /** Champs textuels utilisés par search(). */
   searchFields?: string[];
+  /**
+   * Fonction SQL (SECURITY DEFINER) à utiliser à la place de la table pour la
+   * LECTURE lorsque la table elle-même est verrouillée par RLS pour certains
+   * rôles (ex. `clients` → `clients_scoped()` : identité seulement, périmètre
+   * limité aux chantiers affectés). Utilisée uniquement sans filtre avancé.
+   */
+  rpcSource?: string;
+
 }
 
 function esc(v: unknown): string {
@@ -118,6 +128,17 @@ const sb = supabase as unknown as any;
 export class Repository<T = Record<string, unknown>> {
   constructor(public readonly config: RepositoryConfig) {}
 
+  /** Lecture via fonction SQL scopée (contourne une RLS table verrouillée). */
+  private async rpcRows(): Promise<{ rows: Record<string, unknown>[]; error: string | null }> {
+    const { data, error } = await sb.rpc(this.config.rpcSource!);
+    return { rows: (data ?? []) as Record<string, unknown>[], error: error?.message ?? null };
+  }
+
+  /** Vrai si la lecture peut passer par la fonction scopée (aucun filtre avancé). */
+  private canUseRpc(filters: Record<string, RepoFilter>): boolean {
+    return !!this.config.rpcSource && Object.values(filters).every((v) => v === undefined);
+  }
+
   /** Retourne les lignes + le count exact (comme Supabase count:'exact'). */
   async list(opts: {
     select?: string;
@@ -129,6 +150,24 @@ export class Repository<T = Record<string, unknown>> {
     const select = opts.select ?? this.config.defaultSelect ?? "*";
     const order = opts.order ?? this.config.defaultOrder;
     const filters = opts.filters ?? {};
+
+    if (this.canUseRpc(filters)) {
+      const { rows, error } = await this.rpcRows();
+      const limited = opts.limit ? rows.slice(0, opts.limit) : rows;
+      return {
+        data: limited as T[],
+        count: rows.length,
+        debug: {
+          repository: this.config.name, table: this.config.table, operation: "list",
+          select, order, filters,
+          sql_preview: `SELECT * FROM public.${this.config.rpcSource}()`,
+          rows_returned: limited.length, count_exact: rows.length,
+          warning: error ? `Erreur: ${error}` : undefined,
+          duration_ms: Math.round(performance.now() - t0),
+        },
+      };
+    }
+
     let q = sb.from(this.config.table).select(select, { count: "exact" });
     q = applyFilters(q, filters);
     if (order) q = q.order(order.column, { ascending: order.ascending });
@@ -153,6 +192,22 @@ export class Repository<T = Record<string, unknown>> {
   /** Comptage exact — utilise le MÊME chemin que list() pour garantir la cohérence. */
   async count(filters: Record<string, RepoFilter> = {}): Promise<RepoCountResult> {
     const t0 = performance.now();
+
+    if (this.canUseRpc(filters)) {
+      const { rows, error } = await this.rpcRows();
+      return {
+        count: rows.length,
+        debug: {
+          repository: this.config.name, table: this.config.table, operation: "count",
+          select: "count(*)", filters,
+          sql_preview: `SELECT count(*) FROM public.${this.config.rpcSource}()`,
+          rows_returned: rows.length, count_exact: rows.length,
+          warning: error ? `Erreur: ${error}` : undefined,
+          duration_ms: Math.round(performance.now() - t0),
+        },
+      };
+    }
+
     let q = sb.from(this.config.table).select("id", { count: "exact", head: true });
     q = applyFilters(q, filters);
     const { error, count } = await q;
@@ -167,15 +222,41 @@ export class Repository<T = Record<string, unknown>> {
     return { count: count ?? 0, debug };
   }
 
+
   async search(keywords: string[], limit = 20): Promise<RepoListResult<T>> {
     const t0 = performance.now();
     const fields = this.config.searchFields ?? [];
     const select = this.config.defaultSelect ?? "*";
     const order = this.config.defaultOrder;
+
+    if (this.config.rpcSource) {
+      const { rows, error } = await this.rpcRows();
+      const kws = keywords.map((k) => k.toLowerCase()).filter(Boolean);
+      const matched = kws.length
+        ? rows.filter((r) => fields.some((f) => kws.some((k) => String(r[f] ?? "").toLowerCase().includes(k))))
+        : rows;
+      const data = matched.slice(0, limit);
+      return {
+        data: data as T[],
+        count: matched.length,
+        debug: {
+          repository: this.config.name, table: this.config.table, operation: "search",
+          select, order, filters: { keywords, fields },
+          sql_preview: `SELECT * FROM public.${this.config.rpcSource}() -- filtrage mots-clés côté client`,
+          rows_returned: data.length, count_exact: matched.length,
+          warning: error ? `Erreur: ${error}` : undefined,
+          duration_ms: Math.round(performance.now() - t0),
+        },
+      };
+    }
+
     let q = sb.from(this.config.table).select(select, { count: "exact" });
-    if (fields.length && keywords.length) {
+
+    const searchable = textSearchFields(this.config.table, fields);
+    if (searchable.length && keywords.length) {
+
       const parts: string[] = [];
-      for (const f of fields) for (const k of keywords) {
+      for (const f of searchable) for (const k of keywords) {
         const safe = k.replace(/[%,()"'\\]/g, "");
         if (safe) parts.push(`${f}.ilike.%${safe}%`);
       }

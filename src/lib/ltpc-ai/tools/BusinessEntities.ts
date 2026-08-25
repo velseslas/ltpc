@@ -20,7 +20,10 @@
 // Toutes les requêtes partent du client Supabase authentifié → RLS appliquées.
 // -----------------------------------------------------------------------------
 
+import { textSearchFields } from "./nonTextFields";
+
 export interface BusinessEntity {
+
   key: string;                       // identifiant interne (ex. "cimenteries")
   label: string;                     // libellé métier affiché à l'IA
   table: string;                     // table réelle du schéma public
@@ -316,10 +319,11 @@ export const BUSINESS_ENTITIES: BusinessEntity[] = [
   {
     key: "essais", label: "Registre des essais", table: "essais", category: "essais",
     keywords: ["essai", "essais", "test", "tests", "prelevement", "prélèvement", "prelevements", "echantillon", "échantillon", "echantillons"],
-    select: "id, type, statut, reference, created_at",
-    searchFields: ["type", "statut", "reference"],
+    select: "id, nom, type_essai, statut, reference, created_at",
+    searchFields: ["type_essai", "nom", "reference"],
     orderBy: { column: "created_at", ascending: false },
-    labelCols: ["type", "reference"], snippetCols: ["statut"],
+    labelCols: ["nom", "reference"], snippetCols: ["type_essai", "statut"],
+
     source_type: "essai", url: "/essais",
   },
 
@@ -384,10 +388,11 @@ export const BUSINESS_ENTITIES: BusinessEntity[] = [
   {
     key: "etalonnages", label: "Étalonnages du matériel", table: "etalonnage_materiel", category: "materiel",
     keywords: ["etalonnage", "étalonnage", "etalonnages", "calibration", "certificat d'etalonnage", "verification periodique"],
-    select: "id, organisme, numero_certificat, date_etalonnage, date_prochaine, statut",
-    searchFields: ["organisme", "numero_certificat", "statut"],
-    orderBy: { column: "date_prochaine", ascending: true },
-    labelCols: ["numero_certificat", "organisme"], snippetCols: ["date_prochaine", "statut"],
+    select: "id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat",
+    searchFields: ["organisme", "numero_certificat", "resultat"],
+    orderBy: { column: "date_prochain_etalonnage", ascending: true },
+    labelCols: ["numero_certificat", "organisme"], snippetCols: ["date_prochain_etalonnage", "resultat"],
+
     source_type: "etalonnage", url: "/materiel/etalonnage",
   },
   {
@@ -503,11 +508,12 @@ export function businessEntityMap() {
 }
 
 /** Construit une clause `.or()` Supabase ILIKE (valeurs échappées). */
-export function buildIlikeOrFields(fields: string[], keywords: string[]): string | null {
+export function buildIlikeOrFields(fields: string[], keywords: string[], table?: string): string | null {
   const clauses: string[] = [];
-  for (const f of fields) for (const k of keywords) {
+  for (const f of textSearchFields(table, fields)) for (const k of keywords) {
     const safe = k.replace(/[%,()"'\\]/g, "");
     if (safe) clauses.push(`${f}.ilike.%${safe}%`);
   }
   return clauses.length ? clauses.join(",") : null;
 }
+

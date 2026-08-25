@@ -27,7 +27,7 @@ export const SQLSearchTool: Tool = {
     let rows = 0;
     await Promise.all(targets.map(async (dom) => {
       const spec = DOMAIN_SPECS[dom]!;
-      const or = buildIlikeOr(spec.searchFields, d.keywords);
+      const or = buildIlikeOr(spec.searchFields, d.keywords, spec.table);
       let q = sb.from(spec.table).select(spec.select)
         .order(spec.orderBy.column, { ascending: spec.orderBy.ascending, nullsFirst: false })
         .limit(LIMIT);

@@ -13,7 +13,12 @@ export const REPOSITORY_CONFIGS = {
     defaultSelect: "*",
     defaultOrder: { column: "nom", ascending: true },
     searchFields: ["nom", "ville", "contact", "telephone"],
+    // La table `clients` n'est lisible que par admin/manager (données bancaires
+    // et fiscales). La lecture passe donc par la fonction scopée : identité
+    // seulement, et uniquement les clients des chantiers accessibles.
+    rpcSource: "clients_scoped",
   },
+
   chantiers: {
     name: "chantiers", table: "chantiers",
     defaultSelect: "*",
@@ -42,7 +47,7 @@ export const REPOSITORY_CONFIGS = {
     name: "essais", table: "essais",
     defaultSelect: "*",
     defaultOrder: { column: "created_at", ascending: false },
-    searchFields: ["type", "statut", "reference"],
+    searchFields: ["type_essai", "nom", "reference"],
   },
   granulometrie: {
     name: "granulometrie", table: "echantillons_granulometrie",
@@ -76,9 +81,9 @@ export const REPOSITORY_CONFIGS = {
   },
   etalonnages: {
     name: "etalonnages", table: "etalonnage_materiel",
-    defaultSelect: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochaine, statut",
-    defaultOrder: { column: "date_prochaine", ascending: true },
-    searchFields: ["organisme", "numero_certificat", "statut"],
+    defaultSelect: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat",
+    defaultOrder: { column: "date_prochain_etalonnage", ascending: true },
+    searchFields: ["organisme", "numero_certificat", "resultat"],
   },
   utilisateurs: {
     name: "utilisateurs", table: "utilisateurs",

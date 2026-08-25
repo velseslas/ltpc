@@ -82,10 +82,35 @@ export const KnowledgeService = {
     return Array.from(map.entries()).map(([source_type, v]) => ({ source_type, chunks: v.chunks, sources: v.sources.size }));
   },
 
-  /** Lance l'indexation d'une source (edge function service role). */
+  /**
+   * Lance l'indexation d'une source (edge function service role).
+   * Les sources volumineuses sont découpées en lots : une indexation complète
+   * en un seul appel dépasse le délai maximal d'une fonction serveur.
+   */
   async reindex(source_type: IndexableSource, opts: { source_ids?: string[]; full?: boolean; note?: { id?: string; titre?: string; contenu: string; metadata?: Record<string, unknown> } } = {}) {
-    const { data, error } = await supabase.functions.invoke("ltpc-ai-rag-index", { body: { source_type, ...opts } });
-    if (error) throw new Error(error.message);
-    return data as { indexed: number; chunks: number; skipped: number; source_type: string };
+    const call = async (body: Record<string, unknown>) => {
+      const { data, error } = await supabase.functions.invoke("ltpc-ai-rag-index", { body: { source_type, ...body } });
+      if (error) throw new Error(error.message);
+      const d = data as { indexed: number; chunks: number; skipped: number; error?: string };
+      if (d?.error) throw new Error(d.error);
+      return d;
+    };
+
+    if (source_type === "note" || opts.source_ids?.length) return call(opts);
+
+    // Découpage en lots d'identifiants pour éviter les dépassements de délai.
+    const table = { rapport_technique: "rapports_techniques", formulation: "formulations", essai_compression: "echantillons_compression" }[source_type];
+    const { data: idRows } = await supabase.from(table as never).select("id").limit(500);
+    const ids = ((idRows ?? []) as Array<{ id: string }>).map((r) => r.id);
+    if (!ids.length) return call({ ...opts, full: true });
+
+    const BATCH = 15;
+    let indexed = 0, chunks = 0, skipped = 0;
+    for (let i = 0; i < ids.length; i += BATCH) {
+      const r = await call({ source_ids: ids.slice(i, i + BATCH), full: true });
+      indexed += r.indexed; chunks += r.chunks; skipped += r.skipped;
+    }
+    return { indexed, chunks, skipped, source_type };
   },
 };
+
