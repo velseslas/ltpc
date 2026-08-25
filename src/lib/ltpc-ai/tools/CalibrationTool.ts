@@ -14,19 +14,19 @@ export const CalibrationTool: Tool = {
   execute: (d) => runTool(CalibrationTool, async () => {
     const horizon = new Date(Date.now() + DAYS * 24 * 3600 * 1000).toISOString().slice(0, 10);
     const { data, error } = await sb.from("etalonnage_materiel")
-      .select("id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochaine, statut")
-      .lte("date_prochaine", horizon)
-      .order("date_prochaine", { ascending: true }).limit(30);
+      .select("id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, statut")
+      .lte("date_prochain_etalonnage", horizon)
+      .order("date_prochain_etalonnage", { ascending: true }).limit(30);
     if (error) throw error;
     const rows = (data ?? []) as Array<Record<string, unknown>>;
     const today = new Date().toISOString().slice(0, 10);
-    const expired = rows.filter((r) => String(r.date_prochaine ?? "") < today).length;
+    const expired = rows.filter((r) => String(r.date_prochain_etalonnage ?? "") < today).length;
     const citations: AICitation[] = rows.map((r) => ({
       source_type: "etalonnage", source_id: String(r.id),
       label: `Étalonnage ${r.numero_certificat ?? ""}`,
       reference: (r.numero_certificat as string | null) ?? null,
       url: `/materiel/etalonnage`,
-      snippet: `${r.organisme ?? ""} · échéance ${r.date_prochaine ?? "?"}`,
+      snippet: `${r.organisme ?? ""} · échéance ${r.date_prochain_etalonnage ?? "?"}`,
     }));
     return {
       ok: true,

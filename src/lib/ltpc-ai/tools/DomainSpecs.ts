@@ -123,12 +123,12 @@ export const DOMAIN_SPECS: Partial<Record<ToolDomain, DomainSpec>> = {
   etalonnages: {
     table: "etalonnage_materiel", source_type: "etalonnage",
     searchFields: ["organisme", "numero_certificat", "statut"],
-    orderBy: { column: "date_prochaine", ascending: true },
-    select: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochaine, statut",
+    orderBy: { column: "date_prochain_etalonnage", ascending: true },
+    select: "id, materiel_id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, statut",
     labelOf: (r) => s(`Étalonnage ${r.numero_certificat ?? ""}`, 80),
     refOf: (r) => (r.numero_certificat as string | null) ?? null,
     urlOf: () => `/materiel/etalonnage`,
-    snippetOf: (r) => s(`${r.organisme ?? ""} · Prochain : ${r.date_prochaine ?? "?"}`),
+    snippetOf: (r) => s(`${r.organisme ?? ""} · Prochain : ${r.date_prochain_etalonnage ?? "?"}`),
   },
   non_conformites: {
     // Approximé sur rapports_techniques filtrés (pas de table dédiée).
