@@ -388,10 +388,11 @@ export const BUSINESS_ENTITIES: BusinessEntity[] = [
   {
     key: "etalonnages", label: "Étalonnages du matériel", table: "etalonnage_materiel", category: "materiel",
     keywords: ["etalonnage", "étalonnage", "etalonnages", "calibration", "certificat d'etalonnage", "verification periodique"],
-    select: "id, organisme, numero_certificat, date_etalonnage, date_prochaine, statut",
-    searchFields: ["organisme", "numero_certificat", "statut"],
-    orderBy: { column: "date_prochaine", ascending: true },
-    labelCols: ["numero_certificat", "organisme"], snippetCols: ["date_prochaine", "statut"],
+    select: "id, organisme, numero_certificat, date_etalonnage, date_prochain_etalonnage, resultat",
+    searchFields: ["organisme", "numero_certificat", "resultat"],
+    orderBy: { column: "date_prochain_etalonnage", ascending: true },
+    labelCols: ["numero_certificat", "organisme"], snippetCols: ["date_prochain_etalonnage", "resultat"],
+
     source_type: "etalonnage", url: "/materiel/etalonnage",
   },
   {
