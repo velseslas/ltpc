@@ -133,8 +133,8 @@ export function useRapportsTechniques(filters: RapportListFilters = {}) {
           const clauses = [
             `titre.ilike.%${search}%`,
             `description_probleme.ilike.%${search}%`,
+            `numero.ilike.%${search}%`,
           ];
-          if (/^\d+$/.test(search)) clauses.push(`numero.eq.${Number(search)}`);
           q = q.or(clauses.join(","));
         }
       }
