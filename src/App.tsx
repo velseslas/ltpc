@@ -166,12 +166,7 @@ const App = () => (
       <Sonner />
       <NetworkStatusToaster />
       <PWAUpdatePrompt />
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
+      <BrowserRouter>
         <AuthProvider>
           <ErrorBoundary>
             <Suspense fallback={<div className="flex items-center justify-center min-h-dvh"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
