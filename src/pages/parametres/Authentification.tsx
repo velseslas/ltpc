@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { usePostes } from "@/hooks/usePostes";
 import { useIntervenants } from "@/hooks/useIntervenants";
+import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UtilisateurRow {
@@ -73,6 +74,8 @@ const Authentification = () => {
   const { data: postes = [] } = usePostes();
   const { data: intervenants = [] } = useIntervenants();
 
+  const { data: currentRole } = useCurrentUserRole();
+  const isSuperAdmin = currentRole === "super_admin";
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurRow[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const ITEMS_PER_PAGE = 10;
@@ -474,7 +477,7 @@ const Authentification = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                  {isSuperAdmin && <SelectItem value="super_admin">Super Admin</SelectItem>}
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
                   <SelectItem value="technicien">Technicien</SelectItem>
@@ -583,7 +586,7 @@ const Authentification = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="super_admin">Super Admin</SelectItem>
+                    {isSuperAdmin && <SelectItem value="super_admin">Super Admin</SelectItem>}
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="manager">Manager</SelectItem>
                     <SelectItem value="technicien">Technicien</SelectItem>
