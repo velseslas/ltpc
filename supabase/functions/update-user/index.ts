@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any }> {
+async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any; isSuperAdmin: boolean }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const authHeader = req.headers.get("Authorization");
@@ -28,11 +28,12 @@ async function requireAdmin(req: Request): Promise<{ error: Response } | { supab
     .from("user_roles")
     .select("role")
     .eq("user_id", userId);
-  const isAdmin = (roles ?? []).some((r: any) => r.role === "admin" || r.role === "super_admin");
+  const isSuperAdmin = (roles ?? []).some((r: any) => r.role === "super_admin");
+  const isAdmin = isSuperAdmin || (roles ?? []).some((r: any) => r.role === "admin");
   if (!isAdmin) {
     return { error: new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }) };
   }
-  return { supabaseAdmin };
+  return { supabaseAdmin, isSuperAdmin };
 }
 
 Deno.serve(async (req) => {
@@ -46,6 +47,14 @@ Deno.serve(async (req) => {
     const supabaseAdmin = guard.supabaseAdmin;
 
     const { utilisateur_id, password, role, statut, poste_id } = await req.json();
+
+    // Seul un super_admin peut attribuer le rôle super_admin.
+    if (role === "super_admin" && !guard.isSuperAdmin) {
+      return new Response(
+        JSON.stringify({ error: "Seul un Super Admin peut attribuer le rôle Super Admin" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (!utilisateur_id) {
       return new Response(
