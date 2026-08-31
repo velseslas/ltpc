@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -30,6 +31,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AdminOnly } from "@/components/common/AdminOnly";
+import { useAffectationsByChantier } from "@/hooks/useAffectations";
+import { useIntervenants } from "@/hooks/useIntervenants";
 
 export default function LaboratoireMobileDetail() {
   const navigate = useNavigate();
@@ -37,6 +40,32 @@ export default function LaboratoireMobileDetail() {
   const { toast } = useToast();
   const { data: labo, isLoading } = useLaboratoireMobile(id || "");
   const deleteMutation = useDeleteLaboratoireMobile();
+  const { data: affectations } = useAffectationsByChantier(labo?.chantier_id || "");
+  const { data: intervenants } = useIntervenants();
+
+  // Techniciens rattachés au laboratoire : responsable + affectations RH actives du chantier
+  const techniciensNoms = useMemo(() => {
+    const noms: string[] = [];
+    const seen = new Set<string>();
+
+    if (labo?.responsable_id && labo?.intervenants) {
+      seen.add(labo.responsable_id);
+      noms.push(`${labo.intervenants.prenom} ${labo.intervenants.nom}`);
+    }
+
+    (affectations || []).forEach((a: any) => {
+      const statut = (a.statut || "").toLowerCase();
+      if (statut === "inactif" || statut === "termine" || statut === "terminé") return;
+      if (a.date_fin && new Date(a.date_fin) < new Date()) return;
+      if (!a.intervenant_id || seen.has(a.intervenant_id)) return;
+      const i = intervenants?.find((x: any) => x.id === a.intervenant_id);
+      if (!i) return;
+      seen.add(a.intervenant_id);
+      noms.push(`${i.prenom} ${i.nom}`);
+    });
+
+    return noms;
+  }, [labo, affectations, intervenants]);
 
   const handleDelete = async () => {
     try {
@@ -162,12 +191,18 @@ export default function LaboratoireMobileDetail() {
               <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
                 <User className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Responsable</p>
-                  <p className="font-medium">
-                    {labo.intervenants 
-                      ? `${labo.intervenants.prenom} ${labo.intervenants.nom}` 
-                      : "Non affecté"}
+                  <p className="text-sm text-muted-foreground">
+                    {techniciensNoms.length > 1 ? "Techniciens affectés" : "Technicien affecté"}
                   </p>
+                  {techniciensNoms.length === 0 ? (
+                    <p className="font-medium">Non affecté</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {techniciensNoms.map((n) => (
+                        <Badge key={n} variant="secondary" className="font-medium">{n}</Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
