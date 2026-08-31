@@ -69,6 +69,17 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Seul un super_admin peut attribuer ou retirer le rôle super_admin.
+    // Un admin peut modifier un super_admin existant (mot de passe, statut, poste)
+    // tant que le rôle reste inchangé.
+    const roleChanging = role !== undefined && role !== util.role;
+    if (roleChanging && !guard.isSuperAdmin && (role === "super_admin" || util.role === "super_admin")) {
+      return new Response(
+        JSON.stringify({ error: "Seul un Super Admin peut attribuer ou retirer le rôle Super Admin" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     let authUserId: string | null = util.user_id;
 
     if (password && password.length >= 6) {
