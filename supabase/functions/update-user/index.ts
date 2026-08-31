@@ -48,14 +48,6 @@ Deno.serve(async (req) => {
 
     const { utilisateur_id, password, role, statut, poste_id } = await req.json();
 
-    // Seul un super_admin peut attribuer le rôle super_admin.
-    if (role === "super_admin" && !guard.isSuperAdmin) {
-      return new Response(
-        JSON.stringify({ error: "Seul un Super Admin peut attribuer le rôle Super Admin" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     if (!utilisateur_id) {
       return new Response(
         JSON.stringify({ error: "utilisateur_id requis" }),
@@ -65,7 +57,7 @@ Deno.serve(async (req) => {
 
     const { data: util, error: utilFetchErr } = await supabaseAdmin
       .from("utilisateurs")
-      .select("id, email, user_id, nom")
+      .select("id, email, user_id, nom, role")
       .eq("id", utilisateur_id)
       .single();
 
@@ -74,6 +66,17 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "Utilisateur introuvable" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Seul un super_admin peut attribuer ou retirer le rôle super_admin.
+    // Un admin peut modifier un super_admin existant (mot de passe, statut, poste)
+    // tant que le rôle reste inchangé.
+    const roleChanging = role !== undefined && role !== util.role;
+    if (roleChanging && !guard.isSuperAdmin && (role === "super_admin" || util.role === "super_admin")) {
+      return new Response(
+        JSON.stringify({ error: "Seul un Super Admin peut attribuer ou retirer le rôle Super Admin" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
