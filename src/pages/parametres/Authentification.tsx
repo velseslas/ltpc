@@ -581,12 +581,15 @@ const Authentification = () => {
                 <Select
                   value={editFormData.role}
                   onValueChange={(value) => setEditFormData({ ...editFormData, role: value })}
+                  disabled={editingUser?.role === "super_admin" && !isSuperAdmin}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {isSuperAdmin && <SelectItem value="super_admin">Super Admin</SelectItem>}
+                    {(isSuperAdmin || editingUser?.role === "super_admin") && (
+                      <SelectItem value="super_admin">Super Admin</SelectItem>
+                    )}
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="manager">Manager</SelectItem>
                     <SelectItem value="technicien">Technicien</SelectItem>
