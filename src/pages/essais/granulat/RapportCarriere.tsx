@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -102,13 +102,21 @@ const fmtDate = (d: string | null) => (d ? format(new Date(d), "dd/MM/yyyy") : "
 
 export default function RapportCarriere() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const reportRef = useRef<HTMLDivElement>(null);
 
   const { data: carrieres } = useCarrieres();
   const { data: entreprise } = useEntreprise();
 
-  const [carriereId, setCarriereId] = useState<string>("");
+  const [carriereId, setCarriereId] = useState<string>(searchParams.get("carriere") || "");
   const [generated, setGenerated] = useState(false);
+
+  // Génération automatique quand la carrière vient de la liste
+  useEffect(() => {
+    if (carriereId && carrieres?.some(c => c.id === carriereId)) {
+      setGenerated(true);
+    }
+  }, [carriereId, carrieres]);
 
   const { data: synthese, isLoading } = useRapportCarriere(generated && carriereId ? carriereId : null);
 
@@ -128,13 +136,14 @@ export default function RapportCarriere() {
         <EssaiBreadcrumb items={[
           { label: "Essais", path: "/essais" },
           { label: "Granulats", path: "/essais/granulat" },
-          { label: "Rapport Carrière" },
+          { label: "Rapport Carrière", path: "/essais/granulat/rapport-carriere" },
+          { label: selectedCarriere?.nom || "Génération" },
         ]} />
       </div>
 
       {/* Header */}
       <div className="flex items-center gap-4 print:hidden">
-        <Button variant="outline" size="icon" onClick={() => navigate("/essais/granulat")}>
+        <Button variant="outline" size="icon" onClick={() => navigate("/essais/granulat/rapport-carriere")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
