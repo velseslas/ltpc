@@ -246,6 +246,32 @@ function installAuthLockFallback() {
   }
 }
 
+const RELOAD_FLAG = "ltpc:chunk-recovery";
+
+/**
+ * Après un redéploiement, un index.html ou un Service Worker en cache peut
+ * référencer un chunk hashé qui n'existe plus → écran blanc. On purge alors
+ * les caches + SW et on recharge une seule fois.
+ */
+async function recoverFromStaleChunks(error: unknown): Promise<never | void> {
+  if (typeof window === "undefined") throw error;
+  if (sessionStorage.getItem(RELOAD_FLAG)) throw error;
+  sessionStorage.setItem(RELOAD_FLAG, "1");
+
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+  } catch { /* noop */ }
+
+  window.location.reload();
+}
+
 async function bootstrap() {
   installAuthFetchPatch();
   normalizeStoredAuthSession();
@@ -259,7 +285,16 @@ async function bootstrap() {
     const { initPWAAdapters } = await import("./lib/pwa/registry");
     initPWAAdapters();
   } catch { /* noop */ }
-  const { default: App } = await import("./App.tsx");
+
+  let App: React.ComponentType;
+  try {
+    App = (await import("./App.tsx")).default;
+  } catch (error) {
+    await recoverFromStaleChunks(error);
+    return;
+  }
+
+  sessionStorage.removeItem(RELOAD_FLAG);
   createRoot(document.getElementById("root")!).render(<App />);
   // Phase 7.5 (C3) + Phase 8 — enregistrement Service Worker (silencieux en preview/dev).
   try {
@@ -268,4 +303,15 @@ async function bootstrap() {
   } catch { /* noop */ }
 }
 
+// Chunks lazy (routes) échouant après un déploiement → même récupération.
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    const msg = String((event.reason as Error)?.message ?? event.reason ?? "");
+    if (msg.includes("Failed to fetch dynamically imported module") || msg.includes("error loading dynamically imported module")) {
+      void recoverFromStaleChunks(event.reason).catch(() => undefined);
+    }
+  });
+}
+
 void bootstrap();
+
