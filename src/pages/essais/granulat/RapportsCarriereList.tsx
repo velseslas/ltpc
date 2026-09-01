@@ -76,7 +76,7 @@ const RapportsCarriereList = () => {
         </div>
         <Button
           className="gradient-primary text-primary-foreground"
-          onClick={() => navigate("/essais/granulat/rapport-carriere")}
+          onClick={() => navigate("/essais/granulat/rapport-carriere/generer")}
         >
           <Plus className="hidden md:inline-block md:mr-2 w-4 h-4" />
           Nouveau rapport
@@ -100,7 +100,7 @@ const RapportsCarriereList = () => {
             {paginated.map((carriere) => (
               <div
                 key={carriere.id}
-                onClick={() => navigate(`/essais/granulat/rapport-carriere?carriere=${carriere.id}`)}
+                onClick={() => navigate(`/essais/granulat/rapport-carriere/generer?carriere=${carriere.id}`)}
                 className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center shrink-0">
