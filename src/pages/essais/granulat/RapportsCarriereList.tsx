@@ -1,8 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Search, Loader2, FileText, Mountain } from "lucide-react";
+import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { EchantillonPagination } from "@/components/essais/EchantillonPagination";
 import { useCarrieres } from "@/hooks/useCarrieres";
@@ -35,6 +49,10 @@ const RapportsCarriereList = () => {
   const handleSearch = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
+  };
+
+  const goToRapport = (carriereId: string) => {
+    navigate(`/essais/granulat/rapport-carriere/generer?carriere=${carriereId}`);
   };
 
   return (
@@ -83,47 +101,79 @@ const RapportsCarriereList = () => {
         </Button>
       </div>
 
-      {/* Carrières List */}
+      {/* Carrières Table */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">
-            Liste des carrières ({totalItems})
-          </h2>
-        </div>
-
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="divide-y divide-border">
-            {paginated.map((carriere) => (
-              <div
-                key={carriere.id}
-                onClick={() => navigate(`/essais/granulat/rapport-carriere/generer?carriere=${carriere.id}`)}
-                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-              >
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center shrink-0">
-                  <Mountain className="h-5 w-5 text-violet-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground truncate">{carriere.nom}</p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {carriere.ville || "Wilaya non renseignée"}
-                    {carriere.type_agregat ? ` · ${carriere.type_agregat}` : ""}
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" className="gap-2 shrink-0">
-                  <FileText className="h-4 w-4" />
-                  <span className="hidden sm:inline">Rapport</span>
-                </Button>
-              </div>
-            ))}
-            {paginated.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                Aucune carrière trouvée
-              </div>
-            )}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[60px]">N°</TableHead>
+                  <TableHead>Carrière</TableHead>
+                  <TableHead>Wilaya</TableHead>
+                  <TableHead>Type d'agrégat</TableHead>
+                  <TableHead className="w-[60px] text-right"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginated.map((carriere, index) => (
+                  <TableRow
+                    key={carriere.id}
+                    className="cursor-pointer"
+                    onClick={() => goToRapport(carriere.id)}
+                  >
+                    <TableCell className="font-medium text-primary">
+                      {String(startIndex + index + 1).padStart(3, "0")}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center shrink-0">
+                          <Mountain className="h-4 w-4 text-violet-500" />
+                        </div>
+                        <span className="font-semibold text-foreground">{carriere.nom}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {carriere.ville || "—"}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {carriere.type_agregat || "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              goToRapport(carriere.id);
+                            }}
+                          >
+                            <FileText className="mr-2 h-4 w-4" />
+                            Générer le rapport
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {paginated.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      Aucune carrière trouvée
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
 
