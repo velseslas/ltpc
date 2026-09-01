@@ -24,6 +24,7 @@ const EchantillonGranulatForm = lazy(() => import("@/pages/essais/granulat/Echan
 const GranulatDataEntry = lazy(() => import("@/pages/essais/granulat/saisie/GranulatDataEntry"));
 const GranulatDetail = lazy(() => import("@/pages/essais/granulat/detail/GranulatDetail"));
 const GranulatReport = lazy(() => import("@/pages/essais/granulat/rapport/GranulatReport"));
+const RapportCarriere = lazy(() => import("@/pages/essais/granulat/RapportCarriere"));
 
 /** Génère les 5 routes standard d'un essai granulat (liste/nouveau/détail/saisie/modifier/rapport). */
 function granulatEssaiRoutes(cfg: {
@@ -46,6 +47,7 @@ export const granulatRoutes = (
   <>
     <Route path="/essais/granulat" element={<EssaiGranulat />} />
     <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
+    <Route path="/essais/granulat/rapport-carriere" element={<RapportCarriere />} />
     {/* Propreté */}
     <Route path="/essais/granulat/proprete" element={<EssaiProprete />} />
     <Route path="/essais/granulat/proprete/normes" element={<GranulatPropreteNormes />} />

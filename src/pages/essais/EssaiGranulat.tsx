@@ -38,6 +38,16 @@ const EssaiGranulat = () => {
       essaiCount: 4,
       path: "/essais/granulat/mecaniques"
     },
+    {
+      id: "rapport-carriere",
+      title: "Rapport Carrière",
+      description: "Synthèse des derniers résultats d'essais par carrière et par produit",
+      icon: FileText,
+      gradient: "from-violet-500/20 to-purple-500/10",
+      iconColor: "text-violet-500",
+      essaiCount: 6,
+      path: "/essais/granulat/rapport-carriere"
+    },
   ];
   return (
     <>
