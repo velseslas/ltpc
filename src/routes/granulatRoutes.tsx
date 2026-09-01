@@ -47,6 +47,7 @@ export const granulatRoutes = (
   <>
     <Route path="/essais/granulat" element={<EssaiGranulat />} />
     <Route path="/essais/granulat/etat-essais" element={<EtatEssaisGranulat />} />
+    <Route path="/essais/granulat/rapport-carriere" element={<RapportCarriere />} />
     {/* Propreté */}
     <Route path="/essais/granulat/proprete" element={<EssaiProprete />} />
     <Route path="/essais/granulat/proprete/normes" element={<GranulatPropreteNormes />} />
