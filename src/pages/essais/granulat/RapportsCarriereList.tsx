@@ -311,6 +311,26 @@ const RapportsCarriereList = () => {
           endIndex={endIndex}
         />
       </div>
+
+      <AlertDialog open={!!carriereToDelete} onOpenChange={(open) => !open && setCarriereToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer la carrière ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. La carrière sera définitivement supprimée.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
