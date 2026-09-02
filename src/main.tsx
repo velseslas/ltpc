@@ -311,7 +311,8 @@ async function bootstrap() {
     return;
   }
 
-  sessionStorage.removeItem(RELOAD_FLAG);
+  // NE PAS effacer RELOAD_FLAG ici : il sert de cooldown anti-boucle pour
+  // les chunks lazy (routes) qui échoueraient après un boot réussi.
   createRoot(document.getElementById("root")!).render(<App />);
   // Phase 7.5 (C3) + Phase 8 — enregistrement Service Worker (silencieux en preview/dev).
   try {
