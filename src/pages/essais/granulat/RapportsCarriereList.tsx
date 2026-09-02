@@ -244,7 +244,16 @@ const RapportsCarriereList = () => {
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="bg-popover border-border">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/intervenant/producteurs/carriere/${carriere.id}`);
+                              }}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              Détails
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -252,8 +261,29 @@ const RapportsCarriereList = () => {
                               }}
                             >
                               <FileText className="mr-2 h-4 w-4" />
-                              Générer le rapport
+                              Rapport
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/intervenant/producteurs/carriere/${carriere.id}/modifier`);
+                              }}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <NotTechnicien>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCarriereToDelete(carriere.id);
+                                }}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Supprimer
+                              </DropdownMenuItem>
+                            </NotTechnicien>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
