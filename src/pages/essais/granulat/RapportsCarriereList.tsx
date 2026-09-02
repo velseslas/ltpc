@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain, E
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { NotTechnicien } from "@/components/auth/NotTechnicien";
+import { NotTechnicien } from "@/components/common/NotTechnicien";
 import {
   AlertDialog,
   AlertDialogAction,
