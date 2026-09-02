@@ -247,16 +247,33 @@ function installAuthLockFallback() {
 }
 
 const RELOAD_FLAG = "ltpc:chunk-recovery";
+const RECOVERY_COOLDOWN_MS = 10 * 60 * 1000;
 
 /**
  * Après un redéploiement, un index.html ou un Service Worker en cache peut
  * référencer un chunk hashé qui n'existe plus → écran blanc. On purge alors
  * les caches + SW et on recharge une seule fois.
+ *
+ * Garde-fou anti-boucle : on horodate la récupération au lieu d'effacer le
+ * marqueur au boot. Si un chunk échoue à nouveau dans les 10 minutes
+ * (réseau instable / hors-ligne, pas un déploiement), on NE recharge PAS :
+ * l'ErrorBoundary affiche l'écran d'erreur et l'app/offline restent intacts.
  */
 async function recoverFromStaleChunks(error: unknown): Promise<never | void> {
   if (typeof window === "undefined") throw error;
-  if (sessionStorage.getItem(RELOAD_FLAG)) throw error;
-  sessionStorage.setItem(RELOAD_FLAG, "1");
+
+  let lastRecovery = 0;
+  try {
+    lastRecovery = Number(sessionStorage.getItem(RELOAD_FLAG) ?? 0) || 0;
+  } catch { /* noop */ }
+
+  // Déjà tenté récemment → laisser l'erreur remonter (ErrorBoundary).
+  if (lastRecovery && Date.now() - lastRecovery < RECOVERY_COOLDOWN_MS) {
+    throw error;
+  }
+  try {
+    sessionStorage.setItem(RELOAD_FLAG, String(Date.now()));
+  } catch { /* noop */ }
 
   try {
     if ("caches" in window) {
