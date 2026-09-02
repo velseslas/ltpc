@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,9 +27,65 @@ import { useCarrieres } from "@/hooks/useCarrieres";
 
 const ITEMS_PER_PAGE = 10;
 
+const TABLES_ESSAIS = [
+  "echantillons_granulometrie",
+  "echantillons_equivalent_sable",
+  "echantillons_bleu_methylene",
+  "echantillons_los_angeles",
+  "echantillons_micro_deval",
+  "echantillons_masse_volumique",
+];
+
+interface DatesCarriere {
+  dateReception: string | null;
+  dateRapport: string | null;
+}
+
+/** Dernière date de réception et dernière date de rapport (essai le plus récent) par carrière. */
+function useDatesCarrieres() {
+  return useQuery({
+    queryKey: ["rapport-carriere-dates"],
+    queryFn: async () => {
+      const map = new Map<string, DatesCarriere>();
+      const rows = await Promise.all(
+        TABLES_ESSAIS.map(async (table) => {
+          const { data } = await (supabase as any)
+            .from(table)
+            .select("carriere_id, date_reception, created_at");
+          return (data || []) as { carriere_id: string | null; date_reception: string | null; created_at: string | null }[];
+        })
+      );
+      for (const rowsForTable of rows) {
+        for (const r of rowsForTable) {
+          if (!r.carriere_id) continue;
+          const entry = map.get(r.carriere_id) ?? { dateReception: null, dateRapport: null };
+          if (r.date_reception && (!entry.dateReception || r.date_reception > entry.dateReception)) {
+            entry.dateReception = r.date_reception;
+          }
+          if (r.created_at && (!entry.dateRapport || r.created_at > entry.dateRapport)) {
+            entry.dateRapport = r.created_at;
+          }
+          map.set(r.carriere_id, entry);
+        }
+      }
+      return map;
+    },
+  });
+}
+
+const fmtDate = (d: string | null | undefined) => {
+  if (!d) return "—";
+  try {
+    return format(new Date(d), "dd/MM/yyyy", { locale: fr });
+  } catch {
+    return "—";
+  }
+};
+
 const RapportsCarriereList = () => {
   const navigate = useNavigate();
   const { data: carrieres, isLoading } = useCarrieres();
+  const { data: datesMap } = useDatesCarrieres();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -112,62 +172,69 @@ const RapportsCarriereList = () => {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[60px]">N°</TableHead>
+                  <TableHead className="w-[110px]">N°</TableHead>
                   <TableHead>Carrière</TableHead>
                   <TableHead>Wilaya</TableHead>
-                  <TableHead>Type d'agrégat</TableHead>
+                  <TableHead>Date de réception</TableHead>
+                  <TableHead>Date rapport</TableHead>
                   <TableHead className="w-[60px] text-right"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginated.map((carriere, index) => (
-                  <TableRow
-                    key={carriere.id}
-                    className="cursor-pointer"
-                    onClick={() => goToRapport(carriere.id)}
-                  >
-                    <TableCell className="font-medium text-primary">
-                      {String(startIndex + index + 1).padStart(3, "0")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center shrink-0">
-                          <Mountain className="h-4 w-4 text-violet-500" />
+                {paginated.map((carriere, index) => {
+                  const dates = datesMap?.get(carriere.id);
+                  return (
+                    <TableRow
+                      key={carriere.id}
+                      className="cursor-pointer"
+                      onClick={() => goToRapport(carriere.id)}
+                    >
+                      <TableCell className="font-medium text-primary">
+                        RC-{String(startIndex + index + 1).padStart(3, "0")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center shrink-0">
+                            <Mountain className="h-4 w-4 text-violet-500" />
+                          </div>
+                          <span className="font-semibold text-foreground">{carriere.nom}</span>
                         </div>
-                        <span className="font-semibold text-foreground">{carriere.nom}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {carriere.ville || "—"}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {carriere.type_agregat || "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              goToRapport(carriere.id);
-                            }}
-                          >
-                            <FileText className="mr-2 h-4 w-4" />
-                            Générer le rapport
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {carriere.ville || "—"}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {fmtDate(dates?.dateReception)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {fmtDate(dates?.dateRapport)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                goToRapport(carriere.id);
+                              }}
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              Générer le rapport
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {paginated.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                       Aucune carrière trouvée
                     </TableCell>
                   </TableRow>
