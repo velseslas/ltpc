@@ -102,6 +102,21 @@ const RapportsCarriereList = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [carriereToDelete, setCarriereToDelete] = useState<string | null>(null);
+  const deleteCarriere = useDeleteCarriere();
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    if (!carriereToDelete) return;
+    try {
+      await deleteCarriere.mutateAsync(carriereToDelete);
+      toast({ title: "Carrière supprimée", description: "La carrière a été supprimée avec succès." });
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de supprimer la carrière.", variant: "destructive" });
+    } finally {
+      setCarriereToDelete(null);
+    }
+  };
 
   const filtered = (carrieres || []).filter((c) => {
     const q = searchTerm.trim().toLowerCase();
