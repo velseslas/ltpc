@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Printer, Download, Loader2, ListFilter } from "lucide-react";
+import { ArrowLeft, Printer, Download, Loader2, ListFilter, ChevronLeft } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadReportAsPDF } from "@/lib/pdf";
 import { Button } from "@/components/ui/button";
@@ -50,47 +51,57 @@ function latestByProduit(rows: { produit: string | null; resultats: any; created
   return map;
 }
 
-function useRapportCarriere(carriereId: string | null) {
-  return useQuery({
-    queryKey: ["rapport-carriere", carriereId],
-    queryFn: async (): Promise<ProduitSynthese[]> => {
-      if (!carriereId) return [];
-      const [granulo, es, mb, la, mde, mv] = await Promise.all([
-        fetchByCarriere("echantillons_granulometrie", carriereId),
-        fetchByCarriere("echantillons_equivalent_sable", carriereId),
-        fetchByCarriere("echantillons_bleu_methylene", carriereId),
-        fetchByCarriere("echantillons_los_angeles", carriereId),
-        fetchByCarriere("echantillons_micro_deval", carriereId),
-        fetchByCarriere("echantillons_masse_volumique", carriereId),
-      ]);
+const ESSAIS_TABLES: Record<string, string> = {
+  granulometrie: "echantillons_granulometrie",
+  es: "echantillons_equivalent_sable",
+  mb: "echantillons_bleu_methylene",
+  la: "echantillons_los_angeles",
+  mde: "echantillons_micro_deval",
+  mv: "echantillons_masse_volumique",
+};
 
-      const gMap = latestByProduit(granulo);
-      const esMap = latestByProduit(es);
-      const mbMap = latestByProduit(mb);
-      const laMap = latestByProduit(la);
-      const mdeMap = latestByProduit(mde);
-      const mvMap = latestByProduit(mv);
+const ESSAIS_OPTIONS = [
+  { key: "granulometrie", label: "Granulométrie (MF, fines)" },
+  { key: "es", label: "Équivalent de sable (ES / ESV)" },
+  { key: "mb", label: "Bleu de méthylène (MB)" },
+  { key: "la", label: "Los Angeles (LA)" },
+  { key: "mde", label: "Micro-Deval (MDE)" },
+  { key: "mv", label: "Masse volumique" },
+];
+
+function useRapportCarriere(carriereId: string | null, essaisChoisis: string[]) {
+  return useQuery({
+    queryKey: ["rapport-carriere", carriereId, essaisChoisis.join(",")],
+    queryFn: async (): Promise<ProduitSynthese[]> => {
+      if (!carriereId || essaisChoisis.length === 0) return [];
+      const entries = await Promise.all(
+        essaisChoisis.map(async (key) => {
+          const rows = await fetchByCarriere(ESSAIS_TABLES[key], carriereId);
+          return [key, latestByProduit(rows)] as const;
+        })
+      );
+      const maps = Object.fromEntries(entries) as Record<string, Map<string, { resultats: any; created_at: string }>>;
 
       const produits = new Set<string>();
-      [gMap, esMap, mbMap, laMap, mdeMap, mvMap].forEach(m => m.forEach((_, k) => produits.add(k)));
+      Object.values(maps).forEach((m) => m.forEach((_, k) => produits.add(k)));
 
-      return Array.from(produits).sort().map(p => ({
+      return Array.from(produits).sort().map((p) => ({
         produit: p,
-        granulometrie: gMap.get(p)?.resultats ?? null,
-        granulometrie_date: gMap.get(p)?.created_at ?? null,
-        es: esMap.get(p)?.resultats ?? null,
-        es_date: esMap.get(p)?.created_at ?? null,
-        mb: mbMap.get(p)?.resultats ?? null,
-        mb_date: mbMap.get(p)?.created_at ?? null,
-        la: laMap.get(p)?.resultats ?? null,
-        la_date: laMap.get(p)?.created_at ?? null,
-        mde: mdeMap.get(p)?.resultats ?? null,
-        mde_date: mdeMap.get(p)?.created_at ?? null,
-        mv: mvMap.get(p)?.resultats ?? null,
-        mv_date: mvMap.get(p)?.created_at ?? null,
+        granulometrie: maps.granulometrie?.get(p)?.resultats ?? null,
+        granulometrie_date: maps.granulometrie?.get(p)?.created_at ?? null,
+        es: maps.es?.get(p)?.resultats ?? null,
+        es_date: maps.es?.get(p)?.created_at ?? null,
+        mb: maps.mb?.get(p)?.resultats ?? null,
+        mb_date: maps.mb?.get(p)?.created_at ?? null,
+        la: maps.la?.get(p)?.resultats ?? null,
+        la_date: maps.la?.get(p)?.created_at ?? null,
+        mde: maps.mde?.get(p)?.resultats ?? null,
+        mde_date: maps.mde?.get(p)?.created_at ?? null,
+        mv: maps.mv?.get(p)?.resultats ?? null,
+        mv_date: maps.mv?.get(p)?.created_at ?? null,
       }));
     },
-    enabled: !!carriereId,
+    enabled: !!carriereId && essaisChoisis.length > 0,
   });
 }
 
@@ -111,13 +122,16 @@ export default function RapportCarriere() {
   const [carriereId, setCarriereId] = useState<string>(searchParams.get("carriere") || "");
   const [wilaya, setWilaya] = useState<string>("");
   const [generated, setGenerated] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [essaisChoisis, setEssaisChoisis] = useState<string[]>(ESSAIS_OPTIONS.map((o) => o.key));
 
-  // Génération automatique quand la carrière vient de la liste
+  // Ouverture depuis la liste : rapport complet généré directement
   useEffect(() => {
     if (carriereId && carrieres?.some(c => c.id === carriereId)) {
       const c = carrieres.find(x => x.id === carriereId);
       if (c?.ville && !wilaya) setWilaya(c.ville);
       setGenerated(true);
+      setStep(2);
     }
   }, [carriereId, carrieres]);
 
@@ -132,7 +146,18 @@ export default function RapportCarriere() {
     [carrieres, wilaya]
   );
 
-  const { data: synthese, isLoading } = useRapportCarriere(generated && carriereId ? carriereId : null);
+  const { data: synthese, isLoading } = useRapportCarriere(
+    generated && carriereId ? carriereId : null,
+    essaisChoisis
+  );
+
+  const hasGranu = essaisChoisis.includes("granulometrie");
+  const hasES = essaisChoisis.includes("es");
+  const hasMB = essaisChoisis.includes("mb");
+  const hasLA = essaisChoisis.includes("la");
+  const hasMDE = essaisChoisis.includes("mde");
+  const hasMV = essaisChoisis.includes("mv");
+  const colCount = 1 + (hasGranu ? 2 : 0) + (hasES ? 2 : 0) + (hasMB ? 1 : 0) + (hasLA ? 1 : 0) + (hasMDE ? 1 : 0) + (hasMV ? 2 : 0);
 
   const selectedCarriere = useMemo(
     () => carrieres?.find(c => c.id === carriereId),
@@ -168,57 +193,106 @@ export default function RapportCarriere() {
         </div>
       </div>
 
-      {/* Filtres */}
-      <Card className="print:hidden">
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-muted-foreground">
-                Wilaya <span className="text-destructive">*</span>
-              </label>
-              <Select
-                value={wilaya}
-                onValueChange={(v) => { setWilaya(v); setCarriereId(""); setGenerated(false); }}
-              >
-                <SelectTrigger><SelectValue placeholder="Sélectionnez une wilaya" /></SelectTrigger>
-                <SelectContent>
-                  {wilayas.map(w => (
-                    <SelectItem key={w} value={w}>{w}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      {/* Étape 1 — Sélection carrière (aucune génération à cette étape) */}
+      {step === 1 && (
+        <Card className="print:hidden">
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium mb-4">Étape 1 sur 2 — Sélection de la carrière</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Wilaya <span className="text-destructive">*</span>
+                </label>
+                <Select
+                  value={wilaya}
+                  onValueChange={(v) => { setWilaya(v); setCarriereId(""); setGenerated(false); }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Sélectionnez une wilaya" /></SelectTrigger>
+                  <SelectContent>
+                    {wilayas.map(w => (
+                      <SelectItem key={w} value={w}>{w}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground">Carrière</label>
+                <Select
+                  value={carriereId}
+                  onValueChange={(v) => { setCarriereId(v); setGenerated(false); }}
+                  disabled={!wilaya}
+                >
+                  <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionnez une carrière" : "Choisissez d'abord une wilaya"} /></SelectTrigger>
+                  <SelectContent>
+                    {carrieresFiltrees.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-muted-foreground">Carrière</label>
-              <Select
-                value={carriereId}
-                onValueChange={(v) => { setCarriereId(v); setGenerated(false); }}
-                disabled={!wilaya}
-              >
-                <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionnez une carrière" : "Choisissez d'abord une wilaya"} /></SelectTrigger>
-                <SelectContent>
-                  {carrieresFiltrees.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
-          <div className="flex justify-end mt-4 gap-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/essais/granulat/rapport-carriere")}
-            >
-              Annuler
-            </Button>
-            <Button onClick={() => setGenerated(true)} disabled={!wilaya || !carriereId} className="gap-2">
-              <ListFilter className="h-4 w-4" />
-              Suivant
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex justify-end mt-4 gap-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/essais/granulat/rapport-carriere")}
+              >
+                Annuler
+              </Button>
+              <Button onClick={() => setStep(2)} disabled={!wilaya || !carriereId} className="gap-2">
+                <ListFilter className="h-4 w-4" />
+                Suivant
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Étape 2 — Choix des essais à inclure, avant toute génération */}
+      {step === 2 && !generated && (
+        <Card className="print:hidden">
+          <CardContent className="pt-6 space-y-4">
+            <div>
+              <p className="text-sm font-medium">Étape 2 sur 2 — Essais à inclure dans le rapport</p>
+              <p className="text-sm text-muted-foreground">
+                Carrière sélectionnée : <span className="font-medium text-foreground">{selectedCarriere?.nom}</span>
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {ESSAIS_OPTIONS.map((o) => (
+                <label
+                  key={o.key}
+                  className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50"
+                >
+                  <Checkbox
+                    checked={essaisChoisis.includes(o.key)}
+                    onCheckedChange={(c) =>
+                      setEssaisChoisis((prev) =>
+                        c ? [...prev, o.key] : prev.filter((k) => k !== o.key)
+                      )
+                    }
+                  />
+                  <span className="text-sm">{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setStep(1)} className="gap-2">
+                <ChevronLeft className="h-4 w-4" />
+                Retour
+              </Button>
+              <Button
+                onClick={() => setGenerated(true)}
+                disabled={essaisChoisis.length === 0}
+                className="gap-2"
+              >
+                <ListFilter className="h-4 w-4" />
+                Générer le rapport
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Chargement */}
       {generated && isLoading && (
@@ -262,26 +336,32 @@ export default function RapportCarriere() {
                 <thead>
                   <tr className="bg-transparent text-black">
                     <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>Produit</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Granulométrie</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Équivalent de sable</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MB (g/100g)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>LA (%)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MDE (%)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Densité (g/cm³)</th>
+                    {hasGranu && <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Granulométrie</th>}
+                    {hasES && <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Équivalent de sable</th>}
+                    {hasMB && <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MB (g/100g)</th>}
+                    {hasLA && <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>LA (%)</th>}
+                    {hasMDE && <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MDE (%)</th>}
+                    {hasMV && <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Densité (g/cm³)</th>}
                   </tr>
                   <tr className="bg-transparent text-black">
-                    <th className="border border-black p-2 print:p-1.5 text-center">MF</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">Fines f (%)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">ES</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">ESV</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">Absolue</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">Apparente</th>
+                    {hasGranu && (<>
+                      <th className="border border-black p-2 print:p-1.5 text-center">MF</th>
+                      <th className="border border-black p-2 print:p-1.5 text-center">Fines f (%)</th>
+                    </>)}
+                    {hasES && (<>
+                      <th className="border border-black p-2 print:p-1.5 text-center">ES</th>
+                      <th className="border border-black p-2 print:p-1.5 text-center">ESV</th>
+                    </>)}
+                    {hasMV && (<>
+                      <th className="border border-black p-2 print:p-1.5 text-center">Absolue</th>
+                      <th className="border border-black p-2 print:p-1.5 text-center">Apparente</th>
+                    </>)}
                   </tr>
                 </thead>
                 <tbody>
                   {synthese.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="border border-black p-4 text-center text-gray-500">
+                      <td colSpan={colCount} className="border border-black p-4 text-center text-gray-500">
                         Aucun essai enregistré pour cette carrière
                       </td>
                     </tr>
@@ -291,23 +371,29 @@ export default function RapportCarriere() {
                       return (
                         <tr key={row.produit} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                           <td className="border border-black p-2 print:p-1.5 font-medium">{row.produit}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(row.granulometrie?.module_finesse, 2)}
-                          </td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(row.granulometrie?.teneur_fines_f)}
-                          </td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.es_moyen, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.esv_moyen, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mb?.valeur_mb, 2)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.la?.coefficient_la, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mde?.coefficient_mde, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(mvNode?.densite_seche ?? mvNode?.densite_absolue, 3)}
-                          </td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(mvNode?.densite_humide ?? mvNode?.densite_apparente, 3)}
-                          </td>
+                          {hasGranu && (<>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(row.granulometrie?.module_finesse, 2)}
+                            </td>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(row.granulometrie?.teneur_fines_f)}
+                            </td>
+                          </>)}
+                          {hasES && (<>
+                            <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.es_moyen, 0)}</td>
+                            <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.esv_moyen, 0)}</td>
+                          </>)}
+                          {hasMB && <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mb?.valeur_mb, 2)}</td>}
+                          {hasLA && <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.la?.coefficient_la, 0)}</td>}
+                          {hasMDE && <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mde?.coefficient_mde, 0)}</td>}
+                          {hasMV && (<>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(mvNode?.densite_seche ?? mvNode?.densite_absolue, 3)}
+                            </td>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(mvNode?.densite_humide ?? mvNode?.densite_apparente, 3)}
+                            </td>
+                          </>)}
                         </tr>
                       );
                     })
