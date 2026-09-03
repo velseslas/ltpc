@@ -193,57 +193,106 @@ export default function RapportCarriere() {
         </div>
       </div>
 
-      {/* Filtres */}
-      <Card className="print:hidden">
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-muted-foreground">
-                Wilaya <span className="text-destructive">*</span>
-              </label>
-              <Select
-                value={wilaya}
-                onValueChange={(v) => { setWilaya(v); setCarriereId(""); setGenerated(false); }}
-              >
-                <SelectTrigger><SelectValue placeholder="Sélectionnez une wilaya" /></SelectTrigger>
-                <SelectContent>
-                  {wilayas.map(w => (
-                    <SelectItem key={w} value={w}>{w}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      {/* Étape 1 — Sélection carrière (aucune génération à cette étape) */}
+      {step === 1 && (
+        <Card className="print:hidden">
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium mb-4">Étape 1 sur 2 — Sélection de la carrière</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Wilaya <span className="text-destructive">*</span>
+                </label>
+                <Select
+                  value={wilaya}
+                  onValueChange={(v) => { setWilaya(v); setCarriereId(""); setGenerated(false); }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Sélectionnez une wilaya" /></SelectTrigger>
+                  <SelectContent>
+                    {wilayas.map(w => (
+                      <SelectItem key={w} value={w}>{w}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground">Carrière</label>
+                <Select
+                  value={carriereId}
+                  onValueChange={(v) => { setCarriereId(v); setGenerated(false); }}
+                  disabled={!wilaya}
+                >
+                  <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionnez une carrière" : "Choisissez d'abord une wilaya"} /></SelectTrigger>
+                  <SelectContent>
+                    {carrieresFiltrees.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-muted-foreground">Carrière</label>
-              <Select
-                value={carriereId}
-                onValueChange={(v) => { setCarriereId(v); setGenerated(false); }}
-                disabled={!wilaya}
-              >
-                <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionnez une carrière" : "Choisissez d'abord une wilaya"} /></SelectTrigger>
-                <SelectContent>
-                  {carrieresFiltrees.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
-          <div className="flex justify-end mt-4 gap-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/essais/granulat/rapport-carriere")}
-            >
-              Annuler
-            </Button>
-            <Button onClick={() => setGenerated(true)} disabled={!wilaya || !carriereId} className="gap-2">
-              <ListFilter className="h-4 w-4" />
-              Suivant
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="flex justify-end mt-4 gap-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/essais/granulat/rapport-carriere")}
+              >
+                Annuler
+              </Button>
+              <Button onClick={() => setStep(2)} disabled={!wilaya || !carriereId} className="gap-2">
+                <ListFilter className="h-4 w-4" />
+                Suivant
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Étape 2 — Choix des essais à inclure, avant toute génération */}
+      {step === 2 && !generated && (
+        <Card className="print:hidden">
+          <CardContent className="pt-6 space-y-4">
+            <div>
+              <p className="text-sm font-medium">Étape 2 sur 2 — Essais à inclure dans le rapport</p>
+              <p className="text-sm text-muted-foreground">
+                Carrière sélectionnée : <span className="font-medium text-foreground">{selectedCarriere?.nom}</span>
+              </p>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {ESSAIS_OPTIONS.map((o) => (
+                <label
+                  key={o.key}
+                  className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-muted/50"
+                >
+                  <Checkbox
+                    checked={essaisChoisis.includes(o.key)}
+                    onCheckedChange={(c) =>
+                      setEssaisChoisis((prev) =>
+                        c ? [...prev, o.key] : prev.filter((k) => k !== o.key)
+                      )
+                    }
+                  />
+                  <span className="text-sm">{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setStep(1)} className="gap-2">
+                <ChevronLeft className="h-4 w-4" />
+                Retour
+              </Button>
+              <Button
+                onClick={() => setGenerated(true)}
+                disabled={essaisChoisis.length === 0}
+                className="gap-2"
+              >
+                <ListFilter className="h-4 w-4" />
+                Générer le rapport
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Chargement */}
       {generated && isLoading && (
