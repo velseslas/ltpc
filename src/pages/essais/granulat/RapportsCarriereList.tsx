@@ -3,23 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain, Eye, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain, Eye, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { NotTechnicien } from "@/components/common/NotTechnicien";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { useDeleteCarriere } from "@/hooks/useCarrieres";
 import {
   Table,
   TableBody,
