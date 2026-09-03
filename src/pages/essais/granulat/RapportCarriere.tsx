@@ -336,26 +336,32 @@ export default function RapportCarriere() {
                 <thead>
                   <tr className="bg-transparent text-black">
                     <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>Produit</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Granulométrie</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Équivalent de sable</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MB (g/100g)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>LA (%)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MDE (%)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Densité (g/cm³)</th>
+                    {hasGranu && <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Granulométrie</th>}
+                    {hasES && <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Équivalent de sable</th>}
+                    {hasMB && <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MB (g/100g)</th>}
+                    {hasLA && <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>LA (%)</th>}
+                    {hasMDE && <th className="border border-black p-2 print:p-1.5 text-center" rowSpan={2}>MDE (%)</th>}
+                    {hasMV && <th className="border border-black p-2 print:p-1.5 text-center" colSpan={2}>Densité (g/cm³)</th>}
                   </tr>
                   <tr className="bg-transparent text-black">
-                    <th className="border border-black p-2 print:p-1.5 text-center">MF</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">Fines f (%)</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">ES</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">ESV</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">Absolue</th>
-                    <th className="border border-black p-2 print:p-1.5 text-center">Apparente</th>
+                    {hasGranu && (<>
+                      <th className="border border-black p-2 print:p-1.5 text-center">MF</th>
+                      <th className="border border-black p-2 print:p-1.5 text-center">Fines f (%)</th>
+                    </>)}
+                    {hasES && (<>
+                      <th className="border border-black p-2 print:p-1.5 text-center">ES</th>
+                      <th className="border border-black p-2 print:p-1.5 text-center">ESV</th>
+                    </>)}
+                    {hasMV && (<>
+                      <th className="border border-black p-2 print:p-1.5 text-center">Absolue</th>
+                      <th className="border border-black p-2 print:p-1.5 text-center">Apparente</th>
+                    </>)}
                   </tr>
                 </thead>
                 <tbody>
                   {synthese.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="border border-black p-4 text-center text-gray-500">
+                      <td colSpan={colCount} className="border border-black p-4 text-center text-gray-500">
                         Aucun essai enregistré pour cette carrière
                       </td>
                     </tr>
@@ -365,23 +371,29 @@ export default function RapportCarriere() {
                       return (
                         <tr key={row.produit} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                           <td className="border border-black p-2 print:p-1.5 font-medium">{row.produit}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(row.granulometrie?.module_finesse, 2)}
-                          </td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(row.granulometrie?.teneur_fines_f)}
-                          </td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.es_moyen, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.esv_moyen, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mb?.valeur_mb, 2)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.la?.coefficient_la, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mde?.coefficient_mde, 0)}</td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(mvNode?.densite_seche ?? mvNode?.densite_absolue, 3)}
-                          </td>
-                          <td className="border border-black p-2 print:p-1.5 text-center">
-                            {fmtNum(mvNode?.densite_humide ?? mvNode?.densite_apparente, 3)}
-                          </td>
+                          {hasGranu && (<>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(row.granulometrie?.module_finesse, 2)}
+                            </td>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(row.granulometrie?.teneur_fines_f)}
+                            </td>
+                          </>)}
+                          {hasES && (<>
+                            <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.es_moyen, 0)}</td>
+                            <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.es?.esv_moyen, 0)}</td>
+                          </>)}
+                          {hasMB && <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mb?.valeur_mb, 2)}</td>}
+                          {hasLA && <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.la?.coefficient_la, 0)}</td>}
+                          {hasMDE && <td className="border border-black p-2 print:p-1.5 text-center">{fmtNum(row.mde?.coefficient_mde, 0)}</td>}
+                          {hasMV && (<>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(mvNode?.densite_seche ?? mvNode?.densite_absolue, 3)}
+                            </td>
+                            <td className="border border-black p-2 print:p-1.5 text-center">
+                              {fmtNum(mvNode?.densite_humide ?? mvNode?.densite_apparente, 3)}
+                            </td>
+                          </>)}
                         </tr>
                       );
                     })
