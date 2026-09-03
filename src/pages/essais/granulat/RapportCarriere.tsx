@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Printer, Download, Loader2, ListFilter } from "lucide-react";
+import { ArrowLeft, Printer, Download, Loader2, ListFilter, ChevronLeft } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadReportAsPDF } from "@/lib/pdf";
 import { Button } from "@/components/ui/button";
@@ -50,47 +51,57 @@ function latestByProduit(rows: { produit: string | null; resultats: any; created
   return map;
 }
 
-function useRapportCarriere(carriereId: string | null) {
-  return useQuery({
-    queryKey: ["rapport-carriere", carriereId],
-    queryFn: async (): Promise<ProduitSynthese[]> => {
-      if (!carriereId) return [];
-      const [granulo, es, mb, la, mde, mv] = await Promise.all([
-        fetchByCarriere("echantillons_granulometrie", carriereId),
-        fetchByCarriere("echantillons_equivalent_sable", carriereId),
-        fetchByCarriere("echantillons_bleu_methylene", carriereId),
-        fetchByCarriere("echantillons_los_angeles", carriereId),
-        fetchByCarriere("echantillons_micro_deval", carriereId),
-        fetchByCarriere("echantillons_masse_volumique", carriereId),
-      ]);
+const ESSAIS_TABLES: Record<string, string> = {
+  granulometrie: "echantillons_granulometrie",
+  es: "echantillons_equivalent_sable",
+  mb: "echantillons_bleu_methylene",
+  la: "echantillons_los_angeles",
+  mde: "echantillons_micro_deval",
+  mv: "echantillons_masse_volumique",
+};
 
-      const gMap = latestByProduit(granulo);
-      const esMap = latestByProduit(es);
-      const mbMap = latestByProduit(mb);
-      const laMap = latestByProduit(la);
-      const mdeMap = latestByProduit(mde);
-      const mvMap = latestByProduit(mv);
+const ESSAIS_OPTIONS = [
+  { key: "granulometrie", label: "Granulométrie (MF, fines)" },
+  { key: "es", label: "Équivalent de sable (ES / ESV)" },
+  { key: "mb", label: "Bleu de méthylène (MB)" },
+  { key: "la", label: "Los Angeles (LA)" },
+  { key: "mde", label: "Micro-Deval (MDE)" },
+  { key: "mv", label: "Masse volumique" },
+];
+
+function useRapportCarriere(carriereId: string | null, essaisChoisis: string[]) {
+  return useQuery({
+    queryKey: ["rapport-carriere", carriereId, essaisChoisis.join(",")],
+    queryFn: async (): Promise<ProduitSynthese[]> => {
+      if (!carriereId || essaisChoisis.length === 0) return [];
+      const entries = await Promise.all(
+        essaisChoisis.map(async (key) => {
+          const rows = await fetchByCarriere(ESSAIS_TABLES[key], carriereId);
+          return [key, latestByProduit(rows)] as const;
+        })
+      );
+      const maps = Object.fromEntries(entries) as Record<string, Map<string, { resultats: any; created_at: string }>>;
 
       const produits = new Set<string>();
-      [gMap, esMap, mbMap, laMap, mdeMap, mvMap].forEach(m => m.forEach((_, k) => produits.add(k)));
+      Object.values(maps).forEach((m) => m.forEach((_, k) => produits.add(k)));
 
-      return Array.from(produits).sort().map(p => ({
+      return Array.from(produits).sort().map((p) => ({
         produit: p,
-        granulometrie: gMap.get(p)?.resultats ?? null,
-        granulometrie_date: gMap.get(p)?.created_at ?? null,
-        es: esMap.get(p)?.resultats ?? null,
-        es_date: esMap.get(p)?.created_at ?? null,
-        mb: mbMap.get(p)?.resultats ?? null,
-        mb_date: mbMap.get(p)?.created_at ?? null,
-        la: laMap.get(p)?.resultats ?? null,
-        la_date: laMap.get(p)?.created_at ?? null,
-        mde: mdeMap.get(p)?.resultats ?? null,
-        mde_date: mdeMap.get(p)?.created_at ?? null,
-        mv: mvMap.get(p)?.resultats ?? null,
-        mv_date: mvMap.get(p)?.created_at ?? null,
+        granulometrie: maps.granulometrie?.get(p)?.resultats ?? null,
+        granulometrie_date: maps.granulometrie?.get(p)?.created_at ?? null,
+        es: maps.es?.get(p)?.resultats ?? null,
+        es_date: maps.es?.get(p)?.created_at ?? null,
+        mb: maps.mb?.get(p)?.resultats ?? null,
+        mb_date: maps.mb?.get(p)?.created_at ?? null,
+        la: maps.la?.get(p)?.resultats ?? null,
+        la_date: maps.la?.get(p)?.created_at ?? null,
+        mde: maps.mde?.get(p)?.resultats ?? null,
+        mde_date: maps.mde?.get(p)?.created_at ?? null,
+        mv: maps.mv?.get(p)?.resultats ?? null,
+        mv_date: maps.mv?.get(p)?.created_at ?? null,
       }));
     },
-    enabled: !!carriereId,
+    enabled: !!carriereId && essaisChoisis.length > 0,
   });
 }
 
