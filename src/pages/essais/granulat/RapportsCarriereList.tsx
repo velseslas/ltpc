@@ -3,23 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain, Eye, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, Loader2, FileText, MoreHorizontal, Mountain, Eye, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { NotTechnicien } from "@/components/common/NotTechnicien";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
-import { useDeleteCarriere } from "@/hooks/useCarrieres";
 import {
   Table,
   TableBody,
@@ -102,21 +89,6 @@ const RapportsCarriereList = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [carriereToDelete, setCarriereToDelete] = useState<string | null>(null);
-  const deleteCarriere = useDeleteCarriere();
-  const { toast } = useToast();
-
-  const handleDelete = async () => {
-    if (!carriereToDelete) return;
-    try {
-      await deleteCarriere.mutateAsync(carriereToDelete);
-      toast({ title: "Carrière supprimée", description: "La carrière a été supprimée avec succès." });
-    } catch {
-      toast({ title: "Erreur", description: "Impossible de supprimer la carrière.", variant: "destructive" });
-    } finally {
-      setCarriereToDelete(null);
-    }
-  };
 
   const filtered = (carrieres || []).filter((c) => {
     const q = searchTerm.trim().toLowerCase();
@@ -272,18 +244,6 @@ const RapportsCarriereList = () => {
                               <Pencil className="mr-2 h-4 w-4" />
                               Modifier
                             </DropdownMenuItem>
-                            <NotTechnicien>
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCarriereToDelete(carriere.id);
-                                }}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Supprimer
-                              </DropdownMenuItem>
-                            </NotTechnicien>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -311,26 +271,6 @@ const RapportsCarriereList = () => {
           endIndex={endIndex}
         />
       </div>
-
-      <AlertDialog open={!!carriereToDelete} onOpenChange={(open) => !open && setCarriereToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer la carrière ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. La carrière sera définitivement supprimée.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };
