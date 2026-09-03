@@ -109,14 +109,28 @@ export default function RapportCarriere() {
   const { data: entreprise } = useEntreprise();
 
   const [carriereId, setCarriereId] = useState<string>(searchParams.get("carriere") || "");
+  const [wilaya, setWilaya] = useState<string>("");
   const [generated, setGenerated] = useState(false);
 
   // Génération automatique quand la carrière vient de la liste
   useEffect(() => {
     if (carriereId && carrieres?.some(c => c.id === carriereId)) {
+      const c = carrieres.find(x => x.id === carriereId);
+      if (c?.ville && !wilaya) setWilaya(c.ville);
       setGenerated(true);
     }
   }, [carriereId, carrieres]);
+
+  // Wilayas distinctes des carrières (champ ville des intervenants carrière)
+  const wilayas = useMemo(
+    () => Array.from(new Set((carrieres || []).map(c => c.ville).filter((v): v is string => !!v))).sort(),
+    [carrieres]
+  );
+
+  const carrieresFiltrees = useMemo(
+    () => (carrieres || []).filter(c => !wilaya || c.ville === wilaya),
+    [carrieres, wilaya]
+  );
 
   const { data: synthese, isLoading } = useRapportCarriere(generated && carriereId ? carriereId : null);
 
@@ -157,16 +171,34 @@ export default function RapportCarriere() {
       {/* Filtres */}
       <Card className="print:hidden">
         <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-muted-foreground">
+                Wilaya <span className="text-destructive">*</span>
+              </label>
+              <Select
+                value={wilaya}
+                onValueChange={(v) => { setWilaya(v); setCarriereId(""); setGenerated(false); }}
+              >
+                <SelectTrigger><SelectValue placeholder="Sélectionnez une wilaya" /></SelectTrigger>
+                <SelectContent>
+                  {wilayas.map(w => (
+                    <SelectItem key={w} value={w}>{w}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted-foreground">Carrière</label>
-              <Select value={carriereId} onValueChange={(v) => { setCarriereId(v); setGenerated(false); }}>
-                <SelectTrigger><SelectValue placeholder="Sélectionnez une carrière" /></SelectTrigger>
+              <Select
+                value={carriereId}
+                onValueChange={(v) => { setCarriereId(v); setGenerated(false); }}
+                disabled={!wilaya}
+              >
+                <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionnez une carrière" : "Choisissez d'abord une wilaya"} /></SelectTrigger>
                 <SelectContent>
-                  {carrieres?.map(c => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.nom}{c.ville ? ` — ${c.ville}` : ""}
-                    </SelectItem>
+                  {carrieresFiltrees.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -174,9 +206,15 @@ export default function RapportCarriere() {
           </div>
 
           <div className="flex justify-end mt-4 gap-2">
-            <Button onClick={() => setGenerated(true)} disabled={!carriereId} className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/essais/granulat/rapport-carriere")}
+            >
+              Annuler
+            </Button>
+            <Button onClick={() => setGenerated(true)} disabled={!wilaya || !carriereId} className="gap-2">
               <ListFilter className="h-4 w-4" />
-              Générer
+              Suivant
             </Button>
           </div>
         </CardContent>
