@@ -122,13 +122,16 @@ export default function RapportCarriere() {
   const [carriereId, setCarriereId] = useState<string>(searchParams.get("carriere") || "");
   const [wilaya, setWilaya] = useState<string>("");
   const [generated, setGenerated] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [essaisChoisis, setEssaisChoisis] = useState<string[]>(ESSAIS_OPTIONS.map((o) => o.key));
 
-  // Génération automatique quand la carrière vient de la liste
+  // Ouverture depuis la liste : rapport complet généré directement
   useEffect(() => {
     if (carriereId && carrieres?.some(c => c.id === carriereId)) {
       const c = carrieres.find(x => x.id === carriereId);
       if (c?.ville && !wilaya) setWilaya(c.ville);
       setGenerated(true);
+      setStep(2);
     }
   }, [carriereId, carrieres]);
 
@@ -143,7 +146,18 @@ export default function RapportCarriere() {
     [carrieres, wilaya]
   );
 
-  const { data: synthese, isLoading } = useRapportCarriere(generated && carriereId ? carriereId : null);
+  const { data: synthese, isLoading } = useRapportCarriere(
+    generated && carriereId ? carriereId : null,
+    essaisChoisis
+  );
+
+  const hasGranu = essaisChoisis.includes("granulometrie");
+  const hasES = essaisChoisis.includes("es");
+  const hasMB = essaisChoisis.includes("mb");
+  const hasLA = essaisChoisis.includes("la");
+  const hasMDE = essaisChoisis.includes("mde");
+  const hasMV = essaisChoisis.includes("mv");
+  const colCount = 1 + (hasGranu ? 2 : 0) + (hasES ? 2 : 0) + (hasMB ? 1 : 0) + (hasLA ? 1 : 0) + (hasMDE ? 1 : 0) + (hasMV ? 2 : 0);
 
   const selectedCarriere = useMemo(
     () => carrieres?.find(c => c.id === carriereId),
