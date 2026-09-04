@@ -238,7 +238,7 @@ const RapportsCarriereList = () => {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/intervenant/producteurs/carriere/${carriere.id}/modifier`);
+                                navigate(`/essais/granulat/rapport-carriere/generer?carriere=${carriere.id}&mode=edit`);
                               }}
                             >
                               <Pencil className="mr-2 h-4 w-4" />
