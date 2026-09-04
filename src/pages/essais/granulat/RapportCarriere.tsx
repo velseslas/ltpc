@@ -109,7 +109,11 @@ export default function RapportCarriere() {
             >
               Annuler
             </Button>
+            <Button disabled={!wilaya || !carriereId}>
+              Suivant
+            </Button>
           </div>
+
         </CardContent>
       </Card>
     </div>
