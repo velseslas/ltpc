@@ -117,10 +117,39 @@ export default function RapportCarriere() {
               Suivant
             </Button>
           </div>
-
-
         </CardContent>
       </Card>
+
+      {/* Étape 2 — Import / consultation des rapports d'essais */}
+      {step === 2 && (
+        <div className="space-y-4">
+          <Card className="print:hidden">
+            <CardContent className="pt-6">
+              <p className="text-sm font-medium">Étape 2 sur 2 — Rapports d'essais</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedCarriere?.nom} {selectedCarriere?.ville ? `— ${selectedCarriere.ville}` : ""}
+              </p>
+            </CardContent>
+          </Card>
+
+          <GranulatRapportsImport
+            carriereId={carriereId}
+            carriereNom={selectedCarriere?.nom || ""}
+            selectedByKey={selectedByKey}
+            onSelect={(key, id) => setSelectedByKey((prev) => ({ ...prev, [key]: id }))}
+          />
+
+          <div className="flex justify-between gap-2 print:hidden">
+            <Button variant="outline" onClick={() => { setStep(1); window.scrollTo({ top: 0 }); }}>
+              Retour
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/essais/granulat/rapport-carriere")}>
+              Annuler
+            </Button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
