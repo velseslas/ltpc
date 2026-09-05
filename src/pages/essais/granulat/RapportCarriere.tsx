@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { useCarrieres } from "@/hooks/useCarrieres";
+import { GranulatRapportsImport } from "@/components/essais/granulat/GranulatRapportsImport";
 
 export default function RapportCarriere() {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ export default function RapportCarriere() {
 
   const [carriereId, setCarriereId] = useState<string>(searchParams.get("carriere") || "");
   const [wilaya, setWilaya] = useState<string>("");
+  const [step, setStep] = useState(1);
+  const [selectedByKey, setSelectedByKey] = useState<Record<string, string>>({});
+
 
   // Ouverture depuis la liste : pré-remplit la wilaya de la carrière
   useEffect(() => {
