@@ -711,6 +711,13 @@ export default function ChantierEchantillonForm() {
             </div>
 
             {/* Technicien */}
+            {!canChooseTechnicien && operateurNom && (
+              <div className="space-y-2">
+                <Label htmlFor="operateur-readonly">Technicien</Label>
+                <Input id="operateur-readonly" value={operateurNom} readOnly className="bg-muted" />
+              </div>
+            )}
+
             {canChooseTechnicien && (
               <div className="space-y-2">
                 <Label htmlFor="operateur">Technicien</Label>
