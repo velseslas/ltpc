@@ -79,7 +79,7 @@ export default function RapportCarriere() {
               </label>
               <Select
                 value={wilaya}
-                onValueChange={(v) => { setWilaya(v); setCarriereId(""); }}
+                onValueChange={(v) => { setWilaya(v); setCarriereId(""); setSelectedByKey({}); }}
               >
                 <SelectTrigger><SelectValue placeholder="Sélectionnez une wilaya" /></SelectTrigger>
                 <SelectContent>
@@ -93,7 +93,7 @@ export default function RapportCarriere() {
               <label className="text-sm font-medium text-muted-foreground">Carrière</label>
               <Select
                 value={carriereId}
-                onValueChange={(v) => setCarriereId(v)}
+                onValueChange={(v) => { setCarriereId(v); setSelectedByKey({}); }}
                 disabled={!wilaya}
               >
                 <SelectTrigger><SelectValue placeholder={wilaya ? "Sélectionnez une carrière" : "Choisissez d'abord une wilaya"} /></SelectTrigger>
