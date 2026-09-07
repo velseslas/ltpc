@@ -136,7 +136,7 @@ function EssaiRow({
     <div className="space-y-1.5">
       <span className="text-xs font-medium text-muted-foreground ml-1">{label}</span>
       <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-muted/10">
-        <Select value={value} onValueChange={handleSelect}>
+        <Select value={isValidSelection ? value : ""} onValueChange={handleSelect}>
           <SelectTrigger className="bg-secondary border-border flex-1">
             <SelectValue placeholder="Sélectionner rapport" />
           </SelectTrigger>
@@ -156,7 +156,7 @@ function EssaiRow({
           variant="outline"
           size="sm"
           className="text-xs border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50 whitespace-nowrap"
-          disabled={!value}
+          disabled={!isValidSelection}
           onClick={() => setShowRapport(true)}
         >
           Rapport
