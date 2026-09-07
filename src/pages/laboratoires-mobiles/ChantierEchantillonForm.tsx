@@ -263,13 +263,27 @@ export default function ChantierEchantillonForm() {
     return scoped;
   }, [intervenants, affectesChantier, responsableId]);
   const [operateurId, setOperateurId] = useState("");
+  const { data: currentIntervenant } = useCurrentIntervenant();
 
   useEffect(() => {
     if (!operateurId) {
-      const initial = existingEchantillon?.operateur_id || responsableId;
+      // Un technicien connecté est l'opérateur par défaut de son propre échantillon
+      const soiMeme = !canChooseTechnicien ? currentIntervenant?.id : null;
+      const initial = existingEchantillon?.operateur_id || soiMeme || responsableId;
       if (initial) setOperateurId(initial);
     }
-  }, [existingEchantillon, responsableId, operateurId]);
+  }, [existingEchantillon, responsableId, operateurId, canChooseTechnicien, currentIntervenant]);
+
+  const operateurNom = useMemo(() => {
+    const i = (intervenants as any[]).find((x) => x.id === operateurId);
+    if (i) return `${i.prenom} ${i.nom}`;
+    if (currentIntervenant?.id === operateurId) {
+      return `${currentIntervenant.prenom} ${currentIntervenant.nom}`;
+    }
+    return "";
+  }, [intervenants, operateurId, currentIntervenant]);
+
+
 
 
 
