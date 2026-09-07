@@ -109,14 +109,17 @@ export default defineConfig(({ mode }) => ({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
-          // 7. API REST Supabase — NetworkFirst court, sert de fallback lecture offline
+          // 7. API REST Supabase — lectures GET uniquement, fallback offline strictement
+          //    limité : on attend le réseau (30 s) avant de servir le cache, et le cache
+          //    expire vite pour éviter d'afficher des données modifiées obsolètes.
           {
             urlPattern: /\/rest\/v1\/.*/,
+            method: "GET",
             handler: "NetworkFirst",
             options: {
               cacheName: "ltpc-api",
-              networkTimeoutSeconds: 4,
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 6 },
+              networkTimeoutSeconds: 30,
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 5 },
               cacheableResponse: { statuses: [200] },
             },
           },
