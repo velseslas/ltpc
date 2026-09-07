@@ -130,6 +130,7 @@ function EssaiRow({
   };
 
   const selectedSample = filtered.find((s: any) => s.id === value);
+  const isValidSelection = !!selectedSample;
 
   return (
     <div className="space-y-1.5">
