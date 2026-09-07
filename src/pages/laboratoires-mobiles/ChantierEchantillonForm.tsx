@@ -38,6 +38,7 @@ import { useLaboratoiresMobiles } from "@/hooks/useLaboratoiresMobiles";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { useIntervenants } from "@/hooks/useIntervenants";
 import { useAffectationsByChantier } from "@/hooks/useAffectations";
+import { useCurrentIntervenant } from "@/hooks/useCurrentIntervenant";
 import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
 
 const CONDITIONS_CURE = [
