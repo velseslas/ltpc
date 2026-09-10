@@ -172,9 +172,21 @@ const fetchClients: DomainFetcher = async (kw, limit) => {
     .select("id, nom, ville, telephone, contact, created_at")
     .order("created_at", { ascending: false }).limit(limit);
   const or = orIlike(["nom","ville","contact","telephone"], kw);
-  const { data } = or ? await q.or(or) : await q;
+  let { data } = or ? await q.or(or) : await q;
+  let total = cnt.count ?? 0;
+  if (!data || data.length === 0) {
+    // Rôles non privilégiés : lecture via la fonction sécurisée (identité seulement,
+    // jamais les données fiscales/bancaires ICE/NIF/NIS/RIB).
+    const { data: scoped } = await supabase.rpc("clients_scoped");
+    const needle = (kw ?? "").toLowerCase();
+    const filtered = (scoped ?? []).filter((c: any) =>
+      !needle || [c.nom, c.ville, c.contact, c.telephone].some((v: any) => (v ?? "").toLowerCase().includes(needle))
+    );
+    total = total || filtered.length;
+    data = filtered.slice(0, limit) as any;
+  }
   return {
-    total: cnt.count ?? 0,
+    total,
     hits: (data ?? []).map((r) => ({
       source_type: "client", source_id: r.id,
       label: r.nom ?? "Client", reference: null,
