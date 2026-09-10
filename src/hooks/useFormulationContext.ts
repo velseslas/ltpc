@@ -72,9 +72,19 @@ export function useFormulationContext(
       }
 
       // 3) Récupérer client + chantier
+      // Les non-privilégiés n'ont pas accès direct à `clients` (données fiscales/bancaires) :
+      // on passe par la fonction sécurisée clients_scoped() qui n'expose que l'identité.
+      const fetchClientNom = async (id: string) => {
+        const { data } = await supabase.from("clients").select("nom").eq("id", id).maybeSingle();
+        if (data) return data as any;
+        const { data: scoped } = await supabase.rpc("clients_scoped");
+        const match = (scoped ?? []).find((c: any) => c.id === id);
+        return match ? { nom: match.nom } : null;
+      };
+
       const [client, chantier] = await Promise.all([
         effectiveClientId
-          ? supabase.from("clients").select("nom").eq("id", effectiveClientId).maybeSingle()
+          ? fetchClientNom(effectiveClientId).then((data) => ({ data }))
           : Promise.resolve({ data: null as any }),
         effectiveChantierId
           ? supabase
