@@ -178,7 +178,7 @@ const fetchClients: DomainFetcher = async (kw, limit) => {
     // Rôles non privilégiés : lecture via la fonction sécurisée (identité seulement,
     // jamais les données fiscales/bancaires ICE/NIF/NIS/RIB).
     const { data: scoped } = await supabase.rpc("clients_scoped");
-    const needle = (kw ?? "").toLowerCase();
+    const needle = (Array.isArray(kw) ? kw.join(" ") : String(kw ?? "")).toLowerCase();
     const filtered = (scoped ?? []).filter((c: any) =>
       !needle || [c.nom, c.ville, c.contact, c.telephone].some((v: any) => (v ?? "").toLowerCase().includes(needle))
     );
