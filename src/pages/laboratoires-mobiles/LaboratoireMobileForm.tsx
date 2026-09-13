@@ -24,6 +24,7 @@ import { useEchantillonsCompression } from "@/hooks/useEchantillonsCompression";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 export default function LaboratoireMobileForm() {
   const navigate = useNavigate();
@@ -333,64 +334,11 @@ export default function LaboratoireMobileForm() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Date début *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.date_debut && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date_debut ? (
-                        format(formData.date_debut, "PPP", { locale: fr })
-                      ) : (
-                        <span>Sélectionner une date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date_debut || undefined}
-                      onSelect={(date) => setFormData({ ...formData, date_debut: date || null })}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DateTextField value={formData.date_debut || undefined} onSelect={(date) => setFormData({ ...formData, date_debut: date || null })} />
               </div>
               <div className="space-y-2">
                 <Label>Date fin</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.date_fin && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date_fin ? (
-                        format(formData.date_fin, "PPP", { locale: fr })
-                      ) : (
-                        <span>Sélectionner une date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date_fin || undefined}
-                      onSelect={(date) => setFormData({ ...formData, date_fin: date || null })}
-                      disabled={(date) => formData.date_debut ? date < formData.date_debut : false}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DateTextField value={formData.date_fin || undefined} onSelect={(date) => setFormData({ ...formData, date_fin: date || null })} />
               </div>
             </div>
 
@@ -438,60 +386,11 @@ export default function LaboratoireMobileForm() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Date d'affectation</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.date_affectation && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.date_affectation
-                          ? format(formData.date_affectation, "PPP", { locale: fr })
-                          : <span>Sélectionner une date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.date_affectation || undefined}
-                        onSelect={(d) => setFormData({ ...formData, date_affectation: d || null })}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DateTextField value={formData.date_affectation || undefined} onSelect={(d) => setFormData({ ...formData, date_affectation: d || null })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Date de fin d'affectation</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.date_fin_affectation && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.date_fin_affectation
-                          ? format(formData.date_fin_affectation, "PPP", { locale: fr })
-                          : <span>Sélectionner une date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.date_fin_affectation || undefined}
-                        onSelect={(d) => setFormData({ ...formData, date_fin_affectation: d || null })}
-                        disabled={(date) => formData.date_affectation ? date < formData.date_affectation : false}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DateTextField value={formData.date_fin_affectation || undefined} onSelect={(d) => setFormData({ ...formData, date_fin_affectation: d || null })} />
                 </div>
               </div>
               <div className="space-y-2">

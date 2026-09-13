@@ -40,6 +40,7 @@ import { useIntervenants } from "@/hooks/useIntervenants";
 import { useAffectationsByChantier } from "@/hooks/useAffectations";
 import { useCurrentIntervenant } from "@/hooks/useCurrentIntervenant";
 import { useCurrentUserRole } from "@/hooks/useCurrentUserRole";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 const CONDITIONS_CURE = [
   { value: "standard", label: "Cure standard (20°C, 95% HR)" },
@@ -604,31 +605,9 @@ export default function ChantierEchantillonForm() {
             {/* Date de coulage */}
             <div className="space-y-2">
               <Label>Date de coulage <span className="text-red-500">*</span></Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-background",
-                      !dateCoulage && "text-muted-foreground",
+              <DateTextField value={dateCoulage} onSelect={setDateCoulage} className={cn(
                       showError && !dateCoulage && "animate-border-blink"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateCoulage
-                      ? format(dateCoulage, "PPP", { locale: fr })
-                      : "Sélectionner une date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateCoulage}
-                    onSelect={setDateCoulage}
-                    locale={fr}
-                  />
-                </PopoverContent>
-              </Popover>
+                    )} />
             </div>
 
             {/* Centrale à béton */}
