@@ -296,10 +296,15 @@ export default function ChantierEchantillonDataEntry() {
   const handleSave = async () => {
     if (!echantillonId) return;
 
-    if (eprouvettes.some((ep) => !ep.dateEssai)) {
-      toast.error("La date d'essai est obligatoire pour chaque éprouvette");
+    const incomplete = eprouvettes.some(
+      (ep) => !ep.dateEssai || !(ep.poids > 0) || !(ep.charge > 0)
+    );
+    if (incomplete) {
+      setShowErrors(true);
+      toast.error("Tous les champs sont obligatoires (date d'essai, poids, charge)");
       return;
     }
+    setShowErrors(false);
 
     const violations = findEcheanceViolations(eprouvettes);
     if (violations.length > 0) {
