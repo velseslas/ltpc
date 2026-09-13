@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,7 +62,7 @@ export default function VirementForm() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-2"><Label>Montant (DA) *</Label><Input type="number" value={form.montant} onChange={e => setForm(p => ({ ...p, montant: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Date virement</Label><Input type="date" value={form.date_virement} onChange={e => setForm(p => ({ ...p, date_virement: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date virement</Label><DateInput value={form.date_virement} onChange={e => setForm(p => ({ ...p, date_virement: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>Référence</Label><Input value={form.reference_virement} onChange={e => setForm(p => ({ ...p, reference_virement: e.target.value }))} /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">

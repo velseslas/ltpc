@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,8 +123,8 @@ export default function MaterielEtalonnageForm() {
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2"><Label>Date étalonnage *</Label><Input type="date" value={form.date_etalonnage} onChange={e => setForm(p => ({ ...p, date_etalonnage: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Prochain étalonnage</Label><Input type="date" value={form.date_prochain_etalonnage} onChange={e => setForm(p => ({ ...p, date_prochain_etalonnage: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date étalonnage *</Label><DateInput value={form.date_etalonnage} onChange={e => setForm(p => ({ ...p, date_etalonnage: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Prochain étalonnage</Label><DateInput value={form.date_prochain_etalonnage} onChange={e => setForm(p => ({ ...p, date_prochain_etalonnage: e.target.value }))} /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Organisme</Label><Input value={form.organisme} onChange={e => setForm(p => ({ ...p, organisme: e.target.value }))} /></div>

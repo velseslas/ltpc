@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,7 +90,7 @@ export default function EspeceForm() {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-2"><Label>Montant (DA) *</Label><Input type="number" value={form.montant} onChange={e => setForm(p => ({ ...p, montant: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Date paiement *</Label><Input type="date" value={form.date_paiement} onChange={e => setForm(p => ({ ...p, date_paiement: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date paiement *</Label><DateInput value={form.date_paiement} onChange={e => setForm(p => ({ ...p, date_paiement: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>N° Reçu</Label><Input value={form.numero_recu} onChange={e => setForm(p => ({ ...p, numero_recu: e.target.value }))} /></div>
           </div>
           <div className="grid gap-2">

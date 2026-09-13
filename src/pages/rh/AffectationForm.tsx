@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -300,9 +301,8 @@ export default function AffectationForm() {
                   <Label htmlFor="date_debut">
                     Date de début <span className="text-red-700">*</span>
                   </Label>
-                  <Input
+                  <DateInput
                     id="date_debut"
-                    type="date"
                     value={formData.date_debut}
                     onChange={(e) => setFormData(prev => ({ ...prev, date_debut: e.target.value }))}
                     className={errors.date_debut ? "border-red-700 focus-visible:ring-red-700" : ""}
@@ -316,9 +316,8 @@ export default function AffectationForm() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="date_fin">Date de fin</Label>
-                  <Input
+                  <DateInput
                     id="date_fin"
-                    type="date"
                     value={formData.date_fin}
                     onChange={(e) => setFormData(prev => ({ ...prev, date_fin: e.target.value }))}
                   />

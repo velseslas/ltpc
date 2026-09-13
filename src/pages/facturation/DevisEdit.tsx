@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -105,8 +106,8 @@ export default function DevisEdit() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2"><Label>Date émission</Label><Input type="date" value={form.date_emission} onChange={e => setForm(p => ({ ...p, date_emission: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Date validité</Label><Input type="date" value={form.date_validite} onChange={e => setForm(p => ({ ...p, date_validite: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date émission</Label><DateInput value={form.date_emission} onChange={e => setForm(p => ({ ...p, date_emission: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date validité</Label><DateInput value={form.date_validite} onChange={e => setForm(p => ({ ...p, date_validite: e.target.value }))} /></div>
           </div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4">

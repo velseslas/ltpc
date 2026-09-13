@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -391,7 +392,7 @@ const CarottageDataEntry = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label>Date de l'essai</Label>
-            <Input type="date" value={dateEssai} onChange={(e) => setDateEssai(e.target.value)} />
+            <DateInput value={dateEssai} onChange={(e) => setDateEssai(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label>Classe de béton cible</Label>

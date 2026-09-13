@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,7 +119,7 @@ export default function MaterielListeForm() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2"><Label>Date d'acquisition</Label><Input type="date" value={form.date_acquisition} onChange={e => setForm(p => ({ ...p, date_acquisition: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date d'acquisition</Label><DateInput value={form.date_acquisition} onChange={e => setForm(p => ({ ...p, date_acquisition: e.target.value }))} /></div>
             <div className="grid gap-2"><Label>Localisation</Label><Input value={form.localisation} onChange={e => setForm(p => ({ ...p, localisation: e.target.value }))} /></div>
           </div>
           <div className="grid gap-2"><Label>Quantité *</Label><Input type="number" min={1} step={1} value={form.quantite} onChange={e => setForm(p => ({ ...p, quantite: e.target.value }))} /></div>

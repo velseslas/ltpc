@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -120,8 +121,8 @@ export default function MaterielMaintenanceForm() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2"><Label>Date maintenance *</Label><Input type="date" value={form.date_maintenance} onChange={e => setForm(p => ({ ...p, date_maintenance: e.target.value }))} /></div>
-            <div className="grid gap-2"><Label>Prochaine maintenance</Label><Input type="date" value={form.date_prochaine_maintenance} onChange={e => setForm(p => ({ ...p, date_prochaine_maintenance: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Date maintenance *</Label><DateInput value={form.date_maintenance} onChange={e => setForm(p => ({ ...p, date_maintenance: e.target.value }))} /></div>
+            <div className="grid gap-2"><Label>Prochaine maintenance</Label><DateInput value={form.date_prochaine_maintenance} onChange={e => setForm(p => ({ ...p, date_prochaine_maintenance: e.target.value }))} /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2"><Label>Prestataire</Label><Input value={form.prestataire} onChange={e => setForm(p => ({ ...p, prestataire: e.target.value }))} /></div>

@@ -5,6 +5,7 @@ import * as z from "zod";
 import { Building2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -278,9 +279,8 @@ const ChantierForm = () => {
 
               <div>
                 <Label htmlFor="date_debut">Date de début <span className="text-red-700">*</span></Label>
-                <Input
+                <DateInput
                   id="date_debut"
-                  type="date"
                   {...form.register("date_debut")}
                   className={`mt-1.5 ${form.formState.errors.date_debut ? "border-red-700 focus-visible:ring-red-700" : ""}`}
                 />
@@ -294,9 +294,8 @@ const ChantierForm = () => {
 
               <div>
                 <Label htmlFor="date_fin">Date de fin</Label>
-                <Input
+                <DateInput
                   id="date_fin"
-                  type="date"
                   {...form.register("date_fin", {
                     onChange: (e) => {
                       const v = e.target.value;

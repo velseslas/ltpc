@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
@@ -421,9 +422,8 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                     <FormItem>
                       <FormLabel>Date de réception <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
-                        <Input
+                        <DateInput
                           {...field}
-                          type="date"
                           className={cn("bg-background border-border", fieldState.error && "animate-border-blink")}
                         />
                       </FormControl>
@@ -439,9 +439,8 @@ export default function EchantillonGranulatForm({ essaiType, essaiTitle, basePat
                     <FormItem>
                       <FormLabel>Date d'essai</FormLabel>
                       <FormControl>
-                        <Input
+                        <DateInput
                           {...field}
-                          type="date"
                           className="bg-background border-border"
                         />
                       </FormControl>

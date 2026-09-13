@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -211,11 +212,11 @@ export default function MaterielMaintenance() {
           </div>
           <div className="grid gap-1.5">
             <Label className="text-xs">Date maintenance (après)</Label>
-            <Input type="date" value={fDateDebut} onChange={e => setFDateDebut(e.target.value)} />
+            <DateInput value={fDateDebut} onChange={e => setFDateDebut(e.target.value)} />
           </div>
           <div className="grid gap-1.5">
             <Label className="text-xs">Date maintenance (avant)</Label>
-            <Input type="date" value={fDateFin} onChange={e => setFDateFin(e.target.value)} />
+            <DateInput value={fDateFin} onChange={e => setFDateFin(e.target.value)} />
           </div>
           <div className="md:col-span-3 flex justify-end">
             <Button variant="ghost" size="sm" onClick={handleResetFilters} className="gap-2">

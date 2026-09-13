@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Building2, Upload, Save, Loader2, Stamp } from "lucide-react";
@@ -306,9 +307,8 @@ const Entreprise = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="date_autorisation">Date d'autorisation</Label>
-                    <Input
+                    <DateInput
                       id="date_autorisation"
-                      type="date"
                       value={formData.date_autorisation}
                       onChange={(e) => handleChange("date_autorisation", e.target.value)}
                       className="bg-muted/30 border-border"

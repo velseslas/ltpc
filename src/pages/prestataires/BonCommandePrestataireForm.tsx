@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,7 +90,7 @@ export default function BonCommandePrestataireForm() {
               <div className="h-10 flex items-center px-3 rounded-md border border-input bg-muted/50 text-foreground font-medium">{montantTTC.toLocaleString()} DA</div>
             </div>
           </div>
-          <div className="grid gap-2"><Label>Date commande</Label><Input type="date" value={form.date_commande} onChange={e => setForm(p => ({ ...p, date_commande: e.target.value }))} /></div>
+          <div className="grid gap-2"><Label>Date commande</Label><DateInput value={form.date_commande} onChange={e => setForm(p => ({ ...p, date_commande: e.target.value }))} /></div>
           <div className="grid gap-2"><Label>Observations</Label><Textarea value={form.observations} onChange={e => setForm(p => ({ ...p, observations: e.target.value }))} /></div>
           <div className="flex gap-3 pt-4">
             <Button onClick={handleSubmit} disabled={createMutation.isPending}>Enregistrer</Button>

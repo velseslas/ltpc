@@ -5,6 +5,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -224,7 +225,7 @@ export default function MouvementForm() {
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <Label>Date du mouvement <span className="text-destructive">*</span></Label>
-            <Input type="date" className={emptyClass(form.date_mouvement, true)} value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
+            <DateInput className={emptyClass(form.date_mouvement, true)} value={form.date_mouvement} onChange={(e) => setForm({ ...form, date_mouvement: e.target.value })} />
           </div>
 
           {isCascade && (

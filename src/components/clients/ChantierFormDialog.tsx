@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { wilayas } from "@/data/wilayas";
 import {
@@ -169,9 +170,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
                 <Calendar className="w-4 h-4" />
                 Date de début
               </Label>
-              <Input
+              <DateInput
                 {...register("date_debut")}
-                type="date"
                 className="bg-secondary border-0 text-foreground"
               />
             </div>
@@ -180,9 +180,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
                 <Calendar className="w-4 h-4" />
                 Date de fin
               </Label>
-              <Input
+              <DateInput
                 {...register("date_fin")}
-                type="date"
                 className="bg-secondary border-0 text-foreground"
               />
             </div>
