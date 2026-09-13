@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
-import { DateInput } from "@/components/ui/date-input";
 
 function isoToFr(iso?: string | null) {
   if (!iso) return "";
