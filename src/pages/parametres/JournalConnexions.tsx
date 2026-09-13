@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -232,8 +233,7 @@ const JournalConnexions = () => {
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-2">
                       <Label>Du</Label>
-                      <Input
-                        type="date"
+                      <DateInput
                         value={dateDebut}
                         onChange={(e) => {
                           setDateDebut(e.target.value);
@@ -243,8 +243,7 @@ const JournalConnexions = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Au</Label>
-                      <Input
-                        type="date"
+                      <DateInput
                         value={dateFin}
                         onChange={(e) => {
                           setDateFin(e.target.value);

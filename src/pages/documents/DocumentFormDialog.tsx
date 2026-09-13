@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -224,7 +225,7 @@ const DocumentFormDialog = ({
             {/* Date */}
             <div>
               <Label>Date</Label>
-              <Input type="date" value={form.date_document} onChange={(e) => setForm({ ...form, date_document: e.target.value })} />
+              <DateInput value={form.date_document} onChange={(e) => setForm({ ...form, date_document: e.target.value })} />
             </div>
 
             {/* Statut */}
@@ -320,11 +321,11 @@ const DocumentFormDialog = ({
               <>
                 <div>
                   <Label>Date début</Label>
-                  <Input type="date" value={form.date_debut} onChange={(e) => setForm({ ...form, date_debut: e.target.value })} />
+                  <DateInput value={form.date_debut} onChange={(e) => setForm({ ...form, date_debut: e.target.value })} />
                 </div>
                 <div>
                   <Label>Date fin</Label>
-                  <Input type="date" value={form.date_fin} onChange={(e) => setForm({ ...form, date_fin: e.target.value })} />
+                  <DateInput value={form.date_fin} onChange={(e) => setForm({ ...form, date_fin: e.target.value })} />
                 </div>
                 <div className="col-span-3">
                   <Label className="flex items-center gap-1.5">

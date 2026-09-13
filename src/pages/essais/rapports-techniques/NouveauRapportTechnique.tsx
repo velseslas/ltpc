@@ -5,6 +5,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -376,7 +377,7 @@ export default function NouveauRapportTechnique() {
 
               <div>
                 <Label>Date du problème</Label>
-                <Input type="date" value={dateProbleme} onChange={(e) => setDateProbleme(e.target.value)} />
+                <DateInput value={dateProbleme} onChange={(e) => setDateProbleme(e.target.value)} />
               </div>
               <div>
                 <Label>Matériau concerné (facultatif)</Label>

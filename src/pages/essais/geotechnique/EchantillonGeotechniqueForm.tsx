@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Textarea } from "@/components/ui/textarea";
 
 import {
@@ -332,7 +333,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                     <FormItem>
                       <FormLabel>Date de prélèvement <span className="text-red-700">*</span></FormLabel>
                       <FormControl>
-                        <Input {...field} type="date" className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
+                        <DateInput {...field} className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
                       </FormControl>
                       <ValidationMessage show={!!fieldState.error} />
                     </FormItem>
@@ -349,7 +350,7 @@ export default function EchantillonGeotechniqueForm({ essaiType, essaiTitle, bas
                           Date d'essai <span className="text-red-700">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input {...field} type="date" className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
+                          <DateInput {...field} className={cn("bg-background border-border", fieldState.error && "animate-border-blink")} />
                         </FormControl>
                         <ValidationMessage show={!!fieldState.error} />
                       </FormItem>

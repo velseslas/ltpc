@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -249,10 +250,9 @@ const EmployeForm = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="date_naissance">Date de naissance</Label>
-                  <Input
+                  <DateInput
                     id="date_naissance"
                     name="date_naissance"
-                    type="date"
                     value={formData.date_naissance}
                     onChange={handleChange}
                     className="bg-background/50"
@@ -404,10 +404,9 @@ const EmployeForm = () => {
                     <Label htmlFor="date_embauche">
                       Date d'embauche <span className="text-red-700">*</span>
                     </Label>
-                    <Input
+                    <DateInput
                       id="date_embauche"
                       name="date_embauche"
-                      type="date"
                       value={formData.date_embauche}
                       onChange={handleChange}
                       className={`bg-background/50 ${errors.date_embauche ? "border-red-700 focus-visible:ring-red-700" : ""}`}

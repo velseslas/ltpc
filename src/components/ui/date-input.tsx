@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 
 function isoToFr(iso?: string | null) {
   if (!iso) return "";
@@ -36,7 +37,7 @@ export interface DateInputProps
 
 /**
  * Champ de date en saisie libre au format JJ/MM/AAAA.
- * Conserve l'API d'un <Input type="date" /> : value/onChange en ISO.
+ * Conserve l'API d'un <DateInput /> : value/onChange en ISO.
  */
 export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
   ({ value, onChange, placeholder = "JJ/MM/AAAA", inputMode = "numeric", ...props }, ref) => {
