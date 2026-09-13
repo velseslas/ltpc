@@ -142,6 +142,11 @@ export default function ChantierEchantillonDataEntry() {
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
   const [eprouvettes, setEprouvettes] = useState<EprouvetteData[]>([]);
   const [echeanceViolations, setEcheanceViolations] = useState<EcheanceViolation[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
+
+  /** Classe de clignotement appliquée uniquement après un clic sur Enregistrer. */
+  const blinkClass = (isEmpty: boolean) =>
+    showErrors && isEmpty ? "animate-border-blink border-destructive" : "";
 
   useEffect(() => {
     const fetchEchantillon = async () => {
@@ -291,10 +296,15 @@ export default function ChantierEchantillonDataEntry() {
   const handleSave = async () => {
     if (!echantillonId) return;
 
-    if (eprouvettes.some((ep) => !ep.dateEssai)) {
-      toast.error("La date d'essai est obligatoire pour chaque éprouvette");
+    const incomplete = eprouvettes.some(
+      (ep) => !ep.dateEssai || !(ep.poids > 0) || !(ep.charge > 0)
+    );
+    if (incomplete) {
+      setShowErrors(true);
+      toast.error("Tous les champs sont obligatoires (date d'essai, poids, charge)");
       return;
     }
+    setShowErrors(false);
 
     const violations = findEcheanceViolations(eprouvettes);
     if (violations.length > 0) {
@@ -438,11 +448,11 @@ export default function ChantierEchantillonDataEntry() {
                           type="datetime-local"
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
-                          className={`w-56 ${!ep.dateEssai ? "border-destructive" : ""}`}
+                          className={`w-56 ${blinkClass(!ep.dateEssai)}`}
                           required
                         />
                       ) : (
-                        <div className="bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium">
+                        <div className={`bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium border border-transparent ${blinkClass(!ep.dateEssai)}`}>
                           {ep.dateEssai || "--"}
                         </div>
                       )}
@@ -456,7 +466,7 @@ export default function ChantierEchantillonDataEntry() {
                         type="number"
                         value={ep.poids || ""}
                         onChange={(e) => handlePoidsChange(index, parseFloat(e.target.value) || 0)}
-                        className="w-24 text-center"
+                        className={`w-24 text-center ${blinkClass(!(ep.poids > 0))}`}
                         placeholder="0"
                       />
                     </td>
@@ -470,7 +480,7 @@ export default function ChantierEchantillonDataEntry() {
                         type="number"
                         value={ep.charge || ""}
                         onChange={(e) => handleChargeChange(index, parseFloat(e.target.value) || 0)}
-                        className="w-24 text-center"
+                        className={`w-24 text-center ${blinkClass(!(ep.charge > 0))}`}
                         placeholder="0"
                         step="0.1"
                       />
