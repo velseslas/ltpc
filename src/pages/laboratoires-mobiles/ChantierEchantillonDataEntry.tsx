@@ -480,7 +480,7 @@ export default function ChantierEchantillonDataEntry() {
                         type="number"
                         value={ep.charge || ""}
                         onChange={(e) => handleChargeChange(index, parseFloat(e.target.value) || 0)}
-                        className="w-24 text-center"
+                        className={`w-24 text-center ${blinkClass(!(ep.charge > 0))}`}
                         placeholder="0"
                         step="0.1"
                       />
