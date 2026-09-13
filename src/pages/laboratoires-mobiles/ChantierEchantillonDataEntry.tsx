@@ -448,11 +448,11 @@ export default function ChantierEchantillonDataEntry() {
                           type="datetime-local"
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
-                          className={`w-56 ${!ep.dateEssai ? "border-destructive" : ""}`}
+                          className={`w-56 ${blinkClass(!ep.dateEssai)}`}
                           required
                         />
                       ) : (
-                        <div className="bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium">
+                        <div className={`bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium border border-transparent ${blinkClass(!ep.dateEssai)}`}>
                           {ep.dateEssai || "--"}
                         </div>
                       )}
