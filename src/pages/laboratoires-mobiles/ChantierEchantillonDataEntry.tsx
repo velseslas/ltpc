@@ -466,7 +466,7 @@ export default function ChantierEchantillonDataEntry() {
                         type="number"
                         value={ep.poids || ""}
                         onChange={(e) => handlePoidsChange(index, parseFloat(e.target.value) || 0)}
-                        className="w-24 text-center"
+                        className={`w-24 text-center ${blinkClass(!(ep.poids > 0))}`}
                         placeholder="0"
                       />
                     </td>
