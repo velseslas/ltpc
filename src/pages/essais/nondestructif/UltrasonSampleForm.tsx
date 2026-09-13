@@ -19,6 +19,7 @@ import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 const MENTIONS = [
   "Essai effectué en présence du bureau de suivi",
@@ -176,15 +177,7 @@ const UltrasonSampleForm = () => {
           </div>
           <div className="space-y-2">
             <Label>Date de l'essai <span className="text-red-700">*</span></Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateEssai && "text-muted-foreground", submitted && !dateEssai && "border-red-700")}>
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(dateEssai, "PPP", { locale: fr })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={dateEssai} onSelect={(d) => d && setDateEssai(d)} locale={fr} /></PopoverContent>
-            </Popover>
+            <DateTextField value={dateEssai} onSelect={(d) => d && setDateEssai(d)} className={cn(submitted && !dateEssai && "border-red-700")} />
             <ValidationMessage show={submitted && !dateEssai} message="Ce champ est obligatoire" />
           </div>
         </div>

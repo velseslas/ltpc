@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 const CONDITIONS_CURE = [
   { value: "standard", label: "Cure standard (20°C, 95% HR)" },
@@ -469,30 +470,9 @@ const TractionFendageSampleForm = () => {
             {/* Date de coulage */}
             <div className="space-y-2">
               <Label>Date de coulage <span className="text-red-700">*</span></Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !dateCoulage && "text-muted-foreground",
+              <DateTextField value={dateCoulage} onSelect={setDateCoulage} className={cn(
                       submitted && !dateCoulage && "border-red-700"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateCoulage ? format(dateCoulage, "PPP", { locale: fr }) : "Sélectionner une date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateCoulage}
-                    onSelect={setDateCoulage}
-                    initialFocus
-                    locale={fr}
-                  />
-                </PopoverContent>
-              </Popover>
+                    )} />
               <ValidationMessage show={submitted && !dateCoulage} message="Ce champ est obligatoire" />
             </div>
           </CardContent>

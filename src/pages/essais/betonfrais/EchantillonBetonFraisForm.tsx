@@ -53,6 +53,7 @@ import {
 } from "@/hooks/useEchantillonsBetonFraisFactory";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { mergeDuplicateData } from "@/lib/duplicate-utils";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 const CLASSES_RESISTANCE = [
   "C12/15", "C16/20", "C20/25", "C25/30", "C30/37", "C35/45",
@@ -653,35 +654,9 @@ export default function EchantillonBetonFraisForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date de prélèvement <span className="text-red-700">*</span></FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
+                    <DateTextField value={field.value ? new Date(field.value) : undefined} onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")} className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(new Date(field.value), "dd/MM/yyyy", { locale: fr })
-                            ) : (
-                              <span>Sélectionner une date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
-                          locale={fr}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                              )} />
                     <FormMessage />
                   </FormItem>
                 )}

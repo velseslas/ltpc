@@ -24,6 +24,7 @@ import { useEchantillonsPermeabilite } from "@/hooks/useEchantillonsPermeabilite
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { ZoomableReport } from "@/components/ui/zoomable-report";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 const ESSAI_TYPES: Record<string, { label: string; prefix: string }> = {
   "compression": { label: "Compression", prefix: "EC" },
@@ -195,32 +196,12 @@ export default function EtatEssaisBetonDurci() {
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted-foreground">Période de</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateDebut && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateDebut ? format(dateDebut, "dd/MM/yyyy") : "Début"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={dateDebut} onSelect={setDateDebut} initialFocus className="p-3 pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
+              <DateTextField value={dateDebut} onSelect={setDateDebut} />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted-foreground">À</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateFin && "text-muted-foreground")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateFin ? format(dateFin, "dd/MM/yyyy") : "Fin"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={dateFin} onSelect={setDateFin} initialFocus className="p-3 pointer-events-auto" />
-                </PopoverContent>
-              </Popover>
+              <DateTextField value={dateFin} onSelect={setDateFin} />
             </div>
 
             <div className="space-y-1.5">

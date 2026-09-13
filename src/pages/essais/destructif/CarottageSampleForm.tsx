@@ -22,6 +22,7 @@ import { useTechnicianOperateurLock } from "@/hooks/useTechnicianOperateurLock";
 import { useDuplicateSource } from "@/hooks/useDuplicateEssai";
 import { toast } from "sonner";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
+import { DateTextField } from "@/components/ui/date-text-field";
 
 const DIAMETRES = [
   { value: "50", label: "Ø 50 mm" },
@@ -206,15 +207,7 @@ const CarottageSampleForm = () => {
             </div>
             <div className="space-y-2">
               <Label>Date de prélèvement <span className="text-red-700">*</span></Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !datePrelevement && "text-muted-foreground", submitted && !datePrelevement && "border-red-700")}>
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {datePrelevement ? format(datePrelevement, "dd/MM/yyyy", { locale: fr }) : "Choisir une date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={datePrelevement} onSelect={(d) => d && setDatePrelevement(d)} locale={fr} /></PopoverContent>
-              </Popover>
+              <DateTextField value={datePrelevement} onSelect={(d) => d && setDatePrelevement(d)} className={cn(submitted && !datePrelevement && "border-red-700")} />
               <ValidationMessage show={submitted && !datePrelevement} message="Ce champ est obligatoire" />
             </div>
             <div className="space-y-2">
