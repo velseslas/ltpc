@@ -142,6 +142,11 @@ export default function ChantierEchantillonDataEntry() {
   const [echantillon, setEchantillon] = useState<EchantillonData | null>(null);
   const [eprouvettes, setEprouvettes] = useState<EprouvetteData[]>([]);
   const [echeanceViolations, setEcheanceViolations] = useState<EcheanceViolation[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
+
+  /** Classe de clignotement appliquée uniquement après un clic sur Enregistrer. */
+  const blinkClass = (isEmpty: boolean) =>
+    showErrors && isEmpty ? "animate-border-blink border-destructive" : "";
 
   useEffect(() => {
     const fetchEchantillon = async () => {
