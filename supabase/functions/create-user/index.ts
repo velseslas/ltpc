@@ -89,16 +89,17 @@ Deno.serve(async (req) => {
     });
 
     if (authError) {
-      if (authError.message.includes("already been registered")) {
-        const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-        if (listError) {
+      if (authError.message.includes("already been registered") || (authError as any)?.code === "email_exists") {
+        let existingUser: any = null;
+        try {
+          existingUser = await findAuthUserByEmail(supabaseAdmin, email);
+        } catch (listError) {
           console.error("create-user listUsers error:", listError);
           return new Response(
             JSON.stringify({ error: "Erreur interne du serveur" }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        const existingUser = users.find((u: any) => u.email === email);
         if (!existingUser) {
           return new Response(
             JSON.stringify({ error: "Utilisateur introuvable" }),
