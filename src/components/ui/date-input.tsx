@@ -40,6 +40,7 @@ export interface DateInputProps
  */
 export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
   ({ value, onChange, placeholder = "JJ/MM/AAAA", inputMode = "numeric", ...props }, ref) => {
+    const name = (props as { name?: string }).name ?? "";
     const [text, setText] = React.useState(() => isoToFr(value));
     const lastEmitted = React.useRef<string>(value ? String(value).slice(0, 10) : "");
 
