@@ -49,6 +49,7 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<ChantierFormData>({
