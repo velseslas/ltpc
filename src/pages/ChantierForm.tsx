@@ -282,6 +282,8 @@ const ChantierForm = () => {
                 <DateInput
                   id="date_debut"
                   {...form.register("date_debut")}
+                  value={form.watch("date_debut") || ""}
+                  onChange={(e) => form.setValue("date_debut", e.target.value, { shouldDirty: true, shouldValidate: true })}
                   className={`mt-1.5 ${form.formState.errors.date_debut ? "border-red-700 focus-visible:ring-red-700" : ""}`}
                 />
                 {form.formState.errors.date_debut && (
