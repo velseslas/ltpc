@@ -5,6 +5,24 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+/** Recherche un utilisateur auth par email en paginant toutes les pages. */
+async function findAuthUserByEmail(supabaseAdmin: any, email: string) {
+  const target = (email ?? "").trim().toLowerCase();
+  if (!target) return null;
+  const perPage = 1000;
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+    const users = data?.users ?? [];
+    const match = users.find(
+      (u: any) => (u.email ?? "").trim().toLowerCase() === target
+    );
+    if (match) return match;
+    if (users.length < perPage) return null;
+  }
+  return null;
+}
+
 async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any; isSuperAdmin: boolean }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
