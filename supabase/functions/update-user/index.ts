@@ -102,15 +102,16 @@ Deno.serve(async (req) => {
 
     if (password && password.length >= 6) {
       if (!authUserId) {
-        const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-        if (listError) {
+        let existingUser: any = null;
+        try {
+          existingUser = await findAuthUserByEmail(supabaseAdmin, util.email);
+        } catch (listError) {
           console.error("update-user listUsers error:", listError);
           return new Response(
             JSON.stringify({ error: "Erreur interne du serveur" }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        const existingUser = users.find((u: any) => u.email === util.email);
         if (existingUser) {
           authUserId = existingUser.id;
         } else {
@@ -121,13 +122,35 @@ Deno.serve(async (req) => {
             user_metadata: { nom: util.email },
           });
           if (authError || !authData?.user) {
-            if (authError) console.error("update-user createUser error:", authError);
-            return new Response(
-              JSON.stringify({ error: "Création auth échouée" }),
-              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-            );
+            // L'email existe déjà côté auth : on relie le compte existant au lieu d'échouer.
+            const code = (authError as any)?.code;
+            const msg = (authError as any)?.message ?? "";
+            if (code === "email_exists" || msg.includes("already been registered")) {
+              let linked: any = null;
+              try {
+                linked = await findAuthUserByEmail(supabaseAdmin, util.email);
+              } catch (_e) {
+                linked = null;
+              }
+              if (linked) {
+                authUserId = linked.id;
+              } else {
+                console.error("update-user createUser error (unresolved email_exists):", authError);
+                return new Response(
+                  JSON.stringify({ error: "Compte de connexion existant introuvable" }),
+                  { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                );
+              }
+            } else {
+              if (authError) console.error("update-user createUser error:", authError);
+              return new Response(
+                JSON.stringify({ error: "Création auth échouée" }),
+                { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              );
+            }
+          } else {
+            authUserId = authData.user.id;
           }
-          authUserId = authData.user.id;
         }
       }
 
