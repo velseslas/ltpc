@@ -5,6 +5,24 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+/** Recherche un utilisateur auth par email en paginant toutes les pages. */
+async function findAuthUserByEmail(supabaseAdmin: any, email: string) {
+  const target = (email ?? "").trim().toLowerCase();
+  if (!target) return null;
+  const perPage = 1000;
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+    const users = data?.users ?? [];
+    const match = users.find(
+      (u: any) => (u.email ?? "").trim().toLowerCase() === target
+    );
+    if (match) return match;
+    if (users.length < perPage) return null;
+  }
+  return null;
+}
+
 async function requireAdmin(req: Request): Promise<{ error: Response } | { supabaseAdmin: any; isSuperAdmin: boolean }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -89,16 +107,17 @@ Deno.serve(async (req) => {
     });
 
     if (authError) {
-      if (authError.message.includes("already been registered")) {
-        const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-        if (listError) {
+      if (authError.message.includes("already been registered") || (authError as any)?.code === "email_exists") {
+        let existingUser: any = null;
+        try {
+          existingUser = await findAuthUserByEmail(supabaseAdmin, email);
+        } catch (listError) {
           console.error("create-user listUsers error:", listError);
           return new Response(
             JSON.stringify({ error: "Erreur interne du serveur" }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        const existingUser = users.find((u: any) => u.email === email);
         if (!existingUser) {
           return new Response(
             JSON.stringify({ error: "Utilisateur introuvable" }),

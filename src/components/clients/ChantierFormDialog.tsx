@@ -49,6 +49,7 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<ChantierFormData>({
@@ -172,6 +173,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
               </Label>
               <DateInput
                 {...register("date_debut")}
+                value={watch("date_debut") || ""}
+                onChange={(e) => setValue("date_debut", e.target.value, { shouldDirty: true })}
                 className="bg-secondary border-0 text-foreground"
               />
             </div>
@@ -182,6 +185,8 @@ export function ChantierFormDialog({ open, onOpenChange, clientId }: ChantierFor
               </Label>
               <DateInput
                 {...register("date_fin")}
+                value={watch("date_fin") || ""}
+                onChange={(e) => setValue("date_fin", e.target.value, { shouldDirty: true })}
                 className="bg-secondary border-0 text-foreground"
               />
             </div>

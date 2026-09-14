@@ -31,7 +31,7 @@ export interface DateInputProps
   /** Valeur ISO "YYYY-MM-DD" */
   value?: string | null;
   /** Reçoit un événement dont target.value est la valeur ISO ("" si incomplet) */
-  onChange?: (e: { target: { value: string } }) => void;
+  onChange?: (e: { target: { name: string; value: string } }) => void;
 }
 
 /**
@@ -40,6 +40,7 @@ export interface DateInputProps
  */
 export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
   ({ value, onChange, placeholder = "JJ/MM/AAAA", inputMode = "numeric", ...props }, ref) => {
+    const name = (props as { name?: string }).name ?? "";
     const [text, setText] = React.useState(() => isoToFr(value));
     const lastEmitted = React.useRef<string>(value ? String(value).slice(0, 10) : "");
 
@@ -58,7 +59,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
       const next = masked === "" ? "" : iso;
       if (next !== lastEmitted.current && (next !== "" || masked === "")) {
         lastEmitted.current = next;
-        onChange?.({ target: { value: next } });
+        onChange?.({ target: { name, value: next } });
       }
     };
 
