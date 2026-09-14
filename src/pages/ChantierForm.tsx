@@ -298,15 +298,16 @@ const ChantierForm = () => {
                 <Label htmlFor="date_fin">Date de fin</Label>
                 <DateInput
                   id="date_fin"
-                  {...form.register("date_fin", {
-                    onChange: (e) => {
-                      const v = e.target.value;
-                      if (v) {
-                        const today = new Date().toISOString().slice(0, 10);
-                        form.setValue("statut", v <= today ? "termine" : "planifie", { shouldDirty: true });
-                      }
-                    },
-                  })}
+                  {...form.register("date_fin")}
+                  value={form.watch("date_fin") || ""}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    form.setValue("date_fin", v, { shouldDirty: true });
+                    if (v) {
+                      const today = new Date().toISOString().slice(0, 10);
+                      form.setValue("statut", v <= today ? "termine" : "planifie", { shouldDirty: true });
+                    }
+                  }}
                   className="mt-1.5"
                 />
               </div>
