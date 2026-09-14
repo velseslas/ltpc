@@ -59,7 +59,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
       const next = masked === "" ? "" : iso;
       if (next !== lastEmitted.current && (next !== "" || masked === "")) {
         lastEmitted.current = next;
-        onChange?.({ target: { value: next } });
+        onChange?.({ target: { name, value: next } });
       }
     };
 
