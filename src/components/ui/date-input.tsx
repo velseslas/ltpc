@@ -31,7 +31,7 @@ export interface DateInputProps
   /** Valeur ISO "YYYY-MM-DD" */
   value?: string | null;
   /** Reçoit un événement dont target.value est la valeur ISO ("" si incomplet) */
-  onChange?: (e: { target: { value: string } }) => void;
+  onChange?: (e: { target: { name: string; value: string } }) => void;
 }
 
 /**
