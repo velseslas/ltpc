@@ -452,11 +452,11 @@ export default function ChantierEchantillonDataEntry() {
                           type="datetime-local"
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
-                          className={`w-56 ${blinkClass(!ep.dateEssai)}`}
+                          className={`w-56 ${blinkClass(!ep.dateEssai, isEcheanceAtteinte(ep))}`}
                           required
                         />
                       ) : (
-                        <div className={`bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium border border-transparent ${blinkClass(!ep.dateEssai)}`}>
+                        <div className={`bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium border border-transparent ${blinkClass(!ep.dateEssai, isEcheanceAtteinte(ep))}`}>
                           {ep.dateEssai || "--"}
                         </div>
                       )}
@@ -470,7 +470,7 @@ export default function ChantierEchantillonDataEntry() {
                         type="number"
                         value={ep.poids || ""}
                         onChange={(e) => handlePoidsChange(index, parseFloat(e.target.value) || 0)}
-                        className={`w-24 text-center ${blinkClass(!(ep.poids > 0))}`}
+                        className={`w-24 text-center ${blinkClass(!(ep.poids > 0), isEcheanceAtteinte(ep))}`}
                         placeholder="0"
                       />
                     </td>
@@ -484,7 +484,7 @@ export default function ChantierEchantillonDataEntry() {
                         type="number"
                         value={ep.charge || ""}
                         onChange={(e) => handleChargeChange(index, parseFloat(e.target.value) || 0)}
-                        className={`w-24 text-center ${blinkClass(!(ep.charge > 0))}`}
+                        className={`w-24 text-center ${blinkClass(!(ep.charge > 0), isEcheanceAtteinte(ep))}`}
                         placeholder="0"
                         step="0.1"
                       />
