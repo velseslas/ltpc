@@ -722,6 +722,14 @@ export default function ChantierEchantillonReport() {
             font-weight: 400 !important;
           }
           [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
+          /* Le contenu occupe la feuille : le pied de page est collé en bas,
+             sans vide inutile sous le tableau. */
+          [data-ref="report"] {
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100vh !important;
+          }
+          [data-ref="report"] [data-report-footer] { margin-top: auto !important; }
         }
       `}</style>
     </div>
