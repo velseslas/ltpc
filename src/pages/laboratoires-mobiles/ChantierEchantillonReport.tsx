@@ -630,7 +630,7 @@ export default function ChantierEchantillonReport() {
                 });
               })() : (
                 <tr>
-                  <td colSpan={9} className="border border-black px-2 py-4 text-center text-sm text-black">
+                  <td colSpan={10} className="border border-black px-2 py-4 text-center text-sm text-black">
                     Aucune donnée saisie
                   </td>
                 </tr>
