@@ -301,11 +301,11 @@ export default function ChantierEchantillonDataEntry() {
     if (!echantillonId) return;
 
     const incomplete = eprouvettes.some(
-      (ep) => !ep.dateEssai || !(ep.poids > 0) || !(ep.charge > 0)
+      (ep) => isEcheanceAtteinte(ep) && (!ep.dateEssai || !(ep.poids > 0) || !(ep.charge > 0))
     );
     if (incomplete) {
       setShowErrors(true);
-      toast.error("Tous les champs sont obligatoires (date d'essai, poids, charge)");
+      toast.error("Les éprouvettes échues doivent être complétées (date d'essai, poids, charge)");
       return;
     }
     setShowErrors(false);
