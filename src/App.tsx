@@ -57,6 +57,17 @@ const queryClient = new QueryClient({
     onSuccess: () => {
       queryClient.invalidateQueries({ type: "active" });
     },
+    onError: (error) => {
+      if (isSessionExpiredError(error)) void handleSessionExpired();
+    },
+  }),
+  // Session expirée / refresh impossible : au lieu de laisser des écrans
+  // vides avec "permission denied", on rafraîchit une fois puis on renvoie
+  // l'utilisateur vers la page de connexion.
+  queryCache: new QueryCache({
+    onError: (error) => {
+      if (isSessionExpiredError(error)) void handleSessionExpired();
+    },
   }),
   defaultOptions: {
     queries: {
