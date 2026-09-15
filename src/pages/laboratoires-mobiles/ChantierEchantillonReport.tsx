@@ -549,6 +549,7 @@ export default function ChantierEchantillonReport() {
           <table className="w-full border-collapse border border-black">
             <thead>
               <tr>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">N°</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date d'essai</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Échéance</th>
@@ -576,6 +577,9 @@ export default function ChantierEchantillonReport() {
 
                     return (
                       <tr key={`${group.key}-${ep.numero}`}>
+                        <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">
+                          EP{ep.numero ?? globalRowIndex}
+                        </td>
                         {isVeryFirstRow && (
                           <td 
                             rowSpan={totalRows} 
@@ -626,7 +630,7 @@ export default function ChantierEchantillonReport() {
                 });
               })() : (
                 <tr>
-                  <td colSpan={9} className="border border-black px-2 py-4 text-center text-sm text-black">
+                  <td colSpan={10} className="border border-black px-2 py-4 text-center text-sm text-black">
                     Aucune donnée saisie
                   </td>
                 </tr>
