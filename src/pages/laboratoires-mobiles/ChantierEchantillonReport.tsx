@@ -722,24 +722,6 @@ export default function ChantierEchantillonReport() {
             font-weight: 400 !important;
           }
           [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
-          /* Occupe toute la hauteur utile de la feuille : le tableau des
-             résultats absorbe l'espace restant, le pied de page reste en bas. */
-          [data-ref="report"] {
-            display: flex !important;
-            flex-direction: column !important;
-            height: 100vh !important;
-          }
-          [data-ref="report"] [data-report-fill] {
-            flex: 1 1 auto !important;
-            display: flex !important;
-            flex-direction: column !important;
-            min-height: 0 !important;
-          }
-          [data-ref="report"] [data-report-fill] > table {
-            flex: 1 1 auto !important;
-            height: 100% !important;
-          }
-          [data-ref="report"] [data-report-footer] { margin-top: auto !important; }
         }
       `}</style>
     </div>
