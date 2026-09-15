@@ -2,7 +2,8 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { MutationCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { isSessionExpiredError, handleSessionExpired } from "@/lib/auth/sessionGuard";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { PermissionProvider } from "@/hooks/usePermissionContext";
@@ -55,6 +56,17 @@ const queryClient = new QueryClient({
   mutationCache: new MutationCache({
     onSuccess: () => {
       queryClient.invalidateQueries({ type: "active" });
+    },
+    onError: (error) => {
+      if (isSessionExpiredError(error)) void handleSessionExpired();
+    },
+  }),
+  // Session expirée / refresh impossible : au lieu de laisser des écrans
+  // vides avec "permission denied", on rafraîchit une fois puis on renvoie
+  // l'utilisateur vers la page de connexion.
+  queryCache: new QueryCache({
+    onError: (error) => {
+      if (isSessionExpiredError(error)) void handleSessionExpired();
     },
   }),
   defaultOptions: {
