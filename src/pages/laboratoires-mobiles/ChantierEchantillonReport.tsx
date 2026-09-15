@@ -645,7 +645,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Pied de page */}
-        <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0">
+        <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0" data-report-footer>
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
