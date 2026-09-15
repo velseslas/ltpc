@@ -544,7 +544,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Résultats des essais */}
-        <div className="mb-1 print:mb-0">
+        <div className="mb-1 print:mb-0" data-report-fill>
           <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
           <table className="w-full border-collapse border border-black">
             <thead>
@@ -645,7 +645,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Pied de page */}
-        <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0">
+        <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0" data-report-footer>
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
               <p>Le Technicien: {echantillon.operateur_nom}</p>
@@ -722,6 +722,24 @@ export default function ChantierEchantillonReport() {
             font-weight: 400 !important;
           }
           [data-ref="report"] h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
+          /* Le contenu occupe la feuille : le pied de page est collé en bas,
+             sans vide inutile sous le tableau. */
+          /* Remplissage de la feuille A4 : le tableau des resultats absorbe
+             l'espace restant et le pied de page reste en bas. */
+          [data-ref="report"] {
+            display: flex !important;
+            flex-direction: column !important;
+            height: 277mm !important;
+            max-height: 277mm !important;
+          }
+          [data-ref="report"] [data-report-fill] {
+            flex: 1 1 auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 0 !important;
+          }
+          [data-ref="report"] [data-report-fill] > table { flex: 0 0 auto !important; }
+          [data-ref="report"] [data-report-footer] { margin-top: auto !important; }
         }
       `}</style>
     </div>

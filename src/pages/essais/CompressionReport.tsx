@@ -812,16 +812,20 @@ const CompressionReport = () => {
         }
         [data-ref="report"] [data-pdf-content] > * { margin: 0 !important; }
         [data-ref="report"] [data-report-fill] {
-          flex: 0 0 auto;
+          flex: 1 1 auto;
           display: flex;
           flex-direction: column;
           min-height: 0;
         }
+        /* Le tableau des résultats absorbe l'espace restant de la page :
+           les lignes s'étirent au lieu de laisser un grand vide en bas. */
         [data-ref="report"] [data-report-fill] > table {
-          flex: 0 0 auto;
+          flex: 1 1 auto;
+          height: 100%;
         }
+        [data-ref="report"] [data-report-fill] > table tbody tr { height: auto; }
         [data-ref="report"] [data-report-footer] {
-          margin-top: 1mm !important;
+          margin-top: auto !important;
           padding-top: 0 !important;
         }
 
