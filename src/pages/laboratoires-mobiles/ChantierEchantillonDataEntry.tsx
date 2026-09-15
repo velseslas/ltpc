@@ -144,9 +144,13 @@ export default function ChantierEchantillonDataEntry() {
   const [echeanceViolations, setEcheanceViolations] = useState<EcheanceViolation[]>([]);
   const [showErrors, setShowErrors] = useState(false);
 
+  /** Une éprouvette n'est obligatoire qu'une fois son échéance atteinte (ou dépassée). */
+  const isEcheanceAtteinte = (ep: EprouvetteData) =>
+    ep.echeanceISO ? new Date(ep.echeanceISO).getTime() <= Date.now() : false;
+
   /** Classe de clignotement appliquée uniquement après un clic sur Enregistrer. */
-  const blinkClass = (isEmpty: boolean) =>
-    showErrors && isEmpty ? "animate-border-blink border-destructive" : "";
+  const blinkClass = (isEmpty: boolean, required = true) =>
+    showErrors && required && isEmpty ? "animate-border-blink border-destructive" : "";
 
   useEffect(() => {
     const fetchEchantillon = async () => {
