@@ -577,6 +577,9 @@ export default function ChantierEchantillonReport() {
 
                     return (
                       <tr key={`${group.key}-${ep.numero}`}>
+                        <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">
+                          EP{ep.numero ?? globalRowIndex}
+                        </td>
                         {isVeryFirstRow && (
                           <td 
                             rowSpan={totalRows} 
