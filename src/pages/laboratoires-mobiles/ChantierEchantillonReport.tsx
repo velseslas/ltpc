@@ -727,7 +727,7 @@ export default function ChantierEchantillonReport() {
           [data-ref="report"] {
             display: flex !important;
             flex-direction: column !important;
-            height: 100% !important;
+            height: 100vh !important;
           }
           [data-ref="report"] [data-report-fill] {
             flex: 1 1 auto !important;
