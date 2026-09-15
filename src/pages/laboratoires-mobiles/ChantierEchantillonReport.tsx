@@ -549,6 +549,7 @@ export default function ChantierEchantillonReport() {
           <table className="w-full border-collapse border border-black">
             <thead>
               <tr>
+                <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">N°</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date coulage</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Date d'essai</th>
                 <th className="border border-black px-2 py-2 text-center font-medium text-sm text-black">Échéance</th>
