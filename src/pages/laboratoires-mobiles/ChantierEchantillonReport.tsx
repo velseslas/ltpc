@@ -544,7 +544,7 @@ export default function ChantierEchantillonReport() {
         </div>
 
         {/* Résultats des essais */}
-        <div className="mb-1 print:mb-0">
+        <div className="mb-1 print:mb-0" data-report-fill>
           <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
           <table className="w-full border-collapse border border-black">
             <thead>
