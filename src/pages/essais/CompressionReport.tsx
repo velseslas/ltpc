@@ -734,7 +734,7 @@ const CompressionReport = () => {
           <div data-report-footer className="mt-0 pt-0 print:mt-0 print:pt-0">
             <div className="flex justify-between items-end">
               <div className="text-sm text-black">
-                <p>Le Technicien: {echantillon.operateur_nom}</p>
+                <p>Chargé de l'essai: {echantillon.operateur_nom}</p>
                 {echantillon.operateur_signature_url && (
                   <div className="mt-2">
                     <img 
