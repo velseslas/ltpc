@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer, Loader2 } from "lucide-react";
 import ShareButton from "@/components/reports/ShareButton";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveClientNom } from "@/lib/clients/clientName";
 import { useEntreprise } from "@/hooks/useEntreprise";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -218,7 +219,7 @@ export default function ChantierEchantillonReport() {
           id: data.id,
           numero: data.numero,
           numero_chantier: data.numero_chantier || data.numero,
-          client_nom: data.clients?.nom || "-",
+          client_nom: data.clients?.nom || (await resolveClientNom((data as any).client_id)) || "-",
           chantier_nom: data.chantiers?.nom || "-",
           ouvrage: data.ouvrage || "-",
           destination_beton: data.destination_beton || "-",

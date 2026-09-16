@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveClientNom } from "@/lib/clients/clientName";
 import { format, addDays, addHours } from "date-fns";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
 import { fr } from "date-fns/locale";
@@ -212,7 +213,7 @@ export default function ChantierEchantillonDataEntry() {
           id: data.id,
           numero: data.numero,
           numero_chantier: (data as any).numero_chantier || data.numero,
-          client_nom: data.clients?.nom || "-",
+          client_nom: data.clients?.nom || (await resolveClientNom((data as any).client_id)) || "-",
           chantier_nom: data.chantiers?.nom || "-",
           ouvrage: (data as any).ouvrage || "-",
           destination_beton: data.destination_beton || "-",
