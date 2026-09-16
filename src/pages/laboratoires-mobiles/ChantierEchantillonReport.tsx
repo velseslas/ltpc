@@ -649,7 +649,7 @@ export default function ChantierEchantillonReport() {
         <div className="mt-0 pt-0 border-t border-gray-300 print:mt-0 print:pt-0" data-report-footer>
           <div className="flex justify-between items-end">
             <div className="text-sm text-black">
-              <p>Le Technicien: {echantillon.operateur_nom}</p>
+              <p>Chargé de l'essai: {echantillon.operateur_nom}</p>
               {echantillon.operateur_signature_url && (
                 <div className="mt-2">
                   <img 
