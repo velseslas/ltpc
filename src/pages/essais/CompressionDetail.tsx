@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Pencil, FileBarChart, ClipboardList, ClipboardEdit, Loader2, Calendar, MapPin, User, Building, Thermometer, Beaker } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveClientNom } from "@/lib/clients/clientName";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { EssaiBreadcrumb } from "@/components/essais/EssaiBreadcrumb";
@@ -100,7 +101,7 @@ const CompressionDetail = () => {
         setEchantillon({
           id: data.id,
           numero: data.numero,
-          client_nom: data.clients?.nom || "-",
+          client_nom: data.clients?.nom || (await resolveClientNom((data as any).client_id)) || "-",
           chantier_nom: data.chantiers?.nom || "-",
           ouvrage: data.ouvrage || "-",
           destination_beton: data.destination_beton || "-",
