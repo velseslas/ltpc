@@ -111,14 +111,20 @@ function useAllFormulationsWithDetails() {
       const cimenterieMap = new Map((cimenteries.data || []).map((c: any) => [c.id, c.nom]));
       const sourceEauMap = new Map((sourcesEau.data || []).map((c: any) => [c.id, c.nom]));
       const adjuvantMap = new Map((adjuvants.data || []).map((c: any) => [c.id, c.nom]));
-      const clientMap = new Map(clientRows.map((c: any) => [c.id, c.nom]));
+      const clientMap = new Map(
+        [...clientRows, ...(((clients as any).data || []) as any[])].map((c: any) => [c.id, c.nom])
+      );
       const chantierMap = new Map(((chantiers as any).data || []).map((c: any) => [c.id, c.nom]));
 
-      return data.map((f: any) => ({
+      return data.map((f: any) => {
+        const lien = liaisonByCentrale.get(f.centrale_id);
+        const clientId = f.client_id || lien?.client_id || null;
+        const chantierId = f.chantier_id || lien?.chantier_id || null;
+        return {
         ...f,
         centrale_nom: centraleMap.get(f.centrale_id) || "Centrale inconnue",
-        client_nom: clientMap.get(f.client_id) || null,
-        chantier_nom: chantierMap.get(f.chantier_id) || null,
+        client_nom: (clientId ? clientMap.get(clientId) : null) || null,
+        chantier_nom: (chantierId ? chantierMap.get(chantierId) : null) || null,
         details: {
           ciment: { producteur: cimenterieMap.get(f.ciment_producteur_id) || null, produit: produitMap.get(f.ciment_produit_id) || null },
           eau: { producteur: sourceEauMap.get(f.eau_producteur_id) || null, produit: produitMap.get(f.eau_produit_id) || null },
