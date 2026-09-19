@@ -143,8 +143,12 @@ const FormulationBeton = () => {
   };
 
   const filtered = formulations.filter((f: any) => {
-    const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
-      f.centrale_nom.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch =
+      (f.nom || "").toLowerCase().includes(q) ||
+      (f.centrale_nom || "").toLowerCase().includes(q) ||
+      (f.client_nom || "").toLowerCase().includes(q) ||
+      (f.chantier_nom || "").toLowerCase().includes(q);
     const matchCentrale = selectedCentrale === "all" || f.centrale_id === selectedCentrale;
     return matchSearch && matchCentrale;
   });
