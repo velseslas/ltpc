@@ -503,26 +503,23 @@ const CompressionReport = () => {
                   <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Chantier</td>
                   <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.chantier_nom}</td>
                 </tr>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Ouvrage</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.ouvrage || "—"}</td>
+                </tr>
+                <tr>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Partie de l'ouvrage</td>
+                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.destination_beton || "—"}</td>
+                </tr>
                 {echantillon.essai_convenance && (
                   <tr>
                     <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Essai de convenance</td>
                     <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">
-                      {echantillon.essai_convenance_details || "-"}
+                      {echantillon.essai_convenance_details || "Oui"}
                     </td>
                   </tr>
                 )}
-                {!echantillon.essai_convenance && (
-                  <>
-                    <tr>
-                      <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Ouvrage</td>
-                      <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.ouvrage}</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Partie de l'ouvrage</td>
-                      <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.destination_beton}</td>
-                    </tr>
-                  </>
-                )}
+
                 <tr>
                   <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
                   <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
