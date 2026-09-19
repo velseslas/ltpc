@@ -135,7 +135,8 @@ function useAllFormulationsWithDetails() {
           gravier2: { producteur: carriereMap.get(f.gravier2_producteur_id) || null, produit: produitMap.get(f.gravier2_produit_id) || null },
           gravier3: { producteur: carriereMap.get(f.gravier3_producteur_id) || null, produit: produitMap.get(f.gravier3_produit_id) || null },
         },
-      }));
+      };
+      });
     },
   });
 }
