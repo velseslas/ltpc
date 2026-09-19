@@ -539,33 +539,38 @@ export default function FormulationReport() {
     <div className="space-y-6">
       <EssaiBreadcrumb items={breadcrumbItems} />
 
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate(-1)}
-            className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            className="shrink-0 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground break-words">
               Rapport - <span className="text-primary">{formulation.nom}</span>
             </h1>
-            <p className="text-muted-foreground mt-1">Étude de composition de béton</p>
+            <p className="text-xs sm:text-base text-muted-foreground mt-1">Étude de composition de béton</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto">
-          <ShareButton className="col-span-2 order-last w-full sm:col-span-1 sm:order-none sm:w-auto" />
-          <Button variant="outline" onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }} className="col-span-2 w-full sm:w-auto sm:col-span-1">
-            <Printer className="h-4 w-4 mr-2" />
-            <Download className="h-4 w-4 mr-2" />
-            Imprimer et télécharger
+        <div className="flex flex-col gap-2 w-full sm:flex-row sm:w-auto">
+          <ShareButton className="w-full sm:w-auto" />
+          <Button
+            variant="outline"
+            onClick={async () => { await (handleDownloadPDF)(); (handlePrint)(); }}
+            className="w-full sm:w-auto whitespace-normal text-center leading-tight h-auto min-h-10 py-2"
+          >
+            <Printer className="h-4 w-4 mr-1 shrink-0" />
+            <Download className="h-4 w-4 mr-2 shrink-0" />
+            <span>Imprimer et télécharger</span>
           </Button>
         </div>
       </div>
+
 
       <div
         ref={reportRef}
