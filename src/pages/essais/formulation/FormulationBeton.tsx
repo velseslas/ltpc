@@ -53,14 +53,23 @@ function useAllFormulationsWithDetails() {
       const sourceEauIds = [...new Set(data.map((f: any) => f.eau_producteur_id).filter(Boolean))];
       const adjuvantIds = [...new Set(data.map((f: any) => f.adjuvant_producteur_id).filter(Boolean))];
 
-      const [centrales, produits, carrieres, cimenteries, sourcesEau, adjuvants] = await Promise.all([
+      const [centrales, produits, carrieres, cimenteries, sourcesEau, adjuvants, clients, chantiers] = await Promise.all([
         centraleIds.length ? supabase.from("centrales_beton").select("id, nom").in("id", centraleIds) : Promise.resolve({ data: [] as any[] }),
         produitIds.length ? supabase.from("produits").select("id, nom").in("id", produitIds) : Promise.resolve({ data: [] as any[] }),
         carriereIds.length ? supabase.from("carrieres").select("id, nom").in("id", carriereIds) : Promise.resolve({ data: [] as any[] }),
         cimenterieIds.length ? supabase.from("cimenteries").select("id, nom").in("id", cimenterieIds) : Promise.resolve({ data: [] as any[] }),
         sourceEauIds.length ? supabase.from("sources_eau").select("id, nom").in("id", sourceEauIds) : Promise.resolve({ data: [] as any[] }),
         adjuvantIds.length ? supabase.from("adjuvants").select("id, nom").in("id", adjuvantIds) : Promise.resolve({ data: [] as any[] }),
+        clientIds.length ? supabase.from("clients").select("id, nom").in("id", clientIds) : Promise.resolve({ data: [] as any[] }),
+        chantierIds.length ? supabase.from("chantiers").select("id, nom").in("id", chantierIds) : Promise.resolve({ data: [] as any[] }),
       ]);
+
+      // Fallback techniciens : la table clients peut être inaccessible, on passe par clients_scoped()
+      let clientRows: any[] = clients.data || [];
+      if (clientIds.length && clientRows.length === 0) {
+        const { data: scoped } = await supabase.rpc("clients_scoped");
+        clientRows = ((scoped as any[]) || []).filter((c) => clientIds.includes(c.id));
+      }
 
       const centraleMap = new Map((centrales.data || []).map((c: any) => [c.id, c.nom]));
       const produitMap = new Map((produits.data || []).map((c: any) => [c.id, c.nom]));
