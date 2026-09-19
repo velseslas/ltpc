@@ -267,13 +267,25 @@ const FormulationBeton = () => {
                           <FlaskConical className="w-5 h-5 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-bold text-foreground text-lg leading-tight truncate">{f.nom}</h3>
+                          <h3 className="font-bold text-foreground text-lg leading-tight break-words" title={f.nom}>
+                            {f.nom || "Sans nom"}
+                          </h3>
                           <p className="text-[11px] text-muted-foreground mt-0.5">
                             Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
                           </p>
                           <div className="flex items-center gap-1.5 mt-1">
-                            <Building2 className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground truncate">{f.centrale_nom}</span>
+                            <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
+                            <span className="text-xs text-muted-foreground break-words">{f.centrale_nom}</span>
+                          </div>
+                          <div className="mt-1 space-y-0.5">
+                            <p className="text-xs text-muted-foreground break-words">
+                              <span className="uppercase tracking-wide text-[10px]">Client : </span>
+                              <span className="text-foreground">{f.client_nom || "—"}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground break-words">
+                              <span className="uppercase tracking-wide text-[10px]">Chantier : </span>
+                              <span className="text-foreground">{f.chantier_nom || "—"}</span>
+                            </p>
                           </div>
                         </div>
                       </div>
