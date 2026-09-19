@@ -610,6 +610,7 @@ const CompressionReport = () => {
 
           {/* Résultats des essais */}
           <div className="mb-1 print:mb-0" data-report-fill>
+            <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
             <table data-results-table data-rows={totalRows} className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
