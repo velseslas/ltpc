@@ -1490,22 +1490,40 @@ export default function FormulationReport() {
 
         {/* ============== PAGE 11 — Essai de convenance (Étape 8) ============== */}
         {convenance && (() => {
+          type EpRow = {
+            numero: number; joursEssai: number; echeanceLabel?: string; isHeures?: boolean;
+            dateEssai: string; poids: number; densite: number; charge: number; resistance: number;
+          };
           const resultats = (Array.isArray((convenance as any).resultats)
             ? (convenance as any).resultats
-            : []) as Array<{
-              numero: number; joursEssai: number; dateEssai: string;
-              poids: number; densite: number; charge: number; resistance: number;
-            }>;
-          const sorted = [...resultats].sort((a, b) => a.joursEssai - b.joursEssai);
-          const groups: Record<number, typeof sorted> = {};
-          sorted.forEach((r) => {
-            (groups[r.joursEssai] = groups[r.joursEssai] || []).push(r);
+            : []) as EpRow[];
+
+          const labelOf = (ep: EpRow) => {
+            if (ep.echeanceLabel) {
+              return /h/i.test(ep.echeanceLabel) || /j/i.test(ep.echeanceLabel)
+                ? ep.echeanceLabel
+                : `${ep.echeanceLabel} J`;
+            }
+            if (ep.isHeures || (ep.joursEssai > 0 && ep.joursEssai < 1)) return `${Math.round(ep.joursEssai * 24)} h`;
+            return `${ep.joursEssai} J`;
+          };
+          const sortOf = (ep: EpRow) =>
+            ep.isHeures || (ep.joursEssai > 0 && ep.joursEssai < 1) ? ep.joursEssai : 1000 + ep.joursEssai;
+
+          const sorted = [...resultats].sort((a, b) => sortOf(a) - sortOf(b) || a.numero - b.numero);
+          const groups: { key: string; label: string; dateEssai: string; items: EpRow[] }[] = [];
+          sorted.forEach((ep) => {
+            const label = labelOf(ep);
+            const key = `${label}-${ep.dateEssai || "sans-date"}`;
+            const existing = groups.find((g) => g.key === key);
+            if (existing) existing.items.push(ep);
+            else groups.push({ key, label, dateEssai: ep.dateEssai, items: [ep] });
           });
-          const moyennes = Object.entries(groups).map(([j, items]) => {
-            const valid = items.map((i) => i.resistance).filter((v) => v > 0);
-            const moy = valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : 0;
-            return { jours: Number(j), moyenne: moy };
-          });
+          const totalRows = sorted.length;
+
+          const dateCoulage = (convenance as any).date_coulage
+            ? format(new Date((convenance as any).date_coulage), "dd/MM/yyyy", { locale: fr })
+            : "—";
           const tech = (convenance as any).intervenants
             ? `${(convenance as any).intervenants.prenom || ""} ${(convenance as any).intervenants.nom || ""}`.trim()
             : "—";
@@ -1515,13 +1533,12 @@ export default function FormulationReport() {
               <ReportHeader
                 entreprise={entreprise}
                 verificationUrl={verificationUrl}
-                title="ESSAI DE CONVENANCE"
-                subtitle={`Résistance à la compression — Réf : EC-${String((convenance as any).numero).padStart(3, "0")}`}
+                title="RAPPORT D'ESSAI DE COMPRESSION"
+                subtitle="Résistance à la compression du béton - Norme NF EN 12390-3"
               />
 
-              {/* Identification */}
-              <div className="mb-4">
-                <h3 className="font-bold text-sm mb-2 underline text-black">Identification de l'essai</h3>
+              {/* Identification de l'échantillon */}
+              <div className="mb-2">
                 <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr>
@@ -1536,125 +1553,174 @@ export default function FormulationReport() {
                       <td className="border border-black px-3 py-1 font-medium text-black">Chantier</td>
                       <td className="border border-black px-3 py-1 text-black">{(convenance as any).chantiers?.nom || "—"}</td>
                     </tr>
-                    {(convenance as any).essai_convenance_details && (
-                      <tr>
-                        <td className="border border-black px-3 py-1 font-medium text-black">Désignation</td>
-                        <td className="border border-black px-3 py-1 text-black">{(convenance as any).essai_convenance_details}</td>
-                      </tr>
-                    )}
                     <tr>
-                      <td className="border border-black px-3 py-1 font-medium text-black">Date de coulage</td>
-                      <td className="border border-black px-3 py-1 text-black">
-                        {(convenance as any).date_coulage
-                          ? format(new Date((convenance as any).date_coulage), "dd/MM/yyyy", { locale: fr })
-                          : "—"}
-                      </td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Essai de convenance</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).essai_convenance_details || "Oui"}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1 font-medium text-black">Classe de résistance</td>
-                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).classe_resistance || "—"}</td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Mode de conservation</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).condition_cure || "—"}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1 font-medium text-black">Type / Dimension éprouvette</td>
-                      <td className="border border-black px-3 py-1 text-black">
-                        {(convenance as any).type_eprouvette || "—"} — {(convenance as any).dimension_eprouvette || "—"}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border border-black px-3 py-1 font-medium text-black">Cure / Étuvage</td>
-                      <td className="border border-black px-3 py-1 text-black">
-                        {(convenance as any).condition_cure || "—"}
-                        {(convenance as any).etuvage ? ` — Étuvage : ${(convenance as any).etuvage}` : ""}
-                      </td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Étuvage</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).etuvage === "oui" ? "Oui" : "Non"}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              {/* Résultats */}
-              <div className="mb-4">
-                <h3 className="font-bold text-sm mb-2 underline text-black">Résultats des essais de compression</h3>
-                <table className="w-full border-collapse border border-black text-xs">
+              {/* Formulation de béton */}
+              <div className="mb-2">
+                <h3 className="font-bold text-sm mb-1 underline text-black">Formulation de béton</h3>
+                <div className="mb-1 text-sm text-black">
+                  <span className="font-medium">Centrale à béton : </span>{centrale?.nom || "—"}
+                  <span className="mx-4">|</span>
+                  <span className="font-medium">Formulation : </span>{details?.nom || formulation.nom || "-"}
+                </div>
+                <table className="w-full border-collapse border border-black">
                   <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border border-black px-2 py-1 text-black">N°</th>
-                      <th className="border border-black px-2 py-1 text-black">Échéance (j)</th>
-                      <th className="border border-black px-2 py-1 text-black">Date d'essai</th>
-                      <th className="border border-black px-2 py-1 text-black">Poids (kg)</th>
-                      <th className="border border-black px-2 py-1 text-black">Densité (kg/m³)</th>
-                      <th className="border border-black px-2 py-1 text-black">Charge (kN)</th>
-                      <th className="border border-black px-2 py-1 text-black">Rc (MPa)</th>
+                    <tr>
+                      {["Ciment", "Eau", "Adjuvant", "Sable 1", "Sable 2", "Gravier 1", "Gravier 2", "Gravier 3"].map((h) => (
+                        <th key={h} className="border border-black px-2 py-1 text-center font-normal text-xs text-black">{h}</th>
+                      ))}
+                    </tr>
+                    <tr>
+                      {[details?.ciment, details?.eau, details?.adjuvant, details?.sable_concasse, details?.sable_fin, details?.gravillons1, details?.gravier2, details?.gravier3].map((ing, i) => (
+                        <th key={`prod-${i}`} className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{ing?.producteur_nom || "-"}</th>
+                      ))}
+                    </tr>
+                    <tr>
+                      {[details?.ciment, details?.eau, details?.adjuvant, details?.sable_concasse, details?.sable_fin, details?.gravillons1, details?.gravier2, details?.gravier3].map((ing, i) => (
+                        <th key={`nom-${i}`} className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{ing?.produit_nom || "-"}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {sorted.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="border border-black px-2 py-3 text-center text-black">
-                          Aucun résultat saisi
-                        </td>
-                      </tr>
-                    ) : (
-                      sorted.map((r, i) => (
-                        <tr key={i}>
-                          <td className="border border-black px-2 py-1 text-center text-black">{r.numero}</td>
-                          <td className="border border-black px-2 py-1 text-center text-black">{r.joursEssai}</td>
-                          <td className="border border-black px-2 py-1 text-center text-black">
-                            {(() => {
-                              if (!r.dateEssai) return "—";
-                              // Si déjà au format dd/MM/yyyy, afficher tel quel
-                              if (typeof r.dateEssai === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(r.dateEssai)) {
-                                return r.dateEssai;
-                              }
-                              const d = new Date(r.dateEssai);
-                              return isNaN(d.getTime()) ? String(r.dateEssai) : format(d, "dd/MM/yyyy", { locale: fr });
-                            })()}
-                          </td>
-                          <td className="border border-black px-2 py-1 text-center text-black">{fmt(r.poids, 3)}</td>
-                          <td className="border border-black px-2 py-1 text-center text-black">{fmtInt(r.densite)}</td>
-                          <td className="border border-black px-2 py-1 text-center text-black">{fmt(r.charge, 1)}</td>
-                          <td className="border border-black px-2 py-1 text-center font-bold text-black">{fmt(r.resistance, 2)}</td>
-                        </tr>
-                      ))
-                    )}
+                    <tr>
+                      {[
+                        { v: details?.ciment.quantite, u: "kg" },
+                        { v: details?.eau.quantite, u: "L" },
+                        { v: details?.adjuvant.quantite, u: "kg" },
+                        { v: details?.sable_concasse.quantite, u: "kg" },
+                        { v: details?.sable_fin.quantite, u: "kg" },
+                        { v: details?.gravillons1.quantite, u: "kg" },
+                        { v: details?.gravier2.quantite, u: "kg" },
+                        { v: details?.gravier3.quantite, u: "kg" },
+                      ].map((c, i) => (
+                        <td key={`q-${i}`} className="border border-black px-2 py-1 text-center text-sm font-normal text-black">{c.v ?? 0} {c.u}</td>
+                      ))}
+                    </tr>
                   </tbody>
                 </table>
               </div>
 
-              {/* Synthèse moyennes par échéance */}
-              {moyennes.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="font-bold text-sm mb-2 underline text-black">Synthèse — Résistance moyenne par échéance</h3>
-                  <table className="w-full border-collapse border border-black text-sm">
-                    <thead>
-                      <tr className="bg-gray-100">
-                        <th className="border border-black px-3 py-1 text-black">Échéance</th>
-                        <th className="border border-black px-3 py-1 text-black">Rc moyenne (MPa)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {moyennes.map((m) => (
-                        <tr key={m.jours}>
-                          <td className="border border-black px-3 py-1 text-center text-black">{m.jours} jours</td>
-                          <td className="border border-black px-3 py-1 text-center font-bold text-black">{fmt(m.moyenne, 2)}</td>
-                        </tr>
+              {/* Caractéristiques techniques */}
+              <div className="mb-2">
+                <table className="w-full border-collapse border border-black text-sm">
+                  <thead>
+                    <tr>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">Classe de Résistance</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">Classe de consistance</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">Type Moule</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">T°C béton</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">T°C Air</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).classe_resistance || "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).classe_consistance || "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).type_eprouvette || "—"} {(convenance as any).dimension_eprouvette || ""}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).temperature_beton != null ? `${(convenance as any).temperature_beton}°C` : "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).temperature_air != null ? `${(convenance as any).temperature_air}°C` : "—"}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Résultats des essais */}
+              <div className="mb-1">
+                <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
+                <table className="w-full border-collapse border border-black">
+                  <thead>
+                    <tr>
+                      {["N°", "Date coulage", "Date d'essai", "Échéance", "Poids (g)", "Densité (kg/m³)", "Charge (kN)", "Rc (MPa)", "Moy. Rc (MPa)", "Moy. Rc (MPa) 16×32"].map((h) => (
+                        <th key={h} className="border border-black px-2 py-1 text-center font-medium text-sm text-black">{h}</th>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {totalRows > 0 ? (() => {
+                      let globalRowIndex = 0;
+                      return groups.map((group) => {
+                        const resistances = group.items.map((ep) => ep.resistance).filter((r) => r > 0);
+                        const moyenneRc = resistances.length > 0
+                          ? (resistances.reduce((a, b) => a + b, 0) / resistances.length).toFixed(2)
+                          : "—";
+                        return group.items.map((ep, idx) => {
+                          const isVeryFirstRow = globalRowIndex === 0;
+                          globalRowIndex++;
+                          return (
+                            <tr key={`${group.key}-${ep.numero}`}>
+                              <td className="border border-black px-2 py-1 text-center text-sm font-medium text-black">EP{ep.numero ?? globalRowIndex}</td>
+                              {isVeryFirstRow && (
+                                <td rowSpan={totalRows} className="border border-black px-2 py-1 text-center text-sm align-middle text-black">{dateCoulage}</td>
+                              )}
+                              {idx === 0 && (
+                                <>
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm align-middle text-black">
+                                    {(() => {
+                                      const d = group.dateEssai;
+                                      if (!d) return "—";
+                                      if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(d))) return String(d);
+                                      const parsed = new Date(String(d).split(" ")[0]);
+                                      return isNaN(parsed.getTime()) ? String(d) : format(parsed, "dd/MM/yyyy", { locale: fr });
+                                    })()}
+                                  </td>
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm font-medium align-middle text-black">{group.label}</td>
+                                </>
+                              )}
+                              <td className="border border-black px-2 py-1 text-center text-sm text-black">{ep.poids || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm text-black">{ep.densite || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm text-black">{ep.charge || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm font-medium text-black">{ep.resistance || "—"}</td>
+                              {idx === 0 && (
+                                <>
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm font-bold align-middle text-black">{moyenneRc}</td>
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm font-bold align-middle text-black">
+                                    {moyenneRc !== "—" ? (Number(moyenneRc) * 0.85).toFixed(2) : "—"}
+                                  </td>
+                                </>
+                              )}
+                            </tr>
+                          );
+                        });
+                      });
+                    })() : (
+                      <tr>
+                        <td colSpan={10} className="border border-black px-2 py-4 text-center text-sm text-black">Aucune donnée saisie</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+                <p className="mt-0 text-left text-xs text-black">
+                  Éprouvettes confectionnées par le laboratoire LTPC BENMALEK
+                </p>
+              </div>
 
-              <p className="text-xs italic mt-4 text-black">
-                Cet essai de convenance valide la formulation au regard des performances mécaniques attendues.
-              </p>
-
-              <div className="mt-10 grid grid-cols-2 gap-8 text-black text-sm">
-                <div className="text-center">
-                  <p className="font-medium mb-12">Le Technicien</p>
-                  <p>{tech || "_________________"}</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-medium mb-12">L'Ingénieur d'Études</p>
-                  <p>{entreprise?.representant || "_________________"}</p>
+              {/* Pied de page */}
+              <div className="mt-3">
+                <div className="flex justify-between items-end">
+                  <div className="text-sm text-black">
+                    <p>Chargé de l'essai: {tech || "—"}</p>
+                  </div>
+                  <div className="text-center">
+                    {entreprise?.cachet_url ? (
+                      <img src={entreprise.cachet_url} alt="Cachet entreprise" className="max-h-20 object-contain mb-1" />
+                    ) : (
+                      <p className="text-sm font-medium text-black">Signature et cachet</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </ReportPage>
