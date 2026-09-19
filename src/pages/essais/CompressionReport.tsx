@@ -574,24 +574,24 @@ const CompressionReport = () => {
                   <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 3</th>
                 </tr>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
                 </tr>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.eau.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal whitespace-nowrap">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.eau.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
                 </tr>
               </thead>
               <tbody>
