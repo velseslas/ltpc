@@ -48,17 +48,28 @@ function useAllFormulationsWithDetails() {
         ]).filter(Boolean)
       )];
       const cimenterieIds = [...new Set(data.map((f: any) => f.ciment_producteur_id).filter(Boolean))];
+      const clientIds = [...new Set(data.map((f: any) => f.client_id).filter(Boolean))];
+      const chantierIds = [...new Set(data.map((f: any) => f.chantier_id).filter(Boolean))];
       const sourceEauIds = [...new Set(data.map((f: any) => f.eau_producteur_id).filter(Boolean))];
       const adjuvantIds = [...new Set(data.map((f: any) => f.adjuvant_producteur_id).filter(Boolean))];
 
-      const [centrales, produits, carrieres, cimenteries, sourcesEau, adjuvants] = await Promise.all([
+      const [centrales, produits, carrieres, cimenteries, sourcesEau, adjuvants, clients, chantiers] = await Promise.all([
         centraleIds.length ? supabase.from("centrales_beton").select("id, nom").in("id", centraleIds) : Promise.resolve({ data: [] as any[] }),
         produitIds.length ? supabase.from("produits").select("id, nom").in("id", produitIds) : Promise.resolve({ data: [] as any[] }),
         carriereIds.length ? supabase.from("carrieres").select("id, nom").in("id", carriereIds) : Promise.resolve({ data: [] as any[] }),
         cimenterieIds.length ? supabase.from("cimenteries").select("id, nom").in("id", cimenterieIds) : Promise.resolve({ data: [] as any[] }),
         sourceEauIds.length ? supabase.from("sources_eau").select("id, nom").in("id", sourceEauIds) : Promise.resolve({ data: [] as any[] }),
         adjuvantIds.length ? supabase.from("adjuvants").select("id, nom").in("id", adjuvantIds) : Promise.resolve({ data: [] as any[] }),
+        clientIds.length ? supabase.from("clients").select("id, nom").in("id", clientIds) : Promise.resolve({ data: [] as any[] }),
+        chantierIds.length ? supabase.from("chantiers").select("id, nom").in("id", chantierIds) : Promise.resolve({ data: [] as any[] }),
       ]);
+
+      // Fallback techniciens : la table clients peut être inaccessible, on passe par clients_scoped()
+      let clientRows: any[] = clients.data || [];
+      if (clientIds.length && clientRows.length === 0) {
+        const { data: scoped } = await supabase.rpc("clients_scoped");
+        clientRows = ((scoped as any[]) || []).filter((c) => clientIds.includes(c.id));
+      }
 
       const centraleMap = new Map((centrales.data || []).map((c: any) => [c.id, c.nom]));
       const produitMap = new Map((produits.data || []).map((c: any) => [c.id, c.nom]));
@@ -66,10 +77,14 @@ function useAllFormulationsWithDetails() {
       const cimenterieMap = new Map((cimenteries.data || []).map((c: any) => [c.id, c.nom]));
       const sourceEauMap = new Map((sourcesEau.data || []).map((c: any) => [c.id, c.nom]));
       const adjuvantMap = new Map((adjuvants.data || []).map((c: any) => [c.id, c.nom]));
+      const clientMap = new Map(clientRows.map((c: any) => [c.id, c.nom]));
+      const chantierMap = new Map(((chantiers as any).data || []).map((c: any) => [c.id, c.nom]));
 
       return data.map((f: any) => ({
         ...f,
         centrale_nom: centraleMap.get(f.centrale_id) || "Centrale inconnue",
+        client_nom: clientMap.get(f.client_id) || null,
+        chantier_nom: chantierMap.get(f.chantier_id) || null,
         details: {
           ciment: { producteur: cimenterieMap.get(f.ciment_producteur_id) || null, produit: produitMap.get(f.ciment_produit_id) || null },
           eau: { producteur: sourceEauMap.get(f.eau_producteur_id) || null, produit: produitMap.get(f.eau_produit_id) || null },
@@ -128,8 +143,12 @@ const FormulationBeton = () => {
   };
 
   const filtered = formulations.filter((f: any) => {
-    const matchSearch = f.nom.toLowerCase().includes(search.toLowerCase()) ||
-      f.centrale_nom.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch =
+      (f.nom || "").toLowerCase().includes(q) ||
+      (f.centrale_nom || "").toLowerCase().includes(q) ||
+      (f.client_nom || "").toLowerCase().includes(q) ||
+      (f.chantier_nom || "").toLowerCase().includes(q);
     const matchCentrale = selectedCentrale === "all" || f.centrale_id === selectedCentrale;
     return matchSearch && matchCentrale;
   });
@@ -248,13 +267,25 @@ const FormulationBeton = () => {
                           <FlaskConical className="w-5 h-5 text-primary" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-bold text-foreground text-lg leading-tight truncate">{f.nom}</h3>
+                          <h3 className="font-bold text-foreground text-lg leading-tight break-words" title={f.nom}>
+                            {f.nom || "Sans nom"}
+                          </h3>
                           <p className="text-[11px] text-muted-foreground mt-0.5">
                             Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
                           </p>
                           <div className="flex items-center gap-1.5 mt-1">
-                            <Building2 className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground truncate">{f.centrale_nom}</span>
+                            <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
+                            <span className="text-xs text-muted-foreground break-words">{f.centrale_nom}</span>
+                          </div>
+                          <div className="mt-1 space-y-0.5">
+                            <p className="text-xs text-muted-foreground break-words">
+                              <span className="uppercase tracking-wide text-[10px]">Client : </span>
+                              <span className="text-foreground">{f.client_nom || "—"}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground break-words">
+                              <span className="uppercase tracking-wide text-[10px]">Chantier : </span>
+                              <span className="text-foreground">{f.chantier_nom || "—"}</span>
+                            </p>
                           </div>
                         </div>
                       </div>
