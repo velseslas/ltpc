@@ -482,136 +482,135 @@ const CompressionReport = () => {
 
 
           {/* Identification de l'échantillon */}
-          <div className="mb-6">
-            <table className="identification-table w-full border-collapse text-sm" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
-              <colgroup>
-                <col style={{ width: "17.5%" }} />
-                <col style={{ width: "17.5%" }} />
-                <col style={{ width: "32.5%" }} />
-                <col style={{ width: "32.5%" }} />
-              </colgroup>
+          <div className="mb-3 print:mb-2">
+            <table className="w-full border-collapse border border-black text-sm">
               <tbody>
                 <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">N° Échantillon</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">EC-{String(echantillon.numero).padStart(3, "0")}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
+                  <td className="border border-black px-3 py-1.5 text-black">EC-{String(echantillon.numero).padStart(3, "0")}</td>
                 </tr>
                 <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Client</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.client_nom}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.client_nom}</td>
                 </tr>
                 <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Chantier</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.chantier_nom}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.chantier_nom}</td>
                 </tr>
-                <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Ouvrage</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.ouvrage || "—"}</td>
-                </tr>
-                <tr>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Partie de l'ouvrage</td>
-                  <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.destination_beton || "—"}</td>
-                </tr>
-                {echantillon.essai_convenance && (
+                {echantillon.essai_convenance ? (
                   <tr>
-                    <td colSpan={2} className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Essai de convenance</td>
-                    <td colSpan={2} className="border border-black px-3 py-1.5 text-black text-left align-middle">
-                      {echantillon.essai_convenance_details || "Oui"}
-                    </td>
+                    <td className="border border-black px-3 py-1.5 font-medium text-black">Essai de convenance</td>
+                    <td className="border border-black px-3 py-1.5 text-black">{echantillon.essai_convenance_details || "Oui"}</td>
                   </tr>
+                ) : (
+                  <>
+                    <tr>
+                      <td className="border border-black px-3 py-1.5 font-medium text-black">Ouvrage</td>
+                      <td className="border border-black px-3 py-1.5 text-black">{echantillon.ouvrage || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-black px-3 py-1.5 font-medium text-black">Partie de l'ouvrage</td>
+                      <td className="border border-black px-3 py-1.5 text-black">{echantillon.destination_beton || "—"}</td>
+                    </tr>
+                  </>
                 )}
-
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Étuvage</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Mode de conservation</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.condition_cure}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.condition_cure}</td>
                 </tr>
                 <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Type d'éprouvette</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.type_eprouvette || "—"}</td>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Dimension</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.dimension_eprouvette || "—"}</td>
-                </tr>
-                <tr>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Température béton</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.temperature_beton != null ? `${echantillon.temperature_beton} °C` : "—"}</td>
-                  <td className="border border-black px-3 py-1.5 font-medium text-black text-left align-middle">Température air</td>
-                  <td className="border border-black px-3 py-1.5 text-black text-left align-middle">{echantillon.temperature_air != null ? `${echantillon.temperature_air} °C` : "—"}</td>
+                  <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
+                  <td className="border border-black px-3 py-1.5 text-black">{echantillon.etuvage === "oui" ? "Oui" : "Non"}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           {/* Formulation de béton */}
-          <div className="mb-6">
-            <div className="mb-2 text-sm text-black">
+          <div className="mb-3 print:mb-2">
+            <h3 className="font-bold text-sm mb-1 underline text-black">Formulation de béton</h3>
+            <div className="mb-1 text-sm text-black">
               <span className="font-medium">Centrale à béton : </span>{echantillon.centrale_nom}
               <span className="mx-4">|</span>
-              <span className="font-medium">Classe de béton : </span>{echantillon.classe_resistance || "-"}
-              <span className="mx-2">-</span>
-              {echantillon.classe_consistance || "-"}
+              <span className="font-medium">Formulation : </span>{echantillon.formulation?.nom || "-"}
             </div>
-            <table className="w-full border-collapse formulation-table" style={{ borderSpacing: 0, tableLayout: "fixed" }}>
-              <colgroup>
-                <col style={{ width: "9%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "13%" }} />
-                <col style={{ width: "13%" }} />
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "15%" }} />
-              </colgroup>
+            <table className="w-full border-collapse border border-black formulation-table">
               <thead>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Ciment</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Eau</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Adjuvant</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Sable 1</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Sable 2</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 1</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 2</th>
-                  <th className="border border-black px-1 py-0.5 text-center font-normal text-[8px] text-black whitespace-nowrap">Gravier 3</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Ciment</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Eau</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Adjuvant</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Sable 1</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Sable 2</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Gravier 1</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Gravier 2</th>
+                  <th className="border border-black px-2 py-1 text-center font-normal text-xs text-black">Gravier 3</th>
                 </tr>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.ciment.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.eau.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.adjuvant.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_concasse.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_fin.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravillons1.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier2.producteur_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier3.producteur_nom || "-"}</th>
                 </tr>
                 <tr>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.eau.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
-                  <th className="border border-black px-1 py-0.5 text-center text-[8px] text-black font-normal break-words leading-tight">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.ciment.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.eau.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.adjuvant.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_concasse.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.sable_fin.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravillons1.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier2.produit_nom || "-"}</th>
+                  <th className="border border-black px-2 py-1 text-center text-xs text-black font-normal">{echantillon.formulation?.gravier3.produit_nom || "-"}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.eau.quantite ?? 0} L</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
-                  <td className="border border-black px-1 py-1 text-center text-[8px] font-normal text-black whitespace-nowrap">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.eau.quantite ?? 0} L</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
+                  <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Caractéristiques techniques */}
+          <div className="mb-3 print:mb-2">
+            <table className="w-full border-collapse border border-black text-sm">
+              <thead>
+                <tr>
+                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de Résistance</th>
+                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de consistance</th>
+                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Type Moule</th>
+                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C béton</th>
+                  <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Air</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_resistance || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.classe_consistance || "—"}</td>
+                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.type_eprouvette} {echantillon.dimension_eprouvette}</td>
+                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_beton != null ? `${echantillon.temperature_beton}°C` : "—"}</td>
+                  <td className="border border-black px-3 py-1.5 text-center text-black">{echantillon.temperature_air != null ? `${echantillon.temperature_air}°C` : "—"}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
 
+
           {/* Résultats des essais */}
           <div className="mb-1 print:mb-0" data-report-fill>
+            <h3 className="font-bold text-sm mb-1 underline text-black">Résultats des essais</h3>
             <table data-results-table data-rows={totalRows} className="w-full border-collapse results-table" style={{ borderSpacing: 0 }}>
               <thead>
                 <tr>
