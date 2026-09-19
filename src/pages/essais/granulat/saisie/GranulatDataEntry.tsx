@@ -80,6 +80,12 @@ export default function GranulatDataEntry({ essaiType, essaiTitle, basePath }: G
 
   const handleSave = async () => {
     if (!id) return;
+
+    if (essaiType === "equivalent-sable" && !resultats.type_essai) {
+      toast.error("Le type d'essai est obligatoire");
+      return;
+    }
+    
     
     try {
       // Determine status based on whether there are results
