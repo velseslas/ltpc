@@ -116,7 +116,7 @@ export function useEchantillonsGranulatByType(essaiType: string) {
             prenom
           )
         `)
-        .order("numero", { ascending: false });
+        .order("numero", { ascending: true });
 
       if (error) throw error;
       return data as EchantillonGranulatBase[];
