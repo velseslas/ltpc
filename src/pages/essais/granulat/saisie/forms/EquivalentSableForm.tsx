@@ -46,7 +46,7 @@ function getConformity(es: number, type: string) {
 }
 
 export default function EquivalentSableForm({ resultats, onChange }: EquivalentSableFormProps) {
-  const typeEssai = (resultats.type_essai as string) || "beton";
+  const typeEssai = (resultats.type_essai as string) || "";
 
   const recalculate = (data: Record<string, unknown>): Record<string, unknown> => {
     const updated = { ...data };
