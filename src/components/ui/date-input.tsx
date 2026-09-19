@@ -66,17 +66,22 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
       }
     };
 
+    const iso = frToIso(text);
+
     return (
-      <Input
-        ref={ref}
-        type="text"
-        inputMode={inputMode}
-        placeholder={placeholder}
-        maxLength={10}
-        value={text}
-        onChange={handleChange}
-        {...props}
-      />
+      <>
+        <Input
+          type="text"
+          inputMode={inputMode}
+          placeholder={placeholder}
+          maxLength={10}
+          value={text}
+          onChange={handleChange}
+          onBlur={onBlur}
+          {...visibleProps}
+        />
+        <input type="hidden" name={name} ref={ref} value={iso} readOnly />
+      </>
     );
   }
 );
