@@ -71,20 +71,60 @@ function useAllFormulationsWithDetails() {
         clientRows = ((scoped as any[]) || []).filter((c) => clientIds.includes(c.id));
       }
 
+      // Fallback : formulations sans client/chantier renseignés -> liaison centrale
+      let liaisonByCentrale = new Map<string, { client_id: string | null; chantier_id: string | null }>();
+      const centralesSansLien = [...new Set(
+        data.filter((f: any) => (!f.client_id || !f.chantier_id) && f.centrale_id).map((f: any) => f.centrale_id)
+      )];
+      if (centralesSansLien.length) {
+        const { data: liens } = await supabase
+          .from("client_centrales")
+          .select("centrale_id, client_id, chantier_id")
+          .in("centrale_id", centralesSansLien);
+        (liens || []).forEach((l: any) => {
+          if (!liaisonByCentrale.has(l.centrale_id)) {
+            liaisonByCentrale.set(l.centrale_id, { client_id: l.client_id, chantier_id: l.chantier_id });
+          }
+        });
+        const extraClientIds = [...new Set([...liaisonByCentrale.values()].map((v) => v.client_id).filter(Boolean))]
+          .filter((id) => !clientIds.includes(id as string));
+        const extraChantierIds = [...new Set([...liaisonByCentrale.values()].map((v) => v.chantier_id).filter(Boolean))]
+          .filter((id) => !chantierIds.includes(id as string));
+        if (extraClientIds.length) {
+          const { data: c } = await supabase.from("clients").select("id, nom").in("id", extraClientIds as string[]);
+          if (c?.length) (clients as any).data = [...((clients as any).data || []), ...c];
+          else {
+            const { data: scoped } = await supabase.rpc("clients_scoped");
+            const matched = ((scoped as any[]) || []).filter((s) => (extraClientIds as string[]).includes(s.id));
+            if (matched.length) (clients as any).data = [...((clients as any).data || []), ...matched];
+          }
+        }
+        if (extraChantierIds.length) {
+          const { data: ch } = await supabase.from("chantiers").select("id, nom").in("id", extraChantierIds as string[]);
+          if (ch?.length) (chantiers as any).data = [...(((chantiers as any).data) || []), ...ch];
+        }
+      }
+
       const centraleMap = new Map((centrales.data || []).map((c: any) => [c.id, c.nom]));
       const produitMap = new Map((produits.data || []).map((c: any) => [c.id, c.nom]));
       const carriereMap = new Map((carrieres.data || []).map((c: any) => [c.id, c.nom]));
       const cimenterieMap = new Map((cimenteries.data || []).map((c: any) => [c.id, c.nom]));
       const sourceEauMap = new Map((sourcesEau.data || []).map((c: any) => [c.id, c.nom]));
       const adjuvantMap = new Map((adjuvants.data || []).map((c: any) => [c.id, c.nom]));
-      const clientMap = new Map(clientRows.map((c: any) => [c.id, c.nom]));
+      const clientMap = new Map(
+        [...clientRows, ...(((clients as any).data || []) as any[])].map((c: any) => [c.id, c.nom])
+      );
       const chantierMap = new Map(((chantiers as any).data || []).map((c: any) => [c.id, c.nom]));
 
-      return data.map((f: any) => ({
+      return data.map((f: any) => {
+        const lien = liaisonByCentrale.get(f.centrale_id);
+        const clientId = f.client_id || lien?.client_id || null;
+        const chantierId = f.chantier_id || lien?.chantier_id || null;
+        return {
         ...f,
         centrale_nom: centraleMap.get(f.centrale_id) || "Centrale inconnue",
-        client_nom: clientMap.get(f.client_id) || null,
-        chantier_nom: chantierMap.get(f.chantier_id) || null,
+        client_nom: (clientId ? clientMap.get(clientId) : null) || null,
+        chantier_nom: (chantierId ? chantierMap.get(chantierId) : null) || null,
         details: {
           ciment: { producteur: cimenterieMap.get(f.ciment_producteur_id) || null, produit: produitMap.get(f.ciment_produit_id) || null },
           eau: { producteur: sourceEauMap.get(f.eau_producteur_id) || null, produit: produitMap.get(f.eau_produit_id) || null },
@@ -95,7 +135,8 @@ function useAllFormulationsWithDetails() {
           gravier2: { producteur: carriereMap.get(f.gravier2_producteur_id) || null, produit: produitMap.get(f.gravier2_produit_id) || null },
           gravier3: { producteur: carriereMap.get(f.gravier3_producteur_id) || null, produit: produitMap.get(f.gravier3_produit_id) || null },
         },
-      }));
+      };
+      });
     },
   });
 }
