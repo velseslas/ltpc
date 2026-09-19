@@ -1538,39 +1538,39 @@ export default function FormulationReport() {
               />
 
               {/* Identification de l'échantillon */}
-              <div className="mb-3">
+              <div className="mb-2">
                 <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium w-1/3 text-black">N° Échantillon</td>
-                      <td className="border border-black px-3 py-1.5 text-black">EC-{String((convenance as any).numero).padStart(3, "0")}</td>
+                      <td className="border border-black px-3 py-1 font-medium w-1/3 text-black">N° Échantillon</td>
+                      <td className="border border-black px-3 py-1 text-black">EC-{String((convenance as any).numero).padStart(3, "0")}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Client</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{(convenance as any).clients?.nom || "—"}</td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Client</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).clients?.nom || "—"}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Chantier</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{(convenance as any).chantiers?.nom || "—"}</td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Chantier</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).chantiers?.nom || "—"}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Essai de convenance</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{(convenance as any).essai_convenance_details || "Oui"}</td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Essai de convenance</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).essai_convenance_details || "Oui"}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Mode de conservation</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{(convenance as any).condition_cure || "—"}</td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Mode de conservation</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).condition_cure || "—"}</td>
                     </tr>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 font-medium text-black">Étuvage</td>
-                      <td className="border border-black px-3 py-1.5 text-black">{(convenance as any).etuvage === "oui" ? "Oui" : "Non"}</td>
+                      <td className="border border-black px-3 py-1 font-medium text-black">Étuvage</td>
+                      <td className="border border-black px-3 py-1 text-black">{(convenance as any).etuvage === "oui" ? "Oui" : "Non"}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Formulation de béton */}
-              <div className="mb-3">
+              <div className="mb-2">
                 <h3 className="font-bold text-sm mb-1 underline text-black">Formulation de béton</h3>
                 <div className="mb-1 text-sm text-black">
                   <span className="font-medium">Centrale à béton : </span>{centrale?.nom || "—"}
@@ -1607,7 +1607,7 @@ export default function FormulationReport() {
                         { v: details?.gravier2.quantite, u: "kg" },
                         { v: details?.gravier3.quantite, u: "kg" },
                       ].map((c, i) => (
-                        <td key={`q-${i}`} className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{c.v ?? 0} {c.u}</td>
+                        <td key={`q-${i}`} className="border border-black px-2 py-1 text-center text-sm font-normal text-black">{c.v ?? 0} {c.u}</td>
                       ))}
                     </tr>
                   </tbody>
@@ -1615,24 +1615,24 @@ export default function FormulationReport() {
               </div>
 
               {/* Caractéristiques techniques */}
-              <div className="mb-3">
+              <div className="mb-2">
                 <table className="w-full border-collapse border border-black text-sm">
                   <thead>
                     <tr>
-                      <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de Résistance</th>
-                      <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Classe de consistance</th>
-                      <th className="border border-black px-3 py-1.5 text-center font-medium text-black">Type Moule</th>
-                      <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C béton</th>
-                      <th className="border border-black px-3 py-1.5 text-center font-medium text-black">T°C Air</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">Classe de Résistance</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">Classe de consistance</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">Type Moule</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">T°C béton</th>
+                      <th className="border border-black px-3 py-1 text-center font-medium text-black">T°C Air</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border border-black px-3 py-1.5 text-center text-black">{(convenance as any).classe_resistance || "—"}</td>
-                      <td className="border border-black px-3 py-1.5 text-center text-black">{(convenance as any).classe_consistance || "—"}</td>
-                      <td className="border border-black px-3 py-1.5 text-center text-black">{(convenance as any).type_eprouvette || "—"} {(convenance as any).dimension_eprouvette || ""}</td>
-                      <td className="border border-black px-3 py-1.5 text-center text-black">{(convenance as any).temperature_beton != null ? `${(convenance as any).temperature_beton}°C` : "—"}</td>
-                      <td className="border border-black px-3 py-1.5 text-center text-black">{(convenance as any).temperature_air != null ? `${(convenance as any).temperature_air}°C` : "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).classe_resistance || "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).classe_consistance || "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).type_eprouvette || "—"} {(convenance as any).dimension_eprouvette || ""}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).temperature_beton != null ? `${(convenance as any).temperature_beton}°C` : "—"}</td>
+                      <td className="border border-black px-3 py-1 text-center text-black">{(convenance as any).temperature_air != null ? `${(convenance as any).temperature_air}°C` : "—"}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1645,7 +1645,7 @@ export default function FormulationReport() {
                   <thead>
                     <tr>
                       {["N°", "Date coulage", "Date d'essai", "Échéance", "Poids (g)", "Densité (kg/m³)", "Charge (kN)", "Rc (MPa)", "Moy. Rc (MPa)", "Moy. Rc (MPa) 16×32"].map((h) => (
-                        <th key={h} className="border border-black px-2 py-2 text-center font-medium text-sm text-black">{h}</th>
+                        <th key={h} className="border border-black px-2 py-1 text-center font-medium text-sm text-black">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1662,13 +1662,13 @@ export default function FormulationReport() {
                           globalRowIndex++;
                           return (
                             <tr key={`${group.key}-${ep.numero}`}>
-                              <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">EP{ep.numero ?? globalRowIndex}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm font-medium text-black">EP{ep.numero ?? globalRowIndex}</td>
                               {isVeryFirstRow && (
-                                <td rowSpan={totalRows} className="border border-black px-2 py-2 text-center text-sm align-middle text-black">{dateCoulage}</td>
+                                <td rowSpan={totalRows} className="border border-black px-2 py-1 text-center text-sm align-middle text-black">{dateCoulage}</td>
                               )}
                               {idx === 0 && (
                                 <>
-                                  <td rowSpan={group.items.length} className="border border-black px-2 py-2 text-center text-sm align-middle text-black">
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm align-middle text-black">
                                     {(() => {
                                       const d = group.dateEssai;
                                       if (!d) return "—";
@@ -1677,17 +1677,17 @@ export default function FormulationReport() {
                                       return isNaN(parsed.getTime()) ? String(d) : format(parsed, "dd/MM/yyyy", { locale: fr });
                                     })()}
                                   </td>
-                                  <td rowSpan={group.items.length} className="border border-black px-2 py-2 text-center text-sm font-medium align-middle text-black">{group.label}</td>
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm font-medium align-middle text-black">{group.label}</td>
                                 </>
                               )}
-                              <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.poids || "—"}</td>
-                              <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.densite || "—"}</td>
-                              <td className="border border-black px-2 py-2 text-center text-sm text-black">{ep.charge || "—"}</td>
-                              <td className="border border-black px-2 py-2 text-center text-sm font-medium text-black">{ep.resistance || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm text-black">{ep.poids || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm text-black">{ep.densite || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm text-black">{ep.charge || "—"}</td>
+                              <td className="border border-black px-2 py-1 text-center text-sm font-medium text-black">{ep.resistance || "—"}</td>
                               {idx === 0 && (
                                 <>
-                                  <td rowSpan={group.items.length} className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black">{moyenneRc}</td>
-                                  <td rowSpan={group.items.length} className="border border-black px-2 py-2 text-center text-sm font-bold align-middle text-black">
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm font-bold align-middle text-black">{moyenneRc}</td>
+                                  <td rowSpan={group.items.length} className="border border-black px-2 py-1 text-center text-sm font-bold align-middle text-black">
                                     {moyenneRc !== "—" ? (Number(moyenneRc) * 0.85).toFixed(2) : "—"}
                                   </td>
                                 </>
@@ -1709,7 +1709,7 @@ export default function FormulationReport() {
               </div>
 
               {/* Pied de page */}
-              <div className="mt-6">
+              <div className="mt-3">
                 <div className="flex justify-between items-end">
                   <div className="text-sm text-black">
                     <p>Chargé de l'essai: {tech || "—"}</p>
