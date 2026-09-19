@@ -46,7 +46,7 @@ function getConformity(es: number, type: string) {
 }
 
 export default function EquivalentSableForm({ resultats, onChange }: EquivalentSableFormProps) {
-  const typeEssai = (resultats.type_essai as string) || "beton";
+  const typeEssai = (resultats.type_essai as string) || "";
 
   const recalculate = (data: Record<string, unknown>): Record<string, unknown> => {
     const updated = { ...data };
@@ -137,9 +137,11 @@ export default function EquivalentSableForm({ resultats, onChange }: EquivalentS
       <Card className="border-border bg-card">
         <CardContent className="pt-4">
           <div className="max-w-xs">
-            <Label className="text-sm font-medium text-foreground">Type d'essai</Label>
+            <Label className="text-sm font-medium text-foreground">
+              Type d'essai <span className="text-destructive">*</span>
+            </Label>
             <Select value={typeEssai} onValueChange={handleTypeChange}>
-              <SelectTrigger className="mt-1">
+              <SelectTrigger className={`mt-1 ${!typeEssai ? "animate-border-blink border-destructive" : ""}`}>
                 <SelectValue placeholder="Sélectionner le type" />
               </SelectTrigger>
               <SelectContent>
