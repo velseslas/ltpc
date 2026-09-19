@@ -77,10 +77,14 @@ function useAllFormulationsWithDetails() {
       const cimenterieMap = new Map((cimenteries.data || []).map((c: any) => [c.id, c.nom]));
       const sourceEauMap = new Map((sourcesEau.data || []).map((c: any) => [c.id, c.nom]));
       const adjuvantMap = new Map((adjuvants.data || []).map((c: any) => [c.id, c.nom]));
+      const clientMap = new Map(clientRows.map((c: any) => [c.id, c.nom]));
+      const chantierMap = new Map(((chantiers as any).data || []).map((c: any) => [c.id, c.nom]));
 
       return data.map((f: any) => ({
         ...f,
         centrale_nom: centraleMap.get(f.centrale_id) || "Centrale inconnue",
+        client_nom: clientMap.get(f.client_id) || null,
+        chantier_nom: chantierMap.get(f.chantier_id) || null,
         details: {
           ciment: { producteur: cimenterieMap.get(f.ciment_producteur_id) || null, produit: produitMap.get(f.ciment_produit_id) || null },
           eau: { producteur: sourceEauMap.get(f.eau_producteur_id) || null, produit: produitMap.get(f.eau_produit_id) || null },
