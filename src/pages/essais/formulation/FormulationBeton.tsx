@@ -260,50 +260,46 @@ const FormulationBeton = () => {
                   onClick={() => navigate(`/intervenant/producteurs/centrale/${f.centrale_id}/formulation/${f.id}/modifier`)}
                 >
                   <CardContent className="p-5">
-                    {/* Header : Icône + Nom + Date | Ratios à droite */}
-                    <div className="flex items-start justify-between gap-4 mb-5">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                          <FlaskConical className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-bold text-foreground text-lg leading-tight break-words" title={f.nom}>
-                            {f.nom || "Sans nom"}
-                          </h3>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
-                          </p>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
-                            <span className="text-xs text-muted-foreground break-words">{f.centrale_nom}</span>
-                          </div>
-                          <div className="mt-1 space-y-0.5">
-                            <p className="text-xs text-muted-foreground break-words">
-                              <span className="uppercase tracking-wide text-[10px]">Client : </span>
-                              <span className="text-foreground">{f.client_nom || "—"}</span>
-                            </p>
-                            <p className="text-xs text-muted-foreground break-words">
-                              <span className="uppercase tracking-wide text-[10px]">Chantier : </span>
-                              <span className="text-foreground">{f.chantier_nom || "—"}</span>
-                            </p>
-                          </div>
-                        </div>
+                    {/* Infos pleine largeur */}
+                    <div className="mb-4">
+                      <h3 className="font-bold text-foreground text-lg leading-tight break-words" title={f.nom}>
+                        {f.nom || "Sans nom"}
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        Créée le {new Date(f.created_at).toLocaleDateString("fr-FR")}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <Building2 className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-muted-foreground break-words">{f.centrale_nom}</span>
                       </div>
-                      <div className="flex gap-2 shrink-0">
-                        <div className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-center min-w-[60px]">
-                          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">G/S</div>
-                          <div className="text-sm font-bold text-primary">{gs}</div>
-                        </div>
-                        <div className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-center min-w-[60px]">
-                          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">E/C</div>
-                          <div className="text-sm font-bold text-primary">{ec}</div>
-                        </div>
-                        <div className="bg-primary/20 border border-primary/40 rounded-lg px-3 py-1.5 text-center min-w-[80px]">
-                          <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Total</div>
-                          <div className="text-sm font-bold text-primary">{total.toFixed(1)} kg</div>
-                        </div>
+                      <div className="mt-1 space-y-0.5">
+                        <p className="text-xs text-muted-foreground break-words">
+                          <span className="uppercase tracking-wide text-[10px]">Client : </span>
+                          <span className="text-foreground">{f.client_nom || "—"}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground break-words">
+                          <span className="uppercase tracking-wide text-[10px]">Chantier : </span>
+                          <span className="text-foreground">{f.chantier_nom || "—"}</span>
+                        </p>
                       </div>
                     </div>
+
+                    {/* Ratios */}
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      <div className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-center min-w-[60px]">
+                        <div className="text-[9px] text-muted-foreground uppercase tracking-wider">G/S</div>
+                        <div className="text-sm font-bold text-primary">{gs}</div>
+                      </div>
+                      <div className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 text-center min-w-[60px]">
+                        <div className="text-[9px] text-muted-foreground uppercase tracking-wider">E/C</div>
+                        <div className="text-sm font-bold text-primary">{ec}</div>
+                      </div>
+                      <div className="bg-primary/20 border border-primary/40 rounded-lg px-3 py-1.5 text-center min-w-[80px]">
+                        <div className="text-[9px] text-muted-foreground uppercase tracking-wider">Total</div>
+                        <div className="text-sm font-bold text-primary">{total.toFixed(1)} kg</div>
+                      </div>
+                    </div>
+
 
                     {/* Ingrédients - tuiles sombres */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
