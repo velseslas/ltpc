@@ -48,6 +48,8 @@ function useAllFormulationsWithDetails() {
         ]).filter(Boolean)
       )];
       const cimenterieIds = [...new Set(data.map((f: any) => f.ciment_producteur_id).filter(Boolean))];
+      const clientIds = [...new Set(data.map((f: any) => f.client_id).filter(Boolean))];
+      const chantierIds = [...new Set(data.map((f: any) => f.chantier_id).filter(Boolean))];
       const sourceEauIds = [...new Set(data.map((f: any) => f.eau_producteur_id).filter(Boolean))];
       const adjuvantIds = [...new Set(data.map((f: any) => f.adjuvant_producteur_id).filter(Boolean))];
 
