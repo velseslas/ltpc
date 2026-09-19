@@ -41,6 +41,9 @@ export interface DateInputProps
 export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
   ({ value, onChange, placeholder = "JJ/MM/AAAA", inputMode = "numeric", ...props }, ref) => {
     const name = (props as { name?: string }).name ?? "";
+    // Le champ visible affiche JJ/MM/AAAA ; un champ caché porte la valeur ISO
+    // (name + ref) afin que react-hook-form ne relise jamais le texte français.
+    const { name: _n, onBlur, ...visibleProps } = props as { name?: string; onBlur?: React.FocusEventHandler<HTMLInputElement> };
     const [text, setText] = React.useState(() => isoToFr(value));
     const lastEmitted = React.useRef<string>(value ? String(value).slice(0, 10) : "");
 
@@ -63,17 +66,22 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
       }
     };
 
+    const iso = frToIso(text);
+
     return (
-      <Input
-        ref={ref}
-        type="text"
-        inputMode={inputMode}
-        placeholder={placeholder}
-        maxLength={10}
-        value={text}
-        onChange={handleChange}
-        {...props}
-      />
+      <>
+        <Input
+          type="text"
+          inputMode={inputMode}
+          placeholder={placeholder}
+          maxLength={10}
+          value={text}
+          onChange={handleChange}
+          onBlur={onBlur}
+          {...visibleProps}
+        />
+        <input type="hidden" name={name} ref={ref} value={iso} readOnly />
+      </>
     );
   }
 );
