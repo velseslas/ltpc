@@ -71,6 +71,40 @@ function useAllFormulationsWithDetails() {
         clientRows = ((scoped as any[]) || []).filter((c) => clientIds.includes(c.id));
       }
 
+      // Fallback : formulations sans client/chantier renseignés -> liaison centrale
+      let liaisonByCentrale = new Map<string, { client_id: string | null; chantier_id: string | null }>();
+      const centralesSansLien = [...new Set(
+        data.filter((f: any) => (!f.client_id || !f.chantier_id) && f.centrale_id).map((f: any) => f.centrale_id)
+      )];
+      if (centralesSansLien.length) {
+        const { data: liens } = await supabase
+          .from("client_centrales")
+          .select("centrale_id, client_id, chantier_id")
+          .in("centrale_id", centralesSansLien);
+        (liens || []).forEach((l: any) => {
+          if (!liaisonByCentrale.has(l.centrale_id)) {
+            liaisonByCentrale.set(l.centrale_id, { client_id: l.client_id, chantier_id: l.chantier_id });
+          }
+        });
+        const extraClientIds = [...new Set([...liaisonByCentrale.values()].map((v) => v.client_id).filter(Boolean))]
+          .filter((id) => !clientIds.includes(id as string));
+        const extraChantierIds = [...new Set([...liaisonByCentrale.values()].map((v) => v.chantier_id).filter(Boolean))]
+          .filter((id) => !chantierIds.includes(id as string));
+        if (extraClientIds.length) {
+          const { data: c } = await supabase.from("clients").select("id, nom").in("id", extraClientIds as string[]);
+          if (c?.length) (clients as any).data = [...((clients as any).data || []), ...c];
+          else {
+            const { data: scoped } = await supabase.rpc("clients_scoped");
+            const matched = ((scoped as any[]) || []).filter((s) => (extraClientIds as string[]).includes(s.id));
+            if (matched.length) (clients as any).data = [...((clients as any).data || []), ...matched];
+          }
+        }
+        if (extraChantierIds.length) {
+          const { data: ch } = await supabase.from("chantiers").select("id, nom").in("id", extraChantierIds as string[]);
+          if (ch?.length) (chantiers as any).data = [...(((chantiers as any).data) || []), ...ch];
+        }
+      }
+
       const centraleMap = new Map((centrales.data || []).map((c: any) => [c.id, c.nom]));
       const produitMap = new Map((produits.data || []).map((c: any) => [c.id, c.nom]));
       const carriereMap = new Map((carrieres.data || []).map((c: any) => [c.id, c.nom]));
