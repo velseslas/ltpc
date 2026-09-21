@@ -1774,21 +1774,20 @@ export default function FormulationReport() {
             overflow: visible !important;
             margin: 0 auto !important;
             padding: 8mm 10mm !important;
-            page-break-after: auto !important;
-            break-after: auto !important;
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
+             break-inside: avoid;
+             page-break-inside: avoid;
+           }
           .report-page > div {
             height: auto !important;
             overflow: visible !important;
             break-inside: avoid;
             page-break-inside: avoid;
           }
-          .page-break {
-            page-break-after: auto !important;
-            break-after: auto !important;
-          }
+          /* Une section = une page : évite deux en-têtes sur la même feuille */
+           .page-break {
+             page-break-after: always !important;
+             break-after: page !important;
+           }
           /* Footer décoratif (vide) : le neutraliser pour ne pas casser le flux */
           .report-page-footer { display: none !important; }
 
