@@ -77,7 +77,7 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
                 level="L"
                 marginSize={2}
                 fgColor={qrConfig.color}
-                imageSettings={qrConfig.includeLogo && entreprise?.logo_url ? { src: entreprise.logo_url, height: Math.round(qrConfig.sizePx * 0.22), width: Math.round(qrConfig.sizePx * 0.22), excavate: true } : undefined}
+                imageSettings={qrConfig.includeLogo && logoSrc ? { src: logoSrc, height: Math.round(qrConfig.sizePx * 0.22), width: Math.round(qrConfig.sizePx * 0.22), excavate: true } : undefined}
                 style={{ width: qrConfig.sizePx, height: qrConfig.sizePx, display: "block" }}
               />
             </div>
