@@ -683,7 +683,7 @@ export default function ChantierEchantillonReport() {
           les conflits avec le layout parent (sidebar, container max-w, transforms). */}
       <style>{`
         @media print {
-          @page { size: A4 portrait; margin: 10mm; }
+          @page { size: A4 portrait; margin: 0; }
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
@@ -695,7 +695,7 @@ export default function ChantierEchantillonReport() {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             height: auto !important;
-            max-height: 277mm !important;
+            max-height: 297mm !important;
             overflow: hidden !important;
             visibility: visible !important;
             position: fixed !important;
@@ -705,7 +705,7 @@ export default function ChantierEchantillonReport() {
             width: 100% !important;
             max-width: none !important;
             margin: 0 !important;
-            padding: 6mm 8mm !important;
+            padding: 10mm 12mm !important;
             background: #fff !important;
             box-shadow: none !important;
             border-radius: 0 !important;
@@ -730,8 +730,8 @@ export default function ChantierEchantillonReport() {
           [data-ref="report"] {
             display: flex !important;
             flex-direction: column !important;
-            height: 277mm !important;
-            max-height: 277mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
           }
           [data-ref="report"] [data-report-fill] {
             flex: 1 1 auto !important;
