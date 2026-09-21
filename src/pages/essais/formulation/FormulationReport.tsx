@@ -1783,10 +1783,11 @@ export default function FormulationReport() {
             break-inside: avoid;
             page-break-inside: avoid;
           }
-          .page-break {
-            page-break-after: auto !important;
-            break-after: auto !important;
-          }
+          /* Une section = une page : évite deux en-têtes sur la même feuille */
+           .page-break {
+             page-break-after: always !important;
+             break-after: page !important;
+           }
           /* Footer décoratif (vide) : le neutraliser pour ne pas casser le flux */
           .report-page-footer { display: none !important; }
 
