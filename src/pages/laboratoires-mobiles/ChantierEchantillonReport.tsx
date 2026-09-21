@@ -683,7 +683,7 @@ export default function ChantierEchantillonReport() {
           les conflits avec le layout parent (sidebar, container max-w, transforms). */}
       <style>{`
         @media print {
-          @page { size: A4 portrait; margin: 10mm; }
+          @page { size: A4 portrait; margin: 0; }
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
