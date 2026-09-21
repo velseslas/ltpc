@@ -150,8 +150,7 @@ export default function ChantierEchantillonDataEntry() {
     ep.echeanceISO ? new Date(ep.echeanceISO).getTime() <= Date.now() : false;
 
   /** Classe de clignotement appliquée uniquement après un clic sur Enregistrer. */
-  const blinkClass = (isEmpty: boolean, required = true) =>
-    showErrors && required && isEmpty ? "animate-border-blink border-destructive" : "";
+  const blinkClass = (_isEmpty: boolean, _required = true) => "";
 
   useEffect(() => {
     const fetchEchantillon = async () => {
@@ -301,14 +300,6 @@ export default function ChantierEchantillonDataEntry() {
   const handleSave = async () => {
     if (!echantillonId) return;
 
-    const incomplete = eprouvettes.some(
-      (ep) => isEcheanceAtteinte(ep) && (!ep.dateEssai || !(ep.poids > 0) || !(ep.charge > 0))
-    );
-    if (incomplete) {
-      setShowErrors(true);
-      toast.error("Les éprouvettes échues doivent être complétées (date d'essai, poids, charge)");
-      return;
-    }
     setShowErrors(false);
 
     const violations = findEcheanceViolations(eprouvettes);
@@ -454,7 +445,6 @@ export default function ChantierEchantillonDataEntry() {
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
                           className={`w-56 ${blinkClass(!ep.dateEssai, isEcheanceAtteinte(ep))}`}
-                          required
                         />
                       ) : (
                         <div className={`bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium border border-transparent ${blinkClass(!ep.dateEssai, isEcheanceAtteinte(ep))}`}>
