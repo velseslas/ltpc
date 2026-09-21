@@ -302,33 +302,7 @@ export default function ChantierEchantillonReport() {
     };
   };
 
-  /** Impression : 4 copies identiques par défaut, marges nulles (pilotées par @page). */
-  const PRINT_COPIES = 4;
-  const handlePrint = () => {
-    const source = document.querySelector('[data-ref="report"]');
-    if (!source) {
-      window.print();
-      return;
-    }
-    document.getElementById("print-copies")?.remove();
-    const container = document.createElement("div");
-    container.id = "print-copies";
-    for (let i = 0; i < PRINT_COPIES; i += 1) {
-      const copy = source.cloneNode(true) as HTMLElement;
-      copy.removeAttribute("data-ref");
-      copy.classList.add("report-copy");
-      container.appendChild(copy);
-    }
-    document.body.appendChild(container);
-    const cleanup = () => {
-      container.remove();
-      window.removeEventListener("afterprint", cleanup);
-    };
-    window.addEventListener("afterprint", cleanup);
-    window.print();
-    // Filet de sécurité si `afterprint` n'est pas déclenché (certains navigateurs mobiles).
-    window.setTimeout(cleanup, 60000);
-  };
+  const handlePrint = () => window.print();
 
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
@@ -709,7 +683,7 @@ export default function ChantierEchantillonReport() {
           les conflits avec le layout parent (sidebar, container max-w, transforms). */}
       <style>{`
         @media print {
-          @page { size: A4 portrait; margin: 0; }
+          @page { size: A4 portrait; margin: 10mm; }
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
@@ -721,7 +695,7 @@ export default function ChantierEchantillonReport() {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             height: auto !important;
-            max-height: 297mm !important;
+            max-height: 277mm !important;
             overflow: hidden !important;
             visibility: visible !important;
             position: fixed !important;
@@ -731,7 +705,7 @@ export default function ChantierEchantillonReport() {
             width: 100% !important;
             max-width: none !important;
             margin: 0 !important;
-            padding: 10mm 12mm !important;
+            padding: 6mm 8mm !important;
             background: #fff !important;
             box-shadow: none !important;
             border-radius: 0 !important;
@@ -756,8 +730,8 @@ export default function ChantierEchantillonReport() {
           [data-ref="report"] {
             display: flex !important;
             flex-direction: column !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
+            height: 277mm !important;
+            max-height: 277mm !important;
           }
           [data-ref="report"] [data-report-fill] {
             flex: 1 1 auto !important;
@@ -767,60 +741,7 @@ export default function ChantierEchantillonReport() {
           }
           [data-ref="report"] [data-report-fill] > table { flex: 0 0 auto !important; }
           [data-ref="report"] [data-report-footer] { margin-top: auto !important; }
-
-          /* Copies multiples : 4 exemplaires identiques par défaut. */
-          body:has(#print-copies) [data-ref="report"] { display: none !important; }
-          #print-copies {
-            display: block !important;
-            visibility: visible !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            background: #fff !important;
-          }
-          #print-copies * { visibility: visible !important; }
-          #print-copies .report-copy {
-            display: flex !important;
-            flex-direction: column !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
-            width: 100% !important;
-            max-width: none !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 10mm 12mm !important;
-            background: #fff !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            font-size: 9pt !important;
-            break-after: page !important;
-            page-break-after: always !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
-          #print-copies .report-copy:last-child {
-            break-after: auto !important;
-            page-break-after: auto !important;
-          }
-          #print-copies .report-copy td, #print-copies .report-copy th {
-            padding: 2px 4px !important;
-            font-size: 9pt !important;
-            line-height: 1.15 !important;
-          }
-          #print-copies .report-copy .formulation-table th,
-          #print-copies .report-copy .formulation-table td { font-weight: 400 !important; }
-          #print-copies .report-copy h3 { font-size: 10pt !important; margin-bottom: 2px !important; }
-          #print-copies .report-copy [data-report-fill] {
-            flex: 1 1 auto !important;
-            display: flex !important;
-            flex-direction: column !important;
-            min-height: 0 !important;
-          }
-          #print-copies .report-copy [data-report-fill] > table { flex: 0 0 auto !important; }
-          #print-copies .report-copy [data-report-footer] { margin-top: auto !important; }
         }
-        #print-copies { display: none; }
       `}</style>
     </div>
   );
