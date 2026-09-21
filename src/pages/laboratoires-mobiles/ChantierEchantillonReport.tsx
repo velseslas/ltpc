@@ -302,7 +302,33 @@ export default function ChantierEchantillonReport() {
     };
   };
 
-  const handlePrint = () => window.print();
+  /** Impression : 4 copies identiques par défaut, marges nulles (pilotées par @page). */
+  const PRINT_COPIES = 4;
+  const handlePrint = () => {
+    const source = document.querySelector('[data-ref="report"]');
+    if (!source) {
+      window.print();
+      return;
+    }
+    document.getElementById("print-copies")?.remove();
+    const container = document.createElement("div");
+    container.id = "print-copies";
+    for (let i = 0; i < PRINT_COPIES; i += 1) {
+      const copy = source.cloneNode(true) as HTMLElement;
+      copy.removeAttribute("data-ref");
+      copy.classList.add("report-copy");
+      container.appendChild(copy);
+    }
+    document.body.appendChild(container);
+    const cleanup = () => {
+      container.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+    // Filet de sécurité si `afterprint` n'est pas déclenché (certains navigateurs mobiles).
+    window.setTimeout(cleanup, 60000);
+  };
 
   const handleDownloadPDF = async () => {
     const { downloadReportAsPDF } = await import("@/lib/pdf");
