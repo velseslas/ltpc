@@ -121,5 +121,9 @@ export function useFormulationDetails(formulationId: string | null | undefined) 
       };
     },
     enabled: !!formulationId,
+    // Les noms (produits, adjuvants, carrières, cimenteries) peuvent être
+    // renommés dans Intervenants : on relit toujours à l'ouverture du rapport.
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }

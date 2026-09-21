@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { normalizeQRValue } from "@/lib/qrContent";
 import { useQRConfig } from "@/hooks/useQRConfig";
+import { useLogoDataUrl } from "@/hooks/useLogoDataUrl";
 
 interface DocumentPageHeaderProps {
   entreprise?: {
@@ -24,6 +25,7 @@ const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as cons
 
 export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: DocumentPageHeaderProps) {
   const qrConfig = useQRConfig();
+  const logoSrc = useLogoDataUrl(entreprise?.logo_url);
   return (
     <>
       {/* En-tête encadré */}
@@ -31,8 +33,8 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           {/* Logo */}
           <div data-logo style={{ width: "96px", height: "96px", border: "1px solid #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", background: "#d4e5f7", borderRadius: "6px", flexShrink: 0 }}>
-            {entreprise?.logo_url ? (
-              <img src={entreprise.logo_url} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} crossOrigin="anonymous" />
+            {logoSrc ? (
+              <img src={logoSrc} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
             ) : (
               <span style={{ fontSize: "12px", color: "#6b7280" }}>LOGO</span>
             )}
@@ -75,7 +77,7 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
                 level="L"
                 marginSize={2}
                 fgColor={qrConfig.color}
-                imageSettings={qrConfig.includeLogo && entreprise?.logo_url ? { src: entreprise.logo_url, height: Math.round(qrConfig.sizePx * 0.22), width: Math.round(qrConfig.sizePx * 0.22), excavate: true } : undefined}
+                imageSettings={qrConfig.includeLogo && logoSrc ? { src: logoSrc, height: Math.round(qrConfig.sizePx * 0.22), width: Math.round(qrConfig.sizePx * 0.22), excavate: true } : undefined}
                 style={{ width: qrConfig.sizePx, height: qrConfig.sizePx, display: "block" }}
               />
             </div>
