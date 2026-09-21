@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { normalizeQRValue } from "@/lib/qrContent";
 import { useQRConfig } from "@/hooks/useQRConfig";
+import { useLogoDataUrl } from "@/hooks/useLogoDataUrl";
 
 interface DocumentPageHeaderProps {
   entreprise?: {
@@ -32,8 +33,8 @@ export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: Docu
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           {/* Logo */}
           <div data-logo style={{ width: "96px", height: "96px", border: "1px solid #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", background: "#d4e5f7", borderRadius: "6px", flexShrink: 0 }}>
-            {entreprise?.logo_url ? (
-              <img src={entreprise.logo_url} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} crossOrigin="anonymous" />
+            {logoSrc ? (
+              <img src={logoSrc} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
             ) : (
               <span style={{ fontSize: "12px", color: "#6b7280" }}>LOGO</span>
             )}
