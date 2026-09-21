@@ -24,6 +24,7 @@ const sectionStyle = { fontFamily: "'Times New Roman', Georgia, serif" } as cons
 
 export function DocumentPageHeader({ entreprise, qrData, title, subtitle }: DocumentPageHeaderProps) {
   const qrConfig = useQRConfig();
+  const logoSrc = useLogoDataUrl(entreprise?.logo_url);
   return (
     <>
       {/* En-tête encadré */}
