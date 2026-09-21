@@ -47,7 +47,8 @@ export function useCreateAdjuvant() {
       if (error) throw new Error(error);
       return data[0];
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["adjuvants"] }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["adjuvants"] });
+      queryClient.invalidateQueries({ queryKey: ["formulation-details"] }); },
   });
 }
 
@@ -59,7 +60,8 @@ export function useUpdateAdjuvant() {
       if (error) throw new Error(error);
       return data[0];
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["adjuvants"] }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["adjuvants"] });
+      queryClient.invalidateQueries({ queryKey: ["formulation-details"] }); },
   });
 }
 
@@ -70,6 +72,7 @@ export function useDeleteAdjuvant() {
       const { error } = await repo.delete({ id });
       if (error) throw new Error(error);
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["adjuvants"] }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["adjuvants"] });
+      queryClient.invalidateQueries({ queryKey: ["formulation-details"] }); },
   });
 }
