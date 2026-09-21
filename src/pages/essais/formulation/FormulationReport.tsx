@@ -1774,11 +1774,9 @@ export default function FormulationReport() {
             overflow: visible !important;
             margin: 0 auto !important;
             padding: 8mm 10mm !important;
-            page-break-after: auto !important;
-            break-after: auto !important;
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
+             break-inside: avoid;
+             page-break-inside: avoid;
+           }
           .report-page > div {
             height: auto !important;
             overflow: visible !important;
