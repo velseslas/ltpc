@@ -445,7 +445,6 @@ export default function ChantierEchantillonDataEntry() {
                           value={toInputValue(ep.dateEssai, true)}
                           onChange={(e) => handleDateEssaiChange(index, e.target.value)}
                           className={`w-56 ${blinkClass(!ep.dateEssai, isEcheanceAtteinte(ep))}`}
-                          required
                         />
                       ) : (
                         <div className={`bg-muted/50 rounded-lg px-4 py-2 w-40 text-center font-medium border border-transparent ${blinkClass(!ep.dateEssai, isEcheanceAtteinte(ep))}`}>
