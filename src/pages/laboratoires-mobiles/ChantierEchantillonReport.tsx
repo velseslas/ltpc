@@ -695,7 +695,7 @@ export default function ChantierEchantillonReport() {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             height: auto !important;
-            max-height: 277mm !important;
+            max-height: 297mm !important;
             overflow: hidden !important;
             visibility: visible !important;
             position: fixed !important;
@@ -705,7 +705,7 @@ export default function ChantierEchantillonReport() {
             width: 100% !important;
             max-width: none !important;
             margin: 0 !important;
-            padding: 6mm 8mm !important;
+            padding: 10mm 12mm !important;
             background: #fff !important;
             box-shadow: none !important;
             border-radius: 0 !important;
