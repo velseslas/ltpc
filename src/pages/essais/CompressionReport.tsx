@@ -107,6 +107,8 @@ interface EchantillonData {
   etuvage: string | null;
 }
 
+const formatQte = (v: number | null | undefined, unit: string) => (v != null && v > 0 ? `${v} ${unit}` : "—");
+
 const CompressionReport = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
