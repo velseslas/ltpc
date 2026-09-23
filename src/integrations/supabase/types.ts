@@ -8958,6 +8958,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      is_active_app_user: { Args: never; Returns: boolean }
       is_admin_only: { Args: never; Returns: boolean }
       is_admin_or_manager: { Args: never; Returns: boolean }
       is_conversation_owner: {
