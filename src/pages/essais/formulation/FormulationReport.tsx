@@ -356,7 +356,7 @@ export default function FormulationReport() {
     (formulation.gravier3_quantite || 0);
   const eau = formulation.eau_quantite || 0;
   const ciment = formulation.ciment_quantite || 0;
-  const adjuvant = formulation.adjuvant_quantite || 0;
+  const adjuvant = formulation.adjuvant_quantite ?? (formulation as any).adjuvant_calcule ?? 0;
   const totalGranulats = sables + graviers;
   const total = totalGranulats + ciment + adjuvant + eau;
 
@@ -443,7 +443,7 @@ export default function FormulationReport() {
   const cimentProducteur = details?.ciment.producteur_nom || null;
   const adjuvantNom = details?.adjuvant.produit_nom || "Adjuvant";
   const adjuvantProducteur = details?.adjuvant.producteur_nom || null;
-  const hasAdjuvant = !!details?.adjuvant.produit_nom || !!details?.adjuvant.producteur_nom || (formulation.adjuvant_quantite || 0) > 0;
+  const hasAdjuvant = !!details?.adjuvant.produit_nom || !!details?.adjuvant.producteur_nom || (adjuvant || 0) > 0;
   const eauNom = details?.eau.produit_nom || "Eau";
   const eauProducteur = details?.eau.producteur_nom || null;
 
