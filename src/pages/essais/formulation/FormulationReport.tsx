@@ -1607,7 +1607,7 @@ export default function FormulationReport() {
                         { v: details?.gravier2.quantite, u: "kg" },
                         { v: details?.gravier3.quantite, u: "kg" },
                       ].map((c, i) => (
-                        <td key={`q-${i}`} className="border border-black px-2 py-1 text-center text-sm font-normal text-black">{c.v ?? 0} {c.u}</td>
+                        <td key={`q-${i}`} className="border border-black px-2 py-1 text-center text-sm font-normal text-black">{c.v != null && c.v > 0 ? `${c.v} ${c.u}` : "—"}</td>
                       ))}
                     </tr>
                   </tbody>
