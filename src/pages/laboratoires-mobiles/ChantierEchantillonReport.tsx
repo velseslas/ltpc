@@ -94,6 +94,8 @@ interface EchantillonData {
   etuvage: string | null;
 }
 
+const formatQte = (v: number | null | undefined, unit: string) => (v != null && v > 0 ? `${v} ${unit}` : "—");
+
 export default function ChantierEchantillonReport() {
   const navigate = useNavigate();
   const { chantierId, echantillonId } = useParams();
@@ -506,14 +508,14 @@ export default function ChantierEchantillonReport() {
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.ciment.quantite ?? 0} kg</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.eau.quantite ?? 0} L</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.adjuvant.quantite ?? 0} kg</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.sable_concasse.quantite ?? 0} kg</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.sable_fin.quantite ?? 0} kg</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravillons1.quantite ?? 0} kg</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravier2.quantite ?? 0} kg</td>
-                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{echantillon.formulation?.gravier3.quantite ?? 0} kg</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.ciment.quantite, "kg")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.eau.quantite, "L")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.adjuvant.quantite, "kg")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.sable_concasse.quantite, "kg")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.sable_fin.quantite, "kg")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.gravillons1.quantite, "kg")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.gravier2.quantite, "kg")}</td>
+                <td className="border border-black px-2 py-2 text-center text-sm font-normal text-black">{formatQte(echantillon?.formulation?.gravier3.quantite, "kg")}</td>
 
               </tr>
             </tbody>
