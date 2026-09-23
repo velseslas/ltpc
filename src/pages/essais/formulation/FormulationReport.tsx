@@ -1116,12 +1116,12 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmtInt(eau)}</td>
                   </tr>
                 )}
-                {adjuvant > 0 && (
+                {(hasAdjuvant || adjuvant > 0) && (
                   <tr>
                     <td className="border border-black px-2 py-1 text-black"><strong>Adj :</strong> {adjuvantNom}</td>
                     <td className="border border-black px-2 py-1 text-black"></td>
                     <td className="border border-black px-2 py-1 text-center text-black">1,15</td>
-                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmt(adjuvant, 2)}</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{adjuvant > 0 ? fmt(adjuvant, 2) : "—"}</td>
                   </tr>
                 )}
                 <tr className="bg-gray-100 font-bold">
@@ -1292,11 +1292,11 @@ export default function FormulationReport() {
                     <td className="border border-black px-2 py-1 text-center text-black">L</td>
                   </tr>
                 )}
-                {adjuvant > 0 && (
+                {(hasAdjuvant || adjuvant > 0) && (
                   <tr>
                     <td className="border border-black px-2 py-1 text-black"><strong>Adj</strong> — {adjuvantNom}</td>
                     <td className="border border-black px-2 py-1 text-black">{details?.adjuvant.producteur_nom || "—"}</td>
-                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{fmt(adjuvant, 2)}</td>
+                    <td className="border border-black px-2 py-1 text-center font-medium text-black">{adjuvant > 0 ? fmt(adjuvant, 2) : "—"}</td>
                     <td className="border border-black px-2 py-1 text-center text-black">kg</td>
                   </tr>
                 )}
@@ -1607,7 +1607,7 @@ export default function FormulationReport() {
                         { v: details?.gravier2.quantite, u: "kg" },
                         { v: details?.gravier3.quantite, u: "kg" },
                       ].map((c, i) => (
-                        <td key={`q-${i}`} className="border border-black px-2 py-1 text-center text-sm font-normal text-black">{c.v ?? 0} {c.u}</td>
+                        <td key={`q-${i}`} className="border border-black px-2 py-1 text-center text-sm font-normal text-black">{c.v != null && c.v > 0 ? `${c.v} ${c.u}` : "—"}</td>
                       ))}
                     </tr>
                   </tbody>
