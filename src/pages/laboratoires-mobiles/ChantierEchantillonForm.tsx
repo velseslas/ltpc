@@ -150,11 +150,7 @@ export default function ChantierEchantillonForm() {
   const [dimensionEprouvette, setDimensionEprouvette] = useState("15x15x15");
   const [nombreEprouvettes, setNombreEprouvettes] = useState("6");
   const [joursEssai, setJoursEssai] = useState<JourEssai[]>(
-    JOURS_ESSAI.map((j) => ({ 
-      jour: j.value, 
-      selected: j.value === 7 || j.value === 28, 
-      nombre: (j.value === 7 || j.value === 28) ? 3 : 0 
-    }))
+    JOURS_ESSAI.map((j) => ({ jour: j.value, selected: false, nombre: 0 }))
   );
   const [autreJour, setAutreJour] = useState("");
   const [autreJourNombre, setAutreJourNombre] = useState(0);
