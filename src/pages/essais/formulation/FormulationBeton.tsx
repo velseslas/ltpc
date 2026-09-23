@@ -81,10 +81,19 @@ function useAllFormulationsWithDetails() {
           .from("client_centrales")
           .select("centrale_id, client_id, chantier_id")
           .in("centrale_id", centralesSansLien);
+        // Une centrale peut être liée à plusieurs clients/chantiers : on n'utilise
+        // le repli que si la liaison est unique (sinon l'association serait arbitraire).
+        const liensParCentrale = new Map<string, any[]>();
         (liens || []).forEach((l: any) => {
-          if (!liaisonByCentrale.has(l.centrale_id)) {
-            liaisonByCentrale.set(l.centrale_id, { client_id: l.client_id, chantier_id: l.chantier_id });
-          }
+          liensParCentrale.set(l.centrale_id, [...(liensParCentrale.get(l.centrale_id) || []), l]);
+        });
+        liensParCentrale.forEach((rows, centraleId) => {
+          const clientsUniques = [...new Set(rows.map((r: any) => r.client_id).filter(Boolean))];
+          const chantiersUniques = [...new Set(rows.map((r: any) => r.chantier_id).filter(Boolean))];
+          liaisonByCentrale.set(centraleId, {
+            client_id: clientsUniques.length === 1 ? (clientsUniques[0] as string) : null,
+            chantier_id: chantiersUniques.length === 1 ? (chantiersUniques[0] as string) : null,
+          });
         });
         const extraClientIds = [...new Set([...liaisonByCentrale.values()].map((v) => v.client_id).filter(Boolean))]
           .filter((id) => !clientIds.includes(id as string));
