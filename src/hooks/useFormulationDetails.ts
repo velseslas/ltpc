@@ -112,7 +112,7 @@ export function useFormulationDetails(formulationId: string | null | undefined) 
         nom: f.nom || "-",
         ciment: { quantite: f.ciment_quantite, produit_nom: ciment_produit, producteur_nom: ciment_producteur },
         eau: { quantite: f.eau_quantite, produit_nom: eau_produit, producteur_nom: eau_producteur },
-        adjuvant: { quantite: f.adjuvant_quantite, produit_nom: adjuvant_produit, producteur_nom: adjuvant_producteur },
+        adjuvant: { quantite: f.adjuvant_quantite ?? (f as any).adjuvant_calcule ?? null, produit_nom: adjuvant_produit, producteur_nom: adjuvant_producteur },
         sable_concasse: { quantite: f.sable_concasse_quantite, produit_nom: sable_concasse_produit, producteur_nom: sable_concasse_producteur },
         sable_fin: { quantite: f.sable_fin_quantite, produit_nom: sable_fin_produit, producteur_nom: sable_fin_producteur },
         gravillons1: { quantite: f.gravillons1_quantite, produit_nom: gravillons1_produit, producteur_nom: gravillons1_producteur },
