@@ -31,7 +31,7 @@ export function useFormulationDetails(formulationId: string | null | undefined) 
           nom,
           ciment_quantite, ciment_produit_id, ciment_producteur_id,
           eau_quantite, eau_produit_id, eau_producteur_id,
-          adjuvant_quantite, adjuvant_produit_id, adjuvant_producteur_id,
+          adjuvant_quantite, adjuvant_calcule, adjuvant_produit_id, adjuvant_producteur_id,
           sable_concasse_quantite, sable_concasse_produit_id, sable_concasse_producteur_id,
           sable_fin_quantite, sable_fin_produit_id, sable_fin_producteur_id,
           gravillons1_quantite, gravillons1_produit_id, gravillons1_producteur_id,
