@@ -712,7 +712,7 @@ const CarottageEvaluationNormative = () => {
       {/* Impression native A4 — HTML/CSS, texte et tableaux sélectionnables (aucune image de contenu) */}
       <style>{`
         @media print {
-          @page { size: A4 portrait; margin: 12mm 14mm 14mm 14mm; }
+          @page { size: A4 portrait; margin: 8mm 14mm 14mm 14mm; }
           body * { visibility: hidden; }
           .print\\:hidden { display: none !important; }
           #root { padding: 0 !important; }
