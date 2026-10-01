@@ -355,6 +355,14 @@
     margin: 8mm 15mm 15mm 15mm;
   }
 
+  /* Les animations d'entrée (fade-in, slide…) laissent un transform sur les
+     conteneurs de page : il devient le repère des rapports en position
+     fixed/absolute et les décale vers le bas. Neutralisé à l'impression. */
+  [class*="animate-"] {
+    animation: none !important;
+    transform: none !important;
+  }
+
   /* Taille du QR Code pilotée par la variable --qr-size (paramétrable) */
   [data-qr-wrapper] {
     width: var(--qr-size, 96px) !important;
