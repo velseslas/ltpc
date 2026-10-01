@@ -351,7 +351,7 @@ export default function ChantierEchantillonReport() {
   const totalRows = sortedResults.length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in print:animate-none print:transform-none" data-lm-report-root>
       {/* Breadcrumb - Caché à l'impression */}
       <div className="print:hidden">
         <EssaiBreadcrumb items={[
@@ -689,6 +689,10 @@ export default function ChantierEchantillonReport() {
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; height: auto !important; overflow: hidden !important; }
           body * { visibility: hidden !important; }
           .print\\:hidden { display: none !important; }
+          /* Un ancêtre transformé (animation fade-in) devient le repère du
+             position:fixed et décale le rapport vers le bas : on le neutralise. */
+          [data-lm-report-root], [data-lm-report-root] * { animation: none !important; transform: none !important; }
+          [data-lm-report-root] { filter: none !important; will-change: auto !important; }
           /* Empêche toute page blanche supplémentaire */
           [data-ref="report"] > *:last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }
           [data-ref="report"] {
