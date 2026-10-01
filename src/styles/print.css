@@ -19,7 +19,7 @@
 /* Format A4 — portrait par défaut ---------------------------------------- */
 @page {
   size: A4 portrait;
-  margin: 12mm 12mm 14mm 12mm;
+  margin: 8mm 12mm 14mm 12mm;
 }
 
 /* Orientation paysage : activée via <html class="print-orientation-landscape"> */
@@ -454,7 +454,7 @@ html.print-mode .print-hide {
     margin: 0;
     padding: 0;
   }
-  @page { size: A4 portrait; margin: 12mm 14mm 14mm 14mm; }
+  @page { size: A4 portrait; margin: 8mm 14mm 14mm 14mm; }
 }
 
 /* ------------------------------------------------------------------------- */

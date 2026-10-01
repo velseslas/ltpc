@@ -293,7 +293,7 @@ export default function EtatCoulages() {
       {/* Print styles */}
       <style>{`
         @media print {
-          @page { size: A4 landscape; margin: 10mm; }
+          @page { size: A4 landscape; margin: 8mm 10mm 10mm 10mm; }
           body * { visibility: hidden !important; }
           [data-ref="report"], [data-ref="report"] * { visibility: visible !important; }
           [data-ref="report"] { position: static !important; }

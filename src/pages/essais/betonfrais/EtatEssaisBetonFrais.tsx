@@ -281,7 +281,7 @@ export default function EtatEssaisBetonFrais() {
 
       <style>{`
         @media print {
-          @page { size: landscape; margin: 10mm; }
+          @page { size: landscape; margin: 8mm 10mm 10mm 10mm; }
           body * { visibility: hidden; }
           [data-print-area], [data-print-area] * { visibility: visible; }
           .print\\:hidden { display: none !important; }

@@ -600,7 +600,7 @@ export default function ChantierEchantillonBulletin() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 5mm;
+            margin: 8mm 5mm 5mm 5mm;
           }
           html, body { margin: 0 !important; padding: 0 !important; }
           body * {
@@ -616,7 +616,7 @@ export default function ChantierEchantillonBulletin() {
             width: 200mm;
             max-width: 200mm;
             min-height: 0 !important;
-            max-height: 287mm;
+            max-height: 284mm;
             overflow: hidden;
             padding: 0 !important;
             margin: 0 !important;

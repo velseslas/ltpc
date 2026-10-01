@@ -423,7 +423,7 @@ const TractionFendageReport = () => {
         @media print {
           @page {
             size: A4;
-            margin: 10mm;
+            margin: 8mm 10mm 10mm 10mm;
           }
 
           html,
