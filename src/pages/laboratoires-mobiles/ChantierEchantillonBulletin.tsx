@@ -321,6 +321,7 @@ export default function ChantierEchantillonBulletin() {
       <div className="overflow-x-auto -mx-4 px-4 print:overflow-visible print:mx-0 print:px-0 print:flex print:justify-center md:flex md:justify-center md:mx-0 md:px-0">
         <div 
           ref={bulletinRef}
+          id="bulletin-content"
           data-ref="report"
           className="bg-white p-6 w-[210mm] min-h-[297mm] text-black print:p-0 print:shadow-none shadow-lg no-preview-zoom"
           style={{ fontFamily: "Arial, sans-serif", fontSize: "11px" }}
@@ -610,14 +611,14 @@ export default function ChantierEchantillonBulletin() {
             visibility: visible;
           }
           #bulletin-content {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 200mm;
-            max-width: 200mm;
+            position: fixed !important;
+            left: 5mm !important;
+            top: 0 !important;
+            width: 200mm !important;
+            max-width: 200mm !important;
             min-height: 0 !important;
-            max-height: 284mm;
-            overflow: hidden;
+            max-height: 284mm !important;
+            overflow: hidden !important;
             padding: 0 !important;
             margin: 0 !important;
             font-size: 9px !important;
