@@ -612,7 +612,7 @@ export default function ChantierEchantillonBulletin() {
           }
           #bulletin-content {
             position: fixed !important;
-            left: 5mm !important;
+            left: 0 !important;
             top: 0 !important;
             width: 200mm !important;
             max-width: 200mm !important;
