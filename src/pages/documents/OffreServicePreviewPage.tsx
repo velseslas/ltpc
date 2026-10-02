@@ -141,7 +141,7 @@ const OffreServicePreviewPage = () => {
         />
       </div>
 
-      <div className="flex items-center justify-between mb-6 print:hidden">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 print:hidden">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -152,18 +152,18 @@ const OffreServicePreviewPage = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+            <h1 className="text-lg sm:text-2xl font-display font-bold text-foreground flex items-start sm:items-center gap-3 break-words min-w-0">
+              <div className="w-10 h-10 shrink-0 rounded-lg bg-emerald-500/15 flex items-center justify-center">
                 <Briefcase className="w-5 h-5 text-emerald-500" />
               </div>
               {offre.titre}
             </h1>
             {offre.numero && (
-              <p className="text-sm text-muted-foreground font-mono ml-14">N° {offre.numero}</p>
+              <p className="text-sm text-muted-foreground font-mono ml-0 sm:ml-14">N° {offre.numero}</p>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
