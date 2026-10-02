@@ -125,22 +125,22 @@ const EngagementPreviewPage = () => {
       </div>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 print:hidden">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 print:hidden">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" className="border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50" onClick={() => navigate("/documents/lettres-engagement")}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center">
+            <h1 className="text-lg sm:text-2xl font-display font-bold text-foreground flex items-start sm:items-center gap-3 break-words min-w-0">
+              <div className="w-10 h-10 shrink-0 rounded-lg bg-blue-500/15 flex items-center justify-center">
                 <FileSignature className="w-5 h-5 text-blue-500" />
               </div>
               {engagement.titre}
             </h1>
-            {engagement.numero && <p className="text-sm text-muted-foreground font-mono ml-14">N° {engagement.numero}</p>}
+            {engagement.numero && <p className="text-sm text-muted-foreground font-mono ml-0 sm:ml-14">N° {engagement.numero}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => navigate(`/documents/lettres-engagement/${id}/edit`)} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
             <Pencil className="w-4 h-4" />
             Modifier
