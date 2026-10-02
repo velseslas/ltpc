@@ -197,14 +197,14 @@ const DocumentFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto w-[calc(100vw-2rem)] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Titre - full width */}
-            <div className="col-span-3">
+            <div className="sm:col-span-3">
               <Label>Titre *</Label>
               <Input value={form.titre} onChange={(e) => setForm({ ...form, titre: e.target.value })} required />
             </div>
@@ -298,7 +298,7 @@ const DocumentFormDialog = ({
             )}
 
             {extraFields === "service" && (
-              <div className="col-span-3">
+              <div className="sm:col-span-3">
                 <Label>Description</Label>
                 <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
@@ -327,7 +327,7 @@ const DocumentFormDialog = ({
                   <Label>Date fin</Label>
                   <DateInput value={form.date_fin} onChange={(e) => setForm({ ...form, date_fin: e.target.value })} />
                 </div>
-                <div className="col-span-3">
+                <div className="sm:col-span-3">
                   <Label className="flex items-center gap-1.5">
                     <Upload className="w-3.5 h-3.5 text-primary" />
                     Document scanné
@@ -361,13 +361,13 @@ const DocumentFormDialog = ({
               </>
             )}
 
-            <div className="col-span-3">
+            <div className="sm:col-span-3">
               <Label>Observations</Label>
               <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
             <Button type="submit" disabled={isLoading}>
               {initialData ? "Modifier" : "Créer"}
