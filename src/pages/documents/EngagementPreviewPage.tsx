@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Printer, Download, Share2, FileSignature, ArrowLeft, Pencil } from "lucide-react";
+import { FileSignature, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useEntreprise } from "@/hooks/useEntreprise";
@@ -11,6 +11,7 @@ import { DocumentPageHeader } from "@/components/documents/DocumentPageHeader";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { PrintService } from "@/lib/print/PrintService";
+import { DocumentPreviewActions } from "@/components/documents/DocumentPreviewActions";
 
 // LOT 9 — Template Lettre d'engagement (portrait).
 PrintService.registerTemplate({ id: "engagement-document", title: "Lettre d'engagement", orientation: "portrait" });
@@ -140,21 +141,12 @@ const EngagementPreviewPage = () => {
             {engagement.numero && <p className="text-sm text-muted-foreground font-mono ml-0 sm:ml-14">N° {engagement.numero}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" size="sm" onClick={() => navigate(`/documents/lettres-engagement/${id}/edit`)} className="gap-2 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50">
-            <Pencil className="w-4 h-4" />
-            Modifier
-          </Button>
-          <Button variant="ghost" size="sm" onClick={async () => { await (handleDownload)(); (handlePrint)(); }} className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10">
-            <Printer className="w-4 h-4" />
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Imprimer et télécharger</span>
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleShare} className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/10">
-            <Share2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Partager</span>
-          </Button>
-        </div>
+        <DocumentPreviewActions
+          onEdit={() => navigate(`/documents/lettres-engagement/${id}/edit`)}
+          onPrint={handlePrint}
+          onDownload={handleDownload}
+          onShare={handleShare}
+        />
       </div>
 
       {/* Engagement content */}
