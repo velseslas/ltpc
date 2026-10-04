@@ -2,8 +2,6 @@ import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useContratsDocuments } from "@/hooks/useDocuments";
 import DocumentListPage from "./DocumentListPage";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 
 const Contrats = () => {
   const navigate = useNavigate();

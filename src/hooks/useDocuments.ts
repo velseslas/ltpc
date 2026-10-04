@@ -160,8 +160,6 @@ export function useContratsDocuments() {
       return (data as any[]).map((item: any) => ({
         ...item,
         date_document: item.date_signature,
-        numero: null,
-        observations: null,
         date_debut: item.date_signature,
         date_fin: item.date_expiration,
       }));
