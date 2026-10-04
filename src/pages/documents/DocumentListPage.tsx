@@ -34,7 +34,7 @@ interface DocumentListPageProps {
     update: { mutateAsync: (data: any) => Promise<any>; isPending: boolean };
     remove: { mutateAsync: (id: string) => Promise<any>; isPending: boolean };
   };
-  extraFields?: "engagement" | "service" | "prix" | "attestation";
+  extraFields?: "engagement" | "service" | "prix" | "attestation" | "contract";
   extraColumns?: { header: string; render: (item: any) => React.ReactNode }[];
   onItemClick?: (item: any) => void;
 }
@@ -90,6 +90,11 @@ const DocumentListPage = ({ title, icon: Icon, iconColor, useHook, extraFields, 
       if (extraFields === "prix") {
         payload.montant_ht = data.montant_ht ? parseFloat(data.montant_ht) : null;
         payload.montant_ttc = data.montant_ttc ? parseFloat(data.montant_ttc) : null;
+      }
+      if (extraFields === "contract") {
+        payload.numero = data.numero;
+        payload.representant = data.representant;
+        payload.montant_ht = parseFloat(data.montant_ht || "0");
       }
       if (extraFields === "attestation") {
         payload.date_debut = data.date_debut || null;

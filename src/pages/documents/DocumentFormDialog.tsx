@@ -39,7 +39,7 @@ interface DocumentFormDialogProps {
   onSubmit: (data: DocumentFormData) => void;
   initialData?: any;
   title: string;
-  extraFields?: "engagement" | "service" | "prix" | "attestation";
+  extraFields?: "engagement" | "service" | "prix" | "attestation" | "contract";
   isLoading?: boolean;
   existingItems?: any[];
 }
@@ -49,6 +49,7 @@ const PREFIXES: Record<string, string> = {
   service: "OS",
   prix: "OP",
   attestation: "CT",
+  contract: "CTR",
 };
 
 function generateAutoNumero(prefix: string, existingItems: any[]): string {
@@ -107,6 +108,7 @@ const DocumentFormDialog = ({
     document_nom: "",
   });
   const [uploading, setUploading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -192,8 +194,30 @@ const DocumentFormDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
+    if (extraFields === "contract") {
+      const montantHt = Number(form.montant_ht);
+      if (
+        !form.titre.trim() ||
+        !form.numero.trim() ||
+        !form.date_document ||
+        !form.client_id ||
+        !form.chantier_id ||
+        !form.representant.trim() ||
+        !form.montant_ht ||
+        !Number.isFinite(montantHt) ||
+        montantHt < 0 ||
+        !form.observations.trim()
+      ) {
+        toast.error("Veuillez remplir tous les champs obligatoires");
+        return;
+      }
+    }
     onSubmit(form);
   };
+
+  const contractFieldError = (value: string) =>
+    extraFields === "contract" && submitted && !value.trim();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -206,30 +230,30 @@ const DocumentFormDialog = ({
             {/* Titre - full width */}
             <div className="sm:col-span-3">
               <Label>Titre *</Label>
-              <Input value={form.titre} onChange={(e) => setForm({ ...form, titre: e.target.value })} required />
+              <Input value={form.titre} onChange={(e) => setForm({ ...form, titre: e.target.value })} required className={contractFieldError(form.titre) ? "animate-border-blink" : undefined} />
             </div>
 
             {/* Numéro auto */}
             <div>
               <Label className="flex items-center gap-1.5">
                 <Hash className="w-3.5 h-3.5 text-primary" />
-                Numéro
+                Numéro {extraFields === "contract" && "*"}
               </Label>
               <Input
                 value={form.numero}
                 readOnly
-                className="bg-muted/50 font-mono text-sm cursor-default"
+                className={`bg-muted/50 font-mono text-sm cursor-default ${contractFieldError(form.numero) ? "animate-border-blink" : ""}`}
               />
             </div>
 
             {/* Date */}
             <div>
-              <Label>Date</Label>
-              <DateInput value={form.date_document} onChange={(e) => setForm({ ...form, date_document: e.target.value })} />
+              <Label>Date {extraFields === "contract" && "*"}</Label>
+              <DateInput value={form.date_document} onChange={(e) => setForm({ ...form, date_document: e.target.value })} required className={contractFieldError(form.date_document) ? "animate-border-blink" : undefined} />
             </div>
 
             {/* Statut */}
-            <div>
+            {extraFields !== "contract" && <div>
               <Label>Statut</Label>
               <Select value={form.statut} onValueChange={(v) => setForm({ ...form, statut: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -240,16 +264,16 @@ const DocumentFormDialog = ({
                   <SelectItem value="refusé">Refusé</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div>}
 
             {/* Entreprise (Client) */}
             <div>
               <Label className="flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-primary" />
-                Entreprise
+                Entreprise {extraFields === "contract" && "*"}
               </Label>
               <Select value={form.client_id} onValueChange={(v) => setForm({ ...form, client_id: v, chantier_id: "" })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={contractFieldError(form.client_id) ? "animate-border-blink" : undefined}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>
                   {clients?.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
@@ -262,10 +286,10 @@ const DocumentFormDialog = ({
             <div>
               <Label className="flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-primary" />
-                Chantier
+                Chantier {extraFields === "contract" && "*"}
               </Label>
               <Select value={form.chantier_id} onValueChange={(v) => setForm({ ...form, chantier_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={contractFieldError(form.chantier_id) ? "animate-border-blink" : undefined}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>
                   {filteredChantiers?.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nom}</SelectItem>
@@ -278,10 +302,10 @@ const DocumentFormDialog = ({
             <div>
               <Label className="flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-primary" />
-                Représentant
+                Représentant {extraFields === "contract" && "*"}
               </Label>
               <Select value={form.representant} onValueChange={(v) => setForm({ ...form, representant: v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                <SelectTrigger className={contractFieldError(form.representant) ? "animate-border-blink" : undefined}><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                 <SelectContent>
                   {representants.map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
@@ -315,6 +339,21 @@ const DocumentFormDialog = ({
                   <Input type="number" step="0.01" value={form.montant_ttc} onChange={(e) => setForm({ ...form, montant_ttc: e.target.value })} />
                 </div>
               </>
+            )}
+
+            {extraFields === "contract" && (
+              <div>
+                <Label>Montant HT (DA) *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.montant_ht}
+                  onChange={(e) => setForm({ ...form, montant_ht: e.target.value })}
+                  required
+                  className={contractFieldError(form.montant_ht) ? "animate-border-blink" : undefined}
+                />
+              </div>
             )}
 
             {extraFields === "attestation" && (
@@ -362,8 +401,8 @@ const DocumentFormDialog = ({
             )}
 
             <div className="sm:col-span-3">
-              <Label>Observations</Label>
-              <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
+              <Label>Observations {extraFields === "contract" && "*"}</Label>
+              <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} required={extraFields === "contract"} className={contractFieldError(form.observations) ? "animate-border-blink" : undefined} />
             </div>
           </div>
 
