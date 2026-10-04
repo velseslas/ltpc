@@ -2,8 +2,6 @@ import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useContratsDocuments } from "@/hooks/useDocuments";
 import DocumentListPage from "./DocumentListPage";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 
 const Contrats = () => {
   const navigate = useNavigate();
@@ -14,14 +12,14 @@ const Contrats = () => {
       icon={FileText}
       iconColor="text-rose-500"
       useHook={useContratsDocuments}
-      extraFields="attestation"
+      extraFields="contract"
       extraColumns={[
         {
-          header: "Période",
+          header: "Montant HT",
           render: (item: any) => {
-            const debut = item.date_debut ? format(new Date(item.date_debut), "dd/MM/yy", { locale: fr }) : "";
-            const fin = item.date_fin ? format(new Date(item.date_fin), "dd/MM/yy", { locale: fr }) : "";
-            return debut || fin ? `${debut} → ${fin}` : "—";
+            return item.montant_ht != null
+              ? `${Number(item.montant_ht).toLocaleString("fr-DZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DA`
+              : "—";
           },
         },
       ]}

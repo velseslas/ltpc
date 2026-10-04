@@ -160,8 +160,6 @@ export function useContratsDocuments() {
       return (data as any[]).map((item: any) => ({
         ...item,
         date_document: item.date_signature,
-        numero: null,
-        observations: null,
         date_debut: item.date_signature,
         date_fin: item.date_expiration,
       }));
@@ -169,14 +167,17 @@ export function useContratsDocuments() {
   });
 
   const create = useMutation({
-    mutationFn: async (doc: { titre: string; client_id?: string | null; chantier_id?: string | null; statut?: string; date_debut?: string | null; date_document?: string | null; date_fin?: string | null }) => {
+    mutationFn: async (doc: { titre: string; numero?: string | null; client_id?: string | null; chantier_id?: string | null; statut?: string; date_document?: string | null; representant?: string | null; montant_ht?: number | null; observations?: string | null }) => {
       const { data, error } = await repo.insert({
         titre: doc.titre,
         client_id: doc.client_id || null,
         chantier_id: doc.chantier_id || null,
         statut: doc.statut || "brouillon",
-        date_signature: doc.date_debut || doc.date_document || null,
-        date_expiration: doc.date_fin || null,
+        date_signature: doc.date_document || null,
+        numero: doc.numero || null,
+        representant: doc.representant || null,
+        montant_ht: doc.montant_ht ?? null,
+        observations: doc.observations || null,
       });
       if (error) throw new Error(error);
       return data[0];
@@ -188,14 +189,17 @@ export function useContratsDocuments() {
   });
 
   const update = useMutation({
-    mutationFn: async ({ id, ...rest }: { id: string; titre?: string; client_id?: string | null; chantier_id?: string | null; statut?: string; date_debut?: string | null; date_document?: string | null; date_fin?: string | null }) => {
+    mutationFn: async ({ id, ...rest }: { id: string; titre?: string; numero?: string | null; client_id?: string | null; chantier_id?: string | null; statut?: string; date_document?: string | null; representant?: string | null; montant_ht?: number | null; observations?: string | null }) => {
       const { data, error } = await repo.update({
         titre: rest.titre,
         client_id: rest.client_id || null,
         chantier_id: rest.chantier_id || null,
         statut: rest.statut,
-        date_signature: rest.date_debut || rest.date_document || null,
-        date_expiration: rest.date_fin || null,
+        date_signature: rest.date_document || null,
+        numero: rest.numero || null,
+        representant: rest.representant || null,
+        montant_ht: rest.montant_ht ?? null,
+        observations: rest.observations || null,
       }, { id });
       if (error) throw new Error(error);
       return data[0];
