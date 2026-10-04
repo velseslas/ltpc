@@ -1066,6 +1066,10 @@ export type Database = {
           document_nom: string | null
           document_url: string | null
           id: string
+          montant_ht: number | null
+          numero: string | null
+          observations: string | null
+          representant: string | null
           statut: string
           titre: string
           updated_at: string
@@ -1079,6 +1083,10 @@ export type Database = {
           document_nom?: string | null
           document_url?: string | null
           id?: string
+          montant_ht?: number | null
+          numero?: string | null
+          observations?: string | null
+          representant?: string | null
           statut?: string
           titre: string
           updated_at?: string
@@ -1092,6 +1100,10 @@ export type Database = {
           document_nom?: string | null
           document_url?: string | null
           id?: string
+          montant_ht?: number | null
+          numero?: string | null
+          observations?: string | null
+          representant?: string | null
           statut?: string
           titre?: string
           updated_at?: string
