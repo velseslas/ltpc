@@ -8,6 +8,13 @@
       "when": 1791114380286,
       "tag": "0000_add_contract_required_details",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791114478097,
+      "tag": "0001_restrict_moe_and_operational_reads",
+      "breakpoints": true
     }
   ]
 }
