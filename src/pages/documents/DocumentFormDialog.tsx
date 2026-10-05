@@ -108,7 +108,6 @@ const DocumentFormDialog = ({
     document_nom: "",
   });
   const [uploading, setUploading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -194,7 +193,6 @@ const DocumentFormDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
     if (extraFields === "contract") {
       const montantHt = Number(form.montant_ht);
       if (
