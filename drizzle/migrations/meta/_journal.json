@@ -15,6 +15,13 @@
       "when": 1791114478097,
       "tag": "0001_restrict_moe_and_operational_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791160054943,
+      "tag": "0002_scope_read_policies_active_users",
+      "breakpoints": true
     }
   ]
 }

@@ -108,7 +108,6 @@ const DocumentFormDialog = ({
     document_nom: "",
   });
   const [uploading, setUploading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -194,7 +193,6 @@ const DocumentFormDialog = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
     if (extraFields === "contract") {
       const montantHt = Number(form.montant_ht);
       if (
@@ -206,8 +204,7 @@ const DocumentFormDialog = ({
         !form.representant.trim() ||
         !form.montant_ht ||
         !Number.isFinite(montantHt) ||
-        montantHt < 0 ||
-        !form.observations.trim()
+        montantHt < 0
       ) {
         toast.error("Veuillez remplir tous les champs obligatoires");
         return;
@@ -217,7 +214,7 @@ const DocumentFormDialog = ({
   };
 
   const contractFieldError = (value: string) =>
-    extraFields === "contract" && submitted && !value.trim();
+    extraFields === "contract" && !value.trim();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -401,8 +398,8 @@ const DocumentFormDialog = ({
             )}
 
             <div className="sm:col-span-3">
-              <Label>Observations {extraFields === "contract" && "*"}</Label>
-              <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} required={extraFields === "contract"} className={contractFieldError(form.observations) ? "animate-border-blink" : undefined} />
+              <Label>Observations</Label>
+              <Textarea value={form.observations} onChange={(e) => setForm({ ...form, observations: e.target.value })} />
             </div>
           </div>
 
