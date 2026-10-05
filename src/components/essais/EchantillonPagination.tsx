@@ -29,40 +29,18 @@ export function EchantillonPagination({
   if (totalItems === 0) return null;
 
   const getVisiblePages = () => {
-    const pages: (number | "ellipsis")[] = [];
-    const maxVisible = 5;
-
+    // Afficher les numéros de page 1 à 10 sans ellipsis (jamais "1 2 3 ... 6").
+    const maxVisible = 10;
     if (totalPages <= maxVisible) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // Always show first page
-    pages.push(1);
+    // Fenêtre glissante de 10 pages centrée sur la page courante.
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    const end = Math.min(totalPages, start + maxVisible - 1);
+    start = Math.max(1, end - maxVisible + 1);
 
-    if (currentPage > 3) {
-      pages.push("ellipsis");
-    }
-
-    // Show pages around current
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-
-    for (let i = start; i <= end; i++) {
-      if (!pages.includes(i)) {
-        pages.push(i);
-      }
-    }
-
-    if (currentPage < totalPages - 2) {
-      pages.push("ellipsis");
-    }
-
-    // Always show last page
-    if (!pages.includes(totalPages)) {
-      pages.push(totalPages);
-    }
-
-    return pages;
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
   const visiblePages = getVisiblePages();
