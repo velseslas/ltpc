@@ -151,6 +151,30 @@ const ContratEditPage = () => {
         <code className="bg-secondary px-1.5 py-0.5 rounded text-xs ml-1">{"{{labName}}"}</code> pour insérer dynamiquement les noms.
       </p>
 
+      {/* Informations du document */}
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="font-display font-semibold text-foreground">Informations du contrat</h2>
+          <p className="text-sm text-muted-foreground">
+            {contrat.numero ? `${contrat.numero} · ` : ""}{contrat.titre}
+          </p>
+        </div>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => setFormOpen(true)}>
+          <Pencil className="w-4 h-4" />
+          Modifier les informations
+        </Button>
+      </div>
+
+      <DocumentFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        onSubmit={handleDocSubmit}
+        initialData={contrat}
+        title="Modifier le contrat"
+        extraFields="contract"
+        isLoading={update.isPending}
+      />
+
       {/* Articles */}
       <div className="space-y-6">
         {articles.map((article) => (
