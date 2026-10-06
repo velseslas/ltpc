@@ -114,7 +114,7 @@ const DocumentFormDialog = ({
     if (initialData) {
       setForm({
         titre: initialData.titre || "",
-        numero: initialData.numero || "",
+        numero: initialData.numero || autoNumero,
         date_document: initialData.date_document || new Date().toISOString().split("T")[0],
         client_id: initialData.client_id || "",
         chantier_id: initialData.chantier_id || "",
