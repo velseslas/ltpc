@@ -150,6 +150,30 @@ const OffreServiceEditPage = () => {
         dynamiquement les noms.
       </p>
 
+      {/* Informations du document */}
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="font-display font-semibold text-foreground">Informations de l'offre</h2>
+          <p className="text-sm text-muted-foreground">
+            {offre.numero ? `${offre.numero} · ` : ""}{offre.titre}
+          </p>
+        </div>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => setFormOpen(true)}>
+          <Pencil className="w-4 h-4" />
+          Modifier les informations
+        </Button>
+      </div>
+
+      <DocumentFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        onSubmit={handleDocSubmit}
+        initialData={offre}
+        title="Modifier l'offre de service"
+        extraFields="service"
+        isLoading={update.isPending}
+      />
+
       <div className="space-y-6">
         {articles.map((article) => (
           <div
