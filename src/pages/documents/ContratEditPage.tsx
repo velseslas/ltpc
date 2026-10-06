@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, FileText, Loader2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useContratsDocuments } from "@/hooks/useDocuments";
 import { useContratArticles, useUpsertContratArticles, DEFAULT_ARTICLES } from "@/hooks/useContratArticles";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import DocumentFormDialog, { type DocumentFormData } from "./DocumentFormDialog";
 
 interface ArticleEdit {
   number: number;
@@ -19,7 +20,7 @@ interface ArticleEdit {
 const ContratEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { query } = useContratsDocuments();
+  const { query, update } = useContratsDocuments();
   const { data: savedArticles, isLoading: loadingArticles } = useContratArticles(id || "");
   const upsertArticles = useUpsertContratArticles();
 
@@ -27,6 +28,29 @@ const ContratEditPage = () => {
 
   const [articles, setArticles] = useState<ArticleEdit[]>([]);
   const [initialized, setInitialized] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const handleDocSubmit = async (data: DocumentFormData) => {
+    if (!id) return;
+    try {
+      await update.mutateAsync({
+        id,
+        titre: data.titre,
+        numero: data.numero,
+        date_document: data.date_document,
+        client_id: data.client_id || null,
+        chantier_id: data.chantier_id || null,
+        observations: data.observations || null,
+        statut: data.statut,
+        representant: data.representant,
+        montant_ht: parseFloat(data.montant_ht || "0"),
+      });
+      toast.success("Contrat modifié avec succès");
+      setFormOpen(false);
+    } catch {
+      toast.error("Erreur lors de l'enregistrement");
+    }
+  };
 
   useEffect(() => {
     if (initialized) return;
@@ -126,6 +150,30 @@ const ContratEditPage = () => {
         <code className="bg-secondary px-1.5 py-0.5 rounded text-xs ml-1">{"{{chantierName}}"}</code>, 
         <code className="bg-secondary px-1.5 py-0.5 rounded text-xs ml-1">{"{{labName}}"}</code> pour insérer dynamiquement les noms.
       </p>
+
+      {/* Informations du document */}
+      <div className="rounded-xl bg-card border border-border p-4 sm:p-6 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="font-display font-semibold text-foreground">Informations du contrat</h2>
+          <p className="text-sm text-muted-foreground">
+            {contrat.numero ? `${contrat.numero} · ` : ""}{contrat.titre}
+          </p>
+        </div>
+        <Button variant="outline" className="gap-2 shrink-0" onClick={() => setFormOpen(true)}>
+          <Pencil className="w-4 h-4" />
+          Modifier les informations
+        </Button>
+      </div>
+
+      <DocumentFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        onSubmit={handleDocSubmit}
+        initialData={contrat}
+        title="Modifier le contrat"
+        extraFields="contract"
+        isLoading={update.isPending}
+      />
 
       {/* Articles */}
       <div className="space-y-6">
