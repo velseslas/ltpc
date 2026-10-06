@@ -20,7 +20,7 @@ interface ArticleEdit {
 const ContratEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { query } = useContratsDocuments();
+  const { query, update } = useContratsDocuments();
   const { data: savedArticles, isLoading: loadingArticles } = useContratArticles(id || "");
   const upsertArticles = useUpsertContratArticles();
 
@@ -28,6 +28,29 @@ const ContratEditPage = () => {
 
   const [articles, setArticles] = useState<ArticleEdit[]>([]);
   const [initialized, setInitialized] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const handleDocSubmit = async (data: DocumentFormData) => {
+    if (!id) return;
+    try {
+      await update.mutateAsync({
+        id,
+        titre: data.titre,
+        numero: data.numero,
+        date_document: data.date_document,
+        client_id: data.client_id || null,
+        chantier_id: data.chantier_id || null,
+        observations: data.observations || null,
+        statut: data.statut,
+        representant: data.representant,
+        montant_ht: parseFloat(data.montant_ht || "0"),
+      });
+      toast.success("Contrat modifié avec succès");
+      setFormOpen(false);
+    } catch {
+      toast.error("Erreur lors de l'enregistrement");
+    }
+  };
 
   useEffect(() => {
     if (initialized) return;
