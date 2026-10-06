@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, FileText, Loader2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useContratsDocuments } from "@/hooks/useDocuments";
 import { useContratArticles, useUpsertContratArticles, DEFAULT_ARTICLES } from "@/hooks/useContratArticles";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import DocumentFormDialog, { type DocumentFormData } from "./DocumentFormDialog";
 
 interface ArticleEdit {
   number: number;
