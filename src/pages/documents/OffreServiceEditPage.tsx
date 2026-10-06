@@ -32,6 +32,28 @@ const OffreServiceEditPage = () => {
 
   const [articles, setArticles] = useState<ArticleEdit[]>([]);
   const [initialized, setInitialized] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const handleDocSubmit = async (data: DocumentFormData) => {
+    if (!id) return;
+    try {
+      await update.mutateAsync({
+        id,
+        titre: data.titre,
+        numero: data.numero || null,
+        date_document: data.date_document,
+        client_id: data.client_id || null,
+        chantier_id: data.chantier_id || null,
+        observations: data.observations || null,
+        statut: data.statut,
+        description: data.description || null,
+      });
+      toast.success("Offre de service modifiée avec succès");
+      setFormOpen(false);
+    } catch {
+      toast.error("Erreur lors de l'enregistrement");
+    }
+  };
 
   useEffect(() => {
     if (initialized) return;
