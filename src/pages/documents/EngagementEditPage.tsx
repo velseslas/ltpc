@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, FileSignature, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, FileSignature, Loader2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useLettresEngagement } from "@/hooks/useDocuments";
 import { useEngagementArticles, useUpsertEngagementArticles, DEFAULT_ENGAGEMENT_ARTICLES } from "@/hooks/useEngagementArticles";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import DocumentFormDialog, { type DocumentFormData } from "./DocumentFormDialog";
 
 interface ArticleEdit {
   number: number;
@@ -19,7 +20,7 @@ interface ArticleEdit {
 const EngagementEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { query } = useLettresEngagement();
+  const { query, update } = useLettresEngagement();
   const { data: savedArticles, isLoading: loadingArticles } = useEngagementArticles(id || "");
   const upsertArticles = useUpsertEngagementArticles();
 
@@ -27,6 +28,28 @@ const EngagementEditPage = () => {
 
   const [articles, setArticles] = useState<ArticleEdit[]>([]);
   const [initialized, setInitialized] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const handleDocSubmit = async (data: DocumentFormData) => {
+    if (!id) return;
+    try {
+      await update.mutateAsync({
+        id,
+        titre: data.titre,
+        numero: data.numero || null,
+        date_document: data.date_document,
+        client_id: data.client_id || null,
+        chantier_id: data.chantier_id || null,
+        observations: data.observations || null,
+        statut: data.statut,
+        montant: data.montant ? parseFloat(data.montant) : null,
+      });
+      toast.success("Lettre d'engagement modifiée avec succès");
+      setFormOpen(false);
+    } catch {
+      toast.error("Erreur lors de l'enregistrement");
+    }
+  };
 
   useEffect(() => {
     if (initialized) return;
