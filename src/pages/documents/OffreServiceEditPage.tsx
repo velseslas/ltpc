@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Briefcase, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Briefcase, Loader2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   DEFAULT_OFFRE_ARTICLES,
 } from "@/hooks/useOffreServiceArticles";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
+import DocumentFormDialog, { type DocumentFormData } from "./DocumentFormDialog";
 
 interface ArticleEdit {
   number: number;
@@ -23,7 +24,7 @@ interface ArticleEdit {
 const OffreServiceEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { query } = useOffresService();
+  const { query, update } = useOffresService();
   const { data: savedArticles, isLoading: loadingArticles } = useOffreServiceArticles(id || "");
   const upsertArticles = useUpsertOffreServiceArticles();
 
